@@ -1,0 +1,181 @@
+# M07 任务、会话、交互控制与恢复设计
+
+更新日期：2026-10-13。本文是当前功能基线，涵盖桌面节点入口和 CLI/Core 兼容入口。它们共享“保留原执行、查询原回执”的原则；不同原生适配器的能力与存储格式不能假设完全一致。
+
+## 1. 功能目标与验收口径
+
+用户发出需求后，应能看到真实执行状态、回答、需要人工处理的权限或表单，以及断线后原任务的结果。继续会话应接续原生会话；无法确认时显示未知，不重复执行来获得一个看似成功的答案。
+
+| 功能 ID | 可验收功能 | 当前状态 |
+| --- | --- | --- |
+| M07-F01 | 向已接入节点提交需求，保存稳定请求 ID 和一轮任务 | 已实现；Claude/OpenCode 真实验证，Codex 依原生环境 |
+| M07-F02 | 在上一轮结束后续聊，保持来源节点及原生会话 | 已实现；Claude/OpenCode 已验证，WSL Codex 原生续聊未通过 |
+| M07-F03 | 展示真实状态、增量输出、最终回答和历史轮次 | 已实现；底层增量、前端快照观察，非浏览器直连原工具 |
+| M07-F04 | 查询原权限/表单，授权或填写后用原交互 ID 回复 | 已实现但分适配器；不把所有工具能力声明为一致 |
+| M07-F05 | 显式取消原任务，分别显示操作回执和任务终态 | 已实现；确认回执不等同原生执行已退出 |
+| M07-F06 | 同 ID 同内容去重；内容改变拒绝；未知提交只查询 | 已实现；普通请求及远端 daemon 十次重复受控验证 |
+| M07-F07 | 读取原任务、回执、会话；重启和断线后只读对账 | 已实现；无绑定保留 unknown 和占用，不补发 Prompt |
+
+## 2. 对象和身份
+
+| 对象 / ID | 用途 | 约束 |
+| --- | --- | --- |
+| requestId | 一次新需求或续聊的业务幂等键 | 原内容保持不变；桌面按来源机器隔离，Core 按 owner 隔离 |
+| conversationId | 用户看见的会话 | 绑定 owner、targetAgent、目录/配置与原生会话 |
+| taskId | 会话中的一轮任务 | 每轮新任务，复用同请求 ID 返回原任务 |
+| executionId | 一轮的执行身份 | 事件、原生绑定、控制操作必须与它一致 |
+| native Session / Message | 原工具真正创建的会话和本轮输入 | 不能为恢复换一个 Session；每轮结果与本轮输入隔离 |
+| operationId | 权限回复、表单回复、取消等控制的幂等键 | 与原 taskId、executionId 和交互内容绑定 |
+| waiting.requestIds | 原生尚待处理的权限或输入请求 | 不是新的业务 requestId；必须查询原 pending 后处理 |
+
+中央视图为后端对象添加 `machineId::` 前缀，用于路由；原生 Session ID 不因此改变。节点和上下文身份见 [M03](../03-machine-network/design.md)。
+
+## 3. 当前状态机
+
+Core 的任务状态只有下列七种。`waiting` 是任务上的附加对象，通常任务仍为 running；取消进度通过操作回执表示，没有 `waiting_input` 或 `cancel_requested` 状态枚举。
+
+| 状态 | 人类含义 | 是否保留执行占用 |
+| --- | --- | --- |
+| queued | 已持久化，准备发送 | 是 |
+| accepted | 执行端已接收 | 是 |
+| running | 驱动已开始，可能等待权限/输入 | 是 |
+| succeeded | 已有本轮最终结果 | 否 |
+| failed | 已有明确执行前拒绝或执行失败 | 否 |
+| cancelled | 已有本轮取消终态证据 | 否 |
+| unknown | 缺少足够证据确认结果 | 是 |
+
+```mermaid
+stateDiagram-v2
+    [*] --> queued: 创建任务落盘
+    queued --> accepted: accepted 事件
+    accepted --> running: started 事件
+    queued --> failed: 明确执行前失败
+    accepted --> failed: 明确执行前失败
+    running --> running: 输出 / 原生绑定 / waiting
+    running --> succeeded: completed 事件
+    running --> failed: 明确执行失败
+    running --> cancelled: 原生取消证据
+    queued --> unknown: 已尝试发送但结果不明
+    accepted --> unknown: 观察或来源中断
+    running --> unknown: 观察或来源中断
+    unknown --> running: 核对原绑定后恢复观察
+```
+
+终态不能被后续事件改写。普通 unknown 不能直接随意改成 succeeded；Core 对经证实的传输中断会用 lastKnownStatus 接续原事件，对主动对账使用原绑定 `reconciled` 事件。无法证实原执行的记录继续 unknown。
+
+## 4. 新任务和续聊流程
+
+```mermaid
+sequenceDiagram
+    participant U as 用户界面 / CLI
+    participant C as 中央业务入口
+    participant H as 来源机器后台
+    participant N as 原生工具
+    U->>C: 稳定 requestId + 需求 + 节点
+    C->>C: 校验来源、占用，保存提交意图
+    C->>H: 原内容与原请求 ID
+    H->>H: 记录收据 / 执行身份
+    H->>N: 一次原生调用
+    N-->>H: Session / 本轮事件 / 回答
+    H-->>C: 原任务与增量事实
+    C-->>U: 状态、结果或明确未知
+```
+
+新会话按节点、真实目录和直接/协作模式创建或复用私有上下文。用户未指定目录时后台创建默认目录；上下文不覆盖用户原生模型和供应商。
+
+续聊先读取原 conversation，并验证节点及后端归属。Core 还核对 owner、resourceKey、配置 fingerprint、上一轮终态和 native 绑定。前一轮未知或忙碌，禁止续聊。验证连接的任务不作为普通工作会话续聊。
+
+Core 当前会话轮次上限为 1001；该上限是兼容核心实现约束，不应假设所有原生适配器都有同样上限。
+
+历史上下文曾覆盖模型时，节点入口保留记录并返回 `CONVERSATION_CONFIG`，要求新建沿用原工具配置的会话；不得默默修改旧会话绑定。
+
+## 5. 流式输出与最终结果
+
+原生适配器获取事件或进程标准输出，后台累计输出并保存任务记录。桌面 UI 读取聚合快照和任务详情，当前定时刷新约 1.5 秒；它没有直接订阅原工具的公共流。
+
+因此“支持流式”表示执行期间可观察增量事实，不保证每个 token 立即到界面。最终 `result.message` 与过程日志分别呈现，不应该把逐 token 碎片当成独立完整回答。
+
+Core 事件按 executionId 和连续 seq 接收。重复同 seq 同内容不重复记账；同 seq 内容变化拒绝，跨执行事件拒绝。文本裁剪按 UTF-8 字节且不拆字符，并标记 truncated；超出保留量不能伪装为完整输出。
+
+## 6. 权限、表单和取消
+
+| 操作 | 前置校验 | 实际语义 |
+| --- | --- | --- |
+| pending | 原任务仍绑定原生执行 | 读取真实尚待处理的权限与表单 |
+| reply permission | 原 task/execution、原 requestId、有效 decision | 当前桥接支持 reject 或 once；需要用户真实授权 |
+| reply form | 同上，字段类型与必填项校验 | 发送用户填写的回答，不能自动编造缺失信息 |
+| cancel | 原 task/execution、稳定 operationId | 请求中断本轮；继续观察才能知道终态 |
+| operation | 原任务与原 operationId | 查询已经保存的控制收据，不重新发控制动作 |
+
+操作回执状态为 `attempted`、`confirmed`、`unknown`、`rejected`。Core 重启会将未完成的 attempted 转为 unknown。
+
+同一原生等待请求已经被另一 operationId 占用时，返回 `REQUEST_CLAIMED`。重复原 operationId 同内容只读原收据，改内容返回 `OPERATION_CONFLICT`。一个 execution 的取消不能通过更换 ID 重复发出。
+
+confirmed 表示原控制 API 已给出有效回应；任务 cancelled 需要中断终态证据。原任务已经自然完成时取消回执也可能 confirmed，而任务保持原 succeeded。Codex 取消尤其需要观察原进程退出。
+
+## 7. 持久化与一致性
+
+| 记录 | 位置 / 所有者 | 目的 |
+| --- | --- | --- |
+| `agent-network.json.requests` | 中央 Coordinator | 请求 fingerprint、dispatched、节点/上下文/任务绑定 |
+| `pending.json` | 中央 Coordinator | 桌面有副作用操作的原输入、来源与确认状态 |
+| `hub.sqlite` | Core Hub | conversations、tasks、events、interactions |
+| `edge.sqlite` | Core Edge | executions、payload、invocations、native_bindings、事件 outbox、interactions |
+| `daemon-receipts.json` / `daemon-events.jsonl` | 远端 Linux daemon | SSH 原操作回执、顺序事件与重连读取 |
+| 原生适配器任务记录 | 各机器上下文目录 | Claude/Codex 等真实进程、会话与本轮记录 |
+
+Core SQLite 使用 WAL、FULL 同步、事务和独立的服务生命周期锁。任务与会话创建在同一事务中；Edge 在驱动调用前保存执行身份、输入和 invocation 标记。写失败不能返回成功 ACK。
+
+这提供“已有证据不重放”的保证，不宣称跨原生进程、网络和多数据库的全局事务恰好一次。极端断点缺少证据时允许保持未知，用保守占用避免二次执行。
+
+## 8. 查询与恢复示例
+
+```json
+{"method":"nodeRequest","params":{"op":"continue","nodeId":"node-demo","conversationId":"local-demo::conv-001","requestId":"followup-001","message":"继续解释第二点"}}
+```
+
+```json
+{"method":"ipc","params":{"op":"request","machineId":"local-demo","requestId":"followup-001"}}
+```
+
+```json
+{"method":"ipc","params":{"op":"operation","machineId":"local-demo","taskId":"local-demo::task-002","operationId":"cancel-001"}}
+```
+
+响应超时后，先用原 requestId / operationId 到原机器查询。其他机器的同名回执不解除本记录的不确定。仅 NOT_FOUND 不足以证明原动作未执行。
+
+关闭观察、关闭窗口、断开机器连接和取消原生任务是不同操作。窗口关闭后中央继续运行；SSH 断开后远端 daemon 继续持有任务。显式停止 Core controller 会停止其拥有的 Hub/Edge/托管原生服务，不能承诺与断开 SSH 相同的生存语义。
+
+## 9. 已知限制与后续设计
+
+- Windows Codex 默认模型被账号拒绝的环境不能成功推理；WSL Codex `thread/resume` 的 `list_turns` 不支持，续聊不能通过桥接补齐。
+- Claude 表单存在原生既有限制，Codex 代答表单未完整适配；权限/表单界面按实际能力和真实错误呈现。
+- I06A Linux 两轮真实测试证明同桥接会话续聊，原始 JSON 没保留两轮 native Session ID 对比；不能据此宣称独立核验原生 ID 相等。
+- 通用 Webhook、外部任意 JSONL 工具和其他 Harness 不是当前已完成任务入口。
+
+## 10. 实现入口与共同维护
+
+状态与类型从 [core.ts](../../../src/core.ts) 开始，Core 数据规则见 [hub-store.ts](../../../src/storage/hub-store.ts)、[edge-journal.ts](../../../src/storage/edge-journal.ts)、[operations.ts](../../../src/storage/operations.ts)。桌面意图、恢复见 [agent-network.cjs](../../../desktop/electron/agent-network.cjs)、[pending-journal.cjs](../../../desktop/electron/pending-journal.cjs)、[coordinator-service.cjs](../../../desktop/electron/coordinator-service.cjs)。各原生能力见 [M06](../06-native-adapters/design.md)。
+
+修改状态、请求去重、续聊、原生绑定或恢复时，同时更新本文、[测试报告](test-report.md)与对应迭代设计/验收。新增状态不能只改 UI 文案；必须核对存储、事件、原生适配器、占用释放和历史兼容。
+
+历史依据：[I03B 会话与恢复](../../iterations/I03B/design.md)、[I04G 原请求恢复](../../iterations/I04G/report.md)、[I05 验收](../../iterations/I05/acceptance.md)、[I06A 进度](../../iterations/I06/progress.md)。
+
+## 2026-10-12：6A 收尾
+
+OpenCode 的 Hub 会话列表和详情增加计算字段 canContinue 与 kind。可续聊要求：已持久绑定原生 Session、上一轮为 succeeded/failed/cancelled、不是验证任务、未达到轮次上限、原配置指纹与目录资源归属仍匹配当前连接。字段只用于告知界面，提交续问仍走原有后端校验。
+
+字段从持久记录计算，不新增数据库记录，也不因为查询而创建原生会话。等待、unknown、无绑定和配置改变不会被显示为可继续。之前原生续聊接口存在，但会话 API 缺少字段，导致 NetworkApp 的发送按钮一直禁用；本次修复的是这一真实使用缺陷。
+
+## I06B 原父与节点呈现
+
+协作 scope 生命周期仍跟随原父 Task。换主/清主不会迁移、重发或取消已委派子任务；活跃原父仍按其 requestId/taskId/conversationId 和来源账本读取、回复或取消旧子，新主不能接管。父终态后该 MCP scope 失效，桌面按原来源核对；同会话后续轮次不自动继承另一个父任务的子权限，详见 [M08](../08-collaboration/design.md)。
+
+图中 uncertain/waiting/lastError 是原 Task 的投影；unknown 仍保持节点占用。布局/授权保存及其 confirmed 收据不改 Task.status、原执行 ID 或执行次数。
+
+
+alpha.6 原请求恢复接受原 daemon 的持久执行前 AGENT_UNHEALTHY 拒绝，核对为 rejected；仅表示该需求没有被接收，不产生任务失败/取消。原读取缺收据或网络不确定仍 unknown，不释放占位。[恢复实现](../../../desktop/electron/pending-journal.cjs)。
+
+## alpha.9 节点管理与历史续聊
+
+断开/移除只改变 Bridge 接入与可见性，保留请求/任务/会话/上下文/原生 Session 及原来源，原任务仍可读。新 submit/continue/verify 需节点已接入，旧 IPC 同样检查，并在刚导入实例归属后再次核对。界面历史名称从包含 removed 的快照目录读取，不能改指同机器另一同名节点；断开/移除会话暂停续问，原机器重新接入后再按原绑定校验。运行/等待/unknown/原控制回应未确认时禁止节点变更，不把 confirmed 元数据当作取消。详见 [当次节点管理](../../iterations/I06/node-management.md)。

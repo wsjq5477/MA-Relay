@@ -1,0 +1,105 @@
+{
+  "name": "agentbridge-desktop",
+  "version": "0.6.0-alpha.9",
+  "private": true,
+  "type": "module",
+  "description": "AgentBridge Windows desktop dashboard",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
+    "start": "electron .",
+    "pack:win": "node scripts/stage-bridge.cjs && electron-builder --win --x64 --dir && node scripts/verify-package.cjs",
+    "dist:win": "node scripts/stage-bridge.cjs && electron-builder --win portable --x64 && node scripts/verify-package.cjs --portable",
+    "test": "node --test tests/*.test.cjs"
+  },
+  "dependencies": {
+    "@xyflow/react": "12.12.0",
+    "lucide-react": "^0.577.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
+    "prettier": "^3.9.9",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.4"
+  },
+  "build": {
+    "appId": "dev.agentbridge.desktop",
+    "productName": "AgentBridge",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".bridge-runtime/desktop/electron",
+        "to": "bridge/desktop/electron",
+        "filter": [
+          "**/*.cjs"
+        ]
+      },
+      {
+        "from": "../dist",
+        "to": "bridge/dist"
+      },
+      {
+        "from": ".bridge-runtime/node_modules",
+        "to": "bridge/node_modules",
+        "filter": [
+          "**/*",
+          "!**/.cache/**/*"
+        ]
+      },
+      {
+        "from": "../package.json",
+        "to": "bridge/package.json"
+      },
+      {
+        "from": "electron/bootstrap.sh",
+        "to": "bridge/bootstrap.sh"
+      },
+      {
+        "from": ".linux-package",
+        "to": "linux-package",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": ".linux-package/node_modules",
+        "to": "linux-package/node_modules",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": true,
+    "portable": {
+      "unpackDirName": true
+    },
+    "win": {
+      "target": "portable",
+      "signExecutable": false,
+      "icon": "assets/icon.ico",
+      "artifactName": "AgentBridge-${version}-Windows-x64.${ext}"
+    },
+    "compression": "normal"
+  },
+  "overrides": {
+    "@electron/get": "^5.1.0"
+  },
+  "author": "AgentBridge"
+}

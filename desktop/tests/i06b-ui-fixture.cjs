@@ -1,0 +1,50 @@
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const {AgentNetwork}=require('../electron/agent-network.cjs');
+const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+async function graphFixture(){
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-i06b-ui-')),hosts=new Map();
+  let scale=false;
+  const router=new AgentNetwork({directory,platform:'win32',hostname:'Windows 测试机',distributions:async()=>['Ubuntu'],createHost:m=>{
+    const adapter=m.kind==='windows'?'claude':'opencode';
+    const h={offline:false,calls:[],setCollaboration(){},close(){},async call(method,p){
+      this.calls.push({method,p});
+      if(this.offline)throw Object.assign(Error('隔离测试：通道离线'),{code:'MACHINE_OFFLINE'});
+      if(method==='discover')return {items:(scale?[adapter,...['claude','opencode','codex'].filter(a=>a!==adapter)]:[adapter]).map(a=>({name:{claude:'Claude Code',opencode:'OpenCode',codex:'Codex'}[a],adapter:a,executable:m.kind==='windows'?'C:/tools/'+a+'.exe':'/opt/'+a,version:'test',healthy:true,executionSupported:true}))};
+      if(method==='snapshot')return {agents:{items:[],revision:0,connected:true},tasks:[],conversations:[]};
+      if(method==='connectTool')return {};
+      throw Error('UI fixture must not submit native tasks: '+method);
+    }};hosts.set(m.machineId,h);return h;
+  }});
+  router.catalog.machines.push({machineId:'ssh-fixture',name:'Linux 测试服务器',kind:'ssh',platform:'linux',host:'linux.example.test',username:'fixture',port:22,online:true,connectionState:'online'});
+  router.save();let snapshot=await router.snapshot();
+  for(const node of snapshot.nodes)await router.call('attachNode',{nodeId:node.nodeId});
+  snapshot=await router.snapshot();
+  const service=createCoordinatorService({directory,platform:'win32',network:router,version:require('../package.json').version});
+  let loseRelationAck=false,loseLayoutAck=false,hideReceipt=false,staleRelation=null;
+  const calls=[];
+  return {router,directory,calls,hosts,nodes:snapshot.nodes,
+    async call(method,p={}){calls.push({method,p});try{
+      if(hideReceipt&&method.endsWith('Operation'))return {ok:true,result:{operationId:p.operationId,state:'not_found'}};
+      const reply=await service.call({method,params:p});if(!reply.ok)return reply;const result=reply.result;
+      if(method==='snapshot'&&staleRelation)result.collaboration=structuredClone(staleRelation);
+      if(method==='saveCollaboration'&&loseRelationAck){loseRelationAck=false;throw Object.assign(Error('授权回应丢失，核对原操作。'),{code:'DESKTOP_TRANSPORT'});}
+      if(method==='saveGraphLayout'&&loseLayoutAck){loseLayoutAck=false;throw Object.assign(Error('布局回应丢失，核对原操作。'),{code:'DESKTOP_TRANSPORT'});}
+      return {ok:true,result};
+    }catch(e){return {ok:false,error:{code:e.code||'FIXTURE_ERROR',message:e.message}};}},
+    async inject(action){
+      if(action==='hold-relation')staleRelation=structuredClone(router.network.collaboration);
+      if(action==='release-relation')staleRelation=null;
+      if(action==='scale'){scale=true;for(let i=0;i<17;i++)router.catalog.machines.push({machineId:'scale-'+i,name:'测试服务器 '+(i+1),kind:'ssh',platform:'linux',host:'scale.example.test',username:'fixture',port:22,online:true});router.discovered.clear();const s=await router.snapshot();for(const n of s.nodes)if(!n.connected)await router.call('attachNode',{nodeId:n.nodeId});}
+      if(action==='lose-relation')loseRelationAck=true;
+      if(action==='lose-layout')loseLayoutAck=true;
+      if(action==='hide-receipt')hideReceipt=true;
+      if(action==='show-receipt')hideReceipt=false;
+      if(action==='offline'){hosts.get('ssh-fixture').offline=true;router.retryAfter.delete('ssh-fixture');}
+      if(action==='online'){hosts.get('ssh-fixture').offline=false;router.retryAfter.delete('ssh-fixture');}
+      if(action==='external-relation'){const current=await router.call('collaboration');await router.call('saveCollaboration',{leaderId:snapshot.nodes[0].nodeId,memberIds:[],expectedRevision:current.revision,operationId:require('node:crypto').randomUUID()});}
+      if(action==='external-layout'){const current=await router.call('graphLayout');await router.call('saveGraphLayout',{operationId:require('node:crypto').randomUUID(),expectedLayoutRevision:current.layoutRevision,layout:{...current,viewport:{x:0,y:0,zoom:1}}});}
+    },
+    close(){router.close();fs.rmSync(directory,{recursive:true,force:true});}
+  };
+}
+module.exports={graphFixture};

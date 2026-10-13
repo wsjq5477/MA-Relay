@@ -1,0 +1,189 @@
+# M04 SSH 机器接入设计
+
+更新日期：2026-10-13。基线：桌面源码与图优化候选 `0.6.0-alpha.9`，Windows 已发布便携版 `0.5.0`。alpha.2 的主要 Windows/SSH 验收保留；alpha.4 已实际使用用户原凭据核验并重连原 alpha.2 后台。系统 agent 与完整故障覆盖限制保留。详见 [测试报告](test-report.md)。
+
+## 1. 功能与用户操作
+
+本模块把一台已有 SSH 登录能力的 Linux 服务器加入 AgentBridge 的机器列表。用户使用服务器原有账号认证，无需额外申请 Bridge 设备令牌；服务器仍需要 Bridge daemon，由客户端在用户目录自动安装。
+
+| 功能 ID | 用户可验收行为 | 当前状态 |
+| --- | --- | --- |
+| M04-F01 | 输入地址、端口、用户名，选择密码/本机私钥/ssh-agent 创建连接 | 已实现；密码/DPAPI 的独立 Linux 与加密私钥/命名管道 agent 的隔离协议实测分别有证据，系统 agent 专项保留 |
+| M04-F02 | 新主机显示 SHA-256 指纹，用户确认才继续；变化或撤销的密钥阻断 | 校验代码、受控测试和 mock 界面通过 |
+| M04-F03 | 默认仅本次使用秘密；选择保存时用 Windows 当前用户加密保护 | 实现、受控存储与实际 Windows DPAPI 认证/恢复有证据；保护失败不回退明文 |
+| M04-F04 | 检测系统/用户目录/Node/空间，展示安装摘要，批准后安装并连接 | 密钥真实 Linux 已通过，首次安装 77.8 秒 |
+| M04-F05 | 连接后出现独立机器及该机 Agent，机器身份在重连后不变 | 真实 Linux 已通过；不依赖项目文件夹或模型选择 |
+| M04-F06 | 断线显示离线/重连/需凭据；重连读取原结果，不重发需求 | 代码、daemon 受控及真实断线记录；完整退避指标未测 |
+| M04-F07 | 主动断开只关闭连接，远端已接收任务继续；手动连接恢复观察 | 真实断线记录与 mock 界面通过 |
+| M04-F08 | 修改/移除 SSH 机器、升级/停止/卸载 daemon | 尚未实现，不属于当前可使用接口 |
+
+基本操作：添加 Linux 机器 → 测试连接 → 首次指纹确认（已有可信记录可跳过）→ 查看环境及安装摘要 → 安装并连接/连接机器 → 从节点“接入”按钮接入发现的 Agent → 新建会话时指定远端工作目录。连接节点时不配置模型、供应商或文件夹。
+
+## 2. 边界与通信原理
+
+```mermaid
+flowchart LR
+  UI[桌面添加机器表单] --> C[中央 Coordinator]
+  C --> S[SshManager / ssh2]
+  S -->|出站 SSH 到指定端口| H[Linux sshd]
+  H --> E[环境检测 / 安装命令]
+  H --> R[本次连接的 relay]
+  R -->|用户私有 Unix socket| D[独立 Linux daemon]
+  D --> A[原生 OpenCode / Claude / Codex]
+```
+
+中央后台主动连接服务器 SSH 端口；服务器不需要向 Windows 建立入站连接，也不开放 Bridge 公网 HTTP/WebSocket 端口。SSH 负责链路加密、主机身份和用户登录，daemon 握手负责确认 Bridge profile、后台 UUID、协议和连接代次。这是两层不同的身份校验。
+
+SshManager 的 state 保存本次连接错误；成功转换到无错误状态后，下游必须同时删除机器缓存的 error/connectionError。连接状态不是增量错误补丁，缺失错误字段不表示保留旧报错；新的主机密钥/认证/版本拒绝继续按实际错误展示。
+
+本模块管理 SSH 连接和安装，不决定主从权限，不执行模型推理。业务通过 `SshHost.call()` 交给 [M05 daemon](../05-linux-daemon/design.md)，机器与节点目录由 [M03](../03-machine-network/design.md)管理。界面交互由 [M01](../01-desktop/design.md)管理。
+
+范围是可直接访问的 Linux SSH 地址。当前不支持 ProxyJump/任意 ProxyCommand、SSH 交互式 MFA、主机证书 CA、PTY 登录会话；不自动转发本机 agent，不把 SSH 私钥上传服务器。
+
+## 3. 连接、主机与凭据对象
+
+| 对象 | 关键字段 | 稳定性/存储 |
+| --- | --- | --- |
+| SSH 连接草稿 | `connectionId,name,host,port,username,authKind,keyPath?` | `ssh-connections.json`，配置与重连沿用 |
+| 可信主机 | 地址+端口、公钥类型/内容、`SHA256:` 指纹 | `ssh-known-hosts.json`，也只读本机 `~/.ssh/known_hosts` |
+| 信任挑战 | `challengeId,fingerprint,host,port,keyType` | 内存有效 5 分钟，必须确认当前挑战 |
+| 临时秘密 | 密码或私钥口令的 Buffer | 内存有效 5 分钟；成功认证/失败尝试后丢弃并清零 Buffer |
+| 已保存秘密 | `credentialRef` 指向 `{kind,ciphertext}` | Windows `ssh-credentials/credential-<UUID>.json`；普通配置只保存引用 |
+| 远端机器 | `machineId = 'ssh-' + daemonId` | 首次通过握手才绑定，原任务依赖这一身份 |
+| 安装操作 | `operationId,connectionId,previewId,status` | `ssh-connections.json.operations`，与任务 requestId 不混用 |
+| 观察位置 | `lastCursor,lastSeenAt,lastSyncedAt` | 保存事件回读位置和时间；不表示模型任务成功 |
+
+草稿按规范化地址、端口和用户名去重。连接同一 daemon UUID 且主机公钥相同的别名时，旧连接停止自动重连；UUID 相同但公钥不同会拒绝，避免复制状态目录冒充原机器。不同 SSH 用户的后台身份不合并。
+
+`credentialAvailable` 仅表示“可尝试获取凭据”。私钥分支仅凭路径就可能显示 available，并不证明私钥可读、无需口令或账号已登录；真正可用以认证结果为准。
+
+## 4. 主机验证与认证
+
+```mermaid
+sequenceDiagram
+  participant U as 用户
+  participant B as Bridge
+  participant S as sshd
+  B->>S: SSH 协商，请求主机公钥
+  B->>B: 检查 Bridge 信任记录和 OpenSSH known_hosts
+  alt 已信任且匹配
+    B->>S: 使用选定方式认证用户
+  else 首次主机
+    B-->>U: 地址、端口、公钥类型、SHA-256 指纹
+    U->>B: 信任当前 challengeId 和 fingerprint
+    B->>S: 重新检测并认证
+  else 密钥变化/撤销/不支持的 CA
+    B-->>U: 阻断原因，保留原历史
+  end
+  S-->>B: ready
+  B->>B: 丢弃本次秘密，开始只读环境检测
+```
+
+`ssh2` 始终提供 `hostVerifier`，不使用其默认接受策略。OpenSSH 记录支持普通/哈希主机名、通配与否定项；匹配撤销记录优先拒绝，CA 信任明确报未支持，不当作首次未知主机。已保存公钥不能由首次确认流程自动覆盖。
+
+认证方式：
+
+| 方式 | 输入和本地处理 | 重连条件 |
+| --- | --- | --- |
+| 密码 | 隐藏输入，经本地私有 IPC 传递；不进入 argv、环境变量或普通配置 | 未保存且认证后已丢弃时，断线须重新输入；Windows 已保存时可解密尝试 |
+| 私钥文件 | 本地绝对路径，读文件并解析；最多 1 MiB；加密私钥可提供口令 | 原文件仍可读，所需口令仍可获得 |
+| ssh-agent | Windows `\\.\pipe\openssh-ssh-agent`；Linux `SSH_AUTH_SOCK` | 本机 agent 在线并能签名；无 agent forwarding |
+
+选择“保存”仅 Windows 支持，使用 DPAPI `CurrentUser`。固定 PowerShell 程序由编码脚本参数传入，秘密从 stdin 输入，stderr 不回显；系统保护失败就报错，没有明文回退。取消保存会移除原引用的密文。JavaScript 字符串及原生库内部副本无法保证全部清零，当前实现只清零自身管理的 Buffer，不宣称内存绝无秘密残留。
+
+## 5. 探测、安装与接入
+
+探测使用无 PTY 的 `/bin/sh -s` 受控脚本，输出带固定起止标识。只接受 Linux x86_64、glibc ≥2.28、可确认 UID 和绝对真实 HOME；Node ≥22.13 优先使用，否则使用离线包的私有 Node。欢迎文本污染检测输出会报 `SSH_BOOTSTRAP_OUTPUT`。
+
+安装目录与状态目录均须位于已认证用户真实 HOME 下。若用户的 `XDG_STATE_HOME` 指向 HOME 外，当前安全检查会拒绝，不能假定所有 XDG 布局都支持。探测检查可用空间至少为解包大小两倍加 32 MiB；缓存的 `ready` 探测结果可能保持 5 分钟，安装中途空间变化仍可能失败。
+
+```mermaid
+flowchart TD
+  P[读取环境和客户端清单] --> C{同 profile 同版本摘要已安装?}
+  C -->|是| V[逐文件验证现有版本]
+  C -->|否| A[显示摘要并等待用户批准]
+  A --> T[创建私有 staging 和安装标记]
+  T --> U[单 gzip 归档经 SFTP 流水线上传]
+  U --> X[tar 解压到 staging]
+  X --> H[sha256sum 验证私有 Node 后才执行]
+  H --> F[逐文件检查类型、UID、大小、SHA-256]
+  F --> R[原子发布版本和 current.json]
+  R --> V
+  V --> D[启动/复用 daemon，打开 relay]
+  D --> K[hello 归属/协议/版本/nonce 验证]
+  K --> M[注册 SSH 机器，回读事件，标记在线]
+```
+
+归档由 [M10 发布模块](../10-packaging/design.md)提供的清单普通文件构建，压缩后一次上传，窗口为 24 个 32 KiB WRITE 包。并非逐文件 SFTP 安装；远端需要 `tar` 和 `sha256sum`。不执行远端 npm install、sudo 或修改系统 Node。新版本需要用户确认安装，自动重连禁止自动安装/升级。已有版本可在客户端可信兼容清单中精确匹配时复用；alpha.8 明确收录 alpha.2–alpha.7 的 Linux x64 协议 2 发布；每份清单在收录前与历史包摘要核对。选择本地校验清单后，要求 current 的版本、摘要与规范版本路径一致；未知版本报 `SSH_DAEMON_UPGRADE_REQUIRED`，摘要或别名路径不符报 `SSH_VERSION_CONFLICT`，保留原目录。协议号相同不能自动放行。
+
+兼容复用的 probe 返回实际 `daemonVersion`、客户端包 `clientDaemonVersion`、`reuseCompatible=true`、`installNeeded=false`。旧后台按可信 manifest 逐文件核验，重新检查 HOME 内各路径组件、UID、符号链接、owner/profile/current/release 标记。复用分支无上传/创建目录/chmod/激活/停机；必要时先验证私有 Node 再执行核验。握手继续匹配所选旧版本和原 daemonId；新安装仍使用当前包。详细行为与版本来源见 [本次交付](../../iterations/I06/ssh-compatible-reuse.md)。
+
+首次连接读取事件并建立机器后，Agent 扫描执行各工具 `--version` 等发现流程，不调用模型。任务工作目录通过 RPC 传到远端，并不自动把 Windows 路径转换为 `/mnt/c`，也不自动同步代码。
+
+## 6. 真实 API
+
+这些方法通过 `window.agentbridge.call(method, params)` → Coordinator 传递，不是对公网开放的接口。连接状态与错误随 snapshot 展示。
+
+| 方法 | 必要参数/行为 |
+| --- | --- |
+| `machine.createSshDraft` | `{host,username,port?,name?,authKind,keyPath?}`；`authKind=password/privateKey/agent`，接受 `key` 别名 |
+| `credential.provide` | `{connectionId,secret,save}`；仅受保护本地调用，不写入报告 |
+| `machine.testSsh` | `{connectionId}`，返回 ready/probe、信任挑战或需要凭据状态 |
+| `machine.trustHost` | `{connectionId,challengeId,fingerprint}`，确认当前未过期挑战 |
+| `machine.connectSsh` | `{connectionId,operationId,installIfNeeded}`，需要安装时须明确 true |
+| `machine.reconnect` | `{connectionId}` 或 `{machineId}`；尝试复用已安装版本，不创建新任务 |
+| `machine.disconnect` | `{connectionId}` 或 `{machineId}`；关闭连接并关闭自动重连 |
+
+```js
+const draft = await call('machine.createSshDraft', {
+  host: 'linux.example.test', port: 22, username: 'developer', authKind: 'agent'
+});
+const checked = await call('machine.testSsh', {connectionId: draft.connectionId});
+// 新主机必须先显示 checked.trustChallenge 并让用户确认。
+// 如 checked.probe.installNeeded，再显示安装摘要并让用户批准。
+await call('machine.connectSsh', {
+  connectionId: draft.connectionId, operationId: 'connect-example-1', installIfNeeded: true
+});
+```
+
+实际界面 API 返回 `{ok,result}` 外层，示例中的 `call` 表示已解包并处理错误的辅助函数。`machine.updateSsh` / `machine.remove` / daemon 升级停止卸载不在当前允许方法集合中。
+
+## 7. 状态、断线与错误
+
+```mermaid
+stateDiagram-v2
+  [*] --> draft
+  draft --> validating_host: 测试连接
+  validating_host --> awaiting_host_trust: 首次公钥
+  awaiting_host_trust --> draft: 确认指纹
+  validating_host --> authenticating: 主机可信
+  authenticating --> inspecting: 用户认证成功
+  inspecting --> ready: 环境满足条件
+  ready --> installing: 批准必要安装
+  ready --> starting: 已安装
+  installing --> starting
+  starting --> handshaking
+  handshaking --> online
+  online --> disconnected: 通道或心跳中断
+  disconnected --> reconnecting: 凭据可用且允许重连
+  disconnected --> needs_credentials: 本次密码已丢弃
+  reconnecting --> online
+  online --> disconnected_manual: 用户主动断开
+  validating_host --> blocked: 身份变化/撤销/不支持
+```
+
+5 秒一次应用心跳，15 秒无有效回应即离线；SSH 自身也有 keepalive。重试延迟 1/2/4/8 秒，8 秒封顶并使用 80%–100% 抖动；网络恢复目标和 p95 指标仍待完整实测。认证失败/需要凭据停止重试，主机或后台身份变化等 fatal 错误进入 blocked。
+
+断开 relay 不取消远端已接收任务。未返回结果的请求被标记未知，由原 ID/原机器查询；自动重连只启动/检查后台、恢复事件观察，不调用 submit/continue。需注意当前 daemon 的游标过期字段为 `cursorGap`，客户端补偿分支检查 `cursorExpired`，游标过期后的全量 snapshot 补偿尚未闭环；见 [M05 限制](../05-linux-daemon/design.md)。
+
+## 8. 代码与维护
+
+主要代码：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs)（状态、认证、连接与重试）、[ssh-known-hosts.cjs](../../../desktop/electron/ssh-known-hosts.cjs)（信任）、[ssh-credentials.cjs](../../../desktop/electron/ssh-credentials.cjs)（秘密）、[ssh-install.cjs](../../../desktop/electron/ssh-install.cjs)（探测、安装）、[AddMachineDialog.tsx](../../../desktop/src/AddMachineDialog.tsx)（用户流程）。
+
+修改认证/安装/重连时同步本设计、[测试报告](test-report.md)、M02/M05/M10 相关契约和迭代文档。变更来源：[I06 SSH 初始设计](../../iterations/I06/ssh-design.md)、[开发项 A02–A06](../../iterations/I06/development.md)、[当前进度](../../iterations/I06/progress.md)。实现与早期设计有差异时，本节描述当前实现，未来能力单列，不以规划代替交付。
+
+## 2026-10-12：6A 收尾
+
+Windows 实际密码认证与 DPAPI CurrentUser 保存/新实例恢复已验证到独立 Linux OpenSSH。加密 RSA 和命名管道 agent 使用 Windows 真实 TCP/签名协议及隔离服务验证；不把这些结果扩大为每台机器的系统 OpenSSH agent 兼容性。三种认证继承既有 SSH 账户，不修改服务器登录方式。
+
+alpha.9 收录的 alpha.8 Linux manifest 与原 alpha.8 包报告 manifestDigest 逐字节规范 JSON 摘要核对后保存；允许可信旧 daemon 复用，不自动升级远端。当前候选资源和实际验证见 [节点管理交付](../../iterations/I06/node-management.md)，SSH/原生任务沿用原版本证据，本次未重跑独立服务器。

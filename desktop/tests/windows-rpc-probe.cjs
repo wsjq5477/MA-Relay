@@ -1,0 +1,5 @@
+const fs=require('node:fs'),path=require('node:path');const {HostConnection,distributions}=require('../electron/rpc.cjs');
+const file=path.resolve(__dirname,'../../artifacts/I04-windows-rpc.json');
+const report={platform:process.platform,status:'running'};
+const host=new HostConnection('C:\\Users\\jiqi\\.codex\\visualizations\\2026\\10\\08\\01a119ed-c329-7e22-81df-0e3a4c62e86f\\AgentBridge-Windows\\resources\\bridge\\dist\\desktop-host.js');
+(async()=>{report.distributions=await distributions();const timer=setInterval(()=>{report.stderr=host.lastError;report.childPid=host.child?.pid;fs.writeFileSync(file,JSON.stringify(report,null,2));},1500);try{await host.start();report.raw=[];host.child.stdout.on('data',b=>report.raw.push({hex:b.subarray(0,160).toString('hex'),text:b.toString().slice(0,500)}));report.environment=await host.call('environment');report.snapshot=await host.call('snapshot');report.status='passed';}finally{clearInterval(timer);host.close();}})().catch(e=>{report.status='failed';report.error=e.stack;report.stderr=host.lastError;}).finally(()=>{fs.writeFileSync(file,JSON.stringify(report,null,2));});

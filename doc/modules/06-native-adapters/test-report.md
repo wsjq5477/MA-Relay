@@ -1,0 +1,54 @@
+# M06 原生 Agent 适配器测试报告
+
+更新日期：2026-10-12。对应[模块设计](design.md)。本报告区分当前源码的受控回归、历史真实工具实验和未完成的产品发布验证。
+
+## 1. 基线与结论
+
+当前源码版本 `0.6.0-alpha.4`；稳定历史 EXE `0.5.0`、先前候选 `0.6.0-alpha.2`。2026-10-12 发现修复的桌面回归 **89/89**，失败和跳过均为 0；核心 **43/43**为先前未改动部分基线，未在本次重跑。本次实际调用原生 Codex/Claude 验证自然语言发现，详见子报告。全部工程测试通过不能证明每个原生版本、账号或 Windows 新发布包可用。
+
+- [核心 TAP](../../../artifacts/docs-baseline/2026-10-12/root-tests.tap)
+- [桌面 TAP](../../../artifacts/codex-discovery/2026-10-12/desktop-tests.tap)
+
+## 2. 分模块结果
+
+| 测试 ID | 对应功能 | 验证与证据级别 | 结果 | 限制 |
+| --- | --- | --- | --- | --- |
+| T-M06-01 | M06-F01 原生配置继承 | `tests/native-cli-default.test.ts` 受控原生 HTTP；Claude/Codex 专用测试检查启动参数；MachineHost 拒绝覆盖实现审查 | 当前回归通过 | 旧实例 API 保留兼容覆盖，不能按该路径推断当前节点行为 |
+| T-M06-OC-01–08 | M06-OC-F01 | [OpenCode 报告](opencode/test-report.md)：HTTP 契约、原生/OS 故障、历史真实 OpenCode | 受控回归通过；已有真实回复、续聊、权限/取消证据 | 远端 2.0.26 两轮未保存 native Session ID 比较；限工具验证仅允许 2.0.24 |
+| T-M06-CC-01–08 | M06-CC-F01 | [Claude 报告](claude/test-report.md)：原生 JSONL 夹具 + 真实 Windows CLI | 16 项宿主回归通过；历史真实回复/权限/取消通过 | 表单不支持；当前源码和新 Windows 包尚未做全量真实复验 |
+| T-M06-CX-01–07 | M06-CX-F01 | [Codex 报告](codex/test-report.md)：原生 JSONL 夹具 + 真实 Windows/WSL CLI | 4 项宿主回归通过；WSL 自然语言发现、真实委派和连接图通过 | WSL 原生续聊失败；Windows 原配置模型被账号拒绝 |
+| T-M06-02 | M06-F01 原始事件与可读输出 | [I04F streaming UI](../../../artifacts/I04F-streaming-ui.json) 与 [conversation UI](../../../artifacts/I04F-conversation-ui.json)，隔离前端 Mock | 历史 UI 检查通过；当前聚合实现存在 | Mock 不证明真实模型产出和刷新延迟；当前基线不重跑该 UI 脚本 |
+| T-M06-03 | M06-F01 主 Agent 真实工具调用 | [I05-real.json](../../../artifacts/I05-real.json)、[I05-codex-main.json](../../../artifacts/I05-codex-main.json)，真实 CLI/MCP | 4 条核心双向链通过 | I05 总报告保留 partial；不是当前跨物理机器双向协作验收 |
+
+功能 ID 是稳定追踪入口，表内范围不是一次测试执行的计数。核心 43 与桌面 89 是整个工程数字，不能相加后称为本模块专用测试数。
+
+## 3. 真实证据的适用范围
+
+| 证据日期 | 环境 | 实际已验证 | 应保留的边界 |
+| --- | --- | --- | --- |
+| 2026-10-08 | Linux/WSL OpenCode 2.0.24 | 三轮同 Session、取消、原生服务重用、只读恢复、CLI 权限与文本表单链路 | 模型自主生成表单未核验；是该日期的真实结果 |
+| 2026-10-09 | Windows Claude + 同宿主 WSL OpenCode | 双工具两轮、原 Session、Claude Write 审批和取消 | 测试隔离实例曾覆盖模型；不是当前所有继承行为的证据 |
+| 2026-10-10 | Windows Claude 2.1.296、WSL OpenCode 2.0.24/Codex 0.161.0 | 原生默认回复、Claude/OpenCode 续聊、4 条主子协作链 | Windows Codex 原模型被拒绝；WSL Codex `list_turns` 续聊未通过 |
+| 2026-10-10 | 开发机连接独立 Linux OpenCode 2.0.26 | 远端发现、新会话、按原 conversationId 续聊、断线期间完成和重连读取 | 未记录两轮 native Session ID 比较；未完成新 Windows 发布包验证 |
+
+详细历史范围见 [I03B 验收](../../iterations/I03B/report.md)、[I04B 验收](../../iterations/I04B/report.md)、[I05 验收](../../iterations/I05/acceptance.md)和 [I06 当前核对](../../iterations/I06/progress.md)。它们解释变更过程，本报告负责给出模块当前可依赖的事实。
+
+## 4. 待补验收与完成标准
+
+| 项目 | 当前状态 | 完成标准 |
+| --- | --- | --- |
+| alpha.3 Windows 修复包 | 资源比对、普通启动/关闭/重开通过 | [普通 EXE](../../../artifacts/codex-discovery/2026-10-12/portable.json)未提交模型需求；alpha.2 的 SSH 历史适用范围保留，未重跑完整原生专项 |
+| 远端原生续聊身份 | 缺直接比较证据 | 两轮分别保存 native Session ID，断言相等，并证明第二轮使用第一轮上下文 |
+| Codex 原生续聊 | WSL 已知失败 | 合适原生版本真实 `exec resume` 成功且 thread ID 不变；失败仍原样显示 |
+| Codex 许可/表单 | 未适配 | 单独设计协议、审批策略和失败边界；不得用自动批准替代 |
+| Claude 结构化问题 | 未适配 | 独立实现 AskUserQuestion 回应和收据测试；之前保持明确拒绝 |
+| 升级原生版本 | 按具体版本补核验 | 至少真实新会话、同会话、取消/等待、配置继承和异常恢复；版本更高不自动等于兼容 |
+
+## 5. 复现与维护
+
+工程回归使用 `npm test`、`npm test --prefix desktop`。专用测试可按子模块报告运行。真实脚本会调用用户已有的模型并可能执行受控文件操作，必须在隔离目录下按相应验收场景运行；不能把 fixture 回复登记为真实工具验收。
+
+修改代码时同时更新设计中的能力边界和本报告：写明测试命令、日期、原生版本、证据类型、通过/失败/未测、产物链接以及剩余问题；对应迭代也保存需求和交付状态。
+
+
+I06B alpha.6：共享 MachineHost 的原生就绪等待受控通过，connect/两次 snapshot、Prompt=0；案例共享 T-M03-16，不新增 Driver 真模型通过声明。[测试](../../../desktop/tests/machine-host-readiness.test.cjs)、[本次全桌面 110/110](../../../artifacts/I06B/2026-10-12/desktop-tests.tap)。

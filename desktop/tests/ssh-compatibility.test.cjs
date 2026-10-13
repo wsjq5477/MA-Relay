@@ -1,0 +1,44 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os');
+const {createHash}=require('node:crypto'),{EventEmitter}=require('node:events'),{Readable}=require('node:stream');
+const {SshInstaller}=require('../electron/ssh-install.cjs');
+const digest=m=>createHash('sha256').update(JSON.stringify(m)).digest('hex');
+function fixture(t){
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-ssh-compat-')),payload=Buffer.from('test-node');
+ const entry=(name,bytes)=>({path:name,size:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')});
+ const old={version:'0.6.0-alpha.2',protocolVersion:2,platform:'linux',arch:'x64',runtime:{path:'runtime/node',version:'22.23.1'},files:[entry('runtime/node',payload)]};
+ fs.mkdirSync(path.join(directory,'runtime'));fs.writeFileSync(path.join(directory,'runtime/node'),payload);
+ const pinPath='compatible-daemons/'+old.version+'.json';fs.mkdirSync(path.join(directory,'compatible-daemons'));const pin=Buffer.from(JSON.stringify(old));fs.writeFileSync(path.join(directory,pinPath),pin);
+ const manifest={...old,version:'0.6.0-alpha.4',files:[...old.files,entry(pinPath,pin)],compatibleDaemons:[{version:old.version,manifestPath:pinPath,manifestDigest:digest(old)}]};fs.writeFileSync(path.join(directory,'manifest.json'),JSON.stringify(manifest));
+ const installer=new SshInstaller({directory,coordinatorId:'test-owner',packageDirectory:directory});
+ const installPath='/home/u/.local/share/agentbridge/profiles/'+installer.profileId,versionPath=installPath+'/versions/'+old.version;
+ const current={version:old.version,digest:digest(old),versionPath};
+ const objects=new Map([[installPath+'/install.json',{kind:'agentbridge-install',ownerCoordinatorId:'test-owner',profileId:installer.profileId}],[installPath+'/current.json',current],[versionPath+'/.bridge-release.json',{ownerCoordinatorId:'test-owner',digest:digest(old)}]]);
+ const writes=[],commands=[],unsafe=new Map();let failVerify=false;
+ const sftp={end(){},lstat(target,cb){const object=objects.get(target),override=unsafe.get(target);cb(null,{uid:override?.uid??1000,size:object?Buffer.byteLength(JSON.stringify(object)):0,isDirectory:()=>!object&&!override?.file,isFile:()=>!!object,isSymbolicLink:()=>!!override?.symlink});},createReadStream(target){return Readable.from([Buffer.from(JSON.stringify(objects.get(target)))]);}};
+ for(const name of ['mkdir','chmod','rename','createWriteStream','write','unlink'])sftp[name]=()=>{writes.push(name);throw Error('Unexpected remote mutation');};
+ const client={sftp(cb){cb(null,sftp);},exec(command,options,cb){commands.push(command);const stream=new EventEmitter();stream.stderr=new EventEmitter();stream.close=()=>{};stream.end=input=>queueMicrotask(()=>{const probe=command==='/bin/sh -s';stream.emit('data',Buffer.from(probe?['AGENTBRIDGE_PROBE_V2','Linux','x86_64','1000','u','/home/u','glibc 2.32','9999999','/usr/bin/node','22.23.1','','END_AGENTBRIDGE_PROBE',''].join('\n'):'{"verified":true}'));stream.emit('close',!probe&&failVerify?1:0);});cb(null,stream);}};
+ t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));return {directory,installer,client,current,old,objects,commands,writes,unsafe,installPath,versionPath,setFailVerify(){failVerify=true;}};
+}
+test('a newer client reuses its pinned compatible daemon without upload, activation or remote state writes',async t=>{
+ const f=fixture(t),before=JSON.stringify([...f.objects]);const probe=await f.installer.probe(f.client);
+ assert.equal(probe.daemonVersion,'0.6.0-alpha.2');assert.equal(probe.clientDaemonVersion,'0.6.0-alpha.4');assert.equal(probe.reuseCompatible,true);assert.equal(probe.installNeeded,false);
+ // A stale/missing presentation flag cannot bypass release selection.
+ probe.reuseCompatible=false;const result=await f.installer.install(f.client,probe,'reuse');assert.equal(result.version,'0.6.0-alpha.2');assert.equal(result.versionPath,f.versionPath);assert.deepEqual(f.writes,[]);assert.equal(JSON.stringify([...f.objects]),before);
+ assert.equal(f.commands.length,2);assert(!f.commands.some(c=>/tar|kill|daemon.cjs/.test(c)));
+});
+test('same protocol alone never authorizes unknown versions, changed digests or directory aliases',async t=>{
+ const f=fixture(t);f.current.version='0.6.0-alpha.99';await assert.rejects(f.installer.probe(f.client),{code:'SSH_DAEMON_UPGRADE_REQUIRED'});
+ f.current.version=f.old.version;f.current.digest='0'.repeat(64);await assert.rejects(f.installer.probe(f.client),{code:'SSH_VERSION_CONFLICT'});
+ f.current.digest=digest(f.old);f.current.versionPath='/other/alias';await assert.rejects(f.installer.probe(f.client),{code:'SSH_VERSION_CONFLICT'});assert.deepEqual(f.writes,[]);
+});
+test('compatible reuse refuses changed installation, foreign ownership and symbolic parents before execution',async t=>{
+ const f=fixture(t),probe=await f.installer.probe(f.client);
+ f.current.digest='0'.repeat(64);await assert.rejects(f.installer.install(f.client,probe,'changed'),{code:'INSTALL_PREVIEW_CHANGED'});f.current.digest=digest(f.old);
+ f.unsafe.set('/home/u/.local',{symlink:true});await assert.rejects(f.installer.install(f.client,probe,'symlink'),{code:'REMOTE_DIRECTORY_UNSAFE'});f.unsafe.clear();
+ f.objects.get(f.installPath+'/install.json').ownerCoordinatorId='foreign';await assert.rejects(f.installer.install(f.client,probe,'foreign'),{code:'REMOTE_DIRECTORY_UNSAFE'});
+ assert.equal(f.commands.length,1);assert.deepEqual(f.writes,[]);
+});
+test('tampered local pins and failed remote file verification reject reuse without mutations',async t=>{
+ const f=fixture(t),probe=await f.installer.probe(f.client);f.setFailVerify();await assert.rejects(f.installer.install(f.client,probe,'checksum'),{code:'SSH_PACKAGE_CHECKSUM'});
+ fs.appendFileSync(path.join(f.directory,'compatible-daemons',f.old.version+'.json'),' ');await assert.rejects(f.installer.probe(f.client),{code:'SSH_PACKAGE_CHECKSUM'});assert.deepEqual(f.writes,[]);
+});

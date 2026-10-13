@@ -1,0 +1,156 @@
+# M08 主 Agent、子 Agent 与协作通道设计
+
+更新日期：2026-10-13。当前是单默认组、单层委派。真实 Windows/WSL 协作已发布；alpha.6 已实现节点图和旧父权限修复；独立设备与 EXE 验收状态以 I06B 报告为准，不能由源码或同宿主链推定。
+
+## 1. 功能目标
+
+用户指定哪个已安装工具作为主 Agent，以及它可以连接哪些子 Agent。真正推理和规划的是用户选定的原生主工具，中央 Coordinator 只管理关系、身份、路由、回执和结果，不内置另一个默认大模型。
+
+主 Agent 在当前原生会话中发现允许的子节点、委派真实任务、等待或查询结果，最后汇总给用户。子 Agent 不会因为收到任务就获得继续扩张节点网络的权力。
+
+| 功能 ID | 用户可验收功能 | 当前状态 |
+| --- | --- | --- |
+| M08-F01 | 保存一个主节点和多个子节点，重开保留，过期修订拒绝覆盖 | alpha.6 通过图草稿编辑；稳定操作收据与修订原子提交 |
+| M08-F02 | 主 Agent 只发现用户允许的子节点，显示机器和忙碌状态 | 已实现；来源机器和主执行 scope 后台校验 |
+| M08-F03 | 委派真实子任务，稳定 ID 去重，子节点不继续委派 | 已实现；Windows/WSL 四条真实链通过 |
+| M08-F04 | 主会话读取/等待子结果，查询 pending、回复和取消自己委派的任务 | 已实现；原父会话及活跃 scope 限制 |
+| M08-F05 | 在原生工具中接入 MCP，通过本机 broker 转到中央路由 | 已实现；真实 stdio MCP 验证 |
+| M08-F06 | 撤销子关系阻止新委派，并在明确边界内保留旧任务读取 | alpha.6 已修复；活跃原父可按原账本读控旧子，新委派仍检查当前关系 |
+
+任务本身、取消回执和不确定恢复见 [M07](../07-task-session/design.md)，节点身份见 [M03](../03-machine-network/design.md)。
+
+## 2. 一个协作组如何运行
+
+```mermaid
+flowchart LR
+    U[用户配置关系] --> C[中央 Coordinator\n只做路由与授权]
+    C --> M[主节点：原生 Claude / OpenCode / Codex]
+    M -->|MCP list_agents / delegate| C
+    C --> S1[允许的子节点 A]
+    C --> S2[允许的子节点 B]
+    S1 -->|真实结果与状态| C
+    S2 -->|真实结果与状态| C
+    C -->|task_result| M
+    M --> A[原会话汇总回答]
+```
+
+关系里的主/子是 Agent 节点，不是项目目录或模型。节点可以处于不同执行环境；主节点不需要在 Windows，但必须拥有当前已提交主任务的协作身份。
+
+直接聊天与协作聊天使用不同上下文键。开启协作时，原生工具获得当前上下文的 MCP 配置和主 Agent 指令；普通直接任务不会自动获得协作权限。Codex 每个带 MCP 的新会话/续聊回合在原始需求前收到协作指引，明确先查 agentbridge MCP 的允许子节点，不能以 Codex 内部 Agent 列表只有 `/root` 判断 Bridge 无连接。工具缺失或报错应报告协作通道故障；实现见 [Codex 设计](../06-native-adapters/codex/design.md)。
+
+## 3. 数据和身份
+
+| 记录 | 字段与作用 |
+| --- | --- |
+| collaboration | `leaderId`、`memberIds`、`revision`；当前只有 default 组 |
+| 主请求 | nodeId、machineId、requestId、contextId、collaboration、dispatched |
+| scope | broker 固定绑定 `nodeId`、`parentRequestId`；不能由工具参数冒充 |
+| delegation | delegationId、派生 requestId、leaderId、memberId、parentRequestId、parentTaskId、parentConversationId、子 taskId / conversationId、state |
+| MCP endpoint | 本机环回 URL 和随机内部 token，写入私有描述文件 |
+
+中央的关系、主请求和委派在 `agent-network.json`。每台机器的 broker scope 在 `bridge-scopes.json`，上下文描述在 `node-contexts/<contextId>/bridge-endpoint.json`；MCP 客户端副本放入机器后台的 `runtime/`。
+
+内部 token 用于本机回调认证，不是用户需要录入的设备接入凭据。SSH 接入仍使用既有系统账号认证。
+
+## 4. 保存关系
+
+用户提交 operationId、expectedRevision 和完整主/成员集合。后台先查原收据，同 ID 同内容返回原结果；改变内容返回 OPERATION_CONFLICT。新保存校验所有节点存在、已接入并支持执行、唯一主、无重复/自连与期望修订，随后在 agent-network.json 同一次原子替换中提交关系 revision+1 和 relationOperations 收据。坐标/状态不能成为授权。过期修订返回 REVISION_CONFLICT，前端保留草稿；收据最多 4096 项，到限明确拒绝，不删除未确认历史来释放占位。兼容旧内部调用不带 operationId 时返回原 collaboration 形状；新图入口总使用稳定 ID 和中央图意图台账。
+
+```json
+{"method":"saveCollaboration","params":{"operationId":"relation-save-example","leaderId":"node-main","memberIds":["node-child-a","node-child-b"],"expectedRevision":3}}
+```
+
+当前 alpha.6 将关系与 relationOperations 收据在同一临时文件写入、fsync 后原子替换；先持久化图意图，再执行保存。稳定 operationId 对同内容返回原收据，对不同内容拒绝；新操作独立核对 expectedRevision。回应未知只查询原 collaborationOperation，不能靠重读关系、换 ID 或重放保存解除占位。
+
+关系修改不会迁移原任务到新主节点，不会取消子任务，也不会把旧任务结果复制为新主的委派记录。
+
+## 5. 主任务与真实委派流程
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant L as 原生主 Agent
+    participant B as 本机 MCP broker
+    participant C as 中央关系与路由
+    participant S as 原生子 Agent
+    U->>C: 向当前主节点提交协作需求
+    C->>L: 原生任务 + 固定父请求 scope
+    L->>B: list_agents
+    B->>C: 已认证 scope + 传输来源
+    C-->>L: 允许的子节点及实际状态
+    L->>C: delegate 稳定请求 ID
+    C->>C: 先保存委派记录
+    C->>S: 子节点新任务，collaboration=false
+    L->>C: task_result 原子任务 ID
+    S-->>C: 真正原生结果或错误
+    C-->>L: 状态、结果、等待信息
+    L-->>U: 汇总回答
+```
+
+后台从主节点、父 conversationId 和 Agent 提供的稳定委派 requestId 派生中央子请求 ID。同 ID 同内容查询原委派；目标、消息或目录改变返回 `REQUEST_CONFLICT`。跨主会话即便使用同一个短 requestId，也不会串成同一子任务。
+
+先记委派意图，再调用节点提交。收到忙碌等明确执行前拒绝记为 rejected；无法确认是否执行记为 unknown。子节点原请求台账再次保证查询原任务，不能为“重试”换新 requestId 绕过占用。
+
+## 6. 当前工具 API
+
+MCP 暴露的是六个操作，原生客户端可按自己的命名空间显示为 `agentbridge_*`。
+
+| 工具 | 关键参数 | 输出与限制 |
+| --- | --- | --- |
+| list_agents | 无节点身份参数 | 返回当前关系允许的子节点、machine、status、busy、能力 |
+| delegate | nodeId、message、requestId，可选 workspace | 返回真实子任务与 delegationId；目标必须已授权 |
+| task_result | taskId，可选 waitMs | 最多等待 45 秒；终态、unknown、waiting 或超时立即返回实际状态 |
+| task_pending | taskId | 查询本父会话委派任务的真实权限/表单 |
+| reply_task | taskId、operationId、原 requestId、action 与回答 | 只处理原 pending；权限只有 reject / once，需要用户授权 |
+| cancel_task | taskId、operationId | 请求取消自己的子任务；回执不等同进程已结束 |
+
+```json
+{"name":"delegate","arguments":{"nodeId":"node-child-a","requestId":"review-001","message":"检查此项目的测试覆盖并报告","workspace":"/home/user/project"}}
+```
+
+```json
+{"name":"task_result","arguments":{"taskId":"ssh-demo::task-child-001","waitMs":30000}}
+```
+
+工具请求的 callId 是一次 RPC 调用标识，不是业务去重依据；委派依靠 requestId，控制依靠 operationId。
+
+## 7. 权限判定和重要当前边界
+
+每次协作调用先校验传输来源机器与 scope.nodeId 的真实归属，再验证父 requestId 的持久主请求、collaboration=true、已提交及原父仍活跃。原父终态使其 MCP scope 失效。新委派另查当前 leader 与实时 memberIds；父状态 unknown 不允许新委派。旧子查询/控制按 leaderId、原 parentRequestId、parentTaskId、parentConversationId 的委派账本核验，不因换主转给新父。
+
+| 情况 | 当前行为 |
+| --- | --- |
+| 伪造节点/来源、未授权目标、自我或递归委派 | 拒绝 |
+| 另一个父请求/任务或新主接管原子任务 | 拒绝；同 Conversation 也不替代原父任务归属 |
+| 当前主撤销某子关系 | 新委派拒绝；活跃原父仍可读控原账本内已委派子 |
+| 换主/清主后旧父仍活跃 | list_agents 返回空，新委派拒绝；原子结果/等待/回复/取消仍按原归属核验 |
+| 父任务已终态 | 原 MCP scope 全部拒绝；人类从桌面按来源查询原任务 |
+| 父状态 unknown | 保留归属与原子只读/控制边界，不新委派 |
+
+收据 confirmed 不代表子任务成功或取消；控制仍依 M07 原执行/交互 ID。具体反例与真实覆盖见 [报告](test-report.md)。
+
+## 8. MCP 与机器通信
+
+`mcp-client.cjs` 是 stdio JSON-RPC 客户端，响应 initialize、ping、tools/list、tools/call。每次工具调用重新读取私有 endpoint 描述，使用 bearer token 请求本机 `127.0.0.1` broker 的 `/tools`。
+
+broker 将 token 对应 scope 与业务参数分开，中央宿主/远端 relay 提供真实传输来源。节点身份和父任务身份不由 Agent 自报参数决定。broker 仅监听环回地址，单请求上限 128 KiB，超时约 65 秒。
+
+原生账号、模型、工作区文件权限继续由原工具控制。MCP 接入和针对桥接工具的审批适配不意味着开放普通文件系统或任意终端权限；主 Agent 不可通过终端绕过关系去控制其他节点。
+
+## 9. 当前 I06B 与后续边界
+
+机器分组节点图、草稿与稳定关系收据、独立布局、原操作台账以及旧父权限已实现，来源见 [本次实施](../../iterations/I06/graph-implementation.md)。原生 MCP 工具集合、父子需求 requestId、来源路由及协议版本未改变。
+
+双向独立 Linux 的真实验收须分别记录实际 list_agents/delegate/task_result、子原生回复与父汇总；Windows/WSL 同宿主历史不能替代。完整网络故障、daemon 升级回滚、所有原生权限类型及最终 0.6.0 准出继续属于 I06C。多组、多层委派、模型管理和外部 Harness 未纳入本默认组。
+
+## 10. 实现入口与维护
+
+关系与权限从 [agent-network.cjs](../../../desktop/electron/agent-network.cjs) 的 `saveCollaboration`、`collaborationTool` 阅读；MCP 接入见 [machine-host.cjs](../../../desktop/electron/machine-host.cjs)、[collaboration-broker.cjs](../../../desktop/electron/collaboration-broker.cjs)、[mcp-client.cjs](../../../desktop/electron/mcp-client.cjs)。
+
+变更关系、scope、委派 ID、查询权限或图交互时，同步本文、[测试报告](test-report.md)、对应迭代设计及验收；特别保留换主、清空关系、父任务终态的反例。
+
+历史依据：[I05 协作设计](../../iterations/I05/collaboration-design.md)、[I05 验收](../../iterations/I05/acceptance.md)、[I06B 图与权限设计](../../iterations/I06/graph-design.md)。
+
+## alpha.9 节点生命周期对授权的影响
+
+配置入口合并到机器图同页。断开/移除子节点撤销该成员；断开/移除主节点清空当前主节点与全部子授权；仅当关系受影响时 revision 增一，并与节点状态和原操作收据原子提交。接回原节点不恢复已撤销权限。node/relation 未确认写入互锁，图位置不参与授权。节点必须空闲且来源可核对才能变更；任何原父对旧任务的读控仍按原账本及活跃 scope 校验，不转交给新主。详见 [当次说明](../../iterations/I06/node-management.md)。
