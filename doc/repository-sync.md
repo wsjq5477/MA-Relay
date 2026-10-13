@@ -13,3 +13,9 @@
 2026-10-13，在 WSL 项目沙箱使用 Node 22.23.1 执行：完整本地文档检查、根与桌面 TypeScript 检查、根 lint、根构建及桌面 TypeScript/Vite 构建通过。文档检查覆盖 114 个 Markdown 文件、14 对模块设计/报告及 1367 个本地链接。
 
 本次 `npm test` 未通过，测试运行器报告 14 个测试文件中 10 个失败；`npm test --prefix desktop` 未通过，19 个测试文件中 6 个失败。这是本次沙箱执行结果，不覆盖历史真实 Agent/EXE 证据，也不将失败归因于尚未核实的环境问题。单独直接运行 CLI 入口测试，`stdout.includes('agentbridge up')` 断言失败；本次源码同步未修改该产品行为。原始检查输出保留在执行环境的临时目录，不上传公开仓库。
+
+## EXE 单独发布
+
+2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
+
+EXE 与 [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/SHA256SUMS.txt) 保存在 Release 附件，不加入 Git 源码树。源码标签绑定提交 `2b6f4f71c19608be878fc33dc1be422a6fd349e9`；本次不重建程序、不改变原始验收结论。完整分层记录见 [发布记录](iterations/I06/github-release.md)。

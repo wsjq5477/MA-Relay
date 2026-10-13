@@ -30,3 +30,7 @@
 最新 I06B 图优化候选见 [alpha.7 专项](I06/graph-usability.md)：主节点强调、连线避让、中键平移，原生历史结论保留。
 
 最新 [alpha.8 拖动修复](I06/graph-drag-fix.md)：旧后台兼容、本机布局、组背景拖动、主组居左与实际打包窗口验证。
+
+## GitHub Windows EXE 交付
+
+2026-10-13：[alpha.9 GitHub 预发布及附件核验](I06/github-release.md)。分发已有程序，不变更原源码行为、不替代 Windows/SSH/原生 Agent 验收。

@@ -165,3 +165,9 @@ alpha.9 前端锁定 @xyflow/react 12.12.0；GraphLayoutStore/GraphOperationJour
 alpha.8 历史候选修复旧后台拖动与主居左；alpha.7 的 Linux 清单先与原交付 manifestDigest 核对一致，再收入可信兼容资源。允许复用旧 daemon，不自动升级用户远端；本次当前证据见 [alpha.8 拖动修复](../../iterations/I06/graph-drag-fix.md)。
 
 alpha.9 收录的 alpha.8 Linux manifest 与原 alpha.8 包报告 manifestDigest 逐字节规范 JSON 摘要核对后保存；允许可信旧 daemon 复用，不自动升级远端。当前候选资源和实际验证见 [节点管理交付](../../iterations/I06/node-management.md)，SSH/原生任务沿用原版本证据，本次未重跑独立服务器。
+
+## GitHub EXE 分发（M10-F06）
+
+2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
+
+程序通过 GitHub Release 附件分发，Git 源码仓库不保存 EXE。发布草稿绑定相应源码提交；先检查本地 EXE 大小和 SHA-256，上传 EXE 与校验文件，核对服务器返回的 state/size/digest 后发布为 prerelease。回应不明时查询同一 release/asset，不删附件重传或另建发布。候选包不能标为稳定版；过程不打包私有运行状态、不改变原生配置。具体本次事实见 [发布记录](../../iterations/I06/github-release.md)。

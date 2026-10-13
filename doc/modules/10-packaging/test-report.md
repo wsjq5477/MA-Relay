@@ -108,3 +108,7 @@ T-M10-19 / M10-F01/F02/F03/F06：2026-10-12 / alpha.5，桌面 95/95，类型/�
 ## alpha.9 当前节点管理专项
 
 T-M10-23 / M10-F01/F02/F03/F06：2026-10-13 / 0.6.0-alpha.9。范围：alpha.9 最终前端、中央与 Linux 包一致性，可信 alpha.8 清单，实际窗口和普通 EXE 分开验证。逐项实际结果、环境、脚本、原始证据与未测范围见 [节点管理完整验收](../../iterations/I06/node-management.md)。工程证据为本次 [桌面 TAP](../../../artifacts/node-management/2026-10-13/desktop-tests.tap)；窗口/程序/包状态以该报告实际结果为准，历史表不充当本次重测。原生 SSH/模型链保留 alpha.6 历史结果，本次未重跑、不改用户 profile、不提交 Prompt。
+
+## GitHub alpha.9 预发布附件核验
+
+T-M10-25 / M10-F06：2026-10-13 / alpha.9，真实 GitHub API 上传与公开发布查询通过。EXE 为 129,583,670 字节，服务器 state=uploaded，digest=`sha256:80c8a39036ba93466de96955e707280f436b6da258d5e047c7590822e2c0d688`，与本地已有包一致；SHA256SUMS.txt 108 字节，两附件核验后 draft=false/prerelease=true。这是分发核验，没有重新执行 EXE/模型/SSH 验收。已有本地包验收保留原日期与版本；本次源码同步的沙箱回归失败仍保留。原始脱敏元数据与分层结果见 [发布记录](../../iterations/I06/github-release.md)。

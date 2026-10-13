@@ -1,5 +1,11 @@
 # AgentBridge
 
+## Windows EXE 下载
+
+2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
+
+下载 EXE 后双击运行；原生 Agent 工具仍需按所用工具安装并登录。[SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/SHA256SUMS.txt)。源码 ZIP 不包含 EXE。
+
 AgentBridge 连接机器上的 Claude Code、OpenCode、Codex，提供 Windows 桌面节点管理、会话与主从协作；旧 OpenCode CLI 执行入口继续兼容。迭代三已实现自动发现与空格连接、后台运行、多连接维护、连续会话、取消、自动重连补传、原执行对账，以及同终端权限/文本表单回复。当前支持 Linux/WSL、Node 22.13+、OpenCode 2；无工具验证契约已核验版本为 2.0.24。
 
 ## Windows 桌面看板

@@ -76,3 +76,9 @@ alpha.5 修复机器在线后仍保留旧版本报错的缓存合并问题，新
 
 
 6B 最终包原生正向通过，反向服务恢复后以原请求完成；桌面 110/110，图 10 组、普通 EXE、资源校验分别通过。现场失败与人工服务恢复限制保留在报告，6C 自动恢复与正式准出未算完成。
+
+## GitHub 候选程序交付
+
+2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
+
+本次完成已有 alpha.9 EXE、SHA256SUMS.txt 的公共下载，以及源码入口和分发证据同步。只交付下载通道，不改变当前迭代开发基线；升级/回滚与完整准出继续按原路线推进。见 [发布记录](iterations/I06/github-release.md)。

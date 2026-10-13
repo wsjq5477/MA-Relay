@@ -166,3 +166,9 @@ AB-F16、M01/M10：原用户后台 alpha.5 不支持布局方法，alpha.7 因�
 ## 2026-10-13：单一机器图与节点生命周期
 
 AB-F01/03/11/12/16，M01/M02/M03/M08/M10：alpha.9 将重复的机器/关系页合并，保留图授权、主需求和委派记录；添加从机器发现安装中选择，断开和移除以中央元数据原子撤权，保留原身份/任务/会话/安装。忙碌、等待、未知与离线拒绝变更；原 IPC 同样限制接入，丢 ACK 只查原 node operationId。完整范围及证据见 [alpha.9 节点管理](iterations/I06/node-management.md)。这不是机器移除、任务取消或原生卸载，也不完成 I06C。
+
+## AB-F17：GitHub 候选 EXE 分发
+
+2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
+
+M10 将已有 EXE 作为预发布附件分发，并提供大小和 SHA-256；下载分发与稳定版本准出分开。范围与实际结果见 [本次发布](iterations/I06/github-release.md)。没有改变产品协议、身份、数据或运行行为。

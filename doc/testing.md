@@ -154,3 +154,9 @@ alpha.5 普通 Windows 便携 EXE 的启动/关闭/重开另有实际 3 项通�
 ## alpha.9 当前节点管理基线
 
 2026-10-13：本次桌面工程 125/125（受控）通过，节点状态/撤权/收据原子提交、原生/授权 unknown、忙碌/离线、原身份恢复、原 IPC 接入约束及写盘失败均有反例。Windows 生产界面的新节点生命周期、旧图交互、实际打包窗口、普通 EXE、性能与资源逐项结果见 [本次验收](iterations/I06/node-management.md)。历史稳定 0.5.0 和真实 alpha.6 原生链仍分别保留，不能扩大为 I06C 准出。
+
+## GitHub 下载分发核验
+
+2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
+
+M10 的 T-M10-25 仅记录真实上传、附件大小/摘要与公开发布状态；不增加模型、SSH 或 Windows 普通 EXE 的重测数量。历史 alpha.9 包证据与本次源码同步的沙箱失败分别保留，详见 [本次分发](iterations/I06/github-release.md)。
