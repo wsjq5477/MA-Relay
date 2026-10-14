@@ -1,6 +1,6 @@
 # I06 Windows 运行缓存与原提交恢复
 
-日期：2026-10-14。源码候选 **0.6.0-alpha.18**，基于工作区已有 alpha.17 维护优化。关联 I06-FIX-RUNTIME-01、AB-F07/11/17、M01-F07、M02-F04/F06、M03-F04/F06、M06-OC-F01、M07-F06/F07、M10-F05/F06。完整 I06C 和正式 0.6.0 仍未准出；本次未发布 GitHub 附件、未修改用户生产 profile。
+日期：2026-10-14。源码候选 **0.6.0-alpha.18**，基于工作区已有 alpha.17 维护优化。关联 I06-FIX-RUNTIME-01、AB-F07/11/17、M01-F07、M02-F04/F06、M03-F04/F06、M06-OC-F01、M07-F06/F07、M10-F05/F06。完整 I06C 和正式 0.6.0 仍未准出；GitHub alpha.18 prerelease 已发布，源码位于独立修复分支及 PR #1，尚未合入 master；未修改用户生产 profile。
 
 ## 需求与实际根因
 
@@ -67,4 +67,4 @@ Windows 中的原意图、旧缓存与查询响应为隔离受控数据；Electr
 
 ## 候选程序
 
-[AgentBridge-0.6.0-alpha.18-Windows-x64.exe](../../../desktop/release/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)，129,851,140 字节，SHA-256 `2d532ca797e49094314587fcbfa286c9fb58f41374b05f8d21dce0246ee3bc33`。本地候选已生成与核验，未上传 GitHub Release。本次文档检查见 [日志](../../../artifacts/runtime-recovery/2026-10-14/docs-check.log)，整体验证仍保留 I06C 未准出边界。
+[AgentBridge-0.6.0-alpha.18-Windows-x64.exe](../../../desktop/release/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)，129,851,140 字节，SHA-256 `2d532ca797e49094314587fcbfa286c9fb58f41374b05f8d21dce0246ee3bc33`。本地候选已生成与核验，并已作为 [GitHub prerelease](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.18) 分发：[EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)。源码标签绑定提交 `1f0d9efb98009053761580cc97af10a63b698863`，[PR #1](https://github.com/wsjq5477/MA-Relay/pull/1) 尚待审阅，master 未变。本次文档检查见 [日志](../../../artifacts/runtime-recovery/2026-10-14/docs-check.log)，整体验证仍保留 I06C 未准出边界。

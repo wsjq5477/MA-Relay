@@ -193,3 +193,5 @@ alpha.16 将维护原收据恢复修复打入窗口、冻结后台与 Linux 离�
 ## alpha.17 构建隔离
 
 正在进行的冻结 alpha.16 服务器链使用原离线资源，alpha.17 用独立临时源码快照构建，再与主工作区 CJS/前端/离线清单和最终 EXE 比对。已核验 alpha.16 manifest 固定摘要后收入兼容目录；不覆盖已发布版本，也不自动升级服务器。结果见 [本次交付](../../iterations/I06/maintenance-launch-recovery.md)。
+
+当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](../../iterations/I06/github-release.md)。

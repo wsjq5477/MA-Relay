@@ -205,3 +205,5 @@ AB-F17、M04/M10：原维护输入构造的当前整包校验结果仅在本次�
 ## alpha.18 运行缓存与原提交恢复
 
 AB-F07/11/17：修复 Coordinator→Windows 缓存复制的清单自引用，兼容旧缓存并保留损坏资源；仅严格匹配的原未派发提交可记明确拒绝，查询显示脱敏原因。工程、真实 Windows 运行资源、受控界面及候选包按 [当次分层证据](iterations/I06/runtime-recovery.md) 判定；未重跑用户新电脑或完整 I06C。
+
+当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](iterations/I06/github-release.md)。

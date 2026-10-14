@@ -158,3 +158,5 @@ alpha.15 发布复核：源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 
 ## alpha.17 独立最终候选检查
 
 2026-10-14：源码快照独立构建后与主工作区逐项校验通过，28 CJS / 1382 Linux 文件；EXE 129,849,380 字节，SHA-256 `aa97a2b2adbd3bff8837fee10d16433b929225d384dc5e5b1966d315873905d5`。[包报告](../../../artifacts/I06C-final/2026-10-14/package-alpha17-final.json)。普通 Windows EXE 启动/关闭/重开 3 项通过，无调试参数，独立 profile，原生需求 0：[窗口报告](../../../artifacts/I06C-final/2026-10-14/portable-alpha17.json)。冻结 alpha.16 服务器维护结果分别计，alpha.17 未冒充原生模型重测。
+
+当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](../../iterations/I06/github-release.md)。

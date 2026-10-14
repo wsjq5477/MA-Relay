@@ -1,6 +1,6 @@
 # 远端源码范围
 
-更新：2026-10-14。目标仓库：https://github.com/wsjq5477/MA-Relay 。当前源码候选版本为 0.6.0-alpha.16；本次同步源码和 Windows 预发布不代表正式 0.6.0，也不改变既有验收结论。alpha.9 首次同步记录保留为历史结果。
+更新：2026-10-14。目标仓库：https://github.com/wsjq5477/MA-Relay 。当前源码候选版本为 0.6.0-alpha.18；本次同步源码和 Windows 预发布不代表正式 0.6.0，也不改变既有验收结论。alpha.9 首次同步记录保留为历史结果。
 
 仓库包含源码、测试、构建脚本、依赖锁文件、模块设计和迭代资料。原生配置、开发运行状态、凭据、原始验收材料、依赖目录、构建输出和 Windows EXE 保留在本地，不随源码提交。历史文档中的实际任务、请求和会话标识已脱敏。
 
@@ -31,3 +31,11 @@ EXE 与 [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/
 ## 2026-10-14 alpha.16 源码与 Windows EXE
 
 当前源码与文档推送至 `master`，alpha.16 Windows x64 portable EXE 以 GitHub prerelease 分发。测试：根 43/43、桌面 163/163、SSH 恢复 TCP 集成 7/7；`verify-package.cjs --portable` 通过。EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`；28 个后台模块、1381 个 Linux 资源，app.asar/前端匹配源码。未执行真实 Windows 流程或独立服务器维护重验，完整 I06C 未准出。
+
+## 2026-10-14 alpha.18 源码与 Windows EXE 分发
+
+修复源码提交 `1f0d9efb98009053761580cc97af10a63b698863` 已推送到 `codex/windows-runtime-recovery-alpha18`，并提交 [PR #1](https://github.com/wsjq5477/MA-Relay/pull/1) 审阅；尚未合入 `master`。`v0.6.0-alpha.18` GitHub prerelease 绑定该确切源码提交，EXE/前端/后台/离线资源已核对一致。默认分支保持原提交，未强制更新。
+
+[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.18)。EXE **129,851,140** 字节，SHA-256 `2d532ca797e49094314587fcbfa286c9fb58f41374b05f8d21dce0246ee3bc33`；两附件 state=uploaded，远端大小和 digest 与本地一致，发布 draft=false/prerelease=true。公开元数据和下载检查见 [分发证据](../artifacts/runtime-recovery/2026-10-14/github-release.json)。
+
+桌面 176/176、核心 43/43、lint/类型/构建/文档通过；真实 Windows Electron 资源、Edge 受控响应、普通无调试 EXE/合成旧记录及关闭重开分别通过，模型 0。28 个后台模块和 1383 个 Linux 资源文件与最终源码匹配。未在用户新电脑复测，完整 I06C/正式 0.6.0 未准出，历史原生失败和 unknown 仍按原证据保留。

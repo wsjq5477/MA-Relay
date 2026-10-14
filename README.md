@@ -214,3 +214,9 @@ Windows 6A 候选程序位于 `desktop/release/AgentBridge-0.6.0-alpha.2-Windows
 ## I06C 当前候选
 
 2026-10-14 / alpha.15：当前候选增加 SSH 维护入口通道拒绝恢复，Windows x64 包由当前源码重建并已核对摘要后上传至 GitHub。完整 I06C、独立服务器原生文件恢复和正式 0.6.0 未准出。实现/证据见 [I06C 收尾](doc/iterations/I06/final-delivery.md)，用户下载 [alpha.15 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe)。
+
+## alpha.18 Windows 修复预发布
+
+[下载 Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.18) · [源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。
+
+修复 Windows OpenCode 提交时的共享运行缓存错误、严格核对旧未派发请求，并显示查询结果。先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；节点和历史保留，旧命令不自动重发。无需为 AgentBridge 安装 Node.js 或 WSL。此为 prerelease，源码独立分支尚未合入 master，完整 I06C 仍未准出。
