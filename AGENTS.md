@@ -10,6 +10,8 @@
 
 alpha.18 的 Windows 运行缓存与原未派发提交恢复见 [专项](doc/iterations/I06/runtime-recovery.md)。源码已提交独立修复分支及 PR #1，尚未合入 master；发布标签绑定已验证源码，不以预发布替代完整 I06C 准出。
 
+alpha.19 当前源码候选修复 Linux 非交互后台 CLI 发现，SSH 必须升级原远端后台后重扫；当前验证见 [专项](doc/iterations/I06/linux-cli-discovery.md)，不把本机受控 SSH 当作用户服务器实测。
+
 ## 修改后必须同步
 
 任何产品功能变更，在同一次交付中更新：

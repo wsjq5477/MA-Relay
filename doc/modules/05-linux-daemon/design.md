@@ -1,6 +1,6 @@
 # M05 Linux 机器后台设计
 
-更新日期：2026-10-14。代码基线：新安装 daemon `0.6.0-alpha.13`；可复用可信清单内的 alpha.2–alpha.11，实际运行版本由握手确认、远端协议 `2`。独立进程、私有 socket、收据去重、relay 分离已实现；已有独立服务器断线期间任务继续记录。事件过期补偿已在 alpha.10 实现；完整故障矩阵尚未完成，详见 [测试报告](test-report.md)。
+更新日期：2026-10-14。代码基线：新安装 daemon `0.6.0-alpha.19`；可复用可信清单内的 alpha.2–alpha.11，实际运行版本由握手确认、远端协议 `2`。独立进程、私有 socket、收据去重、relay 分离已实现；已有独立服务器断线期间任务继续记录。事件过期补偿已在 alpha.10 实现；完整故障矩阵尚未完成，详见 [测试报告](test-report.md)。
 
 ## 1. 用途与功能
 
@@ -34,6 +34,8 @@ flowchart LR
 daemon 不开放 TCP 监听，也不接受用户密码、私钥或模型设置。认证与安装由 [M04](../04-ssh-access/design.md)负责，任务/会话语义由 [M07](../07-task-session/design.md)负责，工具原生能力由 [M06](../06-native-adapters/design.md)负责，主从允许关系由 [M08](../08-collaboration/design.md)负责。
 
 `productionHost()` 加载根编译产物 `dist/desktop-host.js` 的 `DesktopHost` 和共享 CJS `MachineHost`。OpenCode 使用已有 Controller/driver；Claude 与 Codex 使用各自原生 host。无需另建远端模型 API 层，也不重写原生全局认证/供应商/默认模型。
+
+发现通过共享 tool-discovery 读取本 Linux 用户的 PATH、默认目录和常见版本管理器安装目录；不会执行交互 rc 脚本，不依赖 Windows 的安装或客户端 PATH。已验证可复用旧 daemon 继续使用其旧代码；新扫描功能须经原机器受控升级后生效。新增扫描不改变私有 socket/协议、用户/profile 归属或原任务收据。[alpha.19](../../iterations/I06/linux-cli-discovery.md)。
 
 ## 3. 身份、目录与单写者
 

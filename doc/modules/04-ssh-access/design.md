@@ -40,6 +40,8 @@ SshManager 的 state 保存本次连接错误；成功转换到无错误状态�
 
 范围是可直接访问的 Linux SSH 地址。当前不支持 ProxyJump/任意 ProxyCommand、SSH 交互式 MFA、主机证书 CA、PTY 登录会话；不自动转发本机 agent，不把 SSH 私钥上传服务器。
 
+工具发现由实际远端 daemon 执行，版本由 inspect/hello 核对。Linux 用户态 Node 版本管理器安装的 CLI 在 alpha.19 增加覆盖；客户端换包或重连不替换兼容旧 daemon。用户须在原机器“后台维护 → 升级后台”加载新扫描代码；不自动维护服务器、不改 SSH 登录用户、原生账号或机器身份。[扫描修复与使用](../../iterations/I06/linux-cli-discovery.md)。
+
 ## 3. 连接、主机与凭据对象
 
 | 对象 | 关键字段 | 稳定性/存储 |

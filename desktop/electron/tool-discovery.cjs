@@ -15,14 +15,34 @@ function command(executable, args, environment=process.env) {
   for(const [name,js] of candidates){const file=path.join(folder,'node_modules',name);if(fs.existsSync(file))return js?{executable:fs.existsSync(path.join(folder,'node.exe'))?path.join(folder,'node.exe'):process.execPath,args:[file,...args],env:{...environment,ELECTRON_RUN_AS_NODE:'1'}}:{executable:file,args,env:{...environment,ELECTRON_RUN_AS_NODE:undefined}};}
   throw Object.assign(new Error('无法解析工具命令脚本，请使用原生安装后重新扫描。'),{code:'TOOL_LAUNCHER'});
 }
+// Detached Linux daemons do not load interactive shell startup files. Probe
+// known per-user installation layouts without sourcing rc files or changing PATH.
+function managedLinuxFolders(home, env) {
+  const data=env.XDG_DATA_HOME||path.join(home,'.local/share');
+  const fnm=env.FNM_DIR||path.join(data,'fnm'),nvm=env.NVM_DIR||path.join(home,'.nvm');
+  const asdf=env.ASDF_DATA_DIR||path.join(home,'.asdf'),mise=env.MISE_DATA_DIR||path.join(data,'mise');
+  const folders=[path.join(env.VOLTA_HOME||path.join(home,'.volta'),'bin'),path.join(asdf,'shims'),
+    path.join(mise,'shims'),path.join(env.CARGO_HOME||path.join(home,'.cargo'),'bin'),
+    path.join(env.BUN_INSTALL||path.join(home,'.bun'),'bin'),env.PNPM_HOME||path.join(data,'pnpm')];
+  const prefix=env.npm_config_prefix||env.NPM_CONFIG_PREFIX;
+  if(prefix)folders.push(path.join(prefix,'bin'));
+  for(const [root,suffix] of [[path.join(fnm,'node-versions'),'installation/bin'],[path.join(nvm,'versions/node'),'bin'],
+    [path.join(asdf,'installs/nodejs'),'bin'],[path.join(mise,'installs/node'),'bin']]){
+    let versions;try{versions=fs.readdirSync(root,{withFileTypes:true});}catch{continue;}
+    for(const version of versions.filter(item=>item.isDirectory()||item.isSymbolicLink()).sort((a,b)=>b.name.localeCompare(a.name,'en',{numeric:true})))
+      folders.push(path.join(root,version.name,suffix));
+  }
+  return folders.filter(Boolean);
+}
 async function scanTools(options={}) {
   const home=options.home||os.homedir(), env=options.environment||process.env;
-  const windows=(options.platform||process.platform)==='win32';
-  const folders=[...(env.Path||env.PATH||'').split(windows?';':path.delimiter).filter(Boolean),path.join(home,'.local/bin'),path.join(home,'.opencode/bin'),path.join(home,'.npm-global/bin'),path.join(home,'.claude/local')];
+  const platform=options.platform||process.platform,windows=platform==='win32';
+  const folders=[...((windows?env.Path||env.PATH:env.PATH)||'').split(windows?';':path.delimiter).filter(Boolean),path.join(home,'.local/bin'),path.join(home,'.opencode/bin'),path.join(home,'.npm-global/bin'),path.join(home,'.claude/local')];
   if(windows)folders.push(path.join(env.APPDATA||path.join(home,'AppData/Roaming'),'npm'),path.join(home,'scoop/shims'));
+  else if(platform==='linux')folders.push(...managedLinuxFolders(home,env));
   const result=[];
   await Promise.all(Object.entries(tools).map(async([adapter,name])=>{
-    const candidates=options.candidates?.[adapter]||folders.flatMap(dir=>(windows?[adapter+'.exe',adapter+'.cmd']:[adapter]).map(file=>path.resolve(dir,file)));
+    const candidates=options.candidates?.[adapter]||[...new Set(folders)].flatMap(dir=>(windows?[adapter+'.exe',adapter+'.cmd']:[adapter]).map(file=>path.resolve(dir,file)));
     const seen=new Set();
     let broken;
     for(const candidate of candidates){

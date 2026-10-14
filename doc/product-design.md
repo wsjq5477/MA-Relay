@@ -1,6 +1,6 @@
 # AgentBridge 整体功能设计
 
-更新：2026-10-14。适用：Windows 0.5.0 已发布功能，以及 0.6.0-alpha.18 的运行缓存修复源码候选。每项明确区分实现、发布和验收状态。
+更新：2026-10-14。适用：Windows 0.5.0 已发布功能，以及 0.6.0-alpha.19 的 Linux CLI 发现修复源码候选。每项明确区分实现、发布和验收状态。
 
 ## 1. 产品解决什么问题
 
@@ -32,7 +32,7 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | 功能 | 用户得到什么 | 当前状态 | 模块与验收 |
 | --- | --- | --- | --- |
 | AB-F01 机器概览 | 首先看到机器，再看到机器上的工具；没有项目也能查看 | 本机 Windows/WSL 已发布；alpha.10 SSH 编辑/断开/移除/恢复专项通过，历史和身份保留 | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
-| AB-F02 自动发现工具 | 扫描受支持安装位置，显示名称、版本、健康与安装位置 | 已发布；扫描不调用模型 | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
+| AB-F02 自动发现工具 | 扫描受支持安装位置，显示名称、版本、健康与安装位置 | alpha.19 增加 Linux 用户态 fnm/nvm 等安装目录；扫描不调用模型，SSH 须更新实际远端 daemon | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
 | AB-F03 接入节点 | 图节点动作接入；不要求项目、模型和供应商 | 0.5.0 多选已发布；alpha.9 支持按机器添加、断开、移除及原身份恢复 | [M01](modules/01-desktop/design.md) / [报告](modules/01-desktop/test-report.md) |
 | AB-F04 SSH 添加 Linux | 输入地址、端口、用户名和已有 SSH 登录方式 | 源码已实现；Windows 密码与真实 Linux 接入通过；其他认证专项范围见 M04 报告 | [M04](modules/04-ssh-access/design.md) / [报告](modules/04-ssh-access/test-report.md) |
 | AB-F05 主机信任与凭据 | 首次确认指纹；默认不保存秘密；可选 Windows 系统加密保存 | 源码与受控测试存在；Windows 密码/DPAPI 及加密私钥/隔离 agent 有实际证据；系统服务兼容专项保留 | [M04](modules/04-ssh-access/design.md) / [报告](modules/04-ssh-access/test-report.md) |
@@ -207,3 +207,13 @@ AB-F17、M04/M10：原维护输入构造的当前整包校验结果仅在本次�
 AB-F07/11/17：修复 Coordinator→Windows 缓存复制的清单自引用，兼容旧缓存并保留损坏资源；仅严格匹配的原未派发提交可记明确拒绝，查询显示脱敏原因。工程、真实 Windows 运行资源、受控界面及候选包按 [当次分层证据](iterations/I06/runtime-recovery.md) 判定；未重跑用户新电脑或完整 I06C。
 
 当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](iterations/I06/github-release.md)。
+
+## alpha.19 Linux CLI 发现
+
+AB-F02/07/17：补齐非交互 Linux 后台的用户态版本管理器/包管理器目录扫描，保留原 PATH 优先、realpath 身份和原生配置；不 source rc 或发模型需求。Windows 新包包含更新后的 Linux 后台，SSH 原机器需显式升级后重扫，客户端换包不自动更新远端。实际检查与边界见 [专项](iterations/I06/linux-cli-discovery.md)。
+
+## alpha.19 OpenCode 二次发现与 Windows 配置写入
+
+AB-F02/07/17，M03/M06/M09/M10：Core 与节点复用共享安装扫描，创建上下文只核验原 executable；修复 Windows 只读句柄/目录 fsync 导致的配置写入失败，保留修订锁、原子替换与原请求占位。受控工程和 Windows PE/进程证据通过，不将安装版本或启动失败检查冒充真实模型可用；最终与 Linux CLI 修复合并交付。见 [需求、实测和限制](iterations/I06/opencode-discovery.md)。
+
+2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。

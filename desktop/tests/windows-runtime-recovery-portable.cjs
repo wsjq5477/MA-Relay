@@ -14,7 +14,7 @@ fs.writeFileSync(path.join(profile,'machines.json'),JSON.stringify({version:1,lo
 fs.writeFileSync(path.join(profile,'agent-network.json'),JSON.stringify({version:1,revision:0,nodes:[{nodeId,machineId,adapter:'opencode',name:'Controlled OpenCode',executable:'C:/controlled-unavailable/opencode.exe',connected:true,executionSupported:true}],collaboration:{leaderId:nodeId,memberIds:[],revision:1},requests:[{requestId,machineId,nodeId,fingerprint,createdAt:new Date().toISOString(),dispatched:false,collaboration:true}],delegations:[]}));
 fs.writeFileSync(path.join(profile,'pending.json'),JSON.stringify([{id:requestId,op:'submit',params,machineId,state:'unknown',time:new Date().toISOString(),result:{error:{code:'CLAUDE_RUNTIME_INVALID',message:'controlled original runtime error'}}}]));
 const output=process.env.AGENTBRIDGE_RUNTIME_PORTABLE_REPORT||path.resolve(__dirname,'../../artifacts/runtime-recovery/2026-10-14/portable.json');
-const report={date:new Date().toISOString(),version,environment:'Windows ordinary alpha.18 portable EXE / synthetic alpha.9 original intent / isolated profile',status:'running',checks:[],nativePrompts:0};
+const report={date:new Date().toISOString(),version,environment:`Windows ordinary ${version} portable EXE / synthetic alpha.9 original intent / isolated profile`,status:'running',checks:[],nativePrompts:0};
 const delay=ms=>new Promise(r=>setTimeout(r,ms));let wrapper,main,client;
 const ps=command=>new Promise((resolve,reject)=>execFile('powershell.exe',['-NoProfile','-NonInteractive','-Command',command],{windowsHide:true,timeout:15000},(e,o)=>e?reject(e):resolve(o.trim())));
 async function launch(){

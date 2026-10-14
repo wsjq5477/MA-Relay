@@ -1,12 +1,12 @@
 # M10 构建、发布与持久运行资源设计
 
-更新：2026-10-14。桌面当前源码候选 0.6.0-alpha.18、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源。
+更新：2026-10-14。桌面当前源码候选 0.6.0-alpha.19、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
 
 ## 1. 功能范围
 
 | 功能 ID | 交付目标 | 当前状态 |
 | --- | --- | --- |
-| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.16 当前桌面 163/163；根 43/43 于 2026-10-14 实测通过；当前界面/发布检查见 I06C 收尾报告 |
+| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.19 当前桌面 181/181；根 45/45 于 2026-10-14 实测通过；当前界面/发布检查见 I06C 收尾报告 |
 | M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | 0.6.0-alpha.16 便携 EXE 已重建并通过包一致性校验；本次未重新执行真实 Windows 用户流程 |
 | M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.16 资源已随 Windows 包生成，包含 1381 个文件；独立远端真实场景仍按 I06C 报告的边界记录 |
 | M10-F04 | 发布包坏路径/坏摘要拒绝安装，远端校验后原子激活版本 | 校验实现，受控安全检查及真实正常安装通过；破坏性故障矩阵未完成 |
@@ -21,15 +21,19 @@ M10 管理可执行材料和一致性，不管理模型/账号，也不把远端
 | 名称 | 当前值/位置 | 含义 |
 | --- | --- | --- |
 | 根 CLI 包版本 | `package.json` = `0.1.0` | 本地 CLI 工程包版本；不代表当前桌面功能发布版 |
-| 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.15` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
-| 已发布 Windows EXE | `AgentBridge-0.5.0-Windows-x64.exe` | 稳定历史程序；当前源码候选包为 `AgentBridge-0.6.0-alpha.15-Windows-x64.exe`，完整 I06C 尚未准出 |
+| 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.19` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
+| 已发布 Windows EXE | `AgentBridge-0.5.0-Windows-x64.exe` | 稳定历史程序；当前源码候选包为 `AgentBridge-0.6.0-alpha.19-Windows-x64.exe`，完整 I06C 尚未准出 |
 | 根编译物 | `dist/` | TypeScript core/CLI/DesktopHost，供桌面与 daemon 共用 |
 | 前端编译物 | `desktop/dist/` | Vite 静态资源，Electron 窗口加载 |
 | 后台暂存物 | `desktop/.bridge-runtime/` | CJS 后台与根生产依赖闭包 |
 | Linux 离线资源 | `desktop/.linux-package/` | manifest + Linux 后台/依赖/runtime/node |
 | 解包目录 | `desktop/release/win-unpacked/` | 构建中间物，不是保证最新的发布事实 |
 
-当前 `win-unpacked` 和 portable EXE 已在 2026-10-14 从 alpha.15 源码重建；包校验通过，`app.asar` 源码和前端均匹配，Linux 离线资源清单包含 1380 个文件。本次未重新执行真实 Windows 用户流程；alpha.13 的历史原生验收不冒充 alpha.15 全量复测。
+当前 alpha.19 发布包已构建并通过资源一致性检查；普通 Windows EXE 启动、关闭、重开及受控旧原请求恢复 4 组通过，未执行模型任务；Linux 版本探测是本机隔离 SSH 链路，不是用户服务器。清单和摘要见 Linux 发现专项报告。
+
+alpha.19 将同一 Linux CLI 发现修复打入窗口 CJS、冻结后台及 Linux 离线资源；可信 alpha.18 清单先与已交付 digest 核对再收入。客户端与原远端后台版本分别显示，旧版本继续可信复用，不自动升级；SSH 发现修复须用户维护原 daemon 后生效。[交付和分层证据](../../iterations/I06/linux-cli-discovery.md)。
+
+alpha.19 合并 OpenCode 二次发现/Windows Core 配置刷新与 Linux CLI 发现两项修复；包内 bridge/dist、Linux dist 与共享 CJS 都必须匹配最终源码。原早先 alpha.19 Linux-only 包不能作为合并包的核验事实。[OpenCode 范围](../../iterations/I06/opencode-discovery.md)、[统一交付](../../iterations/I06/linux-cli-discovery.md)。
 
 ## 3. 构建流程
 

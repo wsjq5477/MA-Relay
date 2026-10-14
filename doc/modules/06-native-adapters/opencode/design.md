@@ -41,6 +41,8 @@ flowchart LR
 
 Windows OpenCode 的 DesktopHost 先用共享 workerRuntime 准备 Electron/ICU 资源，再创建本机后台。缓存复制排除 runtime.json，兼容旧自引用清单；真正资源损坏时发布完整新副本、保留旧目录。若在派发前仍失败，中央依据原意图保存明确拒绝，并可严格核对 alpha.9 旧 unknown；不把查不到 Task 当作未执行。详见 [alpha.18](../../../iterations/I06/runtime-recovery.md)。
 
+OpenCode 创建上下文前复用共享 tool-discovery 对原 executable 版本核验，支持 Windows exe/cmd/npm 解析与共享 Linux 目录规则，保留 2.x API 门槛。原安装删除/损坏时明确拒绝，不能由 PATH 变化换另一安装；Windows 私有 SettingsStore 保留可写文件 flush、原子替换与修订锁，Linux 另刷新目录。实际 Windows 版本/配置/受控退出证据不代表真实模型或原生 Session 恢复。[专项](../../../iterations/I06/opencode-discovery.md)。
+
 ## 3. 原生服务与配置来源
 
 托管服务只允许 `127.0.0.1` 和明确端口，执行 `opencode serve --hostname 127.0.0.1 --port …`。服务认证由 Bridge 生成，不改变用户 Provider 登录。服务类型、PID、出生时间、可执行文件、目录和受保护身份记录用于确认归属；仅凭端口可连或 PID 存在不能接管。

@@ -1,5 +1,9 @@
 # M09 CLI、controller 与 Hub/Edge 测试报告
 
+## alpha.19 OpenCode 二次发现与 Windows 配置专项
+
+WSL Ubuntu / Node 22.23.1：discovery 3/3（含于核心 45/45），桌面 181/181；受控回归、模型 0。[核心 TAP](../../../artifacts/opencode-discovery/2026-10-14/root-tests.tap)、[桌面 TAP](../../../artifacts/opencode-discovery/2026-10-14/desktop-tests.tap)。Windows 原始报告 UTC 2026-10-14T17:35:28.789Z / Electron Node 24.21.0：真实 PE 版本/解析、旧二次发现失败、修复后原路径核验、配置完整写入与旧revision拒绝、serve受控退出保留NATIVE_EXITED、删除原安装，共6组通过，[实际报告](../../../artifacts/opencode-discovery/2026-10-14/windows.json)。这是隔离PE/进程夹具，无真实OpenCode模型或用户另一台电脑验收。原生Windows完整生命周期和断电持久性未验证。根因、失败原证据、最终包与边界见 [专项](../../iterations/I06/opencode-discovery.md)。
+
 核对日期：2026-10-12。对应 [功能设计](design.md)。结论：本机 CLI/Core 受控回归通过，已有真实 OpenCode/PTY 验收；本报告不声称公网 Hub/WSS 或 CLI 全节点拓扑已经实现。
 
 ## 1. 基线和证据层级

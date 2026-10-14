@@ -38,7 +38,7 @@ Coordinator 管理多机器、节点和桌面台账；Core controller 管理一�
 
 1. TTY 中无子命令时进入交互菜单；非 TTY 默认调用只显示帮助，不启动服务或调用模型。
 2. 首次初始化私有状态目录和内部凭据，启动或复用 Core controller。
-3. 扫描 PATH、`~/.opencode/bin` 等安装位置，跳过损坏版本。
+3. 通过共享 tool-discovery 扫描当前平台安装位置，复用 Windows exe/cmd/npm 解析及 Linux 用户目录规则，跳过损坏版本；OpenCode Core 仍要求 2.x。
 4. 显示发现的工具，空格选择，回车后记录并启用当前目录的连接。
 5. 自动调用 start 和只读 check；失败显示原生启动原因，不把保存草稿当成已连接。
 6. 已配置启用连接再次进入时自动连接；高级路径/服务/历史配置单独入口。
@@ -142,7 +142,7 @@ Hub 重启将已尝试派发但未确认终态的任务置为传输 unknown；Ed
 | `hub-data/hub.sqlite` / `edge-data/edge.sqlite` | 任务/会话事实与执行端日志 |
 | `requests/<id>.json` / `operations/<id>.json` | CLI 在有副作用前保留的原输入 |
 
-设置保存要求 expectedRevision，临时文件写入、fsync 后替换并同步目录。导入旧 hub/edge/client 配置必须原位进行，不复制正在运行的数据库；保留历史 owner 和有限 allowlist，不能把导入当作授权扩大。
+设置保存要求 expectedRevision，临时文件用可写句柄 fsync 后原子替换；Linux 随后同步目录，Windows 不调用不受支持的目录 fsync。文件写入/刷新失败仍报告失败，不吞异常，也不改变修订锁或格式。Windows 实际完整配置/旧修订拒绝证据见 [专项](../../iterations/I06/opencode-discovery.md)。导入旧 hub/edge/client 配置必须原位进行，不复制正在运行的数据库；保留历史 owner 和有限 allowlist，不能把导入当作授权扩大。
 
 内部凭据不用于当前 Linux SSH 的用户接入流程。SSH 密码/密钥/agent 与本机 HTTP 用户 token 是不同层的身份。
 

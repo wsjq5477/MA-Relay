@@ -1,6 +1,6 @@
 # M06 原生 Agent 适配器设计
 
-更新日期：2026-10-12。当前实现基线：源码 `0.6.0-alpha.18`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.18`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，历史 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
+更新日期：2026-10-12。当前实现基线：源码 `0.6.0-alpha.19`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.18`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，历史 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
 
 本模块把用户机器上已有的 OpenCode、Claude Code 和 Codex CLI 接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。模型、供应商、账号和原生配置仍由原工具管理。本文是当前设计；变更过程保留在迭代文档中。
 
@@ -43,6 +43,10 @@ flowchart TD
 - 桌面及 Linux daemon 的 `MachineHost` 是 CommonJS 路由宿主，支持 OpenCode、Claude Code 和 Codex。Claude/Codex 宿主提供与桌面任务相容的 `call(method, params)` 接口，并不实现 TypeScript `AgentDriver`。
 
 这两套接口共享任务概念，尚未统一为插件 SDK。当前不能通过任意模块路径动态加载第三方适配器。
+
+Linux 共享发现器在原 PATH 之后检查用户态版本管理器/包管理器目录，不 source rc；Codex npm JS 启动器仍用原有结构化启动规则与后台 Node 调用，不新增模型覆盖。真实 CLI 版本通过只说明安装可调用，不证明原生推理、续聊或权限能力。SSH 场景需要更新远端后台。[alpha.19](../../iterations/I06/linux-cli-discovery.md)。
+
+OpenCode 的 DesktopHost 二次发现与机器节点使用相同安装扫描规则，并只核验原选中 executable；原安装不可调用不回退到另一套程序。安装成功仍不代表原生身份、服务或模型就绪。Windows Core 设置文件刷新/替换适配平台，不改变任务/原生身份核验。[完整范围](../../iterations/I06/opencode-discovery.md)。
 
 ## 3. 能力矩阵
 

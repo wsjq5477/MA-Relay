@@ -142,7 +142,7 @@ export class DesktopHost {
         })
         .strict()
         .parse(params);
-      const installed = await discoverOpenCode();
+      const installed = await discoverOpenCode({ executable: chosen.executable });
       if (!installed.some((a) => a.executable === chosen.executable))
         throw new BridgeError(
           "DISCOVERY_CHANGED",

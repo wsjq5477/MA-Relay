@@ -1,6 +1,6 @@
 # Codex 适配器设计
 
-更新日期：2026-10-12。源码：0.6.0-alpha.4；旧 0.6.0-alpha.2 包不含本次发现修复。功能 **M06-CX-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
+更新日期：2026-10-14。当前发现修复源码：0.6.0-alpha.19；旧 0.6.0-alpha.2 包不含本次发现修复。功能 **M06-CX-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途与当前能力
 
@@ -18,6 +18,8 @@
 | 主 Agent 协作 | 已实现 Bridge MCP | WSL 真实主/子任务链通过；MCP 权限限定 Bridge 工具 |
 
 目前 snapshot 声明 `resume: true` 是调用入口能力。真实原生版本已经出现续聊失败，界面不能据此声称每台机器续聊已验收可用。
+
+Linux 发现不再只依赖非交互 PATH：扫描 fnm/nvm 等常见用户态安装目录及传入的根目录变量，保留已有 PATH 优先级和规范安装路径。只执行 --version，不读取原生登录秘密或修改 rc。相同 CLI 版本在 Windows 可见不代表 SSH daemon 的 PATH 一样；必须由更新后的 Ubuntu 后台执行发现。[alpha.19 证据](../../../iterations/I06/linux-cli-discovery.md)。
 
 ## 2. 调用与消息路径
 

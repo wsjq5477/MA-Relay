@@ -1,5 +1,9 @@
 # M04 SSH 接入测试报告
 
+## alpha.19 Linux CLI 发现专项
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。
+
 当前基线：2026-10-14 / 0.6.0-alpha.16。工程与受控维护验证通过；独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 更新：2026-10-13。当前候选 alpha.8 的兼容资源核对见下节；alpha.5 修复与此前 0.6.0-alpha.2 的主要认证验收保持原范围。Windows 到独立 Linux 密码登录与实际 DPAPI 恢复通过；Windows 加密私钥/命名管道 agent 使用真实 SSH 协议与隔离服务验证。系统 OpenSSH agent 服务兼容性、全故障/延迟指标仍未专项实测。
 
@@ -138,3 +142,7 @@ T-M04-28 / M04-F08：2026-10-14 / WSL Ubuntu / Node 22.23.1，桌面 163/163，S
 2026-10-14 / WSL Ubuntu / Node 22.23.1，桌面 164/164 通过。新增已校验快照后兼容清单篡改仍拒绝的受控检查；Windows Node / WSL UNC 的冻结 alpha.16 资源完整校验 11,821ms，14 份固定清单核对 289ms。不是全链时延，不是 alpha.17 模型实测。[完整分层验收](../../iterations/I06/maintenance-launch-recovery.md)。
 
 2026-10-14：冻结 alpha.16 的独立 Linux 空闲维护升级/回滚/再次升级/停止/明确重连/卸载全链通过，五个原维护 confirmed，原生需求 0，身份与用户原配置保持。该 profile 无原生任务，不充当非空模型历史迁移验收；原文件 unknown 另存。[最终实机证据与限制](../../iterations/I06/maintenance-launch-recovery.md)。
+
+本专项工程补验：桌面 181/181、核心基线 43/43、lint/类型/构建通过；包内私有 Linux Node 的真实 CLI 版本探测复验通过，Windows EXE 已构建并核对资源，详见上述专项“实际验证”。不计为用户服务器升级或模型任务验收。
+
+2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](../../iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。

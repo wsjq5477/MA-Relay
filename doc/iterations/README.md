@@ -40,3 +40,7 @@
 当前 alpha.16 维护发送失败、原收据恢复、工程与实机分层验收见 [增量交付](I06/maintenance-launch-recovery.md)。
 
 - [I06 alpha.18：Windows 运行缓存与原提交恢复](I06/runtime-recovery.md) — 同原意图核对、无 Prompt 重放；工程/Windows/包证据分别记录。
+
+- [I06 alpha.19：Linux 非交互后台 CLI 发现](I06/linux-cli-discovery.md) — 用户态安装目录、原 PATH/身份保留及 SSH 实际后台升级边界。
+
+- [I06 alpha.19：OpenCode 二次发现与 Windows 配置写入](I06/opencode-discovery.md) — 核验原安装、Windows实际PE/配置/受控启动退出及合并交付边界。
