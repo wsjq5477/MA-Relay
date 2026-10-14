@@ -55,3 +55,19 @@ test('original durable unhealthy rejection settles the original request only; tr
   if(updates.length)assert.equal(updates[0][1],'rejected');
  }
 });
+
+test('query results explain unresolved originals without leaking remote error messages or sending prompts',async()=>{
+ const secret='synthetic-private-error-content';
+ for(const code of ['NOT_FOUND','DESKTOP_TRANSPORT','REMOTE_ERROR','private-token-value']){
+  const result=await recoverJournal([row({op:'submit'})],async()=>{throw Object.assign(Error(secret),{code});},()=>{throw Error('must remain unknown');});
+  assert.equal(result.remaining,1);assert.equal(result.items[0].id,'original');assert(result.items[0].reason);assert(!JSON.stringify(result).includes(secret));assert(!JSON.stringify(result).includes('private-token-value'));
+ }
+});
+
+test('only matching original undispatched evidence can settle a legacy runtime rejection without a native lookup',async()=>{
+ for(const extra of [{},{requestId:'other'},{machineId:'other'},{state:'unknown'}]){
+  const updates=[],calls=[];
+  const result=await recoverJournal([row({op:'submit'})],async(m,p)=>{calls.push(p);return missing();},async(...args)=>{updates.push(args);return true;},()=>false,()=>({requestId:'original',machineId:'wsl',state:'rejected',...extra}));
+  assert.equal(result.resolved,Object.keys(extra).length?0:1);assert.equal(updates.length,Object.keys(extra).length?0:1);assert.equal(calls.length,Object.keys(extra).length?1:0);
+ }
+});

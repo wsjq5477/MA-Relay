@@ -111,3 +111,5 @@ T-M05-16 / M05-F05/F06/F09：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受�
 ## alpha.13 本次独立实机补充
 
 2026-10-14：冻结 alpha.13 Windows 包与独立 Linux，真实升级、同原生 Session 两轮及两方向协作通过；真实 Windows 取消和普通无调试窗口原生标记分别通过。独立 SSH/生产 daemon 的精确响应丢失、10 同 ID 与重启为受控执行器证据，不充当真实模型。Linux 文件任务受原生 OOM 退出影响，原 ID/Session 与 unknown 占位保留，未准出、未重发；后续 alpha.14 上传专项不冒充此模型矩阵复测。逐场景原始证据、版本、实际失败、临时自有资源调度及剩余项见 [I06C 当前实机记录](../../iterations/I06/final-delivery.md)。
+
+2026-10-14：冻结 alpha.16 独立 Linux 生产 daemon/worker 空闲维护全链通过，五个维护 confirmed，原身份保持、卸载保留状态/原收据。模型 0；原 alpha.13 文件任务 unknown 在另一 profile，未停止其任务或释放占位。[逐项实机结果](../../iterations/I06/maintenance-launch-recovery.md)。

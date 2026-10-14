@@ -1,6 +1,6 @@
 # M10 构建、发布与持久运行资源设计
 
-更新：2026-10-14。桌面当前源码候选 0.6.0-alpha.15、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源。
+更新：2026-10-14。桌面当前源码候选 0.6.0-alpha.18、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源。
 
 ## 1. 功能范围
 
@@ -127,7 +127,7 @@ Linux 构建默认使用当前 `process.execPath`；可通过 `AGENTBRIDGE_LINUX
 | `coordinatorRuntime` | 整套 root dist、后台 CJS、生产依赖、Linux 离线包 | 桌面版本+代码摘要目录，GUI 与临时解包目录无关 |
 | Linux 版本目录 | daemon/依赖/私有 Node | SSH 断开不删除安装物；运行数据另存 |
 
-`workerRuntime` 复用副本时检查文件大小，并未对该副本重新逐文件算 SHA-256；Coordinator 缓存摘要也未覆盖全部依赖与 Linux 包内容。这些是目前实现边界，发布时需实际核对资源，不能把缓存 manifest 存在视为整包已验收。
+`workerRuntime` 新清单为 version=2，逐文件检查 size/SHA-256、必需资源和文件名；不复制或追踪 runtime.json/日志。旧清单兼容 size 检查，仅忽略 alpha.9 的清单自引用项，不改旧文件。其他资源损坏时从完整来源构建并原子发布独立 repair 目录，后续可复用；不覆盖或删除可能仍被 detached worker 使用的旧资源。来源不完整时明确拒绝。Coordinator 缓存摘要仍未覆盖全部依赖与 Linux 包内容，运行缓存通过不能代替整包验收。原请求只读恢复规则见 [本次修复](../../iterations/I06/runtime-recovery.md)。
 
 ## 7. 发布准出与尚未实现
 
@@ -185,3 +185,11 @@ alpha.13 包含 28 个后台 CJS 和 1378 个 Linux 文件，收录已构建并�
 实现入口：[stage-linux-package.cjs](../../../desktop/scripts/stage-linux-package.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
 
 alpha.14 将上传诊断、原安装恢复界面和当前后台源码同时打入 portable/离线包，收录已核对实际 alpha.13 包摘要的兼容 manifest。当前分层验证与未测范围见 [上传修复交付](../../iterations/I06/ssh-upload-recovery.md)；普通 EXE 和原服务器安装证据必须分别判定。
+
+## alpha.16 候选一致性
+
+alpha.16 将维护原收据恢复修复打入窗口、冻结后台与 Linux 离线包；收录已核对 alpha.15 实际包摘要的可信兼容清单，不自动升级用户服务器。构建与普通 EXE 分开核验，最终依据源码/包比对及真实窗口启动；并发构建中途的 EXE 大小/哈希不作为最终分发证据。见 [本次交付](../../iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.17 构建隔离
+
+正在进行的冻结 alpha.16 服务器链使用原离线资源，alpha.17 用独立临时源码快照构建，再与主工作区 CJS/前端/离线清单和最终 EXE 比对。已核验 alpha.16 manifest 固定摘要后收入兼容目录；不覆盖已发布版本，也不自动升级服务器。结果见 [本次交付](../../iterations/I06/maintenance-launch-recovery.md)。

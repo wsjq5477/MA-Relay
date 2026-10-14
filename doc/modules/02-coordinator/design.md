@@ -1,6 +1,6 @@
 # M02 中央协调后台设计
 
-更新日期：2026-10-14。代码基线：桌面源码 `0.6.0-alpha.13`，根 CLI 包 `0.1.0`；Windows 已发布便携版仍为 `0.5.0`。本模块已实现独立后台和本地 IPC，Windows 候选生命周期与普通 EXE 已验收。测试结论见 [本模块测试报告](test-report.md)。
+更新日期：2026-10-14。代码基线：桌面源码 `0.6.0-alpha.18`，根 CLI 包 `0.1.0`；Windows 已发布便携版仍为 `0.5.0`。本模块已实现独立后台和本地 IPC，Windows 候选生命周期与普通 EXE 已验收。测试结论见 [本模块测试报告](test-report.md)。
 
 ## 1. 用途与交付功能
 
@@ -110,7 +110,7 @@ sequenceDiagram
 | `preferences` / `savePreferences` | 读取/保存 `theme`、`distribution`、`directory` |
 | `runtimes` / `machines` | 查询平台/发行版或机器目录 |
 | `pending` | 返回 `pending` / `unknown` 操作 |
-| `recoverPending` | 查询原收据后核对台账，不重发需求 |
+| `recoverPending` | 返回 resolved、可选 remaining/items；核对原回执或严格匹配的未派发意图，不重发需求 |
 | `shutdown` | IPC 层停止服务；普通 `service.dispatch` 不接受此方法 |
 
 最小调用示例（仅示意程序内契约，不是 HTTP 接口）：
@@ -139,6 +139,8 @@ await client.request('recoverPending');
 | `unknown` | 可能已执行，但未核对到收据 | 查询原请求；同机器的新写操作暂时阻断 |
 
 已有未知操作不能用相同 ID 替换内容，也不能靠切换实例或机器来源消除警告。恢复仅在原台账时间、参数和状态未被其他调用更改时更新结果，避免覆盖并发提交。未确认记录全部保留，已解决历史只保留最近 100 条。
+
+Windows OpenCode 的共享运行资源 INVALID/MISSING 可发生在上下文创建前。仅原 submit 的机器/节点/请求 ID/内容指纹对应，原中央 intent.dispatched===false、无任务/会话绑定且无 nodeJob 时，才将该条旧 unknown 对账为 rejected；落盘前再次核验。新提交同样按这一证据分类，不能只凭错误码或一次 not_found 解除占位。原参数/ID/历史保留。查询返回固定原因，任意远端错误正文不下发。[需求与验证](../../iterations/I06/runtime-recovery.md)。
 
 ## 7. 已知限制与后续设计
 

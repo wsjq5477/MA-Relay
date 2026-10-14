@@ -223,3 +223,57 @@ test('legacy imported instance ownership is rechecked after snapshot before nati
   await assert.rejects(f.router.call('ipc',{op:'submit',agentId:instance.instanceId,requestId:'unbound-bypass',message:'no'}),{code:'NODE_DISCONNECTED'});
   assert.equal(f.hosts.get(node.machineId).executions,0);
 });
+
+test('Windows OpenCode runtime failures reject before dispatch and legacy unknown recovery reads the original intent only',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  node.adapter='opencode';f.router.node(node.nodeId).adapter='opencode';
+  const originalCall=host.call.bind(host);host.call=async(method,p)=>method==='context'?Promise.reject(error('CLAUDE_RUNTIME_INVALID')):originalCall(method,p);
+  const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+  let service=createCoordinatorService({directory:f.directory,platform:'win32',version:'fixture',network:f.router});
+  const params={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'runtime-original',message:'private original prompt',collaboration:false};
+  const failed=await service.call({method:'nodeRequest',params});assert.equal(failed.error.code,'CLAUDE_RUNTIME_INVALID');assert.equal(service.pending().length,0);
+  const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));
+  assert.equal(rows[0].state,'rejected');assert.equal(host.executions,0);
+  assert.equal(f.router.network.requests[0].dispatched,false);
+  // Reproduce the original alpha.9 journal and reopen the same identity.
+  rows[0].state='unknown';fs.writeFileSync(file,JSON.stringify(rows));
+  const restored=new AgentNetwork(f.options);t.after(()=>restored.close());
+  service=createCoordinatorService({directory:f.directory,platform:'win32',version:'fixture',network:restored});
+  const before=host.calls.length,result=await service.recoverPending();
+  assert.equal(result.resolved,1);assert.equal(result.remaining,0);assert.equal(service.pending().length,0);
+  assert.equal(host.calls.length,before);assert.equal(host.executions,0);
+  const saved=JSON.parse(fs.readFileSync(file))[0];assert.equal(saved.id,'runtime-original');assert.equal(saved.state,'rejected');assert.equal(saved.params.message,params.message);assert(saved.reconciledAt);
+  assert.equal(restored.network.requests.length,1);assert.equal(restored.network.requests[0].requestId,'runtime-original');
+});
+
+test('runtime migration cannot settle missing, changed, foreign, in-flight or dispatched original intents',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  f.router.node(node.nodeId).adapter='opencode';
+  const originalCall=host.call.bind(host);host.call=async(method,p)=>method==='context'?Promise.reject(error('CLAUDE_RUNTIME_INVALID')):originalCall(method,p);
+  const p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'runtime-protected',message:'private original prompt'};
+  await assert.rejects(f.router.call('nodeRequest',p),{code:'CLAUDE_RUNTIME_INVALID'});
+  const row={id:p.requestId,op:'submit',machineId:p.machineId,params:p,result:{error:{code:'CLAUDE_RUNTIME_INVALID'}}};
+  assert(f.router.undispatchedRejection(row));
+  const receipt=f.router.network.requests[0],baseline=structuredClone(receipt);
+  for(const changes of [{dispatched:true},{dispatched:undefined},{taskId:'existing-task'},{conversationId:'existing-conversation'},{fingerprint:'different'},{machineId:'foreign'},{nodeId:'foreign'}]){
+    Object.assign(receipt,changes);assert.equal(f.router.undispatchedRejection(row),null);Object.keys(receipt).forEach(k=>delete receipt[k]);Object.assign(receipt,baseline);
+  }
+  for(const changed of [{...row,result:{error:{code:'DESKTOP_TRANSPORT'}}},{...row,params:{...p,message:'changed'}},{...row,params:{...p,collaboration:true}},{...row,params:{...p,machineId:'foreign'}},{...row,params:{...p,requestId:'other'}}])assert.equal(f.router.undispatchedRejection(changed),null);
+  f.router.nodeJobs.set(node.nodeId,Promise.resolve());assert.equal(f.router.undispatchedRejection(row),null);f.router.nodeJobs.delete(node.nodeId);
+  f.router.network.requests=[];assert.equal(f.router.undispatchedRejection(row),null);assert.equal(host.executions,0);
+});
+
+test('legacy runtime lookup retains uncertainty when the original intent is dispatched or changes during recovery',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  f.router.node(node.nodeId).adapter='opencode';const originalCall=host.call.bind(host);
+  host.call=async(method,p)=>method==='context'?Promise.reject(error('CLAUDE_RUNTIME_INVALID')):originalCall(method,p);
+  const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+  const service=createCoordinatorService({directory:f.directory,platform:'win32',network:f.router});
+  const p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'runtime-race',message:'original'};
+  await service.call({method:'nodeRequest',params:p});
+  const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));rows[0].state='unknown';fs.writeFileSync(file,JSON.stringify(rows));
+  const check=f.router.undispatchedRejection.bind(f.router);let changed=false;
+  f.router.undispatchedRejection=row=>{const result=check(row);if(!changed){changed=true;queueMicrotask(()=>{f.router.network.requests[0].dispatched=true;});}return result;};
+  const result=await service.recoverPending();assert.equal(result.resolved,0);assert.equal(service.pending().length,1);assert.equal(result.items[0].code,'JOURNAL_CHANGED');
+  const again=await service.recoverPending();assert.equal(again.resolved,0);assert.equal(service.pending().length,1);assert.equal(host.executions,0);
+});

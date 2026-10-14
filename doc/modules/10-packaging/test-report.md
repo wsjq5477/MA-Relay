@@ -1,5 +1,10 @@
 # M10 构建与发布测试报告
 
+## alpha.18 当前专项
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1 / 源码 0.6.0-alpha.18：共享缓存自引用/旧清单/损坏旁路重建、Windows OpenCode 原意图恢复与并发保护、查询结果和脱敏原因；定向 55/55（计入桌面全量 176/176），根 43/43，lint/类型/构建通过。受控文件/宿主测试，无模型调用。原始证据：[定向](../../../artifacts/runtime-recovery/2026-10-14/targeted.tap)、[全桌面](../../../artifacts/runtime-recovery/2026-10-14/desktop-tests.tap)。Windows 真实 Electron 资源 4 组、Edge 受控 UI 3 组、普通无调试 EXE/合成原意图与关闭重开 4 组均通过；包校验 28 CJS / 1383 Linux 文件与当前源码匹配。详细过程及边界按 [完整专项](../../iterations/I06/runtime-recovery.md) 的实际结果判定，不将历史原生证据提升为本次重测。
+
+
 当前基线：2026-10-14 / 0.6.0-alpha.15。工程和包一致性验证通过；独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 更新：2026-10-13。当前 0.6.0-alpha.8 拖动修复候选，最新包与普通窗口验证见当前专项；alpha.2/alpha.3 证据保留原版本。真实窗口/普通便携流程分别记录；0.5.0 保留为历史稳定发布，不把新包生成等同于整个 I06 准出。
 
@@ -145,3 +150,11 @@ alpha.15 发布复核：源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 
 ## alpha.16 当前源码包重建
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：`npm run dist:win` 首次因 electron-builder 临时打包错误退出，28 MB 临时文件未使用；清理临时 EXE 后重跑成功，`verify-package.cjs --portable` 通过。最终包版本 `0.6.0-alpha.16`，28 个后台模块、1381 个 Linux 文件，app.asar/前端匹配源码；EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`。根 43/43、桌面 163/163、SSH 定向集成 7/7 通过。真实 Windows 用户流程未重跑；完整 I06C 未准出。
+
+## alpha.16 最终候选验证
+
+2026-10-14：Windows x64 EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`；28 后台模块/1381 Linux 文件与源码一致：[最终包报告](../../../artifacts/I06C-final/2026-10-14/package-alpha16-final.json)。普通无调试 EXE 真实启动/关闭/重开 3 项通过，独立 profile、原生需求 0：[报告](../../../artifacts/I06C-final/2026-10-14/portable-alpha16.json)。实际 Linux 维护、原文件任务与完整准出限制见 [当前交付](../../iterations/I06/maintenance-launch-recovery.md)。历史 alpha.15 分发摘要不被本版本覆盖。
+
+## alpha.17 独立最终候选检查
+
+2026-10-14：源码快照独立构建后与主工作区逐项校验通过，28 CJS / 1382 Linux 文件；EXE 129,849,380 字节，SHA-256 `aa97a2b2adbd3bff8837fee10d16433b929225d384dc5e5b1966d315873905d5`。[包报告](../../../artifacts/I06C-final/2026-10-14/package-alpha17-final.json)。普通 Windows EXE 启动/关闭/重开 3 项通过，无调试参数，独立 profile，原生需求 0：[窗口报告](../../../artifacts/I06C-final/2026-10-14/portable-alpha17.json)。冻结 alpha.16 服务器维护结果分别计，alpha.17 未冒充原生模型重测。

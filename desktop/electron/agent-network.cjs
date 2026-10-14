@@ -4,6 +4,7 @@ const {MachineRouter,qualified,project,folderPath,workspaceKey}=require('./machi
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const hash=value=>createHash('sha256').update(value).digest('hex');
+const requestFingerprint=(nodeId,params)=>hash(JSON.stringify({nodeId,op:params.op,message:params.message,workspace:params.workspace||'',conversationId:params.conversationId||'',collaboration:!!params.collaboration}));
 const terminal=new Set(['succeeded','failed','cancelled']);
 class AgentNetwork extends MachineRouter {
   constructor(options){
@@ -56,6 +57,21 @@ class AgentNetwork extends MachineRouter {
     }
     return super.prepare(method,params);
   }
+  // Read the original central intent only. A missing native task is not proof
+  // of rejection; alpha.9's runtime error plus its undispatched intent is.
+  undispatchedRejection(row){
+    const code=row.result?.error?.code,p=row.params;
+    if(row.op!=='submit'||p?.op!=='submit'||p.requestId!==row.id||p.machineId!==row.machineId
+      ||!['CLAUDE_RUNTIME_INVALID','CLAUDE_RUNTIME_MISSING'].includes(code))return null;
+    const node=this.network.nodes.find(n=>n.nodeId===p.nodeId&&n.machineId===row.machineId);
+    if(!node||node.adapter!=='opencode'||this.machine(row.machineId).kind!=='windows'||this.nodeJobs.has(node.nodeId))return null;
+    const original=this.network.requests.find(r=>r.requestId===row.id&&r.machineId===row.machineId&&r.nodeId===node.nodeId);
+    if(!original||original.dispatched!==false||original.taskId||original.conversationId
+      ||original.fingerprint!==requestFingerprint(node.nodeId,p))return null;
+    return {requestId:row.id,machineId:row.machineId,state:'rejected',
+      error:{code,message:'原请求在准备后台运行资源时被拒绝，尚未派发；请求与历史已保留。'},
+      reconciliation:'original undispatched node intent and runtime rejection verified'};
+  }
   async nodeRequest(params){
     const node=this.node(params.nodeId),machine=this.machine(node.machineId);
     this.assertMachineAdmission(machine);
@@ -65,7 +81,7 @@ class AgentNetwork extends MachineRouter {
     if(!node.executionSupported)throw fail('ADAPTER_UNSUPPORTED','这个节点已发现，尚未完成执行适配。');
     if(params.model||params.providerID)throw fail('INVALID_INPUT','任务沿用原生工具配置，不接受模型或供应商覆盖。');
     if(!['submit','continue',undefined].includes(params.op)||typeof params.requestId!=='string'||!params.requestId||params.requestId.length>128||typeof params.message!=='string'||!params.message.trim()||params.message.length>65536)throw fail('INVALID_INPUT','请填写有效需求和请求 ID。');
-    const fingerprint=hash(JSON.stringify({nodeId:node.nodeId,op:params.op,message:params.message,workspace:params.workspace||'',conversationId:params.conversationId||'',collaboration:!!params.collaboration}));
+    const fingerprint=requestFingerprint(node.nodeId,params);
     const previous=this.network.requests.find(r=>r.requestId===params.requestId&&r.machineId===node.machineId);
     if(previous){
       if(previous.fingerprint!==fingerprint)throw fail('REQUEST_CONFLICT','原请求 ID 已用于其他内容，请查询原请求。');

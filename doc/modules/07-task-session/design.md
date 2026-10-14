@@ -142,6 +142,8 @@ Core SQLite 使用 WAL、FULL 同步、事务和独立的服务生命周期锁�
 {"method":"ipc","params":{"op":"operation","machineId":"local-demo","taskId":"local-demo::task-002","operationId":"cancel-001"}}
 ```
 
+recoverPending 的本地结果包含 resolved 和可选 remaining/items；未解决原因使用固定脱敏描述。Windows OpenCode 原 submit 的已保存资源 INVALID/MISSING，与完全匹配且无在途执行的原 intent.dispatched===false 共同构成执行前拒绝证明；落盘前再次核验，原 unknown 可记 rejected 并保留原参数/ID/历史。不能仅凭错误码或 not_found 放行。具体兼容范围见 [alpha.18](../../iterations/I06/runtime-recovery.md)。
+
 响应超时后，先用原 requestId / operationId 到原机器查询。其他机器的同名回执不解除本记录的不确定。仅 NOT_FOUND 不足以证明原动作未执行。
 
 关闭观察、关闭窗口、断开机器连接和取消原生任务是不同操作。窗口关闭后中央继续运行；SSH 断开后远端 daemon 继续持有任务。显式停止 Core controller 会停止其拥有的 Hub/Edge/托管原生服务，不能承诺与断开 SSH 相同的生存语义。

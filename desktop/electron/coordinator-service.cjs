@@ -148,10 +148,13 @@ function recoverPending() {
       // A concurrent submission/query may already have updated this receipt.
       if (!row || !["pending", "unknown"].includes(row.state) || row.time !== original.time
         || JSON.stringify(row.params) !== JSON.stringify(original.params)) return false;
+      if (result?.reconciliation === 'original undispatched node intent and runtime rejection verified'
+        && !connection().undispatchedRejection?.(row)) return false;
       Object.assign(row, { state, result:journalResult(row,result), reconciledAt: new Date().toISOString() });
       write("pending.json", rows);
       return true;
-    }, row => connection().machine(row.machineId).kind === "wsl"
+    }, row => connection().machine(row.machineId).kind === "wsl",
+    row => connection().undispatchedRejection?.(row)
   ).finally(() => { recoveringJournal = null; });
   return recoveringJournal;
 }
@@ -294,11 +297,13 @@ async function call(input) {
         settleOperation(p.operationId, result, p.machineId);
       return { ok: true, result };
     } catch (error) {
+      const runtimeRejection = mutation && input.method === 'nodeRequest' && !previousPending
+        && connection().undispatchedRejection?.({id:journalKey(p),op:p.op,machineId:p.machineId,params:p,result:{error:{code:error.code}}});
       if (mutation)
         operation(
           p.op,
           p,
-          !previousPending && [
+          runtimeRejection || !previousPending && [
             "AGENT_BUSY",
             "PROJECT_BUSY",
             "AGENT_NOT_FOUND",

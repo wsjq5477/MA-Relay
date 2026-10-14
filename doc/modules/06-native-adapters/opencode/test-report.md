@@ -1,5 +1,10 @@
 # OpenCode 适配器测试报告
 
+## alpha.18 当前专项
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1 / 源码 0.6.0-alpha.18：共享缓存自引用/旧清单/损坏旁路重建、Windows OpenCode 原意图恢复与并发保护、查询结果和脱敏原因；定向 55/55（计入桌面全量 176/176），根 43/43，lint/类型/构建通过。受控文件/宿主测试，无模型调用。原始证据：[定向](../../../../artifacts/runtime-recovery/2026-10-14/targeted.tap)、[全桌面](../../../../artifacts/runtime-recovery/2026-10-14/desktop-tests.tap)。Windows 真实 Electron 资源 4 组、Edge 受控 UI 3 组、普通无调试 EXE/合成原意图与关闭重开 4 组均通过；包校验 28 CJS / 1383 Linux 文件与当前源码匹配。详细过程及边界按 [完整专项](../../../iterations/I06/runtime-recovery.md) 的实际结果判定，不将历史原生证据提升为本次重测。
+
+
 更新日期：2026-10-12。功能 **M06-OC-F01**；对应[设计](design.md)。当前源码 `0.6.0-alpha.1`，本文不把现有 Windows `0.5.0` 包当作 SSH 新功能发布证据。
 
 ## 1. 当前工程证据

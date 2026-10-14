@@ -1,6 +1,6 @@
 # M03 机器、Agent 节点与执行上下文设计
 
-更新日期：2026-10-14。本文描述当前源码行为；桌面源码为 `0.6.0-alpha.13`，已发布 Windows 便携版为 `0.5.0`。SSH 的源码交付和 Windows 发布验收分别标记，不能以源码版本代表发布完成。
+更新日期：2026-10-14。本文描述当前源码行为；桌面源码为 `0.6.0-alpha.18`，已发布 Windows 便携版为 `0.5.0`。SSH 的源码交付和 Windows 发布验收分别标记，不能以源码版本代表发布完成。
 
 ## 1. 用户得到什么
 
@@ -142,6 +142,8 @@ flowchart LR
 ```
 
 连接另一个节点、换机器筛选或删除可见卡片，不能释放尚未核对的原执行。`REQUEST_NOT_FOUND` 也不能独立证明 Prompt 从未执行。
+
+原 Windows OpenCode submit 的运行资源失败可以在 Task 创建前被中央未派发意图证明。undispatchedRejection 只读同机器/节点/ID/内容指纹的原记录；dispatched 必须严格为 false，且无 Task/Conversation 绑定、节点无在途 job。Coordinator 落盘前再核验，其他未知占位不解除。[alpha.18 原意图恢复](../../iterations/I06/runtime-recovery.md)。
 
 ## 9. 当前限制与已确认后续设计
 

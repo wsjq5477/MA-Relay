@@ -259,6 +259,13 @@ export interface Preferences {
   platform?: string;
   version?: string;
 }
+export interface RecoveryItem {
+  id: string;
+  machineId?: string;
+  op: string;
+  code: string;
+  reason: string;
+}
 export interface Journal {
   id: string;
   machineId?:string;
@@ -285,7 +292,7 @@ export interface DesktopAPI {
   pickFolder(machineId?: string): Promise<string | null>;
   window(action: string): Promise<void>;
   pending(): Promise<Journal[]>;
-  recoverPending?(): Promise<{ resolved: number }>;
+  recoverPending?(): Promise<{ resolved: number; remaining?: number; items?: RecoveryItem[] }>;
 }
 declare global {
   interface Window {

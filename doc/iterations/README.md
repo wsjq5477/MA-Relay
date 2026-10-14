@@ -36,3 +36,7 @@
 2026-10-13：[alpha.9 GitHub 预发布及附件核验](I06/github-release.md)。分发已有程序，不变更原源码行为、不替代 Windows/SSH/原生 Agent 验收。
 
 当前 alpha.16 维护未发送边界补强与发布状态：[I06C 当前验收](I06/final-delivery.md)；[GitHub 源码与 Windows EXE 发布](I06/github-release.md)。完整 I06C 仍未准出。
+
+当前 alpha.16 维护发送失败、原收据恢复、工程与实机分层验收见 [增量交付](I06/maintenance-launch-recovery.md)。
+
+- [I06 alpha.18：Windows 运行缓存与原提交恢复](I06/runtime-recovery.md) — 同原意图核对、无 Prompt 重放；工程/Windows/包证据分别记录。

@@ -106,3 +106,9 @@ alpha.13 已实现后台可信升级/回滚/停止/卸载、原维护恢复、�
 AB-F06/F17，M01/M04/M10：alpha.14 区分安全的 SFTP 失败类别、按实际 ACK 字节计进度并等待关闭确认；明确上传失败后可重新检测和批准原安装，unknown 不显示重装入口。桌面 155/155、上传专项 5/5（含本机真实 TCP SSH/SFTP）和 Windows 受控响应界面 2 组通过。用户另一台机器到原服务器未重测；本次不自动改变 GitHub alpha.9 附件或完整 I06C 准出。包与 EXE 的分层实际结果见 [alpha.14 上传诊断与恢复](iterations/I06/ssh-upload-recovery.md)。
 
 2026-10-14 alpha.13 实机补充：真实升级、两轮及两方向通过；L2 受控执行器故障、Windows 原生取消/普通窗口分别通过。Linux 原生文件/恢复仍待原终态核对，完整 I06C 不准出；不释放原 unknown。当前上传候选 alpha.14 保持自己的证据范围，见 [收尾](iterations/I06/final-delivery.md)。
+
+当前剩余项已收敛为原 alpha.13 Linux 文件/恢复终态：维护实机全链已在冻结 alpha.16 空闲 profile 通过，alpha.17 工程/程序通过；需为原服务提供足够内存再按原 ID 恢复，不能另建任务冒充准出。见 [本次最终记录](iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.18 Windows 运行缓存与原提交恢复
+
+I06-FIX-RUNTIME-01 / AB-F07/11/17：排除共享缓存清单自引用，兼容旧清单，保留损坏副本；核对原未派发意图恢复旧 unknown，不重发需求；查询显示结果和固定原因。桌面 176/176、根 43/43 及类型/构建/lint 已通过；Windows 与最终包的实际结果、命令和未测范围以 [专项交付](iterations/I06/runtime-recovery.md) 为准，完整 I06C 未准出。

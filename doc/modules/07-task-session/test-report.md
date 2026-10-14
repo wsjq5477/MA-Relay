@@ -1,6 +1,11 @@
 # M07 任务、会话与恢复测试报告
 
-当前基线：2026-10-14 / 0.6.0-alpha.13。工程与受控维护验证通过，独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
+## alpha.18 当前专项
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1 / 源码 0.6.0-alpha.18：共享缓存自引用/旧清单/损坏旁路重建、Windows OpenCode 原意图恢复与并发保护、查询结果和脱敏原因；定向 55/55（计入桌面全量 176/176），根 43/43，lint/类型/构建通过。受控文件/宿主测试，无模型调用。原始证据：[定向](../../../artifacts/runtime-recovery/2026-10-14/targeted.tap)、[全桌面](../../../artifacts/runtime-recovery/2026-10-14/desktop-tests.tap)。Windows 真实 Electron 资源 4 组、Edge 受控 UI 3 组、普通无调试 EXE/合成原意图与关闭重开 4 组均通过；包校验 28 CJS / 1383 Linux 文件与当前源码匹配。详细过程及边界按 [完整专项](../../iterations/I06/runtime-recovery.md) 的实际结果判定，不将历史原生证据提升为本次重测。
+
+
+历史基线：2026-10-14 / 0.6.0-alpha.13。工程与受控维护验证通过，独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 核对日期：2026-10-12。对应 [功能设计](design.md)。结论：请求去重、状态持久化、原执行恢复和受控交互通过；真实能力按适配器区分，Windows Codex 账号拒绝和 WSL Codex 续聊限制未解决。
 
 ## 1. 证据与统计口径
@@ -95,3 +100,5 @@ T-M07-16 / M07-F04/F05/F06：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受�
 ## alpha.13 本次独立实机补充
 
 2026-10-14：冻结 alpha.13 Windows 包与独立 Linux，真实升级、同原生 Session 两轮及两方向协作通过；真实 Windows 取消和普通无调试窗口原生标记分别通过。独立 SSH/生产 daemon 的精确响应丢失、10 同 ID 与重启为受控执行器证据，不充当真实模型。Linux 文件任务受原生 OOM 退出影响，原 ID/Session 与 unknown 占位保留，未准出、未重发；后续 alpha.14 上传专项不冒充此模型矩阵复测。逐场景原始证据、版本、实际失败、临时自有资源调度及剩余项见 [I06C 当前实机记录](../../iterations/I06/final-delivery.md)。
+
+2026-10-14：原 alpha.13 文件任务再次沿原 Task/Session 核对仍 unknown，新 Prompt=0。停止已空闲自有 Controller 后可用内存 478,204 KiB、无空闲 swap；基于已有原生 OOM 证据，本次不重复启动，finally 恢复自有观察。未推定成功/取消，不更新数据库终态；完整准出仍缺该原终态。[当前证据](../../iterations/I06/maintenance-launch-recovery.md)。

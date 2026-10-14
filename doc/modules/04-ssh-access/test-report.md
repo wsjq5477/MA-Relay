@@ -122,9 +122,19 @@ T-M04-20 / M04-F04/F06：2026-10-14 / alpha.14。桌面受控 155/155，上传�
 
 ## alpha.15 维护入口会话拒绝恢复验证
 
-T-M04-27 / M04-F08：2026-10-14 / alpha.15，WSL Ubuntu / Node 22.23.1。范围：预检单 SFTP 会话；只读预检同连接+新连接各一次受控重试、语义拒绝不重试、凭据缺口 needs_credentials；维护启动"可证明未发出"重试一次、再次未发出记 rejected、其余保持 unknown；查询通道拒绝新连接重试一次；错误消息携带原因码/退出码。发布提交时桌面回归 159/159；随后新增四个传输边界用例后，当前桌面全量 **163/163** 通过（[ssh-recovery-integration](../../../desktop/tests/ssh-recovery-integration.test.cjs) 共 7 项真实本机 TCP 用例：受控 ssh2 服务器验证同连接/新连接拒绝恢复、未发出维护被确定拒绝、重启后原 operationId 仍 rejected、响应丢失后的 unknown 不可由新 ID 替换）。根 43/43、lint、typecheck 通过。受控服务器不等于独立服务器根因确认；独立空闲维护专项需以 alpha.15 重验，结果另计。
+T-M04-27 / M04-F08：2026-10-14 / alpha.15，WSL Ubuntu / Node 22.23.1。范围：预检单 SFTP 会话；只读预检同连接+新连接各一次受控重试、语义拒绝不重试、凭据缺口 needs_credentials；维护启动"可证明未发出"重试一次、再次未发出记 rejected、其余保持 unknown；查询通道拒绝新连接重试一次；错误消息携带原因码/退出码。发布提交时桌面回归 159/159；随后新增四个传输边界用例与产品修复属于 alpha.16，当前 163/163 与实机状态见下一节。根 43/43、lint、typecheck 通过。受控服务器不等于独立服务器根因确认；独立空闲维护专项需以 alpha.15 重验，结果另计。
 
 
 ## alpha.16 维护未发送状态跨重试与查询验证
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：根测试 43/43、桌面全量 163/163、SSH 恢复 TCP 集成 7/7 通过。新增/更新场景覆盖 open 前明确未发送、重试登录缺少凭据、重启后同 operationId 查询、operation 冲突保留语义错误，以及 stream/timeout 响应不明时原 unknown 收据不被替代。Windows portable 包一致性校验通过，实际 Windows 用户流程与独立服务器维护重验未执行；无用户服务器操作和模型调用。具体行为见 [I06C 收尾 alpha.16](../../iterations/I06/final-delivery.md)。
+
+## alpha.16 当前验证
+
+T-M04-28 / M04-F08：2026-10-14 / WSL Ubuntu / Node 22.23.1，桌面 163/163，SSH 恢复 7/7 已包含其中。覆盖认证前未发送证明、实际原子快照重开查询/占位恢复、第二次打开拒绝、发送后流中断/超时仍 unknown、原操作去重与新 ID 拒绝。真实 TCP SSH，受控服务/合成凭据，模型 0。alpha.15 发布仍为原 159/159；当前独立服务器与包结果见 [当次交付](../../iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.17 当前性能与信任验证
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1，桌面 164/164 通过。新增已校验快照后兼容清单篡改仍拒绝的受控检查；Windows Node / WSL UNC 的冻结 alpha.16 资源完整校验 11,821ms，14 份固定清单核对 289ms。不是全链时延，不是 alpha.17 模型实测。[完整分层验收](../../iterations/I06/maintenance-launch-recovery.md)。
+
+2026-10-14：冻结 alpha.16 的独立 Linux 空闲维护升级/回滚/再次升级/停止/明确重连/卸载全链通过，五个原维护 confirmed，原生需求 0，身份与用户原配置保持。该 profile 无原生任务，不充当非空模型历史迁移验收；原文件 unknown 另存。[最终实机证据与限制](../../iterations/I06/maintenance-launch-recovery.md)。

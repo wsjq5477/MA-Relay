@@ -1,6 +1,6 @@
 # M06 原生 Agent 适配器设计
 
-更新日期：2026-10-12。当前实现基线：源码 `0.6.0-alpha.4`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.4`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，最新 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
+更新日期：2026-10-12。当前实现基线：源码 `0.6.0-alpha.18`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.18`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，历史 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
 
 本模块把用户机器上已有的 OpenCode、Claude Code 和 Codex CLI 接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。模型、供应商、账号和原生配置仍由原工具管理。本文是当前设计；变更过程保留在迭代文档中。
 
@@ -124,6 +124,8 @@ sequenceDiagram
 | 用户拒绝工具 | 不宣称完整需求成功；已发生的文件修改不自动撤销 |
 
 错误消息做已知凭据脱敏和长度限制。日志是诊断证据，不能把原生错误正文当作新的指令执行。
+
+共享 Electron 运行缓存不追踪 runtime.json 自身；新缓存逐文件 SHA-256 校验，旧自引用清单只忽略自身，其余资源异常时保留旧目录并准备完整新副本。Windows OpenCode 子后台启动前的 INVALID/MISSING 不代表原生模型失败；仅中央原未派发证据完备时记明确拒绝。Claude/Codex 的任务与原生终态仍按各适配器，不根据共享错误码泛化解除占位。见 [资源与原请求修复](../../iterations/I06/runtime-recovery.md)。
 
 ## 8. 代码入口与扩展规则
 

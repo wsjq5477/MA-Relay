@@ -2,6 +2,10 @@
 
 更新：2026-10-13。本页描述当前源码的运行方式。0.5.0 发布包仍将 AgentNetwork 放在窗口主进程；以下独立 Coordinator 与 SSH 部分已随 I06A 候选完成主要验收，I06B alpha.6 新增节点图和独立保存事务、完成独立 SSH 双向核心链；正式 0.6.0 与 I06C 未完成。
 
+## 当前 Windows 运行缓存与未派发恢复
+
+共享 workerRuntime 从 Coordinator 缓存再次创建 Windows 子后台资源时排除清单自身；新缓存带逐文件摘要，旧缓存只忽略自引用元数据，损坏则旁路重建完整副本而不覆盖活动目录。原任务恢复由 Coordinator 和 AgentNetwork 核对同一未派发意图，不依赖创建新 Task。原生推理、配置继承和远端边界不变。[alpha.18](iterations/I06/runtime-recovery.md)。
+
 ## 1. 系统分层
 
 ```mermaid
@@ -202,3 +206,7 @@ sequenceDiagram
 维护 worker 不依赖 SSH 会话；控制器保存在状态目录，卸载安装目录后仍能核对原操作。只允许已验证 owner/profile/UID/版本目录，卸载先完整校验所有版本后原子隔离安装目录，再移除所属文件；历史状态保留。旧 daemon 使用已校验 pidfd 停机 helper，新 daemon 使用认证 RPC。无法证明归属或空闲则保留 unknown/拒绝，不强杀、不重发原生任务。中央台账表单答案脱敏且损坏时拒绝新执行。系统注销/重启自启动仍无 systemd 保证。完整行为和证据见 [I06C 收尾](iterations/I06/final-delivery.md)。
 
 alpha.14 SSH 上传失败的诊断和重新检测由 M04/M01 完成：明确归档传输失败发生在解包/激活前，安装 rejected 与原生任务 unknown 分开。原 ID、用户批准、私有 profile 及后台/relay 分层不变，未新增业务协议或模型调用。见 [增量设计与验收](iterations/I06/ssh-upload-recovery.md)。
+
+## alpha.16 中央维护证明边界
+
+M04 在 SSH 输入明确未发出时先持久化证明再进行新认证；M02 读取原维护收据时同步对应机器占位。远端 worker/daemon 分层、身份与未知原生任务保持，不新增重放路径。接口和磁盘结构不变，见 [增量](iterations/I06/maintenance-launch-recovery.md)。

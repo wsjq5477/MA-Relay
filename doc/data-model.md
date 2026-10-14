@@ -2,6 +2,10 @@
 
 更新：2026-10-12。这里解释整个系统的对象关系；具体读写接口见 [协议](protocol.md)，状态与恢复责任见 [M07](modules/07-task-session/design.md)。
 
+## 当前运行缓存与原意图兼容
+
+runtime/runtime.json 新清单为 `{version:2,executable,files:[{name,size,sha256}]}`，目录仍以 Electron 版本/架构归类，损坏副本的替代发布到独立 `.repair-<随机值>` 目录；随机值仅隔离资源，不是机器/节点/请求身份。旧无 version 清单兼容 size 检查，仅忽略 runtime.json 自引用条目。原业务 JSON 版本、请求 ID 和内容不变；符合原未派发正面证据的旧 unknown 记 rejected 并保存 reconciledAt/核对原因。证据不足不迁移或释放。[完整边界](iterations/I06/runtime-recovery.md)。
+
 ## 1. 对象关系
 
 ```mermaid
@@ -170,3 +174,7 @@ lifecycleOperations 维护行区分失败阶段：启动命令的 SSH 通道打�
 ## alpha.14 安装上传失败的明确边界
 
 `ssh-connections.json.operations[operationId]` 的安装 status 保留 pending/confirmed/unknown，并以 rejected 标记上传器明确 `SSH_UPLOAD_FAILED`：该错误只从打开/写入/关闭归档阶段产生，尚未进入解包/激活。safe error 含类别、阶段及 ACK 字节数，不含服务器原始文字或秘密；SFTP 数值状态可保留。此错误暂停自动重连。界面补录凭据、重新 testSsh、查看摘要并批准 connectSsh，未变化摘要沿原 connectionId/operationId。其他已发送步骤失败仍是 unknown，不显示新安装入口，也不从该安装状态推定原生任务或控制结果。没有新增 RPC 或 daemon 协议版本。见 [迭代证据](iterations/I06/ssh-upload-recovery.md)。
+
+## alpha.16 原维护未发送的持久化时机
+
+首次通道在输入接受前被拒绝，保存 remoteLaunched=false 后才能获取新登录；新登录成功、准备发送时保存 true。原查询仅用既有 false 证明未发送，返回 rejected 并同步对应机器 maintenance.state 与 autoReconnect=false。字段/原操作标识不变；缺少证明的旧 unknown 不追溯解除。见 [增量](iterations/I06/maintenance-launch-recovery.md)。

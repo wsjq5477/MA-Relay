@@ -1,6 +1,6 @@
 # AgentBridge 整体功能设计
 
-更新：2026-10-14。适用：Windows 0.5.0 已发布功能，以及 0.6.0-alpha.13 的 I06C 收尾源码候选。每项明确区分实现、发布和验收状态。
+更新：2026-10-14。适用：Windows 0.5.0 已发布功能，以及 0.6.0-alpha.18 的运行缓存修复源码候选。每项明确区分实现、发布和验收状态。
 
 ## 1. 产品解决什么问题
 
@@ -41,7 +41,7 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | AB-F08 新会话与续聊 | 发起需求，原会话追问，每轮独立记录 | 已发布；能力取决于原生适配；SSH 同会话两轮已记录 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
 | AB-F09 进度、回答与看板 | 看来源、状态、本轮回答、工具过程与最终结果 | 已发布；窗口通过轮询刷新，不是直接订阅原生 token | [M01](modules/01-desktop/design.md)、[M06](modules/06-native-adapters/design.md) |
 | AB-F10 权限、输入与取消 | 通过原任务处理原生等待；取消结果以原生确认判断 | alpha.12 严格核对原控制收据、表单遮罩及恢复台账脱敏；原生支持范围分别记录 | [M06](modules/06-native-adapters/design.md)、[M07](modules/07-task-session/design.md) |
-| AB-F11 未确认请求与恢复 | 原 ID 查询，不重发 Prompt；保留历史和占位 | 已发布；alpha.10 已观察历史跨重开保留，cursorGap 全量快照/分页补偿通过隔离 TCP SSH 验证 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
+| AB-F11 未确认请求与恢复 | 原 ID 查询，不重发 Prompt；保留历史和占位 | alpha.18 修复 Windows OpenCode 未派发资源错误的原记录恢复，显示查询结果与原因；历史功能已发布；alpha.10 已观察历史跨重开保留，cursorGap 全量快照/分页补偿通过隔离 TCP SSH 验证 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
 | AB-F12 指定主从关系 | 用户指定主 Agent 及允许的子节点 | 一个默认组已发布；alpha.6 图编辑及稳定保存已实现，换主后活跃原父权限已修复 | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md) |
 | AB-F13 原生 Agent 协作 | 主 Agent 实际调用工具委派，读取子结果并汇总 | Windows/WSL 四条真实链已有证据；alpha.3 源码修复 Codex 自然语言发现入口，真实 MCP/主子回复通过；alpha.6 独立 SSH Linux OpenCode ↔ Windows Claude 双向核心链通过，当前故障/控制矩阵见 I06C 收尾，不推定原生效果 | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md) |
 | AB-F14 常驻中央后台 | 关闭窗口继续协调，重开复用历史与连接 | I06A 源码已实现；0.6.0-alpha.2 候选 Windows 关闭/停止/重开已验收 | [M02](modules/02-coordinator/design.md) / [报告](modules/02-coordinator/test-report.md) |
@@ -193,3 +193,15 @@ AB-F17，M04：alpha.15 针对独立服务器维护入口复查稳定 SSH_EXEC_F
 ## 2026-10-14：维护未发送边界持久化（alpha.16）
 
 AB-F17 / M04：维护 SSH 通道在 open 阶段失败可证明原输入未发送。切换连接或重新认证前持久化该事实，仅在重新认证成功、即将发送前将操作标为已启动；认证失败或明确语义拒绝形成确定 rejected 状态，查询原 operationId 时同步台账和机器状态。stream/timeout 等可能已发送失败仍保持 unknown，只允许查询原 ID。alpha.16 自动回归：根 43/43、桌面 163/163、SSH 本机 TCP 集成 7/7；包校验通过，真实 Windows 流程及独立服务器重验未执行，完整 I06C 未准出。见 [I06C 收尾 alpha.16](iterations/I06/final-delivery.md)。
+
+## 2026-10-14 alpha.16 维护发送边界
+
+AB-F17、M04/M10：维护通道未发送证明在新登录前持久化；认证失败/再次打开拒绝为 DAEMON_NOT_STARTED，可能发送的失败仍 unknown；重开查询原收据同步对应机器维护占位，凭据/信任错误保留。当前桌面 163/163、SSH 7/7 受控通过。实机、程序与未准出项见 [完整增量](iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.17 维护等待优化
+
+AB-F17、M04/M10：原维护输入构造的当前整包校验结果仅在本次构造复用，兼容清单逐份摘要、暂存及远端校验保留；减少 Windows/WSL 路径重复读取。工程 164/164，实测范围见 [当前交付](iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.18 运行缓存与原提交恢复
+
+AB-F07/11/17：修复 Coordinator→Windows 缓存复制的清单自引用，兼容旧缓存并保留损坏资源；仅严格匹配的原未派发提交可记明确拒绝，查询显示脱敏原因。工程、真实 Windows 运行资源、受控界面及候选包按 [当次分层证据](iterations/I06/runtime-recovery.md) 判定；未重跑用户新电脑或完整 I06C。

@@ -1,6 +1,6 @@
 # M04 SSH 机器接入设计
 
-更新日期：2026-10-14。基线：桌面源码与上传修复候选 `0.6.0-alpha.14`，Windows 已发布便携版 `0.5.0`。alpha.2 的主要 Windows/SSH 验收保留；alpha.4 已实际使用用户原凭据核验并重连原 alpha.2 后台。系统 agent 与完整故障覆盖限制保留。详见 [测试报告](test-report.md)。
+更新日期：2026-10-14。基线：桌面源码与维护恢复候选 `0.6.0-alpha.17`，Windows 已发布便携版 `0.5.0`。alpha.2 的主要 Windows/SSH 验收保留；alpha.4 已实际使用用户原凭据核验并重连原 alpha.2 后台。系统 agent 与完整故障覆盖限制保留。详见 [测试报告](test-report.md)。
 
 ## 1. 功能与用户操作
 
@@ -210,3 +210,11 @@ machine.daemonPreview 返回可信当前、目标、previous 版本及 previewId
 维护启动与查询区分失败阶段（错误对象内部标记 open/stream/exit）：通道打开被拒可证明原输入未离开本机，换新连接重试一次不属于二次发送；再次未发出时收据记 rejected（DAEMON_NOT_STARTED、remoteLaunched=false），不产生远端无记录而查询永远 not_found 的 unknown；流中断/超时等可能已发出的失败保持原 unknown 收据，仅按原 ID 查询。`machine.operation` 查询自身通道打开被拒同样换新连接重试一次。`SSH_EXEC_FAILED` 消息携带通道原因码或退出码供诊断。
 
 实现入口：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs)、[ssh-install.cjs](../../../desktop/electron/ssh-install.cjs)。实际证据与独立服务器边界见 [I06C 收尾 alpha.16](../../iterations/I06/final-delivery.md)。
+
+## alpha.16 未发送证明与机器维护恢复
+
+首次启动通道打开被拒时先原子保存 remoteLaunched=false，再重建认证；新登录失败或再次打开被拒为 rejected/DAEMON_NOT_STARTED，凭据问题另呈现 needs_credentials。准备第二次发送前标记 true，之后流中断/超时保留 unknown。原查询依据持久的 false 拒绝原操作并同步匹配 operationId 的机器维护状态，关闭自动重连，保留信任/凭据阻断；不更新其他操作的占位。MACHINE_BUSY、REVISION_CONFLICT、OPERATION_CONFLICT、INSTALL_PREVIEW_CHANGED、INVALID_INPUT 不折算为暂存拒绝。接口/结构不变；证据见 [增量](../../iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.17 同次可信输入校验复用
+
+构造原维护输入时只完整校验一次当前 bundle，将该已验证对象传入 from/target 与全部兼容 release()；每份兼容清单仍按固定摘要/格式核验，远端暂存和逐文件校验保持。复用仅限同一次构造，未新增跨操作缓存或改变未知操作恢复规则。理由、实际测量与测试见 [当前交付](../../iterations/I06/maintenance-launch-recovery.md)。
