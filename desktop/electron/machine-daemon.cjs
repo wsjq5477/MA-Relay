@@ -155,7 +155,9 @@ async function productionHost(directory, collaboration) {
 async function startDaemon(options) {
   const opts = validateOptions(options), info = identity(opts), lock = acquireLock(info);
   const clients = new Set(), jobs = new Map(), callbacks = new Map();
-  let active = null, stopped = false, host, monitor, polling = false;
+  let active = null, stopped = false, host, monitor, polling = false, admissions=0;
+  const maintenanceFile=path.join(info.stateDirectory,'maintenance.json');
+  let maintenance=fs.existsSync(maintenanceFile)?readJson(maintenanceFile):null;
   const receiptsFile = path.join(info.stateDirectory, 'daemon-receipts.json');
   const eventsFile = path.join(info.stateDirectory, 'daemon-events.jsonl');
   let records;
@@ -163,6 +165,7 @@ async function startDaemon(options) {
   const events = [];
   try {
     records = fs.existsSync(receiptsFile) ? readJson(receiptsFile) : [];
+    if(Array.isArray(records))for(const r of records)if(['reply','cancel'].includes(r.op)&&r.state==='confirmed'&&r.result?.state==='unknown')r.state='unknown';
     if (!Array.isArray(records)) throw fail('DAEMON_STATE', '后台操作收据记录无法读取。');
     if (fs.existsSync(eventsFile)) {
       inspectFile(eventsFile, 'file');
@@ -213,12 +216,20 @@ async function startDaemon(options) {
       record.state = 'rejected'; record.updatedAt = now(); saveReceipts();
     }
     if (record.state === 'confirmed') return record.result;
+    if(record.state==='rejected'&&['reply','cancel'].includes(record.op)&&record.result?.operationId===record.key)return record.result;
     if (record.state === 'rejected') throw Object.assign(new Error(record.error.message), { code: record.error.code });
     if (jobs.has(record.key)) return jobs.get(record.key);
     try {
       const query = ['reply', 'cancel'].includes(record.op) ? { ...record.target, op: 'operation', operationId: record.key } : { ...record.target, op: 'request', requestId: record.key };
       const result = await host.call('ipc', query);
-      record.state = 'confirmed'; record.result = result; record.updatedAt = now(); saveReceipts(); return result;
+      if(['reply','cancel'].includes(record.op)){
+        if(result?.operationId!==record.key||!['confirmed','rejected','unknown'].includes(result.state))throw fail('DESKTOP_UNCONFIRMED','原控制收据尚未确认。');
+        record.state=result.state;
+      }else{
+        if(!result?.taskId||result.requestId!==record.key)throw fail('DESKTOP_UNCONFIRMED','原任务收据尚未确认。');
+        record.state='confirmed';
+      }
+      record.result=result;record.updatedAt=now();saveReceipts();return result;
     } catch (error) {
       if (error.code === 'REQUEST_CONFLICT') throw error;
       record.state = 'unknown'; record.updatedAt = now(); saveReceipts();
@@ -226,6 +237,25 @@ async function startDaemon(options) {
     }
   };
   const dispatch = async (method, params) => {
+    if(method==='daemon.quiesce'){
+      if(!validId(params.operationId))throw fail('INVALID_INPUT','维护需要稳定操作 ID。');
+      if(maintenance&&maintenance.operationId!==params.operationId)throw fail('DAEMON_MAINTENANCE','原维护尚未完成，请查询原操作。');
+      if(admissions||jobs.size)throw fail('DAEMON_BUSY','后台仍有在途操作。');
+      maintenance={operationId:params.operationId};
+      try{
+        const snapshot=await host.call('snapshot',{});
+        if((snapshot.tasks||[]).some(t=>!['succeeded','failed','cancelled'].includes(t.status))||(snapshot.agents?.items||[]).some(a=>a.busy||a.currentTask&&!['succeeded','failed','cancelled'].includes(a.currentTask.status))||records.some(r=>!['confirmed','rejected'].includes(r.state)||['reply','cancel'].includes(r.op)&&r.result?.state==='unknown'))throw fail('DAEMON_BUSY','后台有运行、等待或未知任务，禁止切换。');
+        atomicJson(maintenanceFile,maintenance);return {quiescent:true,operationId:params.operationId};
+      }catch(e){if(!fs.existsSync(maintenanceFile))maintenance=null;throw e;}
+    }
+    if(method==='daemon.releaseMaintenance'){
+      if(maintenance?.operationId!==params.operationId)throw fail('DAEMON_MAINTENANCE','维护归属不匹配。');
+      fs.unlinkSync(maintenanceFile);maintenance=null;return {released:true};
+    }
+    if(method==='daemon.shutdown'){
+      if(maintenance?.operationId!==params.operationId||admissions||jobs.size)throw fail('DAEMON_BUSY','请先验证维护归属和空闲状态。');
+      setTimeout(()=>{void close().then(()=>opts.onStopped?.());},50);return {stopping:true};
+    }
     if (method === 'daemon.status') return { ...info, pid: process.pid, lastEventCursor: cursor, activeSessionId: active?.sessionId || null };
     if (method === 'daemon.eventRead') return resultPage(events, params);
     if (method === 'daemon.receiptRead') {
@@ -235,15 +265,20 @@ async function startDaemon(options) {
     if (!methods.has(method)) throw fail('DESKTOP_METHOD', '此操作不在远端后台方法范围内。');
     if (method === 'ipc' && ['request', 'operation'].includes(params.op)) {
       const row = records.find(r => r.key === receiptKey(params));
+      if(row)for(const key of ['taskId','executionId','agentId','conversationId'])if(params[key]&&row.target?.[key]&&params[key]!==row.target[key])throw fail('EXECUTION_MISMATCH','原操作不属于这个执行目标。');
       if (row && row.state !== 'confirmed') return queryRecord(row);
     }
-    if (method !== 'ipc' || !mutations.has(params.op)) return host.call(method, params);
+    if (method !== 'ipc' || !mutations.has(params.op)){
+      if(['context','connect'].includes(method)){if(maintenance)throw fail('DAEMON_MAINTENANCE','后台正在维护，不接受新执行上下文。');admissions++;try{return await host.call(method,params);}finally{admissions--;}}
+      return host.call(method,params);
+    }
     const key = receiptKey(params);
     if (!validId(key)) throw fail('INVALID_INPUT', '执行或控制操作需要稳定的 requestId / operationId。');
     if (typeof params.message === 'string' && Buffer.byteLength(params.message) > 65536) throw fail('INVALID_INPUT', '执行需求超过 64 KiB UTF-8 限制。');
     const fingerprint = createHash('sha256').update(JSON.stringify(canonical({ method, params }))).digest('hex');
     const previous = records.find(r => r.key === key);
     if (previous) { if (previous.fingerprint !== fingerprint) throw fail('REQUEST_CONFLICT', '同一操作 ID 对应的内容已改变。'); return queryRecord(previous); }
+    if(maintenance)throw fail('DAEMON_MAINTENANCE','后台正在维护，不接受新的任务或控制操作。');
     const target = Object.fromEntries(['taskId', 'agentId', 'conversationId', 'executionId'].filter(name => typeof params[name] === 'string').map(name => [name, params[name]]));
     const record = { key, method, op: params.op, target, fingerprint, state: 'intent', createdAt: now(), updatedAt: now() };
     records.push(record); saveReceipts();
@@ -251,7 +286,9 @@ async function startDaemon(options) {
       record.state = 'dispatched'; record.updatedAt = now(); saveReceipts(); emitEvent('operation.accepted', { requestId: key, op: params.op });
       try {
         const result = await host.call(method, params);
-        record.state = 'confirmed'; record.result = result; record.updatedAt = now(); saveReceipts(); emitEvent('operation.confirmed', { requestId: key, taskId: result?.taskId, op: params.op }); return result;
+        const control=['reply','cancel'].includes(params.op);
+        record.state=control?(result?.operationId===key&&['confirmed','rejected','unknown'].includes(result.state)?result.state:'unknown'):'confirmed';
+        if(control&&record.state==='unknown'&&(result?.operationId!==key||!result.state)){record.result={operationId:key,taskId:params.taskId||params.reply?.taskId,state:'unknown'};}else record.result=result; record.updatedAt = now(); saveReceipts(); emitEvent('operation.confirmed', { requestId: key, taskId: result?.taskId, op: params.op }); return record.result;
       } catch (error) {
         record.state = knownRejections.has(error.code) ? 'rejected' : 'unknown'; record.error = safeError(error); record.updatedAt = now(); saveReceipts(); emitEvent('operation.' + record.state, { requestId: key, op: params.op }); throw error;
       }
@@ -384,7 +421,7 @@ if (require.main === module) {
   void (async () => {
     const options = parseArguments(process.argv.slice(2));
     if (options.serve) {
-      const daemon = await startDaemon(options);
+      const daemon = await startDaemon({...options,onStopped:()=>process.exit(0)});
       const shutdown = () => { void daemon.close().then(() => process.exit(0), () => process.exit(1)); };
       process.once('SIGTERM', shutdown); process.once('SIGINT', shutdown);
     } else process.stdout.write(JSON.stringify(await ensureDaemon(options)) + '\n');

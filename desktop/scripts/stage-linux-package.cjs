@@ -16,7 +16,15 @@ function stageLinuxPackage({repo,runtime,destination,nodeExecutable,version}) {
     fs.cpSync(path.join(repo,'dist'),path.join(stage,'dist'),{recursive:true});
     const pkg=JSON.parse(fs.readFileSync(path.join(repo,'package.json'),'utf8'));
     fs.writeFileSync(path.join(stage,'package.json'),JSON.stringify({...pkg,version,devDependencies:undefined,scripts:undefined}));
-    fs.mkdirSync(path.join(stage,'runtime'));fs.copyFileSync(executable,path.join(stage,'runtime/node'));fs.chmodSync(path.join(stage,'runtime/node'),0o755);
+    fs.mkdirSync(path.join(stage,'runtime'));
+    const helper=path.join(stage,'runtime/owned-stop');
+    if(process.platform==='linux')execFileSync('cc',['-O2','-static','-o',helper,path.resolve(__dirname,'../native/owned-stop.c')]);
+    else fs.copyFileSync(path.join(destination,'runtime/owned-stop'),helper);
+    fs.chmodSync(helper,0o755);
+    fs.copyFileSync(path.resolve(__dirname,'../native/owned-stop.c'),path.join(stage,'runtime/owned-stop.c'));
+    if(process.platform==='linux')fs.copyFileSync('/usr/share/doc/libc6/copyright',path.join(stage,'runtime/LICENSE-glibc'));
+    else fs.copyFileSync(path.join(destination,'runtime/LICENSE-glibc'),path.join(stage,'runtime/LICENSE-glibc'));
+    fs.writeFileSync(path.join(stage,'runtime/owned-stop-build.txt'),'Rebuild/relink owned-stop with your libc: cc -O2 -static -o owned-stop owned-stop.c\nSource licensed under the AgentBridge MIT license. libc notices are in LICENSE-glibc.\nLinux pidfd syscalls are required; unsupported kernels refuse stop without a PID-only fallback.\n');fs.copyFileSync(executable,path.join(stage,'runtime/node'));fs.chmodSync(path.join(stage,'runtime/node'),0o755);
     let nodeVersion;
     if(process.platform==='linux') nodeVersion=execFileSync(executable,['--version'],{encoding:'utf8'}).trim();
     else nodeVersion=JSON.parse(fs.readFileSync(path.join(destination,'manifest.json'),'utf8')).runtime.version;
@@ -36,7 +44,7 @@ function stageLinuxPackage({repo,runtime,destination,nodeExecutable,version}) {
         const name=path.posix.join(relative,row.name),file=path.join(directory,row.name);
         if(row.isSymbolicLink()) {fs.rmSync(file);continue;}
         if(row.isDirectory()) visit(file,name);
-        else if(row.isFile()) {const bytes=fs.readFileSync(file);files.push({path:name,sha256:createHash('sha256').update(bytes).digest('hex'),size:bytes.length});}
+        else if(row.isFile()) {const bytes=fs.readFileSync(file);files.push({path:name,sha256:createHash('sha256').update(bytes).digest('hex'),size:bytes.length,...(name==='runtime/owned-stop'?{mode:0o700}:{})});}
         else throw new Error('远端包不允许特殊文件。');
       }
     }

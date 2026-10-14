@@ -1,5 +1,6 @@
 # M04 SSH 接入测试报告
 
+当前基线：2026-10-14 / 0.6.0-alpha.13。工程与受控维护验证通过，独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 更新：2026-10-13。当前候选 alpha.8 的兼容资源核对见下节；alpha.5 修复与此前 0.6.0-alpha.2 的主要认证验收保持原范围。Windows 到独立 Linux 密码登录与实际 DPAPI 恢复通过；Windows 加密私钥/命名管道 agent 使用真实 SSH 协议与隔离服务验证。系统 OpenSSH agent 服务兼容性、全故障/延迟指标仍未专项实测。
 
 
@@ -52,8 +53,8 @@ T-M04-24 / M04-F04：2026-10-13，alpha.6 Linux manifest 与历史交付 digest 
 | T-M04-15 | M04-F02 | 真实未知主机确认/拒绝、真实 host key 改变及撤销 | 未单独实测；当前真实服务器沿用已有可信 known_hosts |
 | T-M04-16 | M04-F04 | 无系统 Node 真实机器、磁盘不足、坏归档/逐文件篡改、不支持 glibc/架构 | 未完成；实际服务器使用系统 Node，安全函数受控覆盖有限 |
 | T-M04-17 | M04-F06 | 1/2/4/8 秒退避、凭据就绪后 ≤30 秒恢复、20 样本状态同步 p95 ≤2 秒 | 未测性能指标；77.8 秒是首次安装连接，不是断线恢复耗时 |
-| T-M04-18 | M04-F06 | 事件 cursorGap 后自动完整 snapshot 恢复 | 未通过完整契约核对：服务和客户端字段不一致，需修复/复验 |
-| T-M04-19 | M04-F08 | 修改/移除连接、升级/停止/卸载后台 | 未实现，不能写成待运行即可验收 |
+| T-M04-18 | M04-F06 | 事件 cursorGap 后自动完整 snapshot 恢复 | alpha.10 已修复并通过生产 daemon/真实本机 TCP SSH 隔离集成；独立服务器专项待验 |
+| T-M04-19 | M04-F08 | 修改/移除连接、升级/停止/卸载后台 | alpha.10 连接编辑/移除/恢复已实现并专项验证；升级/停止/卸载后台继续未实现 |
 
 ## 4. 复查命令与副作用
 
@@ -100,3 +101,25 @@ T-M04-23 / M04-F05/F06：2026-10-12 / alpha.5，新增 2 项受控状态回归�
 ## alpha.9 当前节点管理专项
 
 T-M04-25 / M04-F04/F05：2026-10-13 / 0.6.0-alpha.9。范围：alpha.9 包中已核对摘要的 alpha.8 信任清单；未触发用户远端自动升级。逐项实际结果、环境、脚本、原始证据与未测范围见 [节点管理完整验收](../../iterations/I06/node-management.md)。工程证据为本次 [桌面 TAP](../../../artifacts/node-management/2026-10-13/desktop-tests.tap)；窗口/程序/包状态以该报告实际结果为准，历史表不充当本次重测。原生 SSH/模型链保留 alpha.6 历史结果，本次未重跑、不改用户 profile、不提交 Prompt。
+
+## I06C alpha.10 当前专项
+
+T-M04-26 / M04-F02/F03/F05/F06/F07/F08：2026-10-13。范围：machine.updateSsh/remove/restore/disconnect/reconnect 接收 operationId、connectionId、expectedRevision 和可选原 machineId；operation 查询原收据。updateSsh config 为白名单 name/host/port/username/authKind/keyPath，修订冲突拒绝。绑定 SSH 用户不可变；改认证来源解除旧引用并删除密文，remove 清除保存凭据，known_hosts 与远端安装保留。原主机公钥、daemonId 与 UID 核对跨地址继续有效。配置与 lifecycleOperations 同文件原子提交；状态 removed 不自动重连。cursorGap 后全量快照且 drain 全部分页，无任务重放。 本次实际工程、隔离 TCP SSH、Windows 界面/包与未测项见 [6C 首批验收](../../iterations/I06/machine-management.md)；[桌面 TAP](../../../artifacts/I06C/2026-10-13/desktop-tests.tap)和当次报告是当前证据，alpha.6 双向真实 Agent 链保留原日期/版本。未改用户 profile、未升级用户 daemon、无真实模型任务，不将首批标为完整 I06C。
+
+## alpha.13 当前验证
+
+T-M04-19 / M04-F08：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受控回归 **150/150** 通过（全工程总数，模块之间不重复相加）。场景：machine.daemonPreview 返回可信当前、目标、previous 版本及 previewId；machine.maintainDaemon 校验 expectedRevision、摘要和动作，先完整暂存并验证目标，再持久化原意图、暂停自动重连，发送一次远端维护启动。控制器复制到私有 state/maintenance-runtime/<digest>，使卸载后仍可查询原收据。远端回应丢失仅 machine.operation 查询；中央重开仍保留同一 remoteInput 与操作。凭据失效显示 needs_credentials，输入后继续查询原维护，不能另起升级。暂存/认证明确未发送失败为 DAEMON_STAGE_REJECTED。
+
+证据：[完整桌面 TAP](../../../artifacts/I06C-final/2026-10-14/desktop-alpha13.tap)、[维护实际 daemon/process 7 项](../../../artifacts/I06C-final/2026-10-13/maintenance-tests.tap)、[包内容核验](../../../artifacts/I06C-final/2026-10-14/package-alpha13.json)。维护测试使用真实生产 daemon、Unix socket、独立进程和磁盘，原生 host 受控、无模型调用；不能替代独立服务器或真实原生控制。Windows 窗口、原生 Session 与双向链、使用/卸载、命令和限制统一见 [逐项验收](../../iterations/I06/final-delivery.md)，未实际执行项不得计为通过。
+
+## alpha.14 上传修复验证
+
+T-M04-20 / M04-F04/F06：2026-10-14 / alpha.14。桌面受控 155/155，上传专项 5/5（含真实本机 TCP SSH/SFTP，使用隔离服务器和数据），Windows Edge 受控响应界面 2 组通过；原生提交 0，未连接用户 Linux。打开/写入/关闭失败、权限/空间/通道关闭/超时、分片/乱序 ACK、原 ID 重新检测和批准、unknown 不提供重装分别有证据。当前包、普通 EXE、原始材料与限制见 [完整增量验收](../../iterations/I06/ssh-upload-recovery.md)。155 包含 5，不重复相加。
+
+## alpha.13 本次独立实机补充
+
+2026-10-14：冻结 alpha.13 Windows 包与独立 Linux，真实升级、同原生 Session 两轮及两方向协作通过；真实 Windows 取消和普通无调试窗口原生标记分别通过。独立 SSH/生产 daemon 的精确响应丢失、10 同 ID 与重启为受控执行器证据，不充当真实模型。Linux 文件任务受原生 OOM 退出影响，原 ID/Session 与 unknown 占位保留，未准出、未重发；后续 alpha.14 上传专项不冒充此模型矩阵复测。逐场景原始证据、版本、实际失败、临时自有资源调度及剩余项见 [I06C 当前实机记录](../../iterations/I06/final-delivery.md)。
+
+## alpha.15 维护入口会话拒绝恢复验证
+
+T-M04-27 / M04-F08：2026-10-14 / alpha.15，WSL Ubuntu / Node 22.23.1。范围：预检单 SFTP 会话；只读预检同连接+新连接各一次受控重试、语义拒绝不重试、凭据缺口 needs_credentials；维护启动"可证明未发出"重试一次、再次未发出记 rejected、其余保持 unknown；查询通道拒绝新连接重试一次；错误消息携带原因码/退出码。桌面受控回归 **159/159** 通过（含 [ssh-recovery-integration](../../../desktop/tests/ssh-recovery-integration.test.cjs) 3 项真实本机 TCP 用例：受控 ssh2 服务器按 RESOURCE_SHORTAGE 形态拒绝会话打开，验证会话预算占满时的新连接恢复、瞬时拒绝的同连接恢复、持续拒绝的有界 surfaced 与无维护意图、缺凭据呈现）。根 43/43、lint、typecheck 通过。证据：[桌面 TAP](../../../artifacts/I06C-final/2026-10-14/desktop-alpha15.tap)、[根 TAP](../../../artifacts/I06C-final/2026-10-14/root-alpha15.tap)。受控服务器不等于独立服务器根因确认；独立空闲维护专项需以 alpha.15 重验，结果另计。

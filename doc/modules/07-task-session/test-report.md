@@ -1,5 +1,6 @@
 # M07 任务、会话与恢复测试报告
 
+当前基线：2026-10-14 / 0.6.0-alpha.13。工程与受控维护验证通过，独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 核对日期：2026-10-12。对应 [功能设计](design.md)。结论：请求去重、状态持久化、原执行恢复和受控交互通过；真实能力按适配器区分，Windows Codex 账号拒绝和 WSL Codex 续聊限制未解决。
 
 ## 1. 证据与统计口径
@@ -80,3 +81,17 @@ T-M07-21 / M07-F06：2026-10-12 / alpha.6，执行前拒绝的原请求只读核
 ## alpha.9 节点管理下的来源与历史
 
 T-M07-22 / M07-F01/F02/F06/F07：2026-10-13 / alpha.9。[AgentNetwork 回归](../../../desktop/tests/agent-network.test.cjs)验证保留 task/conversation/nodeId，断开/移除后的新需求与旧 IPC 续聊拒绝，原任务可读、恢复沿用原身份，忙碌/unknown 不释放；工程通过，共用本次 [125/125 桌面结果](../../../artifacts/node-management/2026-10-13/desktop-tests.tap)。未重跑真实模型续聊、原生故障或有历史的全部视觉矩阵。[完整证据与限制](../../iterations/I06/node-management.md)。
+
+## I06C alpha.10 当前专项
+
+T-M07-23 / M07-F02/F03/F06/F07：2026-10-13。范围：机器编辑/移除不能释放任务、等待、unknown 或原 pending 占位；重连允许原意图未知且只读对账。中央私有已观察历史跨窗口/后台重开保留，后续分页不删除旧项；离线/移除下 task/conversation 可回 historical 快照，非终态 unknown，canContinue=false 且控制暂停。request/operation 收据不使用历史快照确认，恢复沿用原生 Session。 本次实际工程、隔离 TCP SSH、Windows 界面/包与未测项见 [6C 首批验收](../../iterations/I06/machine-management.md)；[桌面 TAP](../../../artifacts/I06C/2026-10-13/desktop-tests.tap)和当次报告是当前证据，alpha.6 双向真实 Agent 链保留原日期/版本。未改用户 profile、未升级用户 daemon、无真实模型任务，不将首批标为完整 I06C。
+
+## alpha.13 当前验证
+
+T-M07-16 / M07-F04/F05/F06：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受控回归 **150/150** 通过（全工程总数，模块之间不重复相加）。场景：原生 request/operation 的确认必须匹配原 ID、来源机器、Task/execution 绑定及明确状态。旧 confirmed 外壳内包含 native unknown 时恢复为 unknown；原 native rejected 收据可读且不重放。缺收据或缺原生终态继续占位。维护拒绝正在运行、等待或未知任务，停止/卸载保留原记录；台账损坏拒绝新写入，表单秘密值不落中央恢复台账。
+
+证据：[完整桌面 TAP](../../../artifacts/I06C-final/2026-10-14/desktop-alpha13.tap)、[维护实际 daemon/process 7 项](../../../artifacts/I06C-final/2026-10-13/maintenance-tests.tap)、[包内容核验](../../../artifacts/I06C-final/2026-10-14/package-alpha13.json)。维护测试使用真实生产 daemon、Unix socket、独立进程和磁盘，原生 host 受控、无模型调用；不能替代独立服务器或真实原生控制。Windows 窗口、原生 Session 与双向链、使用/卸载、命令和限制统一见 [逐项验收](../../iterations/I06/final-delivery.md)，未实际执行项不得计为通过。
+
+## alpha.13 本次独立实机补充
+
+2026-10-14：冻结 alpha.13 Windows 包与独立 Linux，真实升级、同原生 Session 两轮及两方向协作通过；真实 Windows 取消和普通无调试窗口原生标记分别通过。独立 SSH/生产 daemon 的精确响应丢失、10 同 ID 与重启为受控执行器证据，不充当真实模型。Linux 文件任务受原生 OOM 退出影响，原 ID/Session 与 unknown 占位保留，未准出、未重发；后续 alpha.14 上传专项不冒充此模型矩阵复测。逐场景原始证据、版本、实际失败、临时自有资源调度及剩余项见 [I06C 当前实机记录](../../iterations/I06/final-delivery.md)。

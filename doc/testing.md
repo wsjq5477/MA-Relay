@@ -1,6 +1,6 @@
 # 整体测试与验收报告
 
-更新：2026-10-13。当前候选 0.6.0-alpha.9 / I06B 节点管理；历史稳定版 0.5.0。6A 与 6B 主要范围已验收，I06C 与正式准出未完成，专项限制保留。
+更新：2026-10-14。当前候选 0.6.0-alpha.14 / I06C 上传修复；历史稳定版 0.5.0。6A 与 6B 主要范围已验收，I06C 与正式准出未完成，专项限制保留。
 
 ## 1. 总结论
 
@@ -83,7 +83,7 @@ Linux JSON 两轮终态只保存 status/summary，脚本用原 conversationId �
 | 换主/清主后旧父任务 MCP 查询 | alpha.6 修复，受控反例通过 | 活跃原父原账本可读控；新父/伪造/终态父拒绝 |
 | 20 样本状态延迟 p95 / 全退避时序 | 未完成本次测量 | 按 I06 定义保存样本、链路条件与计算 |
 | 节点图与图权限保存 | alpha.6 主要验收通过 | 实际端点鼠标/键盘、节点/组拖动、持久布局与原子授权；丢回执只查原 ID |
-| 忙时升级与失败回滚 | 设计安排，未实现完整闭环 | I06C 故障与任务保留验收 |
+| 忙时升级与失败回滚 | alpha.12 源码及真实 daemon/process 受控验证通过 | 独立服务器与原生验收见 I06C 收尾 |
 
 ## 7. 可复现检查
 
@@ -155,8 +155,25 @@ alpha.5 普通 Windows 便携 EXE 的启动/关闭/重开另有实际 3 项通�
 
 2026-10-13：本次桌面工程 125/125（受控）通过，节点状态/撤权/收据原子提交、原生/授权 unknown、忙碌/离线、原身份恢复、原 IPC 接入约束及写盘失败均有反例。Windows 生产界面的新节点生命周期、旧图交互、实际打包窗口、普通 EXE、性能与资源逐项结果见 [本次验收](iterations/I06/node-management.md)。历史稳定 0.5.0 和真实 alpha.6 原生链仍分别保留，不能扩大为 I06C 准出。
 
+## 当前 I06C alpha.10 基线
+
+2026-10-13 / alpha.10：机器 SSH 连接编辑、确认断开/移除、原身份恢复、已观察历史持久化/阅读及事件游标缺口分页补偿已实现；桌面 136/136、真实本机 TCP SSH/生产 daemon 隔离恢复和 Windows 界面分别通过。完整 I06C、升级回滚和正式 0.6.0 未准出。
+
+- [桌面 TAP](../artifacts/I06C/2026-10-13/desktop-tests.tap)：136/136，包含 10 项新增机器管理合约和 1 项生产 daemon/真实本机 TCP SSH 集成；模块交叉引用不重复计数。
+- [构建](../artifacts/I06C/2026-10-13/build.log)、[lint](../artifacts/I06C/2026-10-13/lint.log)、[核心类型检查](../artifacts/I06C/2026-10-13/typecheck.log)：实际执行。根业务代码未改，43/43 仍保留 alpha.6 历史基线。
+- [机器界面](../artifacts/I06C/2026-10-13/ui-machines.json)与[图回归](../artifacts/I06C/2026-10-13/ui.json)：Windows 真实输入/中央真实存储、受控宿主；没有真实模型调用。20 受控状态事件 p95 1.85 秒，非独立服务器 LAN 指标。
+- 打包窗口、普通 EXE、包内源码/资源、原始失败与未测项均以 [I06C 首批](iterations/I06/machine-management.md)实际记录为准。完整 I06C 仍未准出。
+
 ## GitHub 下载分发核验
 
 2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
 
 M10 的 T-M10-25 仅记录真实上传、附件大小/摘要与公开发布状态；不增加模型、SSH 或 Windows 普通 EXE 的重测数量。历史 alpha.9 包证据与本次源码同步的沙箱失败分别保留，详见 [本次分发](iterations/I06/github-release.md)。
+
+## 当前 alpha.13 收尾状态
+
+alpha.13 已实现后台可信升级/回滚/停止/卸载、原维护恢复、控制收据校验与敏感表单脱敏。桌面 150/150、维护 7 项与源码/包一致性通过；独立 Linux 原生链和最终准出仍按 [I06C 收尾](iterations/I06/final-delivery.md) 的实际证据更新。 历史发布和各次原生证据保留原日期，候选包构建不等于正式发布。
+
+## 2026-10-14：SSH 上传失败诊断与安装入口恢复
+
+AB-F06/F17，M01/M04/M10：alpha.14 区分安全的 SFTP 失败类别、按实际 ACK 字节计进度并等待关闭确认；明确上传失败后可重新检测和批准原安装，unknown 不显示重装入口。桌面 155/155、上传专项 5/5（含本机真实 TCP SSH/SFTP）和 Windows 受控响应界面 2 组通过。用户另一台机器到原服务器未重测；本次不自动改变 GitHub alpha.9 附件或完整 I06C 准出。包与 EXE 的分层实际结果见 [alpha.14 上传诊断与恢复](iterations/I06/ssh-upload-recovery.md)。

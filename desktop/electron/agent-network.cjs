@@ -7,7 +7,7 @@ const hash=value=>createHash('sha256').update(value).digest('hex');
 const terminal=new Set(['succeeded','failed','cancelled']);
 class AgentNetwork extends MachineRouter {
   constructor(options){
-    super(options);this.networkFile=path.join(options.directory,'agent-network.json');this.nodeJobs=new Map();this.nodeLocks=new Set();
+    super(options);this.networkFile=path.join(options.directory,'agent-network.json');this.nodeJobs=new Map();this.nodeLocks=new Set();this.machineLocks=new Set();
     this.network=fs.existsSync(this.networkFile)?JSON.parse(fs.readFileSync(this.networkFile,'utf8')):{version:1,revision:0,nodes:[],collaboration:{leaderId:null,memberIds:[],revision:0},requests:[],delegations:[]};
     if(this.network.version!==1||!Array.isArray(this.network.nodes)||!Array.isArray(this.network.requests))throw fail('NETWORK_STATE','Agent 网络记录无法读取，请保留数据排查。');
     if(!fs.existsSync(this.networkFile)){fs.copyFileSync(this.file,this.file+'.before-nodes.json',fs.constants.COPYFILE_EXCL);this.saveNetwork();}
@@ -18,6 +18,7 @@ class AgentNetwork extends MachineRouter {
   host(machine){const host=super.host(machine);host.setCollaboration?.((scope,name,args,callId)=>this.collaborationTool(scope,name,args,callId,machine.machineId));return host;}
   async snapshot(){
     const snapshot=await super.snapshot();
+    snapshot.machines=snapshot.machines.map(m=>({...m,removed:(this.network.removedMachines||[]).includes(m.machineId)}));
     for(const connection of snapshot.connections){
       const executable=this.machine(connection.machineId).kind==='windows'?connection.executable.toLowerCase():connection.executable;
       const owned=this.catalog.instances.find(i=>i.connectionId===connection.connectionId&&i.nodeId&&this.network.nodes.some(n=>n.nodeId===i.nodeId));
@@ -40,7 +41,7 @@ class AgentNetwork extends MachineRouter {
       }).length;
       const occupied=snapshot.instances.filter(i=>instances.some(saved=>saved.instanceId===i.instanceId)).some(i=>i.busy||i.currentTask&&!terminal.has(i.currentTask.status));
       const status=!machine?.online?'offline':!connection?.healthy?'tool_error':!node.executionSupported?'unsupported':node.connected?'connected':'discovered';
-      return {...node,online:!!machine?.online,healthy:!!connection?.healthy,status,busy:occupied||active.length+unconfirmed>0,activeTasks:active.length,unconfirmed,uncertain:active.some(t=>t.status==='unknown'),waiting:active.some(t=>t.waiting),lastError:last?.status==='failed'?last.error:undefined,available:!node.removed&&status==='connected'&&!occupied&&!active.length&&!unconfirmed};
+      return {...node,online:!!machine?.online,healthy:!!connection?.healthy,status,busy:occupied||active.length+unconfirmed>0,activeTasks:active.length,unconfirmed,uncertain:active.some(t=>t.status==='unknown'),waiting:active.some(t=>t.waiting),lastError:last?.status==='failed'?last.error:undefined,available:!machine?.removed&&!node.removed&&status==='connected'&&!occupied&&!active.length&&!unconfirmed};
     });
     const annotate=item=>{const instance=this.catalog.instances.find(i=>i.instanceId===item.targetAgent);return {...item,nodeId:instance?.nodeId,workspace:instance?.workspace};};
     this.save();this.saveNetwork();
@@ -57,6 +58,7 @@ class AgentNetwork extends MachineRouter {
   }
   async nodeRequest(params){
     const node=this.node(params.nodeId),machine=this.machine(node.machineId);
+    this.assertMachineAdmission(machine);
     const prior=params.op==='continue'?this.network.requests.findLast(r=>r.conversationId===params.conversationId&&r.nodeId===node.nodeId):null;
     if(prior?.collaboration)params={...params,collaboration:true};
     if(node.removed||!node.connected)throw fail('NODE_DISCONNECTED','请先接入这个 Agent 节点。');
@@ -141,13 +143,32 @@ class AgentNetwork extends MachineRouter {
     }
     throw fail('INVALID_INPUT','不支持这个协作操作。');
   }
+  assertMachineAdmission(machine){
+    this.options.admissionCheck?.(machine);
+    if((this.network.removedMachines||[]).includes(machine.machineId))throw fail('MACHINE_REMOVED','机器已移除，请先恢复原机器。');
+    if(this.machineLocks.has(machine.machineId))throw fail('MACHINE_BUSY','机器连接正在变更，请稍后提交。');
+  }
+  finalizeMachine(receipt){
+    if(receipt.state!=='confirmed'||!receipt.data?.machineId)return receipt;
+    const operations=this.network.machineOperations||[];
+    const prior=operations.find(o=>o.operationId===receipt.operationId);if(prior)return structuredClone(prior);
+    const {machineId}=receipt.data,action=receipt.data.remoteAction==='uninstall'?'remove':receipt.data.action,removed=new Set(this.network.removedMachines||[]);
+    if(action==='remove')removed.add(machineId);if(action==='restore')removed.delete(machineId);
+    const owned=new Set(this.network.nodes.filter(n=>n.machineId===machineId).map(n=>n.nodeId)),old=this.network.collaboration;
+    const revoke=action==='remove'&&(owned.has(old.leaderId)||old.memberIds.some(id=>owned.has(id)));
+    const collaboration=revoke?{leaderId:owned.has(old.leaderId)?null:old.leaderId,memberIds:owned.has(old.leaderId)?[]:old.memberIds.filter(id=>!owned.has(id)),revision:old.revision+1}:old;
+    const next={...this.network,removedMachines:[...removed],collaboration,machineOperations:[...operations,receipt]};
+    atomicWrite(this.networkFile,next);this.network=next;return structuredClone(receipt);
+  }
   assertAdmission(machine,instance){
+    this.assertMachineAdmission(machine);
     const node=instance.nodeId&&this.node(instance.nodeId);
     if(node&&(node.removed||!node.connected))throw fail('NODE_DISCONNECTED','这个 Agent 已断开或移除，请先重新接入。');
     if(node&&this.nodeLocks.has(node.nodeId))throw fail('AGENT_BUSY','节点正在变更，请稍后再提交需求。');
   }
   async execute(machine,params){
     if(['submit','continue','verify'].includes(params.op)){
+      this.assertMachineAdmission(machine);
       const backendId=params.op==='continue'?(await this.host(machine).call('ipc',{op:'conversation',conversationId:params.conversationId})).targetAgent:params.agentId||params.targetAgent;
       const instance=this.catalog.instances.find(i=>i.machineId===machine.machineId&&i.backendId===backendId);
       const node=instance?.nodeId&&this.node(instance.nodeId);
@@ -163,6 +184,7 @@ class AgentNetwork extends MachineRouter {
     const prior=(this.network.nodeOperations||[]).find(o=>o.operationId===params.operationId);
     if(prior){if(prior.fingerprint!==fingerprint)throw fail('OPERATION_CONFLICT','原节点操作 ID 已用于其他内容，请查询原操作。');return structuredClone(prior);}
     const node=this.node(params.nodeId),machine=this.machine(node.machineId);
+    this.assertMachineAdmission(machine);
     if(params.machineId&&params.machineId!==node.machineId)throw fail('WRONG_MACHINE','节点属于另一台机器。');
     if(this.nodeLocks.has(node.nodeId)||this.nodeJobs.has(node.nodeId))throw fail('AGENT_BUSY','节点正在处理请求，请先核对原执行。');
     this.nodeLocks.add(node.nodeId);

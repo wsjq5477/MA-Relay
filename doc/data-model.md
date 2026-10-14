@@ -110,7 +110,7 @@ OpenCode/Core 会话响应额外携带 canContinue/kind，均从持久原生绑�
 
 ## Linux 发布兼容数据
 
-alpha.4 的离线 manifest 新增可选 `compatibleDaemons: [{version,manifestPath,manifestDigest}]`。路径仅能是清单内 `compatible-daemons/<version>.json`，其文件 SHA-256 和内容 manifestDigest 均校验，版本不能重复。旧协议 2 manifest 不要求有该字段。当前 alpha.9 明确收录 alpha.2–alpha.8；未知或未来版本不按协议相同自动接受。
+alpha.4 的离线 manifest 新增可选 `compatibleDaemons: [{version,manifestPath,manifestDigest}]`。路径仅能是清单内 `compatible-daemons/<version>.json`，其文件 SHA-256 和内容 manifestDigest 均校验，版本不能重复。旧协议 2 manifest 不要求有该字段。当前 alpha.10 明确收录 alpha.2–alpha.9；未知或未来版本不按协议相同自动接受。
 
 SSH probe 的 `daemonVersion` 是实际选中后台版本，`clientDaemonVersion` 是客户端新安装包版本，`reuseCompatible` 是展示信息，`installNeeded=false` 表示旧安装可复用。执行分支按实际可信清单选择结果判定，不能凭缓存展示标志绕过校验。旧 current.json、daemon 身份和任务数据无需迁移。
 
@@ -120,7 +120,7 @@ agent-network.json 增加 relationOperations，每项含 operationId、state=con
 
 graph-layout.json 是 version=1 容器：layout 包含独立 layoutRevision、groups[machineId] 与 nodes[nodeId] 的 x/y、viewport 的 x/y/zoom；operations 为同类稳定收据。节点坐标相对于机器组，几何 parent 不代替 parentMachineId。损坏文件先复制为 graph-layout.json.corrupt-*，恢复默认位置不重置关系。
 
-graph-pending.json 保存 operationId、lane=relation/layout/node、完整允许的 params、内容摘要、pending/unknown/confirmed/rejected 与时间。未知原 ID 不因另一个 ID 或窗口而解除；原业务收据确认后对账。浏览器本机缓存 base/draft/layout、图两个 pending 原操作和独立的节点原操作意图，不含凭据/模型/目录。
+graph-pending.json 保存 operationId、lane=relation/layout/node/machine、完整允许的 params、内容摘要、pending/unknown/confirmed/rejected 与时间。未知原 ID 不因另一个 ID 或窗口而解除；原业务收据确认后对账。浏览器本机缓存 base/draft/layout、图两个 pending 原操作和独立的节点/机器原操作意图；机器参数含地址/认证方式但没有密码/口令，秘密不存入本机缓存。
 
 机器 lastSyncedAt 标记成功快照时间；节点 uncertain、waiting、lastError 分别投影原任务的 unknown、等待与最近失败。原 Task 七种状态与控制收据语义不变。
 
@@ -134,3 +134,39 @@ alpha.8 的布局读取可用状态是前端临时状态，不改变 GraphLayout
 AgentNode 新增可选 managed/removed，缺省兼容旧目录；显式管理后 connected 不被扫描或原生上下文报告覆盖。移除为可恢复标记，快照保留历史身份，UI 隐藏卡片，新需求受中央接入状态约束。agent-network.json 新增 nodeOperations，原子提交节点、授权和收据；版本仍为 1。GraphOperationJournal 新增 node lane，与 relation 未确认意图互锁，布局独立。旧版本不会理解显式移除语义，含此状态的配置不支持直接回退旧中央；保留数据/备份，不靠清空节点或原请求恢复。
 
 `manageNode` 参数 `{operationId,nodeId,machineId?,action}`，action 为 attach/disconnect/remove；返回 `{operationId,state:"confirmed",fingerprint,data:{node,collaboration}}`。`nodeOperation` 以原 operationId 返回 confirmed、确定拒绝的 rejected 或 not_found；not_found 不证明未执行。断开/移除撤销相关权限，有变更才增关系修订。来源校验、离线/忙碌/原生 pending、节点/授权 pending 拦截，接入锁避免并发新任务。snapshot.nodeManagement=true 声明中央能力；新界面在旧中央禁写，原本机布局模式保留。完整语义、错误与验证见 [alpha.9 节点管理](iterations/I06/node-management.md)。
+
+## I06C 当前数据增量
+
+| 文件 / 字段 | 当前定义与边界 |
+| --- | --- |
+| ssh-connections.json / connection.revision,removed | 同原 connectionId/daemonId/machineId；编辑更新修订，removed 禁止自动连接；绑定主机公钥、UID 与原用户保持 |
+| ssh-connections.json / lifecycleOperations | operationId、state=confirmed、fingerprint、data.action/machineId/connectionId/revision；与配置原子写入，查询不重做配置 |
+| agent-network.json / removedMachines,machineOperations | 隐藏机器集合与原管理收据；移除撤权与收据同文件原子提交；恢复不重授权，nodes/requests/delegations 保留 |
+| graph-pending.json / lane=machine,method,params | secret-free 原意图与指纹；machine/node/relation 未知互斥，layout 独立；原 SSH 收据可用于幂等补齐本地网络，缺收据保留 unknown |
+| machine-history.json | 中央私有、按 machineId 的已观察 agents/tasks/conversations；后续分页合并旧任务/会话，排除原生配置/认证内容；不是未观察原生数据库的完整导出 |
+| historical | 离线/移除读取历史标记；非终态保持 unknown，历史会话 canContinue=false；不能替代原请求或控制收据 |
+
+协议仍为 2、网络/机器目录格式仍为 1，新增可选字段由当前代码解释；旧版本不识别 removed/removedMachines，直接回退旧 Coordinator 不支持，完整升级回滚迁移待后续。原身份、占位与原生 Session 不改变；详细事务和实际验证见 [6C 首批](iterations/I06/machine-management.md)。
+
+## alpha.11 维护状态与秘密最小化
+
+| 文件/字段 | 归属与规则 |
+| --- | --- |
+| ssh-connections.json.lifecycleOperations | 原操作 ID、fingerprint、remoteLaunched、私有 remoteInput/controller；公开结果去掉控制器与输入 |
+| connection.maintenance / daemonVersion | 当前原维护状态及实际版本；维护暂停自动重连，不重建机器身份 |
+| maintenance.json | 远端持久维护准入租约；只原操作释放，崩溃保留直至原阶段修复 |
+| maintenance-operations.json | 原 ID/内容摘要、worker PID 与启动标识、阶段、状态及安全结果；元数据锁防查询覆盖完成收据 |
+| maintenance-input-*.json | 本 profile 私有原维护输入，不含 SSH 凭据或原生账号配置 |
+| maintenance-runtime/<digest> | 可信控制器/私有 Node/helper；不随安装卸载删除 |
+
+## alpha.15 维护收据发送前失败边界
+
+lifecycleOperations 维护行区分失败阶段：启动命令的 SSH 通道打开被拒可证明原输入未离开本机（错误对象内部 open 标记），此类失败换新连接重试一次后仍未发出时，收据记 **rejected**（DAEMON_NOT_STARTED、remoteLaunched=false），不产生远端无记录而查询永远 not_found 的 unknown；流中断/超时等可能已发出的失败保持原 unknown 收据，仅按原 ID 查询。凭据缺口在维护入口置 needs_credentials，不折算为 DAEMON_STAGE_REJECTED。见 [I06C 收尾 alpha.15](iterations/I06/final-delivery.md)。
+| current.json / previous.json | 原子版本描述：version/digest/规范 versionPath；不迁移或删除原 Task/Session |
+| pending.json | 表单 answer 值用 [redacted] 替代，原输入先计算摘要，旧记录脱敏迁移；损坏不等同空台账 |
+
+网络目录版本仍为 1，远端协议仍为 2。Linux daemon 版本回滚只接受本地可信包；旧 Coordinator 不理解新增管理状态，直接覆盖降级仍不支持。not_found 不释放原操作占位，worker PID 存活判断还需原启动标识。历史 retained state 的清理需另行授权，维护 uninstall 只删已验证安装文件。见 [I06C 收尾](iterations/I06/final-delivery.md)。
+
+## alpha.14 安装上传失败的明确边界
+
+`ssh-connections.json.operations[operationId]` 的安装 status 保留 pending/confirmed/unknown，并以 rejected 标记上传器明确 `SSH_UPLOAD_FAILED`：该错误只从打开/写入/关闭归档阶段产生，尚未进入解包/激活。safe error 含类别、阶段及 ACK 字节数，不含服务器原始文字或秘密；SFTP 数值状态可保留。此错误暂停自动重连。界面补录凭据、重新 testSsh、查看摘要并批准 connectSsh，未变化摘要沿原 connectionId/operationId。其他已发送步骤失败仍是 unknown，不显示新安装入口，也不从该安装状态推定原生任务或控制结果。没有新增 RPC 或 daemon 协议版本。见 [迭代证据](iterations/I06/ssh-upload-recovery.md)。

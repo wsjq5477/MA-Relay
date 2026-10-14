@@ -15,12 +15,12 @@ function remoteExec(client, command, input = '', options = {}) {
     const fail = error => { if (settled) return; settled = true; clearTimeout(timer); channel?.close(); reject(error); };
     const timer = setTimeout(() => fail(problem('SSH_COMMAND_TIMEOUT', 'SSH 环境检测或安装步骤超时，请检查服务器。')), options.timeoutMs || 15000);
     client.exec(command, { pty: false }, (error, stream) => {
-      if (error) return fail(problem('SSH_EXEC_FAILED', '服务器拒绝了无终端的后台命令，请检查 SSH 权限。'));
+      if (error) return fail(problem('SSH_EXEC_FAILED', '服务器拒绝了无终端的后台命令' + (Number.isSafeInteger(error.reason) ? '（通道原因码 ' + error.reason + '）' : '') + '，请检查 SSH 权限。', { stage: 'open' }));
       channel = stream;
       stream.on('data', chunk => { size += chunk.length; if (size > (options.maxBytes || 65536)) return fail(problem('SSH_BOOTSTRAP_OUTPUT', '服务器启动脚本输出过多，无法安全解析后台检测结果。')); out.push(chunk); });
       stream.stderr.on('data', chunk => { errorBytes += chunk.length; if (errorBytes > 65536) fail(problem('SSH_BOOTSTRAP_OUTPUT', '服务器后台命令诊断输出过多，请检查启动脚本。')); });
-      stream.on('error', () => fail(problem('SSH_EXEC_FAILED', 'SSH 后台命令通道已中断。')));
-      stream.on('close', code => { if (settled) return; settled = true; clearTimeout(timer); if (code !== 0) reject(problem(options.errorCode || 'SSH_EXEC_FAILED', options.errorMessage || '远端后台命令执行失败，请检查运行条件。')); else resolve(Buffer.concat(out).toString('utf8')); });
+      stream.on('error', () => fail(problem('SSH_EXEC_FAILED', 'SSH 后台命令通道已中断。', { stage: 'stream' })));
+      stream.on('close', code => { if (settled) return; settled = true; clearTimeout(timer); if (code !== 0) reject(problem(options.errorCode || 'SSH_EXEC_FAILED', options.errorMessage || ('远端后台命令执行失败（退出码 ' + (code === null || code === undefined ? '未知' : code) + '），请检查运行条件。'), { stage: 'exit' })); else resolve(Buffer.concat(out).toString('utf8')); });
       stream.end(input);
     });
   });
@@ -175,34 +175,76 @@ function hashScript(archivePath, expected) {
 }
 /** Pipelined SFTP writer: many outstanding WRITE packets instead of one per
  * round trip, so a single archive can fill a long fat network. */
-async function uploadArchive(sftp, source, target, onProgress = () => {}) {
-  const handle = await sftpCall(sftp, 'open', target, 'w');
+async function uploadArchive(sftp, source, target, onProgress = () => {}, options = {}) {
   const descriptor = fs.openSync(source, 'r'), size = fs.fstatSync(descriptor).size;
   const CHUNK = 32768, WINDOW = 24;
+  // A buffer belongs to its WRITE until its callback, including ssh2's split
+  // writes. A later ACK must not recycle an earlier outstanding buffer.
   const buffers = Array.from({ length: WINDOW }, () => Buffer.allocUnsafe(CHUNK));
-  let position = 0, sent = 0, completed = 0, failure;
-  const failureOrDone = () => failure || (position >= size && completed >= sent);
-  await new Promise((resolve, reject) => {
-    const pump = () => {
-      while (!failure && sent - completed < WINDOW && position < size) {
-        const length = Math.min(CHUNK, size - position), at = position;
-        const buffer = buffers[sent % WINDOW];
-        const bytesRead = fs.readSync(descriptor, buffer, 0, length, at);
-        if (bytesRead !== length) { failure = problem('SSH_PACKAGE_UNAVAILABLE', '本地安装包读取不完整。'); break; }
-        position += length; sent++;
-        sftp.write(handle, buffer, 0, bytesRead, at, error => {
-          if (error && !failure) failure = problem('SSH_SFTP_UNAVAILABLE', '安装包上传中断，请重新连接。');
-          completed++; onProgress({ completedBytes: Math.min(completed * CHUNK, size), totalBytes: size });
-          if (failureOrDone()) (failure ? reject : resolve)(failure);
-          else pump();
-        });
-      }
-      if (failure) reject(failure);
-      else if (position >= size && completed >= sent) resolve();
-    };
-    pump();
-  }).finally(() => { fs.closeSync(descriptor); void sftpCall(sftp, 'close', handle).catch(() => {}); });
-  return { size };
+  let handle, position = 0, inFlight = 0, completedBytes = 0, settled = false, closing = false, pumping = false, timer;
+  const failure = (error, step) => {
+    const reason = error?.code === 3 || error?.code === 'EACCES' || error?.code === 'EPERM' ? '服务器拒绝写入，请检查登录用户的目录权限'
+      : error?.code === 'ENOSPC' || error?.code === 'EDQUOT' ? '远端磁盘空间或用户配额不足'
+      : error?.code === 4 ? '服务器返回 SFTP Failure，请检查磁盘空间、用户配额与 SFTP 写入限制'
+      : error?.code === 'UPLOAD_IDLE' ? '服务器长时间未确认数据，请检查网络与 SFTP 服务'
+      : error?.code === 7 || error?.code === 'CHANNEL_CLOSED' || ['ECONNRESET','EPIPE','ENOTCONN'].includes(error?.code) ? 'SSH/SFTP 通道已关闭，请检查网络与服务器连接限制'
+      : '服务器未能完成 SFTP 写入，请检查网络、目录权限和存储';
+    const code = typeof error?.code === 'number' && Number.isSafeInteger(error.code) ? `（SFTP ${error.code}）` : '';
+    return problem('SSH_UPLOAD_FAILED', `安装包上传失败：${reason}${code}。阶段：${step}；已确认 ${completedBytes} / ${size} 字节。未解包或激活后台，请重新检测后安装。`);
+  };
+  try {
+    await new Promise((resolve, reject) => {
+      const cleanup = () => {clearTimeout(timer); sftp.removeListener('error', onError); sftp.removeListener('close', onClose); sftp.removeListener('end', onClose);};
+      const fail = (error, step = '写入数据') => {
+        if (settled) return;
+        settled = true; cleanup();
+        if (handle && !closing) {try {sftp.close(handle, () => {});} catch {/* The transport may already be gone. */}}
+        reject(error?.code === 'SSH_PACKAGE_UNAVAILABLE' ? error : failure(error, step));
+      };
+      const touch = () => {clearTimeout(timer); timer = setTimeout(() => fail({code:'UPLOAD_IDLE'}, closing ? '关闭上传文件' : handle ? '写入数据' : '打开上传文件'), options.idleTimeoutMs || 60000);};
+      const onError = error => fail(error);
+      const onClose = () => fail({code:'CHANNEL_CLOSED'});
+      sftp.on('error', onError); sftp.on('close', onClose); sftp.on('end', onClose);
+      const finish = () => {
+        if (settled || closing || position < size || inFlight) return;
+        closing = true; touch();
+        try {sftp.close(handle, error => {
+          if (settled) return;
+          if (error) return fail(error, '关闭上传文件');
+          settled = true; cleanup(); resolve();
+        });} catch (error) {fail(error, '关闭上传文件');}
+      };
+      const pump = () => {
+        if (pumping || settled) return;
+        pumping = true;
+        try {
+          while (!settled && buffers.length && position < size) {
+            const length = Math.min(CHUNK, size - position), at = position, buffer = buffers.pop();
+            let bytesRead;
+            try {bytesRead = fs.readSync(descriptor, buffer, 0, length, at);} catch {throw problem('SSH_PACKAGE_UNAVAILABLE', '本地安装包读取失败。');}
+            if (bytesRead !== length) throw problem('SSH_PACKAGE_UNAVAILABLE', '本地安装包读取不完整。');
+            position += length; inFlight++;
+            sftp.write(handle, buffer, 0, bytesRead, at, error => {
+              if (settled) return;
+              if (error) return fail(error);
+              inFlight--; completedBytes += bytesRead; buffers.push(buffer); touch();
+              try {onProgress({completedBytes, totalBytes:size});} catch (error) {fail(error); return;}
+              pump(); finish();
+            });
+          }
+          finish();
+        } catch (error) {fail(error);}
+        finally {pumping = false;}
+      };
+      touch();
+      try {sftp.open(target, 'w', 0o600, (error, opened) => {
+        if (settled) {if (opened) {try {sftp.close(opened, () => {});} catch {}} return;}
+        if (error) return fail(error, '打开上传文件');
+        handle = opened; touch(); pump();
+      });} catch (error) {fail(error, '打开上传文件');}
+    });
+    return {size};
+  } finally {fs.closeSync(descriptor);}
 }
 class SshInstaller {
   constructor(options) { this.options = options; this.profileId = createHash('sha256').update(options.coordinatorId + '\0' + path.resolve(options.directory)).digest('hex').slice(0, 24); }
@@ -218,7 +260,7 @@ class SshInstaller {
     if (manifest.version !== version || digest !== pin.manifestDigest) throw problem('SSH_PACKAGE_CHECKSUM', '兼容后台清单摘要或版本不符，连接已停止。');
     return { manifest, digest };
   }
-  async probe(client) {
+  async probe(client, sharedSftp = null) {
     const output = await remoteExec(client, '/bin/sh -s', probeScript);
     const lines = output.replace(/\n$/, '').split('\n');
     if (lines.length !== 12 || lines[0] !== 'AGENTBRIDGE_PROBE_V2' || lines.at(-1) !== 'END_AGENTBRIDGE_PROBE') throw problem('SSH_BOOTSTRAP_OUTPUT', '非交互 SSH 启动脚本输出污染了检测结果，请移除后台登录时的欢迎文本。');
@@ -231,7 +273,9 @@ class SshInstaller {
     const bundle = this.bundle();
     const installPath = path.posix.join(home, '.local/share/agentbridge/profiles', this.profileId);
     const stateDirectory = path.posix.join(xdgStateHome || path.posix.join(home, '.local/state'), 'agentbridge/profiles', this.profileId);
-    const sftp = await sftpOpen(client);
+    // A shared session halves the channels a maintenance preview opens; a
+    // session-budget-limited sshd must not reject the preview's own reads.
+    const shared = !!sharedSftp, sftp = shared ? sharedSftp : await sftpOpen(client);
     let marker, current;
     try {
       const stat = await lstat(sftp, installPath);
@@ -241,7 +285,7 @@ class SshInstaller {
         if (!marker || marker.kind !== 'agentbridge-install' || marker.ownerCoordinatorId !== this.options.coordinatorId || marker.profileId !== this.profileId) throw problem('REMOTE_DIRECTORY_UNSAFE', '目标目录已被非本 Bridge 安装占用，停止安装。');
         current = await readJson(sftp, path.posix.join(installPath, 'current.json'));
       }
-    } finally { sftp.end(); }
+    } finally { if (!shared) sftp.end(); }
     const { manifest, digest } = this.release(current?.version, bundle);
     const versionPath = path.posix.join(installPath, 'versions', manifest.version);
     if (current && (current.digest !== digest || current.versionPath !== versionPath)) throw problem('SSH_VERSION_CONFLICT', '已安装后台的版本路径或摘要与可信发布清单不符，保留旧目录并停止连接。');
@@ -256,7 +300,30 @@ class SshInstaller {
     probe.summary = probe.reuseCompatible ? `复用已验证兼容的 Linux 后台 ${manifest.version}，保留任务与历史，不替换运行中的后台。` : `Linux 后台 ${manifest.version}，用户目录安装，不需要 sudo。${probe.runtimeNeeded ? '使用 Bridge 私有 Node，不修改系统环境。' : '使用已安装的 Node。'}`;
     return probe;
   }
-  async install(client, probe, operationId, onProgress = () => {}) {
+  async maintenancePreview(client){
+    const sftp=await sftpOpen(client);let probe,previous;
+    try{
+      probe=await this.probe(client,sftp);
+      previous=await readJson(sftp,path.posix.join(probe.installPath,'previous.json'));
+    }finally{sftp.end();}
+    let rollbackVersion;
+    if(previous){const release=this.release(previous.version);if(previous.digest!==release.digest||previous.versionPath!==path.posix.join(probe.installPath,'versions',previous.version))throw problem('SSH_VERSION_CONFLICT','旧版本回退路径或摘要不可验证。');rollbackVersion=previous.version;}
+    return {...probe,targetVersion:this.bundle().manifest.version,rollbackVersion};
+  }
+  async stageMaintenance(client,probe,operationId,onProgress){
+    const bundle=this.bundle(),target={...probe,daemonVersion:bundle.manifest.version,manifestDigest:bundle.digest,versionPath:path.posix.join(probe.installPath,'versions',bundle.manifest.version),installNeeded:true};
+    await this.install(client,target,operationId,onProgress,{deferActivation:true});
+    const controller=path.posix.join(probe.stateDirectory,'maintenance-runtime',bundle.digest);
+    const script=`const fs=require('node:fs'),path=require('node:path');const source=${JSON.stringify(target.versionPath)},target=${JSON.stringify(controller)},uid=${probe.uid};let current='/';for(const part of target.split('/').filter(Boolean)){current=path.join(current,part);if(!fs.existsSync(current))fs.mkdirSync(current,{mode:0o700});const s=fs.lstatSync(current);if(s.isSymbolicLink()||!s.isDirectory())throw Error('unsafe');if(current.startsWith(${JSON.stringify(probe.stateDirectory)})&&(s.uid!==uid||(s.mode&0o077)))throw Error('owner');}const files=['package.json','runtime/node','runtime/owned-stop','desktop/electron/remote-maintenance.cjs','desktop/electron/machine-daemon.cjs','desktop/electron/machine-protocol.cjs'];for(const file of files){const dst=path.join(target,file);fs.mkdirSync(path.dirname(dst),{recursive:true,mode:0o700});let component=target;for(const part of path.dirname(file).split('/').filter(x=>x!=='.')){component=path.join(component,part);const stat=fs.lstatSync(component);if(stat.isSymbolicLink()||!stat.isDirectory()||stat.uid!==uid)throw Error('unsafe');}if(fs.existsSync(dst)){const stat=fs.lstatSync(dst);if(stat.isSymbolicLink()||!stat.isFile()||stat.uid!==uid)throw Error('unsafe');}const tmp=dst+'.tmp-'+process.pid;fs.writeFileSync(tmp,fs.readFileSync(path.join(source,file)),{flag:'wx',mode:file.startsWith('runtime/')?0o700:0o600});fs.renameSync(tmp,dst);}process.stdout.write('ready');`;
+    await remoteExec(client,quote(path.posix.join(target.versionPath,'runtime/node'))+' -',script,{timeoutMs:60000,errorCode:'DAEMON_MAINTENANCE_STAGE',errorMessage:'维护运行资源暂存失败，原版本保留。'});
+    return {directory:controller,release:{version:bundle.manifest.version,digest:bundle.digest,manifest:bundle.manifest}};
+  }
+  async remoteMaintenance(client,input,controller){
+    const node=path.posix.join(controller,'runtime/node'),entry=path.posix.join(controller,'desktop/electron/remote-maintenance.cjs');
+    const raw=await remoteExec(client,quote(node)+' '+quote(entry),JSON.stringify(input),{timeoutMs:60000,errorCode:'DAEMON_MAINTENANCE_TRANSPORT',errorMessage:'维护回应尚未确认，请查询原操作。'});
+    try{return JSON.parse(raw);}catch{throw problem('DAEMON_PROTOCOL','维护收据无法读取，请查询原操作。');}
+  }
+  async install(client, probe, operationId, onProgress = () => {}, options = {}) {
     const bundle = this.bundle();
     const { manifest, digest } = this.release(probe.daemonVersion, bundle);
     const reuseCompatible = manifest.version !== bundle.manifest.version;
@@ -321,9 +388,11 @@ class SshInstaller {
           await remoteExec(client, quote(node) + ' -', verifyScript(stage, manifest), { timeoutMs: 120000, errorCode: 'SSH_PACKAGE_CHECKSUM', errorMessage: '远端发布包摘要校验失败，未激活安装。' });
           await sftpCall(sftp, 'rename', stage, versionPath);
         }
+        if(!options.deferActivation){
         const currentTemp = path.posix.join(probe.installPath, '.current-' + randomUUID() + '.json');
         await writeRemote(sftp, currentTemp, JSON.stringify({ version: manifest.version, digest, versionPath }));
         await sftpCall(sftp, 'rename', currentTemp, path.posix.join(probe.installPath, 'current.json'));
+        }
       }
       const node = sufficientNode(probe.nodeVersion) ? probe.nodePath : path.posix.join(versionPath, manifest.runtime.path);
       await remoteExec(client, quote(node) + ' -', verifyScript(versionPath, manifest), { timeoutMs: 60000, errorCode: 'SSH_PACKAGE_CHECKSUM', errorMessage: '已安装后台的文件校验失败，连接已停止。' });

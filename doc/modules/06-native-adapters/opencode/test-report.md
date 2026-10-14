@@ -43,3 +43,7 @@ T-M06-OC-05/07/08 汇总多个实际用例，不能按表行计算自动测试�
 ## 当前 6A 候选验收结果
 
 2026-10-12 / 0.6.0-alpha.2：独立 Linux OpenCode 在真实 Windows 窗口中两轮成功，native Session ID 完全一致；停止/重开与普通 EXE 无新 Prompt 回读通过。[窗口](../../../../artifacts/I06A-real/report.json)、[普通 EXE](../../../../artifacts/I06A-final/portable.json)、[候选验收](../../../iterations/I06/acceptance.md)。
+
+## I06C alpha.13 独立实机补充
+
+2026-10-14：原生 OpenCode 2.0.26 / Windows Claude，继承已有账号与配置。独立 SSH 双向 MCP 主子及 OpenCode 同 Session 两轮通过；Windows Claude 取消以 nativeExited 和 Task cancelled 验证。OpenCode 文件任务遇到内核 OOM，未知保持原 Task/Session 占位；未确认终态不算成功，不换请求/目录重做。详细版本、实际结果及证据见 [I06C 实机](../../../iterations/I06/final-delivery.md)。

@@ -1,6 +1,6 @@
 # M07 任务、会话、交互控制与恢复设计
 
-更新日期：2026-10-13。本文是当前功能基线，涵盖桌面节点入口和 CLI/Core 兼容入口。它们共享“保留原执行、查询原回执”的原则；不同原生适配器的能力与存储格式不能假设完全一致。
+更新日期：2026-10-14。本文是当前功能基线，涵盖桌面节点入口和 CLI/Core 兼容入口。它们共享“保留原执行、查询原回执”的原则；不同原生适配器的能力与存储格式不能假设完全一致。
 
 ## 1. 功能目标与验收口径
 
@@ -179,3 +179,13 @@ alpha.6 原请求恢复接受原 daemon 的持久执行前 AGENT_UNHEALTHY 拒�
 ## alpha.9 节点管理与历史续聊
 
 断开/移除只改变 Bridge 接入与可见性，保留请求/任务/会话/上下文/原生 Session 及原来源，原任务仍可读。新 submit/continue/verify 需节点已接入，旧 IPC 同样检查，并在刚导入实例归属后再次核对。界面历史名称从包含 removed 的快照目录读取，不能改指同机器另一同名节点；断开/移除会话暂停续问，原机器重新接入后再按原绑定校验。运行/等待/unknown/原控制回应未确认时禁止节点变更，不把 confirmed 元数据当作取消。详见 [当次节点管理](../../iterations/I06/node-management.md)。
+
+## I06C 当前机器管理与观察恢复
+
+机器编辑/移除不能释放任务、等待、unknown 或原 pending 占位；重连允许原意图未知且只读对账。中央私有已观察历史跨窗口/后台重开保留，后续分页不删除旧项；离线/移除下 task/conversation 可回 historical 快照，非终态 unknown，canContinue=false 且控制暂停。request/operation 收据不使用历史快照确认，恢复沿用原生 Session。 完整接口、事务、当次实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
+
+## 当前维护与原操作恢复（alpha.13）
+
+原生 request/operation 的确认必须匹配原 ID、来源机器、Task/execution 绑定及明确状态。旧 confirmed 外壳内包含 native unknown 时恢复为 unknown；原 native rejected 收据可读且不重放。缺收据或缺原生终态继续占位。维护拒绝正在运行、等待或未知任务，停止/卸载保留原记录；台账损坏拒绝新写入，表单秘密值不落中央恢复台账。
+
+实现入口：[pending-journal.cjs](../../../desktop/electron/pending-journal.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。

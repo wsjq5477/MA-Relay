@@ -246,7 +246,7 @@ test("reopening with an offline shared source retains occupancy but independent 
   assert.ok(offlineInstance, "a persisted instance must remain visible while its machine is offline");
   assert.equal(offlineInstance.available, false);
   assert.equal(offlineInstance.workspace, "/mnt/d/Shared");
-  assert.equal(reopened.cache.has(machine(reopened, "wsl").machineId), false);
+  assert.equal(reopened.cache.has(machine(reopened, "wsl").machineId), true, "private persisted history is available but remains stale and cannot clear source occupancy");
   await assert.rejects(submit(reopened, machine(reopened, "windows")), { code: "PROJECT_SOURCE_OFFLINE" });
   f.hosts.windows.state.agents.items[0].workspace = "D:\\Independent";
   await reopened.snapshot();

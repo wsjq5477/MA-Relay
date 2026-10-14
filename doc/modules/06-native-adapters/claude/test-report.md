@@ -46,3 +46,7 @@
 专用回归：`node --test desktop/tests/claude-host.test.cjs`。完整回归：`npm test --prefix desktop`。真实脚本：[windows-claude-controls-real.cjs](../../../../desktop/tests/windows-claude-controls-real.cjs)、[windows-dual-real.cjs](../../../../desktop/tests/windows-dual-real.cjs)、[windows-i05-real.cjs](../../../../desktop/tests/windows-i05-real.cjs)。
 
 真实脚本应在 Windows Node 和独立 profile/目录运行，会有原生模型调用，许可场景也会产生指定文件修改。报告必须区分受控 fixture、Mock UI、实际 CLI 和最终包，并同步设计能力表及当前迭代验收状态。
+
+## I06C alpha.13 独立实机补充
+
+2026-10-14：原生 OpenCode 2.0.26 / Windows Claude，继承已有账号与配置。独立 SSH 双向 MCP 主子及 OpenCode 同 Session 两轮通过；Windows Claude 取消以 nativeExited 和 Task cancelled 验证。OpenCode 文件任务遇到内核 OOM，未知保持原 Task/Session 占位；未确认终态不算成功，不换请求/目录重做。详细版本、实际结果及证据见 [I06C 实机](../../../iterations/I06/final-delivery.md)。

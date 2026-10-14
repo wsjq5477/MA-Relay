@@ -8,7 +8,7 @@ const linuxDirectory='/tmp/'+path.basename(profile);
 fs.mkdirSync('\\\\wsl.localhost\\Ubuntu'+linuxDirectory.replaceAll('/','\\'),{recursive:true});
 fs.writeFileSync(path.join(profile,'desktop.json'),JSON.stringify({distribution:'Ubuntu',directory:linuxDirectory,theme:'system'}));
 fs.copyFileSync(source,exe);
-const output=process.env.AGENTBRIDGE_PORTABLE_REPORT?path.resolve(process.env.AGENTBRIDGE_PORTABLE_REPORT):path.resolve(__dirname,'../../artifacts/codex-discovery/2026-10-12/portable.json');
+const output=process.env.AGENTBRIDGE_PORTABLE_REPORT?path.resolve(process.env.AGENTBRIDGE_PORTABLE_REPORT):path.resolve(__dirname,`../../artifacts/portable/${version}/portable.json`);
 const report={date:new Date().toISOString(),version,environment:'Windows ordinary portable EXE / fresh isolated Windows and WSL state',status:'running',checks:[],submittedNativePrompts:0};
 const delay=ms=>new Promise(r=>setTimeout(r,ms));let wrapper,main,client;
 const ps=command=>new Promise((resolve,reject)=>execFile('powershell.exe',['-NoProfile','-NonInteractive','-Command',command],{windowsHide:true,timeout:20000},(e,o)=>e?reject(e):resolve(o.trim())));

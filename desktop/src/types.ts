@@ -21,6 +21,7 @@ export interface Event {
   };
 }
 export interface Task {
+  historical?:boolean;
   nodeId?: string;
   workspace?: string;
   machineId?: string;
@@ -70,6 +71,7 @@ export interface Agent {
   startupError?: { code: string; message: string };
 }
 export interface Conversation {
+  historical?:boolean;
   nodeId?: string;
   workspace?: string;
   kind?: "task" | "verification";
@@ -87,6 +89,8 @@ export interface Conversation {
 export interface Snapshot {
   nodes?: AgentNode[];
   nodeManagement?:boolean;
+  machineManagement?:boolean;
+  daemonManagement?:boolean;
   collaboration?: Collaboration;
   delegations?: Delegation[];
   configured: boolean;
@@ -138,6 +142,10 @@ export interface GraphLayout {
 export interface GraphReceipt<T> {operationId:string;state:'confirmed'|'not_found';fingerprint?:string;data?:T;}
 export interface Delegation {delegationId:string;leaderId:string;memberId:string;parentRequestId:string;parentTaskId?:string;taskId?:string;conversationId?:string;state:string;message:string;createdAt:string;}
 export interface Machine {
+  busy?:boolean;
+  daemonMaintenance?:{operationId:string;state:string;action:string};
+  removed?:boolean;
+  revision?:number;
   machineId: string;
   name: string;
   kind: "windows" | "wsl" | "linux" | "ssh";
@@ -159,6 +167,7 @@ export interface Machine {
   authKind?: SshAuthKind;
   keyPath?: string;
   credentialSaveSupported?: boolean;
+  credentialAvailable?:boolean;
   daemonVersion?: string;
   installProgress?: {phase: string; completedBytes: number; totalBytes: number};
 }
@@ -167,7 +176,7 @@ export type SshConnectionState =
   | "draft" | "validating_host" | "awaiting_host_trust" | "authenticating"
   | "inspecting" | "ready" | "installing" | "starting" | "handshaking" | "online"
   | "disconnected" | "reconnecting" | "needs_credentials" | "blocked"
-  | "disconnected_manual";
+  | "disconnected_manual" | "removed" | "maintaining";
 export interface SshTrustChallenge {
   challengeId: string;
   fingerprint: string;
@@ -221,6 +230,8 @@ export interface DiscoveredTool {
   machineId: string;
 }
 export interface Field {
+  format?:string;
+  sensitive?:boolean;
   key: string;
   type: string;
   title?: string;

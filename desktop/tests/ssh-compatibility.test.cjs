@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const {createHash}=require('node:crypto'),{EventEmitter}=require('node:events'),{Readable}=require('node:stream');
-const {SshInstaller}=require('../electron/ssh-install.cjs');
+const {SshInstaller,remoteExec}=require('../electron/ssh-install.cjs');
 const digest=m=>createHash('sha256').update(JSON.stringify(m)).digest('hex');
 function fixture(t){
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-ssh-compat-')),payload=Buffer.from('test-node');
@@ -41,4 +41,18 @@ test('compatible reuse refuses changed installation, foreign ownership and symbo
 test('tampered local pins and failed remote file verification reject reuse without mutations',async t=>{
  const f=fixture(t),probe=await f.installer.probe(f.client);f.setFailVerify();await assert.rejects(f.installer.install(f.client,probe,'checksum'),{code:'SSH_PACKAGE_CHECKSUM'});
  fs.appendFileSync(path.join(f.directory,'compatible-daemons',f.old.version+'.json'),' ');await assert.rejects(f.installer.probe(f.client),{code:'SSH_PACKAGE_CHECKSUM'});assert.deepEqual(f.writes,[]);
+});
+test('maintenance preview reads probe markers and previous version over one shared SFTP session',async t=>{
+ const f=fixture(t);
+ f.objects.set(f.installPath+'/previous.json',{version:f.old.version,digest:digest(f.old),versionPath:f.versionPath});
+ let sftpOpens=0;const counting={sftp(cb){sftpOpens++;return f.client.sftp(cb);},exec:(...args)=>f.client.exec(...args)};
+ const preview=await f.installer.maintenancePreview(counting);
+ assert.equal(preview.daemonVersion,f.old.version);assert.equal(preview.targetVersion,'0.6.0-alpha.4');assert.equal(preview.rollbackVersion,f.old.version);
+ assert.equal(sftpOpens,1,'one SFTP session must cover probe markers and previous.json');assert.equal(f.commands.length,1);
+});
+test('remoteExec reports the channel rejection reason and the remote exit code',async()=>{
+ const rejected={exec(_command,_options,cb){cb(Object.assign(new Error('(SSH) Channel open failure: open failed'),{reason:4}));}};
+ await assert.rejects(remoteExec(rejected,'fixture'),e=>e.code==='SSH_EXEC_FAILED'&&e.message.includes('通道原因码 4'));
+ const failed={exec(_command,_options,cb){const stream=new EventEmitter();stream.stderr=new EventEmitter();stream.close=()=>{};stream.end=()=>queueMicrotask(()=>stream.emit('close',127));cb(null,stream);}};
+ await assert.rejects(remoteExec(failed,'fixture'),e=>e.code==='SSH_EXEC_FAILED'&&e.message.includes('退出码 127'));
 });

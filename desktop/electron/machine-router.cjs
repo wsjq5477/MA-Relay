@@ -46,7 +46,7 @@ class MachineRouter {
   constructor(options) {
     this.options = options;
     this.file = path.join(options.directory, "machines.json");
-    this.hosts = new Map(); this.cache = new Map(); this.locks = new Set();
+    this.hosts = new Map(); this.historyFile=path.join(options.directory,'machine-history.json');this.history=fs.existsSync(this.historyFile)?JSON.parse(fs.readFileSync(this.historyFile,'utf8')):{};this.cache = new Map(Object.entries(this.history)); this.locks = new Set();
     this.discovered = new Map(); this.scanning = new Map(); this.machineScanTime = 0;
     this.snapshotJobs = new Map(); this.retryAfter = new Map();
     fs.mkdirSync(options.directory, { recursive: true });
@@ -148,6 +148,7 @@ class MachineRouter {
   async oneSnapshot(machine) {
     let timer;
     try {
+      if((this.network?.removedMachines||[]).includes(machine.machineId))fail('MACHINE_REMOVED','机器已移除，历史保留。');
       if ((this.retryAfter.get(machine.machineId) || 0) > Date.now()) fail("MACHINE_TIMEOUT", "机器后台正在恢复连接，其他机器仍可使用。");
       let job = this.snapshotJobs.get(machine.machineId);
       if (!job) {
@@ -159,6 +160,12 @@ class MachineRouter {
             try { await this.discover(machine); } catch { /* Machine status is independent of installed tools. */ }
           }
           this.cache.set(machine.machineId, snapshot);
+          // Preserve private history for disconnected/removed machines across restarts.
+          const previousHistory=this.history[machine.machineId]||{};
+          const retain=(older,newer,key)=>[...new Map([...(older||[]),...(newer||[])].map(row=>[row[key],row])).values()];
+          this.history[machine.machineId]={agents:{revision:snapshot.agents?.revision,connected:snapshot.agents?.connected,items:(snapshot.agents?.items||[]).map(a=>Object.fromEntries(['agentId','name','workspace','enabled','nativeAgent','default','busy','executable','adapter','nodeId','connectionId','currentTask','online','healthy','available','capabilities','startupError'].filter(k=>a[k]!==undefined).map(k=>[k,a[k]])))},tasks:retain(previousHistory.tasks,snapshot.tasks,'taskId'),conversations:retain(previousHistory.conversations,snapshot.conversations,'conversationId')};
+          const historyTemp=this.historyFile+'.'+randomUUID()+'.tmp';
+          fs.writeFileSync(historyTemp,JSON.stringify(this.history),{mode:0o600});fs.renameSync(historyTemp,this.historyFile);
           this.retryAfter.delete(machine.machineId);
           return snapshot;
         })();
@@ -172,7 +179,7 @@ class MachineRouter {
       const snapshot = await Promise.race([job, deadline]);
       return { machine: { ...machine, online: true, error: undefined, connectionError: undefined, lastSyncedAt:new Date().toISOString(), home: snapshot.environment?.home, cwd: snapshot.environment?.cwd }, snapshot };
     } catch (error) {
-      return { machine: { ...machine, online: false, error: error.message }, snapshot: this.cache.get(machine.machineId), stale: true };
+      return { machine: { ...machine, online: false, error: error.message }, snapshot: this.history[machine.machineId]||this.cache.get(machine.machineId), stale: true };
     } finally { clearTimeout(timer); }
   }
   async snapshot() {
@@ -277,6 +284,13 @@ class MachineRouter {
       return await host.call("ipc", params);
     } finally { this.locks.delete(key); }
   }
+  historical(machine,p){
+    const snapshot=this.history[machine.machineId]||this.cache.get(machine.machineId);if(!snapshot)return null;
+    const mark=t=>({...t,...(!terminal.has(t.status)?{status:'unknown',uncertaintyReason:'历史快照，等待来源机器核对。'}:{}),historical:true});
+    if(p.op==='task'){const task=snapshot.tasks.find(t=>t.taskId===p.taskId);return task?mark(task):null;}
+    if(p.op==='conversation'){const conversation=snapshot.conversations.find(c=>c.conversationId===p.conversationId);return conversation?{...conversation,items:snapshot.tasks.filter(t=>t.conversationId===p.conversationId).map(mark),canContinue:false,historical:true}:null;}
+    return null;
+  }
   async call(method, params = {}) {
     if (method === "snapshot") return this.snapshot();
     await this.machines();
@@ -307,7 +321,12 @@ class MachineRouter {
       return { ...project(result, machine.machineId), machineId: machine.machineId };
     }
     if (method !== "ipc") fail("INVALID_INPUT", "不支持这个桌面操作。");
-    const result = await this.execute(machine, p);
+    let result;
+    try{if((this.network?.removedMachines||[]).includes(machine.machineId)&&['task','conversation'].includes(p.op))fail('MACHINE_REMOVED','机器已移除。');result=await this.execute(machine,p);}
+    catch(error){
+      if(!['task','conversation'].includes(p.op)||!['MACHINE_REMOVED','MACHINE_OFFLINE','DESKTOP_TRANSPORT','DESKTOP_TIMEOUT','MACHINE_TIMEOUT'].includes(error.code))throw error;
+      result=this.historical(machine,p);if(!result)throw error;
+    }
     return { ...project(result, machine.machineId), machineId: machine.machineId };
   }
   close() { for (const host of this.hosts.values()) host.close(); this.hosts.clear(); }

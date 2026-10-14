@@ -1,6 +1,6 @@
 # M05 Linux 机器后台设计
 
-更新日期：2026-10-13。代码基线：新安装 daemon `0.6.0-alpha.9`；可复用可信清单内的 alpha.2–alpha.8，实际运行版本由握手确认、远端协议 `2`。独立进程、私有 socket、收据去重、relay 分离已实现；已有独立服务器断线期间任务继续记录。完整故障矩阵和事件过期补偿尚未完成，详见 [测试报告](test-report.md)。
+更新日期：2026-10-14。代码基线：新安装 daemon `0.6.0-alpha.13`；可复用可信清单内的 alpha.2–alpha.11，实际运行版本由握手确认、远端协议 `2`。独立进程、私有 socket、收据去重、relay 分离已实现；已有独立服务器断线期间任务继续记录。事件过期补偿已在 alpha.10 实现；完整故障矩阵尚未完成，详见 [测试报告](test-report.md)。
 
 ## 1. 用途与功能
 
@@ -14,9 +14,9 @@ Linux daemon 是目标 Linux 上由 AgentBridge 安装的机器管理进程。�
 | M05-F04 | 发现 Agent、独立上下文、执行需求、读取任务/会话 | 生产 host 集成与真实远端 OpenCode 新会话通过 |
 | M05-F05 | 同 ID 重试不重复原生执行，参数变化拒绝；未知结果只查询原记录 | 10 次并发 = 1 次受控原生调用；重启/取消恢复测试通过 |
 | M05-F06 | relay/SSH 消失任务保留，重连读取原结果和续聊 | 受控及真实服务器记录通过；alpha.2 真实两轮 native Session ID 比较通过，完整恢复矩阵仍有限 |
-| M05-F07 | 状态事件有持久递增游标，可回读；新通道替代旧通道 | 代次/事件受控通过；游标过期端到端补偿未完成 |
+| M05-F07 | 状态事件有持久递增游标，可回读；新通道替代旧通道 | 代次/事件受控通过；alpha.10 生产 SSH/daemon 隔离补偿已验证，独立服务器专项待验 |
 | M05-F08 | 原生 Agent 协作工具经当前通道回调中央 | 通道归属/旧回调 fencing 受控通过；I06B 双向核心链已有真实通过，最终包复验与完整故障边界见当次报告 |
-| M05-F09 | 安全升级、停机、卸载以及服务器重启后的自启动 | 未实现产品流程；当前提供内部启动/检查和 SIGTERM 退出 |
+| M05-F09 | 安全升级、停机、卸载以及服务器重启后的自启动 | alpha.11 升级/回滚/停止/卸载已实现；服务器重启自启动不在当前支持范围 |
 
 ## 2. 对象与相邻模块
 
@@ -156,9 +156,9 @@ daemon 每秒观测任务快照，任务状态/序号/摘要变化时写 `task.c
 
 目前磁盘事件日志没有轮转，启动时读取并解析整个文件；坏 JSON 或非递增游标会拒绝启动并保留现场。大历史和日志截断恢复未完成压力验收。
 
-当前 SSH 客户端重连判断 `cursorExpired/latestCursor`，本模块返回 `cursorGap/earliestCursor`，双方尚未统一。因此不能宣称事件过期后的全量 snapshot 补偿已完整实现。普通未过期游标回读及代次 fencing 已有测试。
+alpha.10 SSH 客户端已兼容 cursorGap/cursorExpired，以本模块 items/nextCursor/hasMore 分页读完保留事件；游标缺口先完整 snapshot 补偿。生产 daemon 与真实本机 TCP SSH 的隔离验证见 6C 首批，独立物理服务器完整故障恢复仍待后续。
 
-尚未实现：忙时延后升级、失败回滚、用户态 systemd 生命周期、产品停止/卸载入口、服务器重启自启动。跨 SSH 主从双向核心链已有 I06B 独立原生记录；控制故障矩阵继续待验，不由文本协作推定通过。
+alpha.11 已实现空闲安全升级、健康失败回滚和产品停止/卸载入口；忙或 unknown 明确拒绝，不隐式排队切换。用户态 systemd、服务器重启自启动仍不支持。跨 SSH 主从双向核心链已有 I06B 独立原生记录；控制故障矩阵继续待验，不由文本协作推定通过。
 
 ## 8. 代码与维护
 
@@ -173,3 +173,13 @@ daemon 握手版本读取其所在发布包的 package.json；源码开发时读
 实际 Linux 无可发现系统/用户 Node 的隔离 HOME 已验证：生产探测返回空 Node 路径，发布包私有 ELF Node 启动真实 daemon，第二次启动复用同一 PID 和 daemonId。这个验证没有 SSH 安装或模型调用，独立服务器正常安装另有 Windows 实测证据。
 
 alpha.9 收录的 alpha.8 Linux manifest 与原 alpha.8 包报告 manifestDigest 逐字节规范 JSON 摘要核对后保存；允许可信旧 daemon 复用，不自动升级远端。当前候选资源和实际验证见 [节点管理交付](../../iterations/I06/node-management.md)，SSH/原生任务沿用原版本证据，本次未重跑独立服务器。
+
+## I06C 当前机器管理与观察恢复
+
+daemon.eventRead 的 cursorGap/earliestCursor、items/nextCursor/hasMore 由当前 SSH 客户端完整处理：缺事件先补 snapshot，再读完保留页；客户端不猜 latestCursor，事件处理失败不提前推进。连接代次与原 daemon 身份不变，无 Prompt 补发。新候选仍可信复用旧协议 2 发布；alpha.11 维护流程见下节。 完整接口、事务、当次实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
+
+## 当前维护与原操作恢复（alpha.13）
+
+daemon.quiesce 先建立内存准入门再读取任务与收据；非终态、忙节点、在途创建或未确认原控制均拒绝切换。维护租约持久化到 maintenance.json，daemon.shutdown 仅接受同一操作且无在途任务。独立维护 worker 校验 owner/profile/UID、版本及每文件摘要后切换 current.json，目标健康核对失败回到原版本。旧 daemon 不支持停机 RPC 时使用已经校验的 owned-stop：先取得 pidfd，再核对 UID 与原启动标识，只经内核句柄发送 SIGTERM，拒绝 PID-only 降级。未知 native 控制收据不能被包装为 confirmed；只确认原 operationId 与原目标的有效状态，取消接收与实际终态分开。
+
+实现入口：[remote-maintenance.cjs](../../../desktop/electron/remote-maintenance.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。

@@ -2,13 +2,13 @@
 
 ## GitHub Windows 下载
 
-2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
+GitHub 当前已有 0.6.0-alpha.9 预发布；稳定历史版本仍为 0.5.0。当前源码候选为 0.6.0-alpha.15，Windows x64 EXE 正随本次源码更新发布。完整 I06C 和正式 0.6.0 尚未准出。Windows 用户下载 Release 附件双击即可运行，无需自行编译、安装 WSL 或 Node.js。
 
 [校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/SHA256SUMS.txt)。旧后台仍运行时，在新窗口“设置 → 后台运行 → 停止后台并退出”后重新打开；不删除机器、节点或历史。
 
 按“机器 → Agent 节点 → 会话 / 任务”管理 Claude Code、OpenCode、Codex。节点不绑定项目、模型或供应商；用户指定主 Agent 与可连接的子 Agent，主 Agent 可以真实发现、委派和读取子结果。
 
-当前开发候选为 **0.6.0-alpha.9 / I06B**：独立 Coordinator、SSH Linux 接入、机器分组节点图与真实双向协作的主要流程在 alpha.6 通过；alpha.7 图优化见 [专项](../doc/iterations/I06/graph-usability.md)；[6B 验收与限制](../doc/iterations/I06/graph-implementation.md)。正式历史版仍为 0.5.0，本文旧版操作说明保留在下方；新版使用节点上的“接入”“设为主 Agent”“开始会话”，端点连线后保存授权。完整资料见 [文档入口](../doc/README.md)和[整体交付状态](../doc/project-plan.md)。
+当前开发候选为 **0.6.0-alpha.15 / I06C**：节点图、机器管理、SSH 维护恢复及上传失败诊断持续迭代。完整 I06C 仍未准出；原生文件恢复终态等未通过项见 [当前收尾验收](../doc/iterations/I06/final-delivery.md)。本文旧版操作说明保留在下方；新版使用节点上的“接入”“设为主 Agent”“开始会话”，端点连线后保存授权。完整资料见 [文档入口](../doc/README.md)和[整体交付状态](../doc/project-plan.md)。
 
 ## 运行与使用
 
@@ -81,3 +81,15 @@ npm run typecheck
 先正常关闭旧窗口，再打开新 EXE，避免单实例规则只是把旧窗口置前。alpha.8 即使仍连接 alpha.5 旧后台，也允许本机布局拖动；界面会提示尚未同步，授权编辑需支持图接口的后台。左键拖 Agent 卡片或机器标题/背景，中键平移全图；点击“自动整理”把主 Agent 所在机器组排在左侧。现有手动位置不会随轮询重排。[原因与验证](../doc/iterations/I06/graph-drag-fix.md)。
 
 当前 alpha.9 保留“机器与 Agent”单一图页面，包含协作授权和最近委派。每个机器组提供“添加 Agent”，卡片提供“接入”“断开”“移除”；后两者有明确确认，保留安装/配置与历史，忙碌/等待/unknown/离线需先核对。移除项可在原机器按同一身份重新添加，权限需重新配置。[行为、程序与证据](../doc/iterations/I06/node-management.md)。
+
+## alpha.10 机器连接管理
+
+2026-10-13 / alpha.10：机器 SSH 连接编辑、确认断开/移除、原身份恢复、已观察历史持久化/阅读及事件游标缺口分页补偿已实现；桌面 136/136、真实本机 TCP SSH/生产 daemon 隔离恢复和 Windows 界面分别通过。完整 I06C、升级回滚和正式 0.6.0 未准出。
+
+在“机器与 Agent”页下方对应 SSH 机器操作区，使用“编辑连接”“断开”“重新连接”“移除机器”；移除有范围确认，恢复在“设置 → 已移除机器”。已接入机器绑定原 SSH 用户；另一用户请新增机器。关闭连接详情不再断开已有机器。移除保留远端安装、原任务、会话和布局，清除保存的 SSH 凭据并撤销当前相关协作授权；恢复后需重新连接且不自动授权。历史快照明确标记，不能继续/控制或用于确认原 pending。
+
+程序：[AgentBridge-0.6.0-alpha.10-Windows-x64.exe](release/AgentBridge-0.6.0-alpha.10-Windows-x64.exe)。先关闭旧窗口，如仍连旧后台，用设置中的“停止后台并退出”后重新打开新版；不要删除原数据或未知 ID。可信 alpha.2–alpha.9 仅复用，不自动升级远端。完整接口、实测和未完成范围见 [6C 首批](../doc/iterations/I06/machine-management.md)。
+
+## alpha.12 后台维护候选
+
+当前源码候选为 0.6.0-alpha.15。在机器图 SSH 机器的“后台维护”中确认升级、回滚、停止或卸载；显示实际与目标版本。忙/unknown 时不能切换，回应未知只能查询原操作。停止保留安装/历史；卸载只删已验证的 Bridge 安装文件，原生 CLI、项目、账号及历史状态保留。旧后台安全停止要求支持 pidfd 的内核，当前独立服务器实测和完整准出状态见 [I06C 收尾](../doc/iterations/I06/final-delivery.md)。普通关闭窗口继续保留中央后台；用新程序更新中央时通过设置的“停止后台并退出”再打开新程序，不直接覆盖旧运行资源。

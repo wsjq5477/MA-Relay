@@ -2,7 +2,7 @@
 
 ## Windows EXE 下载
 
-2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
+GitHub 当前已有 0.6.0-alpha.9 预发布；稳定历史版本仍为 0.5.0。I06C alpha.15 是当前源码候选，Windows EXE 正在与源码一起发布；完整 I06C 和正式 0.6.0 尚未准出。Windows 用户下载发布附件即可运行，无需自行编译、安装 WSL 或 Node.js。候选边界与验证范围见 [I06C 收尾](doc/iterations/I06/final-delivery.md)。
 
 下载 EXE 后双击运行；原生 Agent 工具仍需按所用工具安装并登录。[SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/SHA256SUMS.txt)。源码 ZIP 不包含 EXE。
 
@@ -210,3 +210,7 @@ MIT License。Bridge 不直接推理、不保存模型 Key；真实执行使用 
 ## 当前 6A 候选验收结果
 
 Windows 6A 候选程序位于 `desktop/release/AgentBridge-0.6.0-alpha.2-Windows-x64.exe`；主要 SSH/会话/后台生命周期已验收。[候选报告](doc/iterations/I06/acceptance.md)、[完整资料](doc/README.md)。节点图和整个 I06 最终准出尚待 6B/6C。
+
+## I06C 当前候选
+
+2026-10-13 / alpha.10：机器 SSH 连接编辑、确认断开/移除、原身份恢复、已观察历史持久化/阅读及事件游标缺口分页补偿已实现；桌面 136/136、真实本机 TCP SSH/生产 daemon 隔离恢复和 Windows 界面分别通过。完整 I06C、升级回滚和正式 0.6.0 未准出。 使用/证据见 [6C 首批](doc/iterations/I06/machine-management.md)，程序为 [alpha.10 Windows EXE](desktop/release/AgentBridge-0.6.0-alpha.10-Windows-x64.exe)。

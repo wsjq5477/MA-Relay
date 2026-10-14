@@ -74,3 +74,17 @@ test('SFTP directory checks reject symlink parents and foreign UID before mutati
   await assert.rejects(privateDirectory(sftp, '/home/u/.local/share', '/home/u', 1000), { code: 'REMOTE_DIRECTORY_UNSAFE' }); assert.deepEqual(calls, []);
   await assert.rejects(privateDirectory(sftp, '/other/private', '/home/u', 1000), { code: 'REMOTE_DIRECTORY_UNSAFE' });
 });
+
+test('Linux maintenance helper keeps executable mode through the actual compressed installation archive', async t => {
+  const {packArchive}=require('../electron/ssh-install.cjs'),{stageLinuxPackage}=require('../scripts/stage-linux-package.cjs'),{execFileSync}=require('node:child_process');
+  const directory=temp(t),repo=path.join(directory,'repo'),runtime=path.join(directory,'runtime'),destination=path.join(directory,'linux');
+  for(const p of [path.join(runtime,'node_modules'),path.join(runtime,'desktop/electron'),path.join(repo,'dist')])fs.mkdirSync(p,{recursive:true});
+  fs.writeFileSync(path.join(repo,'package.json'),JSON.stringify({name:'archive-mode-test',version:'0.1.0'}));
+  stageLinuxPackage({repo,runtime,destination,nodeExecutable:process.execPath,version:'0.6.0-mode-test'});
+  const manifest=JSON.parse(fs.readFileSync(path.join(destination,'manifest.json')));
+  assert.equal(manifest.files.find(f=>f.path==='runtime/owned-stop').mode,0o700);
+  const packed=await packArchive(manifest,destination),extracted=path.join(directory,'extracted');fs.mkdirSync(extracted);
+  execFileSync('tar',['-xzf',packed.archive,'-C',extracted]);const helper=path.join(extracted,'runtime/owned-stop');
+  assert.equal(fs.statSync(helper).mode&0o777,0o700);
+  assert.throws(()=>execFileSync(helper,[],{stdio:'ignore'}),error=>error.status===2&&!error.code);
+});

@@ -3,7 +3,7 @@ import {call} from './api';
 export type NodeAction='attach'|'disconnect'|'remove';
 type Intent={operationId:string;nodeId:string;machineId:string;action:NodeAction};
 type Receipt={operationId:string;state:string;error?:{message:string}};
-const rejected=new Set(['INVALID_INPUT','NODE_NOT_FOUND','AGENT_BUSY','MACHINE_OFFLINE','WRONG_MACHINE','AGENT_UNAVAILABLE','DISCOVERY_CHANGED','OPERATION_LIMIT','OPERATION_CONFLICT','GRAPH_UNCONFIRMED','DESKTOP_UNCONFIRMED']);
+const rejected=new Set(['INVALID_INPUT','NODE_NOT_FOUND','AGENT_BUSY','MACHINE_OFFLINE','WRONG_MACHINE','AGENT_UNAVAILABLE','DISCOVERY_CHANGED','OPERATION_LIMIT','OPERATION_CONFLICT','GRAPH_UNCONFIRMED','DESKTOP_UNCONFIRMED','GRAPH_INTENT_FAILED','DAEMON_STAGE_REJECTED']);
 export function useNodeManagement(directory:string,notify:(text:string)=>void,refresh:()=>Promise<void>){
   const key='agentbridge-node-operation:'+directory;
   const read=()=>{try{return JSON.parse(localStorage.getItem(key)||'null') as Intent|null;}catch{return null;}};

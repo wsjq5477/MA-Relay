@@ -1,18 +1,18 @@
 # M10 构建、发布与持久运行资源设计
 
-更新：2026-10-13。桌面当前源码候选 0.6.0-alpha.9、根 CLI 0.1.0；新 Windows 候选包已构建并进行真实验收，稳定历史版本仍为 0.5.0。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源。
+更新：2026-10-14。桌面当前源码候选 0.6.0-alpha.15、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源。
 
 ## 1. 功能范围
 
 | 功能 ID | 交付目标 | 当前状态 |
 | --- | --- | --- |
-| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.9 桌面 125/125；根 43/43 是 alpha.6 未改动部分的历史基线；当前界面/发布检查见图优化报告 |
-| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | 0.6.0-alpha.9 节点图候选包已构建并校验；普通启动/重开单独实测，状态见报告 |
-| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | 已生成 `0.6.0-alpha.9` 资源及可信 alpha.2–alpha.8 manifest；当前真实远端范围见 I06B 报告，历史 alpha.2 证据保留 |
+| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.15 桌面 159/159；根 43/43 于 2026-10-14 实测通过；当前界面/发布检查见 I06C 收尾报告 |
+| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | 0.6.0-alpha.15 便携 EXE 已重建并通过包一致性校验；本次未重新执行真实 Windows 用户流程 |
+| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.15 资源已随 Windows 包生成，包含 1380 个文件；独立远端真实场景仍按 I06C 报告的边界记录 |
 | M10-F04 | 发布包坏路径/坏摘要拒绝安装，远端校验后原子激活版本 | 校验实现，受控安全检查及真实正常安装通过；破坏性故障矩阵未完成 |
 | M10-F05 | 便携启动器清理临时文件后，后台/worker 使用用户目录持久副本 | worker 受控测试通过；新 Coordinator 的 Windows 候选真实验收通过 |
 | M10-F06 | 发布报告记录版本、EXE 大小/SHA-256、实际验证环境和未测项 | 0.5.0 有报告；6A 候选验收及包摘要已形成；正式 0.6.0 准出待后续 |
-| M10-F07 | 升级、回滚、旧配置迁移和安全删除有用户流程 | 部分历史配置兼容；I06 升级/回滚/卸载产品流程未实现 |
+| M10-F07 | 升级、回滚、旧配置迁移和安全删除有用户流程 | 部分历史配置兼容；alpha.11 可信升级/回滚/停止/卸载已实现；旧中央直接降级仍不支持 |
 
 M10 管理可执行材料和一致性，不管理模型/账号，也不把远端原生 CLI 打进包。用户机器或 Linux 上仍须已有可用 OpenCode/Claude/Codex 及其原生认证。缺少这些时，安装 Bridge 成功不代表 Agent 能回答。
 
@@ -21,15 +21,15 @@ M10 管理可执行材料和一致性，不管理模型/账号，也不把远端
 | 名称 | 当前值/位置 | 含义 |
 | --- | --- | --- |
 | 根 CLI 包版本 | `package.json` = `0.1.0` | 本地 CLI 工程包版本；不代表当前桌面功能发布版 |
-| 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.9` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
-| 已发布 Windows EXE | `AgentBridge-0.5.0-Windows-x64.exe` | 稳定历史程序；最新源码候选为 `AgentBridge-0.6.0-alpha.9-Windows-x64.exe`，范围见本次交付 |
+| 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.15` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
+| 已发布 Windows EXE | `AgentBridge-0.5.0-Windows-x64.exe` | 稳定历史程序；当前源码候选包为 `AgentBridge-0.6.0-alpha.15-Windows-x64.exe`，完整 I06C 尚未准出 |
 | 根编译物 | `dist/` | TypeScript core/CLI/DesktopHost，供桌面与 daemon 共用 |
 | 前端编译物 | `desktop/dist/` | Vite 静态资源，Electron 窗口加载 |
 | 后台暂存物 | `desktop/.bridge-runtime/` | CJS 后台与根生产依赖闭包 |
 | Linux 离线资源 | `desktop/.linux-package/` | manifest + Linux 后台/依赖/runtime/node |
 | 解包目录 | `desktop/release/win-unpacked/` | 构建中间物，不是保证最新的发布事实 |
 
-当前 `win-unpacked` 已重建为 alpha.9 并通过完整资源比对；普通 portable EXE 另行完成真实启动、关闭、重开与冻结后台核验。alpha.2 的历史 SSH/原生任务验收不冒充本次全量复测。
+当前 `win-unpacked` 和 portable EXE 已在 2026-10-14 从 alpha.15 源码重建；包校验通过，`app.asar` 源码和前端均匹配，Linux 离线资源清单包含 1380 个文件。本次未重新执行真实 Windows 用户流程；alpha.13 的历史原生验收不冒充 alpha.15 全量复测。
 
 ## 3. 构建流程
 
@@ -103,7 +103,7 @@ Linux 构建默认使用当前 `process.execPath`；可通过 `AGENTBRIDGE_LINUX
 
 ```json
 {
-  "version": "0.6.0-alpha.9",
+  "version": "0.6.0-alpha.14",
   "protocolVersion": 2,
   "platform": "linux",
   "arch": "x64",
@@ -133,7 +133,7 @@ Linux 构建默认使用当前 `process.execPath`；可通过 `AGENTBRIDGE_LINUX
 
 发布须同时满足：当前源码检查、所有必交功能测试、Windows 普通 EXE 启动/重开/后台资源生存、真实 SSH 接入和原任务恢复、实际发布包资源比对、包 SHA-256/大小及能力限制记录。前端构建成功、Node 自动化通过或旧 EXE 窗口能打开都不能替代这些准出条件。
 
-当前 alpha.8 节点图候选 EXE 已生成并通过资源比对；alpha.2 的 Windows/SSH 主要验收保留为历史证据，正式 0.6.0 全量准出未完成。I06B 节点图和 I06C 升级/故障交付不能由 I06A 资源包推定完成。远端已有其他 daemon 版本时当前拒绝自动升级，忙时切换、失败回滚、安全卸载尚未实现。
+当前 alpha.13 机器维护候选 EXE 已生成并通过资源比对；alpha.2 的 Windows/SSH 主要验收保留为历史证据，正式 0.6.0 全量准出未完成。I06B 节点图和 I06C 升级/故障交付不能由 I06A 资源包推定完成。不自动升级远端；alpha.11 提供显式维护确认与原收据恢复，忙/unknown 拒绝切换。正式准出须当前真实测试满足门槛。
 
 ## 8. 代码与维护入口
 
@@ -166,8 +166,20 @@ alpha.8 历史候选修复旧后台拖动与主居左；alpha.7 的 Linux 清单
 
 alpha.9 收录的 alpha.8 Linux manifest 与原 alpha.8 包报告 manifestDigest 逐字节规范 JSON 摘要核对后保存；允许可信旧 daemon 复用，不自动升级远端。当前候选资源和实际验证见 [节点管理交付](../../iterations/I06/node-management.md)，SSH/原生任务沿用原版本证据，本次未重跑独立服务器。
 
+## I06C 当前机器管理与观察恢复
+
+alpha.10 包含机器管理、私有历史和事件补偿当前源码/前端；收录 alpha.9 历史 manifest 前与实际已交付 digest 核对。现有可信 daemon 只复用、不升级。窗口 app.asar、冻结后台、Linux 离线资源和 portable 均逐项校验。新数据含管理状态，直接旧后台回退不支持；完整升级/回滚/卸载仍待 6C 后续。 完整接口、事务、当次实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
+
 ## GitHub EXE 分发（M10-F06）
 
 2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
 
 程序通过 GitHub Release 附件分发，Git 源码仓库不保存 EXE。发布草稿绑定相应源码提交；先检查本地 EXE 大小和 SHA-256，上传 EXE 与校验文件，核对服务器返回的 state/size/digest 后发布为 prerelease。回应不明时查询同一 release/asset，不删附件重传或另建发布。候选包不能标为稳定版；过程不打包私有运行状态、不改变原生配置。具体本次事实见 [发布记录](../../iterations/I06/github-release.md)。
+
+## 当前维护与原操作恢复（alpha.13）
+
+alpha.13 包含 28 个后台 CJS 和 1378 个 Linux 文件，收录已构建并校验的 alpha.11 清单（原实机权限失败证据保留）。Linux 增加静态 owned-stop、glibc 许可与重链接说明；从 C 源码编译并纳入逐文件摘要与 0700 归档权限；实际解包后核对可执行性。旧 daemon 的安全停机需要支持 pidfd 的 Linux 内核（5.3+）；不支持时明确拒绝，不退回仅 PID 停机。新 daemon 使用认证停机 RPC。verify-package 逐项比对窗口、冻结后台、前端及离线资源；新候选生成并不自动发布或修改原用户后台。
+
+实现入口：[stage-linux-package.cjs](../../../desktop/scripts/stage-linux-package.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+alpha.14 将上传诊断、原安装恢复界面和当前后台源码同时打入 portable/离线包，收录已核对实际 alpha.13 包摘要的兼容 manifest。当前分层验证与未测范围见 [上传修复交付](../../iterations/I06/ssh-upload-recovery.md)；普通 EXE 和原服务器安装证据必须分别判定。

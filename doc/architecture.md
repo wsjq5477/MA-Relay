@@ -130,7 +130,7 @@ Codex 的协作回合由 worker 在本轮 stdin 需求前加入 Bridge 工具指
 
 I06A 没有中央公网 API、云端高可用、项目同步或无人值守设备注册。Linux 使用 detached 用户进程，未实现完整 systemd 用户服务和注销清理策略探测。大响应仍受单帧限制，不能把已有事件/收据分页接口说成全量 snapshot 分页已完成。
 
-I06B 将卡片/下拉协作操作替换为节点图，并补齐旧父任务授权边界。I06C 才覆盖完整故障矩阵、指标采样、忙时升级/回滚与最终发布。它们的目标放在相关模块的“已确认设计”部分，而不是伪装成当前运行结构。
+I06B 将卡片/下拉协作操作替换为节点图，并补齐旧父任务授权边界。alpha.11 已实现可信维护与原操作恢复；完整故障、指标与最终发布是否通过由当前分层证据决定，见 I06C 收尾。
 
 原 I01 架构文本保存在 [历史快照](archive/legacy/architecture.md)，原产品初稿见 [doc.md](../doc.md)。本页为持续更新的架构基线。
 
@@ -170,3 +170,35 @@ flowchart LR
 AgentNode 新增可选 managed/removed，缺省兼容旧目录；显式管理后 connected 不被扫描或原生上下文报告覆盖。移除为可恢复标记，快照保留历史身份，UI 隐藏卡片，新需求受中央接入状态约束。agent-network.json 新增 nodeOperations，原子提交节点、授权和收据；版本仍为 1。GraphOperationJournal 新增 node lane，与 relation 未确认意图互锁，布局独立。旧版本不会理解显式移除语义，含此状态的配置不支持直接回退旧中央；保留数据/备份，不靠清空节点或原请求恢复。
 
 `manageNode` 参数 `{operationId,nodeId,machineId?,action}`，action 为 attach/disconnect/remove；返回 `{operationId,state:"confirmed",fingerprint,data:{node,collaboration}}`。`nodeOperation` 以原 operationId 返回 confirmed、确定拒绝的 rejected 或 not_found；not_found 不证明未执行。断开/移除撤销相关权限，有变更才增关系修订。来源校验、离线/忙碌/原生 pending、节点/授权 pending 拦截，接入锁避免并发新任务。snapshot.nodeManagement=true 声明中央能力；新界面在旧中央禁写，原本机布局模式保留。完整语义、错误与验证见 [alpha.9 节点管理](iterations/I06/node-management.md)。
+
+## I06C 机器维护与恢复归属
+
+SSH Manager 持有配置、修订和原 lifecycleOperations 收据；AgentNetwork 持有 removedMachines、当前授权撤销和原 machineOperations 收据。两个文件不构成跨文件原子提交，中央 machine lane 先保存原意图，SSH 收据存在后只读查询原 ID 可幂等完成本地网络提交；没有原收据保持 unknown，不能重发/换 ID。machine/node/relation 的未知共享元数据屏障，layout 独立。
+
+MachineRouter 在中央私有 machine-history.json 合并已观察任务/会话，来源离线/移除/重开可呈现明确 historical 快照，原 request/operation 收据仍到原来源查询。恢复观察按 daemon cursorGap 与分页推进，先补完整 snapshot；无任务或控制补发。机器变更时执行准入锁和全量占用检查覆盖旧 IPC。完整接口与分层证据见 [6C 首批](iterations/I06/machine-management.md)。
+
+## alpha.11 维护执行与恢复边界
+
+```mermaid
+sequenceDiagram
+  participant U as 桌面维护确认
+  participant C as Coordinator 原意图
+  participant S as SSH Manager
+  participant W as 私有维护 worker
+  participant D as 所属 daemon
+  U->>C: 原 operationId / expectedRevision / preview
+  C->>C: 落盘并锁来源元数据与新执行
+  C->>S: 校验和暂存可信目标
+  S->>S: 持久原远端输入，再发送一次
+  S->>W: detached 维护 worker
+  W->>D: quiesce / shutdown（空闲且无 unknown）
+  W->>W: 原子切换 / 健康核对 / 失败回滚
+  U->>C: machine.operation 原 ID
+  C->>S: 只查询同一收据
+  S->>W: query；原 worker 已失活才按原阶段修复
+  W-->>C: confirmed / rejected / unknown
+```
+
+维护 worker 不依赖 SSH 会话；控制器保存在状态目录，卸载安装目录后仍能核对原操作。只允许已验证 owner/profile/UID/版本目录，卸载先完整校验所有版本后原子隔离安装目录，再移除所属文件；历史状态保留。旧 daemon 使用已校验 pidfd 停机 helper，新 daemon 使用认证 RPC。无法证明归属或空闲则保留 unknown/拒绝，不强杀、不重发原生任务。中央台账表单答案脱敏且损坏时拒绝新执行。系统注销/重启自启动仍无 systemd 保证。完整行为和证据见 [I06C 收尾](iterations/I06/final-delivery.md)。
+
+alpha.14 SSH 上传失败的诊断和重新检测由 M04/M01 完成：明确归档传输失败发生在解包/激活前，安装 rejected 与原生任务 unknown 分开。原 ID、用户批准、私有 profile 及后台/relay 分层不变，未新增业务协议或模型调用。见 [增量设计与验收](iterations/I06/ssh-upload-recovery.md)。

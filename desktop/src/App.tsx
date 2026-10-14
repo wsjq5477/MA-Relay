@@ -3061,7 +3061,7 @@ function FormReply({
               minLength={f.minLength}
               maxLength={f.maxLength}
               value={String(values[f.key] ?? "")}
-              type={["number", "integer"].includes(f.type) ? "number" : "text"}
+              type={f.sensitive||f.format==="password"||/password|secret|token|api.?key|密码|密钥/i.test(f.key+" "+(f.title||""))?"password":["number", "integer"].includes(f.type) ? "number" : "text"}
               step={f.type === "integer" ? "1" : "any"}
               onChange={(e) =>
                 setValues({ ...values, [f.key]: e.target.value })

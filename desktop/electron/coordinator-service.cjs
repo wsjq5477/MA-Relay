@@ -6,9 +6,11 @@ const { AgentNetwork } = require('./agent-network.cjs');
 const { MachineHost } = require('./machine-host.cjs');
 const { workerRuntime } = require('./worker-runtime.cjs');
 const { recoverJournal } = require('./pending-journal.cjs');
+const {digest}=require('./graph-layout.cjs');
 const { GraphOperationJournal } = require('./graph-operations.cjs');
-const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect']);
-const methods = new Set(['snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending',...sshMethods]);
+const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
+const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview']);
+const methods = new Set(['snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods]);
 // SSH state is a complete observation: absent errors revoke cached failures.
 // A live transport must not hide a failed business snapshot (e.g. RPC timeout).
 function mergeSshState(machine, state, snapshot = false) {
@@ -25,17 +27,26 @@ function mergeSshState(machine, state, snapshot = false) {
 }
 function createCoordinatorService(options) {
   const platform = options.platform || process.platform;
-  let host, ssh;
+  let host, ssh=options.ssh;
   const graphJournal=new GraphOperationJournal(options.directory);
 function dataFile(name) {
   const folder = options.directory;
   mkdirSync(folder, { recursive: true });
   return resolve(folder, name);
 }
+const payloadDigest=params=>digest({...params,machineId:undefined});
+function journalParams(params){
+  if(params?.op!=='reply'||params.reply?.action!=='form')return params;
+  return {...params,reply:{...params.reply,answer:Object.fromEntries(Object.keys(params.reply.answer||{}).map(key=>[key,'[redacted]']))}};
+}
+function journalResult(row,result){return row.op==='reply'&&row.params.reply?.action==='form'?{operationId:result?.operationId,state:result?.state,data:{redacted:true}}:result;}
 function read(name, fallback) {
   try {
-    return JSON.parse(readFileSync(dataFile(name), "utf8"));
-  } catch {
+    const value=JSON.parse(readFileSync(dataFile(name),"utf8"));
+    if(name==='pending.json'&&Array.isArray(value)){let changed=false;for(const row of value)if(row.op==='reply'&&row.params?.reply?.action==='form'&&!row.payloadFingerprint){row.payloadFingerprint=payloadDigest(row.params);row.params=journalParams(row.params);if(row.result)row.result=journalResult(row,row.result);changed=true;}if(changed)write(name,value);}
+    return value;
+  } catch(error) {
+    if(name==='pending.json'&&error.code!=='ENOENT')throw Object.assign(Error('原操作台账无法读取或保存，保留占位并停止新提交。'),{code:'DESKTOP_JOURNAL_INVALID'});
     return fallback;
   }
 }
@@ -68,6 +79,7 @@ function connection() {
   };
   ssh = new SshManager({directory: options.directory, coordinatorId: options.coordinatorId,
     packageDirectory: options.packageDirectory, onMachine: register,
+    onSnapshot:(machineId,snapshot)=>{const machine=host.machine(machineId);host.importSnapshot(machine,snapshot);host.cache.set(machineId,snapshot);host.retryAfter.delete(machineId);},
     onChange: () => { if (!host) return; for (const state of ssh.states()) {
       const machine = host.catalog.machines.find(m => m.connectionId === state.connectionId);
       if (machine) mergeSshState(machine, state);
@@ -97,11 +109,12 @@ function operation(name, params, state, result) {
   const row = {
     id: key,
     op: name,
-    params,
+    params:journalParams(params),
+    payloadFingerprint:payloadDigest(params),
     machineId: params.machineId,
     state,
     time: new Date().toISOString(),
-    ...(result ? { result } : {}),
+    ...(result ? {result:journalResult({op:name,params},result)} : {}),
   };
   if (index >= 0) rows[index] = row;
   else rows.push(row);
@@ -120,8 +133,8 @@ function settleOperation(id, result, machineId) {
   const rows = read("pending.json", []);
   const row = rows.find((r) => r.id === id && r.machineId === machineId);
   if (!row) return;
-  row.state = result?.state === "unknown" ? "unknown" : "confirmed";
-  row.result = result;
+  row.state = ["unknown","rejected"].includes(result?.state) ? result.state : "confirmed";
+  row.result = journalResult(row,result);
   write("pending.json", rows);
 }
 let recoveringJournal;
@@ -135,7 +148,7 @@ function recoverPending() {
       // A concurrent submission/query may already have updated this receipt.
       if (!row || !["pending", "unknown"].includes(row.state) || row.time !== original.time
         || JSON.stringify(row.params) !== JSON.stringify(original.params)) return false;
-      Object.assign(row, { state, result, reconciledAt: new Date().toISOString() });
+      Object.assign(row, { state, result:journalResult(row,result), reconciledAt: new Date().toISOString() });
       write("pending.json", rows);
       return true;
     }, row => connection().machine(row.machineId).kind === "wsl"
@@ -154,8 +167,50 @@ async function call(input) {
       throw new Error("桌面请求不合法");
     if(input.method==='attachNode')input={...input,method:'manageNode',params:{...input.params,action:'attach',operationId:require('node:crypto').randomUUID()}};
     connection();
+    connection().options??={};
+    connection().options.admissionCheck=machine=>{if(graphJournal.pending().some(r=>r.lane==='machine'&&r.params.machineId===machine.machineId))throw Object.assign(Error('原机器维护尚未确认，请查询原操作。'),{code:'DESKTOP_UNCONFIRMED'});};
+    const machineDispatch=async(method,params)=>{
+      if(!ssh)throw Object.assign(Error('当前后台未启用 SSH 连接管理。'),{code:'INVALID_INPUT'});
+      if(method==='machine.operation'){
+        const receipt=await ssh.call(method,params);
+        const result=connection().finalizeMachine(receipt);
+        if(result.state==='confirmed'&&result.data?.action==='reconnect')await ssh.resumeConnection(result.data.connectionId,result.data.revision);
+        return result;
+      }
+      const c=ssh.find(params),machineId=c.machineId;
+      if(machineId&&connection().machineLocks.has(machineId))throw Object.assign(Error('机器连接正在变更。'),{code:'MACHINE_BUSY'});
+      if(machineId)connection().machineLocks.add(machineId);
+      try{
+        // Reconnect restores observations, so it remains available for unknown work.
+        if(!['machine.reconnect','machine.restore'].includes(method)&&machineId){
+          if(read('pending.json',[]).some(r=>['pending','unknown'].includes(r.state)&&(!r.machineId||r.machineId===machineId)))throw Object.assign(Error('来源机器有未确认操作，请查询原请求。'),{code:'DESKTOP_UNCONFIRMED'});
+          const state=await connection().snapshot();
+          const machine=state.machines.find(m=>m.machineId===machineId);
+          const busy=state.tasks.some(t=>t.machineId===machineId&&!['succeeded','failed','cancelled'].includes(t.status))||state.nodes.some(n=>n.machineId===machineId&&(n.busy||n.unconfirmed||connection().nodeJobs.has(n.nodeId)))||state.instances.some(i=>i.machineId===machineId&&(i.busy||i.currentTask&&!['succeeded','failed','cancelled'].includes(i.currentTask.status)))||connection().catalog.instances.some(i=>i.machineId===machineId&&(connection().nodeJobs.has(i.nodeId)||connection().locks.has(require('./machine-router.cjs').workspaceKey(machine,i.workspace||''))));
+          if(busy)throw Object.assign(Error('机器有运行、等待或未知任务，请先核对原执行。'),{code:'MACHINE_BUSY'});
+          if(!machine.online)throw Object.assign(Error('先重新连接并核对原执行，再编辑或移除机器。'),{code:'MACHINE_OFFLINE'});
+        }
+        const receipt=await ssh.call(method,params);const result=connection().finalizeMachine(receipt);
+        if(result.data?.action==='reconnect')await ssh.resumeConnection(result.data.connectionId,result.data.revision);
+        return result;
+      }finally{if(machineId)connection().machineLocks.delete(machineId);}
+    };
+    const graphDispatch=(method,params)=>method.startsWith('machine.')?machineDispatch(method,params):connection().call(method,params);
+    if(input.method==='machine.operation')return {ok:true,result:await graphJournal.lookup(input.method,input.params,graphDispatch)};
+    if(machineWrites.has(input.method)){
+      if(!ssh)throw Object.assign(Error('当前后台未启用 SSH 连接管理。'),{code:'INVALID_INPUT'});
+      const c=ssh.find(input.params);
+      if(input.params.machineId&&input.params.machineId!==c.machineId)throw Object.assign(Error('连接不属于这台机器。'),{code:'WRONG_MACHINE'});
+      if(input.method==='machine.updateSsh'){
+        const config=input.params.config;
+        if(!config||typeof config!=='object'||Object.keys(config).some(k=>!['name','host','port','username','authKind','keyPath'].includes(k)))throw Object.assign(Error('连接配置只接受地址、用户和认证方式；凭据请使用专用入口。'),{code:'INVALID_INPUT'});
+        input={...input,params:{...input.params,config:require('./ssh-host.cjs').validateDraft(config)}};
+      }
+      if(input.method==='machine.maintainDaemon'){const config=input.params.config;if(!config||Object.keys(config).some(k=>!['action','previewId','expectedVersion','targetVersion'].includes(k)))throw Object.assign(Error('后台维护只接受动作与可信版本摘要。'),{code:'INVALID_INPUT'});}else if(input.method!=='machine.updateSsh'&&input.params.config)throw Object.assign(Error('该机器操作不接受配置字段。'),{code:'INVALID_INPUT'});
+      const params={...input.params,connectionId:c.connectionId,...(c.machineId?{machineId:c.machineId}:{}),operationId:input.params.operationId||require('node:crypto').randomUUID(),expectedRevision:input.params.expectedRevision??c.revision};
+      return {ok:true,result:await graphJournal.save(input.method,params,graphDispatch)};
+    }
     if (sshMethods.has(input.method)) return {ok: true, result: await ssh.call(input.method, input.params)};
-    const graphDispatch=(method,params)=>connection().call(method,params);
     if(input.method==='graphPending')return {ok:true,result:graphJournal.pending()};
     if(['collaborationOperation','graphLayoutOperation','nodeOperation'].includes(input.method))return {ok:true,result:await graphJournal.lookup(input.method,input.params,graphDispatch)};
     if(input.method==='manageNode'){
@@ -177,9 +232,10 @@ async function call(input) {
     }
     const p = prepared.params,
       mutation = ["ipc","nodeRequest"].includes(input.method) && mutating.has(p.op);
+    if(mutation&&graphJournal.pending().some(r=>r.lane==='machine'&&r.params.machineId===p.machineId))throw Object.assign(Error('原机器维护尚未确认，请查询原操作。'),{code:'DESKTOP_UNCONFIRMED'});
     const previousPending = mutation && read("pending.json", []).find(r =>
       r.id === journalKey(p) && r.machineId === p.machineId && ["pending", "unknown"].includes(r.state));
-    if (previousPending && JSON.stringify(previousPending.params) !== JSON.stringify(p))
+    if (previousPending && (previousPending.payloadFingerprint||payloadDigest(previousPending.params)) !== payloadDigest(p))
       throw Object.assign(new Error("原请求的回应尚未确认，不能用相同 ID 替换内容；请先核对原请求。"), { code: "DESKTOP_UNCONFIRMED" });
     if (mutation && !journalKey(p))
       throw new Error("提交或控制前必须保存请求 ID");
@@ -201,8 +257,9 @@ async function call(input) {
     try {
       const result = await connection().call(input.method, p);
       if (input.method === 'snapshot' && ssh) {
+        result.machineManagement=true;result.daemonManagement=true;
         const states = ssh.states();
-        result.machines = result.machines.map(machine => mergeSshState({...machine}, states.find(s => s.machineId === machine.machineId), true));
+        result.machines = result.machines.map(machine => ({...mergeSshState({...machine}, states.find(s => s.machineId === machine.machineId), true),busy:result.tasks.some(t=>t.machineId===machine.machineId&&!['succeeded','failed','cancelled'].includes(t.status))||result.nodes.some(n=>n.machineId===machine.machineId&&n.busy)||read('pending.json',[]).some(r=>['pending','unknown'].includes(r.state)&&(!r.machineId||r.machineId===machine.machineId))}));
         for (const draft of states.filter(s => !s.machineId)) result.machines.push({...draft, machineId: 'draft-' + draft.connectionId, kind:'ssh', platform:'linux', online:false});
       }
       if (input.method === "snapshot") {

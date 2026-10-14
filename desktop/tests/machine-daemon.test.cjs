@@ -256,3 +256,31 @@ test('original read reconciles only durable unhealthy rejection; missing native 
   assert.equal((await peer.call('daemon.receiptRead',{requestId:'transport-unknown'})).state,'unknown');
   assert.equal(queries,1);assert.equal(submits,0);
 });
+
+test('unknown native control receipt remains unknown through daemon restart; original query confirms it without another cancellation',async t=>{
+ const opts=setup(t),calls=[];let confirmed=false;
+ const host={close(){},setCollaboration(){},async call(method,p){calls.push(p?.op||method);if(method==='snapshot')return {agents:{items:[]},tasks:[],conversations:[]};if(p.op==='cancel'||p.op==='operation')return {operationId:p.operationId,taskId:'original-task',state:confirmed?'confirmed':'unknown'};throw failure('NOT_FOUND');}};
+ let daemon=await startDaemon({...opts,hostFactory:()=>host});const first=await client(t,opts);
+ assert.equal((await first.call('ipc',{op:'cancel',operationId:'cancel-unknown',taskId:'original-task'})).state,'unknown');assert.equal((await first.call('daemon.receiptRead',{operationId:'cancel-unknown'})).state,'unknown');
+ first.channel.close();await daemon.close();daemon=await startDaemon({...opts,hostFactory:()=>host});t.after(()=>daemon.close());const second=await client(t,opts);
+ assert.equal((await second.call('ipc',{op:'operation',operationId:'cancel-unknown',taskId:'original-task'})).state,'unknown');await assert.rejects(second.call('daemon.quiesce',{operationId:'maintenance'}),{code:'DAEMON_BUSY'});
+ confirmed=true;assert.equal((await second.call('ipc',{op:'operation',operationId:'cancel-unknown',taskId:'original-task'})).state,'confirmed');assert.equal(calls.filter(c=>c==='cancel').length,1);
+ assert.equal((await second.call('daemon.quiesce',{operationId:'maintenance'})).quiescent,true);await assert.rejects(second.call('ipc',{op:'submit',requestId:'blocked',message:'blocked'}),{code:'DAEMON_MAINTENANCE'});assert.equal((await second.call('daemon.releaseMaintenance',{operationId:'maintenance'})).released,true);
+});
+
+test('permission and form lost acknowledgements query original receipts after restart and cannot read a foreign task operation',async t=>{
+ const opts=setup(t),effects=new Map();let received=0;
+ const host={close(){},setCollaboration(){},async call(method,p){if(p.op==='reply'){received++;const r={operationId:p.reply.operationId,taskId:p.taskId,state:'confirmed'};effects.set(r.operationId,r);throw failure('DESKTOP_TRANSPORT');}if(p.op==='operation'){if(!effects.has(p.operationId))throw failure('NOT_FOUND');return effects.get(p.operationId);}throw failure('ADAPTER_UNSUPPORTED');}};
+ let daemon=await startDaemon({...opts,hostFactory:()=>host}),one=await client(t,opts);
+ for(const action of ['permission','form'])await assert.rejects(one.call('ipc',{op:'reply',taskId:'owned-task',reply:{operationId:'original-'+action,action,taskId:'owned-task',executionId:'owned-execution',requestId:'interaction',...(action==='permission'?{decision:'once'}:{answer:{field:'synthetic'}})}}),{code:'DESKTOP_TRANSPORT'});
+ one.channel.close();await daemon.close();daemon=await startDaemon({...opts,hostFactory:()=>host});t.after(()=>daemon.close());const two=await client(t,opts);
+ await assert.rejects(two.call('ipc',{op:'operation',operationId:'original-form',taskId:'other-task'}),{code:'EXECUTION_MISMATCH'});
+ for(const action of ['permission','form'])assert.equal((await two.call('ipc',{op:'operation',operationId:'original-'+action,taskId:'owned-task'})).state,'confirmed');assert.equal(received,2);
+ const journal=fs.readFileSync(path.join(opts.stateDirectory,'daemon-receipts.json'),'utf8');assert(!journal.includes('synthetic'));
+});
+test('foreign native control receipt IDs never confirm the original action and rejected original controls remain readable',async t=>{
+ const opts=setup(t);let effect=0,queryState='rejected';
+ const host={close(){},async call(_m,p){if(p.op==='cancel'){effect++;return {operationId:'foreign',state:'confirmed'};}if(p.op==='operation')return {operationId:p.operationId,state:queryState,taskId:'owned'};throw failure('NOT_FOUND');}};
+ const d=await startDaemon({...opts,hostFactory:()=>host});t.after(()=>d.close());const c=await client(t,opts);assert.equal((await c.call('ipc',{op:'cancel',taskId:'owned',operationId:'original'})).state,'unknown');
+ assert.equal((await c.call('ipc',{op:'operation',taskId:'owned',operationId:'original'})).state,'rejected');assert.equal((await c.call('ipc',{op:'operation',taskId:'owned',operationId:'original'})).state,'rejected');assert.equal(effect,1);
+});

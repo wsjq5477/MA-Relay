@@ -1,6 +1,6 @@
 # M04 SSH 机器接入设计
 
-更新日期：2026-10-13。基线：桌面源码与图优化候选 `0.6.0-alpha.9`，Windows 已发布便携版 `0.5.0`。alpha.2 的主要 Windows/SSH 验收保留；alpha.4 已实际使用用户原凭据核验并重连原 alpha.2 后台。系统 agent 与完整故障覆盖限制保留。详见 [测试报告](test-report.md)。
+更新日期：2026-10-14。基线：桌面源码与上传修复候选 `0.6.0-alpha.14`，Windows 已发布便携版 `0.5.0`。alpha.2 的主要 Windows/SSH 验收保留；alpha.4 已实际使用用户原凭据核验并重连原 alpha.2 后台。系统 agent 与完整故障覆盖限制保留。详见 [测试报告](test-report.md)。
 
 ## 1. 功能与用户操作
 
@@ -15,7 +15,7 @@
 | M04-F05 | 连接后出现独立机器及该机 Agent，机器身份在重连后不变 | 真实 Linux 已通过；不依赖项目文件夹或模型选择 |
 | M04-F06 | 断线显示离线/重连/需凭据；重连读取原结果，不重发需求 | 代码、daemon 受控及真实断线记录；完整退避指标未测 |
 | M04-F07 | 主动断开只关闭连接，远端已接收任务继续；手动连接恢复观察 | 真实断线记录与 mock 界面通过 |
-| M04-F08 | 修改/移除 SSH 机器、升级/停止/卸载 daemon | 尚未实现，不属于当前可使用接口 |
+| M04-F08 | 修改/移除 SSH 机器、升级/停止/卸载 daemon | alpha.11 连接维护、可信升级/回滚、停止/卸载源码已实现；分层验收见当前报告 |
 
 基本操作：添加 Linux 机器 → 测试连接 → 首次指纹确认（已有可信记录可跳过）→ 查看环境及安装摘要 → 安装并连接/连接机器 → 从节点“接入”按钮接入发现的 Agent → 新建会话时指定远端工作目录。连接节点时不配置模型、供应商或文件夹。
 
@@ -97,6 +97,8 @@ sequenceDiagram
 
 安装目录与状态目录均须位于已认证用户真实 HOME 下。若用户的 `XDG_STATE_HOME` 指向 HOME 外，当前安全检查会拒绝，不能假定所有 XDG 布局都支持。探测检查可用空间至少为解包大小两倍加 32 MiB；缓存的 `ready` 探测结果可能保持 5 分钟，安装中途空间变化仍可能失败。
 
+alpha.14：归档以 0600 创建，保持 24×32 KiB 流水线；每个缓冲区在对应 WRITE 全部确认后才复用，ACK 累加实际成功字节数，CLOSE 成功才解包。通道 error/close/end 或 60 秒无 ACK 明确结束；安全显示权限、通用 Failure、空间/配额、通道关闭和无响应类别，不回显服务器原始文字。仅 `SSH_UPLOAD_FAILED` 表示本次未解包/激活，安装记录为 rejected 并暂停自动重连；用户检测原连接、查看摘要、批准后沿未变化摘要及原 ID 安装。其他已发送步骤失败保持 unknown。见 [诊断与验收](../../iterations/I06/ssh-upload-recovery.md)。
+
 ```mermaid
 flowchart TD
   P[读取环境和客户端清单] --> C{同 profile 同版本摘要已安装?}
@@ -114,7 +116,7 @@ flowchart TD
   K --> M[注册 SSH 机器，回读事件，标记在线]
 ```
 
-归档由 [M10 发布模块](../10-packaging/design.md)提供的清单普通文件构建，压缩后一次上传，窗口为 24 个 32 KiB WRITE 包。并非逐文件 SFTP 安装；远端需要 `tar` 和 `sha256sum`。不执行远端 npm install、sudo 或修改系统 Node。新版本需要用户确认安装，自动重连禁止自动安装/升级。已有版本可在客户端可信兼容清单中精确匹配时复用；alpha.8 明确收录 alpha.2–alpha.7 的 Linux x64 协议 2 发布；每份清单在收录前与历史包摘要核对。选择本地校验清单后，要求 current 的版本、摘要与规范版本路径一致；未知版本报 `SSH_DAEMON_UPGRADE_REQUIRED`，摘要或别名路径不符报 `SSH_VERSION_CONFLICT`，保留原目录。协议号相同不能自动放行。
+归档由 [M10 发布模块](../10-packaging/design.md)提供的清单普通文件构建，压缩后一次上传，窗口为 24 个 32 KiB WRITE 包。并非逐文件 SFTP 安装；远端需要 `tar` 和 `sha256sum`。不执行远端 npm install、sudo 或修改系统 Node。新版本需要用户确认安装，自动重连禁止自动安装/升级。已有版本可在客户端可信兼容清单中精确匹配时复用；alpha.11 明确收录 alpha.2–alpha.10 的 Linux x64 协议 2 发布；每份清单在收录前与历史包摘要核对。选择本地校验清单后，要求 current 的版本、摘要与规范版本路径一致；未知版本报 `SSH_DAEMON_UPGRADE_REQUIRED`，摘要或别名路径不符报 `SSH_VERSION_CONFLICT`，保留原目录。协议号相同不能自动放行。
 
 兼容复用的 probe 返回实际 `daemonVersion`、客户端包 `clientDaemonVersion`、`reuseCompatible=true`、`installNeeded=false`。旧后台按可信 manifest 逐文件核验，重新检查 HOME 内各路径组件、UID、符号链接、owner/profile/current/release 标记。复用分支无上传/创建目录/chmod/激活/停机；必要时先验证私有 Node 再执行核验。握手继续匹配所选旧版本和原 daemonId；新安装仍使用当前包。详细行为与版本来源见 [本次交付](../../iterations/I06/ssh-compatible-reuse.md)。
 
@@ -146,7 +148,7 @@ await call('machine.connectSsh', {
 });
 ```
 
-实际界面 API 返回 `{ok,result}` 外层，示例中的 `call` 表示已解包并处理错误的辅助函数。`machine.updateSsh` / `machine.remove` / daemon 升级停止卸载不在当前允许方法集合中。
+实际界面 API 返回 `{ok,result}` 外层，示例中的 `call` 表示已解包并处理错误的辅助函数。`machine.updateSsh` / `machine.remove` / `machine.restore` / `machine.operation` 已纳入当前允许方法集合，契约见下方 I06C 当前说明；daemon 维护入口已实现，当前语义见下节。
 
 ## 7. 状态、断线与错误
 
@@ -174,7 +176,7 @@ stateDiagram-v2
 
 5 秒一次应用心跳，15 秒无有效回应即离线；SSH 自身也有 keepalive。重试延迟 1/2/4/8 秒，8 秒封顶并使用 80%–100% 抖动；网络恢复目标和 p95 指标仍待完整实测。认证失败/需要凭据停止重试，主机或后台身份变化等 fatal 错误进入 blocked。
 
-断开 relay 不取消远端已接收任务。未返回结果的请求被标记未知，由原 ID/原机器查询；自动重连只启动/检查后台、恢复事件观察，不调用 submit/continue。需注意当前 daemon 的游标过期字段为 `cursorGap`，客户端补偿分支检查 `cursorExpired`，游标过期后的全量 snapshot 补偿尚未闭环；见 [M05 限制](../05-linux-daemon/design.md)。
+断开 relay 不取消远端已接收任务。未返回结果的请求被标记未知，由原 ID/原机器查询；自动重连只启动/检查后台、恢复事件观察，不调用 submit/continue。alpha.10 客户端已兼容 cursorGap/cursorExpired，并在补齐完整快照后按 nextCursor/hasMore 读完全部保留事件；实际验证见下方 6C 说明。
 
 ## 8. 代码与维护
 
@@ -187,3 +189,21 @@ stateDiagram-v2
 Windows 实际密码认证与 DPAPI CurrentUser 保存/新实例恢复已验证到独立 Linux OpenSSH。加密 RSA 和命名管道 agent 使用 Windows 真实 TCP/签名协议及隔离服务验证；不把这些结果扩大为每台机器的系统 OpenSSH agent 兼容性。三种认证继承既有 SSH 账户，不修改服务器登录方式。
 
 alpha.9 收录的 alpha.8 Linux manifest 与原 alpha.8 包报告 manifestDigest 逐字节规范 JSON 摘要核对后保存；允许可信旧 daemon 复用，不自动升级远端。当前候选资源和实际验证见 [节点管理交付](../../iterations/I06/node-management.md)，SSH/原生任务沿用原版本证据，本次未重跑独立服务器。
+
+## I06C 当前机器管理与观察恢复
+
+machine.updateSsh/remove/restore/disconnect/reconnect 接收 operationId、connectionId、expectedRevision 和可选原 machineId；operation 查询原收据。updateSsh config 为白名单 name/host/port/username/authKind/keyPath，修订冲突拒绝。绑定 SSH 用户不可变；改认证来源解除旧引用并删除密文，remove 清除保存凭据，known_hosts 与远端安装保留。原主机公钥、daemonId 与 UID 核对跨地址继续有效。配置与 lifecycleOperations 同文件原子提交；状态 removed 不自动重连。cursorGap 后全量快照且 drain 全部分页，无任务重放。 完整接口、事务、当次实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
+
+## 当前维护与原操作恢复（alpha.13）
+
+machine.daemonPreview 返回可信当前、目标、previous 版本及 previewId；machine.maintainDaemon 校验 expectedRevision、摘要和动作，先完整暂存并验证目标，再持久化原意图、暂停自动重连，发送一次远端维护启动。控制器复制到私有 state/maintenance-runtime/<digest>，使卸载后仍可查询原收据。远端回应丢失仅 machine.operation 查询；中央重开仍保留同一 remoteInput 与操作。凭据失效显示 needs_credentials，输入后继续查询原维护，不能另起升级。暂存/认证明确未发送失败为 DAEMON_STAGE_REJECTED。
+
+实现入口：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## alpha.15 维护入口会话拒绝恢复
+
+`machine.daemonPreview` 与 `machine.maintainDaemon` 的只读预检经统一恢复入口：`SSH_EXEC_FAILED` 时先同连接延迟 750ms 重试一次，再换新 TCP 连接重试一次；语义性拒绝原样上抛。新连接重试成功后在线机器置 disconnected 并调度观察重连（维护流程随即自置 autoReconnect=false，该调度自然跳过）。预检期间登录凭据缺口（SSH_AUTH_REQUIRED/SSH_AUTH_FAILED/CREDENTIAL_STORE_UNAVAILABLE）在 maintainDaemon 边界置 needs_credentials 并原样上抛，不再统一折算为 DAEMON_STAGE_REJECTED；`maintenancePreview` 的探测标记与 previous.json 复用同一 SFTP 会话。
+
+维护启动与查询区分失败阶段（错误对象内部标记 open/stream/exit）：通道打开被拒可证明原输入未离开本机，换新连接重试一次不属于二次发送；再次未发出时收据记 rejected（DAEMON_NOT_STARTED、remoteLaunched=false），不产生远端无记录而查询永远 not_found 的 unknown；流中断/超时等可能已发出的失败保持原 unknown 收据，仅按原 ID 查询。`machine.operation` 查询自身通道打开被拒同样换新连接重试一次。`SSH_EXEC_FAILED` 消息携带通道原因码或退出码供诊断。
+
+实现入口：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs)、[ssh-install.cjs](../../../desktop/electron/ssh-install.cjs)。实际证据与独立服务器边界见 [I06C 收尾 alpha.15](../../iterations/I06/final-delivery.md)。

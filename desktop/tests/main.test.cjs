@@ -250,3 +250,14 @@ test("legacy pending is bound to original WSL and cannot be settled by a Windows
     assert.equal(f.invoke("pending").length, 0);
   } finally { f.close(); }
 });
+
+test('form answers never enter the coordinator journal and original content fingerprint still prevents same-ID replacement',async()=>{
+ const f=fixture(),answer='synthetic-sensitive-form-value';try{
+  f.outcome(Object.assign(Error('lost'),{code:'DESKTOP_TRANSPORT'}));const params={op:'reply',taskId:'task',reply:{action:'form',taskId:'task',executionId:'execution',requestId:'form',operationId:'original-form',answer:{password:answer}}};
+  await f.invoke('call',{method:'ipc',params});const raw=fs.readFileSync(path.join(f.folder,'pending.json'),'utf8');assert(!raw.includes(answer));assert(raw.includes('[redacted]'));
+  const changed=await f.invoke('call',{method:'ipc',params:{...params,reply:{...params.reply,answer:{password:'changed'}}}});assert.equal(changed.error.code,'DESKTOP_UNCONFIRMED');
+ }finally{f.close();}
+});
+test('a corrupt original pending journal cannot release occupancy or send a new native request',async()=>{
+ const f=fixture();try{fs.writeFileSync(path.join(f.folder,'pending.json'),'broken');const r=await f.invoke('call',{method:'ipc',params:{op:'submit',requestId:'new',message:'must not execute'}});assert.equal(r.error.code,'DESKTOP_JOURNAL_INVALID');assert.equal(f.calls(),0);}finally{f.close();}
+});
