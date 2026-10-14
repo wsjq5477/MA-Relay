@@ -1,6 +1,6 @@
 # AgentBridge 整体功能设计
 
-更新：2026-10-14。适用：Windows 0.5.0 已发布功能，以及 0.6.0-alpha.19 的 Linux CLI 发现修复源码候选。每项明确区分实现、发布和验收状态。
+更新：2026-10-15。适用：Windows0.5.0稳定历史功能，以及0.6.0-alpha.19预发布的Linux CLI发现、OpenCode二次核验和Windows配置修复。每项明确区分实现、发布和验收状态。
 
 ## 1. 产品解决什么问题
 
@@ -217,3 +217,5 @@ AB-F02/07/17：补齐非交互 Linux 后台的用户态版本管理器/包管理
 AB-F02/07/17，M03/M06/M09/M10：Core 与节点复用共享安装扫描，创建上下文只核验原 executable；修复 Windows 只读句柄/目录 fsync 导致的配置写入失败，保留修订锁、原子替换与原请求占位。受控工程和 Windows PE/进程证据通过，不将安装版本或启动失败检查冒充真实模型可用；最终与 Linux CLI 修复合并交付。见 [需求、实测和限制](iterations/I06/opencode-discovery.md)。
 
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。

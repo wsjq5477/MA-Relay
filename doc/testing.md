@@ -1,12 +1,14 @@
 # 整体测试与验收报告
 
-更新：2026-10-14。当前候选 0.6.0-alpha.17 / I06C 维护等待优化；历史稳定版 0.5.0。6A 与 6B 主要范围已验收，I06C 与正式准出未完成，专项限制保留。
+更新：2026-10-15。当前预发布 0.6.0-alpha.19 / Linux CLI 发现、OpenCode 二次核验与 Windows 配置保存修复；历史稳定版 0.5.0。6A 与 6B 主要范围已验收，I06C 与正式准出未完成，专项限制保留。
 
 ## 1. 总结论
 
 机器/节点、原生适配、任务会话与本机协作已有可运行实现；I06A SSH 核心路径有真实服务器记录。alpha.6 核心 43/43、桌面 110/110、6B 图/性能、独立 SSH 双向核心链和普通 EXE 通过；alpha.8 当前图交互/工程/包证据见文末专项；系统 agent、无 Node 独立服务器整体安装和完整故障/升级指标仍有明确覆盖边界，整个 I06 不能标记完成。
 
 “全部自动测试通过”只对应指定测试集，不代表每个账号、原生版本或发布物全部可用。
+
+当前合并源码基线：核心45/45、桌面181/181，lint/类型/构建通过；最终包78个core文件、28个后台模块、1384个Linux清单条目逐项匹配。包内真实Codex0.162.1探测、Windows受控6组、普通EXE4组通过；本机隔离SSH不等同用户独立服务器，Windows受控PE不等同真实模型验收。完整摘要与边界见[alpha.19合并专项](iterations/I06/linux-cli-discovery.md)。
 
 ## 2. 资料整理时的历史持久基线
 
@@ -201,3 +203,5 @@ I06-FIX-DISCOVERY-01 / AB-F02/07/17：补充非交互 Linux daemon 的常见用�
 I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已删除/损坏路径；Windows Core 配置使用可写句柄刷新/原子替换，Linux目录刷新保留。核心45/45、桌面181/181及Windows隔离PE/进程6组通过；模型0，用户另一台电脑未实测。与LinuxCLI修复统一候选/包校验，完整I06C未准出，最终发布事实见合并交付。详见 [需求/实现/验收](iterations/I06/opencode-discovery.md)。
 
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。

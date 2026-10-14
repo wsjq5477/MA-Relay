@@ -39,3 +39,9 @@ EXE 与 [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/
 [Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.18)。EXE **129,851,140** 字节，SHA-256 `2d532ca797e49094314587fcbfa286c9fb58f41374b05f8d21dce0246ee3bc33`；两附件 state=uploaded，远端大小和 digest 与本地一致，发布 draft=false/prerelease=true。公开元数据和下载检查见 [分发证据](../artifacts/runtime-recovery/2026-10-14/github-release.json)。
 
 桌面 176/176、核心 43/43、lint/类型/构建/文档通过；真实 Windows Electron 资源、Edge 受控响应、普通无调试 EXE/合成旧记录及关闭重开分别通过，模型 0。28 个后台模块和 1383 个 Linux 资源文件与最终源码匹配。未在用户新电脑复测，完整 I06C/正式 0.6.0 未准出，历史原生失败和 unknown 仍按原证据保留。
+
+## 2026-10-15 alpha.19 预发布分发
+
+[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe) · [SHA-256 校验](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt) · [预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.19) · [源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。标签绑定已验证合并源码 `fce41beb0a63f96ca5e1bbd69f4c56c69a6d05d3`，独立修复分支尚未合入 master。EXE **129,853,209** 字节，SHA-256 `8841106e626152963f115d50a3c16c0b48c15a7a3aaf9f4be1c67cf7533e7e2a`；远端两附件 uploaded、大小/digest 与本地匹配，公开下载 HEAD 和校验文本核对通过。该证据仅证明分发，不替代用户服务器/原生模型验收。
+
+升级先停止旧 Coordinator 并退出，再打开新 EXE；SSH Ubuntu 仍需在原机器“后台维护 → 升级后台 → 确认升级”后重新连接和扫描。两项发现修复的最终工程与受控/真实 CLI/普通 EXE 边界见 Linux/合并包专项；完整 I06C 尚未准出。

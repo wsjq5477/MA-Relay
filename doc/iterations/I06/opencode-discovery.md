@@ -53,3 +53,9 @@ M03/M06/M09 的完整设计和报告同步。没有新增 RPC 参数、settings.
 使用合并候选时，在旧程序“设置 → 后台运行 → 停止后台并退出”，再打开最终 EXE，加载新版 core 与 Coordinator。普通关闭窗口可能保留旧后台；SSH 节点的修复要加载新版原远端 daemon，见合并交付步骤。不会自动重发旧需求、删除配置或改变原生账号。最终程序及下载链接以合并交付实际核验为准。
 
 2026-10-15 最终合并包：核心45/45、桌面181/181、lint/类型/构建通过；[最终包清单](../../../artifacts/linux-cli-discovery/2026-10-14/final-package.json)、[包内Windows6组](../../../artifacts/linux-cli-discovery/2026-10-14/final-windows-opencode.json)、[普通EXE4组](../../../artifacts/linux-cli-discovery/2026-10-14/final-portable.json)。Windows原生serve夹具仍明确为NATIVE_EXITED受控失败，模型0；源代码/最终摘要与分发状态见[统一交付](linux-cli-discovery.md)。
+
+## 2026-10-15 alpha.19 预发布分发
+
+[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe) · [SHA-256 校验](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt) · [预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.19) · [源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。标签绑定已验证合并源码 `fce41beb0a63f96ca5e1bbd69f4c56c69a6d05d3`，独立修复分支尚未合入 master。EXE **129,853,209** 字节，SHA-256 `8841106e626152963f115d50a3c16c0b48c15a7a3aaf9f4be1c67cf7533e7e2a`；远端两附件 uploaded、大小/digest 与本地匹配，公开下载 HEAD 和校验文本核对通过。该证据仅证明分发，不替代用户服务器/原生模型验收。
+
+升级先停止旧 Coordinator 并退出，再打开新 EXE；SSH Ubuntu 仍需在原机器“后台维护 → 升级后台 → 确认升级”后重新连接和扫描。两项发现修复的最终工程与受控/真实 CLI/普通 EXE 边界见 Linux/合并包专项；完整 I06C 尚未准出。

@@ -220,3 +220,5 @@ Windows 6A 候选程序位于 `desktop/release/AgentBridge-0.6.0-alpha.2-Windows
 [下载 Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.18) · [源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。
 
 修复 Windows OpenCode 提交时的共享运行缓存错误、严格核对旧未派发请求，并显示查询结果。先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；节点和历史保留，旧命令不自动重发。无需为 AgentBridge 安装 Node.js 或 WSL。此为 prerelease，源码独立分支尚未合入 master，完整 I06C 仍未准出。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。

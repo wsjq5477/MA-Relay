@@ -1,6 +1,6 @@
 # M10 构建、发布与持久运行资源设计
 
-更新：2026-10-14。桌面当前源码候选 0.6.0-alpha.19、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
+更新：2026-10-15。桌面当前预发布与源码 0.6.0-alpha.19、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
 
 ## 1. 功能范围
 
@@ -22,7 +22,7 @@ M10 管理可执行材料和一致性，不管理模型/账号，也不把远端
 | --- | --- | --- |
 | 根 CLI 包版本 | `package.json` = `0.1.0` | 本地 CLI 工程包版本；不代表当前桌面功能发布版 |
 | 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.19` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
-| 已发布 Windows EXE | `AgentBridge-0.5.0-Windows-x64.exe` | 稳定历史程序；当前源码候选包为 `AgentBridge-0.6.0-alpha.19-Windows-x64.exe`，完整 I06C 尚未准出 |
+| 最新预发布 Windows EXE | `AgentBridge-0.6.0-alpha.19-Windows-x64.exe` | 核验源码标签分发；稳定历史为0.5.0，完整I06C尚未准出 |
 | 根编译物 | `dist/` | TypeScript core/CLI/DesktopHost，供桌面与 daemon 共用 |
 | 前端编译物 | `desktop/dist/` | Vite 静态资源，Electron 窗口加载 |
 | 后台暂存物 | `desktop/.bridge-runtime/` | CJS 后台与根生产依赖闭包 |
@@ -199,3 +199,5 @@ alpha.16 将维护原收据恢复修复打入窗口、冻结后台与 Linux 离�
 正在进行的冻结 alpha.16 服务器链使用原离线资源，alpha.17 用独立临时源码快照构建，再与主工作区 CJS/前端/离线清单和最终 EXE 比对。已核验 alpha.16 manifest 固定摘要后收入兼容目录；不覆盖已发布版本，也不自动升级服务器。结果见 [本次交付](../../iterations/I06/maintenance-launch-recovery.md)。
 
 当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](../../iterations/I06/github-release.md)。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。

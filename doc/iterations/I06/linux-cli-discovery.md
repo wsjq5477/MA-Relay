@@ -68,3 +68,9 @@ flowchart LR
 模型 Prompt=0；未连接用户独立 Ubuntu 或执行远端后台升级，未验证 Windows OpenCode 完整原生推理/身份生命周期，未扩大 Codex resume/权限能力或完整 I06C 准出。用户仍需在原 SSH 机器“后台维护 → 升级后台 → 确认升级”后重新连接并扫描。
 
 普通EXE最终验证首轮因测试驱动在Windows设置Path后又删除大小写等价的PATH，导致后台辅助程序不可见而超时；[失败记录](../../../artifacts/linux-cli-discovery/2026-10-14/final-portable-path-driver-failed.json)保留。修正驱动环境后重新使用同一SHA-256的EXE在新隔离profile完成4组通过，未更改生产代码或重发模型命令。
+
+## 2026-10-15 alpha.19 预发布分发
+
+[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe) · [SHA-256 校验](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt) · [预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.19) · [源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。标签绑定已验证合并源码 `fce41beb0a63f96ca5e1bbd69f4c56c69a6d05d3`，独立修复分支尚未合入 master。EXE **129,853,209** 字节，SHA-256 `8841106e626152963f115d50a3c16c0b48c15a7a3aaf9f4be1c67cf7533e7e2a`；远端两附件 uploaded、大小/digest 与本地匹配，公开下载 HEAD 和校验文本核对通过。该证据仅证明分发，不替代用户服务器/原生模型验收。
+
+升级先停止旧 Coordinator 并退出，再打开新 EXE；SSH Ubuntu 仍需在原机器“后台维护 → 升级后台 → 确认升级”后重新连接和扫描。两项发现修复的最终工程与受控/真实 CLI/普通 EXE 边界见 Linux/合并包专项；完整 I06C 尚未准出。

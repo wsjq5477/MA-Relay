@@ -1,16 +1,16 @@
 # 迭代路线与当前交付
 
-更新：2026-10-14。完整功能与模块设计见 [资料入口](README.md)；这里维护交付顺序，不另建一套架构。
+更新：2026-10-15。完整功能与模块设计见 [资料入口](README.md)；这里维护交付顺序，不另建一套架构。
 
 ## 1. 当前基线
 
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | 0.6.0-alpha.16 / I06C；[预发布页与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.16)，完整 I06C 未准出 |
-| 当前源码 | 0.6.0-alpha.16 / I06C 维护未发送边界与恢复状态修复；完整准出未完成，最新实现与证据见 [I06C 收尾](iterations/I06/final-delivery.md) |
+| 最新 Windows 预发布 | 0.6.0-alpha.19 / 两项发现与 Windows 配置修复；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.19)，完整 I06C 未准出 |
+| 当前源码 | 0.6.0-alpha.19 / Linux Codex 发现、OpenCode 原安装二次核验、Windows 配置落盘修复；独立分支及 PR #1，尚未合入 master；[合并交付](iterations/I06/linux-cli-discovery.md) |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
-| 当前自动回归 | alpha.16 桌面 163/163、根 43/43；2026-10-14 于 WSL Ubuntu / Node 22.23.1 实测；实际窗口/包/独立服务器见 [当前验收](iterations/I06/final-delivery.md) |
+| 当前自动回归 | alpha.19 桌面 181/181、核心45/45；2026-10-15 WSL Ubuntu / Node22.23.1，lint/类型/构建通过；包内Linux真实CLI探测、Windows受控6组与普通EXE4组见[当前合并验收](iterations/I06/linux-cli-discovery.md)，未实测用户独立服务器或Windows原生推理 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
 
 当前 win-unpacked 已重新构建并通过资源校验；不要用旧归档或旧源码测试冒充新包。普通便携 EXE 也已单独验证，见候选报告。
@@ -124,3 +124,5 @@ I06-FIX-DISCOVERY-01 / AB-F02/07/17：补充非交互 Linux daemon 的常见用�
 I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已删除/损坏路径；Windows Core 配置使用可写句柄刷新/原子替换，Linux目录刷新保留。核心45/45、桌面181/181及Windows隔离PE/进程6组通过；模型0，用户另一台电脑未实测。与LinuxCLI修复统一候选/包校验，完整I06C未准出，最终发布事实见合并交付。详见 [需求/实现/验收](iterations/I06/opencode-discovery.md)。
 
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
