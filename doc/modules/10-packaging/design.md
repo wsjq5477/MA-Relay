@@ -6,9 +6,9 @@
 
 | 功能 ID | 交付目标 | 当前状态 |
 | --- | --- | --- |
-| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.15 桌面 159/159；根 43/43 于 2026-10-14 实测通过；当前界面/发布检查见 I06C 收尾报告 |
-| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | 0.6.0-alpha.15 便携 EXE 已重建并通过包一致性校验；本次未重新执行真实 Windows 用户流程 |
-| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.15 资源已随 Windows 包生成，包含 1380 个文件；独立远端真实场景仍按 I06C 报告的边界记录 |
+| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.16 当前桌面 163/163；根 43/43 于 2026-10-14 实测通过；当前界面/发布检查见 I06C 收尾报告 |
+| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | 0.6.0-alpha.16 便携 EXE 已重建并通过包一致性校验；本次未重新执行真实 Windows 用户流程 |
+| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.16 资源已随 Windows 包生成，包含 1381 个文件；独立远端真实场景仍按 I06C 报告的边界记录 |
 | M10-F04 | 发布包坏路径/坏摘要拒绝安装，远端校验后原子激活版本 | 校验实现，受控安全检查及真实正常安装通过；破坏性故障矩阵未完成 |
 | M10-F05 | 便携启动器清理临时文件后，后台/worker 使用用户目录持久副本 | worker 受控测试通过；新 Coordinator 的 Windows 候选真实验收通过 |
 | M10-F06 | 发布报告记录版本、EXE 大小/SHA-256、实际验证环境和未测项 | 0.5.0 有报告；6A 候选验收及包摘要已形成；正式 0.6.0 准出待后续 |
@@ -169,6 +169,8 @@ alpha.9 收录的 alpha.8 Linux manifest 与原 alpha.8 包报告 manifestDigest
 ## I06C 当前机器管理与观察恢复
 
 alpha.10 包含机器管理、私有历史和事件补偿当前源码/前端；收录 alpha.9 历史 manifest 前与实际已交付 digest 核对。现有可信 daemon 只复用、不升级。窗口 app.asar、冻结后台、Linux 离线资源和 portable 均逐项校验。新数据含管理状态，直接旧后台回退不支持；完整升级/回滚/卸载仍待 6C 后续。 完整接口、事务、当次实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
+
+2026-10-14：alpha.16 当前源码包从 WSL Ubuntu / Node 22.23.1 重建，`verify-package.cjs --portable` 通过；28 个后台模块、1381 个 Linux 离线文件、app.asar 与前端匹配。真实 Windows 用户流程未重跑，完整 I06C 仍未准出。发布记录见 [GitHub prerelease](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.16)。
 
 ## GitHub EXE 分发（M10-F06）
 

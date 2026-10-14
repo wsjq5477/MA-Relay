@@ -2,9 +2,9 @@
 
 ## Windows EXE 下载
 
-GitHub 当前已有 0.6.0-alpha.9 预发布；稳定历史版本仍为 0.5.0。I06C alpha.15 是当前源码候选，Windows EXE 正在与源码一起发布；完整 I06C 和正式 0.6.0 尚未准出。Windows 用户下载发布附件即可运行，无需自行编译、安装 WSL 或 Node.js。候选边界与验证范围见 [I06C 收尾](doc/iterations/I06/final-delivery.md)。
+当前最新 Windows 预发布为 [0.6.0-alpha.16](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.16)：[直接下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe) 或 [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/SHA256SUMS.txt)。稳定历史版本仍为 0.5.0；完整 I06C 和正式 0.6.0 尚未准出。Windows 用户无需自行编译、安装 WSL 或 Node.js。候选边界与验证范围见 [I06C 收尾](doc/iterations/I06/final-delivery.md)。
 
-下载 EXE 后双击运行；原生 Agent 工具仍需按所用工具安装并登录。[SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/SHA256SUMS.txt)。源码 ZIP 不包含 EXE。
+下载 EXE 后双击运行；原生 Agent 工具仍需按所用工具安装并登录。GitHub 自动生成的源码 ZIP 不包含 EXE。
 
 AgentBridge 连接机器上的 Claude Code、OpenCode、Codex，提供 Windows 桌面节点管理、会话与主从协作；旧 OpenCode CLI 执行入口继续兼容。迭代三已实现自动发现与空格连接、后台运行、多连接维护、连续会话、取消、自动重连补传、原执行对账，以及同终端权限/文本表单回复。当前支持 Linux/WSL、Node 22.13+、OpenCode 2；无工具验证契约已核验版本为 2.0.24。
 
@@ -20,7 +20,7 @@ Windows Codex 当前原生模型被账号拒绝；WSL Codex 原生续聊接口�
 
 [桌面使用与构建说明](desktop/README.md)、[I05 提案](doc/iterations/I05/proposal.md)、[节点模块](doc/iterations/I05/node-design.md)、[协作模块](doc/iterations/I05/collaboration-design.md)、[验收报告](doc/iterations/I05/acceptance.md)。
 
-当前开发候选 **0.6.0-alpha.9 / I06B** 已交付节点图、鼠标/键盘授权连线、独立布局保存和换主后原父任务读控修复。alpha.6 的两条 Windows Claude ↔ 独立 SSH Linux OpenCode 原生协作链通过，最终工程/界面/包证据见 [6B 验收](doc/iterations/I06/graph-implementation.md)。alpha.7 额外突出主角色、简化端点、连线避让并支持中键平移，见 [图优化](doc/iterations/I06/graph-usability.md)。alpha.8 修复旧后台拖动锁定、整组背景拖动与主组居左，见 [当前交付](doc/iterations/I06/graph-drag-fix.md)。alpha.9 合并重复页面，并支持每台机器的 Agent 添加、断开和移除，历史与原身份保留，见 [当前节点管理](doc/iterations/I06/node-management.md)。程序见 [alpha.9 EXE](desktop/release/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)。稳定历史版仍为 **0.5.0**，I06C 与正式 0.6.0 未完成。旧后台仍运行时，打开新 EXE，在“设置 → 后台运行”选择“停止后台并退出”，再打开新 EXE 加载新版后台；不需要保留旧程序或删除机器、节点和历史。
+当前开发候选 **0.6.0-alpha.16 / I06C** 已发布为 GitHub 预发布，包含机器管理、SSH 上传诊断及维护入口恢复。根测试 43/43、当前桌面测试 163/163、文档检查和 Windows 包一致性校验通过；完整 I06C 仍未准出，未通过和未测项见 [I06C 收尾](doc/iterations/I06/final-delivery.md)。历史功能与原生证据按各自版本记录，不能用 alpha.13 的 Windows 实机证据替代 alpha.15 包验收。旧后台仍运行时，打开新 EXE，在“设置 → 后台运行”选择“停止后台并退出”，再打开新 EXE 加载新版后台；不需要保留旧程序或删除机器、节点和历史。
 
 完整项目材料统一在 [doc/README.md](doc/README.md)：[整体功能设计](doc/product-design.md)、[架构](doc/architecture.md)、[模块设计与测试报告](doc/module-plan.md)、[整体验证](doc/testing.md)、[迭代路线](doc/project-plan.md)。开发与维护按 [同步规则](doc/development-guide.md)同时更新整体设计、模块材料和当次迭代。
 
@@ -213,4 +213,4 @@ Windows 6A 候选程序位于 `desktop/release/AgentBridge-0.6.0-alpha.2-Windows
 
 ## I06C 当前候选
 
-2026-10-13 / alpha.10：机器 SSH 连接编辑、确认断开/移除、原身份恢复、已观察历史持久化/阅读及事件游标缺口分页补偿已实现；桌面 136/136、真实本机 TCP SSH/生产 daemon 隔离恢复和 Windows 界面分别通过。完整 I06C、升级回滚和正式 0.6.0 未准出。 使用/证据见 [6C 首批](doc/iterations/I06/machine-management.md)，程序为 [alpha.10 Windows EXE](desktop/release/AgentBridge-0.6.0-alpha.10-Windows-x64.exe)。
+2026-10-14 / alpha.15：当前候选增加 SSH 维护入口通道拒绝恢复，Windows x64 包由当前源码重建并已核对摘要后上传至 GitHub。完整 I06C、独立服务器原生文件恢复和正式 0.6.0 未准出。实现/证据见 [I06C 收尾](doc/iterations/I06/final-delivery.md)，用户下载 [alpha.15 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe)。

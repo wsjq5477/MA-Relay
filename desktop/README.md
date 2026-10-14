@@ -2,13 +2,13 @@
 
 ## GitHub Windows 下载
 
-GitHub 当前已有 0.6.0-alpha.9 预发布；稳定历史版本仍为 0.5.0。当前源码候选为 0.6.0-alpha.15，Windows x64 EXE 正随本次源码更新发布。完整 I06C 和正式 0.6.0 尚未准出。Windows 用户下载 Release 附件双击即可运行，无需自行编译、安装 WSL 或 Node.js。
+GitHub 最新 Windows 预发布为 [0.6.0-alpha.16](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.16)，可直接[下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe)及[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/SHA256SUMS.txt)。稳定历史版本仍为 0.5.0；完整 I06C 和正式 0.6.0 尚未准出。Windows 用户下载附件双击即可运行，无需自行编译、安装 WSL 或 Node.js。
 
 [校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/SHA256SUMS.txt)。旧后台仍运行时，在新窗口“设置 → 后台运行 → 停止后台并退出”后重新打开；不删除机器、节点或历史。
 
 按“机器 → Agent 节点 → 会话 / 任务”管理 Claude Code、OpenCode、Codex。节点不绑定项目、模型或供应商；用户指定主 Agent 与可连接的子 Agent，主 Agent 可以真实发现、委派和读取子结果。
 
-当前开发候选为 **0.6.0-alpha.15 / I06C**：节点图、机器管理、SSH 维护恢复及上传失败诊断持续迭代。完整 I06C 仍未准出；原生文件恢复终态等未通过项见 [当前收尾验收](../doc/iterations/I06/final-delivery.md)。本文旧版操作说明保留在下方；新版使用节点上的“接入”“设为主 Agent”“开始会话”，端点连线后保存授权。完整资料见 [文档入口](../doc/README.md)和[整体交付状态](../doc/project-plan.md)。
+当前开发候选为 **0.6.0-alpha.16 / I06C**：节点图、机器管理、SSH 维护恢复及上传失败诊断持续迭代。完整 I06C 仍未准出；原生文件恢复终态等未通过项见 [当前收尾验收](../doc/iterations/I06/final-delivery.md)。本文旧版操作说明保留在下方；新版使用节点上的“接入”“设为主 Agent”“开始会话”，端点连线后保存授权。完整资料见 [文档入口](../doc/README.md)和[整体交付状态](../doc/project-plan.md)。
 
 ## 运行与使用
 
@@ -92,4 +92,4 @@ npm run typecheck
 
 ## alpha.12 后台维护候选
 
-当前源码候选为 0.6.0-alpha.15。在机器图 SSH 机器的“后台维护”中确认升级、回滚、停止或卸载；显示实际与目标版本。忙/unknown 时不能切换，回应未知只能查询原操作。停止保留安装/历史；卸载只删已验证的 Bridge 安装文件，原生 CLI、项目、账号及历史状态保留。旧后台安全停止要求支持 pidfd 的内核，当前独立服务器实测和完整准出状态见 [I06C 收尾](../doc/iterations/I06/final-delivery.md)。普通关闭窗口继续保留中央后台；用新程序更新中央时通过设置的“停止后台并退出”再打开新程序，不直接覆盖旧运行资源。
+当前源码候选为 0.6.0-alpha.16。在机器图 SSH 机器的“后台维护”中确认升级、回滚、停止或卸载；显示实际与目标版本。忙/unknown 时不能切换，回应未知只能查询原操作。停止保留安装/历史；卸载只删已验证的 Bridge 安装文件，原生 CLI、项目、账号及历史状态保留。旧后台安全停止要求支持 pidfd 的内核，当前独立服务器实测和完整准出状态见 [I06C 收尾](../doc/iterations/I06/final-delivery.md)。普通关闭窗口继续保留中央后台；用新程序更新中央时通过设置的“停止后台并退出”再打开新程序，不直接覆盖旧运行资源。

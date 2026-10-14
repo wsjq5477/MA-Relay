@@ -1,6 +1,6 @@
 # 远端源码范围
 
-日期：2026-10-13。目标仓库：https://github.com/wsjq5477/MA-Relay 。源码候选版本为 0.6.0-alpha.9；本次同步源码不代表发布正式 0.6.0，也不改变既有验收结论。
+更新：2026-10-14。目标仓库：https://github.com/wsjq5477/MA-Relay 。当前源码候选版本为 0.6.0-alpha.16；本次同步源码和 Windows 预发布不代表正式 0.6.0，也不改变既有验收结论。alpha.9 首次同步记录保留为历史结果。
 
 仓库包含源码、测试、构建脚本、依赖锁文件、模块设计和迭代资料。原生配置、开发运行状态、凭据、原始验收材料、依赖目录、构建输出和 Windows EXE 保留在本地，不随源码提交。历史文档中的实际任务、请求和会话标识已脱敏。
 
@@ -19,3 +19,15 @@
 2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
 
 EXE 与 [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/SHA256SUMS.txt) 保存在 Release 附件，不加入 Git 源码树。源码标签绑定提交 `2b6f4f71c19608be878fc33dc1be422a6fd349e9`；本次不重建程序、不改变原始验收结论。完整分层记录见 [发布记录](iterations/I06/github-release.md)。
+
+## 2026-10-14 alpha.15 源码与 Windows EXE 发布
+
+当前源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 已推送至 `master`；Windows x64 EXE 作为 [v0.6.0-alpha.15 GitHub 预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.15)提供。附件大小 129,851,710 字节，远端 SHA-256 `d1052ed5cd7893a9842ee96b6bf87c40b2ec6a5389ac59ef28ad5eb528e0ac4f` 与本地相同。[EXE 直接下载](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.15/AgentBridge-0.6.0-alpha.15-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.15/SHA256SUMS.txt)。
+
+本地重建在 WSL Ubuntu / Node 22.23.1 执行；发布提交根测试 43/43、桌面测试 159/159、文档检查通过，包一致性校验确认 28 个后台模块、1380 个 Linux 资源文件及 app.asar/前端与源码一致。本次没有重新执行真实 Windows 用户流程；完整 I06C 仍未准出。公开源码不包含 `artifacts/` 私有验收材料或 EXE，二进制只通过 Release 附件分发。
+
+发布后仅新增桌面受控测试用例与本地报告路径隔离，没有改动产品源码；当前桌面回归 163/163，通过的 TAP 只保存在本地忽略目录，不上传原始验收材料。
+
+## 2026-10-14 alpha.16 源码与 Windows EXE
+
+当前源码与文档推送至 `master`，alpha.16 Windows x64 portable EXE 以 GitHub prerelease 分发。测试：根 43/43、桌面 163/163、SSH 恢复 TCP 集成 7/7；`verify-package.cjs --portable` 通过。EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`；28 个后台模块、1381 个 Linux 资源，app.asar/前端匹配源码。未执行真实 Windows 流程或独立服务器维护重验，完整 I06C 未准出。

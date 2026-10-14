@@ -200,10 +200,13 @@ machine.daemonPreview 返回可信当前、目标、previous 版本及 previewId
 
 实现入口：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
 
-## alpha.15 维护入口会话拒绝恢复
+## alpha.16 维护入口会话拒绝恢复边界补强
+
+在 alpha.15 的恢复基础上，只有 `open` 阶段的 SSH 通道拒绝能证明维护输入尚未离开本机。开始获取新连接/凭据前先持久化 `remoteLaunched=false`；只有重新认证成功并即将写入远端时才记录为已启动。新连接认证失败时，操作确定为 rejected，错误映射为 `needs_credentials` / `blocked` / `disconnected_manual`，不能留下远端没有台账而本地仍查询 `not_found` 的 unknown。原 ID 查询遇到该本地确定未发送证据时，同步收据及机器状态并关闭自动重连。版本、修订、operation 冲突与输入校验等语义拒绝原样上抛，不折算为 `DAEMON_STAGE_REJECTED`。stream/timeout 仍可能已发送，维持 unknown 且只允许原 ID 查询。
+
 
 `machine.daemonPreview` 与 `machine.maintainDaemon` 的只读预检经统一恢复入口：`SSH_EXEC_FAILED` 时先同连接延迟 750ms 重试一次，再换新 TCP 连接重试一次；语义性拒绝原样上抛。新连接重试成功后在线机器置 disconnected 并调度观察重连（维护流程随即自置 autoReconnect=false，该调度自然跳过）。预检期间登录凭据缺口（SSH_AUTH_REQUIRED/SSH_AUTH_FAILED/CREDENTIAL_STORE_UNAVAILABLE）在 maintainDaemon 边界置 needs_credentials 并原样上抛，不再统一折算为 DAEMON_STAGE_REJECTED；`maintenancePreview` 的探测标记与 previous.json 复用同一 SFTP 会话。
 
 维护启动与查询区分失败阶段（错误对象内部标记 open/stream/exit）：通道打开被拒可证明原输入未离开本机，换新连接重试一次不属于二次发送；再次未发出时收据记 rejected（DAEMON_NOT_STARTED、remoteLaunched=false），不产生远端无记录而查询永远 not_found 的 unknown；流中断/超时等可能已发出的失败保持原 unknown 收据，仅按原 ID 查询。`machine.operation` 查询自身通道打开被拒同样换新连接重试一次。`SSH_EXEC_FAILED` 消息携带通道原因码或退出码供诊断。
 
-实现入口：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs)、[ssh-install.cjs](../../../desktop/electron/ssh-install.cjs)。实际证据与独立服务器边界见 [I06C 收尾 alpha.15](../../iterations/I06/final-delivery.md)。
+实现入口：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs)、[ssh-install.cjs](../../../desktop/electron/ssh-install.cjs)。实际证据与独立服务器边界见 [I06C 收尾 alpha.16](../../iterations/I06/final-delivery.md)。

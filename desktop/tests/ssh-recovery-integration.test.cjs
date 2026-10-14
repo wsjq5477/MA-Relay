@@ -110,3 +110,68 @@ test('maintenance preview retries transport rejection on the same connection fir
  await assert.rejects(manager.call('machine.maintainDaemon',{connectionId:missing.connectionId,operationId:'missing-credentials',expectedRevision:missing.revision,config:{action:'upgrade',previewId:controlledProbe.previewId,expectedVersion:controlledProbe.daemonVersion,targetVersion:controlledProbe.targetVersion}}),{code:'SSH_AUTH_REQUIRED'});
  assert.equal(manager.find({connectionId:missing.connectionId}).stage,'needs_credentials');assert.equal(previewCalls.length,7);
 });
+
+test('pre-transmission maintenance rejection with missing retry credentials stays definitively not started across restart',async t=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-c-maint-no-send-')),harness=maintenanceServer(t,{limit:0});
+ await harness.listen();let remoteCalls=0;
+ const installer={
+  async maintenancePreview(){return {...controlledProbe};},
+  async stageMaintenance(){return {directory:'/controlled-runtime',release:{version:controlledProbe.targetVersion,digest:'d'.repeat(64),manifest:{version:controlledProbe.targetVersion}}};},
+  release(version){return {manifest:{version},digest:version===controlledProbe.daemonVersion?'o'.repeat(64):'d'.repeat(64)};},
+  bundle(){return {manifest:{version:controlledProbe.targetVersion,compatibleDaemons:[]}};},
+  async remoteMaintenance(client,input){remoteCalls++;await remoteExec(client,'/bin/sh -s',JSON.stringify(input));throw Error('fixture must reject channel before receiving input');}
+ };
+ let manager=maintenanceManager(directory,installer);
+ t.after(async()=>{manager.close();await new Promise(r=>harness.server.close(r));fs.rmSync(directory,{recursive:true,force:true});});
+ const draft=await manager.call('machine.createSshDraft',{host:'127.0.0.1',port:harness.server.address().port,username:'fixture',authKind:'password'}),c=manager.find(draft);
+ let crashSnapshot;const save=manager.save.bind(manager);
+ manager.save=()=>{save();const r=manager.lifecycleOperations[0];if(r?.state==='unknown'&&r.remoteLaunched===false&&c.maintenance?.state==='unknown')crashSnapshot=fs.readFileSync(manager.file);};
+ await manager.call('credential.provide',{connectionId:c.connectionId,secret:'synthetic',save:false});
+ const params={connectionId:c.connectionId,operationId:'not-started-original',expectedRevision:c.revision,config:{action:'upgrade',previewId:controlledProbe.previewId,expectedVersion:controlledProbe.daemonVersion,targetVersion:controlledProbe.targetVersion}};
+ const receipt=await manager.call('machine.maintainDaemon',params);
+ assert.equal(receipt.state,'rejected');assert.equal(receipt.error.code,'DAEMON_NOT_STARTED');assert.equal(c.stage,'needs_credentials');assert.equal(c.error.code,'SSH_AUTH_REQUIRED');
+ assert.equal(manager.lifecycleOperations[0].remoteLaunched,false);assert.equal(remoteCalls,1);
+ const logins=harness.connections();manager.close();manager=maintenanceManager(directory,installer);
+ const query=await manager.call('machine.operation',{operationId:params.operationId});
+ assert.equal(query.state,'rejected');assert.equal(query.error.code,'DAEMON_NOT_STARTED');
+ assert.equal((await manager.call('machine.maintainDaemon',params)).state,'rejected');
+ assert.equal(remoteCalls,1);assert.equal(harness.connections(),logins);
+ // Restore the actual atomic snapshot recorded between the first rejection and
+ // the next login, as if the process had exited at that checkpoint.
+ assert(crashSnapshot);manager.close();fs.writeFileSync(manager.file,crashSnapshot);manager=maintenanceManager(directory,installer);
+ assert.equal(manager.find(draft).maintenance.state,'unknown');
+ assert.equal((await manager.call('machine.operation',{operationId:params.operationId})).state,'rejected');
+ assert.equal(manager.find(draft).maintenance.state,'rejected');assert.equal(manager.find(draft).autoReconnect,false);
+ assert.equal(remoteCalls,1);assert.equal(harness.connections(),logins);
+});
+
+for(const retryFailure of ['open','stream','timeout'])test('maintenance retry '+retryFailure+' preserves the original transmission boundary and receipt',async t=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-c-maint-boundary-send-')),harness=maintenanceServer(t,{limit:retryFailure==='open'?0:Infinity,rejectOnce:true});
+ await harness.listen();let launches=0,queries=0,manager,c;
+ const installer={
+  async maintenancePreview(){return {...controlledProbe};},
+  async stageMaintenance(){return {directory:'/controlled-runtime',release:{version:controlledProbe.targetVersion,digest:'d'.repeat(64),manifest:{version:controlledProbe.targetVersion}}};},
+  release(version){return {manifest:{version},digest:version===controlledProbe.daemonVersion?'o'.repeat(64):'d'.repeat(64)};},
+  bundle(){return {manifest:{version:controlledProbe.targetVersion,compatibleDaemons:[]}};},
+  async remoteMaintenance(client,input){
+   if(input.action==='query'){queries++;return {operationId:input.operationId,state:'unknown'};}
+   launches++;
+   if(launches===1){await manager.call('credential.provide',{connectionId:c.connectionId,secret:'synthetic',save:false});return remoteExec(client,'/bin/sh -s',JSON.stringify(input));}
+   if(retryFailure==='open')return remoteExec(client,'/bin/sh -s',JSON.stringify(input));
+   // The retry channel accepted its input before its response was lost.
+   await remoteExec(client,'/bin/sh -s',JSON.stringify(input));
+   throw Object.assign(new Error('controlled response lost'),retryFailure==='stream'?{code:'SSH_EXEC_FAILED',details:{stage:'stream'}}:{code:'SSH_COMMAND_TIMEOUT'});
+  }
+ };
+ manager=maintenanceManager(directory,installer);
+ t.after(async()=>{manager.close();await new Promise(r=>harness.server.close(r));fs.rmSync(directory,{recursive:true,force:true});});
+ const draft=await manager.call('machine.createSshDraft',{host:'127.0.0.1',port:harness.server.address().port,username:'fixture',authKind:'password'});c=manager.find(draft);
+ await manager.call('credential.provide',{connectionId:c.connectionId,secret:'synthetic',save:false});
+ const params={connectionId:c.connectionId,operationId:'send-boundary-original',expectedRevision:c.revision,config:{action:'upgrade',previewId:controlledProbe.previewId,expectedVersion:controlledProbe.daemonVersion,targetVersion:controlledProbe.targetVersion}};
+ const receipt=await manager.call('machine.maintainDaemon',params),expected=retryFailure==='open'?'rejected':'unknown';
+ assert.equal(receipt.state,expected);assert.equal(manager.lifecycleOperations[0].remoteLaunched,retryFailure!=='open');assert.equal(launches,2);assert.equal(harness.connections(),2);
+ if(expected==='rejected')assert.equal(receipt.error.code,'DAEMON_NOT_STARTED');
+ else {await manager.call('credential.provide',{connectionId:c.connectionId,secret:'synthetic',save:false});await assert.rejects(manager.call('machine.maintainDaemon',{...params,operationId:'must-not-replace-unknown',expectedRevision:c.revision}),{code:'MACHINE_BUSY'});}
+ assert.equal((await manager.call('machine.maintainDaemon',params)).state,expected);assert.equal(launches,2);
+ const query=await manager.call('machine.operation',{operationId:params.operationId});assert.equal(query.state,expected);assert.equal(queries,expected==='unknown'?1:0);assert.equal(launches,2);
+});

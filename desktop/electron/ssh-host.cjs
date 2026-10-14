@@ -170,7 +170,7 @@ class SshManager {
   async lifecycle(method,params){
     operationId(params.operationId);
     if(method==='machine.maintainDaemon')return this.maintainDaemon(params).catch(error=>{
-      if(this.lifecycleOperations.some(r=>r.operationId===params.operationId))throw error;
+      if(this.lifecycleOperations.some(r=>r.operationId===params.operationId)||['MACHINE_BUSY','REVISION_CONFLICT','OPERATION_CONFLICT','INSTALL_PREVIEW_CHANGED','INVALID_INPUT'].includes(error.code))throw error;
       const c=this.connections.find(row=>row.connectionId===params.connectionId);
       if(c&&['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(error.code)){this.state(c,'needs_credentials',error);throw error;}
       throw problem('DAEMON_STAGE_REJECTED','原维护未发送；登录、暂存或校验失败，原后台与历史保留。');
@@ -263,12 +263,22 @@ class SshManager {
         // pre-transmission rejection marks the receipt rejected, never unknown;
         // any other failure keeps the durable unknown row for original-ID query.
         if(error?.code==='SSH_EXEC_FAILED'&&error.details?.stage==='open'){
-          this.dropTransport(c);
-          try{await this.installer.remoteMaintenance(await this.authenticate(c),input,row.controller);}
+          // The first channel never accepted input. Persist this proof before
+          // obtaining a fresh login; missing credentials cannot create an
+          // unknown remote intent that will forever query as not_found.
+          row.remoteLaunched=false;this.save();this.dropTransport(c);
+          try{
+            const retryClient=await this.authenticate(c);
+            row.remoteLaunched=true;this.save();
+            await this.installer.remoteMaintenance(retryClient,input,row.controller);
+          }
           catch(retry){
-            if(retry?.code==='SSH_EXEC_FAILED'&&retry.details?.stage==='open'){
-              row.remoteLaunched=false;row.state='rejected';row.error={code:'DAEMON_NOT_STARTED',message:'原维护输入未能发送到服务器，未切换后台；请重新检查后再操作。'};this.save();
-              c.maintenance.state='rejected';this.state(c,'disconnected_manual');
+            if(retry?.code==='SSH_EXEC_FAILED'&&retry.details?.stage==='open')row.remoteLaunched=false;
+            if(row.remoteLaunched===false){
+              row.state='rejected';row.error={code:'DAEMON_NOT_STARTED',message:'原维护输入未能发送到服务器，未切换后台；请重新检查后再操作。'};
+              c.maintenance.state='rejected';
+              const failure=safeFailure(retry);
+              this.state(c,['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(failure.code)?'needs_credentials':fatal.has(failure.code)?'blocked':'disconnected_manual',failure);
             }
           }
         }
@@ -289,7 +299,15 @@ class SshManager {
   }
   async queryMaintenance(row){
     const c=this.find({connectionId:row.data.connectionId});
-    if(row.remoteLaunched===false){row.state='rejected';row.error={code:'DAEMON_NOT_STARTED',message:'原维护未到远端发送阶段，未切换后台。'};this.save();return this.publicOperation(row);}
+    if(row.remoteLaunched===false){
+      row.state='rejected';row.error={code:'DAEMON_NOT_STARTED',message:'原维护未到远端发送阶段，未切换后台。'};
+      if(c.maintenance?.operationId===row.operationId){
+        c.maintenance.state='rejected';c.autoReconnect=false;
+        const preserveFailure=['needs_credentials','blocked'].includes(c.stage);
+        this.state(c,preserveFailure?c.stage:'disconnected_manual',preserveFailure?c.error:undefined);
+      }else this.save();
+      return this.publicOperation(row);
+    }
     try{
       const result=await this.queryWithRecovery(c,row);
       if(result.operationId!==row.operationId||!['confirmed','rejected'].includes(result.state))return this.publicOperation(row);

@@ -31,3 +31,33 @@
 - [候选发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)
 
 下载 EXE 后双击运行，无需为 AgentBridge 安装 Node.js 或 WSL；使用的原生 Agent 工具仍需自行安装并登录。远端 Linux 资源已包含在程序中，用于 SSH 接入，不要求本机有 Linux 环境。已有旧后台时，在新窗口“设置 → 后台运行 → 停止后台并退出”后重新打开；保留原机器、节点和历史。
+
+## 2026-10-14：alpha.15 当前源码与 Windows EXE
+
+将当前 I06C 源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 推送到 `master`，并将从该源码重建的 Windows x64 portable EXE 发布为 `v0.6.0-alpha.15` prerelease。源码提交、构建包、远端附件和校验文件均分别核对。
+
+| 核验项 | 实际结果 | 证据级别与边界 |
+| --- | --- | --- |
+| 源码 | `master` 指向 `15b7c9e`；发布标签绑定同一提交 | GitHub API 读取确认 |
+| 本地 EXE | 129,851,710 字节；SHA-256 `d1052ed5cd7893a9842ee96b6bf87c40b2ec6a5389ac59ef28ad5eb528e0ac4f` | WSL 重建；包校验通过，未重跑真实 Windows 用户流程 |
+| GitHub EXE | 129,851,710 字节，state=`uploaded`，远端 digest 与本地 SHA-256 相同 | 真实 GitHub API 查询 |
+| SHA256SUMS.txt | 109 字节，state=`uploaded` | 真实 GitHub API 查询；内容仅包含 EXE 文件摘要 |
+| 发布状态 | `draft=false`、`prerelease=true` | 真实 GitHub API 查询；不是稳定版 |
+| 工程验证 | 根测试 43/43、桌面测试 159/159、文档检查通过；包含 28 个后台模块与 1380 个 Linux 文件，app.asar/前端与源码匹配 | 本次自动/受控检查；完整 I06C 原生准出仍未完成 |
+
+完整 I06C、正式 0.6.0 和本次重建包的真实 Windows 使用验收均未完成；alpha.13 的历史 Windows 实机结果不冒充 alpha.15 验收。稳定历史版本仍为 0.5.0。
+
+下载：[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.15/AgentBridge-0.6.0-alpha.15-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.15/SHA256SUMS.txt)、[GitHub 预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.15)。
+
+## 2026-10-14：alpha.16 当前代码与 Windows EXE
+
+alpha.16 修复维护通道在 open 阶段确认未发送后，因重连凭据不可用而残留 unknown 的状态边界，并保留语义冲突原错误。源码、测试和同步文档推送至 GitHub `master`；Windows x64 EXE 从当前源码重建并通过 portable 包校验，作为 prerelease 附件分发。
+
+| 核验项 | 实际结果 | 证据级别与边界 |
+| --- | --- | --- |
+| 测试 | 根 43/43、桌面 163/163、SSH 本机 TCP 恢复集成 7/7 | 自动化/受控；不等于独立服务器验收 |
+| EXE | 129,851,194 字节；SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba` | WSL 重建与包一致性校验通过；未重新执行真实 Windows 用户流程 |
+| 包内容 | 后台模块 28 个；Linux 离线资源 1381 个；app.asar/前端匹配源码 | 本地构建验证 |
+| 发布成熟度 | 0.6.0-alpha.16 prerelease；稳定历史仍为 0.5.0 | 完整 I06C 与正式 0.6.0 尚未准出 |
+
+下载：[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/SHA256SUMS.txt)、[GitHub 预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.16)。

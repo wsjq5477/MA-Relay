@@ -137,3 +137,11 @@ alpha.14 包内容比对通过：28 CJS / 1379 Linux 文件，[包报告](../../
 ## alpha.15 当前源码包重建
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：从当前 `0.6.0-alpha.15` 源码执行 `npm run dist:win`，Windows x64 portable EXE 构建与 `verify-package.cjs --portable` 均通过。后端 28 个模块、Linux 离线资源 1380 个文件；`app.asar` 源码和前端与当前源码一致。EXE 为 129,851,710 字节，SHA-256 `d1052ed5cd7893a9842ee96b6bf87c40b2ec6a5389ac59ef28ad5eb528e0ac4f`。本次构建没有重新执行真实 Windows 用户流程；alpha.13 普通 EXE 的实机证据与 alpha.15 包构建分开记录，完整 I06C 仍未准出。
+
+alpha.15 发布复核：源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 已位于 GitHub `master`，`v0.6.0-alpha.15` 为 prerelease。EXE 远端 state=`uploaded`、129,851,710 字节、digest 与本地一致；`SHA256SUMS.txt` state=`uploaded`，109 字节。真实 Windows 用户流程未在这次构建后重跑；稳定历史版本仍为 0.5.0，完整 I06C 未准出。详见 [发布记录](../../iterations/I06/github-release.md)。
+
+发布后测试补充：新增四项仅测试代码的维护传输边界回归，桌面全量当前 163/163。新增测试不改变 alpha.15 EXE 中的产品源码；具体边界见 [M04 SSH 测试报告](../04-ssh-access/test-report.md)。
+
+## alpha.16 当前源码包重建
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1：`npm run dist:win` 首次因 electron-builder 临时打包错误退出，28 MB 临时文件未使用；清理临时 EXE 后重跑成功，`verify-package.cjs --portable` 通过。最终包版本 `0.6.0-alpha.16`，28 个后台模块、1381 个 Linux 文件，app.asar/前端匹配源码；EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`。根 43/43、桌面 163/163、SSH 定向集成 7/7 通过。真实 Windows 用户流程未重跑；完整 I06C 未准出。

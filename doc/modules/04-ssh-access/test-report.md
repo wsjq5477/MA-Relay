@@ -1,6 +1,6 @@
 # M04 SSH 接入测试报告
 
-当前基线：2026-10-14 / 0.6.0-alpha.13。工程与受控维护验证通过，独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
+当前基线：2026-10-14 / 0.6.0-alpha.16。工程与受控维护验证通过；独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 更新：2026-10-13。当前候选 alpha.8 的兼容资源核对见下节；alpha.5 修复与此前 0.6.0-alpha.2 的主要认证验收保持原范围。Windows 到独立 Linux 密码登录与实际 DPAPI 恢复通过；Windows 加密私钥/命名管道 agent 使用真实 SSH 协议与隔离服务验证。系统 OpenSSH agent 服务兼容性、全故障/延迟指标仍未专项实测。
 
 
@@ -122,4 +122,9 @@ T-M04-20 / M04-F04/F06：2026-10-14 / alpha.14。桌面受控 155/155，上传�
 
 ## alpha.15 维护入口会话拒绝恢复验证
 
-T-M04-27 / M04-F08：2026-10-14 / alpha.15，WSL Ubuntu / Node 22.23.1。范围：预检单 SFTP 会话；只读预检同连接+新连接各一次受控重试、语义拒绝不重试、凭据缺口 needs_credentials；维护启动"可证明未发出"重试一次、再次未发出记 rejected、其余保持 unknown；查询通道拒绝新连接重试一次；错误消息携带原因码/退出码。桌面受控回归 **159/159** 通过（含 [ssh-recovery-integration](../../../desktop/tests/ssh-recovery-integration.test.cjs) 3 项真实本机 TCP 用例：受控 ssh2 服务器按 RESOURCE_SHORTAGE 形态拒绝会话打开，验证会话预算占满时的新连接恢复、瞬时拒绝的同连接恢复、持续拒绝的有界 surfaced 与无维护意图、缺凭据呈现）。根 43/43、lint、typecheck 通过。证据：[桌面 TAP](../../../artifacts/I06C-final/2026-10-14/desktop-alpha15.tap)、[根 TAP](../../../artifacts/I06C-final/2026-10-14/root-alpha15.tap)。受控服务器不等于独立服务器根因确认；独立空闲维护专项需以 alpha.15 重验，结果另计。
+T-M04-27 / M04-F08：2026-10-14 / alpha.15，WSL Ubuntu / Node 22.23.1。范围：预检单 SFTP 会话；只读预检同连接+新连接各一次受控重试、语义拒绝不重试、凭据缺口 needs_credentials；维护启动"可证明未发出"重试一次、再次未发出记 rejected、其余保持 unknown；查询通道拒绝新连接重试一次；错误消息携带原因码/退出码。发布提交时桌面回归 159/159；随后新增四个传输边界用例后，当前桌面全量 **163/163** 通过（[ssh-recovery-integration](../../../desktop/tests/ssh-recovery-integration.test.cjs) 共 7 项真实本机 TCP 用例：受控 ssh2 服务器验证同连接/新连接拒绝恢复、未发出维护被确定拒绝、重启后原 operationId 仍 rejected、响应丢失后的 unknown 不可由新 ID 替换）。根 43/43、lint、typecheck 通过。受控服务器不等于独立服务器根因确认；独立空闲维护专项需以 alpha.15 重验，结果另计。
+
+
+## alpha.16 维护未发送状态跨重试与查询验证
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1：根测试 43/43、桌面全量 163/163、SSH 恢复 TCP 集成 7/7 通过。新增/更新场景覆盖 open 前明确未发送、重试登录缺少凭据、重启后同 operationId 查询、operation 冲突保留语义错误，以及 stream/timeout 响应不明时原 unknown 收据不被替代。Windows portable 包一致性校验通过，实际 Windows 用户流程与独立服务器维护重验未执行；无用户服务器操作和模型调用。具体行为见 [I06C 收尾 alpha.16](../../iterations/I06/final-delivery.md)。

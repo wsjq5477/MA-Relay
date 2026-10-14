@@ -6,10 +6,11 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 最近已发布 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 当前源码 | 0.6.0-alpha.15 / I06C 维护入口会话拒绝恢复；完整准出未完成，最新实现与证据见 [I06C 收尾](iterations/I06/final-delivery.md) |
+| 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
+| 最新 Windows 预发布 | 0.6.0-alpha.16 / I06C；[预发布页与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.16)，完整 I06C 未准出 |
+| 当前源码 | 0.6.0-alpha.16 / I06C 维护未发送边界与恢复状态修复；完整准出未完成，最新实现与证据见 [I06C 收尾](iterations/I06/final-delivery.md) |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
-| 当前自动回归 | alpha.15 桌面 159/159、根 43/43；2026-10-14 于 WSL Ubuntu / Node 22.23.1 实测；实际窗口/包/独立服务器见 [当前验收](iterations/I06/final-delivery.md) |
+| 当前自动回归 | alpha.16 桌面 163/163、根 43/43；2026-10-14 于 WSL Ubuntu / Node 22.23.1 实测；实际窗口/包/独立服务器见 [当前验收](iterations/I06/final-delivery.md) |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
 
 当前 win-unpacked 已重新构建并通过资源校验；不要用旧归档或旧源码测试冒充新包。普通便携 EXE 也已单独验证，见候选报告。
@@ -91,6 +92,8 @@ alpha.5 修复机器在线后仍保留旧版本报错的缓存合并问题，新
 ## GitHub 候选程序交付
 
 2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
+
+2026-10-14：当前源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 和 alpha.15 Windows x64 EXE 已推送至 [GitHub master](https://github.com/wsjq5477/MA-Relay/commit/15b7c9ea9c3d53802797b655e0cffaf365658574) 并作为 [alpha.15 预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.15)提供。EXE 129,851,710 字节，SHA-256 `d1052ed5cd7893a9842ee96b6bf87c40b2ec6a5389ac59ef28ad5eb528e0ac4f`。根 43/43、桌面 159/159、文档检查与包一致性校验通过；本次未重跑真实 Windows 用户流程。完整 I06C 与正式 0.6.0 尚未准出。
 
 本次完成已有 alpha.9 EXE、SHA256SUMS.txt 的公共下载，以及源码入口和分发证据同步。只交付下载通道，不改变当前迭代开发基线；升级/回滚与完整准出继续按原路线推进。见 [发布记录](iterations/I06/github-release.md)。
 

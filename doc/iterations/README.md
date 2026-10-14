@@ -35,4 +35,4 @@
 
 2026-10-13：[alpha.9 GitHub 预发布及附件核验](I06/github-release.md)。分发已有程序，不变更原源码行为、不替代 Windows/SSH/原生 Agent 验收。
 
-当前 alpha.13 维护与恢复收尾：[I06C 当前验收](I06/final-delivery.md)。
+当前 alpha.16 维护未发送边界补强与发布状态：[I06C 当前验收](I06/final-delivery.md)；[GitHub 源码与 Windows EXE 发布](I06/github-release.md)。完整 I06C 仍未准出。
