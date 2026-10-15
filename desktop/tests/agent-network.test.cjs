@@ -36,6 +36,100 @@ function fixture(t){
   return {directory,router,hosts,options};
 }
 async function setup(t){const f=fixture(t);const s=await f.router.snapshot();return {...f,nodes:s.nodes};}
+const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+async function uncertainSubmission(t,workspace){
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  const service=createCoordinatorService({directory:f.directory,platform:'win32',network:f.router});
+  host.lose=true;
+  const params={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'uncertain',message:'original',...(workspace?{workspace}:{})};
+  assert.equal((await service.call({method:'nodeRequest',params})).error.code,'DESKTOP_TRANSPORT');
+  host.lose=false;host.requests.clear();host.tasks=[];host.conversations=[];
+  for(const a of host.agents){a.busy=false;delete a.currentTask;}
+  return {...f,node,host,service,params};
+}
+test('configuration and preparation failures are durable rejections; recovery and same-ID retries never dispatch',async t=>{
+  for(const code of ['NOT_CONFIGURED','DESKTOP_TRANSPORT','CLAUDE_RUNTIME_INVALID']){
+    const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId),original=host.call.bind(host);
+    host.call=async(m,p)=>m==='context'?Promise.reject(error(code)):original(m,p);
+    let service=createCoordinatorService({directory:f.directory,network:f.router});
+    const p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'prepare-'+code,message:'original'};
+    assert.equal((await service.call({method:'nodeRequest',params:p})).error.code,code);
+    assert.equal(service.pending().length,0);assert.equal(host.executions,0);
+    const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));rows[0].state='unknown';fs.writeFileSync(file,JSON.stringify(rows));
+    const restored=new AgentNetwork(f.options);t.after(()=>restored.close());service=createCoordinatorService({directory:f.directory,network:restored});
+    assert.equal((await service.recoverPending()).resolved,1);assert.equal(service.pending().length,0);
+    // The original rejection remains authoritative after configuration is repaired.
+    await assert.rejects(restored.call('nodeRequest',p),{code});assert.equal(restored.network.requests.length,1);
+    assert.equal([...restored.hosts.values()].reduce((n,h)=>n+h.executions,0),0);
+  }
+});
+test('native admission NOT_CONFIGURED leaves no phantom busy node and permits a new request after configuration repair',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId),call=host.call.bind(host);
+  host.call=async(method,p)=>method==='ipc'&&p.op==='submit'?Promise.reject(error('NOT_CONFIGURED')):call(method,p);
+  const service=createCoordinatorService({directory:f.directory,network:f.router}),p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'config-gate',message:'original'};
+  assert.equal((await service.call({method:'nodeRequest',params:p})).error.code,'NOT_CONFIGURED');
+  assert.equal(f.router.network.requests[0].dispatched,false);assert.equal(service.pending().length,0);assert.equal(host.executions,0);
+  assert.equal((await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId).available,true);
+  host.call=call;
+  assert.equal((await service.call({method:'nodeRequest',params:p})).error.code,'NOT_CONFIGURED');assert.equal(host.executions,0);
+  assert.equal((await service.call({method:'nodeRequest',params:{...p,requestId:'new-after-repair'}})).ok,true);assert.equal(host.executions,1);
+});
+test('an unresolved request blocks its node but permits a different node on the same machine and keeps the original journal',async t=>{
+  const f=await uncertainSubmission(t),other=f.nodes.find(n=>n.machineId===f.node.machineId&&n.nodeId!==f.node.nodeId);
+  await f.router.call('attachNode',{nodeId:other.nodeId});
+  const pending=f.service.pending()[0];assert(pending.blockedNodeIds.includes(f.node.nodeId));assert(!pending.blockedNodeIds.includes(other.nodeId));
+  const attempt={op:'submit',nodeId:f.node.nodeId,requestId:'alias',message:'new',workspace:'D:/different'};
+  assert.equal((await f.service.call({method:'nodeRequest',params:attempt})).error.code,'DESKTOP_UNCONFIRMED');
+  const result=await f.service.call({method:'nodeRequest',params:{...attempt,nodeId:other.nodeId,requestId:'independent'}});
+  assert.equal(result.ok,true);assert.equal(f.host.executions,2);
+  assert.equal(f.service.pending().length,1);assert.equal(f.service.pending()[0].id,'uncertain');
+});
+test('preparation rejection in a continuation preserves inherited collaboration and the exact original input',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  await f.router.call('saveCollaboration',{leaderId:node.nodeId,memberIds:[],expectedRevision:0});
+  const first=await f.router.call('nodeRequest',{op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'parent',message:'first',collaboration:true});
+  for(const task of host.tasks)task.status='succeeded';for(const a of host.agents){a.busy=false;delete a.currentTask;}
+  const call=host.call.bind(host);host.call=async(method,p)=>method==='scope'?Promise.reject(error('NOT_CONFIGURED')):call(method,p);
+  const service=createCoordinatorService({directory:f.directory,network:f.router});
+  const p={op:'continue',nodeId:node.nodeId,machineId:node.machineId,conversationId:first.conversationId,requestId:'followup-rejected',message:'second'};
+  assert.equal((await service.call({method:'nodeRequest',params:p})).error.code,'NOT_CONFIGURED');
+  const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));rows[0].state='unknown';fs.writeFileSync(file,JSON.stringify(rows));
+  assert.equal((await service.recoverPending()).resolved,1);assert.equal(host.executions,1);assert.equal(service.pending().length,0);
+  assert.equal(f.router.network.requests.at(-1).collaboration,true);
+});
+test('resolved directory admission rejects different-node and Windows/WSL aliases before any new native execution',async t=>{
+  for(const crossMachine of [false,true]){
+    const f=await uncertainSubmission(t,'D:/shared'),other=f.nodes.find(n=>crossMachine?n.machineId!==f.node.machineId:n.machineId===f.node.machineId&&n.nodeId!==f.node.nodeId);
+    await f.router.call('attachNode',{nodeId:other.nodeId});
+    const result=await f.service.call({method:'nodeRequest',params:{op:'submit',nodeId:other.nodeId,requestId:'shared-alias',message:'no',workspace:crossMachine?'/mnt/d/shared':'d:/SHARED/'}});
+    assert.equal(result.error.code,'DESKTOP_UNCONFIRMED');
+    assert.equal([...f.hosts.values()].reduce((n,h)=>n+h.executions,0),1);
+    assert.equal(f.service.pending().length,1);assert.equal(f.service.pending()[0].id,'uncertain');
+  }
+});
+test('legacy missing ownership remains protected; current NOT_CONFIGURED is not evidence of original rejection',async t=>{
+  const f=await uncertainSubmission(t),file=path.join(f.directory,'pending.json');
+  const row=JSON.parse(fs.readFileSync(file))[0];row.params={op:'submit',requestId:row.id,machineId:row.machineId};fs.writeFileSync(file,JSON.stringify([row]));
+  f.router.network.requests=[];f.router.saveNetwork();
+  const other=f.nodes.find(n=>n.machineId===f.node.machineId&&n.nodeId!==f.node.nodeId);
+  assert(f.service.pending()[0].blockedNodeIds.includes(other.nodeId));
+  f.host.call=async()=>{throw error('NOT_CONFIGURED');};
+  const result=await f.service.recoverPending();assert.equal(result.resolved,0);assert.equal(result.items[0].code,'NOT_CONFIGURED');
+  assert.match(result.items[0].reason,/配置未就绪/);assert.equal(f.host.executions,1);assert.equal(f.service.pending().length,1);
+});
+test('legacy NOT_CONFIGURED settles only with the original matching undispatched intent and saved original error',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId),call=host.call.bind(host);
+  host.call=async(method,p)=>method==='context'?Promise.reject(error('NOT_CONFIGURED')):call(method,p);
+  const service=createCoordinatorService({directory:f.directory,network:f.router}),p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'legacy-config',message:'original'};
+  await service.call({method:'nodeRequest',params:p});
+  const intent=f.router.network.requests[0];delete intent.preparationRejection;delete intent.inputFingerprint;f.router.saveNetwork();
+  const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));rows[0].state='unknown';
+  for(const dispatched of [true,false]){
+    intent.dispatched=dispatched;fs.writeFileSync(file,JSON.stringify(rows));
+    const result=await service.recoverPending();assert.equal(result.resolved,dispatched?0:1);
+  }
+  assert.equal(host.executions,0);assert.equal(service.pending().length,0);
+});
 test('nodes are machine/tool identities without workspace or model; all adapters on the same machine survive rescan',async t=>{
   const f=await setup(t);assert.equal(f.nodes.length,4);for(const n of f.nodes){assert(!Object.hasOwn(n,'workspace'));assert(!Object.hasOwn(n,'model'));assert(!Object.hasOwn(n,'providerID'));}
   const ids=f.nodes.map(n=>n.nodeId);assert.deepEqual((await f.router.snapshot()).nodes.map(n=>n.nodeId),ids);

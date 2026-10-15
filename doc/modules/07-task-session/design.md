@@ -142,7 +142,7 @@ Core SQLite 使用 WAL、FULL 同步、事务和独立的服务生命周期锁�
 {"method":"ipc","params":{"op":"operation","machineId":"local-demo","taskId":"local-demo::task-002","operationId":"cancel-001"}}
 ```
 
-recoverPending 的本地结果包含 resolved 和可选 remaining/items；未解决原因使用固定脱敏描述。Windows OpenCode 原 submit 的已保存资源 INVALID/MISSING，与完全匹配且无在途执行的原 intent.dispatched===false 共同构成执行前拒绝证明；落盘前再次核验，原 unknown 可记 rejected 并保留原参数/ID/历史。不能仅凭错误码或 not_found 放行。具体兼容范围见 [alpha.18](../../iterations/I06/runtime-recovery.md)。
+recoverPending 的本地结果包含 resolved 和可选 remaining/items；未解决原因使用固定脱敏描述，NOT_CONFIGURED 明确表示原后台执行配置未就绪，不表示原任务仍在执行或从未执行。Windows OpenCode 原 submit 的已保存资源 INVALID/MISSING，与完全匹配且无在途执行的原 intent.dispatched===false 共同构成执行前拒绝证明；落盘前再次核验，原 unknown 可记 rejected 并保留原参数/ID/历史。不能仅凭错误码或 not_found 放行。具体兼容范围见 [alpha.18](../../iterations/I06/runtime-recovery.md)。
 
 响应超时后，先用原 requestId / operationId 到原机器查询。其他机器的同名回执不解除本记录的不确定。仅 NOT_FOUND 不足以证明原动作未执行。
 
@@ -191,3 +191,9 @@ alpha.6 原请求恢复接受原 daemon 的持久执行前 AGENT_UNHEALTHY 拒�
 原生 request/operation 的确认必须匹配原 ID、来源机器、Task/execution 绑定及明确状态。旧 confirmed 外壳内包含 native unknown 时恢复为 unknown；原 native rejected 收据可读且不重放。缺收据或缺原生终态继续占位。维护拒绝正在运行、等待或未知任务，停止/卸载保留原记录；台账损坏拒绝新写入，表单秘密值不落中央恢复台账。
 
 实现入口：[pending-journal.cjs](../../../desktop/electron/pending-journal.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## 未派发拒绝与独立会话（alpha.20 候选）
+
+同节点或共享目录的未知操作继续占位，不再仅因同属一台机器而阻断独立节点上的新会话/续聊。缺少原资源归属时保留旧保护；后端在真实目录解析后再次检查。窗口显示范围只是后端投影，不能作为原任务结束证明。
+
+submit/continue 的上下文、原会话读取或协作 scope 准备错误，会在原意图保存 preparationRejection；只有原始台账与未派发意图匹配、无任务/会话绑定及在途 job 时才记 rejected。同 ID 不重新执行，修好配置后发新请求。旧记录必须有最初保存的 NOT_CONFIGURED 和同样未派发依据，或符合原 Windows OpenCode 资源错误规则；本次查询失败不能替代这些证据。[专项](../../iterations/I06/pending-isolation.md)。

@@ -268,6 +268,7 @@ export interface RecoveryItem {
 }
 export interface Journal {
   id: string;
+  blockedNodeIds?: string[];
   machineId?:string;
   op: string;
   params: Record<string, unknown>;

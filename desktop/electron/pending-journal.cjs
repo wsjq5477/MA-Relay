@@ -8,6 +8,7 @@ function diagnostic(row, code) {
     : code === 'RECEIPT_MISMATCH' ? '返回信息与原请求不一致，保留待确认状态。'
     : code === 'RECEIPT_PENDING' ? '原操作尚未返回确定结果，继续保留待确认状态。'
     : code === 'JOURNAL_CHANGED' ? '原记录已被另一项查询更新，请刷新后核对。'
+    : code === 'NOT_CONFIGURED' ? '原后台的执行配置未就绪，暂时无法核对原请求。请恢复原后台配置后查询；未确认记录不会自动重发，独立节点仍可使用。'
     : '原机器或后台查询未完成，请恢复连接后查询原请求。';
   return { id: row.id, machineId: row.machineId, op: row.op, code, reason };
 }

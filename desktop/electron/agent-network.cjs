@@ -57,23 +57,48 @@ class AgentNetwork extends MachineRouter {
     }
     return super.prepare(method,params);
   }
-  // Read the original central intent only. A missing native task is not proof
-  // of rejection; alpha.9's runtime error plus its undispatched intent is.
+  // Resolve occupancy from retained ownership, never from a caller's new alias.
+  pendingResource(params,machineId){
+    const intent=this.network.requests.find(r=>r.machineId===machineId&&
+      (r.requestId===params.requestId||params.conversationId&&r.conversationId===params.conversationId||
+        (params.taskId||params.reply?.taskId)&&r.taskId===(params.taskId||params.reply?.taskId)));
+    const instance=this.catalog.instances.find(i=>i.machineId===machineId&&
+      [params.agentId,params.targetAgent,intent?.agentId].filter(Boolean).includes(i.instanceId));
+    const nodeId=instance?.nodeId||intent?.nodeId||params.nodeId;
+    const node=this.network.nodes.find(n=>n.nodeId===nodeId&&n.machineId===machineId);
+    const owned=instance?[instance]:this.catalog.instances.filter(i=>node&&i.nodeId===node.nodeId);
+    return {nodeId:node?.nodeId,workspaces:owned.filter(i=>i.workspace).map(i=>workspaceKey(this.machine(i.machineId),i.workspace))};
+  }
+  pendingBlocks(row,params){
+    if(!row.machineId)return true;
+    const original=this.pendingResource(row.params||{},row.machineId),target=this.pendingResource(params,params.machineId);
+    if(original.nodeId&&original.nodeId===target.nodeId)return true;
+    if(original.workspaces.some(key=>target.workspaces.includes(key)))return true;
+    // Legacy provenance gaps keep the old machine-wide protection.
+    return row.machineId===params.machineId&&(!original.nodeId||!target.nodeId||!original.workspaces.length);
+  }
+  // A saved preparation rejection proves no native mutation was dispatched.
+  // Missing receipts or current configuration failures alone never prove this.
   undispatchedRejection(row){
     const code=row.result?.error?.code,p=row.params;
-    if(row.op!=='submit'||p?.op!=='submit'||p.requestId!==row.id||p.machineId!==row.machineId
-      ||!['CLAUDE_RUNTIME_INVALID','CLAUDE_RUNTIME_MISSING'].includes(code))return null;
+    if(!['submit','continue'].includes(row.op)||p?.op!==row.op||p.requestId!==row.id||p.machineId!==row.machineId)return null;
     const node=this.network.nodes.find(n=>n.nodeId===p.nodeId&&n.machineId===row.machineId);
-    if(!node||node.adapter!=='opencode'||this.machine(row.machineId).kind!=='windows'||this.nodeJobs.has(node.nodeId))return null;
+    if(!node||this.nodeJobs.has(node.nodeId))return null;
     const original=this.network.requests.find(r=>r.requestId===row.id&&r.machineId===row.machineId&&r.nodeId===node.nodeId);
-    if(!original||original.dispatched!==false||original.taskId||original.conversationId
-      ||original.fingerprint!==requestFingerprint(node.nodeId,p))return null;
+    if(!original||original.dispatched!==false||original.taskId||original.conversationId)return null;
+    if(original.inputFingerprint&&original.inputFingerprint!==requestFingerprint(node.nodeId,p))return null;
+    if(original.fingerprint!==requestFingerprint(node.nodeId,original.inputFingerprint?{...p,collaboration:original.collaboration}:p))return null;
+    const preparation=original.preparationRejection;
+    if(preparation&&preparation!==code)return null;
+    const legacy=code==='NOT_CONFIGURED'||row.op==='submit'&&['CLAUDE_RUNTIME_INVALID','CLAUDE_RUNTIME_MISSING'].includes(code)&&node.adapter==='opencode'&&this.machine(row.machineId).kind==='windows';
+    if(!preparation&&!legacy)return null;
     return {requestId:row.id,machineId:row.machineId,state:'rejected',
-      error:{code,message:'原请求在准备后台运行资源时被拒绝，尚未派发；请求与历史已保留。'},
-      reconciliation:'original undispatched node intent and runtime rejection verified'};
+      error:{code:preparation||code,message:'原请求在准备执行环境时被拒绝，尚未派发；请求与历史已保留，可修复配置后新建会话。'},
+      reconciliation:'original undispatched node intent and rejection verified'};
   }
   async nodeRequest(params){
     const node=this.node(params.nodeId),machine=this.machine(node.machineId);
+    const inputFingerprint=requestFingerprint(node.nodeId,params);
     this.assertMachineAdmission(machine);
     const prior=params.op==='continue'?this.network.requests.findLast(r=>r.conversationId===params.conversationId&&r.nodeId===node.nodeId):null;
     if(prior?.collaboration)params={...params,collaboration:true};
@@ -85,14 +110,16 @@ class AgentNetwork extends MachineRouter {
     const previous=this.network.requests.find(r=>r.requestId===params.requestId&&r.machineId===node.machineId);
     if(previous){
       if(previous.fingerprint!==fingerprint)throw fail('REQUEST_CONFLICT','原请求 ID 已用于其他内容，请查询原请求。');
+      if(previous.preparationRejection)throw fail(previous.preparationRejection,'原请求在派发前已拒绝，请修复配置后新建会话。');
       try{return await super.call('ipc',{op:'request',machineId:node.machineId,requestId:params.requestId});}catch(e){if(!['NOT_FOUND','REQUEST_NOT_FOUND','NOT_CONFIGURED'].includes(e.code))throw e;}
       if(previous.dispatched)throw fail('DESKTOP_UNCONFIRMED','原请求提交状态尚未确认，请查询原请求，不能重复执行。');
     }
     const state=await this.snapshot();
     if(state.nodes.find(n=>n.nodeId===node.nodeId)?.busy)throw fail('AGENT_BUSY','这个 Agent 节点仍有未结束任务，请先查看或核对原执行。');
-    const receipt=previous||{requestId:params.requestId,machineId:node.machineId,nodeId:node.nodeId,fingerprint,createdAt:new Date().toISOString(),dispatched:false,collaboration:!!params.collaboration};
+    const receipt=previous||{requestId:params.requestId,machineId:node.machineId,nodeId:node.nodeId,fingerprint,inputFingerprint,createdAt:new Date().toISOString(),dispatched:false,collaboration:!!params.collaboration};
     if(!previous){this.network.requests.push(receipt);this.saveNetwork();}
     let rawParams;
+    try{
     if(params.op==='continue'){
       const existing=await super.call('ipc',{op:'conversation',machineId:node.machineId,conversationId:params.conversationId});
       const owner=this.catalog.instances.find(i=>i.instanceId===existing.targetAgent);
@@ -109,10 +136,14 @@ class AgentNetwork extends MachineRouter {
       receipt.contextId=context.contextId;receipt.collaboration=!!params.collaboration;
       rawParams={op:params.op||'submit',agentId:receipt.agentId,requestId:params.requestId,message:params.message};
     }
+    }catch(error){
+      receipt.preparationRejection=typeof error.code==='string'&&/^[A-Z][A-Z0-9_]{0,79}$/.test(error.code)?error.code:'DESKTOP_ERROR';
+      this.saveNetwork();throw error;
+    }
     // Durable intent precedes a native mutation. An uncertain retry only reads receipts.
     receipt.dispatched=true;this.saveNetwork();
     try{const result=await super.call('ipc',{...rawParams,machineId:node.machineId});receipt.taskId=result.taskId;receipt.conversationId=result.conversationId;this.saveNetwork();return {...result,nodeId:node.nodeId};}
-    catch(error){if(['AGENT_BUSY','PROJECT_BUSY','AGENT_UNHEALTHY','AGENT_UNAVAILABLE','CONVERSATION_CONFIG','CONVERSATION_BUSY','CONVERSATION_BINDING','INVALID_INPUT','CONFIG_NOT_APPLIED'].includes(error.code)){receipt.dispatched=false;receipt.rejection=error.code;this.saveNetwork();}throw error;}
+    catch(error){if(error.executionNotDispatched||['NOT_CONFIGURED','AGENT_BUSY','PROJECT_BUSY','AGENT_UNHEALTHY','AGENT_UNAVAILABLE','CONVERSATION_CONFIG','CONVERSATION_BUSY','CONVERSATION_BINDING','INVALID_INPUT','CONFIG_NOT_APPLIED'].includes(error.code)){receipt.dispatched=false;receipt.rejection=error.code;if(error.executionNotDispatched||error.code==='NOT_CONFIGURED')receipt.preparationRejection=error.code;this.saveNetwork();}throw error;}
   }
   async collaborationTool(scope,name,args,callId,sourceMachine){
     const node=this.node(scope.nodeId),relation=this.network.collaboration;
@@ -176,8 +207,9 @@ class AgentNetwork extends MachineRouter {
     const next={...this.network,removedMachines:[...removed],collaboration,machineOperations:[...operations,receipt]};
     atomicWrite(this.networkFile,next);this.network=next;return structuredClone(receipt);
   }
-  assertAdmission(machine,instance){
+  assertAdmission(machine,instance,params){
     this.assertMachineAdmission(machine);
+    this.options.executionAdmissionCheck?.(machine,instance,params);
     const node=instance.nodeId&&this.node(instance.nodeId);
     if(node&&(node.removed||!node.connected))throw fail('NODE_DISCONNECTED','这个 Agent 已断开或移除，请先重新接入。');
     if(node&&this.nodeLocks.has(node.nodeId))throw fail('AGENT_BUSY','节点正在变更，请稍后再提交需求。');

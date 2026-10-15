@@ -174,3 +174,8 @@ alpha.15 发布复核：源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](../../iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
 
 当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+
+## alpha.20 候选打包与普通EXE
+
+T-M10-27 / M10-F01/F02/F03/F05/F06：2026-10-15，WSL Node22.23.1构建Windows x64 portable，28个CJS/78个核心文件/1385个Linux清单项与源码匹配。EXE 129,856,325字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。核心45/45、桌面串行188/188、lint/类型/构建/包校验通过；初轮并行维护测试ENOENT及专项8/8复验均保留。Windows普通无调试EXE/合成NOT_CONFIGURED恢复及关闭重开4组、Edge生产前端/受控API4组通过，模型0。发布/下载证据与未测项见[专项](../../iterations/I06/pending-isolation.md)。不宣称用户故障已复现或完整I06C准出。

@@ -205,3 +205,8 @@ I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
 
 当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+
+## 未确认操作资源范围（未发布源码）
+
+2026-10-15 / alpha.19工作区修复：桌面188/188、定向40/40（包含在全量内）、桌面类型/构建通过，Windows Edge生产前端与受控API4组通过，模型0。独立节点可工作，同节点/共享目录和未知来源继续保护；准备拒绝与原意图严格对账。不更新GitHub alpha.19附件，未构建新EXE、未复测用户故障或服务器，I06C未准出。[专项及原始证据](iterations/I06/pending-isolation.md)。

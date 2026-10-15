@@ -148,7 +148,7 @@ function recoverPending() {
       // A concurrent submission/query may already have updated this receipt.
       if (!row || !["pending", "unknown"].includes(row.state) || row.time !== original.time
         || JSON.stringify(row.params) !== JSON.stringify(original.params)) return false;
-      if (result?.reconciliation === 'original undispatched node intent and runtime rejection verified'
+      if (['original undispatched node intent and rejection verified','original undispatched node intent and runtime rejection verified'].includes(result?.reconciliation)
         && !connection().undispatchedRejection?.(row)) return false;
       Object.assign(row, { state, result:journalResult(row,result), reconciledAt: new Date().toISOString() });
       write("pending.json", rows);
@@ -172,6 +172,11 @@ async function call(input) {
     connection();
     connection().options??={};
     connection().options.admissionCheck=machine=>{if(graphJournal.pending().some(r=>r.lane==='machine'&&r.params.machineId===machine.machineId))throw Object.assign(Error('原机器维护尚未确认，请查询原操作。'),{code:'DESKTOP_UNCONFIRMED'});};
+    connection().options.executionAdmissionCheck=(machine,instance,params)=>{
+      if(read('pending.json',[]).some(row=>['pending','unknown'].includes(row.state)&&
+        connection().pendingBlocks?.(row,{machineId:machine.machineId,agentId:instance.instanceId})&&
+        !(row.id===journalKey(params)&&row.machineId===machine.machineId)))throw Object.assign(Error('这个执行资源有未确认操作，请查询原请求；独立节点仍可使用。'),{code:'DESKTOP_UNCONFIRMED',executionNotDispatched:true});
+    };
     const machineDispatch=async(method,params)=>{
       if(!ssh)throw Object.assign(Error('当前后台未启用 SSH 连接管理。'),{code:'INVALID_INPUT'});
       if(method==='machine.operation'){
@@ -246,13 +251,13 @@ async function call(input) {
       mutation &&
       read("pending.json", []).some(
         (r) =>
-          ["pending", "unknown"].includes(r.state) && r.id !== journalKey(p)
-            && (!r.machineId || r.machineId === p.machineId),
+          ["pending", "unknown"].includes(r.state) && !(r.id === journalKey(p)&&r.machineId===p.machineId)
+            && (connection().pendingBlocks ? connection().pendingBlocks(r,p) : !r.machineId || r.machineId === p.machineId),
       )
     )
       throw Object.assign(
         new Error(
-          "有操作的回应尚未确认，请先在设置中查询原操作，再执行新操作。",
+          "这个执行资源有操作的回应尚未确认，请先在设置中查询原操作；独立节点仍可使用。",
         ),
         { code: "DESKTOP_UNCONFIRMED" },
       );
@@ -400,7 +405,9 @@ function savePreferences(value) {
   return settings();
 }
 
-return { call, pending: () => read('pending.json', []).filter(r => ['pending','unknown'].includes(r.state)),
+return { call, pending: () => read('pending.json', []).filter(r => ['pending','unknown'].includes(r.state)).map(row=>({
+    ...row,...(connection().pendingBlocks?{blockedNodeIds:connection().network.nodes.filter(node=>connection().pendingBlocks(row,{nodeId:node.nodeId,machineId:node.machineId})).map(node=>node.nodeId)}:{})
+  })),
   recoverPending, preferences: () => ({...settings(), platform, version:options.version}), savePreferences,
   runtimes: async () => ({platform,distributions:await distributions()}),
   machines: async () => connection().machines(),

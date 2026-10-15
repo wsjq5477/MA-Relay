@@ -183,3 +183,11 @@ flowchart LR
 维护未知期间，所属机器的新执行和节点编辑被中央与原生准入双重阻断；其他机器原有会话可继续。卸载的原远端收据 confirmed 后按原 machineId 完成中央移除、撤销新协作权限及隐藏图节点，保留机器/节点/会话/任务历史。断开、停止、卸载不等于取消原任务，不以名字或地址别名释放未知占位。
 
 实现入口：[agent-network.cjs](../../../desktop/electron/agent-network.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## 未确认请求的节点与目录归属（alpha.20 候选）
+
+pendingResource 从原 requests、实例及保留节点解析身份；不以当前筛选器、显示名称或新目录替换来源。原节点始终保留占位；共享实例目录使用 workspaceKey，Windows/WSL 盘符和挂载路径仍共享保护。不同节点且目录独立时不再被整机台账阻断，原任务的 busy/unknown、原生资源锁和接入校验照常执行；真实目录解析后、派发前再次由 Coordinator 核对。
+
+requests 新增可选 inputFingerprint（继承协作前的原输入）及 preparationRejection（原生调用前的准备拒绝码）；fingerprint 继续绑定实际有效参数。续聊自动继承协作时仍同时校验两份输入。旧版本资源错误恢复保持，最初保存的 NOT_CONFIGURED 也必须与原未派发意图完全匹配；新查询仅返回 NOT_CONFIGURED、无原意图或已派发均不足以解除占位。[当次交付](../../iterations/I06/pending-isolation.md)。
+
+底层明确返回配置准入拒绝 NOT_CONFIGURED 时，也保存原拒绝并将 dispatched 置 false，避免台账已 rejected、节点仍被无任务的意图标忙。已派发后的传输失败不按该规则回收。

@@ -8,12 +8,12 @@
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
 | 最新 Windows 预发布 | 0.6.0-alpha.19 / 两项发现与 Windows 配置修复；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.19)，完整 I06C 未准出 |
-| 当前源码 | 0.6.0-alpha.19 / Linux Codex 发现、OpenCode 原安装二次核验、Windows 配置落盘修复；独立分支及 PR #1，尚未合入 master；[合并交付](iterations/I06/linux-cli-discovery.md) |
+| 当前源码 | 0.6.0-alpha.20 候选 / [未确认操作修复](iterations/I06/pending-isolation.md)；Linux Codex 发现、OpenCode 原安装二次核验、Windows 配置落盘修复；独立分支及 PR #1，尚未合入 master；[合并交付](iterations/I06/linux-cli-discovery.md) |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
 | 当前自动回归 | alpha.19 桌面 181/181、核心45/45；2026-10-15 WSL Ubuntu / Node22.23.1，lint/类型/构建通过；包内Linux真实CLI探测、Windows受控6组与普通EXE4组见[当前合并验收](iterations/I06/linux-cli-discovery.md)，未实测用户独立服务器或Windows原生推理 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
 
-当前 win-unpacked 已重新构建并通过资源校验；不要用旧归档或旧源码测试冒充新包。普通便携 EXE 也已单独验证，见候选报告。
+alpha.19 历史 win-unpacked/普通便携 EXE 的资源与实测保持原证据；2026-10-15 alpha.20候选已重建EXE并核对资源，普通Windows无调试EXE/合成配置拒绝恢复及关闭重开4组通过；不以历史包证明新修复。
 
 ## 2. 迭代和长期模块的关系
 
@@ -126,3 +126,8 @@ I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
 
 当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+
+未发布源码修复（2026-10-15）：未确认请求按原节点/共享目录保护，独立节点可新建/续聊；准备拒绝持久化与旧NOT_CONFIGURED严格恢复。桌面188/188、定向40/40、桌面类型/构建、Windows Edge受控4组通过。完整范围与未测项见[专项](iterations/I06/pending-isolation.md)，GitHub alpha.19发布基线不变。
+
+alpha.20候选打包完成：核心45/45、桌面串行188/188、lint/类型/构建、包资源核对及Windows普通EXE4组/受控界面4组通过。首次并行维护测试失败与复验保留，GitHub分发待实际发布结果。

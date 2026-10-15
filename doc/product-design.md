@@ -219,3 +219,7 @@ AB-F02/07/17，M03/M06/M09/M10：Core 与节点复用共享安装扫描，创建
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
 
 当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+## 未确认请求不再阻断独立节点（alpha.20 候选）
+
+2026-10-15 / AB-F08/F10/F11 / M01/M02/M03/M07：准备阶段的明确失败保存未派发拒绝证据，原记录严格匹配后解除占位；已派发或只有本次查询 NOT_CONFIGURED 的记录继续核对。同节点/共享目录保留保护，同机器独立节点可新建和续聊；旧后台或缺来源记录保持保守限制。GitHub alpha.19 EXE 未更新。需求、工程及 Windows 受控界面证据见 [专项](iterations/I06/pending-isolation.md)。

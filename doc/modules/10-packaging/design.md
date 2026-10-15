@@ -1,12 +1,12 @@
 # M10 构建、发布与持久运行资源设计
 
-更新：2026-10-15。桌面当前预发布与源码 0.6.0-alpha.19、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
+更新：2026-10-15。桌面当前源码与候选 0.6.0-alpha.20，已发布预发布仍为 alpha.19、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
 
 ## 1. 功能范围
 
 | 功能 ID | 交付目标 | 当前状态 |
 | --- | --- | --- |
-| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.19 当前桌面 181/181；根 45/45 于 2026-10-14 实测通过；当前界面/发布检查见 I06C 收尾报告 |
+| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.20 串行桌面 188/188、核心 45/45 于 2026-10-15 实测通过；当前界面/发布检查见 I06C 收尾报告 |
 | M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | 0.6.0-alpha.16 便携 EXE 已重建并通过包一致性校验；本次未重新执行真实 Windows 用户流程 |
 | M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.16 资源已随 Windows 包生成，包含 1381 个文件；独立远端真实场景仍按 I06C 报告的边界记录 |
 | M10-F04 | 发布包坏路径/坏摘要拒绝安装，远端校验后原子激活版本 | 校验实现，受控安全检查及真实正常安装通过；破坏性故障矩阵未完成 |
@@ -201,3 +201,8 @@ alpha.16 将维护原收据恢复修复打入窗口、冻结后台与 Linux 离�
 当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](../../iterations/I06/github-release.md)。
 
 当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+
+## alpha.20 资源范围修复候选
+
+Windows x64 portable已从当前修复源码重建，逐文件核对窗口/后台/核心和Linux离线资源；28个CJS、78个核心文件、1385个Linux清单条目。alpha.19兼容清单先与原冻结发布摘要核对，不把runtime或依赖二进制提交为源码。原请求/资源保护与分层实际结果见[专项](../../iterations/I06/pending-isolation.md)，新包不代表完整I06C准出。

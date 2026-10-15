@@ -102,3 +102,10 @@ T-M07-16 / M07-F04/F05/F06：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受�
 2026-10-14：冻结 alpha.13 Windows 包与独立 Linux，真实升级、同原生 Session 两轮及两方向协作通过；真实 Windows 取消和普通无调试窗口原生标记分别通过。独立 SSH/生产 daemon 的精确响应丢失、10 同 ID 与重启为受控执行器证据，不充当真实模型。Linux 文件任务受原生 OOM 退出影响，原 ID/Session 与 unknown 占位保留，未准出、未重发；后续 alpha.14 上传专项不冒充此模型矩阵复测。逐场景原始证据、版本、实际失败、临时自有资源调度及剩余项见 [I06C 当前实机记录](../../iterations/I06/final-delivery.md)。
 
 2026-10-14：原 alpha.13 文件任务再次沿原 Task/Session 核对仍 unknown，新 Prompt=0。停止已空闲自有 Controller 后可用内存 478,204 KiB、无空闲 swap；基于已有原生 OOM 证据，本次不重复启动，finally 恢复自有观察。未推定成功/取消，不更新数据库终态；完整准出仍缺该原终态。[当前证据](../../iterations/I06/maintenance-launch-recovery.md)。
+
+
+## 未确认操作资源范围专项（源码修复，未发布）
+
+T-M07-24 / M07-F06/F07：2026-10-15 / WSL Ubuntu Node22.23.1 / alpha.19工作区修复。配置/准备错误保存未派发拒绝，重启对账和同 ID 不重放通过；协作续聊继承前后指纹均核对，当前查询配置错误不能解除未知任务。 定向40/40计入全桌面188/188，类型与前端构建通过；Windows Edge生产前端/受控API共4组通过，模型0。原始证据和复现见[当次专项](../../iterations/I06/pending-isolation.md)。未构建新EXE、未访问用户故障profile或独立服务器，不替代真实原生任务验收。
+
+alpha.20候选追加验证（2026-10-15）：Windows普通无调试EXE/隔离合成配置拒绝恢复及关闭重开4组通过；最终生产前端/Windows Edge受控4组通过，模型0。包内源码匹配，原始证据统一见[专项](../../iterations/I06/pending-isolation.md)。这不改变上一段源码阶段“未构建EXE”的历史边界。
