@@ -45,4 +45,4 @@
 
 - [I06 alpha.19：OpenCode 二次发现与 Windows 配置写入](I06/opencode-discovery.md) — 核验原安装、Windows实际PE/配置/受控启动退出及合并交付边界。
 
-I06C 源码修复（未发布）：[未确认请求的资源范围与准备拒绝恢复](I06/pending-isolation.md)，独立节点可继续工作，原 unknown 与共享目录保护保留。
+I06C alpha.20预发布：[未确认请求的资源范围与准备拒绝恢复](I06/pending-isolation.md)，独立节点可继续工作，原 unknown 与共享目录保护保留。

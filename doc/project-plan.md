@@ -7,8 +7,8 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | 0.6.0-alpha.19 / 两项发现与 Windows 配置修复；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.19)，完整 I06C 未准出 |
-| 当前源码 | 0.6.0-alpha.20 候选 / [未确认操作修复](iterations/I06/pending-isolation.md)；Linux Codex 发现、OpenCode 原安装二次核验、Windows 配置落盘修复；独立分支及 PR #1，尚未合入 master；[合并交付](iterations/I06/linux-cli-discovery.md) |
+| 最新 Windows 预发布 | 0.6.0-alpha.20 / 未确认资源范围与配置拒绝恢复；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.20)，完整 I06C 未准出 |
+| 当前源码 | 0.6.0-alpha.20 / [未确认操作修复](iterations/I06/pending-isolation.md)；Linux Codex 发现、OpenCode 原安装二次核验、Windows 配置落盘修复；独立分支及 PR #1，尚未合入 master；[合并交付](iterations/I06/linux-cli-discovery.md) |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
 | 当前自动回归 | alpha.19 桌面 181/181、核心45/45；2026-10-15 WSL Ubuntu / Node22.23.1，lint/类型/构建通过；包内Linux真实CLI探测、Windows受控6组与普通EXE4组见[当前合并验收](iterations/I06/linux-cli-discovery.md)，未实测用户独立服务器或Windows原生推理 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
@@ -130,4 +130,6 @@ I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已
 
 未发布源码修复（2026-10-15）：未确认请求按原节点/共享目录保护，独立节点可新建/续聊；准备拒绝持久化与旧NOT_CONFIGURED严格恢复。桌面188/188、定向40/40、桌面类型/构建、Windows Edge受控4组通过。完整范围与未测项见[专项](iterations/I06/pending-isolation.md)，GitHub alpha.19发布基线不变。
 
-alpha.20候选打包完成：核心45/45、桌面串行188/188、lint/类型/构建、包资源核对及Windows普通EXE4组/受控界面4组通过。首次并行维护测试失败与复验保留，GitHub分发待实际发布结果。
+alpha.20候选打包完成：核心45/45、桌面串行188/188、lint/类型/构建、包资源核对及Windows普通EXE4组/受控界面4组通过。首次并行维护测试失败与复验保留，GitHub已公开分发，附件和完整下载摘要核验通过。
+
+当前分发以alpha.20[专项](iterations/I06/pending-isolation.md)的标签/附件证据为准；alpha.19与前述源码阶段记录保留为历史，不再作为最新包。

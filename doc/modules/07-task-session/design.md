@@ -192,7 +192,7 @@ alpha.6 原请求恢复接受原 daemon 的持久执行前 AGENT_UNHEALTHY 拒�
 
 实现入口：[pending-journal.cjs](../../../desktop/electron/pending-journal.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
 
-## 未派发拒绝与独立会话（alpha.20 候选）
+## 未派发拒绝与独立会话（alpha.20 已预发布）
 
 同节点或共享目录的未知操作继续占位，不再仅因同属一台机器而阻断独立节点上的新会话/续聊。缺少原资源归属时保留旧保护；后端在真实目录解析后再次检查。窗口显示范围只是后端投影，不能作为原任务结束证明。
 

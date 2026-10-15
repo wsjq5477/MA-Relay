@@ -1,6 +1,6 @@
 # M10 构建、发布与持久运行资源设计
 
-更新：2026-10-15。桌面当前源码与候选 0.6.0-alpha.20，已发布预发布仍为 alpha.19、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
+更新：2026-10-15。桌面当前源码与GitHub预发布 0.6.0-alpha.20、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
 
 ## 1. 功能范围
 
@@ -206,3 +206,5 @@ alpha.16 将维护原收据恢复修复打入窗口、冻结后台与 Linux 离�
 ## alpha.20 资源范围修复候选
 
 Windows x64 portable已从当前修复源码重建，逐文件核对窗口/后台/核心和Linux离线资源；28个CJS、78个核心文件、1385个Linux清单条目。alpha.19兼容清单先与原冻结发布摘要核对，不把runtime或依赖二进制提交为源码。原请求/资源保护与分层实际结果见[专项](../../iterations/I06/pending-isolation.md)，新包不代表完整I06C准出。
+
+alpha.20已以GitHub prerelease分发，源码标签绑定9b2d5ea，附件uploaded、公开下载HTTP200且完整EXE摘要匹配。完整验证与升级说明见上述专项。
