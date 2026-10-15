@@ -1,6 +1,6 @@
 # I06 未确认请求的资源范围与准备拒绝恢复
 
-日期：2026-10-15。关联 AB-F08/F10/F11、M01-F07、M02-F04/F06、M03-F04/F06、M07-F06/F07。版本 **0.6.0-alpha.20 候选**，基于 alpha.19；Windows portable 已构建，GitHub 尚未分发，未更改用户生产 profile。完整 I06C 和正式 0.6.0 未准出。已有 I07 草案改动保留，不把本修复计作 I07 实现。
+日期：2026-10-15。关联 AB-F08/F10/F11、M01-F07、M02-F04/F06、M03-F04/F06、M07-F06/F07。版本 **0.6.0-alpha.20 预发布**，基于 alpha.19；Windows portable 已构建并在 GitHub 分发，未更改用户生产 profile。完整 I06C 和正式 0.6.0 未准出。已有 I07 草案改动保留，不把本修复计作 I07 实现。
 
 ## 需求与验收目标
 
@@ -69,3 +69,16 @@ flowchart TD
 EXE **129,856,325** 字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。[本地候选程序](../../../desktop/release/AgentBridge-0.6.0-alpha.20-Windows-x64.exe)、[校验文件](../../../artifacts/pending-isolation/2026-10-15/SHA256SUMS.txt)。
 
 Windows当前alpha.20普通无调试portable EXE / 独立profile / 合成原NOT_CONFIGURED意图：原记录自动恢复、冻结后台匹配源码、普通关闭保留后台、重开历史与请求不重放，共4组通过；[普通EXE报告](../../../artifacts/pending-isolation/2026-10-15/portable.json)、[脚本](../../../desktop/tests/windows-pending-isolation-portable.cjs)。最终alpha.20生产前端/Windows Edge受控API的4组界面用例也重跑通过，沿用[界面报告](../../../artifacts/pending-isolation/2026-10-15/ui.json)。模型Prompt=0；合成数据不冒充用户故障profile。
+
+
+## 2026-10-15 alpha.20 预发布分发
+
+[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/AgentBridge-0.6.0-alpha.20-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.20)。标签绑定已验证修复源码 `9b2d5ea792fee431abfc056a385489407c86f152`，源码更新至[PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)的独立修复分支，尚未合入master；本次未包含工作区另有的I07草案。
+
+修复配置准备/NOT_CONFIGURED拒绝后残留占位和节点假忙碌；同机器独立节点可继续工作，同节点和共享目录保留unknown保护，原请求不重发。EXE **129,856,325**字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。GitHub两附件均uploaded，远端大小/digest匹配；公开下载HTTP200，完整EXE下载后SHA-256及校验文本一致。
+
+核心45/45、桌面串行188/188、lint/类型/构建和包内源码一致性通过；Windows普通EXE/隔离合成配置拒绝恢复4组、Edge生产前端/受控API4组通过，模型0。首次并行维护用例ENOENT及后续专项8/8/串行全量复验保留。未复测用户故障机器、独立服务器或真实模型任务；完整I06C仍未准出。
+
+升级先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新EXE；普通关闭窗口会保留旧后台。原机器、节点、请求和历史保留。
+
+发布原始证据：[GitHub元数据](../../../artifacts/pending-isolation/2026-10-15/github-release.json)、[公开下载和完整EXE摘要](../../../artifacts/pending-isolation/2026-10-15/public-distribution.json)、[源码标签核对](../../../artifacts/pending-isolation/2026-10-15/tag-verification.json)。
