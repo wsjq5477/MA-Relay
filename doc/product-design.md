@@ -1,8 +1,8 @@
 # AgentBridge 整体功能设计
 
-更新：2026-10-15。适用：Windows0.5.0稳定历史功能，以及0.6.0-alpha.20预发布的未确认资源范围与配置拒绝恢复（包含alpha.19发现和配置修复）。每项明确区分实现、发布和验收状态。
+更新：2026-10-16。适用：Windows0.5.0稳定历史功能，以及0.6.0-alpha.23预发布的小队协作与持续协调首批（包含此前未确认资源范围、配置拒绝恢复及发现修复）。每项明确区分实现、发布和验收状态。
 
-源码/本地候选alpha.23包含I07A/B及I07C首批持续协调；GitHub预发布保持alpha.20。[I07C首批交付](iterations/I07/automation.md)明确真实/受控证据，完整I07C未准出。
+源码及GitHub预发布alpha.23包含I07A/B及I07C首批持续协调；[发布及下载](iterations/I07/github-release.md)。[I07C首批交付](iterations/I07/automation.md)明确真实/受控证据，完整I07C未准出。
 
 ## 1. 产品解决什么问题
 
@@ -51,10 +51,10 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | AB-F16 节点图 | 机器分组、拖动节点、拖拽端点授权连线 | alpha.8 支持旧后台下本机拖动、整组背景拖动及主居左；主角色/方向/避让保留；alpha.10 保留原图交互并加入机器维护，当前首批证据见 6C 报告，原生链保留 alpha.6 证据 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md) |
 | AB-F17 发布与安装维护 | 源码、离线包、Windows EXE 一致，版本可验证 | 0.5.0 历史稳定；6A 候选已验收，alpha.12 可信升级/回滚/停止/卸载源码与受控验证通过；正式 0.6.0 准出见当前报告 | [M10](modules/10-packaging/design.md) / [报告](modules/10-packaging/test-report.md) |
 | AB-F18 网页资料入口 | 桌面分组目录、同源 Markdown、章节导航、全文搜索、主题和图表 | 已实现；独立于 Agent 控制界面 | [M11 设计](modules/11-documentation-portal/design.md) / [报告](modules/11-documentation-portal/test-report.md) |
-| AB-F19 智能体登记与小队 | 登记外部已有功能的智能体、说明职责/边界，组成小队和独立工作 | alpha.21源码/本地候选已实现；不实现Skill/模型/目录或业务能力 | [M03](modules/03-machine-network/design.md)、[M08](modules/08-collaboration/design.md) |
-| AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | I07A基础已实现；任务交接见AB-F21，自动持续协调首批见AB-F22，完整I07C未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[本次交付](iterations/I07/delivery.md) |
-| AB-F21 小队任务与授权交接 | 分配/接手、依赖、精确产物版本、限额交接、返修历史与业务验收 | I07B基础已实现；未授权自动成员保持手动，交接本身不等于原生已启动 | [M07](modules/07-task-session/design.md)、[M08](modules/08-collaboration/design.md)、[I07B任务交接交付](iterations/I07/task-handoff.md) |
-| AB-F22 持续协调首批 | 用户授权自动成员与预算，重要事件激活、原会话续接、原生终态后验收 | alpha.23源码已实现；真实Claude自动主角色验证，其他接入/多原生角色/完整停止未准出 | [M02](modules/02-coordinator/design.md)、[M06](modules/06-native-adapters/design.md)、[I07C首批交付](iterations/I07/automation.md) |
+| AB-F19 智能体登记与小队 | 登记外部已有功能的智能体、说明职责/边界，组成小队和独立工作 | alpha.23预发布已包含；不实现Skill/模型/目录或业务能力 | [M03](modules/03-machine-network/design.md)、[M08](modules/08-collaboration/design.md) |
+| AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | alpha.23预发布包含I07A基础；任务交接见AB-F21，自动持续协调首批见AB-F22，完整I07C未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[本次交付](iterations/I07/delivery.md) |
+| AB-F21 小队任务与授权交接 | 分配/接手、依赖、精确产物版本、限额交接、返修历史与业务验收 | alpha.23预发布包含I07B基础；未授权自动成员保持手动，交接本身不等于原生已启动 | [M07](modules/07-task-session/design.md)、[M08](modules/08-collaboration/design.md)、[I07B任务交接交付](iterations/I07/task-handoff.md) |
+| AB-F22 持续协调首批 | 用户授权自动成员与预算，重要事件激活、原会话续接、原生终态后验收 | alpha.23预发布已分发；真实Claude自动主角色验证，其他接入/多原生角色/完整停止未准出 | [M02](modules/02-coordinator/design.md)、[M06](modules/06-native-adapters/design.md)、[I07C首批交付](iterations/I07/automation.md) |
 
 ## 4. 用户的完整操作路径
 

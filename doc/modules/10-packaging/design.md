@@ -1,8 +1,8 @@
 # M10 构建、发布与持久运行资源设计
 
-## alpha.23 / I07C首批候选
+## alpha.23 / I07C首批预发布
 
-本地便携候选0.6.0-alpha.23，GitHub预发布保持alpha.20。窗口/冻结后台/Linux离线包包含team-automation及格式3SQLite逻辑，MCP客户端运行副本仍包含team-tools。最终校验32个CJS、78个core文件、1389个Linux清单条目、app.asar及前端逐项匹配。普通EXE生命周期、摘要、分发和未测项见[I07C首批报告](../../iterations/I07/automation.md)；源码测试不替代普通包验证，Windows无模型包流程不替代真实WSL主协调。本批保留原Codex终态及daemon bind权限修复，未上传GitHub或升级用户后台。
+便携程序0.6.0-alpha.23已作为GitHub预发布分发，[发布记录](../../iterations/I07/github-release.md)。窗口/冻结后台/Linux离线包包含team-automation及格式3SQLite逻辑，MCP客户端运行副本仍包含team-tools。最终校验32个CJS、78个core文件、1389个Linux清单条目、app.asar及前端逐项匹配。普通EXE生命周期、摘要、分发和未测项见[I07C首批报告](../../iterations/I07/automation.md)；源码测试不替代普通包验证，Windows无模型包流程不替代真实WSL主协调。本批保留原Codex终态及daemon bind权限修复，已核验GitHub附件和完整公开下载；没有升级用户后台。
 
 原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新：2026-10-15。桌面当时源码与GitHub预发布 0.6.0-alpha.20、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
 

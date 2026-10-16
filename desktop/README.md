@@ -1,14 +1,14 @@
-# AgentBridge Windows 0.5.0
+# AgentBridge Windows
 
 ## GitHub Windows 下载
 
-GitHub 最新 Windows 预发布为 [0.6.0-alpha.16](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.16)，可直接[下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe)及[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/SHA256SUMS.txt)。稳定历史版本仍为 0.5.0；完整 I06C 和正式 0.6.0 尚未准出。Windows 用户下载附件双击即可运行，无需自行编译、安装 WSL 或 Node.js。
+GitHub 最新 Windows 预发布为 [0.6.0-alpha.23](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.23)，可直接[下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.23/AgentBridge-0.6.0-alpha.23-Windows-x64.exe)及[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.23/SHA256SUMS.txt)。稳定历史版本仍为 0.5.0；完整 I07C/I06C 和正式 0.6.0 尚未准出。Windows 用户下载附件双击即可运行，无需自行编译、安装 WSL 或 Node.js。[发布与升级](../doc/iterations/I07/github-release.md)。
 
-[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/SHA256SUMS.txt)。旧后台仍运行时，在新窗口“设置 → 后台运行 → 停止后台并退出”后重新打开；不删除机器、节点或历史。
+旧后台仍运行时，在新窗口“设置 → 后台运行 → 停止后台并退出”后重新打开；不删除机器、节点或历史。SSH机器另需升级原远端后台后重新连接和扫描。
 
 按“机器 → Agent 节点 → 会话 / 任务”管理 Claude Code、OpenCode、Codex。节点不绑定项目、模型或供应商；用户指定主 Agent 与可连接的子 Agent，主 Agent 可以真实发现、委派和读取子结果。
 
-当前开发候选为 **0.6.0-alpha.16 / I06C**：节点图、机器管理、SSH 维护恢复及上传失败诊断持续迭代。完整 I06C 仍未准出；原生文件恢复终态等未通过项见 [当前收尾验收](../doc/iterations/I06/final-delivery.md)。本文旧版操作说明保留在下方；新版使用节点上的“接入”“设为主 Agent”“开始会话”，端点连线后保存授权。完整资料见 [文档入口](../doc/README.md)和[整体交付状态](../doc/project-plan.md)。
+当前源码与预发布为 **0.6.0-alpha.23 / I07C首批**：在“小队协作”登记成员职责与限制、组队并使用公共文档、群消息和任务板；“持续协作”由用户授权自动成员与预算，本批真实验证Claude主角色原会话续接。完整 I07C/I06C 仍未准出，[实际证据与限制](../doc/iterations/I07/automation.md)。本文旧版操作说明保留在下方；新版使用节点上的“接入”“设为主 Agent”“开始会话”，端点连线后保存授权。完整资料见 [文档入口](../doc/README.md)和[整体交付状态](../doc/project-plan.md)。
 
 ## 运行与使用
 

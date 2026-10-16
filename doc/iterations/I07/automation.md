@@ -1,6 +1,6 @@
 # I07C首批：重要事件激活与原生主会话持续协调
 
-日期：2026-10-16。源码/本地候选 **0.6.0-alpha.23**，GitHub预发布仍按项目基线alpha.20记录。本批在[I07B](task-handoff.md)上实现持续协调的首批能力；**不代表完整I07C或I06C准出**。没有发布GitHub、升级用户后台或接入用户自研产品。
+日期：2026-10-16。源码及GitHub预发布 **0.6.0-alpha.23**，分发见[发布记录](github-release.md)。本批在[I07B](task-handoff.md)上实现持续协调的首批能力；**不代表完整I07C或I06C准出**。未升级用户后台或接入用户自研产品。
 
 ## 1. 当前产品行为
 
@@ -107,9 +107,9 @@ sequenceDiagram
 
 文档结构检查和新增时序图解析另列，不算模型/产品用例；全工程数字跨模块不重复相加。本批在同一WSL宿主上验证真实Claude主角色，没有连接用户独立服务器，不改原生账号/模型配置或用户默认后台。
 
-## 8. 当前Windows候选
+## 8. 当前Windows预发布
 
-本地候选`AgentBridge-0.6.0-alpha.23-Windows-x64.exe`已复制到Windows下载目录，同目录有`.exe.sha256`。最终文件大小 **129,877,607 bytes**，SHA-256：`17cded899fe491eabc08c7a39ad50fb0d4ac5fadc53444bd36525fe6c260c343`；[校验文件](../../../artifacts/I07C/2026-10-16/SHA256SUMS.txt)。本次没有上传GitHub或升级用户默认后台。
+本地候选`AgentBridge-0.6.0-alpha.23-Windows-x64.exe`已复制到Windows下载目录，同目录有`.exe.sha256`。最终文件大小 **129,877,607 bytes**，SHA-256：`17cded899fe491eabc08c7a39ad50fb0d4ac5fadc53444bd36525fe6c260c343`；[校验文件](../../../artifacts/I07C/2026-10-16/SHA256SUMS.txt)。GitHub预发布EXE与校验文件已上传并核验完整公开下载，见[发布记录](github-release.md)；未升级用户默认后台。
 
 最终资源校验32个后台CJS、78个core文件、1389个Linux清单条目，app.asar及前端与最终源码匹配：[包报告](../../../artifacts/I07C/2026-10-16/package.json)。最终普通EXE实际结果单列于[生命周期报告](../../../artifacts/I07C/2026-10-16/portable.json)，证据汇总见[验证摘要](../../../artifacts/I07C/2026-10-16/verification-summary.json)。Windows普通包流程不执行模型，不能替代WSL真实Claude自动主协调证据。
 

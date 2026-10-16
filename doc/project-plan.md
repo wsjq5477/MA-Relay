@@ -7,8 +7,8 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | 0.6.0-alpha.20 / 未确认资源范围与配置拒绝恢复；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.20)，完整 I06C 未准出 |
-| 当前源码 | 0.6.0-alpha.23 / I07C首批事件激活与持续主协调；本轮代码尚未提交/发布，本地候选与证据见[I07C首批交付](iterations/I07/automation.md)。已有alpha.20修复和原分支/PR事实保持。 |
+| 最新 Windows 预发布 | 0.6.0-alpha.23 / 小队协作与持续协调首批；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.23)，完整 I07C/I06C 未准出 |
+| 当前源码 | 0.6.0-alpha.23 / I07C首批事件激活与持续主协调；源码已推送原分支/PR #1，标签绑定`e8cc95a2abb474571a8d133b99c18e6df6fd61df`；[发布记录](iterations/I07/github-release.md)与[I07C首批证据](iterations/I07/automation.md)。尚未合入master。 |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
 | 当前自动回归 | 2026-10-16：核心45/45、最终串行桌面222/222，lint/类型/构建通过；Windows契约29/29、UI10组、真实Claude主角色3次自动激活/原会话重启续接及实际X/Y语法检查通过；初次外部端点恢复失败、并行维护ENOENT与最终包/普通EXE范围见[I07C首批交付](iterations/I07/automation.md)。未实测用户自研入口或独立SSH小队链。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
@@ -135,7 +135,7 @@ I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已
 
 alpha.20候选打包完成：核心45/45、桌面串行188/188、lint/类型/构建、包资源核对及Windows普通EXE4组/受控界面4组通过。首次并行维护测试失败与复验保留，GitHub已公开分发，附件和完整下载摘要核验通过。
 
-当前分发以alpha.20[专项](iterations/I06/pending-isolation.md)的标签/附件证据为准；alpha.19与前述源码阶段记录保留为历史，不再作为最新包。
+当前分发以alpha.23[I07发布记录](iterations/I07/github-release.md)为准；alpha.20及更早源码/分发阶段记录保留为历史。
 
 ## I07当前推进点
 

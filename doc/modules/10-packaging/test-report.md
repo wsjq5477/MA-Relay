@@ -4,6 +4,8 @@
 
 T-M10-110 / M10-F01/F02/F03/F05：2026-10-16，WSL Node22.23.1、Windows Node24.18.0/Edge155。核心45/45、最终串行桌面222/222、Windows契约29/29；这些是全工程计数，跨模块不相加。Windows前端/真实Coordinator受控目录和成员10组，真实Claude2.1.299自动主角色3轮同Conversation/原Session、新scope、后台重启后实际X失败/Y通过及终态后总验收；执行成员为受控外部MCP、Node检查实际运行。最终包/普通EXE、首次连接恢复竞态和并行维护ENOENT分别保留证据，完整结果见[I07C首批报告](../../iterations/I07/automation.md)。未证明真实多原生角色、其他接入自动续接、用户自研/独立SSH或完整停止。
 
+2026-10-16分发复核 / M10-F06：源码标签绑定`e8cc95a2abb474571a8d133b99c18e6df6fd61df`，GitHub两附件uploaded、大小/digest匹配，完整公开EXE与校验文件HTTP200、下载摘要匹配；源码/包一致性复核通过。该结果只证明分发，不扩大原生验收范围。[发布记录及证据](../../iterations/I07/github-release.md)。
+
 ## alpha.22 / I07B候选
 
 T-M10-101 / M10-F01/F02/F03/F05：2026-10-16，工程核心45/45、最终桌面208/208、Windows契约18/18，lint/类型/构建通过；最终资源31 CJS/78 core/1388 Linux条目、app.asar及前端与源码一致。普通无debug Windows EXE 5组通过，实际窗口/IPC/SQLite/MCP、模型0，关闭和全后台重启后原任务/授权/收据保留并继续Y。摘要、本地分发、首次失败保留和未测范围见[I07B完整报告](../../iterations/I07/task-handoff.md)。GitHub保持alpha.20；不计作独立SSH或用户自研实例验收。

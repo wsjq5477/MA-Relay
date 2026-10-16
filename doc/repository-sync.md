@@ -1,6 +1,6 @@
 # 远端源码范围
 
-更新：2026-10-14。目标仓库：https://github.com/wsjq5477/MA-Relay 。当前源码候选版本为 0.6.0-alpha.18；本次同步源码和 Windows 预发布不代表正式 0.6.0，也不改变既有验收结论。alpha.9 首次同步记录保留为历史结果。
+更新：2026-10-16。目标仓库：https://github.com/wsjq5477/MA-Relay 。当前源码及GitHub预发布版本为 0.6.0-alpha.23；本次同步源码和 Windows 预发布不代表正式 0.6.0，也不改变既有验收结论。alpha.9 首次同步记录保留为历史结果。
 
 仓库包含源码、测试、构建脚本、依赖锁文件、模块设计和迭代资料。原生配置、开发运行状态、凭据、原始验收材料、依赖目录、构建输出和 Windows EXE 保留在本地，不随源码提交。历史文档中的实际任务、请求和会话标识已脱敏。
 
@@ -55,3 +55,7 @@ EXE 与 [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/
 核心45/45、桌面串行188/188、lint/类型/构建和包内源码一致性通过；Windows普通EXE/隔离合成配置拒绝恢复4组、Edge生产前端/受控API4组通过，模型0。首次并行维护用例ENOENT及后续专项8/8/串行全量复验保留。未复测用户故障机器、独立服务器或真实模型任务；完整I06C仍未准出。
 
 升级先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新EXE；普通关闭窗口会保留旧后台。原机器、节点、请求和历史保留。
+
+## 2026-10-16 alpha.23 源码与Windows EXE
+
+源码`e8cc95a2abb474571a8d133b99c18e6df6fd61df`已推送至原独立分支及[PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)，未合入master。EXE及校验文件以GitHub prerelease提供；附件state/大小/digest及完整公开下载摘要均已核验，源码/包一致性复核通过。版本、下载、升级方式与实际验收边界见[I07发布记录](iterations/I07/github-release.md)。私有运行状态、原始材料及二进制不进入源码树。
