@@ -12,6 +12,8 @@ Linux CLI 发现由各环境的 MachineHost/实际 SSH daemon 执行；共享扫
 
 ## 1. 系统分层
 
+I07A/B与I07C首批当前分层（alpha.23，2026-10-16）：TeamSpace保存公共材料、任务、收据和格式3事件；TeamAutomation按用户授权/能力/累计预算对账与激活，不增加规划模型。就绪任务和重要报告形成持久事件，原生在途只查询、运行中事件排队；首批Claude沿原MachineHost上下文/Conversation续接并注入新scope。后台公共入口及激活器等待原MCP端点恢复就绪；未知、未绑定或失败不暗换会话。原生总验收提议等最后真实成功终态和修订/新事件核验才生效。外部MCP仍自启动，Codex/OpenCode自动小队能力未开放，完整停止和独立SSH自动链未验收。[实际范围与证据](iterations/I07/automation.md)。下图保持原机器执行结构。
+
 ```mermaid
 flowchart LR
   subgraph Desktop[用户的 Windows 客户端]

@@ -1,5 +1,29 @@
 # 对象、身份与持久数据
 
+## I07A/B与I07C首批当前持久数据
+
+alpha.23 / 2026-10-16：profile下`team-space.sqlite`，state/receipts同事务提交；使用Node自带SQLite，WAL、FULL同步，不依赖用户另装数据库。[实现](../desktop/electron/team-space.cjs)、[任务交接交付](iterations/I07/task-handoff.md)。
+
+| 记录 | 当前身份与行为 |
+| --- | --- |
+| agents | native引用真实nodeId且同节点不重复登记；mcp引用独立外部实例标识。职责/输入/输出/边界为用户声明，不作执行身份或能力实测证明 |
+| teams / runs | 小队保存主角色/成员/公共约定；每次工作保存成员快照、目标/完成标准、active/completed/closed和paused，completed带验收人/时间/说明；撤权变更工作revision，不自动取消原任务 |
+| documents | 文档级owner/editorIds，revision与完整history；更新核验expectedRevision，冲突不覆盖 |
+| messages / deliveries | 群消息按工作顺序追加；每通知接收者分别保存pending/delivered/read，分页游标不代表已接手任务 |
+| sessions | 私有接入身份，connection或native；公共视图不返回。原生身份绑定真实原请求/节点/来源，原终态失效；手动外部连接受实时成员/工作状态约束 |
+| attempts | 手动或自动一轮执行绑定requestId/Task/conversation与原结果；可选workItemId/workRound绑定；自动尝试还关联触发事件/原尝试/续接Conversation，实际原生Session私有保存且公共投影剔除；unknown不重放，原生终态只在有效验收提议存在时可能完成总工作 |
+| workItems | 任务身份/负责人/kind/依赖/修订/轮次、waiting/ready/running/blocked/review/completed，reports追加保留；当前报告引用与不可变artifactId分开 |
+| reports / artifact | 交付含唯一版本/引用/生产者，复验含精确targetArtifactId/版本/实际取得声明/证据引用；标明user_report或member_report，不伪装成宿主执行事实 |
+| handoffGrants | 用户授权的fromTaskId/toTaskId/action、enabled/maxUses/used/revision；撤销不删除使用历史，队员不能扩大 |
+| handoffs | 每条交接的路径、来源/目标轮次、实际发送者、授权引用与时间；和任务/消息/通知同事务，重复operationId不再次耗用 |
+| activationEvents | 格式3新增事件身份/业务去重key、成员/工作/类型、pending/consumed/handled/superseded及原attempt关联；就绪/报告/终态/明确协调/无进展事件按权限消费 |
+| run.automation | 用户授权的自动成员、累计used/maxActivations、startedAt/maxMinutes/idleMinutes、generation及可见限制；重新启用不清零 |
+| run.acceptancePending | 原生主角色的验收提议，保存原attempt、任务/工作修订和事件位置；终态时重新核验，收据不等于验收生效 |
+| receipts | 按用户或工作成员及operationId保存指纹/原结果；相同内容读原收据，修改内容拒绝；撤权后不能用旧收据读回材料 |
+| 私有broker文件 | 令牌及本机endpoint，和公共材料分开；重启刷新原描述文件，不创建另一项业务工作 |
+
+状态材料容量8MiB、收据10000条及32MiB阈值，到限拒绝新写入，原unknown/未完成记录不自动删。状态格式版本1至2新增任务/交接，版本2至3原子新增activationEvents，原记录不重编号，旧记录和收据原身份保留；旧版本不支持读取新格式，不自动覆盖降级。公共文档导出不是授权源；业务状态不混入Core Task.status，自动激活关联原尝试台账，不能作为原生Task或取消终态的替代物。原机器/节点/原生身份不变。
+
 更新：2026-10-12。这里解释整个系统的对象关系；具体读写接口见 [协议](protocol.md)，状态与恢复责任见 [M07](modules/07-task-session/design.md)。
 
 ## 当前运行缓存与原意图兼容

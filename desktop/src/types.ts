@@ -87,6 +87,7 @@ export interface Conversation {
   items?: Task[];
 }
 export interface Snapshot {
+  teamSpaceSupported?: boolean;
   nodes?: AgentNode[];
   nodeManagement?:boolean;
   machineManagement?:boolean;

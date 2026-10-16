@@ -19,13 +19,14 @@ class CollaborationBroker {
   }
   async configure(contextId,scope){
     if(!scope?.nodeId||!scope?.parentRequestId)throw fail('INVALID_INPUT','协作执行身份缺失。');
-    const port=await this.start();let entry=this.scopes.find(s=>s.contextId===contextId);if(!entry){entry={contextId,token:randomBytes(32).toString('base64url')};this.scopes.push(entry);}entry.scope={...scope};
+    const scopeKey=scope.teamSessionId?contextId+':'+scope.teamSessionId:contextId;
+    const port=await this.start();let entry=this.scopes.find(s=>(s.scopeKey||s.contextId)===scopeKey);if(!entry){entry={contextId,scopeKey,token:randomBytes(32).toString('base64url')};this.scopes.push(entry);}entry.scope={...scope};
     fs.mkdirSync(this.directory,{recursive:true});const tmp=this.file+'.'+randomUUID()+'.tmp';fs.writeFileSync(tmp,JSON.stringify(this.scopes),{mode:0o600});fs.renameSync(tmp,this.file);
-    const context=path.join(this.directory,'node-contexts',contextId);fs.mkdirSync(context,{recursive:true});const descriptor=path.join(context,'bridge-endpoint.json');
-    fs.writeFileSync(descriptor,JSON.stringify({url:'http://127.0.0.1:'+port+'/tools',token:entry.token}),{mode:0o600});
-    const runtime=path.join(this.directory,'runtime');fs.mkdirSync(runtime,{recursive:true});fs.copyFileSync(path.join(__dirname,'mcp-client.cjs'),path.join(runtime,'mcp-client.cjs'));
+    const context=path.join(this.directory,'node-contexts',contextId);fs.mkdirSync(context,{recursive:true});const descriptor=path.join(context,scope.teamSessionId?'bridge-endpoint-'+scope.teamSessionId+'.json':'bridge-endpoint.json');
+    fs.writeFileSync(descriptor,JSON.stringify({url:'http://127.0.0.1:'+port+'/tools',token:entry.token,...(scope.teamSessionId?{mode:'team'}:{})}),{mode:0o600});
+    const runtime=path.join(this.directory,'runtime');fs.mkdirSync(runtime,{recursive:true});for(const file of ['mcp-client.cjs','team-tools.cjs'])fs.copyFileSync(path.join(__dirname,file),path.join(runtime,file));
     const executable=require('./worker-runtime.cjs').workerRuntime(this.directory);
-    return {command:executable,args:[path.join(runtime,'mcp-client.cjs'),descriptor],env:{ELECTRON_RUN_AS_NODE:'1'}};
+    return {command:executable,args:[path.join(runtime,'mcp-client.cjs'),descriptor],env:{ELECTRON_RUN_AS_NODE:'1'},...(scope.teamSessionId?{mode:'team',instructions:require('./team-tools.cjs').instructions,toolNames:require('./team-tools.cjs').teamTools.map(t=>t.name)}:{})};
   }
   close(){this.server?.close();}
 }

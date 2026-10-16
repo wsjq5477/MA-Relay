@@ -1,5 +1,24 @@
 # M03 机器与 Agent 网络测试报告
 
+## alpha.23 / I07C首批实际验证
+
+T-M03-110 / M03-F09：2026-10-16，WSL Node22.23.1、Windows Node24.18.0/Edge155。核心45/45、最终串行桌面222/222、Windows契约29/29；这些是全工程计数，跨模块不相加。Windows前端/真实Coordinator受控目录和成员10组，真实Claude2.1.299自动主角色3轮同Conversation/原Session、新scope、后台重启后实际X失败/Y通过及终态后总验收；执行成员为受控外部MCP、Node检查实际运行。最终包/普通EXE、首次连接恢复竞态和并行维护ENOENT分别保留证据，完整结果见[I07C首批报告](../../iterations/I07/automation.md)。未证明真实多原生角色、其他接入自动续接、用户自研/独立SSH或完整停止。
+
+## alpha.22 / I07B继承与回归
+
+T-M03-101 / M03-F08：2026-10-16，最终桌面208/208通过，旧原请求/来源/准入范围继续受测；未改变原身份或SSH帧契约，未连接用户独立服务器。本轮真实Claude与受控编译MCP、首次原有daemon启动失败及8/8重查、包内容分别见[I07B交付](../../iterations/I07/task-handoff.md)，不以同机测试证明独立SSH链。工程数只计一次。
+
+## alpha.21 / I07A 实际验证
+
+2026-10-15 / WSL Node22.23.1、Windows Node24.18.0 / 源码alpha.21，GitHub预发布alpha.20。
+
+| 用例 | 功能 | 结果与证据边界 |
+| --- | --- | --- |
+| T-M03-100 | M03-F08 | 双入口/身份、资源原请求与撤权竞态由受控检查验证；未实测用户自研入口及独立SSH小队链。 |
+
+原始证据、工程总数及真实工具/界面/普通EXE分别见[I07A交付](../../iterations/I07/delivery.md)。[核心45/45](../../../artifacts/I07A/2026-10-15/root-tests.tap)、[桌面197/197](../../../artifacts/I07A/2026-10-15/desktop-tests.tap)为全工程计数，不在本模块重复相加；I07B/C能力不计为已通过。
+
+
 ## alpha.19 OpenCode 二次发现与 Windows 配置专项
 
 WSL Ubuntu / Node 22.23.1：discovery 3/3（含于核心 45/45），桌面 181/181；受控回归、模型 0。[核心 TAP](../../../artifacts/opencode-discovery/2026-10-14/root-tests.tap)、[桌面 TAP](../../../artifacts/opencode-discovery/2026-10-14/desktop-tests.tap)。Windows 原始报告 UTC 2026-10-14T17:35:28.789Z / Electron Node 24.21.0：真实 PE 版本/解析、旧二次发现失败、修复后原路径核验、配置完整写入与旧revision拒绝、serve受控退出保留NATIVE_EXITED、删除原安装，共6组通过，[实际报告](../../../artifacts/opencode-discovery/2026-10-14/windows.json)。这是隔离PE/进程夹具，无真实OpenCode模型或用户另一台电脑验收。原生Windows完整生命周期和断电持久性未验证。根因、失败原证据、最终包与边界见 [专项](../../iterations/I06/opencode-discovery.md)。

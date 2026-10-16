@@ -8,9 +8,10 @@ const { workerRuntime } = require('./worker-runtime.cjs');
 const { recoverJournal } = require('./pending-journal.cjs');
 const {digest}=require('./graph-layout.cjs');
 const { GraphOperationJournal } = require('./graph-operations.cjs');
+const teamMethods=new Set(['team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
 const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview']);
-const methods = new Set(['snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods]);
+const methods = new Set(['snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
 // SSH state is a complete observation: absent errors revoke cached failures.
 // A live transport must not hide a failed business snapshot (e.g. RPC timeout).
 function mergeSshState(machine, state, snapshot = false) {
@@ -28,7 +29,31 @@ function mergeSshState(machine, state, snapshot = false) {
 function createCoordinatorService(options) {
   const platform = options.platform || process.platform;
   let host, ssh=options.ssh;
+  let teams,teamBroker,teamEngine,teamTimer,teamReady=Promise.resolve();
+  const teamInvocation=Symbol('teamInvocation');
   const graphJournal=new GraphOperationJournal(options.directory);
+  function teamService(){
+    if(teams)return teams;
+    const {TeamSpace}=require('./team-space.cjs');
+    const {CollaborationBroker}=require('./collaboration-broker.cjs');
+    teamBroker=new CollaborationBroker(resolve(options.directory,'team-connections'),(scope,name,args)=>teamService().tool(scope.teamSessionId,name,args));
+    teams=new TeamSpace({directory:options.directory,
+      validateNode:nodeId=>{const n=connection().node(nodeId);if(!n.connected||n.removed||!n.executionSupported)throw Object.assign(Error('请先接入一个支持执行的原生节点。'),{code:'TEAM_NODE'});return n;},
+      configure:session=>teamBroker.configure('team-'+session.sessionId,{teamSessionId:session.sessionId,nodeId:'external',parentRequestId:session.sessionId}),
+      execute:async attempt=>{
+        const reply=await call({method:'nodeRequest',params:{op:attempt.resumeConversationId?'continue':'submit',...(attempt.resumeConversationId?{conversationId:attempt.resumeConversationId}:{}),nodeId:attempt.nodeId,requestId:attempt.requestId,message:attempt.message,teamScope:attempt.teamScope},[teamInvocation]:true});
+        if(!reply.ok){const row=read('pending.json',[]).find(r=>r.id===attempt.requestId);throw Object.assign(Error(reply.error.message),{code:reply.error.code,executionNotDispatched:row?.state==='rejected'||!row});}
+        return reply.result;
+      },
+      conversation:attempt=>{const n=connection().node(attempt.nodeId);return connection().call('ipc',{op:'conversation',machineId:n.machineId,conversationId:attempt.conversationId});},
+      query:attempt=>{const n=connection().node(attempt.nodeId);return connection().call('ipc',{op:'request',machineId:n.machineId,requestId:attempt.requestId});}
+    });
+    teamEngine=new (require('./team-automation.cjs').TeamAutomation)(teams);
+    teamTimer=setInterval(()=>{void teamReady.then(()=>teamEngine.tick()).catch(()=>{});},options.teamTickMs||2000);teamTimer.unref?.();
+    teamReady=teams.restoreConnections();
+    void teamReady.catch(()=>{});
+    return teams;
+  }
 function dataFile(name) {
   const folder = options.directory;
   mkdirSync(folder, { recursive: true });
@@ -171,8 +196,12 @@ async function call(input) {
     if(input.method==='attachNode')input={...input,method:'manageNode',params:{...input.params,action:'attach',operationId:require('node:crypto').randomUUID()}};
     connection();
     connection().options??={};
+    connection().options.teamTool=(scope,name,args,sourceMachine)=>teamService().nativeTool(scope,name,args,sourceMachine);
+    if(input.params.teamScope&&input[teamInvocation]!==true)throw Object.assign(Error('小队执行身份必须由后台派生。'),{code:'TEAM_FORBIDDEN'});
+    if(teamMethods.has(input.method)){const service=teamService();await teamReady;return {ok:true,result:await service.call(input.method,input.params)};}
     connection().options.admissionCheck=machine=>{if(graphJournal.pending().some(r=>r.lane==='machine'&&r.params.machineId===machine.machineId))throw Object.assign(Error('原机器维护尚未确认，请查询原操作。'),{code:'DESKTOP_UNCONFIRMED'});};
     connection().options.executionAdmissionCheck=(machine,instance,params)=>{
+      if(params.teamScope)teamService().admit(params.teamScope,instance.nodeId);
       if(read('pending.json',[]).some(row=>['pending','unknown'].includes(row.state)&&
         connection().pendingBlocks?.(row,{machineId:machine.machineId,agentId:instance.instanceId})&&
         !(row.id===journalKey(params)&&row.machineId===machine.machineId)))throw Object.assign(Error('这个执行资源有未确认操作，请查询原请求；独立节点仍可使用。'),{code:'DESKTOP_UNCONFIRMED',executionNotDispatched:true});
@@ -271,6 +300,7 @@ async function call(input) {
         for (const draft of states.filter(s => !s.machineId)) result.machines.push({...draft, machineId: 'draft-' + draft.connectionId, kind:'ssh', platform:'linux', online:false});
       }
       if (input.method === "snapshot") {
+        result.teamSpaceSupported=true;
         try {
           write("runtime.json", {
             time: new Date().toISOString(),
@@ -405,6 +435,7 @@ function savePreferences(value) {
   return settings();
 }
 
+if(existsSync(resolve(options.directory,'team-space.sqlite')))teamService();
 return { call, pending: () => read('pending.json', []).filter(r => ['pending','unknown'].includes(r.state)).map(row=>({
     ...row,...(connection().pendingBlocks?{blockedNodeIds:connection().network.nodes.filter(node=>connection().pendingBlocks(row,{nodeId:node.nodeId,machineId:node.machineId})).map(node=>node.nodeId)}:{})
   })),
@@ -420,7 +451,7 @@ return { call, pending: () => read('pending.json', []).filter(r => ['pending','u
     if (method === 'runtimes') return this.runtimes();
     if (method === 'machines') return this.machines();
     throw Object.assign(new Error('后台请求不受支持。'), {code:'COORDINATOR_METHOD'});
-  }, close() { ssh?.close(); host?.close(); }
+  }, close() { clearInterval(teamTimer);teamEngine?.close();teamBroker?.close();teams?.close();ssh?.close(); host?.close(); }
 };
 }
 module.exports = {createCoordinatorService, mergeSshState};

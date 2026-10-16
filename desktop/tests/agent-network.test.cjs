@@ -37,6 +37,25 @@ function fixture(t){
 }
 async function setup(t){const f=fixture(t);const s=await f.router.snapshot();return {...f,nodes:s.nodes};}
 const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+test('team execution binds a fresh member scope without altering legacy relations; terminal scope and forged ingress are rejected',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),h=f.hosts.get(node.machineId),original=h.call.bind(h);
+  let scope;
+  h.call=async(method,p)=>{const r=await original(method,p);if(method==='context'){scope=p.scope;return {...r,teamCollaboration:true};}return r;};
+  const service=createCoordinatorService({directory:f.directory,network:f.router});try{
+  const invoke=async(method,p={})=>{const r=await service.call({method:'team.'+method,params:{operationId:require('node:crypto').randomUUID(),...p}});assert.equal(r.ok,true,JSON.stringify(r.error));return r.result;};
+  const agent=await invoke('registerAgent',{kind:'native',nodeId:node.nodeId,name:'开发',purpose:'实现'});
+  const team=await invoke('createTeam',{name:'小队',leaderId:agent.agentId,memberIds:[agent.agentId]});
+  const run=await invoke('createRun',{teamId:team.teamId,name:'工作',goal:'实现',acceptance:'实际结果'});
+  const a=await invoke('execute',{runId:run.runId,agentId:agent.agentId,message:'read team_context and report'});
+  assert.equal(a.state,'running');assert.ok(scope.teamSessionId);assert.equal(f.router.network.collaboration.leaderId,null);
+  const context=await f.router.options.teamTool(scope,'team_context',{},node.machineId);assert.equal(context.run.runId,run.runId);
+  await assert.rejects(f.router.options.teamTool(scope,'team_context',{},'forged-machine'),{code:'TEAM_FORBIDDEN'});
+  const forged=await service.call({method:'nodeRequest',params:{nodeId:node.nodeId,op:'submit',message:'forged',requestId:'forged',teamScope:scope}});assert.equal(forged.error.code,'TEAM_FORBIDDEN');
+  h.tasks[0].status='succeeded';h.tasks[0].result={message:'real result'};
+  const after=await invoke('refresh',{runId:run.runId});assert.equal(after.attempts[0].state,'succeeded');assert.equal(after.run.state,'active');
+  await assert.rejects(f.router.options.teamTool(scope,'team_context',{},node.machineId),{code:'TEAM_FORBIDDEN'});
+  }finally{service.close();}
+});
 async function uncertainSubmission(t,workspace){
   const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
   const service=createCoordinatorService({directory:f.directory,platform:'win32',network:f.router});
@@ -47,6 +66,20 @@ async function uncertainSubmission(t,workspace){
   for(const a of host.agents){a.busy=false;delete a.currentTask;}
   return {...f,node,host,service,params};
 }
+test('team member revocation during context preparation is rechecked immediately before native dispatch',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),h=f.hosts.get(node.machineId),original=h.call.bind(h);
+  let release,started;const prepared=new Promise(r=>started=r),gate=new Promise(r=>release=r);
+  h.call=async(method,p)=>{const result=await original(method,p);if(method==='context'){started();await gate;return {...result,teamCollaboration:true};}return result;};
+  const service=createCoordinatorService({directory:f.directory,network:f.router});try{
+    const invoke=async(method,p={})=>{const r=await service.call({method:'team.'+method,params:{operationId:require('node:crypto').randomUUID(),...p}});assert.equal(r.ok,true,JSON.stringify(r.error));return r.result;};
+    const a=await invoke('registerAgent',{kind:'native',nodeId:node.nodeId,name:'开发',purpose:'实现'});
+    const team=await invoke('createTeam',{name:'队',leaderId:a.agentId,memberIds:[a.agentId]});
+    const run=await invoke('createRun',{teamId:team.teamId,name:'工作',goal:'目标',acceptance:'证据'});
+    const execution=invoke('execute',{runId:run.runId,agentId:a.agentId,message:'must not dispatch'});
+    await prepared;await invoke('revokeMember',{runId:run.runId,agentId:a.agentId,expectedRevision:1});release();
+    const result=await execution;assert.equal(result.state,'rejected');assert.equal(h.executions,0);
+  }finally{release?.();service.close();}
+});
 test('configuration and preparation failures are durable rejections; recovery and same-ID retries never dispatch',async t=>{
   for(const code of ['NOT_CONFIGURED','DESKTOP_TRANSPORT','CLAUDE_RUNTIME_INVALID']){
     const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId),original=host.call.bind(host);
@@ -370,4 +403,15 @@ test('legacy runtime lookup retains uncertainty when the original intent is disp
   f.router.undispatchedRejection=row=>{const result=check(row);if(!changed){changed=true;queueMicrotask(()=>{f.router.network.requests[0].dispatched=true;});}return result;};
   const result=await service.recoverPending();assert.equal(result.resolved,0);assert.equal(service.pending().length,1);assert.equal(result.items[0].code,'JOURNAL_CHANGED');
   const again=await service.recoverPending();assert.equal(again.resolved,0);assert.equal(service.pending().length,1);assert.equal(host.executions,0);
+});
+test('team continuation keeps original context/conversation, rotates scope and rejects unscoped continuation or old backend',async t=>{
+ const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId),original=host.call.bind(host);let upgraded=true;
+ host.call=async(method,p)=>{const r=await original(method,p);return method==='context'?{...r,teamCollaboration:true}:method==='scope'?{...r,teamContinuation:upgraded}:r;};
+ const first=await f.router.call('nodeRequest',{op:'submit',nodeId:node.nodeId,requestId:'team-first',message:'first',teamScope:{teamSessionId:'first-scope',nodeId:node.nodeId,parentRequestId:'team-first'}});
+ for(const task of host.tasks)task.status='succeeded';for(const agent of host.agents){agent.busy=false;delete agent.currentTask;}
+ await assert.rejects(f.router.call('nodeRequest',{op:'continue',nodeId:node.nodeId,conversationId:first.conversationId,requestId:'unscoped',message:'no'}),{code:'TEAM_FORBIDDEN'});
+ const second=await f.router.call('nodeRequest',{op:'continue',nodeId:node.nodeId,conversationId:first.conversationId,requestId:'team-second',message:'second',teamScope:{teamSessionId:'new-scope',nodeId:node.nodeId,parentRequestId:'team-second'}});
+ assert.equal(second.conversationId,first.conversationId);assert.equal(host.executions,2);assert.equal(host.calls.filter(x=>x.method==='context').length,1);assert.equal(host.calls.find(x=>x.method==='scope').p.scope.teamSessionId,'new-scope');
+ for(const task of host.tasks)task.status='succeeded';for(const agent of host.agents){agent.busy=false;delete agent.currentTask;}
+ upgraded=false;await assert.rejects(f.router.call('nodeRequest',{op:'continue',nodeId:node.nodeId,conversationId:first.conversationId,requestId:'old-backend',message:'third',teamScope:{teamSessionId:'third',nodeId:node.nodeId,parentRequestId:'old-backend'}}),{code:'TEAM_UPGRADE_REQUIRED'});assert.equal(host.executions,2);
 });

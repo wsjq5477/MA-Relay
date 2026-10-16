@@ -1,5 +1,17 @@
 # M05 Linux daemon 测试报告
 
+## alpha.23 / I07C首批实际验证
+
+T-M05-110 / M05-F08：2026-10-16，WSL Node22.23.1、Windows Node24.18.0/Edge155。核心45/45、最终串行桌面222/222、Windows契约29/29；这些是全工程计数，跨模块不相加。Windows前端/真实Coordinator受控目录和成员10组，真实Claude2.1.299自动主角色3轮同Conversation/原Session、新scope、后台重启后实际X失败/Y通过及终态后总验收；执行成员为受控外部MCP、Node检查实际运行。最终包/普通EXE、首次连接恢复竞态和并行维护ENOENT分别保留证据，完整结果见[I07C首批报告](../../iterations/I07/automation.md)。未证明真实多原生角色、其他接入自动续接、用户自研/独立SSH或完整停止。
+
+## alpha.22 / I07B继承与回归
+
+T-M05-101 / M05-F08：2026-10-16，最终桌面208/208通过，旧原请求/来源/准入范围继续受测；未改变原身份或SSH帧契约，未连接用户独立服务器。本轮真实Claude与受控编译MCP、首次原有daemon启动失败及8/8重查、包内容分别见[I07B交付](../../iterations/I07/task-handoff.md)，不以同机测试证明独立SSH链。工程数只计一次。
+
+## alpha.21 / I07A边界
+
+T-M05-100 / M05-F08：2026-10-15，旧scope与来源/原请求相关回归包含于[桌面197/197](../../../artifacts/I07A/2026-10-15/desktop-tests.tap)。新的MachineHost能力门控已有生产Coordinator受控检查；真实Linux Claude链为本机WSL，用户独立SSH小队通信尚未测试，不能据离线包构建推定远端准出。[范围](../../iterations/I07/delivery.md)。
+
 ## alpha.19 Linux CLI 发现专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。
@@ -121,3 +133,7 @@ T-M05-16 / M05-F05/F06/F09：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受�
 本专项工程补验：桌面 181/181、核心基线 43/43、lint/类型/构建通过；包内私有 Linux Node 的真实 CLI 版本探测复验通过，Windows EXE 已构建并核对资源，详见上述专项“实际验证”。不计为用户服务器升级或模型任务验收。
 
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](../../iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
+
+## 2026-10-16：创建时权限回归
+
+T-M05-26 / M05-F01/F02：alpha.22源码工作区，WSL Linux / Node22.23.1。受控host、真实Unix socket/独立维护进程、模型0。新增回归修复前在bind返回时观察到0755而失败，修复后0600、调用者umask恢复及inspect身份通过；daemon与maintenance专项27/27通过，无跳过。[完整TAP](../../../artifacts/daemon-bind/2026-10-16/tests.tap)、[实现与限制](../../iterations/I07/daemon-bind.md)。未重建Windows包、未测独立服务器，历史低频DAEMON_OWNERSHIP的完整因果未确认。

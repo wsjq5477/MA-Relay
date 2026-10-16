@@ -80,7 +80,7 @@ async function runWorker(directory){
   if(job.mcp){
     args.push('-c','mcp_servers.agentbridge.command='+JSON.stringify(job.mcp.command),'-c','mcp_servers.agentbridge.args='+JSON.stringify(job.mcp.args),'-c','mcp_servers.agentbridge.default_tools_approval_mode="prompt"');
     // User-configured relations authorize these bounded bridge operations only.
-    for(const tool of ['list_agents','delegate','task_result','cancel_task','task_pending'])args.push('-c','mcp_servers.agentbridge.tools.'+tool+'.approval_mode="auto"');
+    for(const tool of (job.mcp.mode==='team'?job.mcp.toolNames:['list_agents','delegate','task_result','cancel_task','task_pending']))args.push('-c','mcp_servers.agentbridge.tools.'+tool+'.approval_mode="auto"');
     if(job.mcp.env)for(const [k,v] of Object.entries(job.mcp.env))args.push('-c','mcp_servers.agentbridge.env.'+k+'='+JSON.stringify(v));
   }
   args.push('-');const launch=require('./tool-discovery.cjs').command(job.executable,args);
@@ -100,11 +100,12 @@ async function runWorker(directory){
   const cancel=setInterval(()=>{if(ended||cancelled||!fs.existsSync(path.join(directory,'cancel.json')))return;cancelled=true;
     if(process.platform==='win32')execFile('taskkill.exe',['/PID',String(child.pid),'/T','/F'],{windowsHide:true},()=>{});else{try{process.kill(-child.pid,'SIGTERM');}catch{}}
   },250);
-  child.stdin.on('error',()=>{});child.stdin.end((job.mcp?collaborationInstructions:'')+job.message);
+  child.stdin.on('error',()=>{});child.stdin.end((job.mcp?(job.mcp.mode==='team'?job.mcp.instructions+'\n\n':collaborationInstructions):'')+job.message);
   const code=await new Promise(resolve=>{child.once('error',e=>{failure=safe(e.message);resolve(-1);});child.once('close',resolve);});ended=true;clearInterval(cancel);clearInterval(timer);
   try{const error=JSON.parse(failure);failure=error.error?.message||error.message||failure;}catch{/* Preserve a plain native error. */}
   const nativeError=failure||diagnostics.split('\n').findLast(line=>line.startsWith('Error:'))||diagnostics.slice(-2000)||'Codex 退出但未返回可确认结果';
-  emit({kind:'terminal',status:cancelled?'cancelled':code===0&&completed?'succeeded':'failed',text:cancelled?'已确认 Codex 原执行结束':code===0&&completed?answer:nativeError});
+  const succeeded=code===0&&completed&&!failure;
+  emit({kind:'terminal',status:cancelled?'cancelled':succeeded?'succeeded':'failed',text:cancelled?'已确认 Codex 原执行结束':succeeded?answer:nativeError});
 }
 module.exports={CodexHost};
 if(require.main===module&&worker)runWorker(process.argv[3]).catch(e=>{process.stderr.write(safe(e.stack));process.exitCode=1;});

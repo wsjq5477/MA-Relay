@@ -1,6 +1,10 @@
 # M10 构建、发布与持久运行资源设计
 
-更新：2026-10-15。桌面当前源码与GitHub预发布 0.6.0-alpha.20、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
+## alpha.23 / I07C首批候选
+
+本地便携候选0.6.0-alpha.23，GitHub预发布保持alpha.20。窗口/冻结后台/Linux离线包包含team-automation及格式3SQLite逻辑，MCP客户端运行副本仍包含team-tools。最终校验32个CJS、78个core文件、1389个Linux清单条目、app.asar及前端逐项匹配。普通EXE生命周期、摘要、分发和未测项见[I07C首批报告](../../iterations/I07/automation.md)；源码测试不替代普通包验证，Windows无模型包流程不替代真实WSL主协调。本批保留原Codex终态及daemon bind权限修复，未上传GitHub或升级用户后台。
+
+原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新：2026-10-15。桌面当时源码与GitHub预发布 0.6.0-alpha.20、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
 
 ## 1. 功能范围
 
@@ -21,8 +25,8 @@ M10 管理可执行材料和一致性，不管理模型/账号，也不把远端
 | 名称 | 当前值/位置 | 含义 |
 | --- | --- | --- |
 | 根 CLI 包版本 | `package.json` = `0.1.0` | 本地 CLI 工程包版本；不代表当前桌面功能发布版 |
-| 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.19` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
-| 最新预发布 Windows EXE | `AgentBridge-0.6.0-alpha.19-Windows-x64.exe` | 核验源码标签分发；稳定历史为0.5.0，完整I06C尚未准出 |
+| 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.21` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
+| 最新预发布 Windows EXE | `AgentBridge-0.6.0-alpha.20-Windows-x64.exe` | 核验源码标签分发；稳定历史为0.5.0，完整I06C尚未准出 |
 | 根编译物 | `dist/` | TypeScript core/CLI/DesktopHost，供桌面与 daemon 共用 |
 | 前端编译物 | `desktop/dist/` | Vite 静态资源，Electron 窗口加载 |
 | 后台暂存物 | `desktop/.bridge-runtime/` | CJS 后台与根生产依赖闭包 |

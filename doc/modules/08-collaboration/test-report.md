@@ -1,9 +1,31 @@
 # M08 主从协作测试报告
 
+## alpha.23 / I07C首批实际验证
+
+T-M08-110 / M08-F09：2026-10-16，WSL Node22.23.1、Windows Node24.18.0/Edge155。核心45/45、最终串行桌面222/222、Windows契约29/29；这些是全工程计数，跨模块不相加。Windows前端/真实Coordinator受控目录和成员10组，真实Claude2.1.299自动主角色3轮同Conversation/原Session、新scope、后台重启后实际X失败/Y通过及终态后总验收；执行成员为受控外部MCP、Node检查实际运行。最终包/普通EXE、首次连接恢复竞态和并行维护ENOENT分别保留证据，完整结果见[I07C首批报告](../../iterations/I07/automation.md)。未证明真实多原生角色、其他接入自动续接、用户自研/独立SSH或完整停止。
+
+## alpha.22 / I07B 实际验证
+
+T-M08-101 / M08-F07/M08-F08：2026-10-16，WSL Node22.23.1、Windows Node24.18.0及Edge155。核心45/45、最终桌面208/208、Windows契约18/18；这是全工程计数，不跨模块重复相加。真实Claude两轮手动开发、独立MCP编译连接器实际Node检查X失败/Y通过、MCP协调员验收；Windows生产前端/Coordinator受控目录7组通过、模型0。首次原有daemon启动失败、重查及最终包/普通EXE的实际结果均见[I07B报告](../../iterations/I07/task-handoff.md)。未验证用户自研产品、独立SSH小队链、OpenCode/Codex任务闭环或I07C自动激活。
+
+
+## alpha.21 / I07A 实际验证
+
+2026-10-15 / WSL Node22.23.1、Windows Node24.18.0 / 源码alpha.21，GitHub预发布alpha.20。
+
+| 用例 | 功能 | 结果与证据边界 |
+| --- | --- | --- |
+| T-M08-100 | M08-F07 | 双独立MCP子进程实际互通，文档冲突/权限/分页/撤权/恢复由受控检查通过；旧主从路径保持原父scope。 |
+
+原始证据、工程总数及真实工具/界面/普通EXE分别见[I07A交付](../../iterations/I07/delivery.md)。[核心45/45](../../../artifacts/I07A/2026-10-15/root-tests.tap)、[桌面197/197](../../../artifacts/I07A/2026-10-15/desktop-tests.tap)为全工程计数，不在本模块重复相加；I07B/C能力不计为已通过。
+
+
 当前基线：2026-10-14 / 0.6.0-alpha.13。工程与受控维护验证通过，独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 核对日期：2026-10-12。对应 [功能设计](design.md)。结论：单组单层协作及四条 Windows/WSL 真实委派链通过；alpha.6 的换主/清主原父读控反例和独立 SSH 双向核心链通过；全部权限/表单/取消和 I06C 故障矩阵仍不能标全部通过。
 
 ## 1. 证据层级
+
+I07的[参考产品调研](../../iterations/I07/claude-projects-research.md)仍仅为官方资料阅读；AgentBridge自身I07A实现的运行证据见上节，直接交接和持续激活仍待I07B/C。
 
 本报告保留发现修复的历史 89/89 基线；alpha.6 当次桌面 110/110 与核心 43/43 均实际重跑通过，见文末 I06B 证据。映射案例与其他模块共享，不独立叠加数量。
 

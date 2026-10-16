@@ -1,6 +1,6 @@
 # 迭代路线与当前交付
 
-更新：2026-10-15。完整功能与模块设计见 [资料入口](README.md)；这里维护交付顺序，不另建一套架构。
+更新：2026-10-16。完整功能与模块设计见 [资料入口](README.md)；这里维护交付顺序，不另建一套架构。
 
 ## 1. 当前基线
 
@@ -8,9 +8,9 @@
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
 | 最新 Windows 预发布 | 0.6.0-alpha.20 / 未确认资源范围与配置拒绝恢复；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.20)，完整 I06C 未准出 |
-| 当前源码 | 0.6.0-alpha.20 / [未确认操作修复](iterations/I06/pending-isolation.md)；Linux Codex 发现、OpenCode 原安装二次核验、Windows 配置落盘修复；独立分支及 PR #1，尚未合入 master；[合并交付](iterations/I06/linux-cli-discovery.md) |
+| 当前源码 | 0.6.0-alpha.23 / I07C首批事件激活与持续主协调；本轮代码尚未提交/发布，本地候选与证据见[I07C首批交付](iterations/I07/automation.md)。已有alpha.20修复和原分支/PR事实保持。 |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
-| 当前自动回归 | alpha.19 桌面 181/181、核心45/45；2026-10-15 WSL Ubuntu / Node22.23.1，lint/类型/构建通过；包内Linux真实CLI探测、Windows受控6组与普通EXE4组见[当前合并验收](iterations/I06/linux-cli-discovery.md)，未实测用户独立服务器或Windows原生推理 |
+| 当前自动回归 | 2026-10-16：核心45/45、最终串行桌面222/222，lint/类型/构建通过；Windows契约29/29、UI10组、真实Claude主角色3次自动激活/原会话重启续接及实际X/Y语法检查通过；初次外部端点恢复失败、并行维护ENOENT与最终包/普通EXE范围见[I07C首批交付](iterations/I07/automation.md)。未实测用户自研入口或独立SSH小队链。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
 
 alpha.19 历史 win-unpacked/普通便携 EXE 的资源与实测保持原证据；2026-10-15 alpha.20候选已重建EXE并核对资源，普通Windows无调试EXE/合成配置拒绝恢复及关闭重开4组通过；不以历史包证明新修复。
@@ -28,6 +28,7 @@ alpha.19 历史 win-unpacked/普通便携 EXE 的资源与实测保持原证据�
 | I06A | 独立 Coordinator、SSH、Linux daemon、直接会话 | 0.6.0-alpha.2 候选已交付，Windows/SSH 主要流程通过；专项覆盖限制见验收 | M01–M07、M10 |
 | I06B | 节点图、真实授权连线、跨物理设备双向协作与旧父权限修复 | alpha.6 主要范围已验收；alpha.8 拖动修复、alpha.9 合并页面与节点管理，专项见当次报告 | M01、M03、M08 |
 | I06C | 完整故障与指标、版本切换/回滚、最终候选包与准出 | 用户批准开发；alpha.10 首批通过，完整范围仍在开发 | M01、M02、M03、M04、M05、M07、M08、M10 |
+| I07 | 外部智能体登记、小队公共空间、授权交接与持续协调 | 用户批准开发，I07A/B已实现；I07C首批已实现，完整接入/故障/停止范围未准出，不替代I06C准出 | M01、M02、M03、M06、M07、M08 |
 
 ## 3. I06A 收尾的可验收交付
 
@@ -47,7 +48,9 @@ SSH 编辑/移除与事件过期补偿已在 alpha.10 的 6C 首批实现并按�
 
 C 交付需要按 [I06 验收矩阵](iterations/I06/testing.md)复验恢复、控制与发布指标。高延迟链路 77.8 秒安装是观测值，不代表已满足 20 样本状态同步 p95 指标。
 
-Harmes、自研 Adapter、Webhook/IM、云端中央、多用户和项目同步均为候选，未纳入本次 I06 的已交付能力。开始时先明确新需求与所属模块。
+用户已批准[I07](iterations/I07/goals.md)；I07A登记、小队、公共文档/消息和手动原生执行已实现，Bridge不实现业务能力。I07B任务板/授权交接已实现，Claude持续协调/自动续接首批已实现，准确范围见[I07C首批交付](iterations/I07/automation.md)。Harmes 的具体接口、Webhook/IM、云端中央、多用户和项目同步仍为候选，未纳入本次 I06 的已交付能力。
+
+I07细化按三个切片建议推进：[I07A接入/公共空间 → I07B任务与直接交接 → I07C通知续接及主角色持续跟进](iterations/I07/development.md)。[需求R01–R12](iterations/I07/requirements.md)、[设计](iterations/I07/design.md)和[20项验收计划](iterations/I07/testing.md)已记录，I07A采用SQLite事务与现有MCP连接，分层实测见[交付](iterations/I07/delivery.md)；I07B已完成本片任务交接验证；I07C首批Claude主协调通过；完整I07C和真实自研/独立SSH场景仍待实现或验证。
 
 ## 5. 阅读与变更入口
 
@@ -133,3 +136,7 @@ I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已
 alpha.20候选打包完成：核心45/45、桌面串行188/188、lint/类型/构建、包资源核对及Windows普通EXE4组/受控界面4组通过。首次并行维护测试失败与复验保留，GitHub已公开分发，附件和完整下载摘要核验通过。
 
 当前分发以alpha.20[专项](iterations/I06/pending-isolation.md)的标签/附件证据为准；alpha.19与前述源码阶段记录保留为历史，不再作为最新包。
+
+## I07当前推进点
+
+I07C首批已实现授权/预算、重要事件激活、Claude原主会话自动续接和后台恢复；[I07C首批交付](iterations/I07/automation.md)记录真实三轮主协调、受控外部执行成员及包状态。下一片补真实原生执行成员链、其他接入能力、权限等待与完整停止。沿用已批准范围继续推进，不把首批声明为完整I07C或I06C准出。

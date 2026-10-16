@@ -1,14 +1,16 @@
 # AgentBridge 项目资料
 
-更新：2026-10-14。这里维护项目的完整现状与已确认设计。阅读和开发不需要先复盘历次对话或迭代。
+更新：2026-10-16。这里维护项目的完整现状与已确认设计。阅读和开发不需要先复盘历次对话或迭代。
 
-稳定历史 Windows 程序是 **0.5.0**；当前预发布与源码为 **0.6.0-alpha.20 / 未确认操作资源范围与配置拒绝恢复**，节点图、授权/布局事务、状态分层与原父权限主要范围在 alpha.6 已验收；alpha.7 主角色/方向/避让与中键证据保留；alpha.8 修复旧后台下拖动锁定、支持整组背景拖动和主居左，当前证据见 [拖动修复](iterations/I06/graph-drag-fix.md)。独立双向原生链保留 alpha.6 实测结果。alpha.2 的主要验收与 alpha.3–alpha.5 修复证据保持原版本；本次实际工程、界面、独立双向链及最终包状态见 [I06B 实施](iterations/I06/graph-implementation.md)。I06C 与正式 0.6.0 准出未完成。
+稳定历史 Windows 程序是 **0.5.0**；当前GitHub预发布为 **0.6.0-alpha.20 / 未确认操作资源范围与配置拒绝恢复**，当前源码/本地候选为 **alpha.23 / I07C首批持续协调**，节点图、授权/布局事务、状态分层与原父权限主要范围在 alpha.6 已验收；alpha.7 主角色/方向/避让与中键证据保留；alpha.8 修复旧后台下拖动锁定、支持整组背景拖动和主居左，当前证据见 [拖动修复](iterations/I06/graph-drag-fix.md)。独立双向原生链保留 alpha.6 实测结果。alpha.2 的主要验收与 alpha.3–alpha.5 修复证据保持原版本；本次实际工程、界面、独立双向链及最终包状态见 [I06B 实施](iterations/I06/graph-implementation.md)。I06C 与正式 0.6.0 准出未完成。
 
 网页阅读：在仓库根执行 `npm run docs:dev`，打开 `http://localhost:4188`。使用方法见 [网页说明](web-reading.md)。
 
 远端源码、私有运行状态及本地验收材料的范围见 [远端源码范围](repository-sync.md)。
 
 ## 从哪里开始
+
+下一迭代I07：[目标](iterations/I07/goals.md)、[需求](iterations/I07/requirements.md)、[小队公共空间细化设计](iterations/I07/design.md)、[开发切片](iterations/I07/development.md)、[验收计划](iterations/I07/testing.md)。I07A/B已实现，接入基础见[I07A交付](iterations/I07/delivery.md)，任务板/版本返修/授权交接见[I07B任务交接交付](iterations/I07/task-handoff.md)；I07C首批Claude事件激活及原会话持续协调见[I07C首批交付](iterations/I07/automation.md)，完整范围仍未准出。
 
 | 你要做的事 | 阅读顺序 |
 | --- | --- |

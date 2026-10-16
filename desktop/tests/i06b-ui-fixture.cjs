@@ -44,7 +44,7 @@ async function graphFixture(){
       if(action==='external-relation'){const current=await router.call('collaboration');await router.call('saveCollaboration',{leaderId:snapshot.nodes[0].nodeId,memberIds:[],expectedRevision:current.revision,operationId:require('node:crypto').randomUUID()});}
       if(action==='external-layout'){const current=await router.call('graphLayout');await router.call('saveGraphLayout',{operationId:require('node:crypto').randomUUID(),expectedLayoutRevision:current.layoutRevision,layout:{...current,viewport:{x:0,y:0,zoom:1}}});}
     },
-    close(){router.close();fs.rmSync(directory,{recursive:true,force:true});}
+    close(){service.close();fs.rmSync(directory,{recursive:true,force:true});}
   };
 }
 module.exports={graphFixture};

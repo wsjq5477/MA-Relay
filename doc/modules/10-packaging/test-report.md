@@ -1,5 +1,17 @@
 # M10 构建与发布测试报告
 
+## alpha.23 / I07C首批实际验证
+
+T-M10-110 / M10-F01/F02/F03/F05：2026-10-16，WSL Node22.23.1、Windows Node24.18.0/Edge155。核心45/45、最终串行桌面222/222、Windows契约29/29；这些是全工程计数，跨模块不相加。Windows前端/真实Coordinator受控目录和成员10组，真实Claude2.1.299自动主角色3轮同Conversation/原Session、新scope、后台重启后实际X失败/Y通过及终态后总验收；执行成员为受控外部MCP、Node检查实际运行。最终包/普通EXE、首次连接恢复竞态和并行维护ENOENT分别保留证据，完整结果见[I07C首批报告](../../iterations/I07/automation.md)。未证明真实多原生角色、其他接入自动续接、用户自研/独立SSH或完整停止。
+
+## alpha.22 / I07B候选
+
+T-M10-101 / M10-F01/F02/F03/F05：2026-10-16，工程核心45/45、最终桌面208/208、Windows契约18/18，lint/类型/构建通过；最终资源31 CJS/78 core/1388 Linux条目、app.asar及前端与源码一致。普通无debug Windows EXE 5组通过，实际窗口/IPC/SQLite/MCP、模型0，关闭和全后台重启后原任务/授权/收据保留并继续Y。摘要、本地分发、首次失败保留和未测范围见[I07B完整报告](../../iterations/I07/task-handoff.md)。GitHub保持alpha.20；不计作独立SSH或用户自研实例验收。
+
+## alpha.21 / I07A候选
+
+T-M10-100 / M10-F01：2026-10-15，新候选工程检查、包/普通EXE的实际结果、摘要与未测项统一见[I07A交付](../../iterations/I07/delivery.md)。GitHub预发布保持alpha.20，源码与本地候选alpha.21，不以构建或受控UI替代真实原生/普通EXE；I07B/C与I06C未准出。
+
 ## alpha.19 OpenCode 二次发现与 Windows 配置专项
 
 WSL Ubuntu / Node 22.23.1：discovery 3/3（含于核心 45/45），桌面 181/181；受控回归、模型 0。[核心 TAP](../../../artifacts/opencode-discovery/2026-10-14/root-tests.tap)、[桌面 TAP](../../../artifacts/opencode-discovery/2026-10-14/desktop-tests.tap)。Windows 原始报告 UTC 2026-10-14T17:35:28.789Z / Electron Node 24.21.0：真实 PE 版本/解析、旧二次发现失败、修复后原路径核验、配置完整写入与旧revision拒绝、serve受控退出保留NATIVE_EXITED、删除原安装，共6组通过，[实际报告](../../../artifacts/opencode-discovery/2026-10-14/windows.json)。这是隔离PE/进程夹具，无真实OpenCode模型或用户另一台电脑验收。原生Windows完整生命周期和断电持久性未验证。根因、失败原证据、最终包与边界见 [专项](../../iterations/I06/opencode-discovery.md)。

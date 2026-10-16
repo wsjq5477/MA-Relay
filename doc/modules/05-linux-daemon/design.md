@@ -1,6 +1,10 @@
 # M05 Linux 机器后台设计
 
-更新日期：2026-10-14。代码基线：新安装 daemon `0.6.0-alpha.19`；可复用可信清单内的 alpha.2–alpha.11，实际运行版本由握手确认、远端协议 `2`。独立进程、私有 socket、收据去重、relay 分离已实现；已有独立服务器断线期间任务继续记录。事件过期补偿已在 alpha.10 实现；完整故障矩阵尚未完成，详见 [测试报告](test-report.md)。
+## alpha.23 / I07A-C首批兼容边界
+
+小队工具及teamContinuation身份续接能力随alpha.23离线资源更新；任务业务由中央负责，daemon帧协议和身份未改变。共享MachineHost提供teamCollaboration能力标志和小队scope回调。旧后台仍可用于旧模式；新小队原生需求要求能力标志，不支持时明确在本轮派发前拒绝，不自动换节点。现有SSH帧协议2、daemon认证/原请求收据不变。新的源码与离线资源包含小队工具；中央自动主协调在WSL真实Claude已实测；用户独立SSH自动小队链尚未实测，不能用本机Linux实测替代。[实际交付](../../iterations/I07/delivery.md)。
+
+原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。代码基线：新安装 daemon `0.6.0-alpha.19`；可复用可信清单内的 alpha.2–alpha.11，实际运行版本由握手确认、远端协议 `2`。独立进程、私有 socket、收据去重、relay 分离已实现；已有独立服务器断线期间任务继续记录。事件过期补偿已在 alpha.10 实现；完整故障矩阵尚未完成，详见 [测试报告](test-report.md)。
 
 ## 1. 用途与功能
 
@@ -67,7 +71,7 @@ daemon 不开放 TCP 监听，也不接受用户密码、私钥或模型设置�
   node-contexts/                   # 每节点/目录上下文和原生记录
 ```
 
-状态目录须当前用户拥有、最终目录权限 `0700`；身份/锁/收据文件和 socket 为 `0600`。目录路径不能穿过符号链接；已有非 Bridge 文件、普通文件占用 socket、锁归属不符均保留现场并拒绝。
+状态目录须当前用户拥有、最终目录权限 `0700`；身份/锁/收据文件和 socket 为 `0600`。Unix socket 在同步 bind 期间临时采用 `0177` umask，创建瞬间即为 `0600`，在让出事件循环前恢复调用者 umask；监听完成后仍显式核定权限。避免并发 inspect 观察到默认 `0755` 而拒绝归属。目录路径不能穿过符号链接；已有非 Bridge 文件、普通文件占用 socket、锁归属不符均保留现场并拒绝。
 
 若 socket 路径超过 100 字节，使用 `/tmp/agentbridge-<uid>/<state-hash>/daemon.sock`，短目录仍验证当前用户与私有权限。深层 OpenCode controller socket 另有 `/tmp/agentbridge-<uid>/controllers/<hash>.sock` 回退，二者不是同一个端点。
 

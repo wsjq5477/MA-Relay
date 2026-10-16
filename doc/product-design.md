@@ -2,6 +2,8 @@
 
 更新：2026-10-15。适用：Windows0.5.0稳定历史功能，以及0.6.0-alpha.20预发布的未确认资源范围与配置拒绝恢复（包含alpha.19发现和配置修复）。每项明确区分实现、发布和验收状态。
 
+源码/本地候选alpha.23包含I07A/B及I07C首批持续协调；GitHub预发布保持alpha.20。[I07C首批交付](iterations/I07/automation.md)明确真实/受控证据，完整I07C未准出。
+
 ## 1. 产品解决什么问题
 
 用户已经在不同机器上安装并配置了 Claude Code、OpenCode 或 Codex。AgentBridge 把这些工具呈现为一个可观察、可授权协作的 Agent 网络，让用户在一个客户端中发需求、看进度、处理原生权限请求并读取结果。
@@ -48,8 +50,11 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | AB-F15 CLI 兼容入口 | 单终端自动发现、提交、续聊、查看和控制 OpenCode | 已实现；不等同于桌面节点网络的全部入口 | [M09](modules/09-cli-hub-edge/design.md) / [报告](modules/09-cli-hub-edge/test-report.md) |
 | AB-F16 节点图 | 机器分组、拖动节点、拖拽端点授权连线 | alpha.8 支持旧后台下本机拖动、整组背景拖动及主居左；主角色/方向/避让保留；alpha.10 保留原图交互并加入机器维护，当前首批证据见 6C 报告，原生链保留 alpha.6 证据 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md) |
 | AB-F17 发布与安装维护 | 源码、离线包、Windows EXE 一致，版本可验证 | 0.5.0 历史稳定；6A 候选已验收，alpha.12 可信升级/回滚/停止/卸载源码与受控验证通过；正式 0.6.0 准出见当前报告 | [M10](modules/10-packaging/design.md) / [报告](modules/10-packaging/test-report.md) |
-
 | AB-F18 网页资料入口 | 桌面分组目录、同源 Markdown、章节导航、全文搜索、主题和图表 | 已实现；独立于 Agent 控制界面 | [M11 设计](modules/11-documentation-portal/design.md) / [报告](modules/11-documentation-portal/test-report.md) |
+| AB-F19 智能体登记与小队 | 登记外部已有功能的智能体、说明职责/边界，组成小队和独立工作 | alpha.21源码/本地候选已实现；不实现Skill/模型/目录或业务能力 | [M03](modules/03-machine-network/design.md)、[M08](modules/08-collaboration/design.md) |
+| AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | I07A基础已实现；任务交接见AB-F21，自动持续协调首批见AB-F22，完整I07C未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[本次交付](iterations/I07/delivery.md) |
+| AB-F21 小队任务与授权交接 | 分配/接手、依赖、精确产物版本、限额交接、返修历史与业务验收 | I07B基础已实现；未授权自动成员保持手动，交接本身不等于原生已启动 | [M07](modules/07-task-session/design.md)、[M08](modules/08-collaboration/design.md)、[I07B任务交接交付](iterations/I07/task-handoff.md) |
+| AB-F22 持续协调首批 | 用户授权自动成员与预算，重要事件激活、原会话续接、原生终态后验收 | alpha.23源码已实现；真实Claude自动主角色验证，其他接入/多原生角色/完整停止未准出 | [M02](modules/02-coordinator/design.md)、[M06](modules/06-native-adapters/design.md)、[I07C首批交付](iterations/I07/automation.md) |
 
 ## 4. 用户的完整操作路径
 
@@ -123,7 +128,10 @@ alpha.8 节点图编辑同一套权限。拖动位置只是布局变更；端点
 
 AgentBridge 不重写 Agent，不负责模型供应商配置，不调度编译机或实验室设备，不提供任意远程 shell，不创建通用工作流引擎。SSH 只用于 Bridge 部署、身份验证与受控消息传输。
 
-Harmes、自研 Agent、通用 HTTP/JSONL Adapter、企业 IM/Webhook、中央云端部署、多用户团队、文件同步与多层协作图均不是当前已交付能力。涉及它们时需先确认原生接口与用户范围，登记迭代和模块设计。
+自研Agent可按I07A/B的本机MCP成员契约接入公共空间和任务板，尚未实测用户自研实例，本批不自动启动外部MCP执行。Harmes具体适配、通用HTTP/JSONL执行器、企业IM/Webhook、中央云端部署、多用户团队、文件同步与多层协作图仍不是当前已交付能力。涉及它们时需先确认原生接口与用户范围，登记迭代和模块设计。
+
+
+I07已获准开发，I07A实现登记、小队、共享文档与群消息；I07B进一步实现工作项、依赖、版本化报告、直接授权交接、受限返修/重试及主角色/用户逐项验收。原生执行终态、业务报告和总工作验收分开；任务交接、授权次数及通知原子提交。真实Claude两轮开发和独立实际Node语法检查验证X失败到Y通过，界面受控流程通过。I07C首批增加授权事件激活和Claude原主会话自动续接；真实主角色3轮和后台重启通过。其他接入、多原生执行成员链及完整停止未验收，完整I07C与I06C未准出，实际见[I07C首批交付](iterations/I07/automation.md)。实际证据、首次失败和Windows候选见[I07B任务交接交付](iterations/I07/task-handoff.md)。
 
 当前验收结论见 [整体验证报告](testing.md)；具体版本和进度见 [迭代路线](project-plan.md)。后续修改本功能目录时，按 [同步维护规则](development-guide.md)同时更新模块与迭代材料。
 
@@ -225,3 +233,11 @@ AB-F02/07/17，M03/M06/M09/M10：Core 与节点复用共享安装扫描，创建
 2026-10-15 / AB-F08/F10/F11 / M01/M02/M03/M07：准备阶段的明确失败保存未派发拒绝证据，原记录严格匹配后解除占位；已派发或只有本次查询 NOT_CONFIGURED 的记录继续核对。同节点/共享目录保留保护，同机器独立节点可新建和续聊；旧后台或缺来源记录保持保守限制。GitHub alpha.19 EXE保持原文件，修复以alpha.20独立预发布。需求、工程及 Windows 受控界面证据见 [专项](iterations/I06/pending-isolation.md)。
 
 alpha.20已公开分发，下载与原始核验见[专项](iterations/I06/pending-isolation.md)；完整I06C未准出。
+
+## 2026-10-16：Linux后台启动权限窗口
+
+AB-F05/11，M05-F01/F02：源码在Unix socket创建时即限制为0600，避免并发检查看到监听后chmod前的宽权限。未改变协议、身份和收据；未重新打包或发布，原I07B候选与GitHub附件保持原证据。实际回归及限制见[启动专项](iterations/I07/daemon-bind.md)。
+
+## 2026-10-16：Codex错误终态保护
+
+AB-F07/08/11，M06-CX-F01：源码修复Codex明确原生错误被同轮完成事件/退出码0覆盖的问题，保持failed及原请求记录，防止错误执行进入成功验收。未自动续接、未更新EXE或发布；[专项证据](iterations/I07/codex-terminal.md)。

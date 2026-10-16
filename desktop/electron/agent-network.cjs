@@ -101,6 +101,7 @@ class AgentNetwork extends MachineRouter {
     const inputFingerprint=requestFingerprint(node.nodeId,params);
     this.assertMachineAdmission(machine);
     const prior=params.op==='continue'?this.network.requests.findLast(r=>r.conversationId===params.conversationId&&r.nodeId===node.nodeId):null;
+    if(prior?.teamSessionId&&!params.teamScope)throw fail('TEAM_FORBIDDEN','小队原生会话须由新的成员执行身份续接。');
     if(prior?.collaboration)params={...params,collaboration:true};
     if(node.removed||!node.connected)throw fail('NODE_DISCONNECTED','请先接入这个 Agent 节点。');
     if(!node.executionSupported)throw fail('ADAPTER_UNSUPPORTED','这个节点已发现，尚未完成执行适配。');
@@ -125,15 +126,22 @@ class AgentNetwork extends MachineRouter {
       const owner=this.catalog.instances.find(i=>i.instanceId===existing.targetAgent);
       if(owner?.nodeId!==node.nodeId)throw fail('WRONG_MACHINE','这个会话属于其他 Agent 节点。');
       if(owner.model)throw fail('CONVERSATION_CONFIG','此历史会话绑定过模型覆盖。记录已保留，请新建使用原生配置的会话。');
-      if(prior?.collaboration&&prior.contextId){receipt.contextId=prior.contextId;await this.host(machine).call('scope',{contextId:prior.contextId,scope:{nodeId:node.nodeId,parentRequestId:params.requestId}});}
+      if(params.teamScope){
+        if(!prior?.contextId)throw fail('TEAM_CAPABILITY','原会话缺少可续接的小队上下文。');
+        const configured=await this.host(machine).call('scope',{contextId:prior.contextId,scope:params.teamScope});
+        if(!configured.teamContinuation)throw Object.assign(fail('TEAM_UPGRADE_REQUIRED','来源后台尚不支持小队身份续接，请升级后查询原请求。'),{executionNotDispatched:true});
+        receipt.contextId=prior.contextId;receipt.teamSessionId=params.teamScope.teamSessionId;
+      }
+      if(!params.teamScope&&prior?.collaboration&&prior.contextId){receipt.contextId=prior.contextId;await this.host(machine).call('scope',{contextId:prior.contextId,scope:{nodeId:node.nodeId,parentRequestId:params.requestId}});}
       rawParams={op:'continue',conversationId:params.conversationId,requestId:params.requestId,message:params.message};
     }else{
       if(params.collaboration&&this.network.collaboration.leaderId!==node.nodeId)throw fail('COLLABORATION_FORBIDDEN','这个节点不是当前主 Agent。');
-      const context=await this.host(machine).call('context',{nodeId:node.nodeId,adapter:node.adapter,executable:node.executable,workspace:params.workspace?folderPath(params.workspace,machine):undefined,...(params.collaboration?{collaborationId:'default',scope:{nodeId:node.nodeId,parentRequestId:params.requestId}}:{})});
+      const context=await this.host(machine).call('context',{nodeId:node.nodeId,adapter:node.adapter,executable:node.executable,workspace:params.workspace?folderPath(params.workspace,machine):undefined,...(params.teamScope?{collaborationId:'team:'+params.teamScope.teamSessionId,scope:params.teamScope}:params.collaboration?{collaborationId:'default',scope:{nodeId:node.nodeId,parentRequestId:params.requestId}}:{})});
+      if(params.teamScope&&!context.teamCollaboration)throw Object.assign(fail('TEAM_UPGRADE_REQUIRED','来源后台尚不支持小队通信，请升级该机器后台后再执行。'),{executionNotDispatched:true});
       const snapshot=await this.host(machine).call('snapshot',{});this.importSnapshot(machine,snapshot);this.cache.set(node.machineId,snapshot);
       const instance=this.catalog.instances.find(i=>i.machineId===node.machineId&&i.backendId===context.agentId);if(instance)instance.nodeId=node.nodeId;
       receipt.agentId=qualified(node.machineId,context.agentId);this.save();this.saveNetwork();
-      receipt.contextId=context.contextId;receipt.collaboration=!!params.collaboration;
+      receipt.contextId=context.contextId;if(params.teamScope)receipt.teamSessionId=params.teamScope.teamSessionId;receipt.collaboration=!!params.collaboration;
       rawParams={op:params.op||'submit',agentId:receipt.agentId,requestId:params.requestId,message:params.message};
     }
     }catch(error){
@@ -141,6 +149,7 @@ class AgentNetwork extends MachineRouter {
       this.saveNetwork();throw error;
     }
     // Durable intent precedes a native mutation. An uncertain retry only reads receipts.
+    if(params.teamScope)rawParams.teamScope=params.teamScope;
     receipt.dispatched=true;this.saveNetwork();
     try{const result=await super.call('ipc',{...rawParams,machineId:node.machineId});receipt.taskId=result.taskId;receipt.conversationId=result.conversationId;this.saveNetwork();return {...result,nodeId:node.nodeId};}
     catch(error){if(error.executionNotDispatched||['NOT_CONFIGURED','AGENT_BUSY','PROJECT_BUSY','AGENT_UNHEALTHY','AGENT_UNAVAILABLE','CONVERSATION_CONFIG','CONVERSATION_BUSY','CONVERSATION_BINDING','INVALID_INPUT','CONFIG_NOT_APPLIED'].includes(error.code)){receipt.dispatched=false;receipt.rejection=error.code;if(error.executionNotDispatched||error.code==='NOT_CONFIGURED')receipt.preparationRejection=error.code;this.saveNetwork();}throw error;}
@@ -148,6 +157,7 @@ class AgentNetwork extends MachineRouter {
   async collaborationTool(scope,name,args,callId,sourceMachine){
     const node=this.node(scope.nodeId),relation=this.network.collaboration;
     if(node.machineId!==sourceMachine)throw fail('COLLABORATION_FORBIDDEN','此调用者不属于原机器。');
+    if(scope.teamSessionId){if(!this.options.teamTool)throw fail('TEAM_UNAVAILABLE','小队协作通道未接入。');return this.options.teamTool(scope,name,args,sourceMachine);}
     const parent=this.network.requests.find(r=>r.nodeId===node.nodeId&&r.requestId===scope.parentRequestId&&r.machineId===sourceMachine&&r.collaboration);
     if(!parent||!parent.dispatched)throw fail('COLLABORATION_FORBIDDEN','协作工具未绑定已提交的主任务。');
     const parentTask=await super.call('ipc',{op:'request',machineId:sourceMachine,requestId:parent.requestId});

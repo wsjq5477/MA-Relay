@@ -1,4 +1,43 @@
-# 对象、身份与持久数据
+# 通信协议与接口
+
+## I07A/B与I07C首批通信契约
+
+alpha.23 / 2026-10-16当前本地Coordinator方法；底层IPC/SSH协议仍为2，旧模式原父scope规则不变。公共方法不接受外部自报teamScope，原生小队身份仅后台内部派生。操作写前需稳定operationId，回应不明查询team.operation；返回confirmed不代表原生业务成功。[实现](../desktop/electron/coordinator-service.cjs)、[细节](iterations/I07/task-handoff.md)。
+
+| 方法 | 输入/输出与边界 |
+| --- | --- |
+| team.snapshot / team.context / team.messages / team.document | 登记/小队/工作概览，按runId读本次公共材料，按after分页100条消息；文档带revision/history；不返回令牌/私有session身份 |
+| team.registerAgent / team.disableAgent | native node或外部mcp实例及职责描述；停用撤销工作访问，有运行/unknown时拒绝停用 |
+| team.createTeam / team.createRun | 指定主角色、成员/约定，建立目标及完成标准；小队长期编辑/自动移交暂未提供 |
+| team.postMessage / team.writeDocument | 消息/回复/通知，或按expectedRevision更新文档；owner/editor权限与真实发送者由后台核验 |
+| team.revokeMember / team.pause / team.closeRun | 撤权需工作原revision；暂停仅停新执行，归档须所有原尝试有明确终态 |
+| team.connect | 按工作成员生成本机MCP接入配置，不含明文令牌；撤权/归档即失效；不是启动外部Agent |
+| team.execute / team.refresh | 用户手动执行原生成员一轮/查询原请求；可选workItemId/expectedRevision绑定负责人及业务轮次；旧MachineHost缺teamCollaboration能力时拒绝本轮派发，不切换其他节点 |
+| team.operation | 查询原操作；执行返回原attempt；连接查询可恢复同一私有配置，不重复创建任务 |
+
+任务接口仍绑定runId；写入均需operationId，工作项变更需expectedRevision。授权/交接不能靠正文生效。
+
+| 新接口 | 当前契约 |
+| --- | --- |
+| team.tasks | 读取workItems、handoffGrants、handoffs、固定maxTasks=50/maxRounds=5和总验收记录 |
+| team.createTask | 用户/主角色；title/description/ownerId/kind，dependsOn只引用既有项；verification需sourceTaskId且由另一成员负责 |
+| team.claimTask | 负责人接手ready；workItemId/expectedRevision；复验绑定当前不可变产物，同成员未核对原执行阻止认领 |
+| team.reportTask | 本人running项；outcome/summary；交付submitted需version/reference；复验需artifactId，通过还需accessConfirmed=true/evidenceReference；可附handoffTaskId/targetRevision，目标修订取报告前读值 |
+| team.handoffTask | workItemId/expectedRevision/toTaskId/targetRevision；交付→关联复验或失败复验→原交付；队员须有效用户授权，原生尝试先结束；返回executionStarted=false |
+| team.configureHandoff | 仅用户；具体任务路径/expectedRevision、maxUses为1至20、enabled布尔；不会启动执行 |
+| team.retryTask | 用户/主角色；受阻任务增加一轮、清除当前报告引用、保留历史；unknown/预算上限拒绝 |
+| team.acceptTask | 用户/主角色；summary及原修订；复验精确对应产物，交付须所有当前版本复验已验收，绑定本轮原生尝试无unknown且最后尝试成功 |
+| team.acceptRun | 用户/主角色；工作原修订/summary；任务全验收且尝试全终态后记录completed并撤销成员接入；若仅原生主角色本轮仍在运行，则先记录awaiting_leader_terminal/accepted=false，待真实成功、修订和新事件核验后生效 |
+
+小队MCP共16项工具，新增team_request_attention明确请求主角色协调（需用户已启用，主角色不得自我唤醒）；其余15项为：team_context、team_messages、team_post_message、team_document、team_update_document、team_acknowledge，以及team_tasks、team_operation、team_create_task、team_claim_task、team_report_task、team_handoff_task、team_retry_task、team_accept_task、team_accept_run。职责介绍与实时权限分开；成员/交接/自动执行配置工具不向成员开放。team_operation查询当前成员自己的原收据，不能查询其他成员或用户的操作。team_context返回当前绑定身份、成员职责、任务、授权及公共材料。
+
+身份从私有通道绑定，不能指定另一runId或冒充发送者。external连接由中央本机broker提供；native回调核对原来源机器/节点/request/Task和绑定工作项，不复用旧主从父scope。原生宿主通过job配置传指引/工具名，独立worker不依赖未复制模块。旧MCP工具集合及IPC/SSH帧版本2保持不变。
+
+报告、交接、授权消耗与通知同事务；交接本身不等于启动；仅用户已启用且在授权成员/能力/预算内的新事件可由激活器后续执行。普通群发言/@不启动。首批Claude支持原会话续接，运行中收信不支持、事项排队；其他接入和完整停止仍待后续。
+
+I07C首批用户方法：`team.configureAutomation`输入runId/expectedRevision/enabled，启用还需agentIds（含获准原生主角色）/maxActivations/maxMinutes/idleMinutes；只允许用户设置。`team.wake`输入operationId/runId/reason，保存明确协调事件；成员入口team_request_attention不接受伪造sender/目标身份。主角色不能自我唤醒，ordinary消息和阅读回执不形成激活。预算累计，不通过重新启用或重启清零。
+
+MachineHost.scope返回teamContinuation=true表示能重绑小队身份；原节点续接在能力缺失时派发前拒绝。原Conversation的最新小队轮不能被普通未带新teamScope的接口接管；teamScope仍仅由中央私有调用派生。新轮使用独立scope和原请求，原生Session私有校验失败后停止新激活，不回退到新会话。[实际流程](iterations/I07/automation.md)。
 
 更新：2026-10-12。这里解释整个系统的对象关系；具体读写接口见 [协议](protocol.md)，状态与恢复责任见 [M07](modules/07-task-session/design.md)。
 

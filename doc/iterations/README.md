@@ -15,8 +15,11 @@
 | I04C–G | 各版本稳定性修正 | [C](I04C/report.md)、[D](I04D/report.md)、[E](I04E/report.md)、[F](I04F/report.md)、[G](I04G/report.md) |
 | I05 | [提案](I05/proposal.md)、[节点](I05/node-design.md)、[协作](I05/collaboration-design.md) | [0.5.0 验收](I05/acceptance.md) |
 | I06 | [需求](I06/requirements.md)、[开发](I06/development.md)、[验收计划](I06/testing.md) | [当前进度](I06/progress.md)、[6A 候选验收](I06/acceptance.md)、[alpha.3 发现修复](I06/codex-discovery-fix.md)、[alpha.4 兼容复用](I06/ssh-compatible-reuse.md)；[6B 验收](I06/graph-implementation.md)，I06C 未完成 |
+| I07 | [目标](I07/goals.md)、[需求](I07/requirements.md)、[设计](I07/design.md)、[开发切片](I07/development.md) | [验收计划](I07/testing.md)；用户批准开发；[I07A交付](I07/delivery.md)、[I07B交付](I07/task-handoff.md)，[I07C首批](I07/automation.md)已实现，完整范围未准出；不替代I06C准出 |
 
 ## 后续迭代必须写清
+
+下一迭代：[I07 外部智能体接入与小队协作](I07/goals.md)。2026-10-15 已细化公共约定/文档/任务/群消息、角色权限、授权交接与持续激活草案；Bridge只连接与组织；I07A/B已实现，[I07B证据](I07/task-handoff.md)分层记录，I07C首批Claude持续主协调已实现，完整范围未准出，不替代I06C准出。
 
 1. 需求编号、对应整体功能与模块、可验收行为。
 2. 本次设计取舍与被更新的整体/模块文件。

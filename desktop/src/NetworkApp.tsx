@@ -6,11 +6,12 @@ import DaemonDialog from './DaemonDialog';
 import AddMachineDialog from './AddMachineDialog';
 import {useMachineManagement,type MachineAction} from './machine-management';
 import AgentGraph from './AgentGraph';
+import TeamWorkspace from './TeamWorkspace';
 import {useNodeManagement,type NodeAction} from './node-management';
 import type {Snapshot,AgentNode,Conversation,Task,Journal,Preferences,Status,Machine,SshConnectionState,RecoveryItem} from './types';
 import './network.css';
 const empty:Snapshot={configured:false,directory:'',agents:{items:[],revision:0,connected:false},machines:[],nodes:[],tasks:[],conversations:[]};
-const pages=[{id:'machines',label:'机器与 Agent',icon:Monitor},{id:'board',label:'任务看板',icon:LayoutGrid},{id:'conversations',label:'会话',icon:MessageSquare},{id:'settings',label:'设置',icon:Settings2}] as const;
+const pages=[{id:'machines',label:'机器与 Agent',icon:Monitor},{id:'teams',label:'小队协作',icon:GitBranch},{id:'board',label:'任务看板',icon:LayoutGrid},{id:'conversations',label:'会话',icon:MessageSquare},{id:'settings',label:'设置',icon:Settings2}] as const;
 type Page=typeof pages[number]['id'];
 const nodeStatus=(n:AgentNode)=>n.status==='offline'?'机器离线':n.status==='tool_error'?'工具检查异常':n.status==='unsupported'?'已发现，尚未支持执行':n.status==='discovered'?'已发现，待接入':n.unconfirmed||n.uncertain?'执行待核对':n.waiting?'等待你处理':n.busy?'正在工作':n.lastError?'最近执行失败':'已接入';
 export default function NetworkApp(){
@@ -91,7 +92,8 @@ export default function NetworkApp(){
         {notice&&<div className="network-notice" role="status">{notice}<button aria-label="关闭提示" onClick={()=>setNotice('')}><X size={14}/></button></div>}
         {machineManagement.pending&&<div className="notice-banner" role="status">机器操作回应尚未确认。只查询原操作，机器与授权编辑暂停。<button className="text-btn" onClick={()=>void machineManagement.query()}>查询原机器操作</button></div>}
         {management.pending&&<div className="notice-banner" role="status">节点操作回应尚未确认。只查询原操作，节点管理与授权编辑暂停。<button className="text-btn" onClick={()=>void management.query()}>查询原节点操作</button></div>}
-        <div className="machine-tabs" aria-label="机器筛选"><button className={machineFilter==='all'?'active':''} onClick={()=>setMachineFilter('all')}>全部机器</button>{machines.map(m=><button className={machineFilter===m.machineId?'active':''} key={m.machineId} onClick={()=>setMachineFilter(m.machineId)}>{m.name}</button>)}</div>
+        {page!=='teams'&&<div className="machine-tabs" aria-label="机器筛选"><button className={machineFilter==='all'?'active':''} onClick={()=>setMachineFilter('all')}>全部机器</button>{machines.map(m=><button className={machineFilter===m.machineId?'active':''} key={m.machineId} onClick={()=>setMachineFilter(m.machineId)}>{m.name}</button>)}</div>}
+        {page==='teams'&&(data.teamSpaceSupported?<TeamWorkspace nodes={nodes} directory={data.directory}/>:<div className="notice-banner">当前后台尚不支持小队协作。请在“设置”中停止后台并退出，再重新打开新版程序。</div>)}
         {(page==='machines')&&<div className="page-heading"><div><div className="eyebrow">MACHINES & AGENT NODES</div><h1>机器与 Agent</h1><p>按机器查看节点，拖动端点配置允许委派的子 Agent。</p></div><div className="network-machine-actions"><span className="machine-count">{machines.length} 台机器 · {nodes.length} 个节点</span><button className="btn primary" onClick={()=>setSshDialog({})}><Plus size={15}/>添加 Linux 机器</button></div></div>}
         {data.directory&&<AgentGraph key={data.directory} directory={data.directory} machines={machines} nodes={nodes} relation={relationship} hidden={page!=='machines'} filter={machineFilter} online={!error&&!loading} busy={busy} metadataBusy={managementLocked} notify={setNotice} start={newConversation} blocked={blocked} daemonManagementSupported={!!data.daemonManagement} machineManagementSupported={!!data.machineManagement} managementSupported={!!data.nodeManagement} nodeAction={nodeAction} addAgent={setAddAgent}
           attach={id=>{const n=nodes.find(n=>n.nodeId===id);if(n)void management.run(n.nodeId,n.machineId,'attach');}}

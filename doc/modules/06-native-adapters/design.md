@@ -1,10 +1,25 @@
 # M06 原生 Agent 适配器设计
 
-更新日期：2026-10-12。当前实现基线：源码 `0.6.0-alpha.19`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.18`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，历史 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
+## alpha.23 / I07C首批当前实现
+
+2026-10-16：源码/本地候选alpha.23，GitHub预发布仍alpha.20；I07A/B基础继续适用，完整I07C与I06C未准出。
+
+| 功能 ID | 功能 | 当前状态 |
+| --- | --- | --- |
+| M06-F02 | 小队MCP接入与手动原生执行 | I07A基础继续适用 |
+| M06-F03 | 任务作用域与版本报告工具 | I07B源码已实现，实际分层证据见报告 |
+| M06-F04 | 原生会话能力分级与自动续接 | I07C首批源码实现，证据层级见本模块报告 |
+
+本批对Claude适配开放自动新轮/原会话续接，真实CLI2.1.299三轮自动主协调和重启原Session核对通过；运行中收信不支持，重要事项排队。Codex/OpenCode保留手动，不根据resume参数推定新小队已通过。工具扩展至16项，主角色可待本轮终态完成业务验收；新一轮注入新scope/指引，旧终态token失效。外部MCP仍自启动，不新增模型API或接管业务功能。
+
+I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交接继续按[I07B完整行为](../../iterations/I07/task-handoff.md)执行；新流程、异常、预算、接口和源码见[I07C首批交付](../../iterations/I07/automation.md)。以下原功能继续适用。
+
+原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-12。当时实现基线：源码 `0.6.0-alpha.19`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.18`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，历史 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
 
 本模块把用户机器上已有的 OpenCode、Claude Code 和 Codex CLI 接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。模型、供应商、账号和原生配置仍由原工具管理。本文是当前设计；变更过程保留在迭代文档中。
 
 ## 1. 用户看到的功能与边界
+
 
 用户先在机器中接入一个已安装的 Agent 节点，再对该节点新建会话。接入节点不需要文件夹、模型或供应商；需要处理已有文件时，在新会话阶段填写目标机器上的目录。留空使用该节点默认执行目录，同节点/目录/模式复用上下文；不同新会话不保证文件隔离。
 
@@ -156,3 +171,7 @@ sequenceDiagram
 原生 Driver 与账号/模型继承方式不变。daemon/Coordinator 只接受原控制操作和原 execution/task 的可核对收据；原生 unknown、外来 operationId、缺收据不会变成成功。表单秘密答案在 UI 遮罩、中央台账脱敏；适配器自身原生能力仍以各子模块报告为准，未支持交互不假成功。
 
 实现入口：[machine-daemon.cjs](../../../desktop/electron/machine-daemon.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## Codex终态约束
+
+Codex原生明确error/turn.failed不能被同轮turn.completed与退出码0覆盖。源码成功条件增加无明确原生错误；取消和原请求去重不变。未代表原生续聊或自动激活已验收；[本次实现与验证](../../iterations/I07/codex-terminal.md)。
