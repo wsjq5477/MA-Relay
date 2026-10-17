@@ -381,7 +381,9 @@ class TeamSpace {
     return this.tool(session.sessionId, name, p);
   }
   observe(id, task) {
-    if (!task || !['queued', 'accepted', 'running', 'succeeded', 'failed', 'cancelled', 'unknown'].includes(task.status)) throw fail('TEAM_EXECUTION', '原执行返回不完整，保留原请求待核对。');
+    if (!task || !['queued', 'accepted', 'running', 'succeeded', 'failed', 'cancelled', 'unknown'].includes(task.status) ||
+      !['taskId', 'conversationId'].every(key => typeof task[key] === 'string' && task[key].trim()))
+      throw fail('TEAM_EXECUTION', '原执行返回不完整，保留原请求待核对。');
     this.transaction(s => {
       const a = s.attempts.find(x => x.attemptId === id);
       if (task.requestId !== a.requestId || (a.taskId && task.taskId !== a.taskId) || (a.conversationId && task.conversationId !== a.conversationId)) throw fail('TEAM_EXECUTION', '原请求身份不匹配，保留原记录待核对。');
