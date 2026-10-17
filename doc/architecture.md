@@ -1,5 +1,9 @@
 # AgentBridge 整体架构
 
+## alpha.28候选：SSH持久拒绝恢复
+
+SSH层从同认证代次的daemon.receiptRead建立进程内可信证明；AgentNetwork核对原意图并先持久化，中央恢复CAS后结算。只读远端，释放中央原占位，不迁移原任务或Session。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
+
 ## alpha.24：停止协调边界
 
 TeamSpace原子撤销本工作scope并禁新调度，TeamStop只连接原生取消与原操作查询，Coordinator沿原节点/机器维护取消台账；定时器在无自动授权时仍核对停止中工作。原生任务保留原状态机，工作stopping仅为协作容器状态，全部原生尝试真实终态后closed；外部MCP只撤销协作访问，不接管其进程。后台重启只恢复原停止操作，没有新规划模型或外部执行器。[数据/流程及证据](iterations/I07/native-stop.md)。以下alpha.23分层与旧模式继续适用。

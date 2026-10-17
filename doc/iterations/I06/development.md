@@ -1,5 +1,9 @@
 # I06 开发安排与增量交付
 
+## alpha.28候选：SSH持久拒绝恢复
+
+新增daemon-rejection内部证明，SSH只读原台账；扩展AgentNetwork原意图核对、pending-journal错误恢复与Coordinator结算。远端daemon源码/协议不变，参数/时间保留，新增合成与真实TCP SSH丢响应/重启测试。 [设计、需求、开发、验收与边界](daemon-rejection-recovery.md)。
+
 ## alpha.27：Windows恢复增量
 
 关联AB-F08/F10/F11/F14/F17，按[本片R01–R07、实现及验收记录](windows-start-persistence.md)执行：原Codex任务核对、本地持久化有界重试和未派发拒绝恢复，候选/EXE与用户实机证据分别记录。

@@ -2,6 +2,7 @@ const fs=require('node:fs'),path=require('node:path');
 const {randomUUID,createHash}=require('node:crypto');
 const {MachineRouter,qualified,project,folderPath,workspaceKey}=require('./machine-router.cjs');
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');
+const {rejectionProof,marker:daemonRejectionMarker}=require('./daemon-rejection.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const requestFingerprint=(nodeId,params)=>hash(JSON.stringify({nodeId,op:params.op,message:params.message,workspace:params.workspace||'',conversationId:params.conversationId||'',collaboration:!!params.collaboration}));
@@ -91,17 +92,41 @@ class AgentNetwork extends MachineRouter {
     // Legacy provenance gaps keep the old machine-wide protection.
     return row.machineId===params.machineId&&(!original.nodeId||!target.nodeId||!original.workspaces.length);
   }
-  // A saved preparation rejection proves no native mutation was dispatched.
+  // A saved preparation rejection or authenticated durable daemon proof can
+  // establish that the original native mutation was rejected before execution.
   // Missing receipts or current configuration failures alone never prove this.
-  undispatchedRejection(row){
+  undispatchedRejection(row,error){
     const code=row.result?.error?.code,p=row.params;
     if(!['submit','continue'].includes(row.op)||p?.op!==row.op||p.requestId!==row.id||p.machineId!==row.machineId)return null;
     const node=this.network.nodes.find(n=>n.nodeId===p.nodeId&&n.machineId===row.machineId);
     if(!node||this.nodeJobs.has(node.nodeId))return null;
     const original=this.network.requests.find(r=>r.requestId===row.id&&r.machineId===row.machineId&&r.nodeId===node.nodeId);
-    if(!original||original.dispatched!==false||original.taskId||original.conversationId)return null;
+    if(!original||original.taskId||original.conversationId)return null;
     if(original.inputFingerprint&&original.inputFingerprint!==requestFingerprint(node.nodeId,p))return null;
     if(original.fingerprint!==requestFingerprint(node.nodeId,original.inputFingerprint?{...p,collaboration:original.collaboration}:p))return null;
+    const live=rejectionProof(error),proof=live||original.daemonRejection;
+    if(proof){
+      const machine=this.machine(row.machineId);
+      const raw=p.op==='continue'?{op:'continue',conversationId:p.conversationId,requestId:row.id,message:p.message}
+        :{op:'submit',agentId:original.agentId,requestId:row.id,message:p.message};
+      if(p.teamScope)raw.teamScope=p.teamScope;
+      const routed=this.route({...raw,machineId:row.machineId}).params;
+      const target=Object.fromEntries(['taskId','agentId','conversationId','executionId'].filter(k=>typeof routed[k]==='string').map(k=>[k,routed[k]]));
+      if(proof.version!==1||proof.source!=='daemon.receiptRead'||machine.kind!=='ssh'
+        ||proof.machineId!==row.machineId||proof.daemonId!==row.machineId.slice(4)||!proof.profileId
+        ||machine.daemonId&&machine.daemonId!==proof.daemonId||machine.profileId&&machine.profileId!==proof.profileId
+        ||proof.requestId!==row.id||proof.op!==row.op||proof.code!=='NOT_CONFIGURED'
+        ||!original.inputFingerprint||proof.fingerprint!==digest({method:'ipc',params:routed})
+        ||digest(proof.target)!==digest(target)||!live&&original.dispatched!==false)return null;
+      if(live){
+        const before={...original};
+        Object.assign(original,{dispatched:false,preparationRejection:proof.code,daemonRejection:proof});
+        try{this.saveNetwork();}catch{for(const k of Object.keys(original))delete original[k];Object.assign(original,before);return null;}
+      }
+      return {requestId:row.id,machineId:row.machineId,state:'rejected',error:{code:proof.code,
+        message:'原请求已被原机器后台持久拒绝，未执行需求；原记录已保留，请修复配置后新建请求。'},reconciliation:daemonRejectionMarker};
+    }
+    if(original.dispatched!==false)return null;
     const persistence=code==='NETWORK_PERSIST'||this.localRenameFailure(row.result?.error);
     if(persistence&&original.inputFingerprint===requestFingerprint(node.nodeId,p))return {
       requestId:row.id,machineId:row.machineId,state:'rejected',

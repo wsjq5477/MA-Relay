@@ -1,5 +1,9 @@
 # 迭代资料目录
 
+## alpha.28候选：SSH持久拒绝恢复
+
+当前源码候选alpha.28修复issue #5，GitHub仍alpha.27。 [设计、需求、开发、验收与边界](I06/daemon-rejection-recovery.md)。
+
 当前GitHub预发布alpha.27：[Windows未派发任务与本地持久化恢复（issue #3/#4）](I06/windows-start-persistence.md)，含原Codex任务核对、分享锁重试及严格历史拒绝结算；EXE、摘要和未测边界见该页。
 2026-10-17当前源码/当前预发布 **alpha.26**：[alpha.24 Linux 后台连接与升级](I06/ssh-alpha24-upgrade.md)。GitHub当前预发布为alpha.26；下文较早的alpha.25候选状态保留原时点。
 

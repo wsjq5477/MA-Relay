@@ -1,5 +1,7 @@
 # AgentBridge 开发与文档协作
 
+2026-10-17源码候选alpha.28修复issue #5远端持久拒绝恢复，GitHub仍alpha.27；开发、验证和未测边界见[专项](doc/iterations/I06/daemon-rejection-recovery.md)。
+
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 
 ## 开发前

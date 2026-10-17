@@ -1,5 +1,9 @@
 # M07 任务、会话、交互控制与恢复设计
 
+## 2026-10-17：SSH持久拒绝恢复（alpha.28候选）
+
+M07-F01/F06/F07：原SSH节点请求持久拒绝必须匹配认证来源、request/op和原参数摘要，无任务绑定才结算rejected；不把它当成功任务。续聊只绑定原父会话，原任务/会话终态不改，原ID/历史/time/params保留；裸配置查询错误保持unknown。 当前源码候选，GitHub仍alpha.27；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+
 ## 2026-10-17：Windows未派发与持久化恢复
 
 M07-F06/F07：区分原操作收据和原生任务终态。Codex未派发证明只使原任务failed，中央本地持久化失败证明使原操作rejected；无job、已有worker.log/心跳/事件或已派发均继续unknown并占用。不重发、取消或删除原记录。 当前源码/GitHub预发布alpha.27；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。

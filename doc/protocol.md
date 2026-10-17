@@ -1,5 +1,9 @@
 # 通信协议与接口
 
+## alpha.28候选：SSH持久拒绝恢复
+
+SSH协议2和daemon.receiptRead线格式不变。客户端ipc/request裸NOT_CONFIGURED后只读同ID收据；同认证代次匹配持久rejected产生内部DAEMON_REQUEST_REJECTED能力，公开同码JSON/错误没有该能力。中央普通request可返回{state:rejected,requestId,machineId,error:{code:NOT_CONFIGURED,message},reconciliation}，没有taskId，禁止当成功任务；mutation仍报错。verify/控制语义不变。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
+
 ## alpha.27：本地恢复语义
 
 不改变RPC方法、daemon帧版本或数据版本。Codex ipc reconcile沿用operationId/state/data收据，并持久task.reconciliation；终态或严格未派发证明可confirmed，任务为failed，其他查询返回unknown并保留占用。新增内部NETWORK_PERSIST仅表示本地AgentNetwork原子保存失败，保留原OS错误；不进入全局拒绝白名单，只有原未派发意图证据允许中央拒绝结算，NOT_FOUND/远端EPERM不允许。见[专项](iterations/I06/windows-start-persistence.md)。

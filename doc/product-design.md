@@ -1,5 +1,9 @@
 # AgentBridge 整体功能设计
 
+## alpha.28候选：SSH持久拒绝恢复
+
+AB-F08/F10/F11/F17：只读原daemon持久拒绝，经认证身份、原节点意图和参数摘要核对后结算rejected，释放对应占位。裸NOT_CONFIGURED或缺证据保持unknown；不重发、不改原任务终态。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
+
 ## alpha.27已预发布：Windows未派发与持久化恢复
 
 AB-F08/F10/F11/F14/F17：Codex准备失败保留原failed终态，原任务核对仅凭完整未派发证据释放；本地台账分享锁有界重试，原NETWORK_PERSIST/严格历史EPERM且确定未派发才拒绝结算；原生或结果未知不放行。对应Windows EXE与校验文件已公开分发；新EXE/验证/升级以[当次交付](iterations/I06/windows-start-persistence.md)为准。

@@ -1,5 +1,9 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+## 2026-10-17：SSH持久拒绝恢复（alpha.28候选）
+
+M03-F04/F06：原节点submit/continue的双指纹、原agent/续聊父目标、机器/daemon/profile与远端参数摘要匹配且无任务绑定/在途job，才把dispatched改false并持久daemonRejection。写失败回退内存，重开重核缓存，其他unknown不释放。 当前源码候选，GitHub仍alpha.27；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+
 ## 2026-10-17：Windows未派发与持久化恢复
 
 M03-F04/F05：saveNetwork与共享atomicWrite统一原子保存，分享锁最多重试6次。派发前保存失败回滚内存dispatched=false，派发后保存失败保留unknown；历史EPERM仅接受本profile的精确UUID临时文件rename形状和原未派发指纹证据。 当前源码/GitHub预发布alpha.27；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。

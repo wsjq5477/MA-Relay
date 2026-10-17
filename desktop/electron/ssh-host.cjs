@@ -7,6 +7,7 @@ const { KnownHosts, problem } = require('./ssh-known-hosts.cjs');
 const { CredentialStore } = require('./ssh-credentials.cjs');
 const { SshInstaller, quote, remoteExec } = require('./ssh-install.cjs');
 const { FramedStream } = require('./machine-protocol.cjs');
+const {rejectedError}=require('./daemon-rejection.cjs');
 
 const SSH_METHODS = new Set(['machine.createSshDraft', 'credential.provide', 'machine.testSsh', 'machine.trustHost', 'machine.connectSsh', 'machine.reconnect', 'machine.disconnect']);
 const {digest,operationId}=require('./graph-layout.cjs');
@@ -79,7 +80,19 @@ class SshHost {
   }
   async call(method, params = {}) {
     if (this.connection.stage !== 'online') throw problem('MACHINE_OFFLINE', this.connection.stage === 'needs_credentials' ? '远端机器需要重新输入 SSH 凭据。' : '远端机器当前离线，已接收任务仍由远端后台保留。');
-    return this.request(method, params);
+    const generation=this.generation;
+    try{return await this.request(method, params);}
+    catch(error){
+      // A bare configuration error is not evidence about an earlier submission.
+      // Read the daemon's existing ledger on the same authenticated generation.
+      if(method==='ipc'&&params.op==='request'&&params.requestId&&error.code==='NOT_CONFIGURED'){
+        try{
+          const record=await this.request('daemon.receiptRead',{requestId:params.requestId});
+          if(this.generation===generation){const rejection=rejectedError(this.connection,record,params);if(rejection)throw rejection;}
+        }catch(readError){if(readError.code==='DAEMON_REQUEST_REJECTED')throw readError;}
+      }
+      throw error;
+    }
   }
   startHeartbeat() {
     clearInterval(this.heartbeat);

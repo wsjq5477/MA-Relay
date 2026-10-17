@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## 2026-10-17：SSH持久拒绝恢复（alpha.28候选）
+
+M10-F01/F03/F05：alpha.28新包包含SSH持久拒绝读取、可信证明、原意图持久化和中央恢复。收录已发布alpha.27冻结manifest（规范摘要e3862fdd030496218e69166fb3bb928277b41477003f68dac48a2a5db09945af）保持上一版复用；不重写旧附件或扩大未知版本信任。 当前源码候选，GitHub仍alpha.27；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+
 ## 2026-10-17：Windows未派发与持久化恢复
 
 M10-F01/F03/F05：alpha.27独立打包，窗口、冻结后台及Linux离线资源同时包含Codex恢复、共享原子写入及NETWORK_PERSIST判定。收录已发布alpha.26原manifest（精确摘要核验）以保持上一版SSH复用；不改旧EXE或放宽未知版本信任。 当前源码/GitHub预发布alpha.27；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。

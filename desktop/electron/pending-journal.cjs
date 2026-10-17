@@ -33,6 +33,10 @@ async function recoverJournal(rows, call, settle, rejectsVerificationContinuatio
         let task;
         try { task = await call("ipc", { op: "request", requestId: row.id, machineId: row.machineId }); }
         catch (error) {
+          const rejection=await undispatchedRejection(row,error);
+          if(rejection?.state==='rejected'&&rejection.requestId===row.id&&rejection.machineId===row.machineId){
+            await resolve(row,'rejected',rejection);continue;
+          }
           // Only an original durable pre-execution rejection is positive proof.
           if (error.code === 'AGENT_UNHEALTHY') {
             await resolve(row, 'rejected', {code:'AGENT_UNHEALTHY',message:'原请求在执行前被原生健康检查拒绝，未提交需求。',reconciliation:'original durable pre-execution rejection'});

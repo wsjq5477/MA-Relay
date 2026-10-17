@@ -1,5 +1,9 @@
 # I06 功能需求与验收基线
 
+## alpha.28候选：SSH持久拒绝恢复
+
+R01–R06：读取已有持久拒绝、严格认证/摘要/目标核对、三条恢复路径一致、保留原历史并禁止重放；工程与EXE分别验收。 [设计、需求、开发、验收与边界](daemon-rejection-recovery.md)。
+
 ## alpha.27：Windows恢复增量
 
 关联AB-F08/F10/F11/F14/F17，按[本片R01–R07、实现及验收记录](windows-start-persistence.md)执行：原Codex任务核对、本地持久化有界重试和未派发拒绝恢复，候选/EXE与用户实机证据分别记录。

@@ -1,5 +1,9 @@
 # M04 SSH 机器接入设计
 
+## 2026-10-17：SSH持久拒绝恢复（alpha.28候选）
+
+M04-F04/F05/F08：ipc/request裸NOT_CONFIGURED后，仅在同一认证代次只读daemon.receiptRead；内部WeakMap区分可信台账与原生/伪造JSON。既有主机密钥、owner/profile/daemon/协议校验继续适用。为新包收录alpha.27原manifest精确摘要，不自动升级原daemon。 当前源码候选，GitHub仍alpha.27；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+
 ## 2026-10-17：Windows未派发与持久化恢复
 
 M04-F04/F05/F08：alpha.27客户端收录原alpha.26冻结manifest，digest为6674f37902908e329ce76cb634d6ebae36c55f33f8e7ad836488986b10879c4e；按原文件/归属精确校验复用，不自动升级或派发模型。既有alpha.24/25清单保持原字节。 当前源码/GitHub预发布alpha.27；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。

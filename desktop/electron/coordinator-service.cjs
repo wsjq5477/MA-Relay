@@ -166,7 +166,7 @@ function operation(name, params, state, result) {
       ),
   );
 }
-function settleOperation(id, result, machineId) {
+function settleOperation(id, result, machineId, retained) {
   const rows = read("pending.json", []);
   const row = rows.find((r) => r.id === id && r.machineId === machineId);
   if (!row) return;
@@ -174,6 +174,11 @@ function settleOperation(id, result, machineId) {
     if(result?.operationId!==id||!['confirmed','rejected'].includes(result.state))return;
     const receivedTask=result.taskId||result.data?.taskId,originalTask=row.params.taskId||row.params.reply?.taskId;
     if(receivedTask&&receivedTask!==originalTask)return;
+  }else if(result?.reconciliation==='original daemon rejection verified'){
+    if(result.state!=='rejected'||result.requestId!==id||result.machineId!==machineId||!connection().undispatchedRejection?.(row))return;
+    if(retained&&retained.id===id&&retained.machineId===machineId&&payloadDigest(retained.params)===payloadDigest(row.params)){
+      row.time=retained.time;row.params=retained.params;
+    }
   }else if(!result?.taskId||result.requestId!==id||(result.machineId&&result.machineId!==machineId))return;
   row.state = ["unknown","rejected"].includes(result?.state) ? result.state : "confirmed";
   row.result = journalResult(row,result);
@@ -190,13 +195,13 @@ function recoverPending() {
       // A concurrent submission/query may already have updated this receipt.
       if (!row || !["pending", "unknown"].includes(row.state) || row.time !== original.time
         || JSON.stringify(row.params) !== JSON.stringify(original.params)) return false;
-      if (['original undispatched node intent and rejection verified','original undispatched node intent and runtime rejection verified','original undispatched local network persistence failure verified'].includes(result?.reconciliation)
+      if (['original daemon rejection verified','original undispatched node intent and rejection verified','original undispatched node intent and runtime rejection verified','original undispatched local network persistence failure verified'].includes(result?.reconciliation)
         && !connection().undispatchedRejection?.(row)) return false;
       Object.assign(row, { state, result:journalResult(row,result), reconciledAt: new Date().toISOString() });
       write("pending.json", rows);
       return true;
     }, row => connection().machine(row.machineId).kind === "wsl",
-    row => connection().undispatchedRejection?.(row)
+    (row,error) => connection().undispatchedRejection?.(row,error)
   ).finally(() => { recoveringJournal = null; });
   return recoveringJournal;
 }
@@ -307,7 +312,7 @@ async function call(input) {
         ),
         { code: "DESKTOP_UNCONFIRMED" },
       );
-    if (mutation) operation(p.op, p, "pending");
+    if (mutation && !previousPending) operation(p.op, p, "pending");
     try {
       const result = await connection().call(input.method, p);
       if (input.method === 'snapshot' && ssh) {
@@ -349,6 +354,13 @@ async function call(input) {
         settleOperation(p.operationId, result, p.machineId);
       return { ok: true, result };
     } catch (error) {
+      const original=read('pending.json',[]).find(r=>r.id===(p.requestId||journalKey(p))&&r.machineId===p.machineId);
+      const daemonRejection=original&&connection().undispatchedRejection?.(original,error);
+      if(daemonRejection?.reconciliation==='original daemon rejection verified'){
+        settleOperation(original.id,daemonRejection,original.machineId,oldRows.find(r=>r.id===original.id&&r.machineId===original.machineId));
+        if(!mutation&&p.op==='request')return {ok:true,result:daemonRejection};
+        throw error;
+      }
       const runtimeRejection = mutation && input.method === 'nodeRequest' && !previousPending
         && connection().undispatchedRejection?.({id:journalKey(p),op:p.op,machineId:p.machineId,params:p,result:{error:{code:error.code,message:error.message}}});
       if (mutation)

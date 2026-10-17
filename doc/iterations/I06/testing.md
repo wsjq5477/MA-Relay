@@ -1,5 +1,9 @@
 # I06 测试与验收方案
 
+## 2026-10-17：alpha.28 SSH持久拒绝恢复
+
+桌面317/317、核心45/45、Windows合成契约93/93；受控TCP SSH丢响应及真实daemon重启恢复通过。普通EXE、包与发布实际状态及未测边界见[专项验收](daemon-rejection-recovery.md)，完整I06C未准出。
+
 > 当前状态（2026-10-12）：这是 I06 的提案/设计/验收目标基线，不是通过报告。I06A 主链路已经开发，Windows 准出仍未完成；完整当前说明见 [整体资料](../../README.md)和[模块目录](../../module-plan.md)，实施差异与证据见 [开发记录](development.md) / [进度核对](progress.md)。
 
 

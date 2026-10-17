@@ -1,5 +1,9 @@
 # 迭代路线与当前交付
 
+## 当前修复候选
+
+alpha.28：issue #5远端持久拒绝只读恢复；GitHub仍alpha.27，新包待验证发布，完整I06C/I07C未准出。[当次范围与证据](iterations/I06/daemon-rejection-recovery.md)。
+
 更新：2026-10-16。完整功能与模块设计见 [资料入口](README.md)；这里维护交付顺序，不另建一套架构。
 
 ## 1. 当前基线
