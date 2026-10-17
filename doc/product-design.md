@@ -1,8 +1,10 @@
 # AgentBridge 整体功能设计
 
+2026-10-17 / alpha.25源码与本地候选：AB-F08/F10/F11，M02/M03/M06/M07/M10修复未完成执行上下文缺少Agent身份时截获原请求/任务查询的问题；仅匹配原回执结算，缺收据继续unknown。包含先前不完整任务回应保护；GitHub保持alpha.24。见[需求、实现与证据](iterations/I06/windows-context-recovery.md)。
+
 更新：2026-10-16。适用：Windows0.5.0稳定历史功能，以及0.6.0-alpha.23预发布的小队协作与持续协调首批（包含此前未确认资源范围、配置拒绝恢复及发现修复）。每项明确区分实现、发布和验收状态。
 
-当前源码/本地候选alpha.24补齐小队停止与原生终态核对；GitHub预发布alpha.23包含I07A/B及I07C首批持续协调；[发布及下载](iterations/I07/github-release.md)。[I07C首批交付](iterations/I07/automation.md)明确真实/受控证据，完整I07C未准出。
+2026-10-16发布前交付记录：alpha.24补齐小队停止与原生终态核对；当时GitHub预发布alpha.23包含I07A/B及I07C首批持续协调；[发布及下载](iterations/I07/github-release.md)。[I07C首批交付](iterations/I07/automation.md)明确真实/受控证据，完整I07C未准出。
 
 ## 1. 产品解决什么问题
 

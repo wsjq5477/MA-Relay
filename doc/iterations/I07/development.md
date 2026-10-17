@@ -83,3 +83,7 @@ I07A/B已确定TeamSpace SQLite事务及版本1至2迁移；任务业务位于te
 ## 15. 不完整原生任务回应保护
 
 2026-10-17：发现首个succeeded回应缺taskId/Conversation仍能结算的边界，新增完整身份校验。五种受控反例修复前全部失败，修复后相关45/45通过；原占用保留、完整原请求查询恢复且execute仅一次。当前补丁未入原alpha.24 EXE，不修改预发布附件。[交付和限制](incomplete-receipt.md)。
+
+## 16. 并行维护：Windows原请求查询恢复
+
+2026-10-17 / alpha.25本地候选：修复未完成上下文agentId缺失导致原请求查询错路由，纳入前一项不完整任务回应保护；需求、受控验证、包及故障机边界见[I06恢复专项](../I06/windows-context-recovery.md)。不扩展I07C验收范围或改变GitHub alpha.24附件。

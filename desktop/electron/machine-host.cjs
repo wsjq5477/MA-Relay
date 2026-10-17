@@ -83,7 +83,10 @@ class MachineHost {
       const base=all[0];return {...base,agents:{...base.agents,items:all.flatMap(s=>s.agents?.items||[]).map(a=>{const row=this.rows.find(r=>r.agentId===a.agentId);return {...a,...(row?{adapter:row.adapter,nodeId:row.nodeId,contextId:row.contextId}:{})};})},tasks:all.flatMap(s=>s.tasks||[]),conversations:all.flatMap(s=>s.conversations||[])};
     }
     if(method==='ipc'){
-      const byAgent=this.rows.find(r=>r.agentId===params.agentId);
+      // Failed context preparation may persist a row before it has an agent.
+      // Two absent IDs must never route a read/control to that unfinished row.
+      const byAgent=typeof params.agentId==='string'&&params.agentId.trim()
+        ?this.rows.find(r=>r.agentId===params.agentId):undefined;
       if(byAgent)return this.backend(byAgent).call(method,{...params,...(byAgent.mcp&&byAgent.adapter!=='opencode'?{mcp:byAgent.mcp}:{})});
       if(['tasks','conversations','agents'].includes(params.op)){const snapshot=await this.call('snapshot',{});return params.op==='agents'?snapshot.agents:{items:snapshot[params.op]};}
       // Each original receipt/session stays with its backend; only reads search.
@@ -94,7 +97,8 @@ class MachineHost {
         }
         const snapshot=await this.call('snapshot',{});
         const owner=params.conversationId?snapshot.conversations.find(c=>c.conversationId===params.conversationId):snapshot.tasks.find(t=>t.taskId===params.taskId);
-        const row=this.rows.find(r=>r.agentId===owner?.targetAgent);
+        const row=typeof owner?.targetAgent==='string'&&owner.targetAgent.trim()
+          ?this.rows.find(r=>r.agentId===owner.targetAgent):undefined;
         if(row)return this.backend(row).call(method,{...params,...(row.mcp&&row.adapter!=='opencode'?{mcp:row.mcp}:{})});
       }
     }

@@ -8,9 +8,10 @@
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
 | 最新 Windows 预发布 | 0.6.0-alpha.24 / 小队协作与持续协调首批；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.24)，完整 I07C/I06C 未准出 |
-| 当前源码 | 0.6.0-alpha.24已发布冻结包；当前源码另含2026-10-17不完整收据修复，未打入该EXE / 小队停止与原生终态核对，准确交付见[停止专项](iterations/I07/native-stop.md)。alpha.23的源码/标签/PR事实保持。 |
+| 当前自动回归 | 2026-10-17 / alpha.25候选：核心45/45、串行桌面243/243、Windows恢复契约17/17，lint/类型/构建与包一致性通过；普通EXE对照和故障机边界见[恢复专项](iterations/I06/windows-context-recovery.md)。 |
+| 当前源码 | 0.6.0-alpha.25本地修复候选，修复Windows原请求被未完成上下文遮挡，包含不完整任务回应保护；GitHub保持alpha.24。准确结果及未测边界见[恢复专项](iterations/I06/windows-context-recovery.md)。 |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
-| 当前自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
+| alpha.24历史自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
 
 alpha.19 历史 win-unpacked/普通便携 EXE 的资源与实测保持原证据；2026-10-15 alpha.20候选已重建EXE并核对资源，普通Windows无调试EXE/合成配置拒绝恢复及关闭重开4组通过；不以历史包证明新修复。
@@ -146,3 +147,7 @@ I07C首批已实现授权/预算、重要事件激活、Claude原主会话自动
 alpha.24本地候选实现用户停止本项工作、撤销协作访问、原取消与原任务双重核对；包含已有未发布等待可见性。核心45/45、最终串行桌面233/233、Windows契约38项和受控界面7组通过，真实WSL Claude原生停止3组通过；最终包/普通EXE以[当片验收](iterations/I07/native-stop.md)为准。下一片真实执行成员自动交接、完整原生权限等待处理及独立环境故障专项，不将本片当完整I07C或发布。
 
 2026-10-17源码增量：[不完整任务回应保护](iterations/I07/incomplete-receipt.md)，受控专项45/45通过；原alpha.24 EXE及其包一致性证据仍对应此前冻结源码，未包含补丁。下一轮构建须重新核对源码/包，完整I07C/I06C仍未准出。
+
+## Windows原请求恢复增量
+
+2026-10-17：alpha.25本地候选修复MachineHost空Agent身份匹配；专项48/48、串行桌面243/243、Windows契约17/17通过。最终包与用户故障机边界见[专项](iterations/I06/windows-context-recovery.md)。不扩大完整I07C/I06C准出，GitHub保持alpha.24。

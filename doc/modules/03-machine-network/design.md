@@ -1,5 +1,9 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+## 2026-10-17：Windows原请求上下文恢复
+
+M03-F04/F05：node-contexts允许连接准备阶段尚无agentId的记录。按Agent直达仅接受非空白字符串ID；按task/Conversation查owner后亦须有有效targetAgent。无Agent的request只读搜索legacy及已分配Agent的上下文，未完成行不参与归属匹配。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。
+
 ## alpha.23 / I07C首批当前实现
 
 2026-10-16：源码及GitHub预发布alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。

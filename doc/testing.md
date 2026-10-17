@@ -1,8 +1,10 @@
 # 整体测试与验收报告
 
-2026-10-17新增未发布身份校验补丁，相关受控专项45/45通过，模型0；[证据与范围](iterations/I07/incomplete-receipt.md)。以下alpha.24全量/包为原冻结基线，未包含该补丁，未在本次重跑。
+2026-10-17 / alpha.25本地候选：修复Windows原请求上下文路由；专项48/48、串行桌面243/243、Windows契约17/17通过，模型0。包及普通EXE结果、受限首轮和未测边界见[当片专项](iterations/I06/windows-context-recovery.md)。当前候选已纳入先前不完整任务回应保护，以下alpha.24冻结基线保持原日期；GitHub预发布仍alpha.24。
 
-## alpha.24当前源码/本地候选
+2026-10-17较早身份校验专项（当时未打包，现已纳入上述alpha.25候选），相关受控专项45/45通过，模型0；[证据与范围](iterations/I07/incomplete-receipt.md)。以下alpha.24全量/包为原冻结基线，未包含该补丁，未在本次重跑。
+
+## alpha.24历史冻结源码/程序验收
 
 核心45/45、最终串行桌面233/233、Windows契约38项、生产前端受控后端7组通过，lint/类型/构建及包一致性通过，普通Windows EXE7组通过；原控制路由与真实WSL Claude取消分别执行；最新全工程/包/普通EXE与首次失败以[停止专项](iterations/I07/native-stop.md)为准。真实Claude仅1次原取消命令，后台重启后cancelled终态才归档；Windows模型0；本机手动小队Claude真实权限允许/拒绝补验见[专项](iterations/I07/native-permission.md)，自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)；原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH和完整I07C/I06C仍未准出。以下alpha.23和更早结果均保持原版本。
 

@@ -43,3 +43,5 @@ alpha.20 已作为GitHub预发布分发，修复未确认操作的节点/目录�
 - 文档同步是完成条件，不额外要求用户批准，也不替代用户已有授权。用户指令优先。
 
 alpha.23 已作为GitHub预发布分发，包含I07A/B和I07C首批持续协调；真实Claude自动主角色与受控MCP执行成员证据分开记录，其他原生自动续接/独立SSH/完整停止仍未准出。[功能与验收](doc/iterations/I07/automation.md)、[源码/EXE发布记录](doc/iterations/I07/github-release.md)。
+
+2026-10-17当前本地修复候选alpha.25：Windows未完成上下文缺少Agent身份时不得截获原请求/任务查询，包含先前不完整任务回应保护；GitHub预发布保持alpha.24，实际工程/程序与未测边界见[原请求恢复专项](doc/iterations/I06/windows-context-recovery.md)。

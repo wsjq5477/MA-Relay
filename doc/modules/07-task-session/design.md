@@ -1,5 +1,9 @@
 # M07 任务、会话、交互控制与恢复设计
 
+## 2026-10-17：Windows原请求上下文恢复
+
+M07-F06/F07：Windows原请求恢复不再被另一个没有agentId的未完成上下文遮挡。有身份匹配的原收据才确认；缺收据保留unknown，修复查询路由不构成原任务未派发证明。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。
+
 原生任务回应须有非空白字符串taskId/conversationId且匹配原request及已有绑定，才可更新小队执行事实；首次不完整回应保持unknown，后续仅查原请求，不能凭succeeded字段撤权、解除占用或验收。基于alpha.24的未发布补丁，既有EXE不含此校验。[完整规则与验证](../../iterations/I07/incomplete-receipt.md)。
 
 2026-10-17能力补验：本机WSL Claude2.1.299自动主角色首轮及原Conversation/原生Session续接后的独立权限等待、观察后台重启、精确隔离Write允许和真实终态已验证；首轮拒绝证据保留于上一专项。不扩大为真实执行成员交接、Windows或独立SSH。见[最新权限证据](../../iterations/I07/resume-native-permission.md)。

@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## 2026-10-17：Windows原请求上下文恢复
+
+M10-F01/F03/F05：当前源码及本地候选alpha.25纳入未完成上下文原请求查询修复及先前不完整任务回应保护。GitHub预发布保持alpha.24；两份包及各自证据分开，最终候选摘要/Windows实测见当片专项。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。
+
 ## alpha.24本地停止协调候选
 
 源码/本地候选0.6.0-alpha.24，GitHub仍分发原alpha.23；新增team-stop随窗口、冻结后台与Linux离线资源打包。普通EXE核对实际IPC/SQLite及外部访问撤销/重开恢复，Windows原生取消仍由真实适配专项另证。最终包33个后台CJS、78个core文件、1390个Linux条目与源码匹配；摘要、普通包结果和未测项见[当片报告](../../iterations/I07/native-stop.md)。不覆盖用户默认后台或原发布附件。

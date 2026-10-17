@@ -1,5 +1,9 @@
 # M10 构建与发布测试报告
 
+## 2026-10-17：Windows原请求上下文恢复
+
+T-M10-126 / M10-F01/F03/F05：alpha.25本地候选，WSL Node22.23.1/Windows Node24.19.0，受控记录，模型0。4个反例修复前全部失败，修复后专项48/48、串行桌面243/243、Windows契约17/17通过，原回执可恢复且缺回执仍unknown。共享计数不跨模块累加，包内33 CJS/78 core/1390 Linux资源一致；alpha.24普通EXE对照3组、alpha.25候选4组通过，原记录均为合成。候选包/普通EXE与失败日志见[专项](../../iterations/I06/windows-context-recovery.md)。未实测用户另一台电脑或真实原生模型，不改变GitHub alpha.24已发布冻结包。
+
 ## alpha.24本地候选验证
 
 T-M10-121 / M10-F01/F02/F03/F05/F06：2026-10-16，源码/本地候选alpha.24，GitHub仍alpha.23。核心45/45、最终串行桌面233/233、Windows契约38/38、受控界面7组、普通无debug Windows EXE7组通过；33 CJS/78 core/1390 Linux条目、app.asar与前端匹配最终源码。普通程序完整重启后停止归档、原收据与撤权保留，运行文件摘要和包报告一致，模型0。WSL真实Claude取消及首次失败单列于[停止专项](../../iterations/I07/native-stop.md)，不能以普通包证明Windows真实原生取消或完整I07C/I06C。

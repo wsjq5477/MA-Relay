@@ -1,5 +1,7 @@
 # AgentBridge Windows
 
+当前本地修复候选 **0.6.0-alpha.25**：修复Windows提交任务后查询原请求被未完成上下文误导到NOT_CONFIGURED的问题；[程序、实际证据与限制](../doc/iterations/I06/windows-context-recovery.md)。GitHub预发布保持alpha.24。先在原窗口“设置 → 后台运行 → 停止后台并退出”，再打开候选EXE并查询原请求；保留原节点、请求和历史。
+
 ## GitHub Windows 下载
 
 源码/本地候选已推进到 **alpha.24 / 小队停止与原生终态核对**；GitHub发布仍为下列alpha.23。[当片交付与验证](../doc/iterations/I07/native-stop.md)。
