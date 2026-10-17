@@ -2,7 +2,9 @@
 
 ## Windows EXE 下载
 
-当前最新 Windows 预发布为 [0.6.0-alpha.16](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.16)：[直接下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe) 或 [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/SHA256SUMS.txt)。稳定历史版本仍为 0.5.0；完整 I06C 和正式 0.6.0 尚未准出。Windows 用户无需自行编译、安装 WSL 或 Node.js。候选边界与验证范围见 [I06C 收尾](doc/iterations/I06/final-delivery.md)。
+源码/本地候选已推进到 **alpha.24 / 小队停止与原生终态核对**；GitHub发布仍为下列alpha.23。[当片交付与验证](doc/iterations/I07/native-stop.md)。
+
+当前最新 Windows 预发布为 [0.6.0-alpha.23](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.23)：[直接下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.23/AgentBridge-0.6.0-alpha.23-Windows-x64.exe) 或 [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.23/SHA256SUMS.txt)。包含小队公共空间、任务交接与Claude主角色持续协调首批。稳定历史版本仍为 0.5.0；完整 I07C/I06C 和正式 0.6.0 尚未准出。Windows 用户无需自行编译、安装 WSL 或 Node.js。[发布与升级](doc/iterations/I07/github-release.md)、[实际验证与边界](doc/iterations/I07/automation.md)。
 
 下载 EXE 后双击运行；原生 Agent 工具仍需按所用工具安装并登录。GitHub 自动生成的源码 ZIP 不包含 EXE。
 
@@ -10,7 +12,7 @@ AgentBridge 连接机器上的 Claude Code、OpenCode、Codex，提供 Windows �
 
 ## Windows 桌面看板
 
-当前版本 **0.5.0**。首屏按“机器 → Agent 节点”显示实际安装的工具。Windows 与 WSL 分开显示，WSL 标明宿主；接入节点不绑定项目，也不选择模型或供应商。
+以下保留 **0.5.0** 历史操作说明，新版入口和行为以[当前整体设计](doc/product-design.md)为准。首屏按“机器 → Agent 节点”显示实际安装的工具。Windows 与 WSL 分开显示，WSL 标明宿主；接入节点不绑定项目，也不选择模型或供应商。
 
 关闭旧版窗口后，双击 `desktop/release/AgentBridge-0.5.0-Windows-x64.exe`。在机器卡片中按空格勾选节点，点击“接入所选 Agent”；在“协作关系”选择主 Agent 和允许连接的子 Agent，保存关系。之后进入“会话”发送需求。目录可选，留空创建独立会话目录。只读扫描不调用模型。
 
@@ -214,3 +216,11 @@ Windows 6A 候选程序位于 `desktop/release/AgentBridge-0.6.0-alpha.2-Windows
 ## I06C 当前候选
 
 2026-10-14 / alpha.15：当前候选增加 SSH 维护入口通道拒绝恢复，Windows x64 包由当前源码重建并已核对摘要后上传至 GitHub。完整 I06C、独立服务器原生文件恢复和正式 0.6.0 未准出。实现/证据见 [I06C 收尾](doc/iterations/I06/final-delivery.md)，用户下载 [alpha.15 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe)。
+
+## alpha.18 Windows 修复预发布
+
+[下载 Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.18) · [源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。
+
+修复 Windows OpenCode 提交时的共享运行缓存错误、严格核对旧未派发请求，并显示查询结果。先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；节点和历史保留，旧命令不自动重发。无需为 AgentBridge 安装 Node.js 或 WSL。此为 prerelease，源码独立分支尚未合入 master，完整 I06C 仍未准出。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。

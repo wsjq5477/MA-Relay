@@ -36,6 +36,133 @@ function fixture(t){
   return {directory,router,hosts,options};
 }
 async function setup(t){const f=fixture(t);const s=await f.router.snapshot();return {...f,nodes:s.nodes};}
+const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+test('team execution binds a fresh member scope without altering legacy relations; terminal scope and forged ingress are rejected',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),h=f.hosts.get(node.machineId),original=h.call.bind(h);
+  let scope;
+  h.call=async(method,p)=>{const r=await original(method,p);if(method==='context'){scope=p.scope;return {...r,teamCollaboration:true};}return r;};
+  const service=createCoordinatorService({directory:f.directory,network:f.router});try{
+  const invoke=async(method,p={})=>{const r=await service.call({method:'team.'+method,params:{operationId:require('node:crypto').randomUUID(),...p}});assert.equal(r.ok,true,JSON.stringify(r.error));return r.result;};
+  const agent=await invoke('registerAgent',{kind:'native',nodeId:node.nodeId,name:'开发',purpose:'实现'});
+  const team=await invoke('createTeam',{name:'小队',leaderId:agent.agentId,memberIds:[agent.agentId]});
+  const run=await invoke('createRun',{teamId:team.teamId,name:'工作',goal:'实现',acceptance:'实际结果'});
+  const a=await invoke('execute',{runId:run.runId,agentId:agent.agentId,message:'read team_context and report'});
+  assert.equal(a.state,'running');assert.ok(scope.teamSessionId);assert.equal(f.router.network.collaboration.leaderId,null);
+  const context=await f.router.options.teamTool(scope,'team_context',{},node.machineId);assert.equal(context.run.runId,run.runId);
+  await assert.rejects(f.router.options.teamTool(scope,'team_context',{},'forged-machine'),{code:'TEAM_FORBIDDEN'});
+  const forged=await service.call({method:'nodeRequest',params:{nodeId:node.nodeId,op:'submit',message:'forged',requestId:'forged',teamScope:scope}});assert.equal(forged.error.code,'TEAM_FORBIDDEN');
+  h.tasks[0].status='succeeded';h.tasks[0].result={message:'real result'};
+  const after=await invoke('refresh',{runId:run.runId});assert.equal(after.attempts[0].state,'succeeded');assert.equal(after.run.state,'active');
+  await assert.rejects(f.router.options.teamTool(scope,'team_context',{},node.machineId),{code:'TEAM_FORBIDDEN'});
+  }finally{service.close();}
+});
+async function uncertainSubmission(t,workspace){
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  const service=createCoordinatorService({directory:f.directory,platform:'win32',network:f.router});
+  host.lose=true;
+  const params={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'uncertain',message:'original',...(workspace?{workspace}:{})};
+  assert.equal((await service.call({method:'nodeRequest',params})).error.code,'DESKTOP_TRANSPORT');
+  host.lose=false;host.requests.clear();host.tasks=[];host.conversations=[];
+  for(const a of host.agents){a.busy=false;delete a.currentTask;}
+  return {...f,node,host,service,params};
+}
+test('team member revocation during context preparation is rechecked immediately before native dispatch',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),h=f.hosts.get(node.machineId),original=h.call.bind(h);
+  let release,started;const prepared=new Promise(r=>started=r),gate=new Promise(r=>release=r);
+  h.call=async(method,p)=>{const result=await original(method,p);if(method==='context'){started();await gate;return {...result,teamCollaboration:true};}return result;};
+  const service=createCoordinatorService({directory:f.directory,network:f.router});try{
+    const invoke=async(method,p={})=>{const r=await service.call({method:'team.'+method,params:{operationId:require('node:crypto').randomUUID(),...p}});assert.equal(r.ok,true,JSON.stringify(r.error));return r.result;};
+    const a=await invoke('registerAgent',{kind:'native',nodeId:node.nodeId,name:'开发',purpose:'实现'});
+    const team=await invoke('createTeam',{name:'队',leaderId:a.agentId,memberIds:[a.agentId]});
+    const run=await invoke('createRun',{teamId:team.teamId,name:'工作',goal:'目标',acceptance:'证据'});
+    const execution=invoke('execute',{runId:run.runId,agentId:a.agentId,message:'must not dispatch'});
+    await prepared;await invoke('revokeMember',{runId:run.runId,agentId:a.agentId,expectedRevision:1});release();
+    const result=await execution;assert.equal(result.state,'rejected');assert.equal(h.executions,0);
+  }finally{release?.();service.close();}
+});
+test('configuration and preparation failures are durable rejections; recovery and same-ID retries never dispatch',async t=>{
+  for(const code of ['NOT_CONFIGURED','DESKTOP_TRANSPORT','CLAUDE_RUNTIME_INVALID']){
+    const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId),original=host.call.bind(host);
+    host.call=async(m,p)=>m==='context'?Promise.reject(error(code)):original(m,p);
+    let service=createCoordinatorService({directory:f.directory,network:f.router});
+    const p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'prepare-'+code,message:'original'};
+    assert.equal((await service.call({method:'nodeRequest',params:p})).error.code,code);
+    assert.equal(service.pending().length,0);assert.equal(host.executions,0);
+    const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));rows[0].state='unknown';fs.writeFileSync(file,JSON.stringify(rows));
+    const restored=new AgentNetwork(f.options);t.after(()=>restored.close());service=createCoordinatorService({directory:f.directory,network:restored});
+    assert.equal((await service.recoverPending()).resolved,1);assert.equal(service.pending().length,0);
+    // The original rejection remains authoritative after configuration is repaired.
+    await assert.rejects(restored.call('nodeRequest',p),{code});assert.equal(restored.network.requests.length,1);
+    assert.equal([...restored.hosts.values()].reduce((n,h)=>n+h.executions,0),0);
+  }
+});
+test('native admission NOT_CONFIGURED leaves no phantom busy node and permits a new request after configuration repair',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId),call=host.call.bind(host);
+  host.call=async(method,p)=>method==='ipc'&&p.op==='submit'?Promise.reject(error('NOT_CONFIGURED')):call(method,p);
+  const service=createCoordinatorService({directory:f.directory,network:f.router}),p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'config-gate',message:'original'};
+  assert.equal((await service.call({method:'nodeRequest',params:p})).error.code,'NOT_CONFIGURED');
+  assert.equal(f.router.network.requests[0].dispatched,false);assert.equal(service.pending().length,0);assert.equal(host.executions,0);
+  assert.equal((await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId).available,true);
+  host.call=call;
+  assert.equal((await service.call({method:'nodeRequest',params:p})).error.code,'NOT_CONFIGURED');assert.equal(host.executions,0);
+  assert.equal((await service.call({method:'nodeRequest',params:{...p,requestId:'new-after-repair'}})).ok,true);assert.equal(host.executions,1);
+});
+test('an unresolved request blocks its node but permits a different node on the same machine and keeps the original journal',async t=>{
+  const f=await uncertainSubmission(t),other=f.nodes.find(n=>n.machineId===f.node.machineId&&n.nodeId!==f.node.nodeId);
+  await f.router.call('attachNode',{nodeId:other.nodeId});
+  const pending=f.service.pending()[0];assert(pending.blockedNodeIds.includes(f.node.nodeId));assert(!pending.blockedNodeIds.includes(other.nodeId));
+  const attempt={op:'submit',nodeId:f.node.nodeId,requestId:'alias',message:'new',workspace:'D:/different'};
+  assert.equal((await f.service.call({method:'nodeRequest',params:attempt})).error.code,'DESKTOP_UNCONFIRMED');
+  const result=await f.service.call({method:'nodeRequest',params:{...attempt,nodeId:other.nodeId,requestId:'independent'}});
+  assert.equal(result.ok,true);assert.equal(f.host.executions,2);
+  assert.equal(f.service.pending().length,1);assert.equal(f.service.pending()[0].id,'uncertain');
+});
+test('preparation rejection in a continuation preserves inherited collaboration and the exact original input',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  await f.router.call('saveCollaboration',{leaderId:node.nodeId,memberIds:[],expectedRevision:0});
+  const first=await f.router.call('nodeRequest',{op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'parent',message:'first',collaboration:true});
+  for(const task of host.tasks)task.status='succeeded';for(const a of host.agents){a.busy=false;delete a.currentTask;}
+  const call=host.call.bind(host);host.call=async(method,p)=>method==='scope'?Promise.reject(error('NOT_CONFIGURED')):call(method,p);
+  const service=createCoordinatorService({directory:f.directory,network:f.router});
+  const p={op:'continue',nodeId:node.nodeId,machineId:node.machineId,conversationId:first.conversationId,requestId:'followup-rejected',message:'second'};
+  assert.equal((await service.call({method:'nodeRequest',params:p})).error.code,'NOT_CONFIGURED');
+  const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));rows[0].state='unknown';fs.writeFileSync(file,JSON.stringify(rows));
+  assert.equal((await service.recoverPending()).resolved,1);assert.equal(host.executions,1);assert.equal(service.pending().length,0);
+  assert.equal(f.router.network.requests.at(-1).collaboration,true);
+});
+test('resolved directory admission rejects different-node and Windows/WSL aliases before any new native execution',async t=>{
+  for(const crossMachine of [false,true]){
+    const f=await uncertainSubmission(t,'D:/shared'),other=f.nodes.find(n=>crossMachine?n.machineId!==f.node.machineId:n.machineId===f.node.machineId&&n.nodeId!==f.node.nodeId);
+    await f.router.call('attachNode',{nodeId:other.nodeId});
+    const result=await f.service.call({method:'nodeRequest',params:{op:'submit',nodeId:other.nodeId,requestId:'shared-alias',message:'no',workspace:crossMachine?'/mnt/d/shared':'d:/SHARED/'}});
+    assert.equal(result.error.code,'DESKTOP_UNCONFIRMED');
+    assert.equal([...f.hosts.values()].reduce((n,h)=>n+h.executions,0),1);
+    assert.equal(f.service.pending().length,1);assert.equal(f.service.pending()[0].id,'uncertain');
+  }
+});
+test('legacy missing ownership remains protected; current NOT_CONFIGURED is not evidence of original rejection',async t=>{
+  const f=await uncertainSubmission(t),file=path.join(f.directory,'pending.json');
+  const row=JSON.parse(fs.readFileSync(file))[0];row.params={op:'submit',requestId:row.id,machineId:row.machineId};fs.writeFileSync(file,JSON.stringify([row]));
+  f.router.network.requests=[];f.router.saveNetwork();
+  const other=f.nodes.find(n=>n.machineId===f.node.machineId&&n.nodeId!==f.node.nodeId);
+  assert(f.service.pending()[0].blockedNodeIds.includes(other.nodeId));
+  f.host.call=async()=>{throw error('NOT_CONFIGURED');};
+  const result=await f.service.recoverPending();assert.equal(result.resolved,0);assert.equal(result.items[0].code,'NOT_CONFIGURED');
+  assert.match(result.items[0].reason,/配置未就绪/);assert.equal(f.host.executions,1);assert.equal(f.service.pending().length,1);
+});
+test('legacy NOT_CONFIGURED settles only with the original matching undispatched intent and saved original error',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId),call=host.call.bind(host);
+  host.call=async(method,p)=>method==='context'?Promise.reject(error('NOT_CONFIGURED')):call(method,p);
+  const service=createCoordinatorService({directory:f.directory,network:f.router}),p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'legacy-config',message:'original'};
+  await service.call({method:'nodeRequest',params:p});
+  const intent=f.router.network.requests[0];delete intent.preparationRejection;delete intent.inputFingerprint;f.router.saveNetwork();
+  const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));rows[0].state='unknown';
+  for(const dispatched of [true,false]){
+    intent.dispatched=dispatched;fs.writeFileSync(file,JSON.stringify(rows));
+    const result=await service.recoverPending();assert.equal(result.resolved,dispatched?0:1);
+  }
+  assert.equal(host.executions,0);assert.equal(service.pending().length,0);
+});
 test('nodes are machine/tool identities without workspace or model; all adapters on the same machine survive rescan',async t=>{
   const f=await setup(t);assert.equal(f.nodes.length,4);for(const n of f.nodes){assert(!Object.hasOwn(n,'workspace'));assert(!Object.hasOwn(n,'model'));assert(!Object.hasOwn(n,'providerID'));}
   const ids=f.nodes.map(n=>n.nodeId);assert.deepEqual((await f.router.snapshot()).nodes.map(n=>n.nodeId),ids);
@@ -222,4 +349,69 @@ test('legacy imported instance ownership is rechecked after snapshot before nati
   const instance=f.router.catalog.instances.find(i=>i.nodeId===node.nodeId);delete instance.nodeId;
   await assert.rejects(f.router.call('ipc',{op:'submit',agentId:instance.instanceId,requestId:'unbound-bypass',message:'no'}),{code:'NODE_DISCONNECTED'});
   assert.equal(f.hosts.get(node.machineId).executions,0);
+});
+
+test('Windows OpenCode runtime failures reject before dispatch and legacy unknown recovery reads the original intent only',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  node.adapter='opencode';f.router.node(node.nodeId).adapter='opencode';
+  const originalCall=host.call.bind(host);host.call=async(method,p)=>method==='context'?Promise.reject(error('CLAUDE_RUNTIME_INVALID')):originalCall(method,p);
+  const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+  let service=createCoordinatorService({directory:f.directory,platform:'win32',version:'fixture',network:f.router});
+  const params={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'runtime-original',message:'private original prompt',collaboration:false};
+  const failed=await service.call({method:'nodeRequest',params});assert.equal(failed.error.code,'CLAUDE_RUNTIME_INVALID');assert.equal(service.pending().length,0);
+  const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));
+  assert.equal(rows[0].state,'rejected');assert.equal(host.executions,0);
+  assert.equal(f.router.network.requests[0].dispatched,false);
+  // Reproduce the original alpha.9 journal and reopen the same identity.
+  rows[0].state='unknown';fs.writeFileSync(file,JSON.stringify(rows));
+  const restored=new AgentNetwork(f.options);t.after(()=>restored.close());
+  service=createCoordinatorService({directory:f.directory,platform:'win32',version:'fixture',network:restored});
+  const before=host.calls.length,result=await service.recoverPending();
+  assert.equal(result.resolved,1);assert.equal(result.remaining,0);assert.equal(service.pending().length,0);
+  assert.equal(host.calls.length,before);assert.equal(host.executions,0);
+  const saved=JSON.parse(fs.readFileSync(file))[0];assert.equal(saved.id,'runtime-original');assert.equal(saved.state,'rejected');assert.equal(saved.params.message,params.message);assert(saved.reconciledAt);
+  assert.equal(restored.network.requests.length,1);assert.equal(restored.network.requests[0].requestId,'runtime-original');
+});
+
+test('runtime migration cannot settle missing, changed, foreign, in-flight or dispatched original intents',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  f.router.node(node.nodeId).adapter='opencode';
+  const originalCall=host.call.bind(host);host.call=async(method,p)=>method==='context'?Promise.reject(error('CLAUDE_RUNTIME_INVALID')):originalCall(method,p);
+  const p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'runtime-protected',message:'private original prompt'};
+  await assert.rejects(f.router.call('nodeRequest',p),{code:'CLAUDE_RUNTIME_INVALID'});
+  const row={id:p.requestId,op:'submit',machineId:p.machineId,params:p,result:{error:{code:'CLAUDE_RUNTIME_INVALID'}}};
+  assert(f.router.undispatchedRejection(row));
+  const receipt=f.router.network.requests[0],baseline=structuredClone(receipt);
+  for(const changes of [{dispatched:true},{dispatched:undefined},{taskId:'existing-task'},{conversationId:'existing-conversation'},{fingerprint:'different'},{machineId:'foreign'},{nodeId:'foreign'}]){
+    Object.assign(receipt,changes);assert.equal(f.router.undispatchedRejection(row),null);Object.keys(receipt).forEach(k=>delete receipt[k]);Object.assign(receipt,baseline);
+  }
+  for(const changed of [{...row,result:{error:{code:'DESKTOP_TRANSPORT'}}},{...row,params:{...p,message:'changed'}},{...row,params:{...p,collaboration:true}},{...row,params:{...p,machineId:'foreign'}},{...row,params:{...p,requestId:'other'}}])assert.equal(f.router.undispatchedRejection(changed),null);
+  f.router.nodeJobs.set(node.nodeId,Promise.resolve());assert.equal(f.router.undispatchedRejection(row),null);f.router.nodeJobs.delete(node.nodeId);
+  f.router.network.requests=[];assert.equal(f.router.undispatchedRejection(row),null);assert.equal(host.executions,0);
+});
+
+test('legacy runtime lookup retains uncertainty when the original intent is dispatched or changes during recovery',async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  f.router.node(node.nodeId).adapter='opencode';const originalCall=host.call.bind(host);
+  host.call=async(method,p)=>method==='context'?Promise.reject(error('CLAUDE_RUNTIME_INVALID')):originalCall(method,p);
+  const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+  const service=createCoordinatorService({directory:f.directory,platform:'win32',network:f.router});
+  const p={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'runtime-race',message:'original'};
+  await service.call({method:'nodeRequest',params:p});
+  const file=path.join(f.directory,'pending.json'),rows=JSON.parse(fs.readFileSync(file));rows[0].state='unknown';fs.writeFileSync(file,JSON.stringify(rows));
+  const check=f.router.undispatchedRejection.bind(f.router);let changed=false;
+  f.router.undispatchedRejection=row=>{const result=check(row);if(!changed){changed=true;queueMicrotask(()=>{f.router.network.requests[0].dispatched=true;});}return result;};
+  const result=await service.recoverPending();assert.equal(result.resolved,0);assert.equal(service.pending().length,1);assert.equal(result.items[0].code,'JOURNAL_CHANGED');
+  const again=await service.recoverPending();assert.equal(again.resolved,0);assert.equal(service.pending().length,1);assert.equal(host.executions,0);
+});
+test('team continuation keeps original context/conversation, rotates scope and rejects unscoped continuation or old backend',async t=>{
+ const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId),original=host.call.bind(host);let upgraded=true;
+ host.call=async(method,p)=>{const r=await original(method,p);return method==='context'?{...r,teamCollaboration:true}:method==='scope'?{...r,teamContinuation:upgraded}:r;};
+ const first=await f.router.call('nodeRequest',{op:'submit',nodeId:node.nodeId,requestId:'team-first',message:'first',teamScope:{teamSessionId:'first-scope',nodeId:node.nodeId,parentRequestId:'team-first'}});
+ for(const task of host.tasks)task.status='succeeded';for(const agent of host.agents){agent.busy=false;delete agent.currentTask;}
+ await assert.rejects(f.router.call('nodeRequest',{op:'continue',nodeId:node.nodeId,conversationId:first.conversationId,requestId:'unscoped',message:'no'}),{code:'TEAM_FORBIDDEN'});
+ const second=await f.router.call('nodeRequest',{op:'continue',nodeId:node.nodeId,conversationId:first.conversationId,requestId:'team-second',message:'second',teamScope:{teamSessionId:'new-scope',nodeId:node.nodeId,parentRequestId:'team-second'}});
+ assert.equal(second.conversationId,first.conversationId);assert.equal(host.executions,2);assert.equal(host.calls.filter(x=>x.method==='context').length,1);assert.equal(host.calls.find(x=>x.method==='scope').p.scope.teamSessionId,'new-scope');
+ for(const task of host.tasks)task.status='succeeded';for(const agent of host.agents){agent.busy=false;delete agent.currentTask;}
+ upgraded=false;await assert.rejects(f.router.call('nodeRequest',{op:'continue',nodeId:node.nodeId,conversationId:first.conversationId,requestId:'old-backend',message:'third',teamScope:{teamSessionId:'third',nodeId:node.nodeId,parentRequestId:'old-backend'}}),{code:'TEAM_UPGRADE_REQUIRED'});assert.equal(host.executions,2);
 });

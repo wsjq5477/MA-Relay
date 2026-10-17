@@ -87,6 +87,7 @@ export interface Conversation {
   items?: Task[];
 }
 export interface Snapshot {
+  teamSpaceSupported?: boolean;
   nodes?: AgentNode[];
   nodeManagement?:boolean;
   machineManagement?:boolean;
@@ -259,8 +260,16 @@ export interface Preferences {
   platform?: string;
   version?: string;
 }
+export interface RecoveryItem {
+  id: string;
+  machineId?: string;
+  op: string;
+  code: string;
+  reason: string;
+}
 export interface Journal {
   id: string;
+  blockedNodeIds?: string[];
   machineId?:string;
   op: string;
   params: Record<string, unknown>;
@@ -285,7 +294,7 @@ export interface DesktopAPI {
   pickFolder(machineId?: string): Promise<string | null>;
   window(action: string): Promise<void>;
   pending(): Promise<Journal[]>;
-  recoverPending?(): Promise<{ resolved: number }>;
+  recoverPending?(): Promise<{ resolved: number; remaining?: number; items?: RecoveryItem[] }>;
 }
 declare global {
   interface Window {

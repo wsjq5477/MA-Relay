@@ -1,6 +1,6 @@
 # Codex 适配器设计
 
-更新日期：2026-10-12。源码：0.6.0-alpha.4；旧 0.6.0-alpha.2 包不含本次发现修复。功能 **M06-CX-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
+更新日期：2026-10-14。当前发现修复源码：0.6.0-alpha.19；旧 0.6.0-alpha.2 包不含本次发现修复。功能 **M06-CX-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途与当前能力
 
@@ -18,6 +18,8 @@
 | 主 Agent 协作 | 已实现 Bridge MCP | WSL 真实主/子任务链通过；MCP 权限限定 Bridge 工具 |
 
 目前 snapshot 声明 `resume: true` 是调用入口能力。真实原生版本已经出现续聊失败，界面不能据此声称每台机器续聊已验收可用。
+
+Linux 发现不再只依赖非交互 PATH：扫描 fnm/nvm 等常见用户态安装目录及传入的根目录变量，保留已有 PATH 优先级和规范安装路径。只执行 --version，不读取原生登录秘密或修改 rc。相同 CLI 版本在 Windows 可见不代表 SSH daemon 的 PATH 一样；必须由更新后的 Ubuntu 后台执行发现。[alpha.19 证据](../../../iterations/I06/linux-cli-discovery.md)。
 
 ## 2. 调用与消息路径
 
@@ -42,7 +44,7 @@ flowchart LR
 | `item.completed` + `agent_message` | 产生 output，保存本完成项文本作为当前回答 |
 | 其他 `item.started` / `item.completed` | 记录工具/命令类型进度 |
 | `turn.completed` | 设置原生回合完成证据；仍等待进程退出 |
-| `turn.failed` / `error` | 保存原生错误，包括模型/账号和续聊协议错误 |
+| `turn.failed` / `error` | 保存原生错误，包括模型/账号和续聊协议错误；即使同轮还有完成事件且退出码0，仍判failed |
 
 stdout 使用 UTF-8 JSONL；未完成行缓冲限制为 1 MiB。stderr 保存为独立诊断、做已知凭据脱敏。最终答案取最后一个已完成 agent_message；当前实现没有把多个完成项拼成单个最终答案的契约，也没有接入 token delta。
 
@@ -116,3 +118,5 @@ stateDiagram-v2
 [codex-host.cjs](../../../../desktop/electron/codex-host.cjs) 包含宿主与 worker；[tool-discovery.cjs](../../../../desktop/electron/tool-discovery.cjs) 处理程序发现和启动；[worker-runtime.cjs](../../../../desktop/electron/worker-runtime.cjs) 提供持久资源；[MachineHost](../../../../desktop/electron/machine-host.cjs) 提供上下文与来源路由。
 
 Codex CLI 协议升级时须保存实际版本、新会话 thread、resume thread、完成项、取消后的原生退出和 MCP 限制证据。需要 token delta、原生许可或表单时，应单独设计它们的协议与收据，不能凭当前静态 capability 或夹具成功推断真实支持。同步[测试报告](test-report.md)、总能力表与对应迭代。
+
+终态成功必须同时满足退出码0、收到turn.completed且没有明确原生错误；错误优先于完成标记，取消仍等所属进程退出后确认。该规则适用于新会话与续聊，不据失败自动重发请求。当前源码修复与受控证据见[I07C终态专项](../../../iterations/I07/codex-terminal.md)，旧候选包不含本次修复。

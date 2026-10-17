@@ -96,6 +96,23 @@ test('private daemon identity rejects symlinks, conflicting profile and ordinary
   assert.equal(fs.readFileSync(socketPathFor(another.stateDirectory), 'utf8'), 'unrelated file');
 });
 
+test('daemon socket is private at bind time and restores the caller umask', async t => {
+  const opts = setup(t), originalListen = net.Server.prototype.listen;
+  const previousMask = process.umask(0o022);
+  let boundMode;
+  t.after(() => { net.Server.prototype.listen = originalListen; process.umask(previousMask); });
+  net.Server.prototype.listen = function (...args) {
+    const result = originalListen.apply(this, args);
+    if (args[0] === socketPathFor(opts.stateDirectory)) boundMode = fs.statSync(args[0]).mode & 0o777;
+    return result;
+  };
+  const daemon = await startDaemon({ ...opts, hostFactory: () => hostFixture() });
+  t.after(() => daemon.close());
+  assert.equal(boundMode, 0o600);
+  assert.equal(process.umask(), 0o022);
+  assert.equal((await inspectDaemon(opts)).daemonId, daemon.info.daemonId);
+});
+
 test('daemon handshake binds owner, daemon identity and protocol before exposing native calls', async t => {
   const opts = setup(t), host = hostFixture(), daemon = await startDaemon({ ...opts, hostFactory: () => host }); t.after(() => daemon.close());
   const info = await inspectDaemon(opts); assert.equal(info.daemonId, daemon.info.daemonId); assert.equal(info.uid, process.getuid());

@@ -56,3 +56,12 @@ test('remoteExec reports the channel rejection reason and the remote exit code',
  const failed={exec(_command,_options,cb){const stream=new EventEmitter();stream.stderr=new EventEmitter();stream.close=()=>{};stream.end=()=>queueMicrotask(()=>stream.emit('close',127));cb(null,stream);}};
  await assert.rejects(remoteExec(failed,'fixture'),e=>e.code==='SSH_EXEC_FAILED'&&e.message.includes('退出码 127'));
 });
+
+test('a verified maintenance bundle still rejects a compatibility manifest changed before input construction',t=>{
+ const f=fixture(t),bundle=f.installer.bundle();
+ assert.equal(f.installer.release(f.old.version,bundle).digest,digest(f.old));
+ const filename=path.join(f.directory,'compatible-daemons',f.old.version+'.json');
+ fs.writeFileSync(filename,JSON.stringify({...f.old,runtime:{...f.old.runtime,version:'22.24.0'}}));
+ assert.throws(()=>f.installer.release(f.old.version,bundle),{code:'SSH_PACKAGE_CHECKSUM'});
+ assert.deepEqual(f.writes,[]);
+});

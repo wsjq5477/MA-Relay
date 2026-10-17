@@ -1,12 +1,20 @@
 # M10 构建、发布与持久运行资源设计
 
-更新：2026-10-14。桌面当前源码候选 0.6.0-alpha.15、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源。
+## alpha.24本地停止协调候选
+
+源码/本地候选0.6.0-alpha.24，GitHub仍分发原alpha.23；新增team-stop随窗口、冻结后台与Linux离线资源打包。普通EXE核对实际IPC/SQLite及外部访问撤销/重开恢复，Windows原生取消仍由真实适配专项另证。最终包33个后台CJS、78个core文件、1390个Linux条目与源码匹配；摘要、普通包结果和未测项见[当片报告](../../iterations/I07/native-stop.md)。不覆盖用户默认后台或原发布附件。
+
+## alpha.23 / I07C首批预发布
+
+便携程序0.6.0-alpha.23已作为GitHub预发布分发，[发布记录](../../iterations/I07/github-release.md)。窗口/冻结后台/Linux离线包包含team-automation及格式3SQLite逻辑，MCP客户端运行副本仍包含team-tools。最终校验32个CJS、78个core文件、1389个Linux清单条目、app.asar及前端逐项匹配。普通EXE生命周期、摘要、分发和未测项见[I07C首批报告](../../iterations/I07/automation.md)；源码测试不替代普通包验证，Windows无模型包流程不替代真实WSL主协调。本批保留原Codex终态及daemon bind权限修复，已核验GitHub附件和完整公开下载；没有升级用户后台。
+
+原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新：2026-10-15。桌面当时源码与GitHub预发布 0.6.0-alpha.20、根 CLI 0.1.0；Windows x64 便携 EXE 已从当前源码重建并通过包一致性校验。稳定历史版本仍为 0.5.0；本候选的完整 I06C 原生准出仍未完成。发布检查覆盖源码、窗口/后台、前端和 Linux 离线资源；逐文件核对核心 dist 与 Windows bridge/dist、Linux package/dist，并检查 Linux 后台 CJS 与源码一致。
 
 ## 1. 功能范围
 
 | 功能 ID | 交付目标 | 当前状态 |
 | --- | --- | --- |
-| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.16 当前桌面 163/163；根 43/43 于 2026-10-14 实测通过；当前界面/发布检查见 I06C 收尾报告 |
+| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.20 串行桌面 188/188、核心 45/45 于 2026-10-15 实测通过；当前界面/发布检查见 I06C 收尾报告 |
 | M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | 0.6.0-alpha.16 便携 EXE 已重建并通过包一致性校验；本次未重新执行真实 Windows 用户流程 |
 | M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.16 资源已随 Windows 包生成，包含 1381 个文件；独立远端真实场景仍按 I06C 报告的边界记录 |
 | M10-F04 | 发布包坏路径/坏摘要拒绝安装，远端校验后原子激活版本 | 校验实现，受控安全检查及真实正常安装通过；破坏性故障矩阵未完成 |
@@ -21,15 +29,19 @@ M10 管理可执行材料和一致性，不管理模型/账号，也不把远端
 | 名称 | 当前值/位置 | 含义 |
 | --- | --- | --- |
 | 根 CLI 包版本 | `package.json` = `0.1.0` | 本地 CLI 工程包版本；不代表当前桌面功能发布版 |
-| 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.15` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
-| 已发布 Windows EXE | `AgentBridge-0.5.0-Windows-x64.exe` | 稳定历史程序；当前源码候选包为 `AgentBridge-0.6.0-alpha.15-Windows-x64.exe`，完整 I06C 尚未准出 |
+| 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.21` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
+| 最新预发布 Windows EXE | `AgentBridge-0.6.0-alpha.20-Windows-x64.exe` | 核验源码标签分发；稳定历史为0.5.0，完整I06C尚未准出 |
 | 根编译物 | `dist/` | TypeScript core/CLI/DesktopHost，供桌面与 daemon 共用 |
 | 前端编译物 | `desktop/dist/` | Vite 静态资源，Electron 窗口加载 |
 | 后台暂存物 | `desktop/.bridge-runtime/` | CJS 后台与根生产依赖闭包 |
 | Linux 离线资源 | `desktop/.linux-package/` | manifest + Linux 后台/依赖/runtime/node |
 | 解包目录 | `desktop/release/win-unpacked/` | 构建中间物，不是保证最新的发布事实 |
 
-当前 `win-unpacked` 和 portable EXE 已在 2026-10-14 从 alpha.15 源码重建；包校验通过，`app.asar` 源码和前端均匹配，Linux 离线资源清单包含 1380 个文件。本次未重新执行真实 Windows 用户流程；alpha.13 的历史原生验收不冒充 alpha.15 全量复测。
+当前 alpha.19 发布包已构建并通过资源一致性检查；普通 Windows EXE 启动、关闭、重开及受控旧原请求恢复 4 组通过，未执行模型任务；Linux 版本探测是本机隔离 SSH 链路，不是用户服务器。清单和摘要见 Linux 发现专项报告。
+
+alpha.19 将同一 Linux CLI 发现修复打入窗口 CJS、冻结后台及 Linux 离线资源；可信 alpha.18 清单先与已交付 digest 核对再收入。客户端与原远端后台版本分别显示，旧版本继续可信复用，不自动升级；SSH 发现修复须用户维护原 daemon 后生效。[交付和分层证据](../../iterations/I06/linux-cli-discovery.md)。
+
+alpha.19 合并 OpenCode 二次发现/Windows Core 配置刷新与 Linux CLI 发现两项修复；包内 bridge/dist、Linux dist 与共享 CJS 都必须匹配最终源码。原早先 alpha.19 Linux-only 包不能作为合并包的核验事实。[OpenCode 范围](../../iterations/I06/opencode-discovery.md)、[统一交付](../../iterations/I06/linux-cli-discovery.md)。
 
 ## 3. 构建流程
 
@@ -127,7 +139,7 @@ Linux 构建默认使用当前 `process.execPath`；可通过 `AGENTBRIDGE_LINUX
 | `coordinatorRuntime` | 整套 root dist、后台 CJS、生产依赖、Linux 离线包 | 桌面版本+代码摘要目录，GUI 与临时解包目录无关 |
 | Linux 版本目录 | daemon/依赖/私有 Node | SSH 断开不删除安装物；运行数据另存 |
 
-`workerRuntime` 复用副本时检查文件大小，并未对该副本重新逐文件算 SHA-256；Coordinator 缓存摘要也未覆盖全部依赖与 Linux 包内容。这些是目前实现边界，发布时需实际核对资源，不能把缓存 manifest 存在视为整包已验收。
+`workerRuntime` 新清单为 version=2，逐文件检查 size/SHA-256、必需资源和文件名；不复制或追踪 runtime.json/日志。旧清单兼容 size 检查，仅忽略 alpha.9 的清单自引用项，不改旧文件。其他资源损坏时从完整来源构建并原子发布独立 repair 目录，后续可复用；不覆盖或删除可能仍被 detached worker 使用的旧资源。来源不完整时明确拒绝。Coordinator 缓存摘要仍未覆盖全部依赖与 Linux 包内容，运行缓存通过不能代替整包验收。原请求只读恢复规则见 [本次修复](../../iterations/I06/runtime-recovery.md)。
 
 ## 7. 发布准出与尚未实现
 
@@ -185,3 +197,22 @@ alpha.13 包含 28 个后台 CJS 和 1378 个 Linux 文件，收录已构建并�
 实现入口：[stage-linux-package.cjs](../../../desktop/scripts/stage-linux-package.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
 
 alpha.14 将上传诊断、原安装恢复界面和当前后台源码同时打入 portable/离线包，收录已核对实际 alpha.13 包摘要的兼容 manifest。当前分层验证与未测范围见 [上传修复交付](../../iterations/I06/ssh-upload-recovery.md)；普通 EXE 和原服务器安装证据必须分别判定。
+
+## alpha.16 候选一致性
+
+alpha.16 将维护原收据恢复修复打入窗口、冻结后台与 Linux 离线包；收录已核对 alpha.15 实际包摘要的可信兼容清单，不自动升级用户服务器。构建与普通 EXE 分开核验，最终依据源码/包比对及真实窗口启动；并发构建中途的 EXE 大小/哈希不作为最终分发证据。见 [本次交付](../../iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.17 构建隔离
+
+正在进行的冻结 alpha.16 服务器链使用原离线资源，alpha.17 用独立临时源码快照构建，再与主工作区 CJS/前端/离线清单和最终 EXE 比对。已核验 alpha.16 manifest 固定摘要后收入兼容目录；不覆盖已发布版本，也不自动升级服务器。结果见 [本次交付](../../iterations/I06/maintenance-launch-recovery.md)。
+
+当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](../../iterations/I06/github-release.md)。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+
+## alpha.20 资源范围修复候选
+
+Windows x64 portable已从当前修复源码重建，逐文件核对窗口/后台/核心和Linux离线资源；28个CJS、78个核心文件、1385个Linux清单条目。alpha.19兼容清单先与原冻结发布摘要核对，不把runtime或依赖二进制提交为源码。原请求/资源保护与分层实际结果见[专项](../../iterations/I06/pending-isolation.md)，新包不代表完整I06C准出。
+
+alpha.20已以GitHub prerelease分发，源码标签绑定9b2d5ea，附件uploaded、公开下载HTTP200且完整EXE摘要匹配。完整验证与升级说明见上述专项。

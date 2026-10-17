@@ -1,17 +1,40 @@
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {AgentNetwork}=require('../electron/agent-network.cjs');
 const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
-async function graphFixture(){
+async function graphFixture(options={}){
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-i06b-ui-')),hosts=new Map();
   let scale=false;
   const router=new AgentNetwork({directory,platform:'win32',hostname:'Windows 测试机',distributions:async()=>['Ubuntu'],createHost:m=>{
     const adapter=m.kind==='windows'?'claude':'opencode';
-    const h={offline:false,calls:[],setCollaboration(){},close(){},async call(method,p){
+    const contexts=[],tasks=[],controls=new Map();
+    const h={offline:false,calls:[],tasks,controls,setCollaboration(){},close(){},async call(method,p){
       this.calls.push({method,p});
       if(this.offline)throw Object.assign(Error('隔离测试：通道离线'),{code:'MACHINE_OFFLINE'});
       if(method==='discover')return {items:(scale?[adapter,...['claude','opencode','codex'].filter(a=>a!==adapter)]:[adapter]).map(a=>({name:{claude:'Claude Code',opencode:'OpenCode',codex:'Codex'}[a],adapter:a,executable:m.kind==='windows'?'C:/tools/'+a+'.exe':'/opt/'+a,version:'test',healthy:true,executionSupported:true}))};
-      if(method==='snapshot')return {agents:{items:[],revision:0,connected:true},tasks:[],conversations:[]};
+      if(method==='snapshot')return {agents:{items:contexts.map(c=>({...c,enabled:true,online:true,healthy:true,available:!tasks.some(t=>t.targetAgent===c.agentId&&!['succeeded','failed','cancelled'].includes(t.status))})),revision:0,connected:true},tasks,conversations:[]};
       if(method==='connectTool')return {};
+      if(options.nativeExecution){
+        if(method==='context'){
+          const c={agentId:'controlled-agent-'+contexts.length,contextId:'controlled-context-'+contexts.length,workspace:p.workspace||'C:/controlled/'+contexts.length,executable:p.executable,adapter:p.adapter};contexts.push(c);return {...c,teamCollaboration:true};
+        }
+        if(method==='scope')return {configured:true,teamContinuation:true};
+        if(method==='ipc'){
+          if(p.op==='submit'){
+            const task={taskId:'controlled-task-'+tasks.length,conversationId:'controlled-conversation-'+tasks.length,executionId:'controlled-execution-'+tasks.length,targetAgent:p.agentId,requestId:p.requestId,message:p.message,status:'running',events:[],waiting:{kind:'permission',requestIds:['private-controlled-permission'],summary:'private-tool-arguments'}};
+            tasks.push(task);return task;
+          }
+          if(['request','task'].includes(p.op)){
+            const t=tasks.find(t=>p.op==='request'?t.requestId===p.requestId:t.taskId===p.taskId);
+            if(!t)throw Object.assign(Error('missing'),{code:'NOT_FOUND'});return t;
+          }
+          if(p.op==='cancel'){
+            const receipt={operationId:p.operationId,state:'confirmed'};controls.set(p.operationId,receipt);
+            if(options.loseCancelAck)throw Object.assign(Error('Controlled lost cancel response'),{code:'TRANSPORT_LOST'});
+            return receipt;
+          }
+          if(p.op==='operation')return controls.get(p.operationId)||{operationId:p.operationId,state:'not_found'};
+        }
+      }
       throw Error('UI fixture must not submit native tasks: '+method);
     }};hosts.set(m.machineId,h);return h;
   }});
@@ -44,7 +67,7 @@ async function graphFixture(){
       if(action==='external-relation'){const current=await router.call('collaboration');await router.call('saveCollaboration',{leaderId:snapshot.nodes[0].nodeId,memberIds:[],expectedRevision:current.revision,operationId:require('node:crypto').randomUUID()});}
       if(action==='external-layout'){const current=await router.call('graphLayout');await router.call('saveGraphLayout',{operationId:require('node:crypto').randomUUID(),expectedLayoutRevision:current.layoutRevision,layout:{...current,viewport:{x:0,y:0,zoom:1}}});}
     },
-    close(){router.close();fs.rmSync(directory,{recursive:true,force:true});}
+    close(){service.close();fs.rmSync(directory,{recursive:true,force:true});}
   };
 }
 module.exports={graphFixture};

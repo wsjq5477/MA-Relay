@@ -1,6 +1,7 @@
 // Standalone MCP stdio client. The descriptor is private and refreshed on reconnect.
 const fs=require('node:fs'),readline=require('node:readline');
 const {randomUUID}=require('node:crypto');
+const {teamTools}=require('./team-tools.cjs');
 const object=(properties={},required=[])=>({type:'object',properties,required,additionalProperties:false});
 const str={type:'string'};
 const tools=[
@@ -19,10 +20,10 @@ if(require.main===module){
       let result;
       if(input.method==='initialize')result={protocolVersion:['2024-11-05','2025-03-26','2025-06-18','2025-11-25'].includes(input.params?.protocolVersion)?input.params.protocolVersion:'2024-11-05',capabilities:{tools:{}},serverInfo:{name:'agentbridge',version:'0.5.0'}};
       else if(input.method==='ping')result={};
-      else if(input.method==='tools/list')result={tools};
+      else if(input.method==='tools/list'){const descriptor=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));result={tools:descriptor.mode==='team'?teamTools:tools};}
       else if(input.method==='tools/call'){
-        if(!tools.some(t=>t.name===input.params?.name))throw new Error('不支持的协作操作');
         const descriptor=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+        if(!(descriptor.mode==='team'?teamTools:tools).some(t=>t.name===input.params?.name))throw new Error('不支持的协作操作');
         const response=await fetch(descriptor.url,{method:'POST',headers:{authorization:'Bearer '+descriptor.token,'content-type':'application/json'},body:JSON.stringify({name:input.params.name,args:input.params.arguments||{},callId:randomUUID()}),signal:AbortSignal.timeout(60000)});
         if(!response.ok)throw new Error('协作通道不可用（'+response.status+'），请保留原请求 ID 并查询原记录。');
         const data=await response.json();result={content:[{type:'text',text:JSON.stringify(data.error?{error:data.error}:data.result)}],...(data.error?{isError:true}:{})};

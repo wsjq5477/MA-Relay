@@ -1,8 +1,36 @@
 # M07 任务、会话、交互控制与恢复设计
 
-更新日期：2026-10-14。本文是当前功能基线，涵盖桌面节点入口和 CLI/Core 兼容入口。它们共享“保留原执行、查询原回执”的原则；不同原生适配器的能力与存储格式不能假设完全一致。
+原生任务回应须有非空白字符串taskId/conversationId且匹配原request及已有绑定，才可更新小队执行事实；首次不完整回应保持unknown，后续仅查原请求，不能凭succeeded字段撤权、解除占用或验收。基于alpha.24的未发布补丁，既有EXE不含此校验。[完整规则与验证](../../iterations/I07/incomplete-receipt.md)。
+
+2026-10-17能力补验：本机WSL Claude2.1.299自动主角色首轮及原Conversation/原生Session续接后的独立权限等待、观察后台重启、精确隔离Write允许和真实终态已验证；首轮拒绝证据保留于上一专项。不扩大为真实执行成员交接、Windows或独立SSH。见[最新权限证据](../../iterations/I07/resume-native-permission.md)。
+
+## 当前停止工作行为
+
+[停止协调层](../../../desktop/electron/team-stop.cjs)将取消收据与原执行状态分开保存。unknown/未绑定继续占位，原请求匹配后才首次取消；已记录发送但回应不明只查原操作，最后一个原尝试真实终态后归档，不改写原任务成功/失败或业务验收。
+
+停止工作状态为stopping → closed，不向Core Task.status增加stopping；等待字段继续仅公开类别/数量，所有新行为和原请求规则见[停止专项](../../iterations/I07/native-stop.md)。
+
+## alpha.24本地候选 / I07C停止协调
+
+2026-10-16：源码/本地候选alpha.24，GitHub预发布仍alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。
+
+| 功能 ID | 功能 | 当前状态 |
+| --- | --- | --- |
+| M07-F08 | 小队工作容器与原执行尝试 | I07A基础继续适用 |
+| M07-F09 | 工作项、依赖、版本轮次与业务验收 | I07B源码已实现，实际分层证据见报告 |
+| M07-F10 | 原生激活关联、原会话恢复与延后验收 | I07C首批源码实现，证据层级见本模块报告 |
+| M07-F11 | 原生取消意图与真实终态后停止 | alpha.24源码实现，实际证据与边界见[停止专项](../../iterations/I07/native-stop.md) |
+
+激活关联持久事件、原attempt/Conversation、实际原生Session私有绑定；没有绑定或明确失败时停止新激活，不暗换会话。unknown仅查原请求，旧scope终态失效。主角色运行中提出总验收仅为awaiting_leader_terminal且accepted=false，原生真实成功且任务/工作修订、权限、新重要事件与其他在途事实均未变化后才completed。暂停/停止调度不取消原任务，不把时间/次数到限当原生终态。
+
+本次源码在小队原执行记录中展示原生权限/输入等待类别和数量，并追加去重系统通知。通知不触发自动激活、不批准权限，也不复制原生问题、工具参数或权限ID。unknown保留上次观察到的等待；只有已核对的非unknown状态才能清除。相同等待跨重启不重复通知，原任务终态清除等待。详见[等待可见性专项](../../iterations/I07/native-waiting.md)。
+
+I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交接继续按[I07B完整行为](../../iterations/I07/task-handoff.md)执行；新流程、异常、预算、接口和源码见[I07C首批交付](../../iterations/I07/automation.md)。以下原功能继续适用。
+
+原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。本文是当时功能基线，涵盖桌面节点入口和 CLI/Core 兼容入口。它们共享“保留原执行、查询原回执”的原则；不同原生适配器的能力与存储格式不能假设完全一致。
 
 ## 1. 功能目标与验收口径
+
 
 用户发出需求后，应能看到真实执行状态、回答、需要人工处理的权限或表单，以及断线后原任务的结果。继续会话应接续原生会话；无法确认时显示未知，不重复执行来获得一个看似成功的答案。
 
@@ -142,6 +170,8 @@ Core SQLite 使用 WAL、FULL 同步、事务和独立的服务生命周期锁�
 {"method":"ipc","params":{"op":"operation","machineId":"local-demo","taskId":"local-demo::task-002","operationId":"cancel-001"}}
 ```
 
+recoverPending 的本地结果包含 resolved 和可选 remaining/items；未解决原因使用固定脱敏描述，NOT_CONFIGURED 明确表示原后台执行配置未就绪，不表示原任务仍在执行或从未执行。Windows OpenCode 原 submit 的已保存资源 INVALID/MISSING，与完全匹配且无在途执行的原 intent.dispatched===false 共同构成执行前拒绝证明；落盘前再次核验，原 unknown 可记 rejected 并保留原参数/ID/历史。不能仅凭错误码或 not_found 放行。具体兼容范围见 [alpha.18](../../iterations/I06/runtime-recovery.md)。
+
 响应超时后，先用原 requestId / operationId 到原机器查询。其他机器的同名回执不解除本记录的不确定。仅 NOT_FOUND 不足以证明原动作未执行。
 
 关闭观察、关闭窗口、断开机器连接和取消原生任务是不同操作。窗口关闭后中央继续运行；SSH 断开后远端 daemon 继续持有任务。显式停止 Core controller 会停止其拥有的 Hub/Edge/托管原生服务，不能承诺与断开 SSH 相同的生存语义。
@@ -189,3 +219,9 @@ alpha.6 原请求恢复接受原 daemon 的持久执行前 AGENT_UNHEALTHY 拒�
 原生 request/operation 的确认必须匹配原 ID、来源机器、Task/execution 绑定及明确状态。旧 confirmed 外壳内包含 native unknown 时恢复为 unknown；原 native rejected 收据可读且不重放。缺收据或缺原生终态继续占位。维护拒绝正在运行、等待或未知任务，停止/卸载保留原记录；台账损坏拒绝新写入，表单秘密值不落中央恢复台账。
 
 实现入口：[pending-journal.cjs](../../../desktop/electron/pending-journal.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## 未派发拒绝与独立会话（alpha.20 已预发布）
+
+同节点或共享目录的未知操作继续占位，不再仅因同属一台机器而阻断独立节点上的新会话/续聊。缺少原资源归属时保留旧保护；后端在真实目录解析后再次检查。窗口显示范围只是后端投影，不能作为原任务结束证明。
+
+submit/continue 的上下文、原会话读取或协作 scope 准备错误，会在原意图保存 preparationRejection；只有原始台账与未派发意图匹配、无任务/会话绑定及在途 job 时才记 rejected。同 ID 不重新执行，修好配置后发新请求。旧记录必须有最初保存的 NOT_CONFIGURED 和同样未派发依据，或符合原 Windows OpenCode 资源错误规则；本次查询失败不能替代这些证据。[专项](../../iterations/I06/pending-isolation.md)。

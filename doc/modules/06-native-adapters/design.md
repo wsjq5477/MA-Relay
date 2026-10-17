@@ -1,10 +1,27 @@
 # M06 原生 Agent 适配器设计
 
-更新日期：2026-10-12。当前实现基线：源码 `0.6.0-alpha.4`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.4`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，最新 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
+2026-10-17能力补验：本机WSL Claude2.1.299自动主角色首轮及原Conversation/原生Session续接后的独立权限等待、观察后台重启、精确隔离Write允许和真实终态已验证；首轮拒绝证据保留于上一专项。不扩大为真实执行成员交接、Windows或独立SSH。见[最新权限证据](../../iterations/I07/resume-native-permission.md)。
+
+## alpha.23 / I07C首批当前实现
+
+2026-10-16：源码及GitHub预发布alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。
+
+| 功能 ID | 功能 | 当前状态 |
+| --- | --- | --- |
+| M06-F02 | 小队MCP接入与手动原生执行 | I07A基础继续适用 |
+| M06-F03 | 任务作用域与版本报告工具 | I07B源码已实现，实际分层证据见报告 |
+| M06-F04 | 原生会话能力分级与自动续接 | I07C首批源码实现，证据层级见本模块报告 |
+
+本批对Claude适配开放自动新轮/原会话续接，真实CLI2.1.299三轮自动主协调和重启原Session核对通过；运行中收信不支持，重要事项排队。Codex/OpenCode保留手动，不根据resume参数推定新小队已通过。工具扩展至16项，主角色可待本轮终态完成业务验收；新一轮注入新scope/指引，旧终态token失效。外部MCP仍自启动，不新增模型API或接管业务功能。
+
+I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交接继续按[I07B完整行为](../../iterations/I07/task-handoff.md)执行；新流程、异常、预算、接口和源码见[I07C首批交付](../../iterations/I07/automation.md)。以下原功能继续适用。
+
+原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-12。当时实现基线：源码 `0.6.0-alpha.19`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.18`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，历史 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
 
 本模块把用户机器上已有的 OpenCode、Claude Code 和 Codex CLI 接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。模型、供应商、账号和原生配置仍由原工具管理。本文是当前设计；变更过程保留在迭代文档中。
 
 ## 1. 用户看到的功能与边界
+
 
 用户先在机器中接入一个已安装的 Agent 节点，再对该节点新建会话。接入节点不需要文件夹、模型或供应商；需要处理已有文件时，在新会话阶段填写目标机器上的目录。留空使用该节点默认执行目录，同节点/目录/模式复用上下文；不同新会话不保证文件隔离。
 
@@ -43,6 +60,10 @@ flowchart TD
 - 桌面及 Linux daemon 的 `MachineHost` 是 CommonJS 路由宿主，支持 OpenCode、Claude Code 和 Codex。Claude/Codex 宿主提供与桌面任务相容的 `call(method, params)` 接口，并不实现 TypeScript `AgentDriver`。
 
 这两套接口共享任务概念，尚未统一为插件 SDK。当前不能通过任意模块路径动态加载第三方适配器。
+
+Linux 共享发现器在原 PATH 之后检查用户态版本管理器/包管理器目录，不 source rc；Codex npm JS 启动器仍用原有结构化启动规则与后台 Node 调用，不新增模型覆盖。真实 CLI 版本通过只说明安装可调用，不证明原生推理、续聊或权限能力。SSH 场景需要更新远端后台。[alpha.19](../../iterations/I06/linux-cli-discovery.md)。
+
+OpenCode 的 DesktopHost 二次发现与机器节点使用相同安装扫描规则，并只核验原选中 executable；原安装不可调用不回退到另一套程序。安装成功仍不代表原生身份、服务或模型就绪。Windows Core 设置文件刷新/替换适配平台，不改变任务/原生身份核验。[完整范围](../../iterations/I06/opencode-discovery.md)。
 
 ## 3. 能力矩阵
 
@@ -125,6 +146,8 @@ sequenceDiagram
 
 错误消息做已知凭据脱敏和长度限制。日志是诊断证据，不能把原生错误正文当作新的指令执行。
 
+共享 Electron 运行缓存不追踪 runtime.json 自身；新缓存逐文件 SHA-256 校验，旧自引用清单只忽略自身，其余资源异常时保留旧目录并准备完整新副本。Windows OpenCode 子后台启动前的 INVALID/MISSING 不代表原生模型失败；仅中央原未派发证据完备时记明确拒绝。Claude/Codex 的任务与原生终态仍按各适配器，不根据共享错误码泛化解除占位。见 [资源与原请求修复](../../iterations/I06/runtime-recovery.md)。
+
 ## 8. 代码入口与扩展规则
 
 | 入口 | 责任 |
@@ -150,3 +173,7 @@ sequenceDiagram
 原生 Driver 与账号/模型继承方式不变。daemon/Coordinator 只接受原控制操作和原 execution/task 的可核对收据；原生 unknown、外来 operationId、缺收据不会变成成功。表单秘密答案在 UI 遮罩、中央台账脱敏；适配器自身原生能力仍以各子模块报告为准，未支持交互不假成功。
 
 实现入口：[machine-daemon.cjs](../../../desktop/electron/machine-daemon.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## Codex终态约束
+
+Codex原生明确error/turn.failed不能被同轮turn.completed与退出码0覆盖。源码成功条件增加无明确原生错误；取消和原请求去重不变。未代表原生续聊或自动激活已验收；[本次实现与验证](../../iterations/I07/codex-terminal.md)。

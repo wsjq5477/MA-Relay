@@ -1,6 +1,37 @@
 # M10 构建与发布测试报告
 
-当前基线：2026-10-14 / 0.6.0-alpha.15。工程和包一致性验证通过；独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
+## alpha.24本地候选验证
+
+T-M10-121 / M10-F01/F02/F03/F05/F06：2026-10-16，源码/本地候选alpha.24，GitHub仍alpha.23。核心45/45、最终串行桌面233/233、Windows契约38/38、受控界面7组、普通无debug Windows EXE7组通过；33 CJS/78 core/1390 Linux条目、app.asar与前端匹配最终源码。普通程序完整重启后停止归档、原收据与撤权保留，运行文件摘要和包报告一致，模型0。WSL真实Claude取消及首次失败单列于[停止专项](../../iterations/I07/native-stop.md)，不能以普通包证明Windows真实原生取消或完整I07C/I06C。
+
+## alpha.23 / I07C首批实际验证
+
+T-M10-110 / M10-F01/F02/F03/F05：2026-10-16，WSL Node22.23.1、Windows Node24.18.0/Edge155。核心45/45、最终串行桌面222/222、Windows契约29/29；这些是全工程计数，跨模块不相加。Windows前端/真实Coordinator受控目录和成员10组，真实Claude2.1.299自动主角色3轮同Conversation/原Session、新scope、后台重启后实际X失败/Y通过及终态后总验收；执行成员为受控外部MCP、Node检查实际运行。最终包/普通EXE、首次连接恢复竞态和并行维护ENOENT分别保留证据，完整结果见[I07C首批报告](../../iterations/I07/automation.md)。未证明真实多原生角色、其他接入自动续接、用户自研/独立SSH或完整停止。
+
+2026-10-16分发复核 / M10-F06：源码标签绑定`e8cc95a2abb474571a8d133b99c18e6df6fd61df`，GitHub两附件uploaded、大小/digest匹配，完整公开EXE与校验文件HTTP200、下载摘要匹配；源码/包一致性复核通过。该结果只证明分发，不扩大原生验收范围。[发布记录及证据](../../iterations/I07/github-release.md)。
+
+## alpha.22 / I07B候选
+
+T-M10-101 / M10-F01/F02/F03/F05：2026-10-16，工程核心45/45、最终桌面208/208、Windows契约18/18，lint/类型/构建通过；最终资源31 CJS/78 core/1388 Linux条目、app.asar及前端与源码一致。普通无debug Windows EXE 5组通过，实际窗口/IPC/SQLite/MCP、模型0，关闭和全后台重启后原任务/授权/收据保留并继续Y。摘要、本地分发、首次失败保留和未测范围见[I07B完整报告](../../iterations/I07/task-handoff.md)。GitHub保持alpha.20；不计作独立SSH或用户自研实例验收。
+
+## alpha.21 / I07A候选
+
+T-M10-100 / M10-F01：2026-10-15，新候选工程检查、包/普通EXE的实际结果、摘要与未测项统一见[I07A交付](../../iterations/I07/delivery.md)。GitHub预发布保持alpha.20，源码与本地候选alpha.21，不以构建或受控UI替代真实原生/普通EXE；I07B/C与I06C未准出。
+
+## alpha.19 OpenCode 二次发现与 Windows 配置专项
+
+WSL Ubuntu / Node 22.23.1：discovery 3/3（含于核心 45/45），桌面 181/181；受控回归、模型 0。[核心 TAP](../../../artifacts/opencode-discovery/2026-10-14/root-tests.tap)、[桌面 TAP](../../../artifacts/opencode-discovery/2026-10-14/desktop-tests.tap)。Windows 原始报告 UTC 2026-10-14T17:35:28.789Z / Electron Node 24.21.0：真实 PE 版本/解析、旧二次发现失败、修复后原路径核验、配置完整写入与旧revision拒绝、serve受控退出保留NATIVE_EXITED、删除原安装，共6组通过，[实际报告](../../../artifacts/opencode-discovery/2026-10-14/windows.json)。这是隔离PE/进程夹具，无真实OpenCode模型或用户另一台电脑验收。原生Windows完整生命周期和断电持久性未验证。根因、失败原证据、最终包与边界见 [专项](../../iterations/I06/opencode-discovery.md)。
+
+## alpha.19 Linux CLI 发现专项
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。
+
+## alpha.18 历史专项
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1 / 源码 0.6.0-alpha.18：共享缓存自引用/旧清单/损坏旁路重建、Windows OpenCode 原意图恢复与并发保护、查询结果和脱敏原因；定向 55/55（计入桌面全量 176/176），根 43/43，lint/类型/构建通过。受控文件/宿主测试，无模型调用。原始证据：[定向](../../../artifacts/runtime-recovery/2026-10-14/targeted.tap)、[全桌面](../../../artifacts/runtime-recovery/2026-10-14/desktop-tests.tap)。Windows 真实 Electron 资源 4 组、Edge 受控 UI 3 组、普通无调试 EXE/合成原意图与关闭重开 4 组均通过；包校验 28 CJS / 1383 Linux 文件与当前源码匹配。详细过程及边界按 [完整专项](../../iterations/I06/runtime-recovery.md) 的实际结果判定，不将历史原生证据提升为本次重测。
+
+
+历史 alpha.15 基线：2026-10-14 / 0.6.0-alpha.15。工程和包一致性验证通过；独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 更新：2026-10-13。当前 0.6.0-alpha.8 拖动修复候选，最新包与普通窗口验证见当前专项；alpha.2/alpha.3 证据保留原版本。真实窗口/普通便携流程分别记录；0.5.0 保留为历史稳定发布，不把新包生成等同于整个 I06 准出。
 
 
@@ -145,3 +176,26 @@ alpha.15 发布复核：源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 
 ## alpha.16 当前源码包重建
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：`npm run dist:win` 首次因 electron-builder 临时打包错误退出，28 MB 临时文件未使用；清理临时 EXE 后重跑成功，`verify-package.cjs --portable` 通过。最终包版本 `0.6.0-alpha.16`，28 个后台模块、1381 个 Linux 文件，app.asar/前端匹配源码；EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`。根 43/43、桌面 163/163、SSH 定向集成 7/7 通过。真实 Windows 用户流程未重跑；完整 I06C 未准出。
+
+## alpha.16 最终候选验证
+
+2026-10-14：Windows x64 EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`；28 后台模块/1381 Linux 文件与源码一致：[最终包报告](../../../artifacts/I06C-final/2026-10-14/package-alpha16-final.json)。普通无调试 EXE 真实启动/关闭/重开 3 项通过，独立 profile、原生需求 0：[报告](../../../artifacts/I06C-final/2026-10-14/portable-alpha16.json)。实际 Linux 维护、原文件任务与完整准出限制见 [当前交付](../../iterations/I06/maintenance-launch-recovery.md)。历史 alpha.15 分发摘要不被本版本覆盖。
+
+## alpha.17 独立最终候选检查
+
+2026-10-14：源码快照独立构建后与主工作区逐项校验通过，28 CJS / 1382 Linux 文件；EXE 129,849,380 字节，SHA-256 `aa97a2b2adbd3bff8837fee10d16433b929225d384dc5e5b1966d315873905d5`。[包报告](../../../artifacts/I06C-final/2026-10-14/package-alpha17-final.json)。普通 Windows EXE 启动/关闭/重开 3 项通过，无调试参数，独立 profile，原生需求 0：[窗口报告](../../../artifacts/I06C-final/2026-10-14/portable-alpha17.json)。冻结 alpha.16 服务器维护结果分别计，alpha.17 未冒充原生模型重测。
+
+当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](../../iterations/I06/github-release.md)。
+
+本专项工程补验：桌面 181/181、核心基线 43/43、lint/类型/构建通过；包内私有 Linux Node 的真实 CLI 版本探测复验通过，Windows EXE 已构建并核对资源，详见上述专项“实际验证”。不计为用户服务器升级或模型任务验收。
+
+2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](../../iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+
+## alpha.20 候选打包与普通EXE
+
+T-M10-27 / M10-F01/F02/F03/F05/F06：2026-10-15，WSL Node22.23.1构建Windows x64 portable，28个CJS/78个核心文件/1385个Linux清单项与源码匹配。EXE 129,856,325字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。核心45/45、桌面串行188/188、lint/类型/构建/包校验通过；初轮并行维护测试ENOENT及专项8/8复验均保留。Windows普通无调试EXE/合成NOT_CONFIGURED恢复及关闭重开4组、Edge生产前端/受控API4组通过，模型0。发布/下载证据与未测项见[专项](../../iterations/I06/pending-isolation.md)。不宣称用户故障已复现或完整I06C准出。
+
+alpha.20已公开预发布：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/AgentBridge-0.6.0-alpha.20-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.20)。分发元数据和完整EXE下载摘要核验通过，源码标签9b2d5ea；不将分发成功扩大为用户故障或真实模型验收。[发布及证据](../../iterations/I06/pending-isolation.md)。

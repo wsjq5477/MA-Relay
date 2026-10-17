@@ -1,14 +1,16 @@
 # AgentBridge 项目资料
 
-更新：2026-10-14。这里维护项目的完整现状与已确认设计。阅读和开发不需要先复盘历次对话或迭代。
+更新：2026-10-16。这里维护项目的完整现状与已确认设计。阅读和开发不需要先复盘历次对话或迭代。
 
-当前已发布 Windows 程序是 **0.5.0**；当前源码候选为 **0.6.0-alpha.14 / I06C 上传修复**，节点图、授权/布局事务、状态分层与原父权限主要范围在 alpha.6 已验收；alpha.7 主角色/方向/避让与中键证据保留；alpha.8 修复旧后台下拖动锁定、支持整组背景拖动和主居左，当前证据见 [拖动修复](iterations/I06/graph-drag-fix.md)。独立双向原生链保留 alpha.6 实测结果。alpha.2 的主要验收与 alpha.3–alpha.5 修复证据保持原版本；本次实际工程、界面、独立双向链及最终包状态见 [I06B 实施](iterations/I06/graph-implementation.md)。I06C 与正式 0.6.0 准出未完成。
+稳定历史 Windows 程序是 **0.5.0**；当前源码/本地候选为 **alpha.24 / 小队停止与原生终态核对**（[当片交付](iterations/I07/native-stop.md)）；GitHub预发布为 **0.6.0-alpha.23 / 小队协作与I07C首批持续协调**（[EXE与发布记录](iterations/I07/github-release.md)），节点图、授权/布局事务、状态分层与原父权限主要范围在 alpha.6 已验收；alpha.7 主角色/方向/避让与中键证据保留；alpha.8 修复旧后台下拖动锁定、支持整组背景拖动和主居左，当前证据见 [拖动修复](iterations/I06/graph-drag-fix.md)。独立双向原生链保留 alpha.6 实测结果。alpha.2 的主要验收与 alpha.3–alpha.5 修复证据保持原版本；本次实际工程、界面、独立双向链及最终包状态见 [I06B 实施](iterations/I06/graph-implementation.md)。I06C 与正式 0.6.0 准出未完成。
 
 网页阅读：在仓库根执行 `npm run docs:dev`，打开 `http://localhost:4188`。使用方法见 [网页说明](web-reading.md)。
 
 远端源码、私有运行状态及本地验收材料的范围见 [远端源码范围](repository-sync.md)。
 
 ## 从哪里开始
+
+下一迭代I07：[目标](iterations/I07/goals.md)、[需求](iterations/I07/requirements.md)、[小队公共空间细化设计](iterations/I07/design.md)、[开发切片](iterations/I07/development.md)、[验收计划](iterations/I07/testing.md)。I07A/B已实现，接入基础见[I07A交付](iterations/I07/delivery.md)，任务板/版本返修/授权交接见[I07B任务交接交付](iterations/I07/task-handoff.md)；I07C首批Claude事件激活及原会话持续协调见[I07C首批交付](iterations/I07/automation.md)，完整范围仍未准出。本机手动Claude权限等待/允许/拒绝及观察后台重启的最新补验见[权限专项](iterations/I07/native-permission.md)。自动主角色首次激活的真实权限补验见[自动权限专项](iterations/I07/auto-native-permission.md)，后续原会话两阶段权限已于2026-10-17[补验](iterations/I07/resume-native-permission.md)，执行成员交接仍待验。
 
 | 你要做的事 | 阅读顺序 |
 | --- | --- |
@@ -87,3 +89,38 @@ alpha.13 已实现后台可信升级/回滚/停止/卸载、原维护恢复、�
 ## 2026-10-14：SSH 上传失败诊断与安装入口恢复
 
 AB-F06/F17，M01/M04/M10：alpha.14 区分安全的 SFTP 失败类别、按实际 ACK 字节计进度并等待关闭确认；明确上传失败后可重新检测和批准原安装，unknown 不显示重装入口。桌面 155/155、上传专项 5/5（含本机真实 TCP SSH/SFTP）和 Windows 受控响应界面 2 组通过。用户另一台机器到原服务器未重测；本次不自动改变 GitHub alpha.9 附件或完整 I06C 准出。包与 EXE 的分层实际结果见 [alpha.14 上传诊断与恢复](iterations/I06/ssh-upload-recovery.md)。
+
+## 当前 alpha.16 维护恢复
+
+当前源码候选 alpha.16；维护未发送后认证失败、磁盘恢复占位与忙碌提示已修复。桌面 163/163、SSH 7/7（受控真实 TCP，模型 0）通过；历史 alpha.15 发布保持原源码和 EXE 对应，完整 I06C 未准出。见 [当次交付](iterations/I06/maintenance-launch-recovery.md)。
+
+## 当前 alpha.18 运行缓存修复
+
+Windows OpenCode 后台资源清单自引用及原未派发提交恢复已修复，查询提供具体反馈；当前工程、Windows、EXE 与未测项见 [专项交付](iterations/I06/runtime-recovery.md)。旧后台须在设置中停止后重开新 EXE，原请求与历史保留。
+
+当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](iterations/I06/github-release.md)。
+
+## 当前 alpha.19 Linux CLI 发现
+
+补齐 SSH/WSL 非交互环境下的 fnm/nvm 等安装目录扫描。SSH 用户须升级原 Ubuntu 后台，再重扫；仅更新 Windows EXE 不改变旧 daemon。真实 CLI、受控 SSH 与最终包范围见 [专项](iterations/I06/linux-cli-discovery.md)。
+
+## alpha.19 合并 OpenCode 二次发现修复
+
+Windows OpenCode 创建上下文不再被另一套扫描误判缺失，Core 配置刷新同时适配 Windows。原程序删除/损坏仍拒绝，原请求/历史保留；真实 Windows PE/配置/受控退出与模型验收分别标明。[专项](iterations/I06/opencode-discovery.md)。最终EXE与LinuxCLI发现修复合并交付，下载以统一核验结果为准。
+
+2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+2026-10-15 alpha.20预发布：[未确认操作恢复与资源范围](iterations/I06/pending-isolation.md)，同机器独立节点可继续工作，配置准备失败有明确未派发证据；GitHub alpha.19 EXE 保持原附件。
+
+
+## 2026-10-15 alpha.20 预发布分发
+
+[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/AgentBridge-0.6.0-alpha.20-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.20)。标签绑定已验证修复源码 `9b2d5ea792fee431abfc056a385489407c86f152`，源码更新至[PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)的独立修复分支，尚未合入master；本次未包含工作区另有的I07草案。
+
+修复配置准备/NOT_CONFIGURED拒绝后残留占位和节点假忙碌；同机器独立节点可继续工作，同节点和共享目录保留unknown保护，原请求不重发。EXE **129,856,325**字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。GitHub两附件均uploaded，远端大小/digest匹配；公开下载HTTP200，完整EXE下载后SHA-256及校验文本一致。
+
+核心45/45、桌面串行188/188、lint/类型/构建和包内源码一致性通过；Windows普通EXE/隔离合成配置拒绝恢复4组、Edge生产前端/受控API4组通过，模型0。首次并行维护用例ENOENT及后续专项8/8/串行全量复验保留。未复测用户故障机器、独立服务器或真实模型任务；完整I06C仍未准出。
+
+升级先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新EXE；普通关闭窗口会保留旧后台。原机器、节点、请求和历史保留。

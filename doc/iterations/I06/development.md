@@ -228,3 +228,23 @@ I06-UI/机器节点增量：合并重复的机器/协作页，按机器添加已
 ## alpha.14 上传修复增量
 
 2026-10-14，I06-DMN-02 / I06-UI-05：补充上传错误类别/阶段、准确进度、关闭确认及明确失败后的原安装恢复入口。需求、实现、155/155 工程与 5 项专项、Windows 界面、包/EXE 实际验收和未测范围见 [上传恢复](ssh-upload-recovery.md)。alpha.13 收尾及历史服务器结果保留原日期；GitHub alpha.9 尚未包含此修复，完整 I06C 未准出。
+
+## alpha.16 开发交付
+
+DEV-C03/C06：补齐重新登录前的未发送持久化、原收据重开同步占位及语义拒绝；桌面 163/163、SSH 7/7。隔离实机驱动分版本保存报告，发现原 unknown 维护则停止新动作。具体版本/实机/包和边界见 [交付](maintenance-launch-recovery.md)。
+
+## alpha.17 实现优化
+
+DEV-C03/C06：原维护构造复用单次完整资源校验，逐清单核对保持；无接口/数据/协议变更。164/164、测量与冻结实机/独立打包边界见 [交付](maintenance-launch-recovery.md)。
+
+## alpha.18 Windows 运行缓存与原提交恢复
+
+I06-FIX-RUNTIME-01 / AB-F07/11/17：排除共享缓存清单自引用，兼容旧清单，保留损坏副本；核对原未派发意图恢复旧 unknown，不重发需求；查询显示结果和固定原因。桌面 176/176、根 43/43 及类型/构建/lint 已通过；Windows 与最终包的实际结果、命令和未测范围以 [专项交付](runtime-recovery.md) 为准，完整 I06C 未准出。
+
+## alpha.19 Linux CLI 发现修复
+
+I06-FIX-DISCOVERY-01 / AB-F02/07/17：补充非交互 Linux daemon 的常见用户态安装目录，PATH 优先/坏候选回退及 Windows npm 发现保留。发现回归 6/6；真实 Codex 0.162.1 经生产 daemon/本机隔离 TCP SSH 版本发现通过，模型 0；用户独立 Ubuntu 未更新或实测。完整工程、当前包、使用步骤和范围见 [专项](linux-cli-discovery.md)。
+
+## alpha.19 OpenCode 二次发现与 Windows 配置写入
+
+I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已删除/损坏路径；Windows Core 配置使用可写句柄刷新/原子替换，Linux目录刷新保留。核心45/45、桌面181/181及Windows隔离PE/进程6组通过；模型0，用户另一台电脑未实测。与LinuxCLI修复统一候选/包校验，完整I06C未准出，最终发布事实见合并交付。详见 [需求/实现/验收](opencode-discovery.md)。

@@ -1,28 +1,30 @@
-import { accessSync, constants, realpathSync } from 'node:fs';
-import { delimiter, resolve } from 'node:path';
-import { homedir } from 'node:os';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
+import { createRequire } from 'node:module';
 
 export interface DetectedAgent { executable: string; version: string; name: string }
+interface DiscoveryEnvironment {
+  path?: string;
+  home?: string;
+  platform?: NodeJS.Platform;
+  environment?: NodeJS.ProcessEnv;
+  executable?: string;
+}
+interface ScannedTool extends DetectedAgent { adapter: string; healthy: boolean }
+const { scanTools } = createRequire(import.meta.url)('../desktop/electron/tool-discovery.cjs') as {
+  scanTools(options: { home?: string; platform: NodeJS.Platform; environment: NodeJS.ProcessEnv;
+    candidates: { claude: string[]; codex: string[]; opencode?: string[] } }): Promise<ScannedTool[]>;
+};
 
-/** Read-only executable discovery. Never starts a service or invokes a model. */
-export async function discoverOpenCode(environment: { path?: string; home?: string } = {}): Promise<DetectedAgent[]> {
-  const home = environment.home ?? homedir();
-  const candidates = [
-    ...(environment.path ?? process.env.PATH ?? '').split(delimiter).filter(Boolean).map(dir => resolve(dir, 'opencode')),
-    resolve(home, '.opencode/bin/opencode'), resolve(home, '.local/bin/opencode'), resolve(home, '.npm-global/bin/opencode'),
-  ];
-  const seen = new Set<string>();
-  for (const candidate of candidates) {
-    let executable: string;
-    try { accessSync(candidate, constants.X_OK); executable = realpathSync(candidate); } catch { continue; }
-    if (seen.has(executable)) continue; seen.add(executable);
-    try {
-      const { stdout } = await promisify(execFile)(executable, ['--version'], { timeout: 5000, maxBuffer: 65536 });
-      const version = stdout.match(/\b(?:v)?(2\.\d+\.\d+(?:[-+][\w.-]+)?)/)?.[1];
-      if (version) return [{ name: 'OpenCode', executable, version }];
-    } catch { /* Try the next installed location; never claim a broken binary is connected. */ }
+/** Read-only discovery and exact selected-installation checks. No service or model calls. */
+export async function discoverOpenCode(options: DiscoveryEnvironment = {}): Promise<DetectedAgent[]> {
+  const platform = options.platform ?? process.platform;
+  const environment = { ...process.env, ...options.environment };
+  if (options.path !== undefined) {
+    environment.PATH = options.path;
+    if (platform === 'win32') environment.Path = options.path;
   }
-  return [];
+  const items = await scanTools({ home: options.home, platform, environment,
+    candidates: { claude: [], codex: [], ...(options.executable ? { opencode: [options.executable] } : {}) } });
+  // Installation detection accepts other majors; this adapter requires OpenCode 2 API.
+  return items.filter(item => item.healthy && /^2\./.test(item.version))
+    .map(({ name, executable, version }) => ({ name, executable, version }));
 }

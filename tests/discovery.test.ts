@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
+const { scanTools } = createRequire(import.meta.url)('../desktop/electron/tool-discovery.cjs');
 import { tmpdir } from 'node:os';
 import { discoverOpenCode } from '../src/discovery.js';
 
@@ -18,4 +20,39 @@ test('discovery uses PATH and the native installation fallback, skips broken ver
     writeFileSync(resolve(native, 'opencode'), '#!/bin/sh\necho "opencode v1.0.0"\n', { mode: 0o700 });
     assert.deepEqual(await discoverOpenCode({ path: '', home }), []);
   } finally { rmSync(home, { recursive: true, force: true }); }
+});
+
+
+test('OpenCode revalidation uses the selected launcher outside PATH and never substitutes another installation', async t => {
+  const home = mkdtempSync(resolve(tmpdir(), 'ab-discovery-selected-'));
+  t.after(() => rmSync(home, { recursive: true, force: true }));
+  const selected = resolve(home, 'selected.cjs'), other = resolve(home, '.opencode/bin/opencode');
+  mkdirSync(resolve(home, '.opencode/bin'), { recursive: true });
+  writeFileSync(selected, "process.stdout.write('opencode v2.0.24\\n');", { mode: 0o700 });
+  writeFileSync(other, '#!/bin/sh\n[ "$1" = "--version" ] || exit 9\necho "opencode v2.0.26"\n', { mode: 0o700 });
+  const scanned = await scanTools({ home, platform: 'win32', environment: { Path: home },
+    candidates: { claude: [], codex: [], opencode: [selected] } });
+  assert.equal(scanned[0].healthy, true);
+  const options = { home, path: '', executable: scanned[0].executable };
+  assert.deepEqual(await discoverOpenCode(options), [{ name: 'OpenCode', executable: selected, version: '2.0.24' }]);
+  writeFileSync(selected, 'process.exit(1);');
+  assert.deepEqual(await discoverOpenCode(options), [], 'a healthy alternative must not replace a broken selected node');
+  rmSync(selected);
+  assert.deepEqual(await discoverOpenCode(options), [], 'a deleted installation must remain rejected');
+  writeFileSync(selected, "process.stdout.write('opencode v1.0.0\\n');");
+  assert.deepEqual(await discoverOpenCode(options), [], 'shared discovery must not broaden the OpenCode 2 API contract');
+});
+
+test('OpenCode secondary discovery honors Windows npm launcher resolution', async t => {
+  const home = mkdtempSync(resolve(tmpdir(), 'ab-discovery-windows-'));
+  t.after(() => rmSync(home, { recursive: true, force: true }));
+  const launcher = resolve(home, 'opencode.cmd'), binary = resolve(home, 'node_modules/opencode-windows-x64/bin/opencode.exe');
+  mkdirSync(resolve(home, 'node_modules/opencode-windows-x64/bin'), { recursive: true });
+  // The Windows launcher resolves before validation. This controlled POSIX executable
+  // exercises that layout here; the Windows harness checks a real PE separately.
+  writeFileSync(launcher, 'controlled launcher');
+  writeFileSync(binary, '#!/bin/sh\n[ "$1" = "--version" ] || exit 9\necho "opencode v2.0.24"\n', { mode: 0o700 });
+  const detected = await discoverOpenCode({ home, path: home, platform: 'win32' });
+  assert.equal(detected[0]?.executable, binary);
+  assert.deepEqual(await discoverOpenCode({ home, path: '', executable: binary }), detected);
 });

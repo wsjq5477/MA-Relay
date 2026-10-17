@@ -1,8 +1,22 @@
 # M03 机器、Agent 节点与执行上下文设计
 
-更新日期：2026-10-14。本文描述当前源码行为；桌面源码为 `0.6.0-alpha.13`，已发布 Windows 便携版为 `0.5.0`。SSH 的源码交付和 Windows 发布验收分别标记，不能以源码版本代表发布完成。
+## alpha.23 / I07C首批当前实现
+
+2026-10-16：源码及GitHub预发布alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。
+
+| 功能 ID | 功能 | 当前状态 |
+| --- | --- | --- |
+| M03-F08 | 外部智能体登记与资源绑定 | I07A源码已实现，分层证据见本模块报告 |
+| M03-F09 | 小队原上下文续接与新执行身份 | I07C首批源码实现，证据层级见本模块报告 |
+
+新小队续接核对原节点/Conversation所属上下文，重新配置独立成员scope，并要求MachineHost的teamContinuation确认；旧后台在派发前拒绝。保存每轮teamSessionId，普通未带新成员身份的续接不能接管小队原会话。目录/机器/节点准入、原请求去重及旧主从范围继续适用；不使用别名释放unknown。
+
+I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交接继续按[I07B完整行为](../../iterations/I07/task-handoff.md)执行；新流程、异常、预算、接口和源码见[I07C首批交付](../../iterations/I07/automation.md)。以下原功能继续适用。
+
+原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。本文描述当时源码行为；桌面源码为 `0.6.0-alpha.19`，已发布 Windows 便携版为 `0.5.0`。SSH 的源码交付和 Windows 发布验收分别标记，不能以源码版本代表发布完成。
 
 ## 1. 用户得到什么
+
 
 用户先看到机器，再看到机器上安装的 Claude Code、OpenCode、Codex 等 Agent 节点。接入节点不要求项目目录、模型或供应商。发送任务时才选择执行目录；不处理现有项目时可留空，由后台创建默认目录。
 
@@ -78,7 +92,7 @@ Windows 的工具在 Windows 启动，WSL 的工具在选定分发中启动，SS
 
 1. 中央先确保本机存在；Windows 再枚举 WSL 分发，并保留曾配置但当前不可用的分发身份。
 2. 并行获取各机器快照；每台机器独立超时，当前默认为 10 秒。
-3. 工具扫描检查 PATH 与原生常见安装位置，执行版本探测；元数据扫描不发模型 Prompt。
+3. 工具扫描优先检查原 PATH 与原默认目录；Linux 再检查用户态 fnm/nvm/Volta/asdf/mise/Cargo/Bun/pnpm/npm prefix 目录与已传入的标准根目录变量，执行版本探测和 realpath 去重，不发模型 Prompt。扫描不 source Shell rc、不写原生配置；Windows 原处理保留。
 4. 将扫描结果归为工具连接，再建立或复用节点；不创建项目实例。
 5. 用户接入节点时重新核对可执行工具仍存在且可调用，记录 connected。
 6. 真实发送任务才建立执行上下文，并核对目录真实存在。
@@ -86,6 +100,10 @@ Windows 的工具在 Windows 启动，WSL 的工具在选定分发中启动，SS
 机器列表扫描缓存约 15 秒，工具扫描缓存约 30 秒；失败快照短暂退避约 5 秒。`snapshotJobs` 合并同机器正在进行的读取，避免卡住时持续启动新后台。
 
 `healthy` 表示安装/调用检查可用；`connected` 表示用户接入过节点；真实模型能否回复由任务结果验证。账号拒绝不能被扫描成功掩盖。
+
+SSH 工具列表来自远端实际 daemon 的共享扫描器。旧兼容 daemon 复用不会自动换代码；alpha.19 的用户目录覆盖需要在原 SSH 机器“后台维护 → 升级后台”后重扫，不能仅更新客户端或重建机器来推定生效。[完整范围](../../iterations/I06/linux-cli-discovery.md)。
+
+OpenCode 的 core 二次检查复用同一共享扫描器，任务上下文核验原 executable，不重新按 PATH 选另一安装；原路径删除/损坏仍拒绝，OpenCode HTTP 入口仍限 2.x。Windows 私有配置使用可写文件句柄 flush 与原子替换，Linux 继续目录 flush。[二次发现专项](../../iterations/I06/opencode-discovery.md)。
 
 ## 6. 任务路由与目录互斥
 
@@ -143,6 +161,8 @@ flowchart LR
 
 连接另一个节点、换机器筛选或删除可见卡片，不能释放尚未核对的原执行。`REQUEST_NOT_FOUND` 也不能独立证明 Prompt 从未执行。
 
+原 Windows OpenCode submit 的运行资源失败可以在 Task 创建前被中央未派发意图证明。undispatchedRejection 只读同机器/节点/ID/内容指纹的原记录；dispatched 必须严格为 false，且无 Task/Conversation 绑定、节点无在途 job。Coordinator 落盘前再核验，其他未知占位不解除。[alpha.18 原意图恢复](../../iterations/I06/runtime-recovery.md)。
+
 ## 9. 当前限制与已确认后续设计
 
 - 节点路径变化依靠已有上下文的权威 nodeId 保持归属；任意安装迁移和所有符号链接别名的统一合并没有完整验收。
@@ -177,3 +197,11 @@ flowchart LR
 维护未知期间，所属机器的新执行和节点编辑被中央与原生准入双重阻断；其他机器原有会话可继续。卸载的原远端收据 confirmed 后按原 machineId 完成中央移除、撤销新协作权限及隐藏图节点，保留机器/节点/会话/任务历史。断开、停止、卸载不等于取消原任务，不以名字或地址别名释放未知占位。
 
 实现入口：[agent-network.cjs](../../../desktop/electron/agent-network.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## 未确认请求的节点与目录归属（alpha.20 已预发布）
+
+pendingResource 从原 requests、实例及保留节点解析身份；不以当前筛选器、显示名称或新目录替换来源。原节点始终保留占位；共享实例目录使用 workspaceKey，Windows/WSL 盘符和挂载路径仍共享保护。不同节点且目录独立时不再被整机台账阻断，原任务的 busy/unknown、原生资源锁和接入校验照常执行；真实目录解析后、派发前再次由 Coordinator 核对。
+
+requests 新增可选 inputFingerprint（继承协作前的原输入）及 preparationRejection（原生调用前的准备拒绝码）；fingerprint 继续绑定实际有效参数。续聊自动继承协作时仍同时校验两份输入。旧版本资源错误恢复保持，最初保存的 NOT_CONFIGURED 也必须与原未派发意图完全匹配；新查询仅返回 NOT_CONFIGURED、无原意图或已派发均不足以解除占位。[当次交付](../../iterations/I06/pending-isolation.md)。
+
+底层明确返回配置准入拒绝 NOT_CONFIGURED 时，也保存原拒绝并将 dispatched 置 false，避免台账已 rejected、节点仍被无任务的意图标忙。已派发后的传输失败不按该规则回收。

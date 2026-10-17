@@ -1,8 +1,22 @@
 # AgentBridge 整体架构
 
+## alpha.24：停止协调边界
+
+TeamSpace原子撤销本工作scope并禁新调度，TeamStop只连接原生取消与原操作查询，Coordinator沿原节点/机器维护取消台账；定时器在无自动授权时仍核对停止中工作。原生任务保留原状态机，工作stopping仅为协作容器状态，全部原生尝试真实终态后closed；外部MCP只撤销协作访问，不接管其进程。后台重启只恢复原停止操作，没有新规划模型或外部执行器。[数据/流程及证据](iterations/I07/native-stop.md)。以下alpha.23分层与旧模式继续适用。
+
 更新：2026-10-13。本页描述当前源码的运行方式。0.5.0 发布包仍将 AgentNetwork 放在窗口主进程；以下独立 Coordinator 与 SSH 部分已随 I06A 候选完成主要验收，I06B alpha.6 新增节点图和独立保存事务、完成独立 SSH 双向核心链；正式 0.6.0 与 I06C 未完成。
 
+## 当前 Windows 运行缓存与未派发恢复
+
+共享 workerRuntime 从 Coordinator 缓存再次创建 Windows 子后台资源时排除清单自身；新缓存带逐文件摘要，旧缓存只忽略自引用元数据，损坏则旁路重建完整副本而不覆盖活动目录。原任务恢复由 Coordinator 和 AgentNetwork 核对同一未派发意图，不依赖创建新 Task。原生推理、配置继承和远端边界不变。[alpha.18](iterations/I06/runtime-recovery.md)。
+
+## alpha.19 Linux CLI 发现边界
+
+Linux CLI 发现由各环境的 MachineHost/实际 SSH daemon 执行；共享扫描器增加用户态安装目录，不启动交互 Shell，也不把 Windows 安装跨机投影。客户端新版本不自动替换兼容旧 daemon，新发现行为须在原机器显式升级后生效。 见 [专项](iterations/I06/linux-cli-discovery.md)。
+
 ## 1. 系统分层
+
+I07A/B与I07C首批当前分层（alpha.23，2026-10-16）：TeamSpace保存公共材料、任务、收据和格式3事件；TeamAutomation按用户授权/能力/累计预算对账与激活，不增加规划模型。就绪任务和重要报告形成持久事件，原生在途只查询、运行中事件排队；首批Claude沿原MachineHost上下文/Conversation续接并注入新scope。后台公共入口及激活器等待原MCP端点恢复就绪；未知、未绑定或失败不暗换会话。原生总验收提议等最后真实成功终态和修订/新事件核验才生效。外部MCP仍自启动，Codex/OpenCode自动小队能力未开放，完整停止和独立SSH自动链未验收。[实际范围与证据](iterations/I07/automation.md)。下图保持原机器执行结构。
 
 ```mermaid
 flowchart LR
@@ -202,3 +216,15 @@ sequenceDiagram
 维护 worker 不依赖 SSH 会话；控制器保存在状态目录，卸载安装目录后仍能核对原操作。只允许已验证 owner/profile/UID/版本目录，卸载先完整校验所有版本后原子隔离安装目录，再移除所属文件；历史状态保留。旧 daemon 使用已校验 pidfd 停机 helper，新 daemon 使用认证 RPC。无法证明归属或空闲则保留 unknown/拒绝，不强杀、不重发原生任务。中央台账表单答案脱敏且损坏时拒绝新执行。系统注销/重启自启动仍无 systemd 保证。完整行为和证据见 [I06C 收尾](iterations/I06/final-delivery.md)。
 
 alpha.14 SSH 上传失败的诊断和重新检测由 M04/M01 完成：明确归档传输失败发生在解包/激活前，安装 rejected 与原生任务 unknown 分开。原 ID、用户批准、私有 profile 及后台/relay 分层不变，未新增业务协议或模型调用。见 [增量设计与验收](iterations/I06/ssh-upload-recovery.md)。
+
+## alpha.16 中央维护证明边界
+
+M04 在 SSH 输入明确未发出时先持久化证明再进行新认证；M02 读取原维护收据时同步对应机器占位。远端 worker/daemon 分层、身份与未知原生任务保持，不新增重放路径。接口和磁盘结构不变，见 [增量](iterations/I06/maintenance-launch-recovery.md)。
+
+## OpenCode 共享发现与平台配置持久化
+
+MachineHost 和 OpenCode Core DesktopHost 共用 tool-discovery；Core 入口按原 executable 核验，不再采用另一套无扩展名扫描。Core SettingsStore 以可写文件 flush、原子rename与修订锁保存；Linux 另flush目录，Windows不执行不支持的目录flush。协议、原生身份及跨机器路由未调整。[专项](iterations/I06/opencode-discovery.md)。
+
+## 未确认操作的资源准入（alpha.20 已预发布）
+
+Coordinator 负责原台账对账与准入，AgentNetwork 按持久请求/实例解析原节点与目录。准入分为调用前初查和真实上下文目录就绪后的派发前复查；不同节点的独立目录可以工作，同节点和共享目录保留占位，缺来源保守限制。MachineHost 不增加模型/API 层。准备失败证明写入原意图后才允许对账为 rejected；远端查询故障本身不解除原执行。远端协议版本不变。[专项](iterations/I06/pending-isolation.md)。

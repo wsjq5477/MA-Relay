@@ -157,7 +157,7 @@ alpha.12 Windows 实际图性能：20 组机器/60 节点/59 条授权边，20 �
 
 | 日期 / 环境 / 版本 | 实际结果 | 证据级别与来源 |
 | --- | --- | --- |
-| 2026-10-14 / WSL Ubuntu / Node 22.23.1 / alpha.15 | 发布源码时桌面 **159/159**；新增四个维护传输边界用例后当前分支 **163/163**，无失败/跳过 | 受控回归：[发布提交 TAP](../../../artifacts/I06C-final/2026-10-14/desktop-alpha15.tap)；[当前 163/163 复跑](../../../artifacts/I06C-final/2026-10-14/desktop-alpha15-followup.tap)。新增用例覆盖原 operationId 未发送后的拒绝与重启查询，以及 stream/timeout 响应未知时不能用新 ID 覆盖原占位；产品代码和已上传 EXE 未变化 |
+| 2026-10-14 / WSL Ubuntu / Node 22.23.1 / alpha.15 | 发布提交桌面 **159/159**，无失败/跳过；随后代码修复与四项新增测试属于 alpha.16 | [发布提交 TAP](../../../artifacts/I06C-final/2026-10-14/desktop-alpha15.tap)；当前增量见 [alpha.16 交付](maintenance-launch-recovery.md) |
 | 同环境 / alpha.15 | 根 43/43、lint、typecheck 通过 | [根 TAP](../../../artifacts/I06C-final/2026-10-14/root-alpha15.tap) |
 | 同环境 / alpha.15 | 真实本机 TCP SSH（ssh2 Server 模拟会话预算受限 sshd 的通道拒绝行为，RESOURCE_SHORTAGE 原因码路径）：会话预算占满时预检同连接重试→新连接恢复并在新连接暂存、收据保持可查询 unknown；瞬时拒绝同连接恢复且不新增登录；持续拒绝在两次重试后以上界错误 surfaced 且不产生维护意图；语义拒绝不重试；缺凭据呈现 needs_credentials | [恢复测试](../../../desktop/tests/ssh-recovery-integration.test.cjs)；受控服务器与执行器，无模型、无用户服务器 |
 | 同环境 / alpha.15 | 安装器级：maintenancePreview 单 SFTP 会话读取探测标记与 previous.json；remoteExec 报告通道原因码与退出码 | [兼容测试](../../../desktop/tests/ssh-compatibility.test.cjs) |
@@ -175,3 +175,29 @@ alpha.16 在新连接认证前保存 `remoteLaunched=false`，只在认证成功
 | 2026-10-14 / WSL Ubuntu / Node 22.23.1 / alpha.16 | 根测试 43/43、桌面 163/163、SSH 恢复集成 7/7；portable 包校验通过 | 自动化/受控；含本机 TCP SSH 模拟；不是独立用户服务器验收 |
 | 同环境 / alpha.16 | EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`；28 个后台模块、1381 个 Linux 资源，app.asar/前端匹配 | Windows 包在 WSL 重建并校验；未重跑真实 Windows 用户流程 |
 | 未测项 | 独立服务器维护重验、alpha.16 Windows 交互与完整 I06C 准出 | 不以受控测试或包校验替代 |
+
+## alpha.16 发送前失败与原占位恢复
+
+基于 alpha.15 新增已复现修复：首次通道明确未发送后，重新登录失败不再留下 unknown；原子未发送证明重开查询时同步恢复机器维护状态；忙碌/冲突语义保留。桌面 163/163、真实本机 TCP 7/7 通过；发布 alpha.15 的原工程基线仍为 159/159，新增四项与代码修复属于 alpha.16，不能归入未改变的 alpha.15 EXE。完整需求、当前实机与包边界见 [本次交付](maintenance-launch-recovery.md)。
+
+## alpha.17 维护等待优化与最终候选
+
+2026-10-14：构造可信维护输入仅复用本次完整校验的当前包，逐清单摘要与远端校验保持，无协议/数据变更。164/164 桌面检查、独立最终包一致性、普通无调试 EXE 启动/关闭/重开通过。原实机维护继续冻结 alpha.16，原文件 unknown 沿原 ID 保留，完整 I06C 未准出。实际耗时、实机和包来源见 [当前完整增量](maintenance-launch-recovery.md)。
+
+## 本次最终实机结论（2026-10-14）
+
+冻结 alpha.16 的独立空闲生产维护全链已通过：升级→回滚→再升级→停止→明确连接→卸载；用户原配置前后摘要一致，原 daemon 身份稳定，原生需求 0。非空原生会话不由此专项证明。当前 alpha.17 工程 164/164、最终包和普通 EXE 检查通过。完整 I06C 仍受原 alpha.13 文件任务 unknown 限制；最新同 ID/Session 查询、内存保护和 finally 清理证据见 [最终增量验收](maintenance-launch-recovery.md)。
+
+## alpha.18 Windows 运行缓存与原提交恢复
+
+I06-FIX-RUNTIME-01 / AB-F07/11/17：排除共享缓存清单自引用，兼容旧清单，保留损坏副本；核对原未派发意图恢复旧 unknown，不重发需求；查询显示结果和固定原因。桌面 176/176、根 43/43 及类型/构建/lint 已通过；Windows 与最终包的实际结果、命令和未测范围以 [专项交付](runtime-recovery.md) 为准，完整 I06C 未准出。
+
+## alpha.19 Linux CLI 发现修复
+
+I06-FIX-DISCOVERY-01 / AB-F02/07/17：补充非交互 Linux daemon 的常见用户态安装目录，PATH 优先/坏候选回退及 Windows npm 发现保留。发现回归 6/6；真实 Codex 0.162.1 经生产 daemon/本机隔离 TCP SSH 版本发现通过，模型 0；用户独立 Ubuntu 未更新或实测。完整工程、当前包、使用步骤和范围见 [专项](linux-cli-discovery.md)。
+
+## alpha.19 OpenCode 二次发现与 Windows 配置写入
+
+I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已删除/损坏路径；Windows Core 配置使用可写句柄刷新/原子替换，Linux目录刷新保留。核心45/45、桌面181/181及Windows隔离PE/进程6组通过；模型0，用户另一台电脑未实测。与LinuxCLI修复统一候选/包校验，完整I06C未准出，最终发布事实见合并交付。详见 [需求/实现/验收](opencode-discovery.md)。
+
+2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](linux-cli-discovery.md)；未实测用户服务器或真实模型任务。

@@ -1,5 +1,9 @@
 # Codex 适配器测试报告
 
+## alpha.19 Linux CLI 发现专项
+
+2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。
+
 更新日期：2026-10-12。功能 **M06-CX-F01**；对应[设计](design.md)。结论：当前受控执行回归通过，真实 WSL 新会话和主子协作通过；真实续聊与 Windows 原配置模型存在明确失败。
 
 ## 1. 当前工程回归
@@ -45,3 +49,11 @@ I05 总报告保持 partial，两项原生失败没有被重写为通过。没�
 专用回归：`node --test desktop/tests/codex-host.test.cjs`。真实脚本：[windows-i05-real.cjs](../../../../desktop/tests/windows-i05-real.cjs)、[windows-i05-codex-main.cjs](../../../../desktop/tests/windows-i05-codex-main.cjs)。后者验证真实主 Agent 的 MCP 委派闭环，须使用独立 profile 和目标账号已有配置。
 
 原生升级后先复查 `exec --json` 的 thread/item/turn 字段，再做真实续聊。报告必须保留失败与未测；不能用静态 `resume: true` 或夹具通过证明当前原生版本可续聊。同步设计、模块总表和对应迭代需求/验收。
+
+本专项工程补验：桌面 181/181、核心基线 43/43、lint/类型/构建通过；包内私有 Linux Node 的真实 CLI 版本探测复验通过，Windows EXE 已构建并核对资源，详见上述专项“实际验证”。不计为用户服务器升级或模型任务验收。
+
+2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](../../../iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
+
+## 2026-10-16：Codex明确错误终态
+
+T-M06-CX-08 / M06-CX-F01：alpha.22源码工作区，WSL Linux / Node22.23.1，受控CLI/worker及磁盘、模型0。错误前后混合完成事件且退出0均保持failed；重开原请求仍失败，同ID不重复调用。修复前失败证据、修复后Codex/小队专项23/23（工程共享总数）和未测边界见[专项](../../../iterations/I07/codex-terminal.md)。未重建EXE、未验证真实原生续接或I07C激活。

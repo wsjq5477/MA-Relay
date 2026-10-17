@@ -57,7 +57,7 @@ class MachineHost {
       }
       if(agent?.model)throw fail('CONVERSATION_CONFIG','旧执行上下文有模型覆盖，请保留原记录并新建原生配置会话。');
       if(row.adapter==='opencode'&&agent?.healthy===false)throw fail('AGENT_UNHEALTHY','原生工具尚未就绪，未提交需求；请检查原生账号或等待服务就绪。');
-      return {...row};
+      return {...row,teamCollaboration:true};
     })().finally(()=>this.connecting.delete(key));this.connecting.set(key,job);return job;
   }
   async call(method,params={}){
@@ -70,10 +70,10 @@ class MachineHost {
       row.mcp=mcp;this.save();
       if(row.adapter==='opencode'){
         const context=path.join(this.directory,'node-contexts',row.contextId),instructions=path.join(context,'agentbridge-instructions.md');
-        fs.writeFileSync(instructions,'你是用户指定的主 Agent。需要协作时，通过 agentbridge_list_agents 查询允许连接的子节点，agentbridge_delegate 委派任务，agentbridge_task_result 查询或等待真实结果，然后在当前会话汇总。每项委派使用稳定 requestId，回应未知时查询原请求，不重复提交。不要通过终端命令绕过协作接口。子节点不能扩大连接关系。\n',{mode:0o600});
+        fs.writeFileSync(instructions,params.scope.teamSessionId?require('./team-tools.cjs').instructions:'你是用户指定的主 Agent。需要协作时，通过 agentbridge_list_agents 查询允许连接的子节点，agentbridge_delegate 委派任务，agentbridge_task_result 查询或等待真实结果，然后在当前会话汇总。每项委派使用稳定 requestId，回应未知时查询原请求，不重复提交。不要通过终端命令绕过协作接口。子节点不能扩大连接关系。\n',{mode:0o600});
         fs.writeFileSync(path.join(context,'bridge-mcp.json'),JSON.stringify({instructions:[instructions],mcp:{servers:{agentbridge:{type:'local',command:[mcp.command,...mcp.args],environment:mcp.env,codemode:false}}}}),{mode:0o600});
       }
-      return {configured:true};
+      return {configured:true,teamContinuation:true};
     }
     if(method==='snapshot'){
       if(!this.restored){this.restored=true;for(const entry of this.broker.scopes)await this.call('scope',{contextId:entry.contextId,scope:entry.scope});}

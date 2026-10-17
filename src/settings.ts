@@ -100,9 +100,12 @@ export class SettingsStore {
       if (new Set(resources).size !== resources.length) throw new BridgeError('DUPLICATE_PROJECT', '同一本机项目只能有一个启用连接', 409);
       const temp = this.path + '.' + randomUUID() + '.tmp';
       writeFileSync(temp, JSON.stringify(parsed, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
-      const file = openSync(temp, 'r'); try { fsyncSync(file); } finally { closeSync(file); }
+      const file = openSync(temp, 'r+'); try { fsyncSync(file); } finally { closeSync(file); }
       renameSync(temp, this.path);
-      const dir = openSync(this.directory, 'r'); try { fsyncSync(dir); } finally { closeSync(dir); }
+      // Windows FlushFileBuffers needs a writable file handle and cannot flush a directory.
+      if (process.platform !== 'win32') {
+        const dir = openSync(this.directory, 'r'); try { fsyncSync(dir); } finally { closeSync(dir); }
+      }
     } finally { lock.close(); }
   }
   hub(settings: Settings) {

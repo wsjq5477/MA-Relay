@@ -363,7 +363,14 @@ async function startDaemon(options) {
         })();
       });
     });
-    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(info.socketPath, resolve); });
+    await new Promise((resolve, reject) => {
+      server.once('error', reject);
+      // Unix bind creates the socket synchronously. Protect it before another
+      // process can inspect it; restore the process mask before yielding.
+      const previousMask = process.umask(0o177);
+      try { server.listen(info.socketPath, resolve); }
+      finally { process.umask(previousMask); }
+    });
     fs.chmodSync(info.socketPath, 0o600); atomicJson(path.join(info.stateDirectory, 'daemon.pid'), { pid: process.pid, pidStart: lock.value.pidStart, daemonId: info.daemonId, lockId: lock.value.lockId });
     let lastTasks = new Map();
     if (opts.monitorIntervalMs !== 0) {

@@ -1,6 +1,6 @@
 # OpenCode 适配器设计
 
-更新日期：2026-10-12。所属功能 **M06-OC-F01**。对应[模块总设计](../design.md)与[测试报告](test-report.md)。
+更新日期：2026-10-14。所属功能 **M06-OC-F01**。对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途、边界与当前状态
 
@@ -38,6 +38,10 @@ flowchart LR
 | 取消 | `POST .../interrupt?resume=false` | 保存操作收据，之后等待原轮 interrupted，不据 HTTP 成功直接结束 |
 
 每个 HTTP 请求从受保护密码文件读取服务认证；Basic 用户名为 `opencode`。禁止重定向，单请求 15 秒超时，响应最大 16 MiB，必须是完整 UTF-8 JSON。消息历史最多 10,000 条并拒绝循环 cursor。
+
+Windows OpenCode 的 DesktopHost 先用共享 workerRuntime 准备 Electron/ICU 资源，再创建本机后台。缓存复制排除 runtime.json，兼容旧自引用清单；真正资源损坏时发布完整新副本、保留旧目录。若在派发前仍失败，中央依据原意图保存明确拒绝，并可严格核对 alpha.9 旧 unknown；不把查不到 Task 当作未执行。详见 [alpha.18](../../../iterations/I06/runtime-recovery.md)。
+
+OpenCode 创建上下文前复用共享 tool-discovery 对原 executable 版本核验，支持 Windows exe/cmd/npm 解析与共享 Linux 目录规则，保留 2.x API 门槛。原安装删除/损坏时明确拒绝，不能由 PATH 变化换另一安装；Windows 私有 SettingsStore 保留可写文件 flush、原子替换与修订锁，Linux 另刷新目录。实际 Windows 版本/配置/受控退出证据不代表真实模型或原生 Session 恢复。[专项](../../../iterations/I06/opencode-discovery.md)。
 
 ## 3. 原生服务与配置来源
 

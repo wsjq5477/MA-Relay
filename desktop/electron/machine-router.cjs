@@ -280,7 +280,7 @@ class MachineRouter {
       const overlapping = state.instances.filter(i => workspaceKey(this.machine(i.machineId), i.workspace) === key);
       if (overlapping.some(i => i.busy || i.currentTask?.status === "unknown")
         || state.tasks.some(t => !terminal.has(t.status) && overlapping.some(i => i.agentId === t.targetAgent))) fail("PROJECT_BUSY", "这个项目已有未结束任务，Windows 与 WSL 共享目录也需要等待。");
-      this.assertAdmission?.(machine,instance);
+      this.assertAdmission?.(machine,instance,params);
       return await host.call("ipc", params);
     } finally { this.locks.delete(key); }
   }

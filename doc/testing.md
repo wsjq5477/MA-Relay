@@ -1,12 +1,22 @@
 # 整体测试与验收报告
 
-更新：2026-10-14。当前候选 0.6.0-alpha.14 / I06C 上传修复；历史稳定版 0.5.0。6A 与 6B 主要范围已验收，I06C 与正式准出未完成，专项限制保留。
+2026-10-17新增未发布身份校验补丁，相关受控专项45/45通过，模型0；[证据与范围](iterations/I07/incomplete-receipt.md)。以下alpha.24全量/包为原冻结基线，未包含该补丁，未在本次重跑。
+
+## alpha.24当前源码/本地候选
+
+核心45/45、最终串行桌面233/233、Windows契约38项、生产前端受控后端7组通过，lint/类型/构建及包一致性通过，普通Windows EXE7组通过；原控制路由与真实WSL Claude取消分别执行；最新全工程/包/普通EXE与首次失败以[停止专项](iterations/I07/native-stop.md)为准。真实Claude仅1次原取消命令，后台重启后cancelled终态才归档；Windows模型0；本机手动小队Claude真实权限允许/拒绝补验见[专项](iterations/I07/native-permission.md)，自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)；原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH和完整I07C/I06C仍未准出。以下alpha.23和更早结果均保持原版本。
+
+更新：2026-10-16。源码/本地候选alpha.24停止专项见[当片验收](iterations/I07/native-stop.md)；当前预发布 0.6.0-alpha.23 / 小队协作与持续协调首批；历史稳定版 0.5.0。6A 与 6B 主要范围已验收，I06C 与正式准出未完成，专项限制保留。
 
 ## 1. 总结论
+
+I07C首批源码/GitHub预发布alpha.23：核心45/45、最终串行桌面222/222、Windows契约29/29、生产前端受控界面10组通过；真实Claude2.1.299自动主角色3次激活，原Conversation/Session与新scope核对、后台重启及X失败/Y通过真实Node证据通过。开发/编译成员为受控MCP，不把它们计成真实原生Agent。初次端点恢复失败、并行维护ENOENT、最终包/普通EXE与限制见[I07C首批交付](iterations/I07/automation.md)；完整I07C、其他接入/独立SSH/完整停止和I06C仍未准出，GitHub已分发alpha.23，下载与摘要核验见[I07发布记录](iterations/I07/github-release.md)。I07A/B历史数量保留原日期，不加到本次总数。
 
 机器/节点、原生适配、任务会话与本机协作已有可运行实现；I06A SSH 核心路径有真实服务器记录。alpha.6 核心 43/43、桌面 110/110、6B 图/性能、独立 SSH 双向核心链和普通 EXE 通过；alpha.8 当前图交互/工程/包证据见文末专项；系统 agent、无 Node 独立服务器整体安装和完整故障/升级指标仍有明确覆盖边界，整个 I06 不能标记完成。
 
 “全部自动测试通过”只对应指定测试集，不代表每个账号、原生版本或发布物全部可用。
+
+当前合并源码基线：核心45/45、桌面181/181，lint/类型/构建通过；最终包78个core文件、28个后台模块、1384个Linux清单条目逐项匹配。包内真实Codex0.162.1探测、Windows受控6组、普通EXE4组通过；本机隔离SSH不等同用户独立服务器，Windows受控PE不等同真实模型验收。完整摘要与边界见[alpha.19合并专项](iterations/I06/linux-cli-discovery.md)。
 
 ## 2. 资料整理时的历史持久基线
 
@@ -177,3 +187,37 @@ alpha.13 已实现后台可信升级/回滚/停止/卸载、原维护恢复、�
 ## 2026-10-14：SSH 上传失败诊断与安装入口恢复
 
 AB-F06/F17，M01/M04/M10：alpha.14 区分安全的 SFTP 失败类别、按实际 ACK 字节计进度并等待关闭确认；明确上传失败后可重新检测和批准原安装，unknown 不显示重装入口。桌面 155/155、上传专项 5/5（含本机真实 TCP SSH/SFTP）和 Windows 受控响应界面 2 组通过。用户另一台机器到原服务器未重测；本次不自动改变 GitHub alpha.9 附件或完整 I06C 准出。包与 EXE 的分层实际结果见 [alpha.14 上传诊断与恢复](iterations/I06/ssh-upload-recovery.md)。
+
+## alpha.16 本次工程与实机恢复
+
+2026-10-14，WSL Ubuntu / Node 22.23.1：桌面 163/163、其中 SSH 7/7 通过，合成凭据/受控远端维护，不等于原生模型验收。alpha.15 发布提交的工程结果保留 159/159。当前实机与程序分层结果、实际修复前失败和原 unknown 任务边界见 [完整增量验收](iterations/I06/maintenance-launch-recovery.md)。
+
+当前 alpha.17 工程 164/164，包含校验结果复用后清单篡改拒绝。服务器原链冻结 alpha.16，工程与实机结果分版本；详见 [本次增量](iterations/I06/maintenance-launch-recovery.md)。
+
+2026-10-14 最终：冻结 alpha.16 独立空闲维护全链通过，模型 0；alpha.17 工程 164/164、最终 EXE 包与普通启动/关闭/重开通过。原文件任务绑定保留、unknown 未解除，完整 I06C 未准出。见 [当前最终分层验收](iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.18 Windows 运行缓存与原提交恢复
+
+I06-FIX-RUNTIME-01 / AB-F07/11/17：排除共享缓存清单自引用，兼容旧清单，保留损坏副本；核对原未派发意图恢复旧 unknown，不重发需求；查询显示结果和固定原因。桌面 176/176、根 43/43 及类型/构建/lint 已通过；Windows 与最终包的实际结果、命令和未测范围以 [专项交付](iterations/I06/runtime-recovery.md) 为准，完整 I06C 未准出。
+
+当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](iterations/I06/github-release.md)。
+
+## alpha.19 Linux CLI 发现修复
+
+I06-FIX-DISCOVERY-01 / AB-F02/07/17：补充非交互 Linux daemon 的常见用户态安装目录，PATH 优先/坏候选回退及 Windows npm 发现保留。发现回归 6/6；真实 Codex 0.162.1 经生产 daemon/本机隔离 TCP SSH 版本发现通过，模型 0；用户独立 Ubuntu 未更新或实测。完整工程、当前包、使用步骤和范围见 [专项](iterations/I06/linux-cli-discovery.md)。
+
+## alpha.19 OpenCode 二次发现与 Windows 配置写入
+
+I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已删除/损坏路径；Windows Core 配置使用可写句柄刷新/原子替换，Linux目录刷新保留。核心45/45、桌面181/181及Windows隔离PE/进程6组通过；模型0，用户另一台电脑未实测。与LinuxCLI修复统一候选/包校验，完整I06C未准出，最终发布事实见合并交付。详见 [需求/实现/验收](iterations/I06/opencode-discovery.md)。
+
+2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+
+## 未确认操作资源范围（未发布源码）
+
+2026-10-15 / alpha.19工作区修复：桌面188/188、定向40/40（包含在全量内）、桌面类型/构建通过，Windows Edge生产前端与受控API4组通过，模型0。独立节点可工作，同节点/共享目录和未知来源继续保护；准备拒绝与原意图严格对账。不更新GitHub alpha.19附件，未构建新EXE、未复测用户故障或服务器，I06C未准出。[专项及原始证据](iterations/I06/pending-isolation.md)。
+
+
+alpha.20已公开分发：核心45/45、桌面串行188/188、包校验、普通Windows EXE/合成原记录4组、Edge受控4组通过；公开HTTP200且完整下载EXE摘要匹配。初次并行维护测试失败和复验保留。分发不替代原生/用户故障验收。[完整专项](iterations/I06/pending-isolation.md)。

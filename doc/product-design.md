@@ -1,6 +1,8 @@
 # AgentBridge 整体功能设计
 
-更新：2026-10-14。适用：Windows 0.5.0 已发布功能，以及 0.6.0-alpha.13 的 I06C 收尾源码候选。每项明确区分实现、发布和验收状态。
+更新：2026-10-16。适用：Windows0.5.0稳定历史功能，以及0.6.0-alpha.23预发布的小队协作与持续协调首批（包含此前未确认资源范围、配置拒绝恢复及发现修复）。每项明确区分实现、发布和验收状态。
+
+当前源码/本地候选alpha.24补齐小队停止与原生终态核对；GitHub预发布alpha.23包含I07A/B及I07C首批持续协调；[发布及下载](iterations/I07/github-release.md)。[I07C首批交付](iterations/I07/automation.md)明确真实/受控证据，完整I07C未准出。
 
 ## 1. 产品解决什么问题
 
@@ -32,7 +34,7 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | 功能 | 用户得到什么 | 当前状态 | 模块与验收 |
 | --- | --- | --- | --- |
 | AB-F01 机器概览 | 首先看到机器，再看到机器上的工具；没有项目也能查看 | 本机 Windows/WSL 已发布；alpha.10 SSH 编辑/断开/移除/恢复专项通过，历史和身份保留 | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
-| AB-F02 自动发现工具 | 扫描受支持安装位置，显示名称、版本、健康与安装位置 | 已发布；扫描不调用模型 | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
+| AB-F02 自动发现工具 | 扫描受支持安装位置，显示名称、版本、健康与安装位置 | alpha.19 增加 Linux 用户态 fnm/nvm 等安装目录；扫描不调用模型，SSH 须更新实际远端 daemon | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
 | AB-F03 接入节点 | 图节点动作接入；不要求项目、模型和供应商 | 0.5.0 多选已发布；alpha.9 支持按机器添加、断开、移除及原身份恢复 | [M01](modules/01-desktop/design.md) / [报告](modules/01-desktop/test-report.md) |
 | AB-F04 SSH 添加 Linux | 输入地址、端口、用户名和已有 SSH 登录方式 | 源码已实现；Windows 密码与真实 Linux 接入通过；其他认证专项范围见 M04 报告 | [M04](modules/04-ssh-access/design.md) / [报告](modules/04-ssh-access/test-report.md) |
 | AB-F05 主机信任与凭据 | 首次确认指纹；默认不保存秘密；可选 Windows 系统加密保存 | 源码与受控测试存在；Windows 密码/DPAPI 及加密私钥/隔离 agent 有实际证据；系统服务兼容专项保留 | [M04](modules/04-ssh-access/design.md) / [报告](modules/04-ssh-access/test-report.md) |
@@ -41,15 +43,18 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | AB-F08 新会话与续聊 | 发起需求，原会话追问，每轮独立记录 | 已发布；能力取决于原生适配；SSH 同会话两轮已记录 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
 | AB-F09 进度、回答与看板 | 看来源、状态、本轮回答、工具过程与最终结果 | 已发布；窗口通过轮询刷新，不是直接订阅原生 token | [M01](modules/01-desktop/design.md)、[M06](modules/06-native-adapters/design.md) |
 | AB-F10 权限、输入与取消 | 通过原任务处理原生等待；取消结果以原生确认判断 | alpha.12 严格核对原控制收据、表单遮罩及恢复台账脱敏；原生支持范围分别记录 | [M06](modules/06-native-adapters/design.md)、[M07](modules/07-task-session/design.md) |
-| AB-F11 未确认请求与恢复 | 原 ID 查询，不重发 Prompt；保留历史和占位 | 已发布；alpha.10 已观察历史跨重开保留，cursorGap 全量快照/分页补偿通过隔离 TCP SSH 验证 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
+| AB-F11 未确认请求与恢复 | 原 ID 查询，不重发 Prompt；保留历史和占位 | alpha.18 修复 Windows OpenCode 未派发资源错误的原记录恢复，显示查询结果与原因；历史功能已发布；alpha.10 已观察历史跨重开保留，cursorGap 全量快照/分页补偿通过隔离 TCP SSH 验证 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
 | AB-F12 指定主从关系 | 用户指定主 Agent 及允许的子节点 | 一个默认组已发布；alpha.6 图编辑及稳定保存已实现，换主后活跃原父权限已修复 | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md) |
 | AB-F13 原生 Agent 协作 | 主 Agent 实际调用工具委派，读取子结果并汇总 | Windows/WSL 四条真实链已有证据；alpha.3 源码修复 Codex 自然语言发现入口，真实 MCP/主子回复通过；alpha.6 独立 SSH Linux OpenCode ↔ Windows Claude 双向核心链通过，当前故障/控制矩阵见 I06C 收尾，不推定原生效果 | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md) |
 | AB-F14 常驻中央后台 | 关闭窗口继续协调，重开复用历史与连接 | I06A 源码已实现；0.6.0-alpha.2 候选 Windows 关闭/停止/重开已验收 | [M02](modules/02-coordinator/design.md) / [报告](modules/02-coordinator/test-report.md) |
 | AB-F15 CLI 兼容入口 | 单终端自动发现、提交、续聊、查看和控制 OpenCode | 已实现；不等同于桌面节点网络的全部入口 | [M09](modules/09-cli-hub-edge/design.md) / [报告](modules/09-cli-hub-edge/test-report.md) |
 | AB-F16 节点图 | 机器分组、拖动节点、拖拽端点授权连线 | alpha.8 支持旧后台下本机拖动、整组背景拖动及主居左；主角色/方向/避让保留；alpha.10 保留原图交互并加入机器维护，当前首批证据见 6C 报告，原生链保留 alpha.6 证据 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md) |
 | AB-F17 发布与安装维护 | 源码、离线包、Windows EXE 一致，版本可验证 | 0.5.0 历史稳定；6A 候选已验收，alpha.12 可信升级/回滚/停止/卸载源码与受控验证通过；正式 0.6.0 准出见当前报告 | [M10](modules/10-packaging/design.md) / [报告](modules/10-packaging/test-report.md) |
-
 | AB-F18 网页资料入口 | 桌面分组目录、同源 Markdown、章节导航、全文搜索、主题和图表 | 已实现；独立于 Agent 控制界面 | [M11 设计](modules/11-documentation-portal/design.md) / [报告](modules/11-documentation-portal/test-report.md) |
+| AB-F19 智能体登记与小队 | 登记外部已有功能的智能体、说明职责/边界，组成小队和独立工作 | alpha.23预发布已包含；不实现Skill/模型/目录或业务能力 | [M03](modules/03-machine-network/design.md)、[M08](modules/08-collaboration/design.md) |
+| AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | alpha.23预发布包含I07A基础；任务交接见AB-F21，自动持续协调首批见AB-F22，完整I07C未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[本次交付](iterations/I07/delivery.md) |
+| AB-F21 小队任务与授权交接 | 分配/接手、依赖、精确产物版本、限额交接、返修历史与业务验收 | alpha.23预发布包含I07B基础；未授权自动成员保持手动，交接本身不等于原生已启动 | [M07](modules/07-task-session/design.md)、[M08](modules/08-collaboration/design.md)、[I07B任务交接交付](iterations/I07/task-handoff.md) |
+| AB-F22 持续协调首批 | 用户授权自动成员与预算，重要事件激活、原会话续接、原生终态后验收 | alpha.23已分发；alpha.24本地候选新增停止/撤权与原生终态核对，真实Claude取消通过；其他接入/多原生角色/完整故障矩阵未准出 | [M02](modules/02-coordinator/design.md)、[M06](modules/06-native-adapters/design.md)、[I07C首批交付](iterations/I07/automation.md) |
 
 ## 4. 用户的完整操作路径
 
@@ -123,7 +128,10 @@ alpha.8 节点图编辑同一套权限。拖动位置只是布局变更；端点
 
 AgentBridge 不重写 Agent，不负责模型供应商配置，不调度编译机或实验室设备，不提供任意远程 shell，不创建通用工作流引擎。SSH 只用于 Bridge 部署、身份验证与受控消息传输。
 
-Harmes、自研 Agent、通用 HTTP/JSONL Adapter、企业 IM/Webhook、中央云端部署、多用户团队、文件同步与多层协作图均不是当前已交付能力。涉及它们时需先确认原生接口与用户范围，登记迭代和模块设计。
+自研Agent可按I07A/B的本机MCP成员契约接入公共空间和任务板，尚未实测用户自研实例，本批不自动启动外部MCP执行。Harmes具体适配、通用HTTP/JSONL执行器、企业IM/Webhook、中央云端部署、多用户团队、文件同步与多层协作图仍不是当前已交付能力。涉及它们时需先确认原生接口与用户范围，登记迭代和模块设计。
+
+
+I07已获准开发，I07A实现登记、小队、共享文档与群消息；I07B进一步实现工作项、依赖、版本化报告、直接授权交接、受限返修/重试及主角色/用户逐项验收。原生执行终态、业务报告和总工作验收分开；任务交接、授权次数及通知原子提交。真实Claude两轮开发和独立实际Node语法检查验证X失败到Y通过，界面受控流程通过。I07C首批增加授权事件激活和Claude原主会话自动续接；真实主角色3轮和后台重启通过。其他接入、多原生执行成员链及完整停止未验收，完整I07C与I06C未准出，实际见[I07C首批交付](iterations/I07/automation.md)。实际证据、首次失败和Windows候选见[I07B任务交接交付](iterations/I07/task-handoff.md)。
 
 当前验收结论见 [整体验证报告](testing.md)；具体版本和进度见 [迭代路线](project-plan.md)。后续修改本功能目录时，按 [同步维护规则](development-guide.md)同时更新模块与迭代材料。
 
@@ -193,3 +201,67 @@ AB-F17，M04：alpha.15 针对独立服务器维护入口复查稳定 SSH_EXEC_F
 ## 2026-10-14：维护未发送边界持久化（alpha.16）
 
 AB-F17 / M04：维护 SSH 通道在 open 阶段失败可证明原输入未发送。切换连接或重新认证前持久化该事实，仅在重新认证成功、即将发送前将操作标为已启动；认证失败或明确语义拒绝形成确定 rejected 状态，查询原 operationId 时同步台账和机器状态。stream/timeout 等可能已发送失败仍保持 unknown，只允许查询原 ID。alpha.16 自动回归：根 43/43、桌面 163/163、SSH 本机 TCP 集成 7/7；包校验通过，真实 Windows 流程及独立服务器重验未执行，完整 I06C 未准出。见 [I06C 收尾 alpha.16](iterations/I06/final-delivery.md)。
+
+## 2026-10-14 alpha.16 维护发送边界
+
+AB-F17、M04/M10：维护通道未发送证明在新登录前持久化；认证失败/再次打开拒绝为 DAEMON_NOT_STARTED，可能发送的失败仍 unknown；重开查询原收据同步对应机器维护占位，凭据/信任错误保留。当前桌面 163/163、SSH 7/7 受控通过。实机、程序与未准出项见 [完整增量](iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.17 维护等待优化
+
+AB-F17、M04/M10：原维护输入构造的当前整包校验结果仅在本次构造复用，兼容清单逐份摘要、暂存及远端校验保留；减少 Windows/WSL 路径重复读取。工程 164/164，实测范围见 [当前交付](iterations/I06/maintenance-launch-recovery.md)。
+
+## alpha.18 运行缓存与原提交恢复
+
+AB-F07/11/17：修复 Coordinator→Windows 缓存复制的清单自引用，兼容旧缓存并保留损坏资源；仅严格匹配的原未派发提交可记明确拒绝，查询显示脱敏原因。工程、真实 Windows 运行资源、受控界面及候选包按 [当次分层证据](iterations/I06/runtime-recovery.md) 判定；未重跑用户新电脑或完整 I06C。
+
+当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](iterations/I06/github-release.md)。
+
+## alpha.19 Linux CLI 发现
+
+AB-F02/07/17：补齐非交互 Linux 后台的用户态版本管理器/包管理器目录扫描，保留原 PATH 优先、realpath 身份和原生配置；不 source rc 或发模型需求。Windows 新包包含更新后的 Linux 后台，SSH 原机器需显式升级后重扫，客户端换包不自动更新远端。实际检查与边界见 [专项](iterations/I06/linux-cli-discovery.md)。
+
+## alpha.19 OpenCode 二次发现与 Windows 配置写入
+
+AB-F02/07/17，M03/M06/M09/M10：Core 与节点复用共享安装扫描，创建上下文只核验原 executable；修复 Windows 只读句柄/目录 fsync 导致的配置写入失败，保留修订锁、原子替换与原请求占位。受控工程和 Windows PE/进程证据通过，不将安装版本或启动失败检查冒充真实模型可用；最终与 Linux CLI 修复合并交付。见 [需求、实测和限制](iterations/I06/opencode-discovery.md)。
+
+2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
+
+当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+
+## 未确认请求不再阻断独立节点（alpha.20 已预发布）
+
+2026-10-15 / AB-F08/F10/F11 / M01/M02/M03/M07：准备阶段的明确失败保存未派发拒绝证据，原记录严格匹配后解除占位；已派发或只有本次查询 NOT_CONFIGURED 的记录继续核对。同节点/共享目录保留保护，同机器独立节点可新建和续聊；旧后台或缺来源记录保持保守限制。GitHub alpha.19 EXE保持原文件，修复以alpha.20独立预发布。需求、工程及 Windows 受控界面证据见 [专项](iterations/I06/pending-isolation.md)。
+
+alpha.20已公开分发，下载与原始核验见[专项](iterations/I06/pending-isolation.md)；完整I06C未准出。
+
+## 2026-10-16：Linux后台启动权限窗口
+
+AB-F05/11，M05-F01/F02：源码在Unix socket创建时即限制为0600，避免并发检查看到监听后chmod前的宽权限。未改变协议、身份和收据；未重新打包或发布，原I07B候选与GitHub附件保持原证据。实际回归及限制见[启动专项](iterations/I07/daemon-bind.md)。
+
+## 2026-10-16：Codex错误终态保护
+
+AB-F07/08/11，M06-CX-F01：源码修复Codex明确原生错误被同轮完成事件/退出码0覆盖的问题，保持failed及原请求记录，防止错误执行进入成功验收。未自动续接、未更新EXE或发布；[专项证据](iterations/I07/codex-terminal.md)。
+
+## 2026-10-16：小队原生等待可见性
+
+AB-F09/10/11/20/22，M01/M02/M07/M08：源码在小队原执行中显示权限/输入等待类别与数量，系统通知不重复、不启动模型、不替用户批准；unknown保留上次等待并明确其未核对性质。当前alpha.23发布附件未更新，真实原生权限链和Windows界面待专项验证。[实际增量](iterations/I07/native-waiting.md)。
+
+## 2026-10-16：停止小队工作与原执行终态核对
+
+AB-F10/11/20/22，M01-F13/M02-F11/M07-F11/M08-F10：仅用户确认停止整项工作，先关新调度并撤销访问，再沿原机器/task取消和查询。取消confirmed不改写任务；原生真实终态齐备才归档，不等于业务验收。停止/原请求unknown不重放，外部MCP运行由原入口负责。Windows等待脱敏/旧后台能力和停止界面、真实WSL Claude取消分别有证据；[当片结果](iterations/I07/native-stop.md)。GitHub仍alpha.23，完整I07C/I06C未准出。
+
+## 2026-10-16：小队真实权限证据补齐
+
+AB-F07/09/10/11/20/22：本机WSL真实Claude2.1.299在手动小队回合的权限等待、观察重启、允许隔离Write及拒绝后failed已实测，完成场景重查不重复执行。只补验证脚本/证据，无产品协议或包变化；自动权限链、Windows真实模型及独立SSH仍未验收。[完整证据](iterations/I07/native-permission.md)。
+
+## 2026-10-16：自动主角色首轮真实权限补验
+
+AB-F07/09/10/11/20/22：本机Claude2.1.299经事件自动启动后实际等待权限，观察重启保留原等待，允许隔离Write成功、拒绝则failed且文件未写。没有手动原生启动；每项工作仅一个已消费启动事件，没有因通知/阅读回执新增事件。仅新增验收脚本与证据，不修改产品协议或发布包；执行成员交接/续接、Windows及独立SSH仍待验。[实际结果及首次断言失败](iterations/I07/auto-native-permission.md)。
+
+## 2026-10-17：原会话后续轮真实权限补验
+
+AB-F07/08/09/10/11/20/22：本机真实Claude自动主角色在明确新阶段事件后沿同Conversation/原生Session继续，再次产生独立权限等待；观察后台重启后精确Write允许成功，未重复首阶段。累计两次自动回合及两次权限控制，未增加产品接口或重建包；执行成员交接、Windows及独立SSH仍待验。[证据](iterations/I07/resume-native-permission.md)。
+
+## 2026-10-17：不完整原生回应保护
+
+AB-F08/11/20/22，M02/M07/M08：源码补强原任务完整身份校验，缺失/空白/无效taskId或Conversation的succeeded不能使小队执行假成功或解除占用；仅查询原请求恢复。未重建包，原alpha.24本地候选与GitHub alpha.23不含本补丁。[实际回归](iterations/I07/incomplete-receipt.md)。

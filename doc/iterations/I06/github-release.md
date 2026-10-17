@@ -61,3 +61,27 @@ alpha.16 修复维护通道在 open 阶段确认未发送后，因重连凭据�
 | 发布成熟度 | 0.6.0-alpha.16 prerelease；稳定历史仍为 0.5.0 | 完整 I06C 与正式 0.6.0 尚未准出 |
 
 下载：[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/SHA256SUMS.txt)、[GitHub 预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.16)。
+
+## 2026-10-14 alpha.18 源码与 Windows EXE 分发
+
+修复源码提交 `1f0d9efb98009053761580cc97af10a63b698863` 已推送到 `codex/windows-runtime-recovery-alpha18`，并提交 [PR #1](https://github.com/wsjq5477/MA-Relay/pull/1) 审阅；尚未合入 `master`。`v0.6.0-alpha.18` GitHub prerelease 绑定该确切源码提交，EXE/前端/后台/离线资源已核对一致。默认分支保持原提交，未强制更新。
+
+[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.18)。EXE **129,851,140** 字节，SHA-256 `2d532ca797e49094314587fcbfa286c9fb58f41374b05f8d21dce0246ee3bc33`；两附件 state=uploaded，远端大小和 digest 与本地一致，发布 draft=false/prerelease=true。公开元数据和下载检查见 [分发证据](../../../artifacts/runtime-recovery/2026-10-14/github-release.json)。
+
+桌面 176/176、核心 43/43、lint/类型/构建/文档通过；真实 Windows Electron 资源、Edge 受控响应、普通无调试 EXE/合成旧记录及关闭重开分别通过，模型 0。28 个后台模块和 1383 个 Linux 资源文件与最终源码匹配。未在用户新电脑复测，完整 I06C/正式 0.6.0 未准出，历史原生失败和 unknown 仍按原证据保留。
+
+## 2026-10-15 alpha.19 预发布分发
+
+[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe) · [SHA-256 校验](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt) · [预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.19) · [源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。标签绑定已验证合并源码 `fce41beb0a63f96ca5e1bbd69f4c56c69a6d05d3`，独立修复分支尚未合入 master。EXE **129,853,209** 字节，SHA-256 `8841106e626152963f115d50a3c16c0b48c15a7a3aaf9f4be1c67cf7533e7e2a`；远端两附件 uploaded、大小/digest 与本地匹配，公开下载 HEAD 和校验文本核对通过。该证据仅证明分发，不替代用户服务器/原生模型验收。
+
+升级先停止旧 Coordinator 并退出，再打开新 EXE；SSH Ubuntu 仍需在原机器“后台维护 → 升级后台 → 确认升级”后重新连接和扫描。两项发现修复的最终工程与受控/真实 CLI/普通 EXE 边界见 Linux/合并包专项；完整 I06C 尚未准出。
+
+## 2026-10-15 alpha.20 预发布分发
+
+[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/AgentBridge-0.6.0-alpha.20-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.20)。标签绑定已验证修复源码 `9b2d5ea792fee431abfc056a385489407c86f152`，源码更新至[PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)的独立修复分支，尚未合入master；本次未包含工作区另有的I07草案。
+
+修复配置准备/NOT_CONFIGURED拒绝后残留占位和节点假忙碌；同机器独立节点可继续工作，同节点和共享目录保留unknown保护，原请求不重发。EXE **129,856,325**字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。GitHub两附件均uploaded，远端大小/digest匹配；公开下载HTTP200，完整EXE下载后SHA-256及校验文本一致。
+
+核心45/45、桌面串行188/188、lint/类型/构建和包内源码一致性通过；Windows普通EXE/隔离合成配置拒绝恢复4组、Edge生产前端/受控API4组通过，模型0。首次并行维护用例ENOENT及后续专项8/8/串行全量复验保留。未复测用户故障机器、独立服务器或真实模型任务；完整I06C仍未准出。
+
+升级先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新EXE；普通关闭窗口会保留旧后台。原机器、节点、请求和历史保留。

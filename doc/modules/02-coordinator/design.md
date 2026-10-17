@@ -1,8 +1,36 @@
 # M02 中央协调后台设计
 
-更新日期：2026-10-14。代码基线：桌面源码 `0.6.0-alpha.13`，根 CLI 包 `0.1.0`；Windows 已发布便携版仍为 `0.5.0`。本模块已实现独立后台和本地 IPC，Windows 候选生命周期与普通 EXE 已验收。测试结论见 [本模块测试报告](test-report.md)。
+原生任务回应须有非空白字符串taskId/conversationId且匹配原request及已有绑定，才可更新小队执行事实；首次不完整回应保持unknown，后续仅查原请求，不能凭succeeded字段撤权、解除占用或验收。基于alpha.24的未发布补丁，既有EXE不含此校验。[完整规则与验证](../../iterations/I07/incomplete-receipt.md)。
+
+本机真实Claude自动主角色首轮与原会话续接后的独立权限等待/允许、观察后台重启已补验；仅user_start/attention两个事件，等待通知/阅读回执不新增激活。不是执行成员或独立SSH完整链。见[权限证据](../../iterations/I07/resume-native-permission.md)。
+
+## 当前停止工作行为
+
+[停止协调层](../../../desktop/electron/team-stop.cjs)先事务保存意图与取消发送标记，再通过原机器取消/operation查询；停止中即使没有自动授权也由定时器核对。同一工作核对合并，原收据缺失/身份不符/unknown不释放原台账，不补发控制。
+
+停止工作状态为stopping → closed，不向Core Task.status增加stopping；等待字段继续仅公开类别/数量，所有新行为和原请求规则见[停止专项](../../iterations/I07/native-stop.md)。
+
+## alpha.24本地候选 / I07C停止协调
+
+2026-10-16：源码/本地候选alpha.24，GitHub预发布仍alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。
+
+| 功能 ID | 功能 | 当前状态 |
+| --- | --- | --- |
+| M02-F08 | 小队公共记录与原操作事务 | I07A基础继续适用 |
+| M02-F09 | 任务与授权交接原子事务 | I07B源码已实现，实际分层证据见报告 |
+| M02-F10 | 持久事件激活与后台就绪恢复 | I07C首批源码实现，证据层级见本模块报告 |
+| M02-F11 | 停止意图与原控制台账恢复 | alpha.24源码实现，实际证据与边界见[停止专项](../../iterations/I07/native-stop.md) |
+
+TeamSpace状态格式3原子迁移，新增持久事件及激活关联，原操作收据/任务/身份不变。事件/激活意图/次数消耗同事务，2秒定时器只查原请求并在有新事件、权限/能力/预算有效时激活，不使用模型规划。启动先等待原MCP端点恢复再向公共调用/激活器返回就绪；重启不补发未知或未完成派发标记的原激活。关闭窗口不停止后台调度，主动停止后台保留原请求待恢复。
+
+本次源码在小队原执行记录中展示原生权限/输入等待类别和数量，并追加去重系统通知。通知不触发自动激活、不批准权限，也不复制原生问题、工具参数或权限ID。unknown保留上次观察到的等待；只有已核对的非unknown状态才能清除。相同等待跨重启不重复通知，原任务终态清除等待。详见[等待可见性专项](../../iterations/I07/native-waiting.md)。
+
+I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交接继续按[I07B完整行为](../../iterations/I07/task-handoff.md)执行；新流程、异常、预算、接口和源码见[I07C首批交付](../../iterations/I07/automation.md)。以下原功能继续适用。
+
+原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。代码基线：桌面源码 `0.6.0-alpha.18`，根 CLI 包 `0.1.0`；Windows 已发布便携版仍为 `0.5.0`。本模块已实现独立后台和本地 IPC，Windows 候选生命周期与普通 EXE 已验收。测试结论见 [本模块测试报告](test-report.md)。
 
 ## 1. 用途与交付功能
+
 
 中央协调后台（Coordinator）是这份 AgentBridge 配置的管理进程。它保存机器、Agent 节点、协作关系和待核对操作，连接 Windows、WSL、SSH 机器，并把用户需求转发到指定节点。它自身没有模型，不负责推理；主 Agent 由用户从已接入的原生 Agent 节点中指定。
 
@@ -110,7 +138,7 @@ sequenceDiagram
 | `preferences` / `savePreferences` | 读取/保存 `theme`、`distribution`、`directory` |
 | `runtimes` / `machines` | 查询平台/发行版或机器目录 |
 | `pending` | 返回 `pending` / `unknown` 操作 |
-| `recoverPending` | 查询原收据后核对台账，不重发需求 |
+| `recoverPending` | 返回 resolved、可选 remaining/items；核对原回执或严格匹配的未派发意图，不重发需求 |
 | `shutdown` | IPC 层停止服务；普通 `service.dispatch` 不接受此方法 |
 
 最小调用示例（仅示意程序内契约，不是 HTTP 接口）：
@@ -136,9 +164,11 @@ await client.request('recoverPending');
 | `pending` | 本地已记录，等待执行回应 | 保留原参数和原机器 |
 | `confirmed` | 收据可核对 | 可显示原任务，不等同于任务已成功 |
 | `rejected` | 确认在业务校验阶段被拒绝 | 显示原因，允许修正后新操作 |
-| `unknown` | 可能已执行，但未核对到收据 | 查询原请求；同机器的新写操作暂时阻断 |
+| `unknown` | 可能已执行，但未核对到收据 | 查询原请求；保留原节点/共享目录占位，独立节点可工作；来源不全时保留整机限制 |
 
 已有未知操作不能用相同 ID 替换内容，也不能靠切换实例或机器来源消除警告。恢复仅在原台账时间、参数和状态未被其他调用更改时更新结果，避免覆盖并发提交。未确认记录全部保留，已解决历史只保留最近 100 条。
+
+Windows OpenCode 的共享运行资源 INVALID/MISSING 可发生在上下文创建前。仅原 submit 的机器/节点/请求 ID/内容指纹对应，原中央 intent.dispatched===false、无任务/会话绑定且无 nodeJob 时，才将该条旧 unknown 对账为 rejected；落盘前再次核验。新提交同样按这一证据分类，不能只凭错误码或一次 not_found 解除占位。原参数/ID/历史保留。查询返回固定原因，任意远端错误正文不下发。[需求与验证](../../iterations/I06/runtime-recovery.md)。
 
 ## 7. 已知限制与后续设计
 
@@ -185,3 +215,9 @@ await client.request('recoverPending');
 machine.maintainDaemon 经过稳定操作意图、来源机器准入和配置白名单，再交给 SSH 管理执行；machine.operation 只核对原维护。机器/node/relation 的 unknown 共用元数据屏障，layout 独立；直接 MCP 原生准入也检查该来源机器。pending.json 损坏或无法持久化时拒绝执行，不能当作空表。表单答案仅保留摘要与 [redacted]，恢复依赖原目标/ID，不持久化敏感答案或任意原生返回正文。
 
 实现入口：[coordinator-service.cjs](../../../desktop/electron/coordinator-service.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## 未确认操作的执行资源范围（alpha.20 已预发布）
+
+Coordinator 以原台账、AgentNetwork 请求意图和持久实例归属解析节点及目录。来源明确时，同节点继续阻塞，其他节点仅在共享目录时冲突；缺少来源/节点/原目录依据时保留整机或全局保护。原请求不被解除或迁移，独立节点可以新建及续聊。初步准入之后，在上下文完成真实目录解析、即将调用原生任务前再次检查，覆盖 Windows/WSL 路径别名和新建上下文。相同 ID 的例外同时核对来源机器和内容，不能靠跨机器同名 ID 绕过保护。机器维护、移除和节点管理仍按原整机策略。
+
+上下文准备及续聊读取/协作 scope 准备失败，在发送原生调用之前保存 preparationRejection。原 requestId、输入指纹、最终有效指纹、来源和未派发状态匹配，且无任务/会话绑定和在途节点 job 时，可把原 unknown 对账为 rejected；落盘前重查证据。已拒绝请求的同 ID 重试返回原拒绝，修好配置后由用户新建请求。仅本次查询报错不产生拒绝证明。[需求与验证](../../iterations/I06/pending-isolation.md)。

@@ -1,6 +1,6 @@
 # 迭代资料目录
 
-更新：2026-10-12。当前范围与优先级见 [迭代路线](../project-plan.md)；整项目设计见 [整体资料](../README.md)。
+更新：2026-10-16。当前范围与优先级见 [迭代路线](../project-plan.md)；整项目设计见 [整体资料](../README.md)。
 
 迭代说明“这次改了什么”。阅读模块如何工作，应去对应完整模块设计；历史报告只证明原日期、原版本和原环境。
 
@@ -15,8 +15,11 @@
 | I04C–G | 各版本稳定性修正 | [C](I04C/report.md)、[D](I04D/report.md)、[E](I04E/report.md)、[F](I04F/report.md)、[G](I04G/report.md) |
 | I05 | [提案](I05/proposal.md)、[节点](I05/node-design.md)、[协作](I05/collaboration-design.md) | [0.5.0 验收](I05/acceptance.md) |
 | I06 | [需求](I06/requirements.md)、[开发](I06/development.md)、[验收计划](I06/testing.md) | [当前进度](I06/progress.md)、[6A 候选验收](I06/acceptance.md)、[alpha.3 发现修复](I06/codex-discovery-fix.md)、[alpha.4 兼容复用](I06/ssh-compatible-reuse.md)；[6B 验收](I06/graph-implementation.md)，I06C 未完成 |
+| I07 | [目标](I07/goals.md)、[需求](I07/requirements.md)、[设计](I07/design.md)、[开发切片](I07/development.md) | [验收计划](I07/testing.md)；用户批准开发；[I07A交付](I07/delivery.md)、[I07B交付](I07/task-handoff.md)，[I07C首批](I07/automation.md)已实现，完整范围未准出；不替代I06C准出 |
 
 ## 后续迭代必须写清
+
+下一迭代：[I07 外部智能体接入与小队协作](I07/goals.md)。2026-10-15 已细化公共约定/文档/任务/群消息、角色权限、授权交接与持续激活草案；Bridge只连接与组织；I07A/B已实现，[I07B证据](I07/task-handoff.md)分层记录，I07C首批Claude持续主协调已实现，完整范围未准出，不替代I06C准出。
 
 1. 需求编号、对应整体功能与模块、可验收行为。
 2. 本次设计取舍与被更新的整体/模块文件。
@@ -36,3 +39,17 @@
 2026-10-13：[alpha.9 GitHub 预发布及附件核验](I06/github-release.md)。分发已有程序，不变更原源码行为、不替代 Windows/SSH/原生 Agent 验收。
 
 当前 alpha.16 维护未发送边界补强与发布状态：[I06C 当前验收](I06/final-delivery.md)；[GitHub 源码与 Windows EXE 发布](I06/github-release.md)。完整 I06C 仍未准出。
+
+当前 alpha.16 维护发送失败、原收据恢复、工程与实机分层验收见 [增量交付](I06/maintenance-launch-recovery.md)。
+
+- [I06 alpha.18：Windows 运行缓存与原提交恢复](I06/runtime-recovery.md) — 同原意图核对、无 Prompt 重放；工程/Windows/包证据分别记录。
+
+- [I06 alpha.19：Linux 非交互后台 CLI 发现](I06/linux-cli-discovery.md) — 用户态安装目录、原 PATH/身份保留及 SSH 实际后台升级边界。
+
+- [I06 alpha.19：OpenCode 二次发现与 Windows 配置写入](I06/opencode-discovery.md) — 核验原安装、Windows实际PE/配置/受控启动退出及合并交付边界。
+
+I06C alpha.20预发布：[未确认请求的资源范围与准备拒绝恢复](I06/pending-isolation.md)，独立节点可继续工作，原 unknown 与共享目录保护保留。
+
+2026-10-16：I07A/B及I07C首批以alpha.23预发布分发；[下载与发布核验](I07/github-release.md)。完整I07C/I06C未准出。
+
+当前源码/本地候选alpha.24：[小队停止与原生终态核对](I07/native-stop.md)，包含[等待可见性](I07/native-waiting.md)；GitHub仍为原alpha.23。
