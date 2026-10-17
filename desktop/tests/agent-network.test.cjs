@@ -37,6 +37,73 @@ function fixture(t){
 }
 async function setup(t){const f=fixture(t);const s=await f.router.snapshot();return {...f,nodes:s.nodes};}
 const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+test('sharing locks at receipt boundaries retry or reject only before native dispatch',async t=>{
+ for(const stage of ['transient','initial','dispatch','result'])await t.test(stage,async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());
+  const requestId='persist-'+stage,params={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId,message:'controlled',collaboration:false};
+  const rename=fs.renameSync;let injected=0;
+  fs.renameSync=(source,target)=>{
+   if(target===f.router.networkFile){
+    const receipt=JSON.parse(fs.readFileSync(source,'utf8')).requests.find(r=>r.requestId===requestId);
+    const matches=receipt&&(stage==='transient'?!injected:stage==='initial'?!receipt.agentId:stage==='dispatch'?receipt.dispatched&&!receipt.taskId:!!receipt.taskId);
+    if(matches){injected++;throw Object.assign(Error(`EPERM: operation not permitted, rename '${source}' -> '${target}'`),{code:'EPERM'});}
+   }
+   return rename(source,target);
+  };
+  let result;try{result=await service.call({method:'nodeRequest',params});}finally{fs.renameSync=rename;}
+  assert.ok(injected);
+  const receipt=f.router.network.requests.find(r=>r.requestId===requestId);
+  if(stage==='transient'){
+   assert.equal(result.ok,true,JSON.stringify(result.error));assert.equal(injected,1);assert.equal(host.executions,1);assert.equal(service.pending().length,0);
+  }else{
+   assert.equal(result.error.code,'NETWORK_PERSIST');assert.match(result.error.message,/EPERM/);
+   if(stage==='result'){
+    assert.equal(host.executions,1);assert.equal(receipt.dispatched,true);assert.equal(service.pending().length,1);
+    assert.equal(f.router.undispatchedRejection(service.pending()[0]),null);
+    assert.equal((await service.recoverPending()).resolved,1);assert.equal(host.executions,1);
+   }else{
+    assert.equal(host.executions,0);assert.equal(receipt.dispatched,false);assert.equal(service.pending().length,0);
+    assert.equal(JSON.parse(fs.readFileSync(path.join(f.directory,'pending.json')))[0].state,'rejected');
+    if(stage==='dispatch')assert.ok(receipt.agentId);
+   }
+  }
+  assert.equal(fs.readdirSync(f.directory).filter(n=>n.startsWith('agent-network.json.')&&n.endsWith('.tmp')).length,0);
+ });
+});
+test('legacy local rename recovery requires exact profile paths, original fingerprints and an undispatched idle receipt',async t=>{
+ for(const variant of ['valid','case-target','foreign-target','foreign-source','invalid-tmp','native-error','dispatched','bound','fingerprint','empty-fingerprint','missing-input','inflight','missing'])await t.test(variant,async t=>{
+  const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(node.machineId);
+  const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());
+  const params={op:'submit',nodeId:node.nodeId,machineId:node.machineId,requestId:'legacy-persist',message:'controlled',collaboration:false};
+  const call=host.call.bind(host);host.call=async(method,p)=>{if(method==='context')throw error('DESKTOP_TRANSPORT');return call(method,p);};
+  await service.call({method:'nodeRequest',params});host.call=call;
+  const original=f.router.network.requests.find(r=>r.requestId===params.requestId);delete original.preparationRejection;
+  const target=f.router.networkFile,source=target+'.12345678-1234-4234-8234-123456789abc.tmp';
+  const row=JSON.parse(fs.readFileSync(path.join(f.directory,'pending.json')))[0];row.state='unknown';
+  row.result={error:{code:'EPERM',message:`EPERM: operation not permitted, rename '${source}' -> '${target}'`}};
+  if(variant==='foreign-target')row.result.error.message=`EPERM: operation not permitted, rename '${source}' -> '${target}.other'`;
+  if(variant==='case-target')row.result.error.message=`EPERM: operation not permitted, rename '${source}' -> '${target.toUpperCase()}'`;
+  if(variant==='foreign-source')row.result.error.message=`EPERM: operation not permitted, rename '${path.join(f.directory,'other',path.basename(source))}' -> '${target}'`;
+  if(variant==='invalid-tmp')row.result.error.message=`EPERM: operation not permitted, rename '${target}.arbitrary.tmp' -> '${target}'`;
+  if(variant==='native-error')row.result.error.message='EPERM: operation not permitted, native execution';
+  if(variant==='dispatched')original.dispatched=true;
+  if(variant==='bound')original.taskId='bound-task';
+  if(variant==='fingerprint')original.inputFingerprint='wrong';
+  if(variant==='empty-fingerprint')original.inputFingerprint='';
+  if(variant==='missing-input')delete original.inputFingerprint;
+  if(variant==='inflight')f.router.nodeJobs.set(node.nodeId,Promise.resolve());
+  if(variant==='missing')f.router.network.requests=[];
+  f.router.saveNetwork();fs.writeFileSync(path.join(f.directory,'pending.json'),JSON.stringify([row]));
+  const valid=variant==='valid'||variant==='case-target'&&process.platform==='win32';
+  const result=await service.recoverPending();assert.equal(result.resolved,valid?1:0);
+  assert.equal(service.pending().length,valid?0:1);assert.equal(host.executions,0);
+  if(valid){
+   const settled=JSON.parse(fs.readFileSync(path.join(f.directory,'pending.json')))[0];assert.equal(settled.state,'rejected');assert.equal(settled.id,params.requestId);
+   assert.match(settled.result.error.message,/持久化/);
+  }
+ });
+});
 test('team execution binds a fresh member scope without altering legacy relations; terminal scope and forged ingress are rejected',async t=>{
   const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude'),h=f.hosts.get(node.machineId),original=h.call.bind(h);
   let scope;

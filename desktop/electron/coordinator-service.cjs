@@ -190,7 +190,7 @@ function recoverPending() {
       // A concurrent submission/query may already have updated this receipt.
       if (!row || !["pending", "unknown"].includes(row.state) || row.time !== original.time
         || JSON.stringify(row.params) !== JSON.stringify(original.params)) return false;
-      if (['original undispatched node intent and rejection verified','original undispatched node intent and runtime rejection verified'].includes(result?.reconciliation)
+      if (['original undispatched node intent and rejection verified','original undispatched node intent and runtime rejection verified','original undispatched local network persistence failure verified'].includes(result?.reconciliation)
         && !connection().undispatchedRejection?.(row)) return false;
       Object.assign(row, { state, result:journalResult(row,result), reconciledAt: new Date().toISOString() });
       write("pending.json", rows);
@@ -350,7 +350,7 @@ async function call(input) {
       return { ok: true, result };
     } catch (error) {
       const runtimeRejection = mutation && input.method === 'nodeRequest' && !previousPending
-        && connection().undispatchedRejection?.({id:journalKey(p),op:p.op,machineId:p.machineId,params:p,result:{error:{code:error.code}}});
+        && connection().undispatchedRejection?.({id:journalKey(p),op:p.op,machineId:p.machineId,params:p,result:{error:{code:error.code,message:error.message}}});
       if (mutation)
         operation(
           p.op,

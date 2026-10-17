@@ -1,5 +1,8 @@
 # Codex 适配器设计
 
+## alpha.27：启动准备与原任务核对
+
+运行准备/同步spawn及异步启动失败均保存原failed任务、原错误code、脱敏原因和事件；spawn已有child后错误不证明未派发。reconcile沿原task读取已有终态；仅原job存在且只有accepted、无native/offset、无worker.log/心跳/事件时可证明尚未越过启动边界，记failed并释放。worker.log在spawn之前创建，因此即使心跳尚未写出，有该文件仍保留unknown。核对不准备runtime、不启动CLI、不改原requestId/Conversation，无原生Session的旧会话仍不可续问。[完整设计与证据](../../../iterations/I06/windows-start-persistence.md)。
 更新日期：2026-10-14。当前发现修复源码：0.6.0-alpha.19；旧 0.6.0-alpha.2 包不含本次发现修复。功能 **M06-CX-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途与当前能力

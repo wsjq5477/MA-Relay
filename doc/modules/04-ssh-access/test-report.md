@@ -1,5 +1,8 @@
 # M04 SSH 接入测试报告
 
+## 2026-10-17：Windows恢复专项
+
+T-M04-128：2026-10-17 / WSL Node22.23.1与Windows Node24.19.0 / alpha.27源码候选，模型0。Codex恢复10/10、共享原子写入10/10、网络最终50/50、Windows契约86/86；全桌面最终运行288/288、核心45/45及工程检查通过；新增alpha.26兼容文件另验10/10。共享计数不跨模块累加，Windows为受控目录/执行器，不是用户故障或真实模型。首轮限制/维护ENOENT与未测范围保留；普通EXE/包/发布结果以[当片报告](../../iterations/I06/windows-start-persistence.md)后续实际记录为准。
 ## 2026-10-17：alpha.24 Linux 后台重连专项
 
 实际冻结alpha.24→alpha.26的受控TCP SSH/SFTP链4组、Windows普通EXE5组通过；Linux独立资源归档1392条目一致，独立服务器/真实原生任务迁移未测。

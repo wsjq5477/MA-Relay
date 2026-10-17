@@ -12,12 +12,24 @@ const emptyLayout = () => ({ version: 1, layoutRevision: 0, groups: {}, nodes: {
 function operationId(id) {
   if (typeof id !== 'string' || !id || id.length > 128) throw fail('INVALID_INPUT', '保存需要稳定操作 ID。');
 }
+function replaceFile(source,target) {
+  const pause=new Int32Array(new SharedArrayBuffer(4));
+  for(let attempt=0;;attempt++){
+    try{fs.renameSync(source,target);return;}
+    catch(error){
+      if(attempt>=5||!['EPERM','EACCES','EBUSY'].includes(error.code))throw error;
+      // Short Windows sharing violations must not turn a durable intent into
+      // an ambiguous dispatch. Keep the replacement atomic and the wait bounded.
+      Atomics.wait(pause,0,0,20*(attempt+1));
+    }
+  }
+}
 function atomicWrite(file, value) {
   const tmp = file + '.' + randomUUID() + '.tmp';
   try {
     const fd=fs.openSync(tmp,'wx',0o600);
     try { fs.writeFileSync(fd,JSON.stringify(value,null,2));fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
-    fs.renameSync(tmp,file);
+    replaceFile(tmp,file);
   }
   finally { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); }
 }

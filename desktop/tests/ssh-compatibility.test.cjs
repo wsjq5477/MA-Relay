@@ -68,7 +68,8 @@ test('a verified maintenance bundle still rejects a compatibility manifest chang
 
 for(const [version,expectedDigest] of [
  ['0.6.0-alpha.24','e631db77604099d70c96bf7c7d85657bb957a3dd251a2ae91ad89fc33c7b9955'],
- ['0.6.0-alpha.25','54ada2b6d01fd9537de00e93b277f2cae50de5d969ebefc08544b49647654146']
+ ['0.6.0-alpha.25','54ada2b6d01fd9537de00e93b277f2cae50de5d969ebefc08544b49647654146'],
+ ['0.6.0-alpha.26','6674f37902908e329ce76cb634d6ebae36c55f33f8e7ad836488986b10879c4e']
 ])test(`published ${version} reconnects and previews upgrade using its exact frozen manifest without replacing the daemon`,async t=>{
  const old=require('../compatible-daemons/'+version+'.json');
  assert.equal(old.version,version);assert.equal(digest(old),expectedDigest);

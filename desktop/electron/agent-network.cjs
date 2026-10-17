@@ -14,7 +14,21 @@ class AgentNetwork extends MachineRouter {
     if(!fs.existsSync(this.networkFile)){fs.copyFileSync(this.file,this.file+'.before-nodes.json',fs.constants.COPYFILE_EXCL);this.saveNetwork();}
     this.layoutStore=new GraphLayoutStore(options.directory);
   }
-  saveNetwork(){const tmp=this.networkFile+'.'+randomUUID()+'.tmp';fs.writeFileSync(tmp,JSON.stringify(this.network,null,2),{mode:0o600});fs.renameSync(tmp,this.networkFile);}
+  saveNetwork(){
+    try{atomicWrite(this.networkFile,this.network);}
+    catch(error){throw Object.assign(fail('NETWORK_PERSIST','本地任务台账持久化失败（'+(error.code||'IO_ERROR')+'）：'+error.message),{cause:error});}
+  }
+  localRenameFailure(error){
+    if(error?.code!=='EPERM'||typeof error.message!=='string')return false;
+    const match=/^EPERM: operation not permitted, rename '(.*)' -> '(.*)'$/.exec(error.message);
+    if(!match)return false;
+    const paths=path;
+    const normalize=value=>process.platform==='win32'?paths.resolve(value).toLowerCase():paths.resolve(value);
+    const [,source,target]=match;
+    return paths.isAbsolute(source)&&paths.isAbsolute(target)&&normalize(target)===normalize(this.networkFile)
+      &&normalize(paths.dirname(source))===normalize(paths.dirname(this.networkFile))
+      &&/^agent-network\.json\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.tmp$/i.test(paths.basename(source));
+  }
   node(id){const node=this.network.nodes.find(n=>n.nodeId===id);if(!node)throw fail('NODE_NOT_FOUND','这个 Agent 节点不存在，请刷新。');return node;}
   host(machine){const host=super.host(machine);host.setCollaboration?.((scope,name,args,callId)=>this.collaborationTool(scope,name,args,callId,machine.machineId));return host;}
   async snapshot(){
@@ -88,6 +102,11 @@ class AgentNetwork extends MachineRouter {
     if(!original||original.dispatched!==false||original.taskId||original.conversationId)return null;
     if(original.inputFingerprint&&original.inputFingerprint!==requestFingerprint(node.nodeId,p))return null;
     if(original.fingerprint!==requestFingerprint(node.nodeId,original.inputFingerprint?{...p,collaboration:original.collaboration}:p))return null;
+    const persistence=code==='NETWORK_PERSIST'||this.localRenameFailure(row.result?.error);
+    if(persistence&&original.inputFingerprint===requestFingerprint(node.nodeId,p))return {
+      requestId:row.id,machineId:row.machineId,state:'rejected',
+      error:{code,message:'本地任务台账持久化失败，原请求尚未派发到原生工具；原记录已保留，修复磁盘或权限后可新建请求。'},
+      reconciliation:'original undispatched local network persistence failure verified'};
     const preparation=original.preparationRejection;
     if(preparation&&preparation!==code)return null;
     const legacy=code==='NOT_CONFIGURED'||row.op==='submit'&&['CLAUDE_RUNTIME_INVALID','CLAUDE_RUNTIME_MISSING'].includes(code)&&node.adapter==='opencode'&&this.machine(row.machineId).kind==='windows';
@@ -150,7 +169,8 @@ class AgentNetwork extends MachineRouter {
     }
     // Durable intent precedes a native mutation. An uncertain retry only reads receipts.
     if(params.teamScope)rawParams.teamScope=params.teamScope;
-    receipt.dispatched=true;this.saveNetwork();
+    receipt.dispatched=true;
+    try{this.saveNetwork();}catch(error){receipt.dispatched=false;throw error;}
     try{const result=await super.call('ipc',{...rawParams,machineId:node.machineId});receipt.taskId=result.taskId;receipt.conversationId=result.conversationId;this.saveNetwork();return {...result,nodeId:node.nodeId};}
     catch(error){if(error.executionNotDispatched||['NOT_CONFIGURED','AGENT_BUSY','PROJECT_BUSY','AGENT_UNHEALTHY','AGENT_UNAVAILABLE','CONVERSATION_CONFIG','CONVERSATION_BUSY','CONVERSATION_BINDING','INVALID_INPUT','CONFIG_NOT_APPLIED'].includes(error.code)){receipt.dispatched=false;receipt.rejection=error.code;if(error.executionNotDispatched||error.code==='NOT_CONFIGURED')receipt.preparationRejection=error.code;this.saveNetwork();}throw error;}
   }

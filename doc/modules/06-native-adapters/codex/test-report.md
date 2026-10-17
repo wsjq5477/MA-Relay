@@ -1,5 +1,8 @@
 # Codex 适配器测试报告
 
+## alpha.27：未派发任务恢复
+
+T-M06-CX-06 / M06-CX-F01：2026-10-17，WSL Node22.23.1、真实Windows Node24.19.0，合成目录，模型0。新增恢复10/10，修复前0/10；覆盖EEXIST持久失败/同ID去重/新请求可进入准备、原job证明、重开保留，以及缺run、空worker.log、旧/空心跳、事件、native/进度均保持unknown。Windows共享契约86/86、最终普通EXE合成恢复5组通过；旧原生POSIX夹具仍由WSL全量验证，未冒充真实Windows模型。[原始日志与未测项](../../../iterations/I06/windows-start-persistence.md)。
 ## alpha.19 Linux CLI 发现专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。

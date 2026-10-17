@@ -1,5 +1,8 @@
 # I06 开发安排与增量交付
 
+## alpha.27：Windows恢复增量
+
+关联AB-F08/F10/F11/F14/F17，按[本片R01–R07、实现及验收记录](windows-start-persistence.md)执行：原Codex任务核对、本地持久化有界重试和未派发拒绝恢复，候选/EXE与用户实机证据分别记录。
 ## 2026-10-17：alpha.24 连接及升级修复
 
 alpha.26 候选补收历史 alpha.24/alpha.25 manifest；仅修改可信索引输入、桌面版本和回归，不改运行时协议/数据/界面。独立冻结构建避开工作区 I07 增量，GitHub alpha.26已新增分发，alpha.25保持原附件。来源、工程验证、升级步骤和未测项见[专项](ssh-alpha24-upgrade.md)。

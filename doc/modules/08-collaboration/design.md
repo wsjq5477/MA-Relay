@@ -1,5 +1,8 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+## 2026-10-17：Windows未派发与持久化恢复
+
+M08-F02：关系/布局/图操作与普通网络保存共享有界原子替换，EPERM/EACCES/EBUSY最多6次，ENOSPC等不重试。原revision、稳定操作ID、磁盘成功后更新事务状态及unknown权限保护不变；没有扩大Agent权限。 当前源码候选alpha.27，GitHub仍alpha.26；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
 自动续接的首次任务回应必须匹配持久意图resumeConversationId，不能等待接收外来Conversation后才建立校验；已有conversationId绑定继续严格匹配。错误回应保持待核对，只查原请求恢复。该补强是alpha.25之后的未发布源码增量，[实测与边界](../../iterations/I07/intended-conversation.md)。
 
 原生任务回应须有非空白字符串taskId/conversationId且匹配原request及已有绑定，才可更新小队执行事实；首次不完整回应保持unknown，后续仅查原请求，不能凭succeeded字段撤权、解除占用或验收。该完整身份校验已随alpha.25发布。[完整规则与验证](../../iterations/I07/incomplete-receipt.md)。

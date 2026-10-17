@@ -31,6 +31,13 @@ class CodexHost{
     if(!terminal.has(task.status)){const heartbeat=read(path.join(job,'heartbeat.json'),null);if(Date.now()-Date.parse(heartbeat?.time||task.createdAt)>15000&&task.status!=='unknown'){task.status='unknown';task.lastSummary='原执行状态待核对，不会自动重新提交。';changed=true;}}
   }if(changed)this.save();}
   publicTask(task){const result=clone(task);delete result.offset;return result;}
+  failLaunch(task,error){
+    if(terminal.has(task.status))return this.publicTask(task);
+    task.status='failed';task.finishedAt=now();
+    task.error={code:error.code||'CODEX_START',message:safe('Codex 后台运行资源准备失败，原生任务未执行：'+(error.message||'后台未启动。'))};
+    task.lastSummary=task.error.message;this.event(task,'failed',{error:task.error});this.save();
+    return this.publicTask(task);
+  }
   call(method,params={}){const job=this.chain.then(()=>this.handle(method,params));this.chain=job.catch(()=>{});return job;}
   async handle(method,params){this.sync();
     if(method==='connect'){
@@ -55,6 +62,28 @@ class CodexHost{
       const existing=this.state.operations.find(r=>r.operationId===params.operationId);if(existing){if(existing.taskId!==task.taskId)throw fail('REQUEST_CONFLICT','操作 ID 已用于其他任务。');return clone(existing);}
       const receipt={operationId:params.operationId,taskId:task.taskId,state:terminal.has(task.status)?'confirmed':'unknown'};this.state.operations.push(receipt);this.save();if(receipt.state==='unknown')write(path.join(this.directory,'runs',task.taskId,'cancel.json'),{operationId:params.operationId});return clone(receipt);
     }
+    if(params.op==='reconcile'){
+      if(!task)throw fail('TASK_NOT_FOUND','任务不存在。');
+      let reason='原后台缺少可确认的终态事件，保留原请求与占用；请在原生 Codex 记录中核对。';
+      if(terminal.has(task.status))reason='已读取 Codex 原执行终态，未重新提交。';
+      else{
+        const job=path.join(this.directory,'runs',task.taskId),file=path.join(job,'job.json');
+        // worker.log is created BEFORE spawn. Its absence is essential: a
+        // spawned/paused worker may not yet have written a heartbeat or events.
+        const untouched=['accepted','unknown'].includes(task.status)&&!task.native&&!task.offset
+          &&task.lastSeq===1&&task.events?.length===1&&task.events[0].event?.kind==='accepted';
+        const fenced=['worker.log','heartbeat.json','events.jsonl'].some(name=>fs.existsSync(path.join(job,name)));
+        if(untouched&&!fenced&&fs.existsSync(file)&&fs.lstatSync(file).isFile()){
+          const original=read(file,null);
+          if(original&&typeof original.executable==='string'&&original.executable&&typeof original.workspace==='string'&&original.workspace){
+            this.failLaunch(task,{code:'CODEX_START',message:'原请求没有派发到原生 Codex。'});
+            reason='原请求没有派发到原生 Codex，已结束原任务并释放占用；可以新建会话。';
+          }
+        }
+      }
+      task.reconciliation={time:now(),state:task.status,reason};this.save();
+      return {operationId:params.operationId||randomUUID(),state:terminal.has(task.status)?'confirmed':'unknown',data:{status:task.status,message:reason}};
+    }
     if(!['submit','continue'].includes(params.op))throw fail('ADAPTER_UNSUPPORTED','Codex 当前不支持此交互操作。');
     if(!params.requestId||!params.message?.trim()||params.message.length>65536)throw fail('INVALID_INPUT','请提供请求 ID 和需求。');
     const c=params.op==='continue'?this.state.conversations.find(c=>c.conversationId===params.conversationId):null;
@@ -68,8 +97,19 @@ class CodexHost{
     this.state.tasks.push(fresh);this.state.requests.push({requestId:params.requestId,fingerprint,taskId:fresh.taskId});
     if(c){c.turns++;c.lastTaskId=fresh.taskId;c.updatedAt=now();}else this.state.conversations.push({conversationId:fresh.conversationId,targetAgent:a.agentId,title:safe(params.message).slice(0,100),turns:1,lastTaskId:fresh.taskId,updatedAt:now()});
     this.event(fresh,'accepted');this.save();
-    const runtime=require('./worker-runtime.cjs').workerRuntime(this.directory),workerFile=path.join(this.directory,'runtime','codex-worker.cjs');fs.mkdirSync(path.dirname(workerFile),{recursive:true});fs.copyFileSync(__filename,workerFile);fs.copyFileSync(path.join(__dirname,'tool-discovery.cjs'),path.join(path.dirname(workerFile),'tool-discovery.cjs'));
-    const fd=fs.openSync(path.join(job,'worker.log'),'a',0o600);try{const child=spawn(runtime,[workerFile,'--codex-worker',job],{cwd:a.workspace,env:{...process.env,ELECTRON_RUN_AS_NODE:'1'},detached:true,windowsHide:true,stdio:['ignore',fd,fd]});child.once('error',()=>{fresh.status='failed';fresh.error={code:'CODEX_START',message:'Codex 后台未启动，原生任务未执行。'};this.save();});child.unref();}finally{fs.closeSync(fd);}return this.publicTask(fresh);
+    let child,fd;
+    try{
+      const runtime=require('./worker-runtime.cjs').workerRuntime(this.directory),workerFile=path.join(this.directory,'runtime','codex-worker.cjs');
+      fs.mkdirSync(path.dirname(workerFile),{recursive:true});fs.copyFileSync(__filename,workerFile);fs.copyFileSync(path.join(__dirname,'tool-discovery.cjs'),path.join(path.dirname(workerFile),'tool-discovery.cjs'));
+      fd=fs.openSync(path.join(job,'worker.log'),'a',0o600);
+      child=spawn(runtime,[workerFile,'--codex-worker',job],{cwd:a.workspace,env:{...process.env,ELECTRON_RUN_AS_NODE:'1'},detached:true,windowsHide:true,stdio:['ignore',fd,fd]});
+      child.once('error',error=>{this.chain=this.chain.then(()=>this.failLaunch(fresh,error)).catch(()=>{});});child.unref();
+    }catch(error){
+      // Once spawn returns a child, a later error is not proof of no dispatch.
+      if(child)throw error;
+      return this.failLaunch(fresh,error);
+    }finally{if(fd!==undefined)try{fs.closeSync(fd);}catch{/* Closing a descriptor is not native launch evidence. */}}
+    return this.publicTask(fresh);
   }
   close(){clearInterval(this.timer);}
 }

@@ -47,3 +47,5 @@ alpha.23 已作为GitHub预发布分发，包含I07A/B和I07C首批持续协调�
 2026-10-17较早GitHub预发布alpha.25（历史时点）：Windows未完成上下文缺少Agent身份时不得截获原请求/任务查询，包含先前不完整任务回应保护；标签绑定修复提交2e957e3，EXE/校验文件及完整公开下载均核验。工程/程序与未测边界见[原请求恢复专项](doc/iterations/I06/windows-context-recovery.md)。
 
 2026-10-17当前GitHub预发布alpha.26：补收Linux alpha.24/alpha.25可信清单，恢复原alpha.24连接后可维护升级。标签绑定冻结源码3efc3d2，EXE与原候选一致；master另有I07续接Conversation增量未包含该EXE。发布/下载/验证及边界见[旧Linux后台升级专项](doc/iterations/I06/ssh-alpha24-upgrade.md)。
+
+2026-10-17当前源码候选alpha.27：修复issue #3的Codex准备失败/严格未派发任务核对、issue #4的台账分享锁重试及历史未派发结算；候选与预发布状态、工程/程序证据统一见[交付专项](doc/iterations/I06/windows-start-persistence.md)。
