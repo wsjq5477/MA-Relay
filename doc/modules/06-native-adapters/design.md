@@ -2,7 +2,7 @@
 
 ## 2026-10-17：Windows未派发与持久化恢复
 
-M06-F01：Codex运行准备失败落原failed任务并保留原始错误；reconcile核对原job/accepted事件/worker.log启动边界，证据完整且未派发才结束原任务。其他原生适配、原账号/模型配置与MCP权限不变。 当前源码候选alpha.27，GitHub仍alpha.26；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
+M06-F01：Codex运行准备失败落原failed任务并保留原始错误；reconcile核对原job/accepted事件/worker.log启动边界，证据完整且未派发才结束原任务。其他原生适配、原账号/模型配置与MCP权限不变。 当前源码/GitHub预发布alpha.27；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
 ## 2026-10-17：Windows原请求上下文恢复
 
 M06-F01：MachineHost按原身份选择后端时，缺少agentId/owner.targetAgent不能与准备失败留下的空agentId上下文匹配；原请求仍只读查询原收据，既有原生账号/模型配置继承不变。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。

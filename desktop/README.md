@@ -1,6 +1,6 @@
 # AgentBridge Windows
 
-当前GitHub预发布 **alpha.26**：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.26/AgentBridge-0.6.0-alpha.26-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.26/SHA256SUMS.txt)。修复原Linux alpha.24无法连接及后续维护受阻；Windows停止旧后台后重开新版，沿原机器重连，再按需维护升级。冻结源码与边界见[专项](../doc/iterations/I06/ssh-alpha24-upgrade.md)。下方alpha.25段落保留原发布时点。
+当前GitHub预发布 **alpha.27**：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/SHA256SUMS.txt)。修复Codex准备失败/原任务核对和本地台账分享锁/历史未派发结算；停止旧后台后重开新版，分别沿原任务或原请求核对，保留原历史。alpha.24/25/26旧SSH后台继续按精确清单校验复用，本次本机修复无须升级SSH后台。[交付和未测边界](../doc/iterations/I06/windows-start-persistence.md)。下方保留历史发布时点。
 
 当前 GitHub 预发布 **0.6.0-alpha.25**：修复Windows查询原请求被未完成上下文误导到NOT_CONFIGURED的问题；[程序、实际证据与限制](../doc/iterations/I06/windows-context-recovery.md)。旧后台仍在运行时，在“设置 → 后台运行 → 停止后台并退出”，再打开新EXE并查询原请求；保留原节点、请求和历史。本次修复无须升级SSH后台。
 

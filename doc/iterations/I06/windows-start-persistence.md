@@ -1,6 +1,6 @@
 # Windows未派发任务与本地台账替换恢复
 
-日期：2026-10-17。当前源码/待交付候选 **0.6.0-alpha.27**，GitHub预发布仍为alpha.26；不覆盖既有冻结包。关联 [issue #3](https://github.com/wsjq5477/MA-Relay/issues/3)、[issue #4](https://github.com/wsjq5477/MA-Relay/issues/4)、AB-F08/F10/F11/F14/F17、M02-F04、M03-F04/F05、M06-CX-F01、M07-F06/F07、M08-F02、M10-F01/F03/F05。完整I06C/I07C未准出。
+日期：2026-10-17。当前源码/GitHub预发布 **0.6.0-alpha.27**，标签绑定已在master的 `6eab64604f2b7e7e9b20a09c85c46444bcb040e0`，draft=false、prerelease=true；不覆盖既有冻结包。关联[issue #3](https://github.com/wsjq5477/MA-Relay/issues/3)、[issue #4](https://github.com/wsjq5477/MA-Relay/issues/4)、AB-F08/F10/F11/F14/F17、M02-F04、M03-F04/F05、M06-CX-F01、M07-F06/F07、M08-F02、M10-F01/F03/F05。完整I06C/I07C未准出。
 
 ## 需求与验收目标
 
@@ -73,3 +73,7 @@ WSL Ubuntu / Node22.23.1；Windows 10.0.22000.2538 / Node24.19.0。模型调用0
 最终无调试EXE在隔离Windows profile及明确的独立WSL临时目录中5组通过：生产Coordinator/AgentNetwork/CodexHost恢复原任务failed且run仍只有job.json；历史精确EPERM原操作rejected、缺收据原操作unknown；普通关闭重开复用同后台；完整后台重启沿原身份不重发；4个修正CJS冻结副本与源码相同。模型/原生CLI任务0；[报告](../../../artifacts/windows-start-persistence/2026-10-17/portable.json)、[运行日志](../../../artifacts/windows-start-persistence/2026-10-17/portable.log)。该结果是实际Windows EXE对合成记录的程序验证，不代表用户故障机器已恢复。
 
 首轮夹具将runtime.json的UI快照副作用当作后台就绪条件而超时，未开始业务恢复检查，保留[首轮报告](../../../artifacts/windows-start-persistence/2026-10-17/portable-first.json)；改用coordinator-status.json及真实握手判断、明确独立WSL目录后复验通过。只修改测试夹具，最终EXE字节和摘要未改变。测试自有窗口及后台均关闭；未把首轮失败计作通过。最终文档检查见[结果](../../../artifacts/windows-start-persistence/2026-10-17/docs-check.json)。
+
+## GitHub分发核验
+
+[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.27)。标签绑定修复源码 `6eab64604f2b7e7e9b20a09c85c46444bcb040e0`；EXE为129,882,252字节，SHA-256 `8c6ae677d968af53fa79ec3b55485ea354a7ae4e7a188b9edd5630a05f0f330b`。两附件均uploaded且大小/digest匹配，完整公开下载均HTTP200，EXE摘要及校验文本与本地一致。[发布元数据](../../../artifacts/windows-start-persistence/2026-10-17/github-release.json)、[上传核验](../../../artifacts/windows-start-persistence/2026-10-17/github-upload.json)、[完整下载核验](../../../artifacts/windows-start-persistence/2026-10-17/github-download.json)。源码/窗口/后台/离线包一致性的发布前再次核对亦[通过](../../../artifacts/windows-start-persistence/2026-10-17/package-publish.json)。本次分发不扩大产品验收范围，原始材料仍按[仓库范围](../../repository-sync.md)保留在本地。

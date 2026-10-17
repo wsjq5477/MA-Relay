@@ -1,5 +1,6 @@
 # I06：alpha.9 GitHub Windows EXE 分发
 
+当前最新Windows预发布 **alpha.27**：[下载EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/SHA256SUMS.txt)，含issue #3/#4修复。[冻结源码、实际验证、公开下载及升级](windows-start-persistence.md)。以下为历史发布记录。
 日期：2026-10-13。关联 AB-F17、M10-F06、T-M10-25。用户要求将可直接运行的 Windows EXE 上传到 GitHub；不要求用户准备 WSL 或自行编译。
 
 ## 范围与设计

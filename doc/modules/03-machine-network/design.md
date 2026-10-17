@@ -2,7 +2,7 @@
 
 ## 2026-10-17：Windows未派发与持久化恢复
 
-M03-F04/F05：saveNetwork与共享atomicWrite统一原子保存，分享锁最多重试6次。派发前保存失败回滚内存dispatched=false，派发后保存失败保留unknown；历史EPERM仅接受本profile的精确UUID临时文件rename形状和原未派发指纹证据。 当前源码候选alpha.27，GitHub仍alpha.26；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
+M03-F04/F05：saveNetwork与共享atomicWrite统一原子保存，分享锁最多重试6次。派发前保存失败回滚内存dispatched=false，派发后保存失败保留unknown；历史EPERM仅接受本profile的精确UUID临时文件rename形状和原未派发指纹证据。 当前源码/GitHub预发布alpha.27；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
 ## 2026-10-17：Windows原请求上下文恢复
 
 M03-F04/F05：node-contexts允许连接准备阶段尚无agentId的记录。按Agent直达仅接受非空白字符串ID；按task/Conversation查owner后亦须有有效targetAgent。无Agent的request只读搜索legacy及已分配Agent的上下文，未完成行不参与归属匹配。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。

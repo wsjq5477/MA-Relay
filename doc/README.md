@@ -1,5 +1,6 @@
 # AgentBridge 项目资料
 
+2026-10-17当前源码/GitHub预发布 **alpha.27**：修复issue #3/#4的Windows Codex未派发任务与本地台账替换恢复；[下载EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/SHA256SUMS.txt)。桌面288/288、Windows契约86/86、普通EXE受控恢复5组通过，用户故障机/真实模型未复验。[完整交付](iterations/I06/windows-start-persistence.md)。以下保留各历史交付时点。
 2026-10-17新增 **alpha.26 GitHub预发布**：恢复对原 Linux alpha.24 的可信连接，随后可从原机器维护升级；同时补收 alpha.25 冻结清单。当前 GitHub 已分发 alpha.26；候选包未包含另有的 I07 续接源码增量。实际程序、升级步骤与验证边界见[Linux旧后台升级专项](iterations/I06/ssh-alpha24-upgrade.md)。
 
 2026-10-17较早alpha.25发布记录（历史时点），修复Windows未完成上下文遮挡原请求查询，并纳入先前不完整任务回应保护；[下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)。验收、升级、摘要及未测边界见[原请求恢复专项](iterations/I06/windows-context-recovery.md)。以下alpha.24/alpha.23段落保留其交付时点。

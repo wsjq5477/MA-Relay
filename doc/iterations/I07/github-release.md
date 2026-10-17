@@ -1,6 +1,6 @@
 # I07 alpha.24 GitHub预发布记录
 
-当前最新Windows预发布为 **alpha.26**：[直接下载EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.26/AgentBridge-0.6.0-alpha.26-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.26/SHA256SUMS.txt)，补收原Linux alpha.24/alpha.25可信清单并保留既有原请求恢复；[冻结源码与分发记录](../I06/ssh-alpha24-upgrade.md)。以下alpha.25/alpha.24/alpha.23为各次发布历史。
+当前最新Windows预发布为 **alpha.27**，含既有I07功能及Windows Codex/台账恢复：[EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)、[校验](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/SHA256SUMS.txt)、[源码及实际分发](../I06/windows-start-persistence.md)。以下保留alpha.26及更早冻结包证据。
 
 alpha.25历史发布说明，包含本页I07功能和后续原请求恢复/不完整收据修复；[直接下载EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/SHA256SUMS.txt)、[发布及升级](../I06/windows-context-recovery.md)。以下保留alpha.24/alpha.23发布时点及其冻结包证据。
 

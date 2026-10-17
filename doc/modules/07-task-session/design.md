@@ -2,8 +2,8 @@
 
 ## 2026-10-17：Windows未派发与持久化恢复
 
-M07-F06/F07：区分原操作收据和原生任务终态。Codex未派发证明只使原任务failed，中央本地持久化失败证明使原操作rejected；无job、已有worker.log/心跳/事件或已派发均继续unknown并占用。不重发、取消或删除原记录。 当前源码候选alpha.27，GitHub仍alpha.26；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
-自动续接的首次任务回应必须匹配持久意图resumeConversationId，不能等待接收外来Conversation后才建立校验；已有conversationId绑定继续严格匹配。错误回应保持待核对，只查原请求恢复。该补强是alpha.25之后的未发布源码增量，[实测与边界](../../iterations/I07/intended-conversation.md)。
+M07-F06/F07：区分原操作收据和原生任务终态。Codex未派发证明只使原任务failed，中央本地持久化失败证明使原操作rejected；无job、已有worker.log/心跳/事件或已派发均继续unknown并占用。不重发、取消或删除原记录。 当前源码/GitHub预发布alpha.27；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
+自动续接的首次任务回应必须匹配持久意图resumeConversationId，不能等待接收外来Conversation后才建立校验；已有conversationId绑定继续严格匹配。错误回应保持待核对，只查原请求恢复。该补强已随alpha.27预发布交付，[实测与边界](../../iterations/I07/intended-conversation.md)。
 
 ## 2026-10-17：Windows原请求上下文恢复
 

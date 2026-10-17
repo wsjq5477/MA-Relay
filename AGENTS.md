@@ -6,7 +6,7 @@
 
 - 阅读整体功能设计、相关模块的 `design.md`、`test-report.md` 和当前迭代。
 - 核对实际源码、发布包和测试证据，区分已发布、源码已实现、已确认设计与候选功能。
-- 稳定历史 Windows 版本为 0.5.0；当前 GitHub 预发布为 0.6.0-alpha.26，完整 I07C/I06C 仍未准出。I06A 候选 0.6.0-alpha.2 的 Windows/SSH 主要流程已验收，专项覆盖限制见 doc/iterations/I06/acceptance.md；I06B alpha.6 主要范围已验收，专项限制见 doc/iterations/I06/graph-implementation.md；alpha.7 图可用性优化见 doc/iterations/I06/graph-usability.md，alpha.8 旧后台拖动与主居左修复见 doc/iterations/I06/graph-drag-fix.md；alpha.9 合并页面与节点管理见 doc/iterations/I06/node-management.md；I06C alpha.10 首批机器管理/历史与事件补偿见 doc/iterations/I06/machine-management.md；alpha.13 可信后台维护/控制恢复及 alpha.15 维护入口通道拒绝恢复及 alpha.16 未发送边界补强见 doc/iterations/I06/final-delivery.md，以该页当前逐项证据为准。
+- 稳定历史 Windows 版本为 0.5.0；当前 GitHub 预发布为 0.6.0-alpha.27，完整 I07C/I06C 仍未准出。I06A 候选 0.6.0-alpha.2 的 Windows/SSH 主要流程已验收，专项覆盖限制见 doc/iterations/I06/acceptance.md；I06B alpha.6 主要范围已验收，专项限制见 doc/iterations/I06/graph-implementation.md；alpha.7 图可用性优化见 doc/iterations/I06/graph-usability.md，alpha.8 旧后台拖动与主居左修复见 doc/iterations/I06/graph-drag-fix.md；alpha.9 合并页面与节点管理见 doc/iterations/I06/node-management.md；I06C alpha.10 首批机器管理/历史与事件补偿见 doc/iterations/I06/machine-management.md；alpha.13 可信后台维护/控制恢复及 alpha.15 维护入口通道拒绝恢复及 alpha.16 未发送边界补强见 doc/iterations/I06/final-delivery.md，以该页当前逐项证据为准。
 
 alpha.18 的 Windows 运行缓存与原未派发提交恢复见 [专项](doc/iterations/I06/runtime-recovery.md)。源码已提交独立修复分支及 PR #1，尚未合入 master；发布标签绑定已验证源码，不以预发布替代完整 I06C 准出。
 
@@ -48,4 +48,4 @@ alpha.23 已作为GitHub预发布分发，包含I07A/B和I07C首批持续协调�
 
 2026-10-17当前GitHub预发布alpha.26：补收Linux alpha.24/alpha.25可信清单，恢复原alpha.24连接后可维护升级。标签绑定冻结源码3efc3d2，EXE与原候选一致；master另有I07续接Conversation增量未包含该EXE。发布/下载/验证及边界见[旧Linux后台升级专项](doc/iterations/I06/ssh-alpha24-upgrade.md)。
 
-2026-10-17当前源码候选alpha.27：修复issue #3的Codex准备失败/严格未派发任务核对、issue #4的台账分享锁重试及历史未派发结算；候选与预发布状态、工程/程序证据统一见[交付专项](doc/iterations/I06/windows-start-persistence.md)。
+2026-10-17当前GitHub预发布alpha.27：修复issue #3的Codex准备失败/严格未派发任务核对、issue #4的台账分享锁重试及历史未派发结算；候选与预发布状态、工程/程序证据统一见[交付专项](doc/iterations/I06/windows-start-persistence.md)。

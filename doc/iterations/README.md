@@ -1,6 +1,6 @@
 # 迭代资料目录
 
-当前开发候选alpha.27：[Windows未派发任务与本地持久化恢复（issue #3/#4）](I06/windows-start-persistence.md)，含原Codex任务核对、分享锁重试及严格历史拒绝结算；GitHub仍alpha.26，发布以该页实际记录为准。
+当前GitHub预发布alpha.27：[Windows未派发任务与本地持久化恢复（issue #3/#4）](I06/windows-start-persistence.md)，含原Codex任务核对、分享锁重试及严格历史拒绝结算；EXE、摘要和未测边界见该页。
 2026-10-17当前源码/当前预发布 **alpha.26**：[alpha.24 Linux 后台连接与升级](I06/ssh-alpha24-upgrade.md)。GitHub当前预发布为alpha.26；下文较早的alpha.25候选状态保留原时点。
 
 2026-10-17源码/本地候选alpha.25：[Windows原请求上下文恢复](I06/windows-context-recovery.md)，修复未完成上下文截获原请求查询；GitHub保持alpha.24，用户故障机器尚待复验。

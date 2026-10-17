@@ -1,6 +1,6 @@
 # 整体测试与验收报告
 
-## alpha.27当前源码候选验收
+## alpha.27当前预发布验收
 
 2026-10-17：最终桌面运行288/288、核心45/45；Codex10/10、共享写入10/10、最终网络50/50、真实Windows受控契约86/86；随后新增alpha.26兼容场景，该文件10/10。lint、根/桌面类型及前端构建通过，模型0。首轮维护ENOENT、补验及普通EXE/包/发布实际结果见[Windows恢复专项](iterations/I06/windows-start-persistence.md)；不以源码回归代替用户机器恢复。
 2026-10-17 / alpha.26 预发布：补收可信 alpha.24/alpha.25 Linux 清单，SSH 相关36/36、构建与候选包核对通过；没有重跑全工程/真实模型或用户故障服务器。与下面另有 I07 续接增量区分，候选不含该增量；实际EXE/受控SSH/Windows证据见[旧后台升级专项](iterations/I06/ssh-alpha24-upgrade.md)。GitHub已为alpha.26。

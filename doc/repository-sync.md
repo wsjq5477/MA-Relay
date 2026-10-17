@@ -1,5 +1,6 @@
 # 远端源码范围
 
+2026-10-17最新alpha.27已公开预发布，源码标签绑定master修复提交 `6eab64604f2b7e7e9b20a09c85c46444bcb040e0`；EXE/校验文件及完整公开下载均核验。文档同步提交可在产品冻结提交之后；不把源码同步计为新产品测试。[分发、升级与边界](iterations/I06/windows-start-persistence.md)。以下保留历史时点。
 更新：2026-10-17。目标仓库：https://github.com/wsjq5477/MA-Relay 。当前GitHub预发布为 **alpha.26**，标签绑定冻结源码3efc3d2，分支codex/alpha26-linux-backend-release；EXE恢复对原Linux alpha.24的可信连接及后续维护。master另有I07续接增量，未包含在该EXE中；[发布、升级及实际边界](iterations/I06/ssh-alpha24-upgrade.md)。历史记录保留原时点。
 
 仓库包含源码、测试、构建脚本、依赖锁文件、模块设计和迭代资料。原生配置、开发运行状态、凭据、原始验收材料、依赖目录、构建输出和 Windows EXE 保留在本地，不随源码提交。历史文档中的实际任务、请求和会话标识已脱敏。

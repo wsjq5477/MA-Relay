@@ -1,8 +1,8 @@
 # AgentBridge 整体功能设计
 
-## alpha.27源码候选：Windows未派发与持久化恢复
+## alpha.27已预发布：Windows未派发与持久化恢复
 
-AB-F08/F10/F11/F14/F17：Codex准备失败保留原failed终态，原任务核对仅凭完整未派发证据释放；本地台账分享锁有界重试，原NETWORK_PERSIST/严格历史EPERM且确定未派发才拒绝结算；原生或结果未知不放行。当前GitHub仍alpha.26；新EXE/验证/升级以[当次交付](iterations/I06/windows-start-persistence.md)为准。
+AB-F08/F10/F11/F14/F17：Codex准备失败保留原failed终态，原任务核对仅凭完整未派发证据释放；本地台账分享锁有界重试，原NETWORK_PERSIST/严格历史EPERM且确定未派发才拒绝结算；原生或结果未知不放行。对应Windows EXE与校验文件已公开分发；新EXE/验证/升级以[当次交付](iterations/I06/windows-start-persistence.md)为准。
 ## 2026-10-17：alpha.24 Linux 后台连接恢复候选
 
 AB-F05/F06/F17，M04/M10：alpha.26 预发布补收原 alpha.24/alpha.25 可信清单，解决 alpha.25 拒绝连接原 alpha.24 且无法进入在线维护的问题；仍逐文件校验并保留原机器/请求，确认维护后才升级。GitHub已为alpha.26，用户故障服务器未复测。候选不含另有的 I07 续接增量；另提供同资源的Linux x64 daemon归档（非Linux桌面版/一键升级器）。[完整专项](iterations/I06/ssh-alpha24-upgrade.md)。
