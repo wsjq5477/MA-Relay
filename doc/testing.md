@@ -1,5 +1,9 @@
 # 整体测试与验收报告
 
+2026-10-17 / alpha.26 本地候选：补收可信 alpha.24/alpha.25 Linux 清单，SSH 相关36/36、构建与候选包核对通过；没有重跑全工程/真实模型或用户故障服务器。与下面另有 I07 续接增量区分，候选不含该增量；实际EXE/受控SSH/Windows证据见[旧后台升级专项](iterations/I06/ssh-alpha24-upgrade.md)。GitHub仍为alpha.25。
+
+2026-10-17新增首次续接Conversation绑定补丁，受控专项48/48通过、模型0；GitHub alpha.25冻结包不含本次源码增量，[证据与范围](iterations/I07/intended-conversation.md)。以下发布/包检查保留原日期与源码，不是该补丁的EXE验证。
+
 2026-10-17 / alpha.25已预发布：修复Windows原请求上下文路由；构建验收专项48/48、串行桌面243/243、Windows契约17/17通过，模型0。包及普通EXE结果、受限首轮和未测边界见[当片专项](iterations/I06/windows-context-recovery.md)。发布前再验相关72/72、lint/类型/前端构建及包源码一致性；原生任务unknown的合成生产恢复链通过，未配置后台未被实例化，重启不重发。已纳入先前不完整任务回应保护；公开分发结果单独记录，以下alpha.24冻结基线保持原日期。
 
 2026-10-17较早身份校验专项（当时未打包，现已纳入上述alpha.25候选），相关受控专项45/45通过，模型0；[证据与范围](iterations/I07/incomplete-receipt.md)。以下alpha.24全量/包为原冻结基线，未包含该补丁，未在本次重跑。

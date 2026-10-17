@@ -87,3 +87,7 @@ I07A/B已确定TeamSpace SQLite事务及版本1至2迁移；任务业务位于te
 ## 16. 并行维护：Windows原请求查询恢复
 
 2026-10-17 / alpha.25本地候选：修复未完成上下文agentId缺失导致原请求查询错路由，纳入前一项不完整任务回应保护；需求、受控验证、包及故障机边界见[I06恢复专项](../I06/windows-context-recovery.md)。不扩展I07C验收范围或改变GitHub alpha.24附件。
+
+## 17. 首次续接回应核对原Conversation
+
+2026-10-17定时推进：补齐新attempt尚无conversationId时对resumeConversationId的校验，拒绝外来Conversation的running/succeeded；两个受控反例修复前失败，修复后相关48/48通过，原查询可恢复且不重派。当前基于alpha.25的源码增量尚未入包，发布附件保持原冻结版本。[完整交付](intended-conversation.md)。

@@ -1,5 +1,10 @@
 # M08 主从协作测试报告
 
+## 2026-10-17：首次续接回应的原Conversation校验
+
+T-M08-127：alpha.25之后的未发布源码增量，WSL Node22.23.1，受控execute/query和真实SQLite，模型0。错误Conversation的running/succeeded两个反例修复前均失败；修复后相关48/48（含父测试/子场景）通过，错误回应保持unknown、不绑定外来会话，原request返回正确Conversation后恢复，execute总数仍2。[TAP、复现与限制](../../iterations/I07/intended-conversation.md)。未运行真实模型/EXE或独立SSH，未重建发布包；共享计数不跨模块累加。
+
+
 ## 2026-10-17：不完整原生任务回应
 
 T-M08-125：alpha.24未发布源码补丁，WSL Node22.23.1，受控原生执行查询/真实SQLite，模型0。5种身份缺失或无效输入修复前全部失败；修复后自动化/公共空间/任务/停止/路由45/45（含父测试/子场景）通过，原不完整succeeded保持unknown、原scope和占用保留，完整原请求可恢复且execute仅1次。[TAP、复现和边界](../../iterations/I07/incomplete-receipt.md)。未重建EXE或验证真实模型/独立SSH；共享计数不跨模块累加。

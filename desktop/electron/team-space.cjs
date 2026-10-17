@@ -386,7 +386,8 @@ class TeamSpace {
       throw fail('TEAM_EXECUTION', '原执行返回不完整，保留原请求待核对。');
     this.transaction(s => {
       const a = s.attempts.find(x => x.attemptId === id);
-      if (task.requestId !== a.requestId || (a.taskId && task.taskId !== a.taskId) || (a.conversationId && task.conversationId !== a.conversationId)) throw fail('TEAM_EXECUTION', '原请求身份不匹配，保留原记录待核对。');
+      const expectedConversationId = a.conversationId || a.resumeConversationId;
+      if (task.requestId !== a.requestId || (a.taskId && task.taskId !== a.taskId) || (expectedConversationId && task.conversationId !== expectedConversationId)) throw fail('TEAM_EXECUTION', '原请求身份不匹配，保留原记录待核对。');
       if (terminal.has(a.state)) return null;
       a.state = task.status; a.taskId = task.taskId; a.conversationId = task.conversationId;
       if(typeof task.native?.sessionId==='string'&&task.native.sessionId.length<500){

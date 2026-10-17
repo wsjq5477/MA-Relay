@@ -1,5 +1,9 @@
 # I06 功能需求与验收基线
 
+## 2026-10-17：可信旧后台升级补充
+
+现有 SSH 接入、DMN 维护和 REL 交付范围增加 alpha.24 回归：新客户端应在精确可信 manifest 下连接原后台，再由用户确认升级；不能因发布漏收上一版清单而使正常原机器失去维护路径。未知版本/摘要不符仍拒绝，原任务与 unknown 占位不变。需求、实现及实际验收见[alpha.24 专项](ssh-alpha24-upgrade.md)。
+
 日期：2026-10-10。状态：计划，全部 I06 功能待开发、待验收。上一迭代实际能力见 [I05 验收](../I05/acceptance.md)。迭代目标与增量见 [proposal.md](proposal.md)，技术合约见 [ssh-design.md](ssh-design.md)、[graph-design.md](graph-design.md)，逐项测试见 [testing.md](testing.md)。
 
 ## 1. 用户与对象

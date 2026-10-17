@@ -1,5 +1,10 @@
 # M02 中央协调后台测试报告
 
+## 2026-10-17：首次续接回应的原Conversation校验
+
+T-M02-127：alpha.25之后的未发布源码增量，WSL Node22.23.1，受控execute/query和真实SQLite，模型0。错误Conversation的running/succeeded两个反例修复前均失败；修复后相关48/48（含父测试/子场景）通过，错误回应保持unknown、不绑定外来会话，原request返回正确Conversation后恢复，execute总数仍2。[TAP、复现与限制](../../iterations/I07/intended-conversation.md)。未运行真实模型/EXE或独立SSH，未重建发布包；共享计数不跨模块累加。
+
+
 ## 2026-10-17：Windows原请求上下文恢复
 
 T-M02-126 / M02-F04：alpha.25本地候选，WSL Node22.23.1/Windows Node24.19.0，受控记录，模型0。4个反例修复前全部失败，修复后专项48/48、串行桌面243/243、Windows契约17/17通过，原回执可恢复且缺回执仍unknown。共享计数不跨模块累加，包内33 CJS/78 core/1390 Linux资源一致；alpha.24普通EXE对照3组、alpha.25候选4组通过，原记录均为合成。候选包/普通EXE与失败日志见[专项](../../iterations/I06/windows-context-recovery.md)。未实测用户另一台电脑或真实原生模型，不改变GitHub alpha.24已发布冻结包。

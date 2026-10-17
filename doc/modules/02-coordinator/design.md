@@ -1,10 +1,12 @@
 # M02 中央协调后台设计
 
+自动续接的首次任务回应必须匹配持久意图resumeConversationId，不能等待接收外来Conversation后才建立校验；已有conversationId绑定继续严格匹配。错误回应保持待核对，只查原请求恢复。该补强是alpha.25之后的未发布源码增量，[实测与边界](../../iterations/I07/intended-conversation.md)。
+
 ## 2026-10-17：Windows原请求上下文恢复
 
 M02-F04：原请求查询经MachineHost只读定位已配置原上下文；缺少Agent身份不能匹配未完成上下文。原收据匹配后才结算pending，缺收据仍unknown。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。
 
-原生任务回应须有非空白字符串taskId/conversationId且匹配原request及已有绑定，才可更新小队执行事实；首次不完整回应保持unknown，后续仅查原请求，不能凭succeeded字段撤权、解除占用或验收。基于alpha.24的未发布补丁，既有EXE不含此校验。[完整规则与验证](../../iterations/I07/incomplete-receipt.md)。
+原生任务回应须有非空白字符串taskId/conversationId且匹配原request及已有绑定，才可更新小队执行事实；首次不完整回应保持unknown，后续仅查原请求，不能凭succeeded字段撤权、解除占用或验收。该完整身份校验已随alpha.25发布。[完整规则与验证](../../iterations/I07/incomplete-receipt.md)。
 
 本机真实Claude自动主角色首轮与原会话续接后的独立权限等待/允许、观察后台重启已补验；仅user_start/attention两个事件，等待通知/阅读回执不新增激活。不是执行成员或独立SSH完整链。见[权限证据](../../iterations/I07/resume-native-permission.md)。
 

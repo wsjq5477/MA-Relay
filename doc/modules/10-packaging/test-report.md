@@ -1,5 +1,11 @@
 # M10 构建与发布测试报告
 
+## 2026-10-17：alpha.26 可信清单候选
+
+实际冻结alpha.24→alpha.26的受控TCP SSH/SFTP链4组、Windows普通EXE5组通过；Linux独立资源归档1392条目一致，独立服务器/真实原生任务迁移未测。
+
+新增 alpha.24/alpha.25 可信清单已匹配原交付 manifest digest；兼容/安全/升级/恢复36/36、核心/前端构建及候选包资源一致性通过，WSL Linux / Node22.23.1，模型0。候选独立冻结，未混入工作区 I07 增量；原发布附件没有覆盖。实际EXE、摘要、Windows和真实受控SSH结果及失败/未测边界见[专项交付](../../iterations/I06/ssh-alpha24-upgrade.md)。
+
 ## 2026-10-17：Windows原请求上下文恢复
 
 T-M10-126 / M10-F01/F03/F05：alpha.25已预发布，WSL Node22.23.1/Windows Node24.19.0，受控记录，模型0。4个反例修复前全部失败，修复后专项48/48、串行桌面243/243、Windows契约17/17通过，原回执可恢复且缺回执仍unknown。共享计数不跨模块累加，包内33 CJS/78 core/1390 Linux资源一致；alpha.24普通EXE对照3组、alpha.25候选4组通过，原记录均为合成。发布前再验相关72/72、lint/类型/前端构建、合成unknown生产恢复链及包一致性通过；EXE和校验文件均uploaded且大小/digest匹配，公开完整下载HTTP200、摘要及校验文本一致。分发证据、候选包/普通EXE与失败日志见[专项](../../iterations/I06/windows-context-recovery.md)。未实测用户另一台电脑或真实原生模型，不改变GitHub alpha.24已发布冻结包。

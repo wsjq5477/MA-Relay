@@ -111,3 +111,16 @@ test('incomplete native task identities cannot settle an activation and recover 
   complete=true;await f.space.refresh(f.run.runId);const original=f.space.read().attempts[0];assert.equal(original.state,'succeeded');assert.equal(original.requestId,accepted.requestId);assert.equal(original.taskId,'original-task');assert.equal(f.space.read().attempts.length,1);assert.equal(executions,1);
  });
 });
+
+test('first continuation response must match the intended original Conversation even with the same native Session',async t=>{
+ for(const status of ['running','succeeded'])await t.test(status,async t=>{
+  const f=await fixture(t),execute=f.options.execute;
+  f.options.execute=async a=>{const task=await execute(a);if(a.resumeConversationId){task.conversationId='foreign-conversation';task.status=status;}return task;};
+  await f.enable();await f.engine.tick();f.complete();await f.engine.tick();const original=f.space.read().attempts[0];
+  await f.call('wake',{runId:f.run.runId,reason:'continue original context'});await f.engine.tick();
+  let resumed=f.space.read().attempts[1];assert.equal(resumed.state,'unknown');assert.equal(resumed.conversationId,undefined);assert.equal(resumed.resumeConversationId,original.conversationId);
+  await f.engine.tick();assert.equal(f.calls.length,2);assert.equal(f.space.read().attempts[1].state,'unknown');
+  const response=f.tasks.get(resumed.requestId);response.conversationId=original.conversationId;response.status='succeeded';await f.space.refresh(f.run.runId);
+  resumed=f.space.read().attempts[1];assert.equal(resumed.state,'succeeded');assert.equal(resumed.conversationId,original.conversationId);assert.equal(f.calls.length,2);
+ });
+});

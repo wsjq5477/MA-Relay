@@ -238,3 +238,5 @@ recoverPending 保留 resolved/remaining/items；items 中 NOT_CONFIGURED 的固
 小队`team.context/team.refresh`的attempt新增可选`waiting:{kind:permission|input,requestCount:number}`；仅说明观察到的原生等待，不是授权接口。unknown时该字段为上次已观察信息。原生请求ID/正文/工具参数及私有去重摘要不返回公共空间，权限回应继续走原节点原任务。未新增RPC或帧版本，缺字段兼容旧记录。[专项](iterations/I07/native-waiting.md)。
 
 小队消费原生Task观测前要求`taskId`及`conversationId`为非空白字符串，并匹配原requestId和既有绑定；即使status为succeeded，缺身份也不结算。首次派发后不完整回应保持unknown，后续只查原请求；不新增Task状态、RPC或帧版本。见[完整性专项](iterations/I07/incomplete-receipt.md)。
+
+自动续接任务的首次观测在尚无attempt.conversationId时，仍必须匹配已持久保存的resumeConversationId；requestId与native Session相同不能使外来Conversation有效。校验失败只保留原请求待核对，不绑定、不结算或重发。无新增字段/RPC/帧版本。[专项](iterations/I07/intended-conversation.md)。

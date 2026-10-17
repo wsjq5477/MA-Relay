@@ -218,3 +218,5 @@ agent-network.json 版本仍为 1；requests 新增可选 inputFingerprint 与 p
 pending.json 的原格式和状态不变；本地 pending IPC 的每条记录可新增 blockedNodeIds，动态投影阻塞节点，不写回磁盘。不以当前 UI 选择修改原资源；共享目录通过持久实例及 workspaceKey 识别，真实目录就绪后再次核验。任务终态和控制 confirmed 的语义不变。[专项](iterations/I06/pending-isolation.md)。
 
 小队attempt可选`waiting={kind:permission|input,requestCount}`保存安全的等待投影；私有`waitingFingerprint`对类别及去重排序的原requestIds摘要，仅用于重复通知抑制，公共attempt不返回该摘要或原生请求ID。unknown不抹掉上次等待；可信新快照/终态清除。格式仍为3，无迁移要求；旧记录缺字段即无已观察等待。见[I07C等待专项](iterations/I07/native-waiting.md)。
+
+自动attempt.resumeConversationId是原续接目标约束，首条观测写入conversationId之前就须匹配它；之后按既有绑定匹配。没有新增存储字段或版本，拒绝外来Conversation不改变原request/attempt/意图身份。[专项](iterations/I07/intended-conversation.md)。

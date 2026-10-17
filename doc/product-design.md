@@ -1,5 +1,9 @@
 # AgentBridge 整体功能设计
 
+## 2026-10-17：alpha.24 Linux 后台连接恢复候选
+
+AB-F05/F06/F17，M04/M10：alpha.26 源码/本地候选补收原 alpha.24/alpha.25 可信清单，解决 alpha.25 拒绝连接原 alpha.24 且无法进入在线维护的问题；仍逐文件校验并保留原机器/请求，确认维护后才升级。GitHub仍为alpha.25，用户故障服务器未复测。候选不含另有的 I07 续接增量；另提供同资源的Linux x64 daemon归档（非Linux桌面版/一键升级器）。[完整专项](iterations/I06/ssh-alpha24-upgrade.md)。
+
 2026-10-17 / alpha.25源码与GitHub预发布：AB-F08/F10/F11，M02/M03/M06/M07/M10修复未完成执行上下文缺少Agent身份时截获原请求/任务查询的问题；仅匹配原回执结算，缺收据继续unknown。包含先前不完整任务回应保护；AB-F17已分发对应Windows EXE和校验文件。见[需求、实现、发布与证据](iterations/I06/windows-context-recovery.md)。
 
 更新：2026-10-16。适用：Windows0.5.0稳定历史功能，以及0.6.0-alpha.23预发布的小队协作与持续协调首批（包含此前未确认资源范围、配置拒绝恢复及发现修复）。每项明确区分实现、发布和验收状态。
@@ -267,3 +271,7 @@ AB-F07/08/09/10/11/20/22：本机真实Claude自动主角色在明确新阶段�
 ## 2026-10-17：不完整原生回应保护
 
 AB-F08/11/20/22，M02/M07/M08：源码补强原任务完整身份校验，缺失/空白/无效taskId或Conversation的succeeded不能使小队执行假成功或解除占用；仅查询原请求恢复。未重建包，原alpha.24本地候选与GitHub alpha.23不含本补丁。[实际回归](iterations/I07/incomplete-receipt.md)。
+
+## 2026-10-17：续接意图绑定保护
+
+AB-F08/11/22，M02/M07/M08：源码在首条续接回应前核对持久保存的原Conversation；错误Conversation即使携带相同native Session也不能被接纳为运行/成功，只查原请求恢复。受控相关48/48通过，未重建EXE，GitHub alpha.25冻结附件不含本次补丁。[证据](iterations/I07/intended-conversation.md)。
