@@ -4,7 +4,7 @@
 
 实际冻结alpha.24→alpha.26的受控TCP SSH/SFTP链4组、Windows普通EXE5组通过；Linux独立资源归档1392条目一致，独立服务器/真实原生任务迁移未测。
 
-alpha.26 本地候选：SSH 兼容/安全/维护/恢复 36/36 通过，WSL Linux / Node22.23.1，受控 TCP SSH 和真实隔离后台测试、模型0；原 alpha.25 确认缺少 alpha.24 信任清单，候选匹配原 alpha.24/alpha.25 digest。源码回归不等于用户独立服务器已恢复；实际包/Windows/端到端结果及失败证据统一见[专项报告](../../iterations/I06/ssh-alpha24-upgrade.md)。
+alpha.26 预发布：SSH 兼容/安全/维护/恢复 36/36 通过，WSL Linux / Node22.23.1，受控 TCP SSH 和真实隔离后台测试、模型0；原 alpha.25 确认缺少 alpha.24 信任清单，候选匹配原 alpha.24/alpha.25 digest。源码回归不等于用户独立服务器已恢复；实际包/Windows/端到端结果及失败证据统一见[专项报告](../../iterations/I06/ssh-alpha24-upgrade.md)。
 
 ## alpha.19 Linux CLI 发现专项
 

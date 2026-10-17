@@ -6,7 +6,7 @@
 
 - 阅读整体功能设计、相关模块的 `design.md`、`test-report.md` 和当前迭代。
 - 核对实际源码、发布包和测试证据，区分已发布、源码已实现、已确认设计与候选功能。
-- 稳定历史 Windows 版本为 0.5.0；当前 GitHub 预发布为 0.6.0-alpha.25，完整 I07C/I06C 仍未准出。I06A 候选 0.6.0-alpha.2 的 Windows/SSH 主要流程已验收，专项覆盖限制见 doc/iterations/I06/acceptance.md；I06B alpha.6 主要范围已验收，专项限制见 doc/iterations/I06/graph-implementation.md；alpha.7 图可用性优化见 doc/iterations/I06/graph-usability.md，alpha.8 旧后台拖动与主居左修复见 doc/iterations/I06/graph-drag-fix.md；alpha.9 合并页面与节点管理见 doc/iterations/I06/node-management.md；I06C alpha.10 首批机器管理/历史与事件补偿见 doc/iterations/I06/machine-management.md；alpha.13 可信后台维护/控制恢复及 alpha.15 维护入口通道拒绝恢复及 alpha.16 未发送边界补强见 doc/iterations/I06/final-delivery.md，以该页当前逐项证据为准。
+- 稳定历史 Windows 版本为 0.5.0；当前 GitHub 预发布为 0.6.0-alpha.26，完整 I07C/I06C 仍未准出。I06A 候选 0.6.0-alpha.2 的 Windows/SSH 主要流程已验收，专项覆盖限制见 doc/iterations/I06/acceptance.md；I06B alpha.6 主要范围已验收，专项限制见 doc/iterations/I06/graph-implementation.md；alpha.7 图可用性优化见 doc/iterations/I06/graph-usability.md，alpha.8 旧后台拖动与主居左修复见 doc/iterations/I06/graph-drag-fix.md；alpha.9 合并页面与节点管理见 doc/iterations/I06/node-management.md；I06C alpha.10 首批机器管理/历史与事件补偿见 doc/iterations/I06/machine-management.md；alpha.13 可信后台维护/控制恢复及 alpha.15 维护入口通道拒绝恢复及 alpha.16 未发送边界补强见 doc/iterations/I06/final-delivery.md，以该页当前逐项证据为准。
 
 alpha.18 的 Windows 运行缓存与原未派发提交恢复见 [专项](doc/iterations/I06/runtime-recovery.md)。源码已提交独立修复分支及 PR #1，尚未合入 master；发布标签绑定已验证源码，不以预发布替代完整 I06C 准出。
 
@@ -44,4 +44,6 @@ alpha.20 已作为GitHub预发布分发，修复未确认操作的节点/目录�
 
 alpha.23 已作为GitHub预发布分发，包含I07A/B和I07C首批持续协调；真实Claude自动主角色与受控MCP执行成员证据分开记录，其他原生自动续接/独立SSH/完整停止仍未准出。[功能与验收](doc/iterations/I07/automation.md)、[源码/EXE发布记录](doc/iterations/I07/github-release.md)。
 
-2026-10-17当前GitHub预发布alpha.25：Windows未完成上下文缺少Agent身份时不得截获原请求/任务查询，包含先前不完整任务回应保护；标签绑定修复提交2e957e3，EXE/校验文件及完整公开下载均核验。工程/程序与未测边界见[原请求恢复专项](doc/iterations/I06/windows-context-recovery.md)。
+2026-10-17较早GitHub预发布alpha.25（历史时点）：Windows未完成上下文缺少Agent身份时不得截获原请求/任务查询，包含先前不完整任务回应保护；标签绑定修复提交2e957e3，EXE/校验文件及完整公开下载均核验。工程/程序与未测边界见[原请求恢复专项](doc/iterations/I06/windows-context-recovery.md)。
+
+2026-10-17当前GitHub预发布alpha.26：补收Linux alpha.24/alpha.25可信清单，恢复原alpha.24连接后可维护升级。标签绑定冻结源码3efc3d2，EXE与原候选一致；master另有I07续接Conversation增量未包含该EXE。发布/下载/验证及边界见[旧Linux后台升级专项](doc/iterations/I06/ssh-alpha24-upgrade.md)。

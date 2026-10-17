@@ -1,6 +1,6 @@
 # 迭代资料目录
 
-2026-10-17当前源码/本地修复候选 **alpha.26**：[alpha.24 Linux 后台连接与升级](I06/ssh-alpha24-upgrade.md)。GitHub当前预发布为alpha.25；下文较早的alpha.25候选状态保留原时点。
+2026-10-17当前源码/当前预发布 **alpha.26**：[alpha.24 Linux 后台连接与升级](I06/ssh-alpha24-upgrade.md)。GitHub当前预发布为alpha.26；下文较早的alpha.25候选状态保留原时点。
 
 2026-10-17源码/本地候选alpha.25：[Windows原请求上下文恢复](I06/windows-context-recovery.md)，修复未完成上下文截获原请求查询；GitHub保持alpha.24，用户故障机器尚待复验。
 

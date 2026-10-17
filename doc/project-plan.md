@@ -7,9 +7,9 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | 0.6.0-alpha.25 / Windows原请求上下文恢复，包含既有小队协作与持续协调首批；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.25)，完整 I07C/I06C 未准出 |
+| 最新 Windows 预发布 | 0.6.0-alpha.26 / Linux alpha.24可信连接与升级恢复，标签绑定冻结源码3efc3d2；[EXE与发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.26)，完整I07C/I06C未准出 |
 | 当前自动回归 | 2026-10-17 / alpha.25候选：核心45/45、串行桌面243/243、Windows恢复契约17/17，lint/类型/构建与包一致性通过；普通EXE对照和故障机边界见[恢复专项](iterations/I06/windows-context-recovery.md)。 |
-| 当前源码 | alpha.26本地候选补收原alpha.24/alpha.25可信Linux清单，恢复原alpha.24连接和后续维护；[验证与边界](iterations/I06/ssh-alpha24-upgrade.md)。原0.6.0-alpha.25已预发布，标签绑定修复提交2e957e3，修复Windows原请求被未完成上下文遮挡，包含不完整任务回应保护。准确结果及未测边界见[恢复专项](iterations/I06/windows-context-recovery.md)。 |
+| 当前源码 | alpha.26已预发布，冻结分支codex/alpha26-linux-backend-release与EXE一致；master另有I07续接增量未打入该EXE。补收原alpha.24/alpha.25可信Linux清单，恢复原alpha.24连接和后续维护；[验证与边界](iterations/I06/ssh-alpha24-upgrade.md)。原0.6.0-alpha.25已预发布，标签绑定修复提交2e957e3，修复Windows原请求被未完成上下文遮挡，包含不完整任务回应保护。准确结果及未测边界见[恢复专项](iterations/I06/windows-context-recovery.md)。 |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
 | alpha.24历史自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |

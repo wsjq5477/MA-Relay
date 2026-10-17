@@ -1,6 +1,6 @@
 # 整体测试与验收报告
 
-2026-10-17 / alpha.26 本地候选：补收可信 alpha.24/alpha.25 Linux 清单，SSH 相关36/36、构建与候选包核对通过；没有重跑全工程/真实模型或用户故障服务器。与下面另有 I07 续接增量区分，候选不含该增量；实际EXE/受控SSH/Windows证据见[旧后台升级专项](iterations/I06/ssh-alpha24-upgrade.md)。GitHub仍为alpha.25。
+2026-10-17 / alpha.26 预发布：补收可信 alpha.24/alpha.25 Linux 清单，SSH 相关36/36、构建与候选包核对通过；没有重跑全工程/真实模型或用户故障服务器。与下面另有 I07 续接增量区分，候选不含该增量；实际EXE/受控SSH/Windows证据见[旧后台升级专项](iterations/I06/ssh-alpha24-upgrade.md)。GitHub已为alpha.26。
 
 2026-10-17新增首次续接Conversation绑定补丁，受控专项48/48通过、模型0；GitHub alpha.25冻结包不含本次源码增量，[证据与范围](iterations/I07/intended-conversation.md)。以下发布/包检查保留原日期与源码，不是该补丁的EXE验证。
 

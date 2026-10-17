@@ -1,10 +1,12 @@
 # AgentBridge Windows
 
+当前GitHub预发布 **alpha.26**：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.26/AgentBridge-0.6.0-alpha.26-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.26/SHA256SUMS.txt)。修复原Linux alpha.24无法连接及后续维护受阻；Windows停止旧后台后重开新版，沿原机器重连，再按需维护升级。冻结源码与边界见[专项](../doc/iterations/I06/ssh-alpha24-upgrade.md)。下方alpha.25段落保留原发布时点。
+
 当前 GitHub 预发布 **0.6.0-alpha.25**：修复Windows查询原请求被未完成上下文误导到NOT_CONFIGURED的问题；[程序、实际证据与限制](../doc/iterations/I06/windows-context-recovery.md)。旧后台仍在运行时，在“设置 → 后台运行 → 停止后台并退出”，再打开新EXE并查询原请求；保留原节点、请求和历史。本次修复无须升级SSH后台。
 
 ## GitHub Windows 下载
 
-最新修复和下载以 alpha.25 为准；alpha.24 停止协调的历史实测保留于[当片交付与验证](../doc/iterations/I07/native-stop.md)。
+最新修复和下载以 alpha.26 为准；alpha.24 停止协调的历史实测保留于[当片交付与验证](../doc/iterations/I07/native-stop.md)。
 
 GitHub 最新 Windows 预发布为 [0.6.0-alpha.25](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.25)，可直接[下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)及[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/SHA256SUMS.txt)。稳定历史版本仍为 0.5.0；完整 I07C/I06C 和正式 0.6.0 尚未准出。Windows 用户下载附件双击即可运行，无需自行编译、安装 WSL 或 Node.js。[发布与升级](../doc/iterations/I06/windows-context-recovery.md)。
 

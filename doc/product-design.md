@@ -2,7 +2,7 @@
 
 ## 2026-10-17：alpha.24 Linux 后台连接恢复候选
 
-AB-F05/F06/F17，M04/M10：alpha.26 源码/本地候选补收原 alpha.24/alpha.25 可信清单，解决 alpha.25 拒绝连接原 alpha.24 且无法进入在线维护的问题；仍逐文件校验并保留原机器/请求，确认维护后才升级。GitHub仍为alpha.25，用户故障服务器未复测。候选不含另有的 I07 续接增量；另提供同资源的Linux x64 daemon归档（非Linux桌面版/一键升级器）。[完整专项](iterations/I06/ssh-alpha24-upgrade.md)。
+AB-F05/F06/F17，M04/M10：alpha.26 预发布补收原 alpha.24/alpha.25 可信清单，解决 alpha.25 拒绝连接原 alpha.24 且无法进入在线维护的问题；仍逐文件校验并保留原机器/请求，确认维护后才升级。GitHub已为alpha.26，用户故障服务器未复测。候选不含另有的 I07 续接增量；另提供同资源的Linux x64 daemon归档（非Linux桌面版/一键升级器）。[完整专项](iterations/I06/ssh-alpha24-upgrade.md)。
 
 2026-10-17 / alpha.25源码与GitHub预发布：AB-F08/F10/F11，M02/M03/M06/M07/M10修复未完成执行上下文缺少Agent身份时截获原请求/任务查询的问题；仅匹配原回执结算，缺收据继续unknown。包含先前不完整任务回应保护；AB-F17已分发对应Windows EXE和校验文件。见[需求、实现、发布与证据](iterations/I06/windows-context-recovery.md)。
 

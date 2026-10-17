@@ -1,6 +1,6 @@
 # alpha.24 Linux 后台连接与升级恢复
 
-日期：2026-10-17。关联 AB-F05/F06/F17、M04-F04/F05/F08、M10-F02/F03/F04/F06，以及 I06 SSH/DMN/REL 的可信接入与升级范围。源码/本地候选为 **0.6.0-alpha.26**；当前 GitHub 预发布仍为 **alpha.25**，本次尚未上传。完整 I06C/I07C 未准出。
+日期：2026-10-17。关联 AB-F05/F06/F17、M04-F04/F05/F08、M10-F02/F03/F04/F06，以及 I06 SSH/DMN/REL 的可信接入与升级范围。已发布 **0.6.0-alpha.26** GitHub预发布，冻结标签绑定源码 `3efc3d2`。完整 I06C/I07C 未准出。
 
 ## 需求与原因
 
@@ -39,7 +39,7 @@ WSL Ubuntu / Node22.23.1；模型 Prompt 数为 0。结果以本页后续实际�
 
 ## 用户升级
 
-1. 在旧 Windows 窗口“设置 → 后台运行 → 停止后台并退出”，再启动 alpha.26 候选；普通关闭窗口会保留旧中央后台。
+1. 在旧 Windows 窗口“设置 → 后台运行 → 停止后台并退出”，再启动 alpha.26 EXE；普通关闭窗口会保留旧中央后台。
 2. 在原机器点击重新连接，必要时提供原 SSH 凭据。连接先复用并校验原 alpha.24 后台，机器和任务沿用原身份。
 3. 需要同步 Linux 后台时，使用原机器“后台维护 → 升级后台 → 确认升级”，完成后重新连接和扫描。忙、等待、unknown 或未确认控制会阻止维护，先查询原操作。
 
@@ -49,6 +49,14 @@ Linux 后台及私有 Node 随 Windows EXE 的 `linux-package` 内置资源交�
 
 EXE、Linux资源包和校验文件已复制到Windows下载目录，目标文件摘要逐一匹配，见[本机交付核验](../../../artifacts/ssh-alpha24-recovery/2026-10-17/windows-delivery.json)。
 
-本地候选 [Windows x64 EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.26-Windows-x64.exe)，**129,881,117 bytes**，SHA-256 `2a796481261d9caf2788aa87f5d40114ed372a85cc0300fc71c1cc5106845ce2`。包内33个后台CJS、78个核心文件、1392个Linux清单条目与冻结构建匹配。源码边界见[冻结输入](../../../artifacts/ssh-alpha24-recovery/2026-10-17/frozen-source.json)，基线提交 `6bf680a`；候选不等于GitHub发布。
+本地候选 [Windows x64 EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.26-Windows-x64.exe)，**129,881,117 bytes**，SHA-256 `2a796481261d9caf2788aa87f5d40114ed372a85cc0300fc71c1cc5106845ce2`。包内33个后台CJS、78个核心文件、1392个Linux清单条目与冻结构建匹配。源码边界见[冻结输入](../../../artifacts/ssh-alpha24-recovery/2026-10-17/frozen-source.json)，基线提交 `6bf680a`；以上为构建验收时的候选；现已按下节发布为GitHub预发布，EXE字节与摘要保持一致。
 
 另提供 [Linux x64 daemon 离线资源包](../../../desktop/release/AgentBridge-0.6.0-alpha.26-Linux-x64-daemon.tar.gz)及[两包校验文件](../../../artifacts/ssh-alpha24-recovery/2026-10-17/SHA256SUMS.txt)。归档根为 `linux-package/`，包含同一份私有Node、后台、依赖和manifest，不是Linux桌面版或独立一键升级器；原机器仍由客户端可信维护升级，不能把整个归档直接覆盖原版本目录。归档的独立分发不改变机器安装/owner/profile/原请求规则。
+
+## GitHub EXE 预发布分发
+
+2026-10-17已发布，draft=false、prerelease=true：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.26/AgentBridge-0.6.0-alpha.26-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.26/SHA256SUMS.txt)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.26)。标签 `v0.6.0-alpha.26` 绑定冻结源码 `3efc3d282ebb11f284d275621012faed1455333a`，分支 `codex/alpha26-linux-backend-release`。
+
+master已另有I07首次续接Conversation源码增量，现有候选未包含该增量，因此没有把标签指向master的组合提交fb004fa。本次从6bf680a基线及已验证的5项产品输入建立独立冻结提交；60个运行时路径和全部冻结输入逐项匹配，见[标签源码核验](../../../artifacts/ssh-alpha24-recovery/2026-10-17/tag-source-verification.json)。EXE沿用原候选，没有重新打包或扩大其验收范围。
+
+本次仅发布用户要求的Windows EXE及对应单文件校验文本，Linux daemon仍内置EXE；另行生成的Linux tar.gz保留本地。GitHub两附件上传状态、大小和digest匹配，见[上传报告](../../../artifacts/ssh-alpha24-recovery/2026-10-17/github-upload.json)；公开下载HTTP/完整文件摘要结果见[下载核验](../../../artifacts/ssh-alpha24-recovery/2026-10-17/github-download.json)，发布与源标签见[发布记录](../../../artifacts/ssh-alpha24-recovery/2026-10-17/github-release.json)。源码测试/受控SSH/普通Windows EXE保留上一节实际验收，不把本次分发当作用户服务器或真实原生任务恢复。
