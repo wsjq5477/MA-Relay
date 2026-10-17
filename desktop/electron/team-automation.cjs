@@ -60,6 +60,7 @@ class TeamAutomation{
   tick(){if(this.closed)return Promise.resolve();if(this.running)return this.running;this.running=this.step().finally(()=>{this.running=null;});return this.running;}
   async step(){
     const space=this.space;
+    for(const r of space.read().runs.filter(r=>r.state==='stopping')){await space.refresh(r.runId);if(this.closed)return;}
     for(const r of space.read().runs.filter(r=>r.state==='active'&&r.automation)){
       await space.refresh(r.runId);if(this.closed)return;
       space.transaction(s=>{sync(s);const run=space.run(s,r.runId),p=run.automation;

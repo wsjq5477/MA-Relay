@@ -1,5 +1,9 @@
 # AgentBridge 整体架构
 
+## alpha.24：停止协调边界
+
+TeamSpace原子撤销本工作scope并禁新调度，TeamStop只连接原生取消与原操作查询，Coordinator沿原节点/机器维护取消台账；定时器在无自动授权时仍核对停止中工作。原生任务保留原状态机，工作stopping仅为协作容器状态，全部原生尝试真实终态后closed；外部MCP只撤销协作访问，不接管其进程。后台重启只恢复原停止操作，没有新规划模型或外部执行器。[数据/流程及证据](iterations/I07/native-stop.md)。以下alpha.23分层与旧模式继续适用。
+
 更新：2026-10-13。本页描述当前源码的运行方式。0.5.0 发布包仍将 AgentNetwork 放在窗口主进程；以下独立 Coordinator 与 SSH 部分已随 I06A 候选完成主要验收，I06B alpha.6 新增节点图和独立保存事务、完成独立 SSH 双向核心链；正式 0.6.0 与 I06C 未完成。
 
 ## 当前 Windows 运行缓存与未派发恢复

@@ -1,5 +1,9 @@
 # 对象、身份与持久数据
 
+## alpha.24停止记录
+
+格式仍为3，旧记录缺stop/cancellation字段兼容。run.state新增stopping；run.stop记录requestedAt、目标attemptId列表、externalCount、完成后的completedAt。attempt.cancellation私有记录稳定operationId、匹配taskId、dispatched发送标记与独立控制state；公共attempt只给stop.state。取消confirmed/rejected不改写attempt真实状态。run.stop完成只关闭协作，不设置业务acceptedAt。停止前已保存的消息、任务、版本报告及unknown占用保留；恢复只查询原请求和原控制。[完整语义](iterations/I07/native-stop.md)。
+
 ## I07A/B与I07C首批当前持久数据
 
 alpha.23 / 2026-10-16：profile下`team-space.sqlite`，state/receipts同事务提交；使用Node自带SQLite，WAL、FULL同步，不依赖用户另装数据库。[实现](../desktop/electron/team-space.cjs)、[任务交接交付](iterations/I07/task-handoff.md)。
@@ -7,7 +11,7 @@ alpha.23 / 2026-10-16：profile下`team-space.sqlite`，state/receipts同事务�
 | 记录 | 当前身份与行为 |
 | --- | --- |
 | agents | native引用真实nodeId且同节点不重复登记；mcp引用独立外部实例标识。职责/输入/输出/边界为用户声明，不作执行身份或能力实测证明 |
-| teams / runs | 小队保存主角色/成员/公共约定；每次工作保存成员快照、目标/完成标准、active/completed/closed和paused，completed带验收人/时间/说明；撤权变更工作revision，不自动取消原任务 |
+| teams / runs | 小队保存主角色/成员/公共约定；每次工作保存成员快照、目标/完成标准、active/stopping/completed/closed和paused，completed带验收人/时间/说明；撤权变更工作revision，不自动取消原任务 |
 | documents | 文档级owner/editorIds，revision与完整history；更新核验expectedRevision，冲突不覆盖 |
 | messages / deliveries | 群消息按工作顺序追加；每通知接收者分别保存pending/delivered/read，分页游标不代表已接手任务 |
 | sessions | 私有接入身份，connection或native；公共视图不返回。原生身份绑定真实原请求/节点/来源，原终态失效；手动外部连接受实时成员/工作状态约束 |
@@ -212,3 +216,5 @@ lifecycleOperations 维护行区分失败阶段：启动命令的 SSH 通道打�
 agent-network.json 版本仍为 1；requests 新增可选 inputFingerprint 与 preparationRejection。前者保存协作继承前的原输入指纹，后者保存原生派发前已结束的准备错误码；fingerprint 仍保存有效内容。无字段的旧意图不从当前配置状态补造证明。原始 NOT_CONFIGURED 或历史 Windows OpenCode 资源错误只在同源、内容一致、dispatched 严格为 false、无 Task/Conversation 绑定及在途 job 时恢复。
 
 pending.json 的原格式和状态不变；本地 pending IPC 的每条记录可新增 blockedNodeIds，动态投影阻塞节点，不写回磁盘。不以当前 UI 选择修改原资源；共享目录通过持久实例及 workspaceKey 识别，真实目录就绪后再次核验。任务终态和控制 confirmed 的语义不变。[专项](iterations/I06/pending-isolation.md)。
+
+小队attempt可选`waiting={kind:permission|input,requestCount}`保存安全的等待投影；私有`waitingFingerprint`对类别及去重排序的原requestIds摘要，仅用于重复通知抑制，公共attempt不返回该摘要或原生请求ID。unknown不抹掉上次等待；可信新快照/终态清除。格式仍为3，无迁移要求；旧记录缺字段即无已观察等待。见[I07C等待专项](iterations/I07/native-waiting.md)。

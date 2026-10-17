@@ -8,9 +8,9 @@
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
 | 最新 Windows 预发布 | 0.6.0-alpha.23 / 小队协作与持续协调首批；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.23)，完整 I07C/I06C 未准出 |
-| 当前源码 | 0.6.0-alpha.23 / I07C首批事件激活与持续主协调；源码已推送原分支/PR #1，标签绑定`e8cc95a2abb474571a8d133b99c18e6df6fd61df`；[发布记录](iterations/I07/github-release.md)与[I07C首批证据](iterations/I07/automation.md)。尚未合入master。 |
+| 当前源码 | 0.6.0-alpha.24本地候选 / 小队停止与原生终态核对；未更新GitHub发布，准确交付见[停止专项](iterations/I07/native-stop.md)。alpha.23的源码/标签/PR事实保持。 |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
-| 当前自动回归 | 2026-10-16：核心45/45、最终串行桌面222/222，lint/类型/构建通过；Windows契约29/29、UI10组、真实Claude主角色3次自动激活/原会话重启续接及实际X/Y语法检查通过；初次外部端点恢复失败、并行维护ENOENT与最终包/普通EXE范围见[I07C首批交付](iterations/I07/automation.md)。未实测用户自研入口或独立SSH小队链。 |
+| 当前自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
 
 alpha.19 历史 win-unpacked/普通便携 EXE 的资源与实测保持原证据；2026-10-15 alpha.20候选已重建EXE并核对资源，普通Windows无调试EXE/合成配置拒绝恢复及关闭重开4组通过；不以历史包证明新修复。
@@ -140,3 +140,9 @@ alpha.20候选打包完成：核心45/45、桌面串行188/188、lint/类型/构
 ## I07当前推进点
 
 I07C首批已实现授权/预算、重要事件激活、Claude原主会话自动续接和后台恢复；[I07C首批交付](iterations/I07/automation.md)记录真实三轮主协调、受控外部执行成员及包状态。下一片补真实原生执行成员链、其他接入能力、权限等待与完整停止。沿用已批准范围继续推进，不把首批声明为完整I07C或I06C准出。
+
+## I07C当前停止切片
+
+alpha.24本地候选实现用户停止本项工作、撤销协作访问、原取消与原任务双重核对；包含已有未发布等待可见性。核心45/45、最终串行桌面233/233、Windows契约38项和受控界面7组通过，真实WSL Claude原生停止3组通过；最终包/普通EXE以[当片验收](iterations/I07/native-stop.md)为准。下一片真实执行成员自动交接、完整原生权限等待处理及独立环境故障专项，不将本片当完整I07C或发布。
+
+2026-10-17源码增量：[不完整任务回应保护](iterations/I07/incomplete-receipt.md)，受控专项45/45通过；原alpha.24 EXE及其包一致性证据仍对应此前冻结源码，未包含补丁。下一轮构建须重新核对源码/包，完整I07C/I06C仍未准出。

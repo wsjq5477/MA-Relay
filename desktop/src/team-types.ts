@@ -9,7 +9,7 @@ export interface Team {
 export interface TeamRun {
   runId: string; teamId: string; name: string; goal: string; acceptance: string;
   charter: string; leaderId: string; memberIds: string[]; revision: number;
-  state: 'active' | 'completed' | 'closed'; paused: boolean; acceptancePending?: {summary:string};
+  state: 'active' | 'stopping' | 'completed' | 'closed'; paused: boolean; acceptancePending?: {summary:string};
 }
 export interface TeamDocument {
   documentId: string; runId: string; title: string; content: string; ownerId: string;
@@ -22,14 +22,18 @@ export interface TeamMessage {
 export interface TeamAttempt {
   attemptId: string; runId: string; agentId: string; nodeId: string; requestId: string;
   message: string; state: string; result?: string; taskId?: string;
+  waiting?: {kind: 'permission' | 'input'; requestCount: number};
+  stop?: {state: string};
   error?: { code: string; message: string };
 }
 export interface TeamSnapshot { stage: string; agents: TeamAgent[]; teams: Team[]; runs: TeamRun[]; automaticCoordination: boolean }
 export interface TeamContext {
+  stopSupported?: boolean;
   run: TeamRun; members: (TeamAgent & { role: 'leader' | 'member' })[];
   documents: TeamDocument[]; messages: TeamMessage[]; hasOlderMessages: boolean;
   deliveries: { messageId: string; runId: string; agentId: string; state: 'pending' | 'delivered' | 'read' }[];
   attempts: TeamAttempt[];
+  stop?: {requestedAt: string; completedAt?: string; total: number; unresolved: number; externalCount: number} | null;
   automation?: {
     policy: {enabled: boolean; agentIds: string[]; used: number; maxActivations: number; maxMinutes: number; idleMinutes: number; startedAt: string; issues?: Record<string,string>} | null;
     capabilities: {agentId: string; start: boolean; resume: boolean; runningMessages: boolean; reason?: string; testedVersion?: string}[];

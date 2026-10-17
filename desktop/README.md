@@ -2,6 +2,8 @@
 
 ## GitHub Windows 下载
 
+源码/本地候选已推进到 **alpha.24 / 小队停止与原生终态核对**；GitHub发布仍为下列alpha.23。[当片交付与验证](../doc/iterations/I07/native-stop.md)。
+
 GitHub 最新 Windows 预发布为 [0.6.0-alpha.23](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.23)，可直接[下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.23/AgentBridge-0.6.0-alpha.23-Windows-x64.exe)及[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.23/SHA256SUMS.txt)。稳定历史版本仍为 0.5.0；完整 I07C/I06C 和正式 0.6.0 尚未准出。Windows 用户下载附件双击即可运行，无需自行编译、安装 WSL 或 Node.js。[发布与升级](../doc/iterations/I07/github-release.md)。
 
 旧后台仍运行时，在新窗口“设置 → 后台运行 → 停止后台并退出”后重新打开；不删除机器、节点或历史。SSH机器另需升级原远端后台后重新连接和扫描。

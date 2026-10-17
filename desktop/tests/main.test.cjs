@@ -100,7 +100,7 @@ test("transport uncertainty blocks a new ID and instance switch, permits readonl
       distribution: "",
       directory: "",
     });
-    f.outcome({ taskId: "task", status: "running" });
+    f.outcome({ taskId: "task", requestId: "original", status: "running" });
     r = await f.invoke("call", {
       method: "ipc",
       params: { op: "request", requestId: "original" },
@@ -232,7 +232,7 @@ test("same request ID on two machines has separate receipts and query only settl
     for (const machineId of ["windows", "wsl-Ubuntu"])
       await f.invoke("call", { method: "ipc", params: { op: "submit", requestId: "same", machineId } });
     assert.equal(f.invoke("pending").length, 2);
-    f.outcome({ taskId: "original", status: "running" });
+    f.outcome({ taskId: "original", requestId: "same", status: "running" });
     await f.invoke("call", { method: "ipc", params: { op: "request", requestId: "same", machineId: "windows" } });
     const pending = f.invoke("pending");
     assert.equal(pending.length, 1);
@@ -243,7 +243,7 @@ test("legacy pending is bound to original WSL and cannot be settled by a Windows
   const f = fixture();
   try {
     fs.writeFileSync(path.join(f.folder, "pending.json"), JSON.stringify([{ id: "legacy", state: "unknown", op: "submit", params: { requestId: "legacy" } }]));
-    f.outcome({ taskId: "other", status: "succeeded" });
+    f.outcome({ taskId: "other", requestId: "legacy", status: "succeeded" });
     await f.invoke("call", { method: "ipc", params: { op: "request", requestId: "legacy", machineId: "windows" } });
     assert.equal(f.invoke("pending")[0].machineId, "wsl-Ubuntu");
     await f.invoke("call", { method: "ipc", params: { op: "request", requestId: "legacy", machineId: "wsl-Ubuntu" } });
@@ -260,4 +260,23 @@ test('form answers never enter the coordinator journal and original content fing
 });
 test('a corrupt original pending journal cannot release occupancy or send a new native request',async()=>{
  const f=fixture();try{fs.writeFileSync(path.join(f.folder,'pending.json'),'broken');const r=await f.invoke('call',{method:'ipc',params:{op:'submit',requestId:'new',message:'must not execute'}});assert.equal(r.error.code,'DESKTOP_JOURNAL_INVALID');assert.equal(f.calls(),0);}finally{f.close();}
+});
+
+test('readonly missing or foreign task/control receipts cannot settle the original coordinator journal',async()=>{
+ const f=fixture();try{
+  f.outcome(Object.assign(Error('lost'),{code:'DESKTOP_TRANSPORT'}));
+  await f.invoke('call',{method:'ipc',params:{op:'submit',requestId:'request-original',message:'work'}});
+  for(const result of [{state:'not_found'},{taskId:'foreign',requestId:'foreign',status:'running'},{taskId:'foreign',requestId:'request-original',machineId:'other-machine',status:'running'}]){
+   f.outcome(result);await f.invoke('call',{method:'ipc',params:{op:'request',requestId:'request-original'}});assert.equal(f.invoke('pending').length,1);
+  }
+  f.outcome({taskId:'task-original',requestId:'request-original',status:'running'});
+  await f.invoke('call',{method:'ipc',params:{op:'request',requestId:'request-original'}});assert.equal(f.invoke('pending').length,0);
+  f.outcome(Object.assign(Error('lost'),{code:'DESKTOP_TRANSPORT'}));
+  await f.invoke('call',{method:'ipc',params:{op:'cancel',taskId:'task-original',operationId:'cancel-original'}});
+  for(const result of [{operationId:'cancel-original',state:'not_found'},{operationId:'foreign',state:'confirmed'},{operationId:'cancel-original',taskId:'foreign',state:'confirmed'},{operationId:'cancel-original',state:'unknown'}]){
+   f.outcome(result);await f.invoke('call',{method:'ipc',params:{op:'operation',taskId:'task-original',operationId:'cancel-original'}});assert.equal(f.invoke('pending').length,1);
+  }
+  f.outcome({operationId:'cancel-original',state:'rejected'});
+  await f.invoke('call',{method:'ipc',params:{op:'operation',taskId:'task-original',operationId:'cancel-original'}});assert.equal(f.invoke('pending').length,0);
+ }finally{f.close();}
 });

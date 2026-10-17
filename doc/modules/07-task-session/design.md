@@ -1,16 +1,29 @@
 # M07 任务、会话、交互控制与恢复设计
 
-## alpha.23 / I07C首批当前实现
+原生任务回应须有非空白字符串taskId/conversationId且匹配原request及已有绑定，才可更新小队执行事实；首次不完整回应保持unknown，后续仅查原请求，不能凭succeeded字段撤权、解除占用或验收。基于alpha.24的未发布补丁，既有EXE不含此校验。[完整规则与验证](../../iterations/I07/incomplete-receipt.md)。
 
-2026-10-16：源码及GitHub预发布alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。
+2026-10-17能力补验：本机WSL Claude2.1.299自动主角色首轮及原Conversation/原生Session续接后的独立权限等待、观察后台重启、精确隔离Write允许和真实终态已验证；首轮拒绝证据保留于上一专项。不扩大为真实执行成员交接、Windows或独立SSH。见[最新权限证据](../../iterations/I07/resume-native-permission.md)。
+
+## 当前停止工作行为
+
+[停止协调层](../../../desktop/electron/team-stop.cjs)将取消收据与原执行状态分开保存。unknown/未绑定继续占位，原请求匹配后才首次取消；已记录发送但回应不明只查原操作，最后一个原尝试真实终态后归档，不改写原任务成功/失败或业务验收。
+
+停止工作状态为stopping → closed，不向Core Task.status增加stopping；等待字段继续仅公开类别/数量，所有新行为和原请求规则见[停止专项](../../iterations/I07/native-stop.md)。
+
+## alpha.24本地候选 / I07C停止协调
+
+2026-10-16：源码/本地候选alpha.24，GitHub预发布仍alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。
 
 | 功能 ID | 功能 | 当前状态 |
 | --- | --- | --- |
 | M07-F08 | 小队工作容器与原执行尝试 | I07A基础继续适用 |
 | M07-F09 | 工作项、依赖、版本轮次与业务验收 | I07B源码已实现，实际分层证据见报告 |
 | M07-F10 | 原生激活关联、原会话恢复与延后验收 | I07C首批源码实现，证据层级见本模块报告 |
+| M07-F11 | 原生取消意图与真实终态后停止 | alpha.24源码实现，实际证据与边界见[停止专项](../../iterations/I07/native-stop.md) |
 
 激活关联持久事件、原attempt/Conversation、实际原生Session私有绑定；没有绑定或明确失败时停止新激活，不暗换会话。unknown仅查原请求，旧scope终态失效。主角色运行中提出总验收仅为awaiting_leader_terminal且accepted=false，原生真实成功且任务/工作修订、权限、新重要事件与其他在途事实均未变化后才completed。暂停/停止调度不取消原任务，不把时间/次数到限当原生终态。
+
+本次源码在小队原执行记录中展示原生权限/输入等待类别和数量，并追加去重系统通知。通知不触发自动激活、不批准权限，也不复制原生问题、工具参数或权限ID。unknown保留上次观察到的等待；只有已核对的非unknown状态才能清除。相同等待跨重启不重复通知，原任务终态清除等待。详见[等待可见性专项](../../iterations/I07/native-waiting.md)。
 
 I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交接继续按[I07B完整行为](../../iterations/I07/task-handoff.md)执行；新流程、异常、预算、接口和源码见[I07C首批交付](../../iterations/I07/automation.md)。以下原功能继续适用。
 

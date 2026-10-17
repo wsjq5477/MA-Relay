@@ -20,11 +20,13 @@ function ids(value, max = 30) {
 }
 const { instructions } = require('./team-tools.cjs');
 const automation = require('./team-automation.cjs');
+const stopping = require('./team-stop.cjs');
 const { taskMethods, applyTask, taskView, task: workItem, idle } = require('./team-work.cjs');
 
 class TeamSpace {
   constructor(options) {
     this.options = options;
+    this.stopping = new Map();
     fs.mkdirSync(options.directory, { recursive: true });
     const file = path.join(options.directory, 'team-space.sqlite');
     this.db = new DatabaseSync(file);
@@ -117,7 +119,7 @@ class TeamSpace {
   view(s, runId, actor = { user: true }) {
     const r = this.authorize(s, actor, runId) || this.run(s, runId);
     const { memberIds, ...run } = r;
-    return { identity: { agentId: actor.user ? 'user' : actor.agentId, role: actor.user ? 'user' : actor.agentId === r.leaderId ? 'leader' : 'member' }, run: { ...run, memberIds }, members: memberIds.map(id => ({ ...this.agent(s, id), role: id === r.leaderId ? 'leader' : 'member' })), documents: s.documents.filter(d => d.runId === runId), messages: s.messages.filter(m => m.runId === runId).slice(-100), hasOlderMessages: s.messages.filter(m => m.runId === runId).length > 100, deliveries: s.deliveries.filter(d => d.runId === runId), attempts: s.attempts.filter(a => a.runId === runId).map(a=>this.publicAttempt(a)), ...taskView(s, r), automation: automation.view(s,r,this.options), permissions: { manageTasks: !!actor.user || actor.agentId === r.leaderId, configureHandoffs: !!actor.user, manageMembers: !!actor.user, writeOwnDocuments: true, automaticallyDispatch: !!r.automation?.enabled }, instructions };
+    return { stopSupported:true, identity: { agentId: actor.user ? 'user' : actor.agentId, role: actor.user ? 'user' : actor.agentId === r.leaderId ? 'leader' : 'member' }, run: { ...run, memberIds }, members: memberIds.map(id => ({ ...this.agent(s, id), role: id === r.leaderId ? 'leader' : 'member' })), documents: s.documents.filter(d => d.runId === runId), messages: s.messages.filter(m => m.runId === runId).slice(-100), hasOlderMessages: s.messages.filter(m => m.runId === runId).length > 100, deliveries: s.deliveries.filter(d => d.runId === runId), attempts: s.attempts.filter(a => a.runId === runId).map(a=>this.publicAttempt(a)), stop:stopping.view(s,r), ...taskView(s, r), automation: automation.view(s,r,this.options), permissions: { manageTasks: !!actor.user || actor.agentId === r.leaderId, configureHandoffs: !!actor.user, manageMembers: !!actor.user, writeOwnDocuments: true, automaticallyDispatch: !!r.automation?.enabled }, instructions };
   }
   async call(method, p = {}, actor = { user: true, key: 'user' }) {
     if (!p || typeof p !== 'object' || Array.isArray(p)) throw fail('TEAM_INPUT', '小队请求不合法。');
@@ -156,6 +158,11 @@ class TeamSpace {
       return d;
     }
     if (method === 'team.execute') return this.execute(p);
+    if (method === 'team.stopRun') {
+      const receipt = this.mutate(actor, method, p, s => stopping.request(s, this.run(s, p.runId), p, this));
+      await this.refresh(p.runId);
+      return {...receipt, state:this.run(this.read(),p.runId).state};
+    }
     if (method === 'team.connect') return this.connect(p);
     if (method === 'team.refresh') { await this.refresh(p.runId); return this.view(this.read(), p.runId); }
     return this.mutate(actor, method, p, s => {
@@ -195,6 +202,7 @@ class TeamSpace {
         s.runs.push(r); this.message(s, r, 'system', '工作已建立。当前为手动执行阶段，群消息不会自动启动队友。', [r.leaderId]); return r;
       }
       const run = this.run(s, p.runId);
+      if (run.state !== 'active' && method !== 'team.closeRun') throw fail('TEAM_CLOSED', '工作已结束或正在停止，不能继续写入。');
       if (method === 'team.configureAutomation') {
         if(!actor.user)throw fail('TEAM_FORBIDDEN','只有用户可以授权自动执行。');
         const result=automation.configure(s,run,p,this.options);
@@ -221,6 +229,7 @@ class TeamSpace {
         return { paused: run.paused, revision: run.revision };
       }
       if (method === 'team.closeRun') {
+        if (run.state === 'stopping') throw fail('TEAM_BUSY', '正在核对停止，请查询原执行，不能跳过终态核验。');
         if (s.attempts.some(a => a.runId === run.runId && !terminal.has(a.state) && a.state !== 'rejected')) throw fail('TEAM_BUSY', '还有执行正在运行或待核对，不能结束工作。');
         run.state = 'closed'; run.revision++;
         for (const x of s.sessions.filter(x => x.runId === run.runId)) x.revoked = true;
@@ -342,6 +351,7 @@ class TeamSpace {
     } catch (error) {
       this.transaction(s => {
         const item = s.attempts.find(x => x.attemptId === a.attemptId);
+        if (terminal.has(item.state) || item.state === 'rejected') return null;
         item.state = error.executionNotDispatched ? 'rejected' : 'unknown';
         item.error = { code: error.code || 'TEAM_EXECUTION', message: error.executionNotDispatched ? '本轮未派发，请检查原节点和配置。' : '原执行回应未确认，请查询原请求。' };
         return null;
@@ -349,7 +359,7 @@ class TeamSpace {
     }
     return this.publicAttempt(this.read().attempts.find(x => x.attemptId === a.attemptId));
   }
-  publicAttempt(a) { const { sessionId, nativeSessionId, ...result } = a; return {...result,nativeSessionBound:!!nativeSessionId}; }
+  publicAttempt(a) { const { sessionId, nativeSessionId, waitingFingerprint, cancellation, ...result } = a; return {...result,nativeSessionBound:!!nativeSessionId,...(cancellation?{stop:{state:cancellation.state}}:{})}; }
   admit(scope, nodeId) {
     try {
       const s=this.read(),run=this.authorize(s,{sessionId:scope.teamSessionId});
@@ -383,6 +393,21 @@ class TeamSpace {
         a.nativeSessionId=task.native.sessionId;
       }
       a.updatedAt = stamp();
+      // Share only the waiting category/count, never native tool arguments,
+      // prompts or permission IDs. Unknown observations cannot clear a wait.
+      if (task.status !== 'unknown') {
+        const waiting = !terminal.has(task.status) && ['permission', 'input'].includes(task.waiting?.kind) ? task.waiting : null;
+        if (waiting) {
+          const requestIds = [...new Set((Array.isArray(waiting.requestIds) ? waiting.requestIds : []).filter(x => typeof x === 'string'))].sort();
+          const fingerprint = digest({ kind: waiting.kind, requestIds });
+          a.waiting = { kind: waiting.kind, requestCount: requestIds.length };
+          if (a.waitingFingerprint !== fingerprint) {
+            a.waitingFingerprint = fingerprint;
+            const run = this.run(s, a.runId);
+            this.message(s, run, 'system', '一轮原生执行需要用户处理原生' + (waiting.kind === 'permission' ? '权限' : '输入') + '等待，请到对应节点的原任务处理；此通知不代表批准或执行完成。', run.memberIds.includes(run.leaderId) ? [run.leaderId] : [], { attemptId: a.attemptId });
+          }
+        } else { delete a.waiting; delete a.waitingFingerprint; }
+      }
       if(task.taskId&&task.status!=='unknown')for(const m of s.messages.filter(m=>m.attemptId===a.attemptId))for(const d of s.deliveries.filter(d=>d.messageId===m.messageId&&d.agentId===a.agentId&&d.state==='pending'))d.state='delivered';
       if (terminal.has(task.status)) {
         a.result = String(task.result?.message || '').slice(0,32000); a.error = task.error ? { code: task.error.code, message: String(task.error.message || '').slice(0,2000) } : undefined;
@@ -391,11 +416,16 @@ class TeamSpace {
         this.message(s, r, 'system', task.status === 'succeeded' ? '一轮原生执行已完成，请核对结果与业务验收条件。' : '一轮原生执行未成功，请查看原执行结果。', r.memberIds.includes(r.leaderId) ? [r.leaderId] : [], { attemptId: a.attemptId });
       }
       automation.settleAcceptance(s,this.run(s,a.runId),this);
+      stopping.settle(s,this.run(s,a.runId),this);
       return null;
     });
   }
   async refresh(runId) {
-    this.run(this.read(), runId);
+    const run = this.run(this.read(), runId);
+    if (run.state === 'stopping') {
+      if (!this.stopping.has(runId)) this.stopping.set(runId, stopping.reconcile(this, runId).finally(() => this.stopping.delete(runId)));
+      await this.stopping.get(runId); return;
+    }
     for (const a of this.read().attempts.filter(a => a.runId === runId && !terminal.has(a.state) && a.state !== 'rejected')) {
       try { this.observe(a.attemptId, await this.options.query(a)); }
       catch { /* Missing receipts do not release an intent or replay it. */ }

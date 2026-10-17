@@ -2,7 +2,7 @@
 
 更新：2026-10-16。这里维护项目的完整现状与已确认设计。阅读和开发不需要先复盘历次对话或迭代。
 
-稳定历史 Windows 程序是 **0.5.0**；当前源码及GitHub预发布为 **0.6.0-alpha.23 / 小队协作与I07C首批持续协调**（[EXE与发布记录](iterations/I07/github-release.md)），节点图、授权/布局事务、状态分层与原父权限主要范围在 alpha.6 已验收；alpha.7 主角色/方向/避让与中键证据保留；alpha.8 修复旧后台下拖动锁定、支持整组背景拖动和主居左，当前证据见 [拖动修复](iterations/I06/graph-drag-fix.md)。独立双向原生链保留 alpha.6 实测结果。alpha.2 的主要验收与 alpha.3–alpha.5 修复证据保持原版本；本次实际工程、界面、独立双向链及最终包状态见 [I06B 实施](iterations/I06/graph-implementation.md)。I06C 与正式 0.6.0 准出未完成。
+稳定历史 Windows 程序是 **0.5.0**；当前源码/本地候选为 **alpha.24 / 小队停止与原生终态核对**（[当片交付](iterations/I07/native-stop.md)）；GitHub预发布为 **0.6.0-alpha.23 / 小队协作与I07C首批持续协调**（[EXE与发布记录](iterations/I07/github-release.md)），节点图、授权/布局事务、状态分层与原父权限主要范围在 alpha.6 已验收；alpha.7 主角色/方向/避让与中键证据保留；alpha.8 修复旧后台下拖动锁定、支持整组背景拖动和主居左，当前证据见 [拖动修复](iterations/I06/graph-drag-fix.md)。独立双向原生链保留 alpha.6 实测结果。alpha.2 的主要验收与 alpha.3–alpha.5 修复证据保持原版本；本次实际工程、界面、独立双向链及最终包状态见 [I06B 实施](iterations/I06/graph-implementation.md)。I06C 与正式 0.6.0 准出未完成。
 
 网页阅读：在仓库根执行 `npm run docs:dev`，打开 `http://localhost:4188`。使用方法见 [网页说明](web-reading.md)。
 
@@ -10,7 +10,7 @@
 
 ## 从哪里开始
 
-下一迭代I07：[目标](iterations/I07/goals.md)、[需求](iterations/I07/requirements.md)、[小队公共空间细化设计](iterations/I07/design.md)、[开发切片](iterations/I07/development.md)、[验收计划](iterations/I07/testing.md)。I07A/B已实现，接入基础见[I07A交付](iterations/I07/delivery.md)，任务板/版本返修/授权交接见[I07B任务交接交付](iterations/I07/task-handoff.md)；I07C首批Claude事件激活及原会话持续协调见[I07C首批交付](iterations/I07/automation.md)，完整范围仍未准出。
+下一迭代I07：[目标](iterations/I07/goals.md)、[需求](iterations/I07/requirements.md)、[小队公共空间细化设计](iterations/I07/design.md)、[开发切片](iterations/I07/development.md)、[验收计划](iterations/I07/testing.md)。I07A/B已实现，接入基础见[I07A交付](iterations/I07/delivery.md)，任务板/版本返修/授权交接见[I07B任务交接交付](iterations/I07/task-handoff.md)；I07C首批Claude事件激活及原会话持续协调见[I07C首批交付](iterations/I07/automation.md)，完整范围仍未准出。本机手动Claude权限等待/允许/拒绝及观察后台重启的最新补验见[权限专项](iterations/I07/native-permission.md)。自动主角色首次激活的真实权限补验见[自动权限专项](iterations/I07/auto-native-permission.md)，后续原会话两阶段权限已于2026-10-17[补验](iterations/I07/resume-native-permission.md)，执行成员交接仍待验。
 
 | 你要做的事 | 阅读顺序 |
 | --- | --- |

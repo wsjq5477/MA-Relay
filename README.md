@@ -2,6 +2,8 @@
 
 ## Windows EXE 下载
 
+源码/本地候选已推进到 **alpha.24 / 小队停止与原生终态核对**；GitHub发布仍为下列alpha.23。[当片交付与验证](doc/iterations/I07/native-stop.md)。
+
 当前最新 Windows 预发布为 [0.6.0-alpha.23](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.23)：[直接下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.23/AgentBridge-0.6.0-alpha.23-Windows-x64.exe) 或 [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.23/SHA256SUMS.txt)。包含小队公共空间、任务交接与Claude主角色持续协调首批。稳定历史版本仍为 0.5.0；完整 I07C/I06C 和正式 0.6.0 尚未准出。Windows 用户无需自行编译、安装 WSL 或 Node.js。[发布与升级](doc/iterations/I07/github-release.md)、[实际验证与边界](doc/iterations/I07/automation.md)。
 
 下载 EXE 后双击运行；原生 Agent 工具仍需按所用工具安装并登录。GitHub 自动生成的源码 ZIP 不包含 EXE。

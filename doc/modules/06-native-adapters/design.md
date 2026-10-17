@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器设计
 
+2026-10-17能力补验：本机WSL Claude2.1.299自动主角色首轮及原Conversation/原生Session续接后的独立权限等待、观察后台重启、精确隔离Write允许和真实终态已验证；首轮拒绝证据保留于上一专项。不扩大为真实执行成员交接、Windows或独立SSH。见[最新权限证据](../../iterations/I07/resume-native-permission.md)。
+
 ## alpha.23 / I07C首批当前实现
 
 2026-10-16：源码及GitHub预发布alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。

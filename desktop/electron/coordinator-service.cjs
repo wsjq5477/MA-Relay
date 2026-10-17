@@ -8,7 +8,7 @@ const { workerRuntime } = require('./worker-runtime.cjs');
 const { recoverJournal } = require('./pending-journal.cjs');
 const {digest}=require('./graph-layout.cjs');
 const { GraphOperationJournal } = require('./graph-operations.cjs');
-const teamMethods=new Set(['team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
+const teamMethods=new Set(['team.stopRun','team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
 const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview']);
 const methods = new Set(['snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
@@ -32,6 +32,11 @@ function createCoordinatorService(options) {
   let teams,teamBroker,teamEngine,teamTimer,teamReady=Promise.resolve();
   const teamInvocation=Symbol('teamInvocation');
   const graphJournal=new GraphOperationJournal(options.directory);
+  async function teamRead(params){
+    const reply=await call({method:'ipc',params});
+    if(!reply.ok)throw Object.assign(Error('原执行或控制收据尚无法核对。'),{code:reply.error.code});
+    return reply.result;
+  }
   function teamService(){
     if(teams)return teams;
     const {TeamSpace}=require('./team-space.cjs');
@@ -46,7 +51,14 @@ function createCoordinatorService(options) {
         return reply.result;
       },
       conversation:attempt=>{const n=connection().node(attempt.nodeId);return connection().call('ipc',{op:'conversation',machineId:n.machineId,conversationId:attempt.conversationId});},
-      query:attempt=>{const n=connection().node(attempt.nodeId);return connection().call('ipc',{op:'request',machineId:n.machineId,requestId:attempt.requestId});}
+      query:attempt=>{const n=connection().node(attempt.nodeId);return teamRead({op:'request',machineId:n.machineId,requestId:attempt.requestId});},
+      cancel:async attempt=>{
+        const n=connection().node(attempt.nodeId);
+        const reply=await call({method:'ipc',params:{op:'cancel',machineId:n.machineId,taskId:attempt.cancellation.taskId,operationId:attempt.cancellation.operationId}});
+        if(!reply.ok)throw Object.assign(Error('原取消操作尚未确认，请查询原操作。'),{code:reply.error.code});
+        return reply.result;
+      },
+      cancellation:attempt=>{const n=connection().node(attempt.nodeId);return teamRead({op:'operation',machineId:n.machineId,taskId:attempt.cancellation.taskId,operationId:attempt.cancellation.operationId});}
     });
     teamEngine=new (require('./team-automation.cjs').TeamAutomation)(teams);
     teamTimer=setInterval(()=>{void teamReady.then(()=>teamEngine.tick()).catch(()=>{});},options.teamTickMs||2000);teamTimer.unref?.();
@@ -158,6 +170,11 @@ function settleOperation(id, result, machineId) {
   const rows = read("pending.json", []);
   const row = rows.find((r) => r.id === id && r.machineId === machineId);
   if (!row) return;
+  if(['cancel','reply'].includes(row.op)){
+    if(result?.operationId!==id||!['confirmed','rejected'].includes(result.state))return;
+    const receivedTask=result.taskId||result.data?.taskId,originalTask=row.params.taskId||row.params.reply?.taskId;
+    if(receivedTask&&receivedTask!==originalTask)return;
+  }else if(!result?.taskId||result.requestId!==id||(result.machineId&&result.machineId!==machineId))return;
   row.state = ["unknown","rejected"].includes(result?.state) ? result.state : "confirmed";
   row.result = journalResult(row,result);
   write("pending.json", rows);

@@ -2,7 +2,7 @@
 
 更新：2026-10-16。适用：Windows0.5.0稳定历史功能，以及0.6.0-alpha.23预发布的小队协作与持续协调首批（包含此前未确认资源范围、配置拒绝恢复及发现修复）。每项明确区分实现、发布和验收状态。
 
-源码及GitHub预发布alpha.23包含I07A/B及I07C首批持续协调；[发布及下载](iterations/I07/github-release.md)。[I07C首批交付](iterations/I07/automation.md)明确真实/受控证据，完整I07C未准出。
+当前源码/本地候选alpha.24补齐小队停止与原生终态核对；GitHub预发布alpha.23包含I07A/B及I07C首批持续协调；[发布及下载](iterations/I07/github-release.md)。[I07C首批交付](iterations/I07/automation.md)明确真实/受控证据，完整I07C未准出。
 
 ## 1. 产品解决什么问题
 
@@ -54,7 +54,7 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | AB-F19 智能体登记与小队 | 登记外部已有功能的智能体、说明职责/边界，组成小队和独立工作 | alpha.23预发布已包含；不实现Skill/模型/目录或业务能力 | [M03](modules/03-machine-network/design.md)、[M08](modules/08-collaboration/design.md) |
 | AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | alpha.23预发布包含I07A基础；任务交接见AB-F21，自动持续协调首批见AB-F22，完整I07C未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[本次交付](iterations/I07/delivery.md) |
 | AB-F21 小队任务与授权交接 | 分配/接手、依赖、精确产物版本、限额交接、返修历史与业务验收 | alpha.23预发布包含I07B基础；未授权自动成员保持手动，交接本身不等于原生已启动 | [M07](modules/07-task-session/design.md)、[M08](modules/08-collaboration/design.md)、[I07B任务交接交付](iterations/I07/task-handoff.md) |
-| AB-F22 持续协调首批 | 用户授权自动成员与预算，重要事件激活、原会话续接、原生终态后验收 | alpha.23预发布已分发；真实Claude自动主角色验证，其他接入/多原生角色/完整停止未准出 | [M02](modules/02-coordinator/design.md)、[M06](modules/06-native-adapters/design.md)、[I07C首批交付](iterations/I07/automation.md) |
+| AB-F22 持续协调首批 | 用户授权自动成员与预算，重要事件激活、原会话续接、原生终态后验收 | alpha.23已分发；alpha.24本地候选新增停止/撤权与原生终态核对，真实Claude取消通过；其他接入/多原生角色/完整故障矩阵未准出 | [M02](modules/02-coordinator/design.md)、[M06](modules/06-native-adapters/design.md)、[I07C首批交付](iterations/I07/automation.md) |
 
 ## 4. 用户的完整操作路径
 
@@ -241,3 +241,27 @@ AB-F05/11，M05-F01/F02：源码在Unix socket创建时即限制为0600，避免
 ## 2026-10-16：Codex错误终态保护
 
 AB-F07/08/11，M06-CX-F01：源码修复Codex明确原生错误被同轮完成事件/退出码0覆盖的问题，保持failed及原请求记录，防止错误执行进入成功验收。未自动续接、未更新EXE或发布；[专项证据](iterations/I07/codex-terminal.md)。
+
+## 2026-10-16：小队原生等待可见性
+
+AB-F09/10/11/20/22，M01/M02/M07/M08：源码在小队原执行中显示权限/输入等待类别与数量，系统通知不重复、不启动模型、不替用户批准；unknown保留上次等待并明确其未核对性质。当前alpha.23发布附件未更新，真实原生权限链和Windows界面待专项验证。[实际增量](iterations/I07/native-waiting.md)。
+
+## 2026-10-16：停止小队工作与原执行终态核对
+
+AB-F10/11/20/22，M01-F13/M02-F11/M07-F11/M08-F10：仅用户确认停止整项工作，先关新调度并撤销访问，再沿原机器/task取消和查询。取消confirmed不改写任务；原生真实终态齐备才归档，不等于业务验收。停止/原请求unknown不重放，外部MCP运行由原入口负责。Windows等待脱敏/旧后台能力和停止界面、真实WSL Claude取消分别有证据；[当片结果](iterations/I07/native-stop.md)。GitHub仍alpha.23，完整I07C/I06C未准出。
+
+## 2026-10-16：小队真实权限证据补齐
+
+AB-F07/09/10/11/20/22：本机WSL真实Claude2.1.299在手动小队回合的权限等待、观察重启、允许隔离Write及拒绝后failed已实测，完成场景重查不重复执行。只补验证脚本/证据，无产品协议或包变化；自动权限链、Windows真实模型及独立SSH仍未验收。[完整证据](iterations/I07/native-permission.md)。
+
+## 2026-10-16：自动主角色首轮真实权限补验
+
+AB-F07/09/10/11/20/22：本机Claude2.1.299经事件自动启动后实际等待权限，观察重启保留原等待，允许隔离Write成功、拒绝则failed且文件未写。没有手动原生启动；每项工作仅一个已消费启动事件，没有因通知/阅读回执新增事件。仅新增验收脚本与证据，不修改产品协议或发布包；执行成员交接/续接、Windows及独立SSH仍待验。[实际结果及首次断言失败](iterations/I07/auto-native-permission.md)。
+
+## 2026-10-17：原会话后续轮真实权限补验
+
+AB-F07/08/09/10/11/20/22：本机真实Claude自动主角色在明确新阶段事件后沿同Conversation/原生Session继续，再次产生独立权限等待；观察后台重启后精确Write允许成功，未重复首阶段。累计两次自动回合及两次权限控制，未增加产品接口或重建包；执行成员交接、Windows及独立SSH仍待验。[证据](iterations/I07/resume-native-permission.md)。
+
+## 2026-10-17：不完整原生回应保护
+
+AB-F08/11/20/22，M02/M07/M08：源码补强原任务完整身份校验，缺失/空白/无效taskId或Conversation的succeeded不能使小队执行假成功或解除占用；仅查询原请求恢复。未重建包，原alpha.24本地候选与GitHub alpha.23不含本补丁。[实际回归](iterations/I07/incomplete-receipt.md)。

@@ -1,5 +1,7 @@
 # Claude Code 适配器设计
 
+2026-10-17能力补验：本机WSL Claude2.1.299自动主角色首轮及原Conversation/原生Session续接后的独立权限等待、观察后台重启、精确隔离Write允许和真实终态已验证；首轮拒绝证据保留于上一专项。不扩大为真实执行成员交接、Windows或独立SSH。见[最新权限证据](../../../iterations/I07/resume-native-permission.md)。
+
 更新日期：2026-10-12。功能 **M06-CC-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途与能力

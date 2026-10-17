@@ -86,3 +86,28 @@ test('new explicit attention after a native acceptance proposal prevents prematu
  f.space.transaction(s=>{s.workItems.push({workItemId:'final',runId:f.run.runId,title:'test',kind:'delivery',ownerId:f.worker.agentId,state:'completed',revision:1,round:1,reports:[],dependsOn:[]});return null;});
  await f.space.tool(a.sessionId,'team_accept_run',{operationId:'propose',expectedRevision:f.space.read().runs[0].revision,summary:'complete'});await f.call('wake',{runId:f.run.runId,reason:'new user decision required'});f.complete();await f.engine.tick();assert.equal(f.space.read().runs[0].state,'active');assert.equal(f.calls.length,2);
 });
+
+test('native permission waiting is visible and deduplicated across restart without approval or a new activation',async t=>{
+ const f=await fixture(t);await f.enable();await f.engine.tick();const original=f.calls[0],task=f.tasks.get(original.requestId);
+ task.waiting={kind:'permission',requestIds:['private-permission'],summary:'sensitive command must not enter public space'};
+ await f.engine.tick();let context=f.space.view(f.space.read(),f.run.runId);
+ assert.deepEqual(context.attempts[0].waiting,{kind:'permission',requestCount:1});
+ const notices=()=>f.space.read().messages.filter(m=>m.content.includes('需要用户处理原生'));
+ assert.equal(notices().length,1);assert(!JSON.stringify(context).includes('private-permission'));assert(!JSON.stringify(context).includes('sensitive command'));
+ f.restart();await f.engine.tick();assert.equal(notices().length,1);assert.equal(f.calls.length,1);
+ task.status='unknown';delete task.waiting;await f.engine.tick();assert.equal(f.space.read().attempts[0].waiting.kind,'permission');assert.equal(f.calls.length,1);
+ task.status='running';await f.engine.tick();assert.equal(f.space.read().attempts[0].waiting,undefined);
+ task.waiting={kind:'input',requestIds:['private-form-a','private-form-b']};await f.engine.tick();assert.equal(notices().length,2);assert.equal(f.space.read().attempts[0].waiting.requestCount,2);
+ f.complete();await f.engine.tick();assert.equal(f.space.read().attempts[0].waiting,undefined);assert.equal(f.calls.length,1);
+});
+
+test('incomplete native task identities cannot settle an activation and recover only from its original full task',async t=>{
+ for(const missing of [{taskId:undefined},{conversationId:undefined},{taskId:''},{conversationId:23},{taskId:'   '}])await t.test(JSON.stringify(missing),async t=>{
+  let accepted,complete=false,executions=0;
+  const response=()=>({requestId:accepted.requestId,taskId:'original-task',conversationId:'original-conversation',status:'succeeded',native:{sessionId:'original-session'},...(!complete?missing:{})});
+  const f=await fixture(t,{execute:async a=>{executions++;accepted=a;return response();},query:async()=>response()});
+  await f.enable();await f.engine.tick();assert.equal(f.space.read().attempts[0].state,'unknown');assert.equal(f.space.read().sessions.find(s=>s.sessionId===accepted.sessionId).revoked,undefined);
+  await f.call('wake',{runId:f.run.runId,reason:'must not bypass incomplete original'});await f.engine.tick();assert.equal(f.space.read().attempts.length,1);
+  complete=true;await f.space.refresh(f.run.runId);const original=f.space.read().attempts[0];assert.equal(original.state,'succeeded');assert.equal(original.requestId,accepted.requestId);assert.equal(original.taskId,'original-task');assert.equal(f.space.read().attempts.length,1);assert.equal(executions,1);
+ });
+});

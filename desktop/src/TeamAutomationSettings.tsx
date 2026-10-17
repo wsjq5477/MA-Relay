@@ -9,7 +9,7 @@ export default function TeamAutomationSettings({context,act,disabled}:{context:T
  const permitted=(selected||policy?.agentIds||[context.run.leaderId]).filter(id=>context.run.memberIds.includes(id)),active=context.run.state==='active';
  const name=(id:string)=>context.members.find(a=>a.agentId===id)?.name||'已撤权成员';
  return <section className="team-card team-automation" aria-label="持续协作">
-  <div className="team-row"><h2>持续协作</h2><strong>{!active?'工作已结束':context.run.paused?'已暂停新激活':policy?.enabled?data.limitReached?'预算已到限':'事件驱动已启用':'手动执行'}</strong></div>
+  <div className="team-row"><h2>持续协作</h2><strong>{context.run.state==='stopping'?'停止中，不再激活':!active?'工作已结束':context.run.paused?'已暂停新激活':policy?.enabled?data.limitReached?'预算已到限':'事件驱动已启用':'手动执行'}</strong></div>
   <p className="team-meta">本批支持Claude结束当前轮后续接原会话；运行中的消息排队。普通群消息不启动模型，重要报告和明确协调请求才产生事件。外部MCP成员需从自身入口接手任务。</p>
   {context.run.acceptancePending&&<p role="status">主智能体已提出总验收，正在等待本轮原生执行成功结束；当前尚未验收。</p>}
   {policy&&<p>已用 {policy.used} / {policy.maxActivations} 次激活尝试 · 总时长上限 {policy.maxMinutes} 分钟 · 无进展检查 {policy.idleMinutes} 分钟 · 待处理事件 {data.pending}</p>}

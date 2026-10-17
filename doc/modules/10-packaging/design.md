@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## alpha.24本地停止协调候选
+
+源码/本地候选0.6.0-alpha.24，GitHub仍分发原alpha.23；新增team-stop随窗口、冻结后台与Linux离线资源打包。普通EXE核对实际IPC/SQLite及外部访问撤销/重开恢复，Windows原生取消仍由真实适配专项另证。最终包33个后台CJS、78个core文件、1390个Linux条目与源码匹配；摘要、普通包结果和未测项见[当片报告](../../iterations/I07/native-stop.md)。不覆盖用户默认后台或原发布附件。
+
 ## alpha.23 / I07C首批预发布
 
 便携程序0.6.0-alpha.23已作为GitHub预发布分发，[发布记录](../../iterations/I07/github-release.md)。窗口/冻结后台/Linux离线包包含team-automation及格式3SQLite逻辑，MCP客户端运行副本仍包含team-tools。最终校验32个CJS、78个core文件、1389个Linux清单条目、app.asar及前端逐项匹配。普通EXE生命周期、摘要、分发和未测项见[I07C首批报告](../../iterations/I07/automation.md)；源码测试不替代普通包验证，Windows无模型包流程不替代真实WSL主协调。本批保留原Codex终态及daemon bind权限修复，已核验GitHub附件和完整公开下载；没有升级用户后台。

@@ -1,6 +1,12 @@
 # 整体测试与验收报告
 
-更新：2026-10-16。当前预发布 0.6.0-alpha.23 / 小队协作与持续协调首批；历史稳定版 0.5.0。6A 与 6B 主要范围已验收，I06C 与正式准出未完成，专项限制保留。
+2026-10-17新增未发布身份校验补丁，相关受控专项45/45通过，模型0；[证据与范围](iterations/I07/incomplete-receipt.md)。以下alpha.24全量/包为原冻结基线，未包含该补丁，未在本次重跑。
+
+## alpha.24当前源码/本地候选
+
+核心45/45、最终串行桌面233/233、Windows契约38项、生产前端受控后端7组通过，lint/类型/构建及包一致性通过，普通Windows EXE7组通过；原控制路由与真实WSL Claude取消分别执行；最新全工程/包/普通EXE与首次失败以[停止专项](iterations/I07/native-stop.md)为准。真实Claude仅1次原取消命令，后台重启后cancelled终态才归档；Windows模型0；本机手动小队Claude真实权限允许/拒绝补验见[专项](iterations/I07/native-permission.md)，自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)；原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH和完整I07C/I06C仍未准出。以下alpha.23和更早结果均保持原版本。
+
+更新：2026-10-16。源码/本地候选alpha.24停止专项见[当片验收](iterations/I07/native-stop.md)；当前预发布 0.6.0-alpha.23 / 小队协作与持续协调首批；历史稳定版 0.5.0。6A 与 6B 主要范围已验收，I06C 与正式准出未完成，专项限制保留。
 
 ## 1. 总结论
 

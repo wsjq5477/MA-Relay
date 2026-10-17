@@ -1,5 +1,9 @@
 # 通信协议与接口
 
+## alpha.24停止接口与兼容
+
+team.context/team.refresh新增stopSupported=true和可选stop汇总（requestedAt/completedAt/total/unresolved/externalCount），attempt新增stop.state；停止中仍只能查询原请求和原取消操作，收到匹配原执行终态才归档。成员MCP工具集合保持16项，没有停止权限。旧后台缺stopSupported时新版界面禁用整项停止，提示升级中央后台。底层cancel/operation与daemon帧版本不变，原生终态不能由取消回执替代。Coordinator对原请求/机器、控制operationId及返回的可选task身份严格校验，NOT_FOUND/unknown/身份不符不结算原台账。[详细设计](iterations/I07/native-stop.md)。
+
 ## I07A/B与I07C首批通信契约
 
 alpha.23 / 2026-10-16当前本地Coordinator方法；底层IPC/SSH协议仍为2，旧模式原父scope规则不变。公共方法不接受外部自报teamScope，原生小队身份仅后台内部派生。操作写前需稳定operationId，回应不明查询team.operation；返回confirmed不代表原生业务成功。[实现](../desktop/electron/coordinator-service.cjs)、[细节](iterations/I07/task-handoff.md)。
@@ -10,6 +14,7 @@ alpha.23 / 2026-10-16当前本地Coordinator方法；底层IPC/SSH协议仍为2�
 | team.registerAgent / team.disableAgent | native node或外部mcp实例及职责描述；停用撤销工作访问，有运行/unknown时拒绝停用 |
 | team.createTeam / team.createRun | 指定主角色、成员/约定，建立目标及完成标准；小队长期编辑/自动移交暂未提供 |
 | team.postMessage / team.writeDocument | 消息/回复/通知，或按expectedRevision更新文档；owner/editor权限与真实发送者由后台核验 |
+| team.stopRun | 仅用户，runId/expectedRevision/operationId；同事务停止新调度/撤权及保存各原尝试取消意图，confirmed收据不代表任务已取消 |
 | team.revokeMember / team.pause / team.closeRun | 撤权需工作原revision；暂停仅停新执行，归档须所有原尝试有明确终态 |
 | team.connect | 按工作成员生成本机MCP接入配置，不含明文令牌；撤权/归档即失效；不是启动外部Agent |
 | team.execute / team.refresh | 用户手动执行原生成员一轮/查询原请求；可选workItemId/expectedRevision绑定负责人及业务轮次；旧MachineHost缺teamCollaboration能力时拒绝本轮派发，不切换其他节点 |
@@ -229,3 +234,7 @@ native reply/cancel 返回须对应原 operationId、Task/execution 目标和明
 CoordinatorClient 的 pending 响应行新增可选 blockedNodeIds: string[]，用于图卡片、提交、续聊及任务控制的可用性投影；缺该字段时客户端沿用原机器限制。机器/节点管理仍用整机限制。该字段不证明原请求已完成，不新增远端 RPC，不改变 daemon 协议 2。
 
 recoverPending 保留 resolved/remaining/items；items 中 NOT_CONFIGURED 的固定说明为原后台执行配置未就绪。它不能单独将原记录置 rejected；必须另核对已保存的原错误和原未派发意图。已拒绝的同 requestId 返回原拒绝，不补发 Prompt。[专项](iterations/I06/pending-isolation.md)。
+
+小队`team.context/team.refresh`的attempt新增可选`waiting:{kind:permission|input,requestCount:number}`；仅说明观察到的原生等待，不是授权接口。unknown时该字段为上次已观察信息。原生请求ID/正文/工具参数及私有去重摘要不返回公共空间，权限回应继续走原节点原任务。未新增RPC或帧版本，缺字段兼容旧记录。[专项](iterations/I07/native-waiting.md)。
+
+小队消费原生Task观测前要求`taskId`及`conversationId`为非空白字符串，并匹配原requestId和既有绑定；即使status为succeeded，缺身份也不结算。首次派发后不完整回应保持unknown，后续只查原请求；不新增Task状态、RPC或帧版本。见[完整性专项](iterations/I07/incomplete-receipt.md)。

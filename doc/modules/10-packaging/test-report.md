@@ -1,5 +1,9 @@
 # M10 构建与发布测试报告
 
+## alpha.24本地候选验证
+
+T-M10-121 / M10-F01/F02/F03/F05/F06：2026-10-16，源码/本地候选alpha.24，GitHub仍alpha.23。核心45/45、最终串行桌面233/233、Windows契约38/38、受控界面7组、普通无debug Windows EXE7组通过；33 CJS/78 core/1390 Linux条目、app.asar与前端匹配最终源码。普通程序完整重启后停止归档、原收据与撤权保留，运行文件摘要和包报告一致，模型0。WSL真实Claude取消及首次失败单列于[停止专项](../../iterations/I07/native-stop.md)，不能以普通包证明Windows真实原生取消或完整I07C/I06C。
+
 ## alpha.23 / I07C首批实际验证
 
 T-M10-110 / M10-F01/F02/F03/F05：2026-10-16，WSL Node22.23.1、Windows Node24.18.0/Edge155。核心45/45、最终串行桌面222/222、Windows契约29/29；这些是全工程计数，跨模块不相加。Windows前端/真实Coordinator受控目录和成员10组，真实Claude2.1.299自动主角色3轮同Conversation/原Session、新scope、后台重启后实际X失败/Y通过及终态后总验收；执行成员为受控外部MCP、Node检查实际运行。最终包/普通EXE、首次连接恢复竞态和并行维护ENOENT分别保留证据，完整结果见[I07C首批报告](../../iterations/I07/automation.md)。未证明真实多原生角色、其他接入自动续接、用户自研/独立SSH或完整停止。
