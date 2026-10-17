@@ -1,12 +1,12 @@
 # M04 SSH 机器接入设计
 
-## 2026-10-17：SSH持久拒绝恢复（alpha.28候选）
+## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
-M04-F04/F05/F08：ipc/request裸NOT_CONFIGURED后，仅在同一认证代次只读daemon.receiptRead；内部WeakMap区分可信台账与原生/伪造JSON。既有主机密钥、owner/profile/daemon/协议校验继续适用。为新包收录alpha.27原manifest精确摘要，不自动升级原daemon。 当前源码候选，GitHub仍alpha.27；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+M04-F04/F05/F08：ipc/request裸NOT_CONFIGURED后，仅在同一认证代次只读daemon.receiptRead；内部WeakMap区分可信台账与原生/伪造JSON。既有主机密钥、owner/profile/daemon/协议校验继续适用。为新包收录alpha.27原manifest精确摘要，不自动升级原daemon。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
 
 ## 2026-10-17：Windows未派发与持久化恢复
 
-M04-F04/F05/F08：alpha.27客户端收录原alpha.26冻结manifest，digest为6674f37902908e329ce76cb634d6ebae36c55f33f8e7ad836488986b10879c4e；按原文件/归属精确校验复用，不自动升级或派发模型。既有alpha.24/25清单保持原字节。 当前源码/GitHub预发布alpha.27；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
+M04-F04/F05/F08：alpha.27客户端收录原alpha.26冻结manifest，digest为6674f37902908e329ce76cb634d6ebae36c55f33f8e7ad836488986b10879c4e；按原文件/归属精确校验复用，不自动升级或派发模型。既有alpha.24/25清单保持原字节。 alpha.27当次源码与预发布；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
 ## 2026-10-17：alpha.24 可信升级路径
 
 源码/预发布 alpha.26 在可信索引补收原 alpha.24/alpha.25 冻结 manifest。重连按旧清单逐文件核验，复用原 daemon，不自动替换；在线后用户确认维护升级至当前包。此前 alpha.25 漏收 alpha.24 导致连接与维护入口均被版本校验阻断。本片不放宽未知版本、摘要/归属/路径规则；其他未收录版本的离线维护仍有限制。[实现、升级与验收](../../iterations/I06/ssh-alpha24-upgrade.md)。

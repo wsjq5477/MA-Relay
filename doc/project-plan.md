@@ -1,19 +1,19 @@
 # 迭代路线与当前交付
 
-## 当前修复候选
+## 当前修复交付
 
-alpha.28：issue #5远端持久拒绝只读恢复；GitHub仍alpha.27，新包待验证发布，完整I06C/I07C未准出。[当次范围与证据](iterations/I06/daemon-rejection-recovery.md)。
+alpha.28：issue #5远端持久拒绝只读恢复；GitHub已预发布alpha.28，新包与普通EXE已验证分发，完整I06C/I07C未准出。[当次范围与证据](iterations/I06/daemon-rejection-recovery.md)。
 
-更新：2026-10-16。完整功能与模块设计见 [资料入口](README.md)；这里维护交付顺序，不另建一套架构。
+更新：2026-10-17。完整功能与模块设计见 [资料入口](README.md)；这里维护交付顺序，不另建一套架构。
 
 ## 1. 当前基线
 
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | 0.6.0-alpha.27 / Windows Codex与本地台账恢复，标签绑定6eab646；[EXE与校验](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.27)，完整I07C/I06C未准出 |
-| 当前自动回归 | 2026-10-17 / alpha.27：最终桌面288/288、核心45/45、Windows受控契约86/86、兼容10/10，lint/类型/构建通过；普通EXE和分发以[当次记录](iterations/I06/windows-start-persistence.md)为准，未实测用户故障profile/真实模型。 |
-| 当前源码 | alpha.27已预发布，冻结修复提交6eab646与EXE一致；修复Codex启动准备/未派发任务核对和台账持久化恢复，保留alpha.26可信后台复用，纳入原首次续接Conversation校验。[实际结果与边界](iterations/I06/windows-start-persistence.md)。 |
+| 最新 Windows 预发布 | 0.6.0-alpha.28 / SSH持久拒绝恢复；标签绑定3df2534，[EXE与校验](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.28)，完整I06C/I07C未准出 |
+| 当前自动回归 | 2026-10-17 / alpha.28：桌面317/317、核心45/45、Windows合成契约93/93；受控TCP SSH丢响应/daemon重启和普通无调试EXE6组通过，模型0。包与发布见[专项](iterations/I06/daemon-rejection-recovery.md)，用户现场未复测 |
+| 当前源码 | alpha.28已预发布，冻结修复提交3df2534与EXE一致；只读核对原daemon持久拒绝后结算，裸错误/缺证据保持unknown。[实际结果与边界](iterations/I06/daemon-rejection-recovery.md) |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
 | alpha.24历史自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |

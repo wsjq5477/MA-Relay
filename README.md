@@ -2,9 +2,9 @@
 
 ## Windows EXE 下载
 
-当前 GitHub 预发布为 **alpha.27 / Windows Codex与本地台账恢复**：修复issue #3/#4，保留既有SSH可信连接及原请求恢复。[修复、升级与实际验证](doc/iterations/I06/windows-start-persistence.md)。
+当前GitHub预发布 **0.6.0-alpha.28**：修复issue #5远端daemon已拒绝但客户端长期保留NOT_CONFIGURED占位的问题，保留alpha.27既有修复。[实际验证和边界](doc/iterations/I06/daemon-rejection-recovery.md)。
 
-当前最新 Windows 预发布为 [0.6.0-alpha.27](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.27)：[直接下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)、[SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/SHA256SUMS.txt)。停止旧后台并退出后重开新版；Codex原会话“查看过程 → 核对原任务”，台账问题在设置“未确认操作 → 查询原请求”。不删除原数据，不自动重发；本机修复无需为此升级SSH后台。稳定历史仍为0.5.0，完整I07C/I06C和正式0.6.0未准出。[证据与边界](doc/iterations/I06/windows-start-persistence.md)。
+[直接下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/AgentBridge-0.6.0-alpha.28-Windows-x64.exe) · [SHA-256校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/SHA256SUMS.txt) · [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.28)。先在“设置 → 后台运行 → 停止后台并退出”后打开新版，再到“未确认操作 → 查询原请求”。仅匹配原daemon持久拒绝才释放占位，缺证据仍unknown，不自动重发；支持现有收据接口的可信远端无需为此升级。稳定历史仍0.5.0，完整I06C/I07C及正式0.6.0未准出。
 
 下载 EXE 后双击运行；原生 Agent 工具仍需按所用工具安装并登录。GitHub 自动生成的源码 ZIP 不包含 EXE。
 

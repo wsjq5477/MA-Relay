@@ -1,22 +1,14 @@
 # AgentBridge Windows
 
-当前GitHub预发布 **alpha.27**：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/SHA256SUMS.txt)。修复Codex准备失败/原任务核对和本地台账分享锁/历史未派发结算；停止旧后台后重开新版，分别沿原任务或原请求核对，保留原历史。alpha.24/25/26旧SSH后台继续按精确清单校验复用，本次本机修复无须升级SSH后台。[交付和未测边界](../doc/iterations/I06/windows-start-persistence.md)。下方保留历史发布时点。
+当前GitHub预发布 **0.6.0-alpha.28**：修复issue #5，保留alpha.27的Codex/本地持久化恢复等既有修复。
 
-当前 GitHub 预发布 **0.6.0-alpha.25**：修复Windows查询原请求被未完成上下文误导到NOT_CONFIGURED的问题；[程序、实际证据与限制](../doc/iterations/I06/windows-context-recovery.md)。旧后台仍在运行时，在“设置 → 后台运行 → 停止后台并退出”，再打开新EXE并查询原请求；保留原节点、请求和历史。本次修复无须升级SSH后台。
+[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/AgentBridge-0.6.0-alpha.28-Windows-x64.exe) · [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/SHA256SUMS.txt) · [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.28)。下载附件双击即可运行，无需自行编译或安装Node/WSL；原生Agent工具仍需自行安装登录。
 
-## GitHub Windows 下载
+先在“设置 → 后台运行 → 停止后台并退出”，再打开新EXE，到“未确认操作 → 查询原请求”。只在原认证daemon持久拒绝和原意图严格匹配时结算；裸NOT_CONFIGURED继续unknown，不重发原需求、保留ID/参数/时间/历史。支持既有收据接口的可信远端无需为此升级；更旧版本缺接口或字段时保守保留unknown。
 
-最新修复和下载以 alpha.26 为准；alpha.24 停止协调的历史实测保留于[当片交付与验证](../doc/iterations/I07/native-stop.md)。
+桌面317/317、核心45/45、Windows合成契约93/93、受控TCP SSH丢响应/daemon重启及普通EXE6组通过，模型0。未复测用户故障profile/独立服务器或真实模型。稳定历史0.5.0；完整I06C/I07C及正式0.6.0未准出。[完整交付与证据](../doc/iterations/I06/daemon-rejection-recovery.md)。
 
-GitHub 最新 Windows 预发布为 [0.6.0-alpha.25](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.25)，可直接[下载 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)及[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/SHA256SUMS.txt)。稳定历史版本仍为 0.5.0；完整 I07C/I06C 和正式 0.6.0 尚未准出。Windows 用户下载附件双击即可运行，无需自行编译、安装 WSL 或 Node.js。[发布与升级](../doc/iterations/I06/windows-context-recovery.md)。
-
-旧后台仍运行时，在新窗口“设置 → 后台运行 → 停止后台并退出”后重新打开；不删除机器、节点或历史。SSH机器另需升级原远端后台后重新连接和扫描。
-
-按“机器 → Agent 节点 → 会话 / 任务”管理 Claude Code、OpenCode、Codex。节点不绑定项目、模型或供应商；用户指定主 Agent 与可连接的子 Agent，主 Agent 可以真实发现、委派和读取子结果。
-
-当前源码与预发布为 **0.6.0-alpha.23 / I07C首批**：在“小队协作”登记成员职责与限制、组队并使用公共文档、群消息和任务板；“持续协作”由用户授权自动成员与预算，本批真实验证Claude主角色原会话续接。完整 I07C/I06C 仍未准出，[实际证据与限制](../doc/iterations/I07/automation.md)。本文旧版操作说明保留在下方；新版使用节点上的“接入”“设为主 Agent”“开始会话”，端点连线后保存授权。完整资料见 [文档入口](../doc/README.md)和[整体交付状态](../doc/project-plan.md)。
-
-## 运行与使用
+## 运行与使用（历史0.5.0操作说明）
 
 1. 关闭旧版窗口，双击 `desktop/release/AgentBridge-0.5.0-Windows-x64.exe`。便携版也已复制到本次 Windows 产物目录。第一次打开需要解包；无需开两个终端。
 2. “机器与 Agent”自动显示本机和各 WSL 环境及工具。WSL 标明物理宿主；空机器也显示。

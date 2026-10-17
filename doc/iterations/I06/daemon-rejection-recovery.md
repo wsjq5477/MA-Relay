@@ -1,6 +1,6 @@
 # SSH daemon 持久拒绝回执恢复（issue #5）
 
-日期：2026-10-17。源码候选 **0.6.0-alpha.28**，GitHub当前预发布仍为alpha.27；Windows新包已构建且普通EXE验证通过，尚未分发。完整I06C/I07C及正式0.6.0未准出。
+日期：2026-10-17。源码/GitHub预发布 **0.6.0-alpha.28**，标签绑定master修复提交 `3df2534ee862afd91c6f0c21e81982099d856789`；Windows EXE与校验文件已公开分发。完整I06C/I07C及正式0.6.0未准出。
 
 ## 需求与根因
 
@@ -75,4 +75,12 @@ sequenceDiagram
 
 本次没有读取或改写用户故障profile、生产daemon或服务器数据；没有真实模型任务、真实独立用户服务器及Windows到独立SSH故障矩阵实测。不能宣布用户现场已恢复；完整I06C/I07C仍未准出。
 
-包构建结果：EXE 129884570 字节，SHA-256 `6d85f667c2e1009e26cd83f00afb09ad540b27787e71c5a2784af0e64c4602ef`。34个CJS后端、78个核心文件、1395个Linux资源及窗口/前端均与源码匹配；[包核验](../../../artifacts/daemon-rejection-recovery/2026-10-17/package.json)、[构建日志](../../../artifacts/daemon-rejection-recovery/2026-10-17/package-build.log)。尚未公开分发。
+包构建结果：EXE 129884570 字节，SHA-256 `6d85f667c2e1009e26cd83f00afb09ad540b27787e71c5a2784af0e64c4602ef`。34个CJS后端、78个核心文件、1395个Linux资源及窗口/前端均与源码匹配；[包核验](../../../artifacts/daemon-rejection-recovery/2026-10-17/package.json)、[构建日志](../../../artifacts/daemon-rejection-recovery/2026-10-17/package-build.log)。已公开分发并完成完整公开下载摘要核验。
+
+## GitHub分发与验收结论
+
+[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/AgentBridge-0.6.0-alpha.28-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.28)。两附件state=uploaded，远端大小/digest与本地一致；公开下载入口HTTP200，完整EXE下载SHA-256及校验文本匹配。EXE 129884570字节，SHA-256 `6d85f667c2e1009e26cd83f00afb09ad540b27787e71c5a2784af0e64c4602ef`；标签绑定修复提交`3df2534ee862afd91c6f0c21e81982099d856789`，后续发布说明文档提交不改动该标签。
+
+分发证据：[上传](../../../artifacts/daemon-rejection-recovery/2026-10-17/github-upload.json)、[预发布](../../../artifacts/daemon-rejection-recovery/2026-10-17/github-release.json)、[公开完整下载](../../../artifacts/daemon-rejection-recovery/2026-10-17/github-download.json)。R01–R06在合成、受控SSH和普通Windows EXE声明范围内通过；用户现场记录、独立服务器及真实模型未验，完整I06C/I07C仍未准出。
+
+公开全量校验使用16个精确HTTP206分段，逐项核对Content-Range/长度，连续覆盖全部字节后按原顺序计算完整SHA-256；校验文本HTTP200。原单连接下载较慢，在替代完整校验通过后停止该只读下载进程，不重传或替换附件。[分段证据](../../../artifacts/daemon-rejection-recovery/2026-10-17/github-download-ranged.json)、[过程](../../../artifacts/daemon-rejection-recovery/2026-10-17/github-range-download.log)。

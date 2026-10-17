@@ -1,5 +1,9 @@
 # 远端源码范围
 
+## 2026-10-17 alpha.28 源码与Windows EXE
+
+修复提交`3df2534ee862afd91c6f0c21e81982099d856789`已推送master，GitHub预发布标签v0.6.0-alpha.28绑定该确切源码；[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/AgentBridge-0.6.0-alpha.28-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/SHA256SUMS.txt)公开完整下载验证通过。EXE 129884570字节，SHA-256 `6d85f667c2e1009e26cd83f00afb09ad540b27787e71c5a2784af0e64c4602ef`。34 CJS/78 core/1395 Linux资源及前端匹配源码；普通Windows合成EXE6组通过。[功能、实际测试和未测边界](iterations/I06/daemon-rejection-recovery.md)。不提交私有profile、原始日志或二进制，不以分发替代用户现场验收。
+
 2026-10-17最新alpha.27已公开预发布，源码标签绑定master修复提交 `6eab64604f2b7e7e9b20a09c85c46444bcb040e0`；EXE/校验文件及完整公开下载均核验。文档同步提交可在产品冻结提交之后；不把源码同步计为新产品测试。[分发、升级与边界](iterations/I06/windows-start-persistence.md)。以下保留历史时点。
 更新：2026-10-17。目标仓库：https://github.com/wsjq5477/MA-Relay 。当前GitHub预发布为 **alpha.26**，标签绑定冻结源码3efc3d2，分支codex/alpha26-linux-backend-release；EXE恢复对原Linux alpha.24的可信连接及后续维护。master另有I07续接增量，未包含在该EXE中；[发布、升级及实际边界](iterations/I06/ssh-alpha24-upgrade.md)。历史记录保留原时点。
 

@@ -1,12 +1,12 @@
 # M02 中央协调后台设计
 
-## 2026-10-17：SSH持久拒绝恢复（alpha.28候选）
+## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
-M02-F04：捕获认证SSH提供的持久拒绝证明，经原意图核对并先落盘后结算；恢复CAS再检查证明。普通request返回state=rejected且无taskId，同ID提交仍错误返回；原时间/参数保留，不重放。 当前源码候选，GitHub仍alpha.27；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+M02-F04：捕获认证SSH提供的持久拒绝证明，经原意图核对并先落盘后结算；恢复CAS再检查证明。普通request返回state=rejected且无taskId，同ID提交仍错误返回；原时间/参数保留，不重放。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
 
 ## 2026-10-17：Windows未派发与持久化恢复
 
-M02-F04：NETWORK_PERSIST只有严格原意图同源/双指纹、dispatched=false、无task/Conversation绑定且无在途node job才可判原操作rejected；recoverPending结算前再核对。当前查询NOT_FOUND或任意远端EPERM不构成未执行证明。 当前源码/GitHub预发布alpha.27；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
+M02-F04：NETWORK_PERSIST只有严格原意图同源/双指纹、dispatched=false、无task/Conversation绑定且无在途node job才可判原操作rejected；recoverPending结算前再核对。当前查询NOT_FOUND或任意远端EPERM不构成未执行证明。 alpha.27当次源码与预发布；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
 自动续接的首次任务回应必须匹配持久意图resumeConversationId，不能等待接收外来Conversation后才建立校验；已有conversationId绑定继续严格匹配。错误回应保持待核对，只查原请求恢复。该补强已随alpha.27预发布交付，[实测与边界](../../iterations/I07/intended-conversation.md)。
 
 ## 2026-10-17：Windows原请求上下文恢复

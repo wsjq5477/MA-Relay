@@ -1,8 +1,8 @@
 # M05 Linux 机器后台设计
 
-## 2026-10-17：SSH持久拒绝恢复（alpha.28候选）
+## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
-M05-F05/F06：daemon业务/协议不变，既有daemon.receiptRead返回原持久method/op/key/target/fingerprint/state/error。新客户端读取匹配rejected/NOT_CONFIGURED作为恢复证据；confirmed仍返回原任务，unknown缺证明仍保守。无需为本修复升级支持该endpoint的可信旧daemon。 当前源码候选，GitHub仍alpha.27；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+M05-F05/F06：daemon业务/协议不变，既有daemon.receiptRead返回原持久method/op/key/target/fingerprint/state/error。新客户端读取匹配rejected/NOT_CONFIGURED作为恢复证据；confirmed仍返回原任务，unknown缺证明仍保守。无需为本修复升级支持该endpoint的可信旧daemon。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
 
 ## alpha.23 / I07A-C首批兼容边界
 

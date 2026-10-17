@@ -1,6 +1,6 @@
 # 通信协议与接口
 
-## alpha.28候选：SSH持久拒绝恢复
+## alpha.28已预发布：SSH持久拒绝恢复
 
 SSH协议2和daemon.receiptRead线格式不变。客户端ipc/request裸NOT_CONFIGURED后只读同ID收据；同认证代次匹配持久rejected产生内部DAEMON_REQUEST_REJECTED能力，公开同码JSON/错误没有该能力。中央普通request可返回{state:rejected,requestId,machineId,error:{code:NOT_CONFIGURED,message},reconciliation}，没有taskId，禁止当成功任务；mutation仍报错。verify/控制语义不变。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
 

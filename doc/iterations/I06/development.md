@@ -1,6 +1,6 @@
 # I06 开发安排与增量交付
 
-## alpha.28候选：SSH持久拒绝恢复
+## alpha.28已预发布：SSH持久拒绝恢复
 
 新增daemon-rejection内部证明，SSH只读原台账；扩展AgentNetwork原意图核对、pending-journal错误恢复与Coordinator结算。远端daemon源码/协议不变，参数/时间保留，新增合成与真实TCP SSH丢响应/重启测试。 [设计、需求、开发、验收与边界](daemon-rejection-recovery.md)。
 

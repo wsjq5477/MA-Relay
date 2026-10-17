@@ -1,6 +1,6 @@
 # AgentBridge 整体架构
 
-## alpha.28候选：SSH持久拒绝恢复
+## alpha.28已预发布：SSH持久拒绝恢复
 
 SSH层从同认证代次的daemon.receiptRead建立进程内可信证明；AgentNetwork核对原意图并先持久化，中央恢复CAS后结算。只读远端，释放中央原占位，不迁移原任务或Session。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
 

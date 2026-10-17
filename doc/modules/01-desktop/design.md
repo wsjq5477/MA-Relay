@@ -1,8 +1,8 @@
 # M01 桌面界面与交互设计
 
-## 2026-10-17：SSH持久拒绝恢复（alpha.28候选）
+## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
-M01-F04：未确认操作沿既有recoverPending入口读取原请求；匹配远端拒绝后列表移除，缺证据仍显示保守诊断。普通request返回明确rejected而非任务，不改界面布局。 当前源码候选，GitHub仍alpha.27；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+M01-F04：未确认操作沿既有recoverPending入口读取原请求；匹配远端拒绝后列表移除，缺证据仍显示保守诊断。普通request返回明确rejected而非任务，不改界面布局。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
 
 ## 当前停止工作行为
 

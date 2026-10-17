@@ -1,10 +1,10 @@
 # 整体测试与验收报告
 
-## alpha.28候选：SSH持久拒绝恢复
+## alpha.28已预发布：SSH持久拒绝恢复
 
 新增客户端27/27、真实Windows合成契约93/93通过；受控TCP SSH/生产daemon持久拒绝丢响应及重启重连已通过，模型0。完整回归、EXE、源码绑定和发布结果统一以专项为准。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
 
-## alpha.27当前预发布验收
+## alpha.27历史预发布验收
 
 2026-10-17：最终桌面运行288/288、核心45/45；Codex10/10、共享写入10/10、最终网络50/50、真实Windows受控契约86/86；随后新增alpha.26兼容场景，该文件10/10。lint、根/桌面类型及前端构建通过，模型0。首轮维护ENOENT、补验及普通EXE/包/发布实际结果见[Windows恢复专项](iterations/I06/windows-start-persistence.md)；不以源码回归代替用户机器恢复。
 2026-10-17 / alpha.26 预发布：补收可信 alpha.24/alpha.25 Linux 清单，SSH 相关36/36、构建与候选包核对通过；没有重跑全工程/真实模型或用户故障服务器。与下面另有 I07 续接增量区分，候选不含该增量；实际EXE/受控SSH/Windows证据见[旧后台升级专项](iterations/I06/ssh-alpha24-upgrade.md)。GitHub已为alpha.26。

@@ -1,6 +1,6 @@
 # AgentBridge 整体功能设计
 
-## alpha.28候选：SSH持久拒绝恢复
+## alpha.28已预发布：SSH持久拒绝恢复
 
 AB-F08/F10/F11/F17：只读原daemon持久拒绝，经认证身份、原节点意图和参数摘要核对后结算rejected，释放对应占位。裸NOT_CONFIGURED或缺证据保持unknown；不重发、不改原任务终态。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
 
