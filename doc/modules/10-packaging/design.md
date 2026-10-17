@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## 2026-10-17：alpha.26 旧 Linux 后台兼容候选
+
+M10-F02/F03/F04/F06：新增原 alpha.24/alpha.25 可信 manifest，版本分别绑定历史冻结包摘要，随 Windows EXE 内的 Linux 资源再次打包。新客户端先连接原 alpha.24，用户确认维护才上传升级；不会自动信任任意旧版。本地候选从独立冻结源码构建，未包含工作区 I07 续接增量；GitHub 仍分发 alpha.25。本片另生成同资源的Linux x64 daemon tar.gz供离线分发，逐文件核验；它不是Linux桌面版或一键升级器。[来源、候选、升级和验收](../../iterations/I06/ssh-alpha24-upgrade.md)。
+
 ## 2026-10-17：Windows原请求上下文恢复
 
 M10-F01/F03/F05：当前源码及GitHub预发布alpha.25纳入未完成上下文原请求查询修复及先前不完整任务回应保护。标签绑定产品源码2e957e3，便携EXE与SHA256SUMS.txt分发前核对大小、摘要及源码一致性；原alpha.24附件保持原文件。用户停止旧后台后重开新EXE加载修复，本次Windows恢复无须升级SSH后台。[完整修复、分发与证据](../../iterations/I06/windows-context-recovery.md)。

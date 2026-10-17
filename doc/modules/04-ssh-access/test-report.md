@@ -1,5 +1,11 @@
 # M04 SSH 接入测试报告
 
+## 2026-10-17：alpha.24 Linux 后台重连专项
+
+实际冻结alpha.24→alpha.26的受控TCP SSH/SFTP链4组、Windows普通EXE5组通过；Linux独立资源归档1392条目一致，独立服务器/真实原生任务迁移未测。
+
+alpha.26 本地候选：SSH 兼容/安全/维护/恢复 36/36 通过，WSL Linux / Node22.23.1，受控 TCP SSH 和真实隔离后台测试、模型0；原 alpha.25 确认缺少 alpha.24 信任清单，候选匹配原 alpha.24/alpha.25 digest。源码回归不等于用户独立服务器已恢复；实际包/Windows/端到端结果及失败证据统一见[专项报告](../../iterations/I06/ssh-alpha24-upgrade.md)。
+
 ## alpha.19 Linux CLI 发现专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。

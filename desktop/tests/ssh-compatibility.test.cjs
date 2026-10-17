@@ -2,13 +2,13 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {createHash}=require('node:crypto'),{EventEmitter}=require('node:events'),{Readable}=require('node:stream');
 const {SshInstaller,remoteExec}=require('../electron/ssh-install.cjs');
 const digest=m=>createHash('sha256').update(JSON.stringify(m)).digest('hex');
-function fixture(t){
+function fixture(t,oldManifest){
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-ssh-compat-')),payload=Buffer.from('test-node');
  const entry=(name,bytes)=>({path:name,size:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')});
- const old={version:'0.6.0-alpha.2',protocolVersion:2,platform:'linux',arch:'x64',runtime:{path:'runtime/node',version:'22.23.1'},files:[entry('runtime/node',payload)]};
+ const old=oldManifest||{version:'0.6.0-alpha.2',protocolVersion:2,platform:'linux',arch:'x64',runtime:{path:'runtime/node',version:'22.23.1'},files:[entry('runtime/node',payload)]};
  fs.mkdirSync(path.join(directory,'runtime'));fs.writeFileSync(path.join(directory,'runtime/node'),payload);
  const pinPath='compatible-daemons/'+old.version+'.json';fs.mkdirSync(path.join(directory,'compatible-daemons'));const pin=Buffer.from(JSON.stringify(old));fs.writeFileSync(path.join(directory,pinPath),pin);
- const manifest={...old,version:'0.6.0-alpha.4',files:[...old.files,entry(pinPath,pin)],compatibleDaemons:[{version:old.version,manifestPath:pinPath,manifestDigest:digest(old)}]};fs.writeFileSync(path.join(directory,'manifest.json'),JSON.stringify(manifest));
+ const manifest={...old,version:'0.6.0-alpha.4',files:[entry('runtime/node',payload),entry(pinPath,pin)],compatibleDaemons:[{version:old.version,manifestPath:pinPath,manifestDigest:digest(old)}]};fs.writeFileSync(path.join(directory,'manifest.json'),JSON.stringify(manifest));
  const installer=new SshInstaller({directory,coordinatorId:'test-owner',packageDirectory:directory});
  const installPath='/home/u/.local/share/agentbridge/profiles/'+installer.profileId,versionPath=installPath+'/versions/'+old.version;
  const current={version:old.version,digest:digest(old),versionPath};
@@ -63,5 +63,23 @@ test('a verified maintenance bundle still rejects a compatibility manifest chang
  const filename=path.join(f.directory,'compatible-daemons',f.old.version+'.json');
  fs.writeFileSync(filename,JSON.stringify({...f.old,runtime:{...f.old.runtime,version:'22.24.0'}}));
  assert.throws(()=>f.installer.release(f.old.version,bundle),{code:'SSH_PACKAGE_CHECKSUM'});
+ assert.deepEqual(f.writes,[]);
+});
+
+for(const [version,expectedDigest] of [
+ ['0.6.0-alpha.24','e631db77604099d70c96bf7c7d85657bb957a3dd251a2ae91ad89fc33c7b9955'],
+ ['0.6.0-alpha.25','54ada2b6d01fd9537de00e93b277f2cae50de5d969ebefc08544b49647654146']
+])test(`published ${version} reconnects and previews upgrade using its exact frozen manifest without replacing the daemon`,async t=>{
+ const old=require('../compatible-daemons/'+version+'.json');
+ assert.equal(old.version,version);assert.equal(digest(old),expectedDigest);
+ const f=fixture(t,old);
+ f.objects.set(f.installPath+'/previous.json',{version:old.version,digest:digest(old),versionPath:f.versionPath});
+ const before=JSON.stringify([...f.objects]);
+ const probe=await f.installer.probe(f.client);
+ assert.equal(probe.daemonVersion,version);assert.equal(probe.reuseCompatible,true);assert.equal(probe.installNeeded,false);
+ const installed=await f.installer.install(f.client,probe,'retained-connection');assert.equal(installed.version,version);
+ const preview=await f.installer.maintenancePreview(f.client);assert.equal(preview.daemonVersion,version);assert.equal(preview.targetVersion,'0.6.0-alpha.4');
+ assert.deepEqual(f.writes,[]);assert.equal(JSON.stringify([...f.objects]),before);
+ f.current.digest='0'.repeat(64);await assert.rejects(f.installer.probe(f.client),{code:'SSH_VERSION_CONFLICT'});
  assert.deepEqual(f.writes,[]);
 });

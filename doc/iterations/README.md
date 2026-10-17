@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+2026-10-17 / alpha.26发布冻结源码：补收原alpha.24/alpha.25可信Linux清单，修复原alpha.24无法连接及后续维护受阻。EXE与此前验证的本地候选相同；受控SSH回归36/36、实际SSH/SFTP升级4组、Windows普通EXE5组、构建/包/文档核对通过，模型0。冻结CJS沿用基线6bf680a，未包含master另有的I07续接增量；用户独立服务器和真实任务迁移未测，完整I06C/I07C未准出。[完整专项](I06/ssh-alpha24-upgrade.md)。
+
 2026-10-17源码/本地候选alpha.25：[Windows原请求上下文恢复](I06/windows-context-recovery.md)，修复未完成上下文截获原请求查询；GitHub保持alpha.24，用户故障机器尚待复验。
 
 更新：2026-10-16。当前范围与优先级见 [迭代路线](../project-plan.md)；整项目设计见 [整体资料](../README.md)。

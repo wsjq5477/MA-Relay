@@ -1,5 +1,7 @@
 # AgentBridge 项目资料
 
+2026-10-17 / alpha.26发布冻结源码：补收原alpha.24/alpha.25可信Linux清单，修复原alpha.24无法连接及后续维护受阻。EXE与此前验证的本地候选相同；受控SSH回归36/36、实际SSH/SFTP升级4组、Windows普通EXE5组、构建/包/文档核对通过，模型0。冻结CJS沿用基线6bf680a，未包含master另有的I07续接增量；用户独立服务器和真实任务迁移未测，完整I06C/I07C未准出。[完整专项](iterations/I06/ssh-alpha24-upgrade.md)。
+
 2026-10-17当前源码/GitHub预发布为 **alpha.25**，修复Windows未完成上下文遮挡原请求查询，并纳入先前不完整任务回应保护；[下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)。验收、升级、摘要及未测边界见[原请求恢复专项](iterations/I06/windows-context-recovery.md)。以下alpha.24/alpha.23段落保留其交付时点。
 
 更新：2026-10-16。这里维护项目的完整现状与已确认设计。阅读和开发不需要先复盘历次对话或迭代。

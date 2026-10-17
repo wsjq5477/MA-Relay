@@ -1,5 +1,7 @@
 # I06 功能需求与验收基线
 
+2026-10-17 / alpha.26发布冻结源码：补收原alpha.24/alpha.25可信Linux清单，修复原alpha.24无法连接及后续维护受阻。EXE与此前验证的本地候选相同；受控SSH回归36/36、实际SSH/SFTP升级4组、Windows普通EXE5组、构建/包/文档核对通过，模型0。冻结CJS沿用基线6bf680a，未包含master另有的I07续接增量；用户独立服务器和真实任务迁移未测，完整I06C/I07C未准出。[完整专项](ssh-alpha24-upgrade.md)。
+
 日期：2026-10-10。状态：计划，全部 I06 功能待开发、待验收。上一迭代实际能力见 [I05 验收](../I05/acceptance.md)。迭代目标与增量见 [proposal.md](proposal.md)，技术合约见 [ssh-design.md](ssh-design.md)、[graph-design.md](graph-design.md)，逐项测试见 [testing.md](testing.md)。
 
 ## 1. 用户与对象
