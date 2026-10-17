@@ -1,3 +1,19 @@
+# I07 alpha.24 GitHub预发布记录
+
+日期：2026-10-17。已发布 **0.6.0-alpha.24**，draft=false、prerelease=true。
+
+- [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.24/AgentBridge-0.6.0-alpha.24-Windows-x64.exe)
+- [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.24/SHA256SUMS.txt)
+- [GitHub预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.24)
+
+标签绑定冻结产品源码 `34d90b5a8202743c808e183fd288ae7ab93d28ac`；EXE 129879755字节，SHA-256 `ca3ced24582114978005be6827c145fb7c89608d0fb5bf35ae5b2ecea736f795`。GitHub两附件均uploaded，大小及digest匹配本地。
+
+包含小队停止、等待展示及原生终态核对；既有实测范围见[停止专项](native-stop.md)及各权限专项。本次发布不重复模型测试。2026-10-17[不完整收据修复](incomplete-receipt.md)在后续开发提交 `3a97262`，未包含于冻结EXE；本次专项45/45通过。分支 `codex/windows-runtime-recovery-alpha18` 已推送，PR #1未合入master。完整I07C/I06C仍未准出。
+
+升级前在旧窗口“设置 → 后台运行 → 停止后台并退出”，再运行新EXE。SSH机器另需“后台维护 → 升级后台 → 确认升级”后重新连接扫描。不要覆盖运行数据降级至旧格式版本。
+
+以下保留alpha.23历史发布证据。
+
 # I07 alpha.23 GitHub预发布记录
 
 日期：2026-10-16。发布版本 **0.6.0-alpha.23**，状态 **draft=false / prerelease=true**。稳定历史版仍为0.5.0；完整I07C/I06C与正式0.6.0未准出。

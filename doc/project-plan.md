@@ -7,8 +7,8 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | 0.6.0-alpha.23 / 小队协作与持续协调首批；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.23)，完整 I07C/I06C 未准出 |
-| 当前源码 | 0.6.0-alpha.24本地候选 / 小队停止与原生终态核对；未更新GitHub发布，准确交付见[停止专项](iterations/I07/native-stop.md)。alpha.23的源码/标签/PR事实保持。 |
+| 最新 Windows 预发布 | 0.6.0-alpha.24 / 小队协作与持续协调首批；[预发布与 EXE](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.24)，完整 I07C/I06C 未准出 |
+| 当前源码 | 0.6.0-alpha.24已发布冻结包；当前源码另含2026-10-17不完整收据修复，未打入该EXE / 小队停止与原生终态核对，准确交付见[停止专项](iterations/I07/native-stop.md)。alpha.23的源码/标签/PR事实保持。 |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
 | 当前自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
