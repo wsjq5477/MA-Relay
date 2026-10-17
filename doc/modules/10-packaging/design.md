@@ -2,7 +2,7 @@
 
 ## 2026-10-17：Windows原请求上下文恢复
 
-M10-F01/F03/F05：当前源码及本地候选alpha.25纳入未完成上下文原请求查询修复及先前不完整任务回应保护。GitHub预发布保持alpha.24；两份包及各自证据分开，最终候选摘要/Windows实测见当片专项。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。
+M10-F01/F03/F05：当前源码及GitHub预发布alpha.25纳入未完成上下文原请求查询修复及先前不完整任务回应保护。标签绑定产品源码2e957e3，便携EXE与SHA256SUMS.txt分发前核对大小、摘要及源码一致性；原alpha.24附件保持原文件。用户停止旧后台后重开新EXE加载修复，本次Windows恢复无须升级SSH后台。[完整修复、分发与证据](../../iterations/I06/windows-context-recovery.md)。
 
 ## alpha.24本地停止协调候选
 

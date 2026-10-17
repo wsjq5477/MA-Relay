@@ -1,6 +1,6 @@
 # AgentBridge 项目资料
 
-2026-10-17当前源码/本地修复候选为 **alpha.25**，修复Windows未完成上下文遮挡原请求查询，并纳入先前不完整任务回应保护；GitHub预发布保持 **alpha.24**。验收、程序及未测边界见[原请求恢复专项](iterations/I06/windows-context-recovery.md)。以下alpha.24/alpha.23段落保留其交付时点。
+2026-10-17当前源码/GitHub预发布为 **alpha.25**，修复Windows未完成上下文遮挡原请求查询，并纳入先前不完整任务回应保护；[下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)。验收、升级、摘要及未测边界见[原请求恢复专项](iterations/I06/windows-context-recovery.md)。以下alpha.24/alpha.23段落保留其交付时点。
 
 更新：2026-10-16。这里维护项目的完整现状与已确认设计。阅读和开发不需要先复盘历次对话或迭代。
 

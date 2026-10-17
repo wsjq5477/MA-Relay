@@ -1,6 +1,6 @@
 # Windows 原请求被未完成上下文遮挡的恢复修复
 
-日期：2026-10-17。源码/本地候选 **0.6.0-alpha.25**；GitHub 预发布保持 **alpha.24**。关联 AB-F08/F10/F11、M02-F04、M03-F04/F05、M06-F01、M07-F06/F07、M10-F01/F03/F05。完整 I07C/I06C 仍未准出，不更新用户机器或 GitHub 附件。
+日期：2026-10-17。源码/GitHub预发布 **0.6.0-alpha.25**，标签绑定master修复提交 `2e957e3e118f201100777d831d57f26dc85e912d`；原alpha.24附件保持原文件。关联 AB-F08/F10/F11/F17、M02-F04、M03-F04/F05、M06-F01、M07-F06/F07、M10-F01/F03/F05。完整 I07C/I06C 仍未准出；以下保留构建验收及本次分发的分层证据。
 
 ## 需求与复现
 
@@ -46,10 +46,25 @@ WSL Ubuntu / Node22.23.1；Windows 契约 Node24.19.0；模型 Prompt 为 0。
 
 ## 程序与未测边界
 
-[alpha.25 Windows x64 EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)，**129,878,170 bytes**；SHA-256 `5cb6913203d1cd8b6fe1e18142cccfd344619c3261bbdb3cb013313d078e7156`，见[SHA256SUMS.txt](../../../artifacts/windows-context-recovery/2026-10-17/SHA256SUMS.txt)。仅为本地修复候选，未提交/发布GitHub。
+[alpha.25 Windows x64 EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)，**129,878,170 bytes**；SHA-256 `5cb6913203d1cd8b6fe1e18142cccfd344619c3261bbdb3cb013313d078e7156`，见[SHA256SUMS.txt](../../../artifacts/windows-context-recovery/2026-10-17/SHA256SUMS.txt)。以上为构建验收时的本地候选；现已按下节发布为GitHub预发布，字节和摘要保持一致。
 
 包内33个后台CJS、78个核心文件、1390个Linux清单条目与当前源码/构建匹配；app.asar版本/后台模块/前端资源一致，[包报告](../../../artifacts/windows-context-recovery/2026-10-17/package.json)、[最终打包日志](../../../artifacts/windows-context-recovery/2026-10-17/package-build-retry.log)。原版alpha.24普通EXE对照3组、alpha.25候选普通EXE4组通过；实际Windows EXE内生产Coordinator/MachineHost/CodexHost读取合成原请求，未启动真实原生CLI。候选原请求确认，另一条缺收据请求仍unknown；普通窗口关闭/重开和完整后台重启不重放，冻结代码与源码一致。该结果证明隔离记录恢复链，不证明用户另一台电脑已恢复。
 
 用户另一台电脑的原记录尚未获取/复验，不承诺所有NOT_CONFIGURED都由本缺陷造成；如果没有原回执或可靠未派发拒绝证明，仍保留unknown。未调用真实模型、未验证独立SSH，未将受控原记录当作用户任务已恢复。
 
-升级时在原窗口“设置 → 后台运行 → 停止后台并退出”，再打开alpha.25候选，沿原机器/原请求点击“查询原请求”。普通关闭窗口保留原后台。无须删除缓存、节点或pending.json；此Windows修复不要求升级SSH后台。
+升级时在原窗口“设置 → 后台运行 → 停止后台并退出”，再打开alpha.25程序，沿原机器/原请求点击“查询原请求”。普通关闭窗口保留原后台。无须删除缓存、节点或pending.json；此Windows修复不要求升级SSH后台。
+
+## GitHub预发布分发与issue #2复核
+
+2026-10-17已发布，draft=false、prerelease=true：[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/SHA256SUMS.txt)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.25)。标签绑定已在master的 `2e957e3e118f201100777d831d57f26dc85e912d`，不重打或覆盖alpha.24。当前源码已经包含[issue #2](https://github.com/wsjq5477/MA-Relay/issues/2)要求的两处身份守卫及4项路由回归；此次完成复核和缺失的EXE分发，不重复修改产品逻辑。
+
+| 本次复核 | 实际结果 | 证据 |
+| --- | --- | --- |
+| 修复前源码运行现有4项路由回归 | 0/4通过，4项失败；缺失身份会触发NOT_CONFIGURED | [修复前TAP](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/before.tap) |
+| issue列出的6个相关测试文件 | 串行72/72通过，0失败/跳过；逐文件直接运行Node以取得逐用例计数 | [路由](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/machine-host-routing.test.cjs.tap)、[就绪](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/machine-host-readiness.test.cjs.tap)、[网络](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/agent-network.test.cjs.tap)、[台账](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/pending-journal.test.cjs.tap)、[机器路由](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/machine-router.test.cjs.tap)、[机器管理](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/machine-management.test.cjs.tap) |
+| 生产Coordinator/AgentNetwork/MachineHost/CodexHost，合成Windows目录 | 原操作confirmed而任务仍unknown；缺收据unknown，两个残缺OpenCode后台工厂0次调用，重开Coordinator不重发；原Codex状态未改写 | [结果](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/unknown-recovery.json)、[隔离脚本](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/unknown-recovery.cjs) |
+| lint、根类型、前端类型/构建、文档 | 通过，保留既有Vite体积提示 | [lint](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/lint.log)、[类型](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/typecheck.log)、[前端](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/desktop-build.log)、[文档](../../../artifacts/windows-context-recovery/2026-10-17/issue2-recheck/docs-check.json) |
+| 发布前包复核 | 33 CJS/78 core/1390 Linux条目、app.asar和前端匹配；EXE大小/摘要与原构建候选一致 | [包复核](../../../artifacts/windows-context-recovery/2026-10-17/package-publish.json) |
+| GitHub分发及公开下载 | 两附件均uploaded，大小及digest匹配；完整公开下载均HTTP200，EXE的129,878,170字节/SHA-256及校验文本一致 | [发布](../../../artifacts/windows-context-recovery/2026-10-17/github-release.json)、[上传](../../../artifacts/windows-context-recovery/2026-10-17/github-upload.json)、[完整下载](../../../artifacts/windows-context-recovery/2026-10-17/github-download.json) |
+
+本次复核为WSL Ubuntu / Node22.23.1、受控合成Windows目录及真实GitHub分发，模型0；没有重新运行Windows普通EXE、用户故障profile、独立SSH或真实原生模型。普通EXE使用上节原构建候选实测证据。本次无产品协议、数据或行为变更；同步发布状态与M10设计/报告、整体设计、验收、路线及下载入口。公开源码不包含本地原始材料，范围仍按[远端源码说明](../../repository-sync.md)。

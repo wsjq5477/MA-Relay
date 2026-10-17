@@ -1,5 +1,7 @@
 # I07 alpha.24 GitHub预发布记录
 
+当前最新Windows预发布已为 **alpha.25**，包含本页I07功能和后续原请求恢复/不完整收据修复；[直接下载EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/SHA256SUMS.txt)、[发布及升级](../I06/windows-context-recovery.md)。以下保留alpha.24/alpha.23发布时点及其冻结包证据。
+
 日期：2026-10-17。已发布 **0.6.0-alpha.24**，draft=false、prerelease=true。
 
 - [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.24/AgentBridge-0.6.0-alpha.24-Windows-x64.exe)
