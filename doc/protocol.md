@@ -1,6 +1,6 @@
 # 通信协议与接口
 
-## 2026-10-19：协作兼容修复（alpha.31候选）
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
 wire protocol仍2；中央及daemon hello新增capabilities中的owned-object-controls-v1。旧中央仅保留preferences/runtimes/shutdown；旧SSH仍可snapshot/discover/request和daemon原收据/维护，对context/scope及task/conversation/pending/reply/cancel/operation/continue/reconcile/submit/verify返回DAEMON_UPGRADE_REQUIRED。新增OPENCODE_API_UNSUPPORTED、COORDINATOR_UPGRADE_REQUIRED；既有NOT_FOUND与OBJECT_SOURCE_CONFLICT继续适用。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
 

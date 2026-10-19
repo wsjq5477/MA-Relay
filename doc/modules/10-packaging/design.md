@@ -2,7 +2,7 @@
 
 ## 2026-10-19：issue #7 协作兼容修复
 
-M10-F01/F03/F05：当前行为：alpha.31候选同时包含窗口、中央与Linux能力/路由修复；收入已发布alpha.30原manifest精确摘要，不把旧版本连接信任等同业务能力。发布、完整下载及普通EXE证据按本次专项记录。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+M10-F01/F03/F05：当前行为：alpha.31已预发布同时包含窗口、中央与Linux能力/路由修复；收入已发布alpha.30原manifest精确摘要，不把旧版本连接信任等同业务能力。发布、完整下载及普通EXE证据按本次专项记录。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
 
 ## 当前历史详情读取与错误作用域
 

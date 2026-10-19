@@ -1,6 +1,6 @@
 # AgentBridge 整体功能设计
 
-## 2026-10-19：协作兼容修复（alpha.31候选）
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
 AB-F02/F03/F07/F10/F11/F13/F17：统一OpenCode实际API兼容判定、准备拒绝委派与原对象控制路由，新增中央/daemon安全读取语义能力门禁。用户现场和真实企业版API未复验。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
 

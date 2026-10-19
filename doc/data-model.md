@@ -1,6 +1,6 @@
 # 对象、身份与持久数据
 
-## 2026-10-19：协作兼容修复（alpha.31候选）
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
 AgentNode新增可选apiCompatibility={executable,version,compatible,error?}，原请求新增可选preparationError={code,message}；节点视图新增needs_check/upgrade_required，SSH身份/连接视图新增objectRoutingSupported。均为旧JSON的可选增量，不迁移或重绑定原Session/任务/请求。旧unknown委派仅凭同源原意图证明结算。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
 

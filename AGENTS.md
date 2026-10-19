@@ -1,6 +1,6 @@
 # AgentBridge 开发与文档协作
 
-2026-10-19 issue #7独立修复候选 **0.6.0-alpha.31**：OpenCode实际API兼容、委派持久准备拒绝、原对象控制路由及中央/daemon能力激活；当前GitHub仍alpha.30，候选/发布与分层证据见[本次交付](doc/iterations/I07/collaboration-compatibility.md)。CT-04/MCP未提交工作不纳入，完整I06C/I07C未准出。
+2026-10-19 issue #7独立修复已发布 **0.6.0-alpha.31**：OpenCode实际API兼容、委派持久准备拒绝、原对象控制路由及中央/daemon能力激活；冻结源码`002107da776687474c2d369d9a182a9f81d50e90`，Windows EXE与SHA-256已公开完整下载核验；发布与分层证据见[本次交付](doc/iterations/I07/collaboration-compatibility.md)。CT-04/MCP未提交工作不纳入，完整I06C/I07C未准出。
 
 2026-10-19源码/GitHub预发布alpha.30修复issue #6，GitHub已预发布alpha.30；原CT-04未提交开发保持独立，[源码/EXE、远端升级和验证边界](doc/iterations/I07/history-detail-recovery.md)。
 

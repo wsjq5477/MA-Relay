@@ -1,8 +1,8 @@
 # 整体测试与验收报告
 
-## 2026-10-19：协作兼容修复（alpha.31候选）
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
-alpha.31源码候选在alpha.30基础补齐兼容/原对象控制/委派状态与能力激活；逐层实际日志、失败保留、Windows与发布结果以专项为准，完整I06C/I07C未准出。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+alpha.31源码/GitHub预发布在alpha.30基础补齐兼容/原对象控制/委派状态与能力激活；逐层实际日志、失败保留、Windows与发布结果以专项为准，完整I06C/I07C未准出。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
 
 ## alpha.30已预发布：历史详情读取恢复
 

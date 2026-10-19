@@ -1,6 +1,6 @@
 # I07 需求：外部智能体、小队与公共协作空间
 
-## 2026-10-19：协作兼容修复（alpha.31候选）
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
 R01–R06：OpenCode只按实际API兼容准入、持久准备拒绝稳定rejected、原对象安全读控、中央与daemon能力激活以及当前Windows EXE交付。不得重发现场任务。 [需求、实现、实测与边界](collaboration-compatibility.md)。
 

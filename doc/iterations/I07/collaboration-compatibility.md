@@ -1,6 +1,6 @@
 # 子 Agent 协作兼容性、原对象路由与能力激活（issue #7）
 
-日期：2026-10-19（北京时间）。当前源码候选 **0.6.0-alpha.31**，从已发布alpha.30源码/文档`48254b0`隔离修复；原工作区未提交CT-04/MCP修改不纳入。当前发布状态以本页最后的发布记录为准，完整I06C/I07C未准出。
+日期：2026-10-19（北京时间）。源码/GitHub预发布 **0.6.0-alpha.31**，从已发布alpha.30源码/文档`48254b0`隔离修复；原工作区未提交CT-04/MCP修改不纳入。当前发布状态以本页最后的发布记录为准，完整I06C/I07C未准出。
 
 ## 需求与边界
 
@@ -72,7 +72,7 @@ flowchart TD
 
 未使用用户profile，未升级独立服务器或复验四节点现场组合，未证明用户企业版1.x实际具备兼容API，未运行真实模型。受控1.x可连接只说明同契约版本字符串不再被误拒；不证明任意企业版支持Bridge的会话/权限/取消。Claude证书及Codex一兆事件上限独立失败保留，本轮不宣称解决。完整I06C/I07C继续未准出。
 
-## 工程与包候选实测
+## 工程与冻结发布包实测
 
 最终桌面串行[537/537](../../../artifacts/collaboration-compatibility/2026-10-19/desktop-full.json)，Windows纯CJS[95/95](../../../artifacts/collaboration-compatibility/2026-10-19/windows-contract.tap)；生产Windows Edge新增[3组](../../../artifacts/collaboration-compatibility/2026-10-19/ui/report.json)及既有详情[7组](../../../artifacts/collaboration-compatibility/2026-10-19/ui-history/report.json)通过，0页面错误、0业务写入。Linux SSR63/63计入537总数。完整核心结果见[最终日志](../../../artifacts/collaboration-compatibility/2026-10-19/core-final.tap)，首次检查消费了重复元数据，已改为复用同次probe观测，既有冷启动断言保持；另同步原生偏好夹具缺少的agent元数据。一次[Controller重启失败](../../../artifacts/collaboration-compatibility/2026-10-19/core-controller-restart-failure.tap)保留，独立及完整复测结果按最终日志，不把偶发失败改成通过或降低产品断言。
 
@@ -84,3 +84,10 @@ flowchart TD
 [lint](../../../artifacts/collaboration-compatibility/2026-10-19/lint.log)、[根类型](../../../artifacts/collaboration-compatibility/2026-10-19/typecheck.log)、[桌面类型/构建](../../../artifacts/collaboration-compatibility/2026-10-19/build-desktop.log)通过；既有Vite大包提示保留。维护控制器用真实生成的暂存脚本复制依赖并实际require验证，补齐runtime-capabilities.cjs，保证可维护升级，计入桌面537项。
 
 最终核心全量48/48通过，0跳过；前述Controller/Hub失败单独保留，未放宽产品或测试超时。[最终核心日志](../../../artifacts/collaboration-compatibility/2026-10-19/core-final.tap)。
+
+
+## 最终发布与验收
+
+标签`v0.6.0-alpha.31`冻结源码`002107da776687474c2d369d9a182a9f81d50e90`；后续发布文档提交不改变源码标签或EXE。源码已推送GitHub master，[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.31/AgentBridge-0.6.0-alpha.31-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.31/SHA256SUMS.txt)及[预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.31)已公开。附件uploaded、大小和GitHub摘要匹配；匿名精确Range分段覆盖完整129953583字节，顺序重算SHA-256 `e8a53cf59d520a546756daa4e2d183e3928a76bada6c6ba64d0de28ba01a5753`，校验文本一致。[上传](../../../artifacts/collaboration-compatibility/2026-10-19/github-upload.json)、[元数据](../../../artifacts/collaboration-compatibility/2026-10-19/github-release.json)、[完整公开下载](../../../artifacts/collaboration-compatibility/2026-10-19/github-download.json)。
+
+最终核心48/48、桌面537/537、Windows CJS95/95、生产UI新增3组/既有详情7组、普通无调试EXE5组、受控TCP SSH链及lint/类型/构建/文档检查通过。R01–R06在本页声明的证据范围内完成；三个旧源码回归均失败且修复后通过。未运行用户现场四节点或真实企业版模型，不宣称Claude证书/Codex事件上限问题已经解决，完整I06C/I07C继续未准出。

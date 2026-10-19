@@ -1,8 +1,8 @@
 # AgentBridge 项目资料
 
-## 2026-10-19：协作兼容修复（alpha.31候选）
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
-本轮issue #7修复与alpha.31候选：OpenCode接入兼容、委派rejected、原任务读控及后台升级门禁。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+本轮issue #7修复与alpha.31已预发布：OpenCode接入兼容、委派rejected、原任务读控及后台升级门禁。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
 
 ## alpha.30已预发布：历史详情读取恢复
 

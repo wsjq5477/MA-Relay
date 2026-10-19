@@ -1,5 +1,7 @@
 # AgentBridge
 
+当前预发布 **0.6.0-alpha.31**（2026-10-19）：修复issue #7的OpenCode API兼容、委派准备拒绝、原任务读控与后台能力激活。[Windows EXE及校验附件](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.31)；[验证范围与升级步骤](doc/iterations/I07/collaboration-compatibility.md)。旧中央需在设置中停止后台并退出后重开；原SSH机器空闲时通过后台维护升级，再对OpenCode重新接入。原任务只查原ID，不重发。
+
 ## Windows EXE 下载
 
 当前预发布 **alpha.30 / 历史详情归属与错误隔离**，修复issue #6。保留alpha.29已发布UI/原生接入能力，CT-04未提交公共材料开发不在此包。

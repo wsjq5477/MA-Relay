@@ -1,8 +1,8 @@
 # 迭代路线与当前交付
 
-## 2026-10-19：协作兼容修复（alpha.31候选）
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
-本次issue #7按alpha.30隔离修复，alpha.31候选准备新Windows交付；CT-04/MCP未提交工作不纳入，完整I06C/I07C未准出。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+本次issue #7按alpha.30隔离修复，alpha.31已公开分发Windows EXE与校验附件；CT-04/MCP未提交工作不纳入，完整I06C/I07C未准出。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
 
 ## alpha.30已预发布：历史详情读取恢复
 

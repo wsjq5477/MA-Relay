@@ -1,5 +1,7 @@
 # 远端源码范围
 
+2026-10-19当前alpha.31已预发布，源码标签冻结`002107da776687474c2d369d9a182a9f81d50e90`，master包含此次issue #7修复。EXE与SHA-256附件已上传并匿名完整下载核验；原工作区CT-04/MCP未提交修改未包含。后续文档提交不移动冻结标签。[当次交付](iterations/I07/collaboration-compatibility.md)。
+
 ## 2026-10-19 alpha.30历史详情修复
 
 修复提交`5667304c1133a64d3b68244b0580250ea8b1ba38`已发布为v0.6.0-alpha.30，EXE 129950572字节，SHA-256 `ab17091cb0a38e916a887a83c4c5740f72442e3534b15550e40923592a9b51c2`；[EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/AgentBridge-0.6.0-alpha.30-Windows-x64.exe)和[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/SHA256SUMS.txt)完整匿名下载核验一致。145个运行源码/配置/素材冻结后复核，38 CJS/78 core/1401 Linux资源与前端一致。隔离修复没有纳入原工作区CT-04未提交开发；不提交私有profile/原始证据/二进制。[功能、实际验证及边界](iterations/I07/history-detail-recovery.md)。
