@@ -1,5 +1,7 @@
 # M10 构建、发布与持久运行资源设计
 
+2026-10-19：当前完整源码正在构建 **alpha.29** 并准备新 GitHub 预发布；版本、包资源与实际发布状态统一见[alpha.29 交付](../../iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
 本次桌面空闲修复使用独立冻结源码与候选版本 `0.6.0-alpha.28.poll.4`，公开 alpha.28/ui.2 字节不被覆盖；资源一致性、普通EXE和黑窗观察分层报告。[候选与实际验证](../../iterations/I07/desktop-polling.md)。
 
 2026-10-18 原生扩展未发布源码：新注册表、契约、NativeCliHost 与协议解析均为 electron 下 `.cjs`，沿用窗口包、持久后台与 Linux 包的模块集合打包；各工具本地图标通过 Vite 资源和桌面 assets 随包保存。Codex 独立 worker 冻结发现器时还需复制发现器依赖的注册表和契约，避免新旧资源混合。本次未为这些增量构建新 EXE 或公开发布；下述 ui.2 候选保持自己的冻结范围。[扩展交付边界](../../iterations/I07/native-agent-expansion.md)。

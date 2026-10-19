@@ -1,5 +1,7 @@
 # 迭代路线与当前交付
 
+2026-10-19：当前完整源码正在构建 **alpha.29** 并准备新 GitHub 预发布；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
 2026-10-19：CT-02继续完成[CT-02真实MCP委派](iterations/I07/connection-delegation.md)，当前WSL三工具已覆盖全部六个普通委派方向，真实主/子/结果/汇总及完成后恢复通过。新增验收工具/保护回归，产品运行代码未改；不是六工具/所有运输环境全部准出。下一步在真实原生环境可用后补新三工具，并冻结当前源码本地Windows候选及验证包/真实IPC；CT-03/04/05继续保持各自候选状态。
 
 2026-10-19研究补充：[Claude Projects、Dots与Grok Bot](iterations/I07/projects-dots-bots-research.md)建议在既有CT-04/05中细化公共索引、产物目录、可见交接与按需读取上下文；Grok Build作为CT-03的另一ACP目标候选。仅研究，未启动实现或改变CT-01/02真实交付状态；不引入自动规划、多用户或云端平台目标。

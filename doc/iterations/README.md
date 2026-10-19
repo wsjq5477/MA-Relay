@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+2026-10-19：当前完整源码正在构建 **alpha.29** 并准备新 GitHub 预发布；版本、包资源与实际发布状态统一见[alpha.29 交付](I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
 2026-10-19：[I07 CT-02真实MCP六方向](I07/connection-delegation.md)完成当前WSL三工具发现、委派、真实结果读取与汇总；9个真实成功Task，完整重开无重放，桌面517/517。新增验收工具，未改生产行为或发布包。
 
 2026-10-19[Projects / Dots / Grok Bot最新研究](I07/projects-dots-bots-research.md)：官方资料、当前实现映射和CT-03/04/05的候选细化；共享材料不等于共享原生会话，Grok Build的ACP不等于Grok Bot已接入。本轮无产品或发布变化。

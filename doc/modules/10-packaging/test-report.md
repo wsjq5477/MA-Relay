@@ -1,5 +1,7 @@
 # M10 构建与发布测试报告
 
+2026-10-19：当前完整源码正在构建 **alpha.29** 并准备新 GitHub 预发布；版本、包资源与实际发布状态统一见[alpha.29 交付](../../iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
 poll.4最终候选：129,933,135字节，SHA-256与[校验文件](../../../artifacts/desktop-polling/2026-10-18/SHA256SUMS.txt)一致，普通EXE4组通过；没有创建GitHub发布，用户profile未升级。[完整交付](../../iterations/I07/desktop-polling.md)。
 
 2026-10-18 / T-M10-141：桌面空闲修复源码，WSL Node22.23.1 / Windows Node24.19.0及Edge155。核心45/45、桌面424/424、定向20/20、Windows受控界面3组通过，模型0；属于共享工程计数，不跨模块相加。普通EXE与黑窗观察、冻结包、首次环境失败及用户现场未测边界按[本次完整报告](../../iterations/I07/desktop-polling.md)记录，历史包不冒充本次修复。

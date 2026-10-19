@@ -1,5 +1,7 @@
 # I07 alpha.24 GitHub预发布记录
 
+2026-10-19：当前完整源码正在构建 **alpha.29** 并准备新 GitHub 预发布；版本、包资源与实际发布状态统一见[alpha.29 交付](alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
 当前最新Windows预发布为 **alpha.27**，含既有I07功能及Windows Codex/台账恢复：[EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)、[校验](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/SHA256SUMS.txt)、[源码及实际分发](../I06/windows-start-persistence.md)。以下保留alpha.26及更早冻结包证据。
 
 alpha.25历史发布说明，包含本页I07功能和后续原请求恢复/不完整收据修复；[直接下载EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/SHA256SUMS.txt)、[发布及升级](../I06/windows-context-recovery.md)。以下保留alpha.24/alpha.23发布时点及其冻结包证据。
