@@ -10,10 +10,11 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { agentLabel } from "./api";
+import AgentIcon from "./AgentIcon";
+import { toolLabel } from "./agent-tools";
 import type { Agent, Machine, ToolConnection } from "./types";
 
-export const toolName = (adapter?: string) =>
-  adapter === "claude" ? "Claude Code" : adapter === "codex" ? "Codex" : "OpenCode";
+export const toolName = toolLabel;
 export function MachinesView({
   machines,
   connections,
@@ -50,8 +51,7 @@ export function MachinesView({
       <div className="machine-intro">
         <Monitor size={19} />
         <p>
-          Windows 本机和 WSL 分别管理。Claude Code 在 Windows
-          项目中执行，OpenCode 在 WSL 项目中执行；两边的任务与会话可同时查看。
+          Windows 本机和 WSL 分别管理，在各自环境发现已安装的原生 Agent，沿用其登录和模型配置。
         </p>
       </div>
       <div className="machine-grid">
@@ -119,7 +119,7 @@ export function MachinesView({
                       <div className="machine-tool" key={tool.connectionId}>
                         <div className="machine-tool-head">
                           <div className="agent-logo">
-                            <Terminal size={19} />
+                            <AgentIcon adapter={tool.adapter} size={25} />
                           </div>
                           <div>
                             <strong>
@@ -127,9 +127,7 @@ export function MachinesView({
                             </strong>
                             <small>
                               {tool.version ? `v${tool.version} · ` : ""}
-                              {tool.adapter === "claude"
-                                ? "Windows Claude Code"
-                                : "OpenCode"}
+                              {toolName(tool.adapter)}
                             </small>
                           </div>
                           <span
@@ -204,9 +202,7 @@ export function MachinesView({
                     <Server size={24} />
                     <strong>还没有工具连接</strong>
                     <p>
-                      {machine.kind === "windows"
-                        ? "发现本机安装的 Claude Code，直接沿用已有登录配置。"
-                        : "发现此环境中安装的 OpenCode，沿用原生模型配置。"}
+                      发现此环境中安装的原生 Agent，沿用已有登录和模型配置。
                     </p>
                   </div>
                 )}

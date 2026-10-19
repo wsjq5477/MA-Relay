@@ -51,7 +51,7 @@ export async function startNativeServer(config: OpenCodeConfig): Promise<NativeS
   }
   const command=createRequire(import.meta.url)('../desktop/electron/tool-discovery.cjs').command(config.executable,['serve', '--hostname', '127.0.0.1', '--port', url.port],environment) as {executable:string;args:string[];env:NodeJS.ProcessEnv};
   const child = spawn(command.executable, command.args, {
-    cwd: config.workspace, stdio: 'ignore', shell: false,
+    cwd: config.workspace, stdio: 'ignore', shell: false, windowsHide: true,
     env: command.env,
   });
   let ended = false; let launchError = false;

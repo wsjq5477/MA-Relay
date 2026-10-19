@@ -10,7 +10,7 @@ const { spawn } = require('node:child_process');
 function fixture(t, overrides = {}) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-team-'));
   const sessions = [];
-  const options = { directory, validateNode: id => ({ nodeId: id, machineId: 'machine' }), configure: async s => { sessions.push(s); return { command: 'fixture' }; }, ...overrides };
+  const options = { directory, validateNode: id => ({ nodeId: id, machineId: 'machine', adapter: 'claude' }), configure: async s => { sessions.push(s); return { command: 'fixture' }; }, ...overrides };
   let space = new TeamSpace(options);
   t.after(() => { space.close(); fs.rmSync(directory, { recursive: true, force: true }); });
   let op = 0;

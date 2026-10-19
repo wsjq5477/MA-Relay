@@ -11,7 +11,7 @@ interface DiscoveryEnvironment {
 interface ScannedTool extends DetectedAgent { adapter: string; healthy: boolean }
 const { scanTools } = createRequire(import.meta.url)('../desktop/electron/tool-discovery.cjs') as {
   scanTools(options: { home?: string; platform: NodeJS.Platform; environment: NodeJS.ProcessEnv;
-    candidates: { claude: string[]; codex: string[]; opencode?: string[] } }): Promise<ScannedTool[]>;
+    candidates: { claude: string[]; codex: string[]; hermes: string[]; pi: string[]; dsh: string[]; opencode?: string[] } }): Promise<ScannedTool[]>;
 };
 
 /** Read-only discovery and exact selected-installation checks. No service or model calls. */
@@ -23,7 +23,7 @@ export async function discoverOpenCode(options: DiscoveryEnvironment = {}): Prom
     if (platform === 'win32') environment.Path = options.path;
   }
   const items = await scanTools({ home: options.home, platform, environment,
-    candidates: { claude: [], codex: [], ...(options.executable ? { opencode: [options.executable] } : {}) } });
+    candidates: { claude: [], codex: [], hermes: [], pi: [], dsh: [], ...(options.executable ? { opencode: [options.executable] } : {}) } });
   // Installation detection accepts other majors; this adapter requires OpenCode 2 API.
   return items.filter(item => item.healthy && /^2\./.test(item.version))
     .map(({ name, executable, version }) => ({ name, executable, version }));

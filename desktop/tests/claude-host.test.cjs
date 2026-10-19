@@ -129,6 +129,25 @@ async function connect(host, f) {
   });
 }
 
+test('idle snapshots reuse Claude installation/auth checks while explicit checks remain available', async t => {
+  const f = fixture(t), host = f.host();
+  const connected = await connect(host, f);
+  const agent = host.state.instances.find(a => a.agentId === connected.agentId);
+  agent.check.time = '2000-01-01T00:00:00.000Z';
+  const original = host.check.bind(host);
+  let probes = 0;
+  t.mock.method(host, 'check', async value => { probes++; return original(value); });
+  for (let i = 0; i < 4; i++) {
+    const snapshot = await host.call('snapshot');
+    assert.equal(snapshot.agents.items[0].check.time, '2000-01-01T00:00:00.000Z');
+    assert.equal(snapshot.agents.items[0].healthy, true);
+  }
+  assert.equal(probes, 0);
+  await host.call('ipc', { op: 'check', agentId: connected.agentId });
+  assert.equal(probes, 1);
+  assert.equal(fs.existsSync(path.join(f.directory, 'invocations.jsonl')), false);
+});
+
 test("discovers executable, separates a shared tool connection from project instances, checks real installation/auth", async (t) => {
   const f = fixture(t),
     host = f.host();

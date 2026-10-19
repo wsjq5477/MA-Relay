@@ -124,3 +124,25 @@ test('first continuation response must match the intended original Conversation 
   resumed=f.space.read().attempts[1];assert.equal(resumed.state,'succeeded');assert.equal(resumed.conversationId,original.conversationId);assert.equal(f.calls.length,2);
  });
 });
+
+test('blank native Session observations never enable continuation or erase an established binding',async t=>{
+ await t.test('whitespace is not a native Session binding',async t=>{
+  const f=await fixture(t),execute=f.options.execute;
+  f.options.execute=async a=>{const task=await execute(a);task.native.sessionId='   ';return task;};
+  await f.enable();await f.engine.tick();assert.equal(f.space.publicAttempt(f.space.read().attempts[0]).nativeSessionBound,false);
+  f.complete();await f.engine.tick();await f.call('wake',{runId:f.run.runId,reason:'must not resume blank binding'});await f.engine.tick();assert.equal(f.calls.length,1);assert.equal(f.space.read().attempts.length,1);
+ });
+ await t.test('missing native binding evidence cannot clear an earlier valid Session',async t=>{
+  const f=await fixture(t);await f.enable();await f.engine.tick();const original=f.space.read().attempts[0],task=f.tasks.get(original.requestId),sessionId=task.native.sessionId;
+  for(const empty of ['', '   ']){task.native.sessionId=empty;await f.engine.tick();const a=f.space.read().attempts[0];assert.equal(a.nativeSessionId,sessionId);assert.equal(a.continuationError,undefined);}
+  task.native.sessionId=sessionId;f.complete();await f.engine.tick();await f.call('wake',{runId:f.run.runId,reason:'valid original continuation'});await f.engine.tick();assert.equal(f.calls.length,2);assert.equal(f.calls[1].resumeConversationId,original.conversationId);
+ });
+});
+
+test('binding errors observed after a leader acceptance proposal prevent deferred completion',async t=>{
+ const f=await fixture(t);await f.enable();await f.engine.tick();const a=f.calls[0];
+ f.space.transaction(s=>{s.workItems.push({workItemId:'final-binding',runId:f.run.runId,title:'done',kind:'delivery',ownerId:f.worker.agentId,state:'completed',revision:1,round:1,reports:[],dependsOn:[]});return null;});
+ await f.space.tool(a.sessionId,'team_accept_run',{operationId:'propose-binding',expectedRevision:f.space.read().runs[0].revision,summary:'all checked'});
+ f.space.transaction(s=>{s.attempts.push({attemptId:'late-worker-binding',runId:f.run.runId,agentId:f.worker.agentId,workItemId:'final-binding',workRound:1,state:'succeeded',continuationError:'TEAM_SESSION_CHANGED'});return null;});
+ f.complete();await f.space.refresh(f.run.runId);assert.equal(f.space.read().runs[0].state,'active');assert.equal(f.space.read().runs[0].acceptancePending,undefined);
+});

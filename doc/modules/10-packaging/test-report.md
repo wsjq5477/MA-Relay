@@ -1,5 +1,30 @@
 # M10 构建与发布测试报告
 
+poll.4最终候选：129,933,135字节，SHA-256与[校验文件](../../../artifacts/desktop-polling/2026-10-18/SHA256SUMS.txt)一致，普通EXE4组通过；没有创建GitHub发布，用户profile未升级。[完整交付](../../iterations/I07/desktop-polling.md)。
+
+2026-10-18 / T-M10-141：桌面空闲修复源码，WSL Node22.23.1 / Windows Node24.19.0及Edge155。核心45/45、桌面424/424、定向20/20、Windows受控界面3组通过，模型0；属于共享工程计数，不跨模块相加。普通EXE与黑窗观察、冻结包、首次环境失败及用户现场未测边界按[本次完整报告](../../iterations/I07/desktop-polling.md)记录，历史包不冒充本次修复。
+
+## 2026-10-18：原生扩展工程与打包检查边界
+
+T-M10-140 / M10-F01/F03/F05/F06：alpha.28 后新增适配器源码，根类型/lint/核心构建和桌面生产构建通过，[前端构建日志](../../../artifacts/native-agent-expansion/2026-10-18/desktop-build.txt)；原 `.cjs`/assets 打包规则纳入新增模块与图标，Codex/new native worker 副本的注册依赖已由实际受控子进程验证。Windows生产前端六图标均加载，无开发机file路径或外部资源请求。[实际检查与边界](../../iterations/I07/native-agent-expansion.md)。未为本次适配器构建新EXE、未核对新发行包摘要、未升级独立SSH；现有ui.2/GitHubalpha.28证据保持原冻结范围。
+
+## 2026-10-18：UI 本地候选 alpha.28.ui.2
+
+T-M10-129 / M10-F01/F02/F03/F05/F06：独立快照构建 `0.6.0-alpha.28.ui.2`，主工作区 package/lock 和旧 alpha.28 EXE 保持原版本与字节；没有 GitHub 发布。候选包含 UI 重构、原生空白 Session 与会话异常业务验收保护，不能把它描述成只换皮的原 alpha.28。[需求、设计与交付](../../iterations/I07/ui-redesign.md)、[视觉与交互验收](../../iterations/I07/ui-visual-acceptance.md)。
+
+本次工程/前端/包结果只对应北京时间08:50冻结的UI交付源码。11:18后共享目录新增的其他线程Agent适配、工具发现和图标修改未进入ui.2，本报告不宣称当前共享目录的全部最新代码已经验证。
+
+| 层级 | 日期、环境与实际结果 | 原始证据及限制 |
+| --- | --- | --- |
+| UI冻结源码工程 | 2026-10-18，WSL Node22.23.1；桌面381/381、无跳过，含59项生产React SSR；核心45/45见原同日集成基线 | [最终桌面TAP](../../../artifacts/ui-redesign/2026-10-18/desktop-tests-final.tap)、[核心/工程基线](../../iterations/I07/integration-baseline.md)；不覆盖11:18后增量，不与历史375/373或SSR子集叠加 |
+| 候选资源一致性 | 34个后台CJS、78个core文件、1396个Linux条目、窗口ASAR和前端逐项匹配，status=passed | [包报告](../../../artifacts/ui-redesign/2026-10-18/package-ui2.json)、[构建日志](../../../artifacts/ui-redesign/2026-10-18/package-ui2-build.log)；不是用户远端安装验证 |
+| 普通 Windows EXE | Windows，实际无debug portable，隔离profile、真实Coordinator IPC及SQLite，4项通过：启动版本、公共记录持久化、普通关闭/重开、全后台重启后保留 | [普通EXE报告](../../../artifacts/ui-redesign/2026-10-18/portable-ui2.json)；原nativeRequests无新增或重放，模型0；观察到的10条只读历史作为基线，不要求历史为空 |
+| 生产前端交互 | Windows Node24.19.0 / Edge155.0.4283.45；主界面5组12图、状态矩阵10组8图、小队3组3图、关系图10组分别通过 | [分层视觉记录](../../iterations/I07/ui-visual-acceptance.md)；受控数据/故障和合成历史，各组不与工程计数相加，不等于真实模型或独立SSH验收 |
+
+最终[本地候选](../../../artifacts/ui-redesign/2026-10-18/AgentBridge-0.6.0-alpha.28.ui.2-Windows-x64.exe)为 **129899528 字节**，SHA-256 `20a84ce98380457e5520d6bb9fc941c666c299a67b216e862d8568b7b3d015a6`。快照相对08:50冻结的UI交付源码只增加版本元数据和可信旧清单差异；候选 Linux manifest digest 为 `c0e1db13e63a1f7985f074afc5d9791b07b555b66f30566351b1d400251e2d83`，新增原 alpha.28 清单 digest 为 `b06a14fe3716c2df46cb665e21f137d05aab6046a611cb0275c5cadbc365d00d`。
+
+首个 ui.1 中间包在菜单时序反例出现后停止交付；普通 EXE 初次脚本将“无新增执行”错误假定为“历史为空”，已改为原请求指纹和观察基线核对，失败记录保留于当次专项。最终结果只绑定 ui.2，不把中间包、原 alpha.28 或历史真实 Agent 结果当本候选新验收。未使用用户profile、未连接用户SSH、未发模型需求；完整I06C/I07C仍未准出。
+
 ## 2026-10-17：SSH持久拒绝恢复
 
 T-M10-128：alpha.28已预发布，WSL Node22.23.1/Windows Node24.19.0，合成台账和受控TCP SSH，模型0。最终桌面317/317、核心45/45、Windows契约93/93，lint/类型/构建通过；真实TCP SSH丢响应/daemon重启1项及普通Windows无调试EXE合成验证6组通过，34 CJS/78 core/1395 Linux资源匹配源码。发布以[当次实际记录](../../iterations/I06/daemon-rejection-recovery.md)为准，不推定用户现场恢复。历史记录不计为本次重测。

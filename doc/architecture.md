@@ -1,5 +1,17 @@
 # AgentBridge 整体架构
 
+2026-10-18连接研究：当前仍为Agent→Bridge的MCP入口、Coordinator路由和目标机器原生CLI/HTTP驱动，没有采用ACP。拟议可选ACP Client位于目标MachineHost，公共材料/MD视图和可移植上下文不改变当前进程/权限边界。[当前矩阵](agent-integration-matrix.md)、[研究与后续目标](iterations/I07/connectivity-research.md)。本轮无产品或部署变化。
+
+2026-10-18接入边界补齐：静态适配能力由 Coordinator/TeamSpace 在创建小队新执行意图前核对，界面仅呈现可用节点；旧原操作继续从原幂等分支读取。Codex/NativeCliHost 在原私有上下文持久核对收据，中央不代造终态。没有新增层、模型接口或远程执行面。[设计与验证](iterations/I07/native-integration-guards.md)。
+
+安装目录发现与实时状态读取分开：后台首次使用及显式 discover 才枚举环境/探测工具版本；snapshot 继续读取原机器与任务，不按时间重跑外部安装探测。前端对相同JSON分支复用对象，并保持所有真实状态字段。原身份、进程分层及收据语义不变。[桌面空闲专项](iterations/I07/desktop-polling.md)。
+
+2026-10-18 未发布源码：发现器负责目标用户当前命令入口；MachineRouter 区分当前发现与旧连接，AgentNetwork 汇总为每机器/adapter一个当前展示节点，历史安装保留原身份及共享占用。MachineHost 在当前安装变化后为新工作创建独立上下文；原任务查询/续聊仍回原上下文。层级、daemon协议与原生配置归属不变。[设计与证据](iterations/I07/current-agent-discovery.md)。
+
+## 2026-10-18 原生适配扩展（未发布源码）
+
+各机器的发现器与 MachineHost 共享受校验静态注册表，接入六种原生工具。新增 Hermes/Pi/DSH 使用同机 NativeCliHost、独立持久 worker 和分别实现的原生协议解析；Coordinator、SSH 线格式及旧 Core AgentDriver 不变。新增三种仅声明直接会话能力；无 MCP 注入时在 scope 配置前拒绝协作，不能静默丢弃授权。自定义宿主通过源码注册和构建部署，不加载 RPC 指定代码。[完整范围](iterations/I07/native-agent-expansion.md)、[开发接口](custom-agent-development.md)。
+
 ## alpha.28已预发布：SSH持久拒绝恢复
 
 SSH层从同认证代次的daemon.receiptRead建立进程内可信证明；AgentNetwork核对原意图并先持久化，中央恢复CAS后结算。只读远端，释放中央原占位，不迁移原任务或Session。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
@@ -121,6 +133,12 @@ sequenceDiagram
 这些协议并存，版本数字相同也不表示它们是同一种消息格式。具体合约、参数与限制见 [协议](protocol.md)。
 
 ## 6. 身份与权限的责任边界
+
+### 连接能力的方向与来源
+
+当前未发布CT-01：静态适配器注册提供执行、普通委派接收、Bridge MCP调用及五项控制能力上限；节点元数据只能收窄。Coordinator/AgentNetwork在原请求查询之后、新关系/执行/委派意图之前检查对应方向；UI展示同一口径，远端scope仍做实际确认。新三工具可接普通委派但不能注入MCP，小队准入继续独立检查。
+
+本进程WeakSet只标记本机确定的能力拒绝；GraphOperationJournal仅对关系保存持久化该拒绝，网络同码错误不可信任。恢复收据必须匹配原ID；不重发原动作，不扩大原身份/Session/资源权限。驱动仍是CLI或CLI+HTTP，无ACP/厂家SDK新增。[完整契约与证据](iterations/I07/connection-capabilities.md)。
 
 第一层是当前操作系统用户：保护中央 IPC、私有目录与凭据文件。第二层是 SSH 主机公钥与用户认证：知道登录密码并不意味着可以跳过服务器身份核验。第三层是 Bridge 的 daemon 身份与 profile：防止地址变更、复制目录或不同用户被接管。第四层是节点关系与父任务作用域：限制 Agent 可委派的目标与可查询的子任务。
 

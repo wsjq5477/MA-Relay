@@ -85,7 +85,7 @@ export async function ensureController(directory: string): Promise<void> {
     const here = dirname(fileURLToPath(import.meta.url));
     const modulePath = existsSync(resolve(here, 'controller.js')) ? resolve(here, 'controller.js') : resolve(here, '../dist/controller.js');
     if (!existsSync(modulePath)) throw new BridgeError('BUILD_REQUIRED', '请先运行 npm run build');
-    const child = spawn(process.execPath, [modulePath, directory], { detached: true, stdio: ['ignore', fd, fd], shell: false });
+    const child = spawn(process.execPath, [modulePath, directory], { detached: true, windowsHide: true, stdio: ['ignore', fd, fd], shell: false });
     child.on('error', () => {}); child.unref();
   } finally { closeSync(fd); }
   for (let i = 0; i < 120; i++) {
@@ -222,7 +222,7 @@ export async function startController(directory: string): Promise<{ close(): Pro
       if (!a) throw new BridgeError('AGENT_NOT_FOUND', '连接不存在', 404);
       const report: Record<string, unknown> = { time: new Date().toISOString(), fingerprint: fingerprint(a), configuration: 'valid',
         connection: 'not_checked', authentication: 'not_checked', nativeAgentConfiguration: 'not_checked', modelConfiguration: 'not_checked', modelResponse: 'not_checked' };
-      try { const result = await promisify(execFile)(a.executable, ['--version'], { timeout: 10000, maxBuffer: 65536 });
+      try { const result = await promisify(execFile)(a.executable, ['--version'], { windowsHide: true, timeout: 10000, maxBuffer: 65536 });
         report.installation = 'available'; report.version = result.stdout.trim().slice(0, 100); }
       catch { report.installation = 'unavailable'; }
       try { report.workspace = statSync(a.workspace).isDirectory() ? 'available' : 'unavailable'; } catch { report.workspace = 'unavailable'; }

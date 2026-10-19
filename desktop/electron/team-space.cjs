@@ -3,6 +3,7 @@ const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 const { digest } = require('./graph-layout.cjs');
+const { supportsTeamCollaboration } = require('./builtin-adapters.cjs');
 
 const terminal = new Set(['succeeded', 'failed', 'cancelled']);
 const fail = (code, message) => Object.assign(new Error(message), { code });
@@ -90,6 +91,11 @@ class TeamSpace {
     if (!a) throw fail('TEAM_AGENT', '智能体未接入或已停用。');
     return a;
   }
+  nativeNode(id) {
+    const node = this.options.validateNode(id);
+    if (!supportsTeamCollaboration(node)) throw fail('TEAM_CAPABILITY', '这个原生接入尚不支持小队协作，请从“机器与 Agent”使用直接会话。');
+    return node;
+  }
   run(s, id) {
     const r = s.runs.find(r => r.runId === id);
     if (!r) throw fail('TEAM_RUN', '这项小队工作不存在。');
@@ -172,7 +178,7 @@ class TeamSpace {
         if (!['native', 'mcp'].includes(kind)) throw fail('TEAM_INPUT', '请选择已接入节点或外部MCP智能体。');
         const key = text(kind === 'native' ? p.nodeId : p.externalKey, 150);
         if (s.agents.some(a => a.kind === kind && a.entryKey === key)) throw fail('TEAM_DUPLICATE', '这个入口已登记，请使用原智能体。');
-        if (kind === 'native') this.options.validateNode(p.nodeId);
+        if (kind === 'native') this.nativeNode(p.nodeId);
         const a = { agentId: randomUUID(), kind, entryKey: key, ...(kind === 'native' ? { nodeId: key } : {}), name: text(p.name, 100), purpose: text(p.purpose, 2000), inputs: text(p.inputs || '', 2000, false), outputs: text(p.outputs || '', 2000, false), limitations: text(p.limitations || '', 2000, false), capabilitySource: 'user_declared', revision: 1, createdAt: stamp(), disabled: false };
         s.agents.push(a); return a;
       }
@@ -314,6 +320,11 @@ class TeamSpace {
       }
     }
     const intent = this.mutate({ user: true, key: 'user' }, 'team.execute', p, s => {
+      // This action runs only for a NEW operation, after the receipt lookup.
+      // Existing receipts must remain recoverable even if the original node is
+      // now offline or no longer supports team execution. Reject before claim,
+      // budget consumption, scope creation or native-dispatch intent.
+      this.nativeNode(agent.nodeId);
       const run=this.run(s,p.runId);
       if(run.state!=='active'||run.paused||!run.memberIds.includes(agent.agentId))throw fail('TEAM_FORBIDDEN','原工作已暂停、结束或撤权。');
       if (s.attempts.some(a => a.agentId === agent.agentId && !terminal.has(a.state) && a.state !== 'rejected')) throw fail('TEAM_BUSY', '该智能体有原执行待处理，请查询原请求。');
@@ -390,7 +401,7 @@ class TeamSpace {
       if (task.requestId !== a.requestId || (a.taskId && task.taskId !== a.taskId) || (expectedConversationId && task.conversationId !== expectedConversationId)) throw fail('TEAM_EXECUTION', '原请求身份不匹配，保留原记录待核对。');
       if (terminal.has(a.state)) return null;
       a.state = task.status; a.taskId = task.taskId; a.conversationId = task.conversationId;
-      if(typeof task.native?.sessionId==='string'&&task.native.sessionId.length<500){
+      if(typeof task.native?.sessionId==='string'&&task.native.sessionId.trim()&&task.native.sessionId.length<500){
         const previous=s.attempts.find(x=>x.attemptId===a.previousAttemptId);
         if((a.nativeSessionId&&a.nativeSessionId!==task.native.sessionId)||(previous?.nativeSessionId&&previous.nativeSessionId!==task.native.sessionId))a.continuationError='TEAM_SESSION_CHANGED';
         a.nativeSessionId=task.native.sessionId;

@@ -1,3 +1,4 @@
+export type ToolKind = "claude" | "opencode" | "codex" | "hermes" | "pi" | "dsh";
 export type Status =
   | "queued"
   | "accepted"
@@ -51,7 +52,7 @@ export interface Agent {
   instanceId?: string;
   machineId?: string;
   connectionId?: string;
-  adapter?: "claude" | "opencode" | "codex";
+  adapter?: ToolKind;
   capabilities?: Record<string, unknown>;
   agentId: string;
   name: string;
@@ -111,10 +112,13 @@ export interface Snapshot {
   instances?: AgentInstance[];
 }
 export interface AgentNode {
+  connectionCapabilities?: ConnectionCapabilities;
+  capabilitySource?: {kind: 'static-adapter'|'unknown';adapterId?:string;driver?:'native-cli'|'cli-http'};
+  supersededBy?: string;
   removed?:boolean;
   nodeId:string;
   machineId:string;
-  adapter:"claude"|"opencode"|"codex";
+  adapter:ToolKind;
   name:string;
   executable:string;
   version?:string;
@@ -124,6 +128,7 @@ export interface AgentNode {
   busy:boolean;
   available:boolean;
   executionSupported:boolean;
+  teamCollaboration?:boolean;
   activeTasks:number;
   unconfirmed?:number;
   uncertain?:boolean;
@@ -131,6 +136,16 @@ export interface AgentNode {
   lastError?:{code:string;message:string};
   status:"connected"|"discovered"|"offline"|"tool_error"|"unsupported";
   error?:string;
+}
+export interface ConnectionCapabilities {
+  execution:boolean|null;
+  delegation:boolean|null;
+  bridgeMcp:boolean|null;
+  resume:boolean|null;
+  cancellation:boolean|null;
+  permissions:boolean|null;
+  forms:boolean|null;
+  verification:boolean|null;
 }
 export interface Collaboration {leaderId:string|null;memberIds:string[];revision:number;}
 export interface GraphLayout {
@@ -140,7 +155,7 @@ export interface GraphLayout {
   viewport:{x:number;y:number;zoom:number};
   warning?:string;
 }
-export interface GraphReceipt<T> {operationId:string;state:'confirmed'|'not_found';fingerprint?:string;data?:T;}
+export interface GraphReceipt<T> {operationId:string;state:'confirmed'|'not_found'|'rejected';fingerprint?:string;data?:T;error?:{code:string;message:string};}
 export interface Delegation {delegationId:string;leaderId:string;memberId:string;parentRequestId:string;parentTaskId?:string;taskId?:string;conversationId?:string;state:string;message:string;createdAt:string;}
 export interface Machine {
   busy?:boolean;
@@ -209,7 +224,7 @@ export interface ToolConnection {
   connectionId: string;
   machineId: string;
   name: string;
-  adapter: "claude" | "opencode";
+  adapter: ToolKind;
   executable: string;
   version?: string;
   connected: boolean;
@@ -220,13 +235,13 @@ export interface AgentInstance extends Agent {
   instanceId: string;
   machineId: string;
   connectionId: string;
-  adapter: "claude" | "opencode";
+  adapter: ToolKind;
 }
 export interface DiscoveredTool {
   name: string;
   version?: string;
   executable: string;
-  adapter: "claude" | "opencode";
+  adapter: ToolKind;
   connectionId?: string;
   machineId: string;
 }

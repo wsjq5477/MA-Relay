@@ -1,5 +1,40 @@
 # M02 中央协调后台测试报告
 
+## 2026-10-19：CT-02真实MCP六方向
+
+T-M02-146 / M02-F04：WSL Node22.23.1，真实Claude2.1.302/Codex0.163.0-alpha.10.2/OpenCode2.0.24轮流作主并各委派给另两种工具；生产Coordinator/AgentNetwork/MachineHost/stdioMCP/broker/原生CLI或HTTP，非假dispatcher。共9个成功原生Task、6个委派方向、16次实际MCP调用；原父/目标/机器/派生ID/消息与真实结果核对，重开每链Task3→3/委派2。保护7/7计入全桌面517/517（模型0），不与真实或跨模块计数叠加。生产行为无变更；新三工具、新EXE、独立SSH、权限/表单及执行中断点未测。[完整脚本、逐次报告与边界](../../iterations/I07/connection-delegation.md)。
+
+## 2026-10-19：CT-02首批真实直接生命周期
+
+T-M02-145 / M02-F04：WSL Node22.23.1，真实Claude2.1.302、OpenCode2.0.24、Codex0.163.0-alpha.10.2沿生产Coordinator/AgentNetwork/MachineHost分别通过直接回答、原Session续聊、原任务取消及完整观察重开。共9个原任务，6成功回答/3取消；每工具观察任务3→3，无新增执行。恢复保护7/7和桌面510/510为受控共享计数，不与真实任务或跨模块相加；根45/45保留CT-01日期。本模块产品行为无变更，新三工具/真实委派方向/新EXE/独立SSH未验。[脚本、逐次原始报告、首次失败与完整限制](../../iterations/I07/connection-native.md)。
+
+## 2026-10-19：CT-01连接能力与原拒绝恢复
+
+T-M02-144 / M02-F04：alpha.28后未发布工作区，WSL Node22.23.1 / Windows Edge155。本机关系拒绝持久/重开、裸远端同码与其他lane保守unknown、外来confirmed/rejected不结算反例通过。共享定向32/32（全桌面503/503子集）、核心45/45及工程检查通过，无跳过；跨模块不相加。首次夹具失败及修正保留，真实新三工具/当前EXE/独立SSH未验。本轮模型0，先前真实Claude结果不计本轮。[脚本、命令、失败与最终原始证据](../../iterations/I07/connection-capabilities.md)。
+
+## 2026-10-18：真实原生执行成员公共文档链
+
+T-M02-143 / M02-F10：同WSL三个独立Bridge宿主、真实Claude2.1.302，五组限定检查通过、五次自动原生回合；开发/复核各一轮、主协调沿原会话三轮。原生终态后验收及恢复不重放通过，原生权限回复/非Bridge工具/模型覆盖0。机器路由受控，非独立SSH、真实WindowsEXE或代码编译返修；共享真实计数不跨模块叠加。[脚本、原始日志与准确边界](../../iterations/I07/native-members.md)。
+
+## 2026-10-18：原生接入准入与核对收据
+
+T-M02-142 / M02-F08：静态注册能力在新登记/新执行意图前检查，旧原ID恢复不被新门槛截获；snapshot可选投影不改变原节点身份。 最终合并源码串行桌面474/474、核心45/45及工程检查通过；受控CLI/磁盘/浏览器，模型0，未升级用户后台或重建EXE，不替代真实原生或独立SSH。[需求、原始失败、最终日志与未测边界](../../iterations/I07/native-integration-guards.md)。
+
+## 2026-10-18：当前工作区集成基线
+
+T-M02-132：alpha.28加未发布UI/会话补丁，WSL Node22.23.1，受控进程/SQLite/SSH/HTTP/React SSR，模型0。核心45/45、串行全桌面375/375（含既有父/子测试）、lint/根类型/前端类型及构建通过，无测试跳过；保留既有chunk体积提示。共享计数不跨模块相加。[完整命令、原始日志和源码观察清单](../../iterations/I07/integration-baseline.md)。未验证新UI浏览器/Windows EXE、独立SSH或真实模型；模块行为无新改动，发布附件未更新。
+
+
+## 2026-10-18：会话异常与业务验收
+
+T-M02-131：alpha.28之后的未发布源码，WSL Node22.23.1，真实SQLite/受控执行与业务报告，模型0。新增两项回归修复前均失败，修复后相关53/53通过；覆盖任务/直接总验收/提议后异常、历史轮次忽略和正常后续执行替代。原生succeeded事实保持，异常阻断业务验收。[完整证据及复现](../../iterations/I07/acceptance-native-binding.md)。未测试真实模型/Windows/独立SSH或重建EXE；共享计数不跨模块累加。
+
+
+## 2026-10-17：空白原生Session绑定保护
+
+T-M02-130：alpha.28之后的未发布源码增量，WSL Node22.23.1，受控原生execute/query与真实SQLite，模型0。首次纯空白值不绑定/不自动续接，后续空值不清除已有有效绑定；两个反例修复前失败，修复后相关51/51（含父/子测试）通过，真正Session变化仍受既有反例约束。[证据与复现](../../iterations/I07/blank-native-session.md)。未实测真实CLI返回空值、Windows或独立SSH，未重建EXE；共享计数不跨模块累加。
+
+
 ## 2026-10-17：SSH持久拒绝恢复
 
 T-M02-128：alpha.28已预发布，WSL Node22.23.1/Windows Node24.19.0，合成台账和受控TCP SSH，模型0。最终桌面317/317、核心45/45、Windows契约93/93，lint/类型/构建通过；真实TCP SSH丢响应/daemon重启1项及普通Windows无调试EXE合成验证6组通过，34 CJS/78 core/1395 Linux资源匹配源码。发布以[当次实际记录](../../iterations/I06/daemon-rejection-recovery.md)为准，不推定用户现场恢复。历史记录不计为本次重测。

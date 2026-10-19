@@ -1,5 +1,6 @@
 const fs=require('node:fs'),path=require('node:path');
 const {atomicWrite,digest,operationId}=require('./graph-layout.cjs');
+const {isCollaborationCapabilityRejection}=require('./builtin-adapters.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const machineMethods=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.operation','machine.maintainDaemon']);
 const lane=method=>machineMethods.has(method)?'machine':['manageNode','nodeOperation'].includes(method)?'node':method==='saveCollaboration'||method==='collaborationOperation'?'relation':'layout';
@@ -13,8 +14,9 @@ class GraphOperationJournal{
   async lookup(method,params,dispatch){
     operationId(params.operationId);const receipt=await dispatch(method,params);
     const row=this.read().find(r=>r.lane===lane(method)&&r.operationId===params.operationId);
-    if(row&&['confirmed','rejected'].includes(receipt.state)){row.state=receipt.state;if(receipt.error)row.error=receipt.error;this.update(row);}
-    return ['nodeOperation','machine.operation'].includes(method)&&row?.state==='rejected'?{operationId:row.operationId,state:'rejected',error:row.error}:receipt;
+    if(row&&receipt?.operationId===params.operationId&&['confirmed','rejected'].includes(receipt.state)){row.state=receipt.state;if(receipt.error)row.error=receipt.error;this.update(row);}
+    const savedRejection=['nodeOperation','machine.operation'].includes(method)||method==='collaborationOperation'&&row?.error?.code==='COLLABORATION_CAPABILITY';
+    return savedRejection&&row?.state==='rejected'?{operationId:row.operationId,state:'rejected',error:row.error}:receipt;
   }
   async recover(dispatch){for(const r of this.pending())await this.lookup(query(r.lane),{operationId:r.operationId},dispatch);}
   async save(method,params,dispatch){
@@ -30,8 +32,8 @@ class GraphOperationJournal{
     if(prior?.state==='confirmed')return this.lookup(query(kind),{operationId:params.operationId},dispatch);
     const row={operationId:params.operationId,lane:kind,method,params,fingerprint,state:'pending',time:new Date().toISOString()};
     try{this.update(row);}catch{throw fail('GRAPH_INTENT_FAILED','保存未发送：图操作意图无法落盘，请检查磁盘。');}
-    try{const receipt=await dispatch(method,params);row.state=['confirmed','rejected'].includes(receipt.state)?receipt.state:'unknown';if(receipt.error)row.error=receipt.error;this.update(row);return receipt;}
-    catch(error){row.state=rejected.has(error.code)?'rejected':'unknown';row.error={code:error.code,message:error.message};try{this.update(row);}catch{/* Original pending intent stays durable. */}throw error;}
+    try{const receipt=await dispatch(method,params);row.state=receipt?.operationId===params.operationId&&['confirmed','rejected'].includes(receipt.state)?receipt.state:'unknown';if(receipt?.error)row.error=receipt.error;this.update(row);return receipt;}
+    catch(error){row.state=rejected.has(error.code)||method==='saveCollaboration'&&isCollaborationCapabilityRejection(error)?'rejected':'unknown';row.error={code:error.code,message:error.message};try{this.update(row);}catch{/* Original pending intent stays durable. */}throw error;}
   }
 }
 module.exports={GraphOperationJournal};

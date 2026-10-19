@@ -482,3 +482,32 @@ test('team continuation keeps original context/conversation, rotates scope and r
  for(const task of host.tasks)task.status='succeeded';for(const agent of host.agents){agent.busy=false;delete agent.currentTask;}
  upgraded=false;await assert.rejects(f.router.call('nodeRequest',{op:'continue',nodeId:node.nodeId,conversationId:first.conversationId,requestId:'old-backend',message:'third',teamScope:{teamSessionId:'third',nodeId:node.nodeId,parentRequestId:'old-backend'}}),{code:'TEAM_UPGRADE_REQUIRED'});assert.equal(host.executions,2);
 });
+
+test('native upgrades keep one current node and its role, retaining historical aliases and unknown occupancy',async t=>{
+  const f=await setup(t),original=f.nodes.find(n=>n.adapter==='claude'),host=f.hosts.get(original.machineId);
+  await f.router.call('attachNode',{nodeId:original.nodeId});
+  f.router.network.collaboration={leaderId:original.nodeId,memberIds:[],revision:7};
+  const connection=f.router.connection(f.router.machine(original.machineId),'C:/old/2.1.299/claude.exe',{adapter:'claude',name:'Claude Code',connected:true});
+  const alias={...f.router.node(original.nodeId),nodeId:'historical-claude',connectionId:connection.connectionId,executable:connection.executable};
+  f.router.network.nodes.push(alias);
+  const receipt={nodeId:alias.nodeId,machineId:alias.machineId,requestId:'original-unknown',dispatched:true,fingerprint:'unchanged'};
+  f.router.network.requests.push(receipt);
+  host.items[0]={...host.items[0],executable:'C:/current/claude.exe',version:'2.1.302'};
+  await f.router.call('discover',{machineId:original.machineId});
+  let snapshot=await f.router.snapshot();
+  const visible=snapshot.nodes.filter(n=>n.machineId===original.machineId&&n.adapter==='claude'&&!n.supersededBy);
+  assert.equal(visible.length,1);const current=visible[0];
+  assert.equal(current.nodeId,original.nodeId);assert.equal(current.version,'2.1.302');assert.equal(current.executable,host.items[0].executable);
+  assert.equal(current.connected,true);assert.equal(current.busy,true);assert.equal(current.unconfirmed,1);assert.equal(current.available,false);
+  assert.equal(snapshot.nodes.find(n=>n.nodeId===alias.nodeId).supersededBy,current.nodeId);
+  assert.deepEqual(f.router.network.requests[0],receipt);assert.equal(snapshot.collaboration.leaderId,original.nodeId);assert.equal(snapshot.collaboration.revision,7);
+  assert.equal(f.router.pendingBlocks({machineId:alias.machineId,params:{nodeId:alias.nodeId}},{machineId:current.machineId,nodeId:current.nodeId}),true);
+  await assert.rejects(f.router.call('nodeRequest',{nodeId:current.nodeId,requestId:'new',message:'blocked'}),{code:'AGENT_BUSY'});
+  await assert.rejects(f.router.call('nodeRequest',{nodeId:alias.nodeId,requestId:'alias-new',message:'blocked'}),{code:'NODE_SUPERSEDED'});
+  assert.equal(host.executions,0);
+  const reopened=new AgentNetwork({...f.options,createHost:machine=>f.hosts.get(machine.machineId)});t.after(()=>reopened.close());
+  snapshot=await reopened.snapshot();
+  const refreshed=snapshot.nodes.find(n=>n.nodeId===original.nodeId);
+  assert.equal(refreshed.version,'2.1.302');assert.equal(refreshed.busy,true);
+  assert.equal(snapshot.nodes.filter(n=>n.machineId===original.machineId&&n.adapter==='claude'&&!n.supersededBy).length,1);
+});

@@ -1,5 +1,7 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
+Windows Core Controller 后台启动及显式版本检查使用 windowsHide；保留 detached、日志与原身份/任务归属，CLI 前台交互不变。[桌面空闲专项](../../iterations/I07/desktop-polling.md)。
+
 更新日期：2026-10-12。CLI 是已交付的本机 OpenCode 使用和自动化入口；Core Hub/Edge 也是 OpenCode 桌面适配器内部使用的兼容执行链。它与当前桌面中央 Coordinator、SSH daemon 分属不同层，不应混称一个公网中央 server。
 
 ## 1. 功能定位与当前范围

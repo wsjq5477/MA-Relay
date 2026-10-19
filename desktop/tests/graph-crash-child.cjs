@@ -4,7 +4,7 @@ const {AgentNetwork}=require('../electron/agent-network.cjs');
 const {GraphOperationJournal}=require('../electron/graph-operations.cjs');
 const [directory,lane,phase]=process.argv.slice(2);
 const network=new AgentNetwork({directory,platform:'linux',createHost:()=>{throw Error('Native host forbidden');}});
-network.network.nodes=[{nodeId:'known-node',machineId:network.catalog.localMachineId,connected:true,executionSupported:true}];network.saveNetwork();
+network.network.nodes=[{nodeId:'known-node',machineId:network.catalog.localMachineId,adapter:'claude',connected:true,executionSupported:true}];network.saveNetwork();
 const target=lane==='relation'?network.networkFile:network.layoutStore.file;
 const rename=fs.renameSync;
 fs.renameSync=(a,b)=>{

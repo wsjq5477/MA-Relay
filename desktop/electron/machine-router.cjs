@@ -48,6 +48,7 @@ class MachineRouter {
     this.file = path.join(options.directory, "machines.json");
     this.hosts = new Map(); this.historyFile=path.join(options.directory,'machine-history.json');this.history=fs.existsSync(this.historyFile)?JSON.parse(fs.readFileSync(this.historyFile,'utf8')):{};this.cache = new Map(Object.entries(this.history)); this.locks = new Set();
     this.discovered = new Map(); this.scanning = new Map(); this.machineScanTime = 0;
+    this.discoveryAttempted = new Set(); this.machineScanJob = null;
     this.snapshotJobs = new Map(); this.retryAfter = new Map();
     fs.mkdirSync(options.directory, { recursive: true });
     if (fs.existsSync(this.file)) {
@@ -68,8 +69,16 @@ class MachineRouter {
     fs.renameSync(temp, this.file);
   }
   preferences() { return this.options.preferences?.() || {}; }
-  async machines() {
-    if (this.machineScanTime && Date.now() - this.machineScanTime < 15000) return this.catalog.machines;
+  async machines(rescan = false) {
+    // Inventory discovery launches external programs (including wsl.exe).
+    // Live status polling must not repeatedly enumerate installed environments.
+    if (this.machineScanJob) return this.machineScanJob;
+    if (this.machineScanTime && !rescan) return this.catalog.machines;
+    this.machineScanJob = this.scanMachines();
+    try { return await this.machineScanJob; }
+    finally { this.machineScanJob = null; }
+  }
+  async scanMachines() {
     if ((this.options.platform || process.platform) === "win32") {
       try {
         const names = await this.options.distributions();
@@ -125,7 +134,7 @@ class MachineRouter {
     for (const a of snapshot.agents?.items || []) {
       const existing = this.catalog.instances.find(i => i.machineId === machine.machineId && i.backendId === a.agentId);
       const executable = a.executable || snapshot.connections?.find(c => c.connectionId === a.connectionId)?.executable || existing?.executable || (machine.kind === "windows" ? "claude" : "opencode");
-      const connection = this.connection(machine, executable, { connected: true, ...(a.adapter ? {adapter:a.adapter,name:a.adapter==='codex'?'Codex':a.adapter==='claude'?'Claude Code':'OpenCode'} : {}) });
+      const connection = this.connection(machine, executable, { connected: true, ...(a.adapter ? {adapter:a.adapter,name:require('./tool-discovery.cjs').tools[a.adapter]||a.name||a.adapter} : {}) });
       const row = { instanceId: qualified(machine.machineId, a.agentId), machineId: machine.machineId, connectionId: connection.connectionId, backendId: a.agentId, name: a.name, workspace: a.workspace, enabled: a.enabled, nativeAgent: a.nativeAgent, model: a.model, default: a.default, busy: a.busy, executable, adapter:connection.adapter,
         ...(a.nodeId ? {nodeId:a.nodeId} : {}),
         ...(a.currentTask ? { currentTask: { taskId: a.currentTask.taskId, status: a.currentTask.status } } : { currentTask: undefined }) };
@@ -134,6 +143,7 @@ class MachineRouter {
     this.save();
   }
   async discover(machine) {
+    this.discoveryAttempted.add(machine.machineId);
     let pending = this.scanning.get(machine.machineId);
     if (!pending) {
       pending = this.host(machine).call("discover", {}).then(result => {
@@ -155,8 +165,7 @@ class MachineRouter {
         job = (async () => {
           const snapshot = await this.host(machine).call("snapshot", {});
           this.importSnapshot(machine, snapshot);
-          const scanned = this.discovered.get(machine.machineId);
-          if (!scanned || Date.now() - scanned.time > 30000) {
+          if (!this.discoveryAttempted.has(machine.machineId)) {
             try { await this.discover(machine); } catch { /* Machine status is independent of installed tools. */ }
           }
           this.cache.set(machine.machineId, snapshot);
@@ -191,9 +200,9 @@ class MachineRouter {
       const configured = this.catalog.connections.filter(c => c.machineId === machine.machineId);
       for (const item of found) {
         const saved = configured.find(c => c.executable === item.executable);
-        connections.push({ ...item, connectionId: saved?.connectionId || "tool-" + hash(machine.machineId + ":" + (machine.kind === "windows" ? item.executable.toLowerCase() : item.executable)), connected: !!saved?.connected, healthy: machine.online && item.healthy !== false, error: item.error });
+        connections.push({ ...item, current: true, connectionId: saved?.connectionId || "tool-" + hash(machine.machineId + ":" + (machine.kind === "windows" ? item.executable.toLowerCase() : item.executable)), connected: !!saved?.connected, healthy: machine.online && item.healthy !== false, error: item.error });
       }
-      for (const c of configured.filter(c => !found.some(f => f.executable === c.executable))) connections.push({ ...c, healthy: false, error: machine.error || "没有发现这个工具，请重新扫描。" });
+      for (const c of configured.filter(c => !found.some(f => f.executable === c.executable))) connections.push({ ...c, current: false, healthy: false, error: machine.error || "没有发现这个工具，请重新扫描。" });
       if (!snapshot) {
         for (const row of this.catalog.instances.filter(i => i.machineId === machine.machineId)) {
           const placeholder = { ...row, agentId: row.instanceId, adapter: row.adapter || (machine.kind === "windows" ? "claude" : "opencode"), online: false, healthy: false, available: false, stale: true,
@@ -293,7 +302,7 @@ class MachineRouter {
   }
   async call(method, params = {}) {
     if (method === "snapshot") return this.snapshot();
-    await this.machines();
+    await this.machines(method === "discover");
     const routed = this.route(params), machine = routed.machine, p = routed.params;
     if (method === "environment") return { ...await this.host(machine).call(method, p), machineId: machine.machineId };
     if (method === "discover") return this.discover(machine);

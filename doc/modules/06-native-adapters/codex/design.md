@@ -1,5 +1,13 @@
 # Codex 适配器设计
 
+已确认原终态后，同批晚到started/output/native帧不再改变原任务、结果或Session；已观察offset仍完整推进。原生退出事实与准备失败分开，未启动不标nativeExited=true。
+
+原任务核对收据保存在 codex-state.json 的 operations；kind=reconcile 与旧/新 cancel 收据分离，taskId/operationId 绑定不可改。原 ID 重查/重复核对不重新评估派发，观察到原终态才推进 unknown；严格未派发证明继续按既有条件落 failed。unknown 核对不阻首次取消，unknown 取消禁止换 ID 重发。[规则与证据](../../../iterations/I07/native-integration-guards.md)。
+
+Windows官方npm的codex.js会再次spawn原生EXE且未继承外层隐藏参数；Bridge在原选中包内解析optional platform package或bundled vendor，直接启动相同codex.exe，保留原JS安装身份及managed-package提示，缺原二进制拒绝，不跨安装回退。Linux和原Session/request规则保持。[复现与修复](../../../iterations/I07/desktop-polling.md)。
+
+2026-10-18 未发布源码：Codex worker 冻结 `tool-discovery.cjs` 时同步复制新发现器依赖的 `builtin-adapters.cjs` 和 `agent-adapter-contract.cjs`；Codex 原生执行协议不变。该依赖缺失曾导致受控任务超时，补齐后原 Codex 五项宿主回归通过；[原生扩展验证](../../../iterations/I07/native-agent-expansion.md)。
+
 ## alpha.27：启动准备与原任务核对
 
 运行准备/同步spawn及异步启动失败均保存原failed任务、原错误code、脱敏原因和事件；spawn已有child后错误不证明未派发。reconcile沿原task读取已有终态；仅原job存在且只有accepted、无native/offset、无worker.log/心跳/事件时可证明尚未越过启动边界，记failed并释放。worker.log在spawn之前创建，因此即使心跳尚未写出，有该文件仍保留unknown。核对不准备runtime、不启动CLI、不改原requestId/Conversation，无原生Session的旧会话仍不可续问。[完整设计与证据](../../../iterations/I06/windows-start-persistence.md)。
@@ -7,13 +15,15 @@
 
 ## 1. 用途与当前能力
 
+2026-10-19当前WSL版本0.163.0-alpha.10.2经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
+
 适配器启动机器已有的 Codex CLI `exec --json`，读取真实 JSON 事件，绑定原生 thread 并保存本轮结果。它使用 Codex 原有登录、配置和模型，不通过 OpenAI API 另建推理客户端。
 
 | 功能 | 当前实现 | 真实证据与限制 |
 | --- | --- | --- |
 | 程序发现与新会话 | 已实现 | WSL 0.161.0 新会话通过；Windows 0.145.0 发现通过但原模型调用被账号拒绝 |
 | 输出和工具过程 | JSON stdout 事件 | 回答在 agent_message 完成项产生，未实现 token 级 delta |
-| 原生 thread 续聊 | 已实现 `exec resume <threadId>` | 受控 Session 不变回归通过；WSL 0.161.0 真实 `list_turns` 失败 |
+| 原生 thread 续聊 | 已实现 `exec resume <threadId>` | 当前WSL0.163.0-alpha.10.2原Session回忆真实通过；历史0.161.0的list_turns失败保留 |
 | 取消与原 ID 收据 | 已实现 | 收到取消命令后结束所属进程树/组，等进程退出确认 |
 | 观察关闭后继续执行 | detached worker + 持久文件 | 受控恢复测试通过；不是所有服务器注销策略的保证 |
 | 原生许可/表单 | 未适配 | pending 返回空，相关操作报不支持；不把它等同原生没有权限策略 |

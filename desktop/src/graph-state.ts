@@ -1,16 +1,36 @@
 import {useEffect,useRef,useState} from 'react';
 import {call} from './api';
 import type {AgentNode,Collaboration,GraphLayout,GraphReceipt} from './types';
+import {bridgeCallerReason,canCallBridge,canReceiveDelegation} from './connection-capabilities';
 
 export const emptyLayout=():GraphLayout=>({version:1,layoutRevision:0,groups:{},nodes:{},viewport:{x:0,y:0,zoom:1}});
 export const sameRelation=(a:Collaboration,b:Collaboration)=>a.leaderId===b.leaderId&&JSON.stringify([...a.memberIds].sort())===JSON.stringify([...b.memberIds].sort());
 export function connectionError(relation:Collaboration,nodes:AgentNode[],source:string|null,target:string|null){
   if(!source||source!==relation.leaderId)return '请先将这个节点设为主 Agent；只有主节点可以委派。';
   if(source===target)return '主 Agent 不能连接自己。';
+  const leader=nodes.find(n=>n.nodeId===source);
+  if(!leader?.connected||!canCallBridge(leader))return bridgeCallerReason(leader);
   const node=nodes.find(n=>n.nodeId===target);
-  if(!node?.connected||!node.executionSupported)return '目标必须已接入并支持执行。';
+  if(!node?.connected||!canReceiveDelegation(node))return '目标必须已接入，且已确认支持执行与受委派能力。';
   if(relation.memberIds.includes(node.nodeId))return '已存在这条授权。';
   return '';
+}
+export function relationCapabilityError(relation:Collaboration,nodes:AgentNode[]) {
+  if(!relation.leaderId)return '';
+  const leader=nodes.find(n=>n.nodeId===relation.leaderId);
+  if(!leader?.connected||!canCallBridge(leader))return bridgeCallerReason(leader);
+  for(const id of relation.memberIds){
+    const reason=connectionError({...relation,memberIds:[]},nodes,relation.leaderId,id);
+    if(reason)return reason;
+  }
+  return '';
+}
+export function isOriginalRelationRejection(receipt:GraphReceipt<unknown>,operationId:string) {
+  return receipt.operationId===operationId&&receipt.state==='rejected'&&receipt.error?.code==='COLLABORATION_CAPABILITY';
+}
+export function settleRejectedRelation<S extends {relationPending:{operationId:string}|null}>(state:S,receipt:GraphReceipt<unknown>,operationId:string):S {
+  if(!isOriginalRelationRejection(receipt,operationId)||state.relationPending?.operationId!==operationId)return state;
+  return {...state,relationPending:null};
 }
 type Pending={operationId:string;params:Record<string,unknown>;foreign?:boolean};
 interface State {base:Collaboration;draft:Collaboration;layout:GraphLayout;layoutDirty:boolean;relationPending:Pending|null;layoutPending:Pending|null;}
@@ -61,6 +81,10 @@ export function useGraphDraft(directory:string,remote:Collaboration,notify:(s:st
   const layoutConflict=layoutAvailable&&state.layoutDirty&&state.layout.layoutRevision!==serverLayout.layoutRevision;
   useEffect(()=>{update(s=>!s.relationPending&&sameRelation(s.base,s.draft)&&remote.revision>s.base.revision?{...s,base:remote,draft:remote}:s);},[remote.revision,state.relationPending,state.base.revision,dirty]);
   function settle(lane:'relation'|'layout',receipt:GraphReceipt<Collaboration|GraphLayout>,id:string){
+    if(lane==='relation'&&isOriginalRelationRejection(receipt,id)){
+      update(s=>settleRejectedRelation(s,receipt,id));
+      notify(receipt.error!.message);return true;
+    }
     if(receipt.operationId!==id||receipt.state!=='confirmed'||!receipt.data)return false;
     const data=receipt.data;
     update(s=>{

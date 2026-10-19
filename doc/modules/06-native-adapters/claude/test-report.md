@@ -1,5 +1,19 @@
 # Claude Code 适配器测试报告
 
+## 2026-10-19：CT-02真实MCP调用方与被调用方
+
+T-M06-CC-146 / M06-CC-F01：当前WSL原生2.1.302，本工具真实作主发现/委派另外两种工具并读取成功结果，另在两条链中作为普通子任务被实际启动。各回答/原生Session/父子归属与精确消息通过，完整重开不重放；三工具共享9Task/6方向/16次MCP调用，不跨模块重复累加。保护7/7计入全桌面517/517，均为无模型回归，与真实Task分别计数。产品运行代码未改；Windows、新三工具、独立SSH/权限/表单/执行中断点未补验。[实际脚本、原始报告及边界](../../../iterations/I07/connection-delegation.md)。
+
+## 2026-10-19：CT-02真实直接生命周期
+
+T-M06-CC-145 / M06-CC-F01：当前WSL、Node22.23.1、真实原生2.1.302。首轮与原Session回忆均succeeded，取消收据与原Task cancelled分别核验，完整观察重开保留同Session/回答；3个原任务，重复只读观察前后3→3。沿用原生配置，未批准权限或重发原请求。新增验收保护7/7及最终桌面510/510为共享受控计数，不是该工具模型测试数。源码无产品行为变化；本轮未验真实委派/MCP调用方、新EXE或独立SSH。[原始结果、脚本、首次环境/契约失败及边界](../../../iterations/I07/connection-native.md)。
+
+## 2026-10-18：真实原生开发/复核成员
+
+T-M06-CC-142 / M06-CC-F01：Claude2.1.302真实自动开发/复核各一轮，主协调同原生Session三轮，共5次，五组检查通过；每角色实际原生history观察到模型、job模型覆盖0，实际MCP工具调用22/7/6次，非Bridge工具/权限回复0。完成后只读重开仍5次，成员原生终态后逐项验收、主原生终态后总完成。同WSL受控机器路由/独立Bridge宿主，非独立SSH/新WindowsEXE或代码编译返修。[完整结果](../../../iterations/I07/native-members.md)。
+
+2026-10-18 / T-M06-CC-140：新增受控原生CLI回归证明过期check不被空闲snapshot重跑，显式check仍可执行且未提交模型任务。[专项TAP](../../../../artifacts/desktop-polling/2026-10-18/claude-idle.tap)、[完整结果与Windows边界](../../../iterations/I07/desktop-polling.md)。
+
 ## 2026-10-17：真实原会话续接后的权限
 
 T-M06-CC-11：alpha.24源码工作区，WSL Node22.23.1 / 真实Claude2.1.299。三项检查通过，共两次自动回合、手动启动0；阶段2的task/request不同但Conversation/实际原生Session相同，每轮真实权限等待/观察后台重启/精确Write允许后成功。累计attempt/used/Write/权限命令各2，持久事件仅user_start/attention且pending0；完成重查未重派。[证据及复现](../../../iterations/I07/resume-native-permission.md)，共享计数不跨模块累加。未测后续轮拒绝、执行成员交接、Windows或独立SSH；未更新包或发布。

@@ -1,5 +1,20 @@
 # M04 SSH 接入测试报告
 
+## 2026-10-18：UI 本地候选的旧 alpha.28 可信清单
+
+M04-F04/F05/F08：`0.6.0-alpha.28.ui.2` 本地候选在独立源码快照中收入原 alpha.28 Linux manifest，原清单 digest 为 `b06a14fe3716c2df46cb665e21f137d05aab6046a611cb0275c5cadbc365d00d`，来源对应[原 alpha.28 包报告](../../../artifacts/daemon-rejection-recovery/2026-10-17/package.json)。没有修改主工作区版本/lock或原发布包，也没有放宽未知版本信任。
+
+所有本次结果绑定北京时间08:50冻结的UI交付源码，不覆盖11:18以后其他线程在共享目录加入的Agent适配、工具发现和图标增量；未把后续目录变化重新打入或当成本候选已测范围。
+
+| 范围 | 本次实际结果 | 证据与边界 |
+| --- | --- | --- |
+| 候选内可信清单与离线资源 | 包校验passed，34 CJS/78 core/1396 Linux条目、ASAR与前端匹配；新manifest digest `c0e1db13e63a1f7985f074afc5d9791b07b555b66f30566351b1d400251e2d83` | [包报告](../../../artifacts/ui-redesign/2026-10-18/package-ui2.json)；这是本地包完整性证据，没有执行远端安装 |
+| UI 原状态门槛 | Windows Edge受控API状态矩阵10组通过，包含connected但online=false禁续问、snapshot失败保留旧快照时禁发、unknown原节点隔离；业务执行0 | [状态报告](../../../artifacts/ui-redesign/2026-10-18/state/2026-10-18T00-48-05-809Z/ui.json)、[视觉专项](../../iterations/I07/ui-visual-acceptance.md)；不是SSH认证、SFTP或真实daemon链路 |
+| 普通候选 EXE | Windows隔离profile、真实IPC/SQLite和关闭/重开/后台重启4项通过，模型0，原请求无新增/重放 | [普通EXE报告](../../../artifacts/ui-redesign/2026-10-18/portable-ui2.json)；观察到10条只读历史，不证明用户远端迁移或升级 |
+| 用户SSH和原生模型 | 本次未连接用户独立服务器，未安装/升级/回滚远端daemon，未提交模型需求 | 历史SSH认证、原后台复用和真实任务证据保留原日期/版本，不能挪为本候选新验收 |
+
+候选完整版本、字节摘要和失败保留见[当次交付](../../iterations/I07/ui-redesign.md)。GitHub仍为原alpha.28公开附件；本次清单收入不改变完整I06C/I07C未准出的状态。
+
 ## 2026-10-17：SSH持久拒绝恢复
 
 T-M04-128：alpha.28已预发布，WSL Node22.23.1/Windows Node24.19.0，合成台账和受控TCP SSH，模型0。最终桌面317/317、核心45/45、Windows契约93/93，lint/类型/构建通过；真实TCP SSH丢响应/daemon重启1项及普通Windows无调试EXE合成验证6组通过，34 CJS/78 core/1395 Linux资源匹配源码。发布以[当次实际记录](../../iterations/I06/daemon-rejection-recovery.md)为准，不推定用户现场恢复。历史记录不计为本次重测。
@@ -71,7 +86,7 @@ T-M04-24 / M04-F04：2026-10-13，alpha.6 Linux manifest 与历史交付 digest 
 | T-M04-16 | M04-F04 | 无系统 Node 真实机器、磁盘不足、坏归档/逐文件篡改、不支持 glibc/架构 | 未完成；实际服务器使用系统 Node，安全函数受控覆盖有限 |
 | T-M04-17 | M04-F06 | 1/2/4/8 秒退避、凭据就绪后 ≤30 秒恢复、20 样本状态同步 p95 ≤2 秒 | 未测性能指标；77.8 秒是首次安装连接，不是断线恢复耗时 |
 | T-M04-18 | M04-F06 | 事件 cursorGap 后自动完整 snapshot 恢复 | alpha.10 已修复并通过生产 daemon/真实本机 TCP SSH 隔离集成；独立服务器专项待验 |
-| T-M04-19 | M04-F08 | 修改/移除连接、升级/停止/卸载后台 | alpha.10 连接编辑/移除/恢复已实现并专项验证；升级/停止/卸载后台继续未实现 |
+| T-M04-19 | M04-F08 | 修改/移除连接、升级/停止/卸载后台 | alpha.10连接编辑/移除/恢复已有专项；alpha.11后可信升级/回滚/停止/卸载已实现，按[I06C收尾](../../iterations/I06/final-delivery.md)与后续恢复专项的实际分层证据判定；ui.2未在用户远端复验 |
 
 ## 4. 复查命令与副作用
 

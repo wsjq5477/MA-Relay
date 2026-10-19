@@ -781,7 +781,10 @@ class ClaudeHost {
     }
     if (method === "snapshot") {
       for (const agent of this.state.instances)
-        if (!agent.check || Date.now() - Date.parse(agent.check.time) > 30000)
+        // Version/auth CLI probes belong to initial preparation and explicit
+        // checks/submission. A live task snapshot must not launch them on a
+        // timer or temporarily flip every context while a probe is running.
+        if (!agent.check)
           await this.check(agent);
       const agents = this.views();
       return {

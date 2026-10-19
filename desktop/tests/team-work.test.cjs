@@ -4,7 +4,7 @@ const { TeamSpace } = require('../electron/team-space.cjs');
 async function setup(t, options = {}) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-work-'));
   let space, op = 0; const sessions = [];
-  const config = { directory, validateNode: nodeId => ({nodeId,machineId:'fixture'}), configure: async x => {sessions.push(x);return {command:'fixture'};}, ...options };
+  const config = { directory, validateNode: nodeId => ({nodeId,machineId:'fixture',adapter:'claude'}), configure: async x => {sessions.push(x);return {command:'fixture'};}, ...options };
   space = new TeamSpace(config); t.after(() => {space.close(); fs.rmSync(directory,{recursive:true,force:true});});
   const call = (name,p={}) => space.call('team.'+name,{operationId:'u-'+ ++op,...p});
   const agents = [];
@@ -152,4 +152,18 @@ test('three real independent stdio MCP clients run versioned repair and acceptan
 test('creating a verification does not rewrite the caller dependency array or break its durable receipt replay',async t=>{
  const f=await setup(t);const p={operationId:'immutable-create',title:'check again',description:'test request immutability',ownerId:f.b.agentId,kind:'verification',sourceTaskId:f.d.workItemId,dependsOn:[]};
  const first=await f.tool(f.leader,'create_task',p);assert.deepEqual(p.dependsOn,[]);f.restart();assert.deepEqual(await f.tool(f.leader,'create_task',p),first);
+});
+
+test('current native binding errors prevent task and total acceptance without poisoning older rounds',async t=>{
+ const f=await setup(t),submitted=await deliver(f);
+ await f.claim(f.b,f.v.workItemId);await f.report(f.b,f.v.workItemId,{outcome:'passed',summary:'checked X',artifactId:submitted.report.artifact.artifactId,accessConfirmed:true,evidenceReference:'report://X'});
+ f.space.transaction(s=>{s.attempts.push({attemptId:'bad-current',runId:f.run.runId,agentId:f.b.agentId,workItemId:f.v.workItemId,workRound:1,state:'succeeded',continuationError:'TEAM_SESSION_CHANGED'});return null;});
+ await assert.rejects(f.accept(f.v.workItemId),{code:'TEAM_BUSY'});
+ f.space.transaction(s=>{s.attempts[0].workRound=0;return null;});
+ await f.accept(f.v.workItemId);await f.accept(f.d.workItemId);
+ f.space.transaction(s=>{s.attempts.push({attemptId:'bad-leader',runId:f.run.runId,agentId:f.leader.agentId,state:'succeeded',continuationError:'TEAM_SESSION_CHANGED'});return null;});
+ const accept=()=>f.call('acceptRun',{runId:f.run.runId,expectedRevision:f.space.read().runs[0].revision,summary:'checked all'});
+ await assert.rejects(accept(),{code:'TEAM_TASK_STATE'});assert.equal(f.space.read().runs[0].state,'active');
+ f.space.transaction(s=>{s.attempts.push({attemptId:'new-leader',runId:f.run.runId,agentId:f.leader.agentId,state:'succeeded'});return null;});
+ assert.equal((await accept()).state,'completed');
 });

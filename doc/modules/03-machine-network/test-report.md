@@ -1,5 +1,42 @@
 # M03 机器与 Agent 网络测试报告
 
+## 2026-10-19：CT-02真实MCP六方向
+
+T-M03-146 / M03-F04/F05：WSL Node22.23.1，真实Claude2.1.302/Codex0.163.0-alpha.10.2/OpenCode2.0.24轮流作主并各委派给另两种工具；生产Coordinator/AgentNetwork/MachineHost/stdioMCP/broker/原生CLI或HTTP，非假dispatcher。共9个成功原生Task、6个委派方向、16次实际MCP调用；原父/目标/机器/派生ID/消息与真实结果核对，重开每链Task3→3/委派2。保护7/7计入全桌面517/517（模型0），不与真实或跨模块计数叠加。生产行为无变更；新三工具、新EXE、独立SSH、权限/表单及执行中断点未测。[完整脚本、逐次报告与边界](../../iterations/I07/connection-delegation.md)。
+
+## 2026-10-19：CT-02首批真实直接生命周期
+
+T-M03-145 / M03-F04/F05：WSL Node22.23.1，真实Claude2.1.302、OpenCode2.0.24、Codex0.163.0-alpha.10.2沿生产Coordinator/AgentNetwork/MachineHost分别通过直接回答、原Session续聊、原任务取消及完整观察重开。共9个原任务，6成功回答/3取消；每工具观察任务3→3，无新增执行。恢复保护7/7和桌面510/510为受控共享计数，不与真实任务或跨模块相加；根45/45保留CT-01日期。本模块产品行为无变更，新三工具/真实委派方向/新EXE/独立SSH未验。[脚本、逐次原始报告、首次失败与完整限制](../../iterations/I07/connection-native.md)。
+
+## 2026-10-19：CT-01连接能力与原拒绝恢复
+
+T-M03-144 / M03-F02/F04/F05：alpha.28后未发布工作区，WSL Node22.23.1 / Windows Edge155。六工具投影、伪造true/未知adapter/来源不匹配、原请求与父作用域/机器归属控制通过；未验证远端现场能力。共享定向32/32（全桌面503/503子集）、核心45/45及工程检查通过，无跳过；跨模块不相加。首次夹具失败及修正保留，真实新三工具/当前EXE/独立SSH未验。本轮模型0，先前真实Claude结果不计本轮。[脚本、命令、失败与最终原始证据](../../iterations/I07/connection-capabilities.md)。
+
+## 2026-10-18：小队节点接入资格与原请求恢复
+
+T-M03-142 / M03-F08/F09：alpha.28 后未发布工作区、WSL Ubuntu / Node22.23.1，受控节点、SQLite、stdio 与 React SSR，模型调用0。生产 Coordinator 现有 `snapshot.nodes` 的 `teamCollaboration` 是本地静态注册资格投影，不是新增远端能力通告；没有在 AgentNetwork 贯通远端该字段的采集或持久化。原三种工具缺字段兼容手动小队，实际远端 `context` / `scope` 能力确认继续执行。
+
+| 检查 | 实际结果与证据 |
+| --- | --- |
+| 小队五文件串行回归 | **71/71通过，无跳过**；包括原请求、身份、任务交接、自动续接与停止回归。[TAP](../../../artifacts/I07C-team-capability/2026-10-18/team-targeted-unrestricted.tap) |
+| 最终准入与选择器专项 | **19/19通过，无跳过**；六种适配器及未知适配器、字段缺失/false/true的前后端判断一致；Coordinator 投影不改写原节点；原三种工具和外部 MCP 保留；历史误登记的新执行不增加尝试/收据、不认领工作项；丢 ACK、能力变化及后台重启后按原 ID 读回终态而不重派。[最终TAP](../../../artifacts/I07C-team-capability/2026-10-18/admission-and-picker-final.tap)、[测试源码](../../../desktop/tests/team-native-capability.test.cjs) |
+| 修复前反例 | 在独立临时目录冻结修复前源码，Hermes/Pi/DSH/未知适配器的登记和历史登记执行均未按预期拒绝；保留[登记失败TAP](../../../artifacts/I07C-team-capability/2026-10-18/registration-before.tap)、[执行失败TAP](../../../artifacts/I07C-team-capability/2026-10-18/execution-before.tap) |
+| 前端类型与生产构建 | 通过，保留原有包体积提示。[最终日志](../../../artifacts/I07C-team-capability/2026-10-18/desktop-build.log) |
+
+19项与71项包含相同用例，最终选择器严断言另作复验，数量不相加。首次受限进程内回归55通过/1失败，唯一失败是既有 stdio MCP 测试监听本机 socket 的 EPERM，见[受限日志](../../../artifacts/I07C-team-capability/2026-10-18/team-targeted.tap)；允许隔离测试的本机资源后五文件71/71通过。首次选择器 SSR 因直接导入页面 CSS 失败，改为独立生产组件后通过；首次构建发现抽出组件后残留未使用 import，清理后通过，[SSR初次日志](../../../artifacts/I07C-team-capability/2026-10-18/targeted-initial.tap)、[构建初次日志](../../../artifacts/I07C-team-capability/2026-10-18/desktop-build-initial.log)均保留。
+
+复现：`node --test --test-concurrency=1 desktop/tests/team-native-capability.test.cjs desktop/tests/team-space.test.cjs desktop/tests/team-automation.test.cjs desktop/tests/team-work.test.cjs desktop/tests/team-stop.test.cjs`；前端执行 `npm run build --prefix desktop`。测试使用隔离临时目录；Unix socket 与 stdio 受控进程需要本机执行权限，不访问用户后台或提交模型需求。本条不声明真实模型、用户 profile、独立 SSH 或新 EXE 已验收，GitHub alpha.28 与本地 poll.4 保持原冻结字节；全片其他实际检查及未测项统一见[交付专项](../../iterations/I07/native-integration-guards.md)。
+
+2026-10-18 / T-M03-141：桌面空闲修复源码，WSL Node22.23.1 / Windows Node24.19.0及Edge155。核心45/45、桌面424/424、定向20/20、Windows受控界面3组通过，模型0；属于共享工程计数，不跨模块相加。普通EXE与黑窗观察、冻结包、首次环境失败及用户现场未测边界按[本次完整报告](../../iterations/I07/desktop-polling.md)记录，历史包不冒充本次修复。
+
+## 2026-10-18：当前 Agent 版本与历史安装合流
+
+T-M03-141 / M03-F02/F03/F04/F05/F06：alpha.28后未发布工作区、WSL Ubuntu/Node22.23.1。当前节点沿用角色/接入身份，历史unknown与在途锁汇总，新安装不绕过占用。 桌面424/424、核心45/45通过，计数为共享工程结果不跨模块相加；真实Claude版本2.1.302与受控历史节点合流明确分层。类型/lint/前端构建通过；当前EXE、用户运行中profile、真实模型和独立SSH未验证。[完整场景、原始日志与首次失败](../../iterations/I07/current-agent-discovery.md)。
+
+## 2026-10-18：Hermes / Pi / DSH 发现与来源路由
+
+T-M03-140 / M03-F02/F05：alpha.28 后源码、WSL Node22.23.1，受控进程/磁盘。发现专项9项通过，覆盖六种稳定 ID、仅版本探测、Windows Pi 新旧 npm 入口与 DSH 入口、损坏启动器拒绝和原 Linux 发现回归；新路由用例核对三种 Agent 的实际名称、adapter 与原来源。已纳入[全桌面结果](../../iterations/I07/native-agent-expansion.md)，不跨模块相加。代码：[发现用例](../../../desktop/tests/tool-discovery.test.cjs)、[机器路由](../../../desktop/tests/machine-router.test.cjs)。未验证真实原生安装、模型或独立 SSH，已发布 EXE/daemon 不变。
+
 ## 2026-10-17：SSH持久拒绝恢复
 
 T-M03-128：alpha.28已预发布，WSL Node22.23.1/Windows Node24.19.0，合成台账和受控TCP SSH，模型0。最终桌面317/317、核心45/45、Windows契约93/93，lint/类型/构建通过；真实TCP SSH丢响应/daemon重启1项及普通Windows无调试EXE合成验证6组通过，34 CJS/78 core/1395 Linux资源匹配源码。发布以[当次实际记录](../../iterations/I06/daemon-rejection-recovery.md)为准，不推定用户现场恢复。历史记录不计为本次重测。

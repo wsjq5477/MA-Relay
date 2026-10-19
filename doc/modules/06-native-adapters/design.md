@@ -1,5 +1,17 @@
 # M06 原生 Agent 适配器设计
 
+2026-10-19[Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)核对产品入口与公开驱动区别：Grok Build的headless/ACP列为CT-03候选，尚未注册；Claude Projects协调器、Dots和Grok Bot也没有因已有CLI适配而成为可直接操控入口。本轮无原生协议或产品代码变化。
+
+2026-10-18当前适配方式和后续目标统一见[接入矩阵](../../agent-integration-matrix.md)：六种内置实际为原CLI或自写HTTP客户端，没有采用厂家SDK或ACP；MCP是Agent调用Bridge的方向。可选ACP试点、公共材料与上下文建议见[研究](../../iterations/I07/connectivity-research.md)，本轮仅文档核对，未增加驱动。
+
+2026-10-18能力补验：已验证同WSL三个独立Claude宿主的真实公共文档交付/独立复核/原主会话协调；开发与复核成员各一轮，主协调三轮，成员原生成功后才逐项验收，主原生成功后才总完成。原既有权限/事件/预算与接口不变；代码编译返修/独立SSH仍待验证。[范围与真实证据](../../iterations/I07/native-members.md)。
+
+Windows官方Codex npm启动器直接解析原包内原生EXE，隐藏参数不再丢失于JS二次spawn；节点仍记录原JS身份，缺原二进制拒绝，未改账号/模型。Claude空闲snapshot不定期重跑版本/auth，显式检查与提交前检查保留。[复现与验收](../../iterations/I07/desktop-polling.md)。
+
+Windows 的 Core Controller、显式安装版本检查及 OpenCode serve 子进程使用 windowsHide 隐藏后台控制台；机器快照不定期重跑安装探测，任务前原安装核验保留。适配能力、模型与原请求语义不变。[空闲黑窗专项](../../iterations/I07/desktop-polling.md)。
+
+原生Session字段只在非空白字符串且满足既有长度约束时作为绑定/变化证据；空值不建立绑定，也不清除已观察的有效Session。真实非空Session变化仍拒绝协作/后续激活，缺绑定仍不能自动续接。此alpha.28后源码增量未入EXE，[实际规则与验证](../../iterations/I07/blank-native-session.md)。
+
 ## 2026-10-17：Windows未派发与持久化恢复
 
 M06-F01：Codex运行准备失败落原failed任务并保留原始错误；reconcile核对原job/accepted事件/worker.log启动边界，证据完整且未派发才结束原任务。其他原生适配、原账号/模型配置与MCP权限不变。 alpha.27当次源码与预发布；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
@@ -25,18 +37,19 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 
 原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-12。当时实现基线：源码 `0.6.0-alpha.19`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.18`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，历史 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
 
-本模块把用户机器上已有的 OpenCode、Claude Code 和 Codex CLI 接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。模型、供应商、账号和原生配置仍由原工具管理。本文是当前设计；变更过程保留在迭代文档中。
+本模块把用户机器上已有的 OpenCode、Claude Code、Codex CLI、Nous Research Hermes、Pi Coding Agent 和 DeepSeek Harness（DSH）接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。后三种是 2026-10-18 的未发布源码增量；真实模型和发布包边界见[扩展专项](../../iterations/I07/native-agent-expansion.md)。模型、供应商、账号和原生配置仍由原工具管理。
 
 ## 1. 用户看到的功能与边界
 
 
-用户先在机器中接入一个已安装的 Agent 节点，再对该节点新建会话。接入节点不需要文件夹、模型或供应商；需要处理已有文件时，在新会话阶段填写目标机器上的目录。留空使用该节点默认执行目录，同节点/目录/模式复用上下文；不同新会话不保证文件隔离。
+用户先在机器中接入一个已安装的 Agent 节点，再对该节点新建会话。接入节点不需要文件夹、模型或供应商；需要处理已有文件时，在新会话阶段填写目标机器上的目录。留空使用该节点默认执行目录，同节点/目录/模式/当前安装复用上下文；安装路径更新后新工作建立独立上下文，旧上下文的 executable、agentId 与原会话归属保持原值；不同新会话不保证文件隔离。
 
 工具“已安装”、机器“在线”和模型“能回复”是三项不同检查。`--version` 成功只证明程序能启动。真实任务仍可能因为原生登录、模型访问、额度或接口版本失败。AgentBridge 保留这个失败，不能另选模型、换账号或自动重发来制造成功。
 
 | 功能 ID | 功能 | 当前设计与状态 | 详细设计 |
 | --- | --- | --- | --- |
-| M06-F01 | 原生配置继承与能力边界 | 已实现固定工具适配；当前节点入口拒绝模型和供应商覆盖；能力按工具分别声明 | 本文及各子模块 |
+| M06-F01 | 原生配置继承与能力边界 | 六种工具静态注册；当前节点入口拒绝模型和供应商覆盖；能力按工具分别声明 | 本文及各子模块 |
+| M06-F05 | 三种原生扩展与自定义适配接口 | Hermes/Pi/DSH 直接会话；代码内受校验注册、宿主接口与示例；当前未发布源码 | 本文及[开发指南](../../custom-agent-development.md) |
 | M06-OC-F01 | OpenCode 真实执行 | HTTP API 创建/续用原生会话，轮询输出、工具和等待；支持经证据确认的取消与恢复 | [OpenCode](opencode/design.md) |
 | M06-CC-F01 | Claude Code 真实执行 | CLI `stream-json`、增量文本、工具许可、原生会话恢复和独立 worker | [Claude Code](claude/design.md) |
 | M06-CX-F01 | Codex 真实执行 | CLI `exec --json`、完成项输出、原生 thread 绑定和独立 worker；真实续聊存在原生版本限制 | [Codex](codex/design.md) |
@@ -48,31 +61,38 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 ```mermaid
 flowchart TD
     N[机器上的 Agent 节点] --> C[按会话创建私有执行上下文]
-    C --> H[MachineHost 固定选择适配器]
+    C --> H[MachineHost 按受校验注册表选择适配器]
     H --> O[OpenCode DesktopHost / Controller / Driver]
     H --> A[ClaudeHost / detached worker]
     H --> X[CodexHost / detached worker]
+    H --> G[NativeCliHost / detached worker]
+    G --> GP[Hermes / Pi / DSH 各自原生 JSON 协议]
     O --> OH[OpenCode serve 的本地 HTTP API]
     A --> AC[原生 Claude CLI stream-json]
     X --> XC[原生 Codex CLI exec --json]
     OH --> E[统一任务事件与原生身份]
     AC --> E
     XC --> E
+    GP --> E
     E --> S[上层任务台账 / 会话窗口]
 ```
 
 当前有两套实现接口，维护时必须区分：
 
 - 核心 CLI 路径的 `AgentDriver` 是 TypeScript 接口，运行在 Edge 内。当前配置支持 Mock 和 OpenCode；Hub 不加载 Driver。
-- 桌面及 Linux daemon 的 `MachineHost` 是 CommonJS 路由宿主，支持 OpenCode、Claude Code 和 Codex。Claude/Codex 宿主提供与桌面任务相容的 `call(method, params)` 接口，并不实现 TypeScript `AgentDriver`。
+- 桌面及 Linux daemon 的 `MachineHost` 是 CommonJS 路由宿主，支持六种工具。`builtin-adapters.cjs` 使用 `agent-adapter-contract.cjs` 注册发现元数据和宿主工厂；Claude/Codex/NativeCliHost 提供与桌面任务相容的 `call(method, params)` 接口，并不实现 TypeScript `AgentDriver`。未知 adapter 明确拒绝，不回落为 Codex。
 
-这两套接口共享任务概念，尚未统一为插件 SDK。当前不能通过任意模块路径动态加载第三方适配器。
+这两套接口共享任务概念。自定义原生适配器有[源码注册契约、示例与指南](../../custom-agent-development.md)，通过静态代码注册后构建部署；不通过 RPC 或任意模块路径动态加载第三方代码。
 
-Linux 共享发现器在原 PATH 之后检查用户态版本管理器/包管理器目录，不 source rc；Codex npm JS 启动器仍用原有结构化启动规则与后台 Node 调用，不新增模型覆盖。真实 CLI 版本通过只说明安装可调用，不证明原生推理、续聊或权限能力。SSH 场景需要更新远端后台。[alpha.19](../../iterations/I06/linux-cli-discovery.md)。
+共享发现器选择当前 PATH 中首个已安装入口，版本探测失败不切换其他安装；仅 PATH 无入口时检查默认及 Linux 用户态版本管理器/包管理器目录，不 source rc；Codex npm JS 启动器仍用原有结构化启动规则与后台 Node 调用，不新增模型覆盖。真实 CLI 版本通过只说明安装可调用，不证明原生推理、续聊或权限能力。SSH 场景需要更新远端后台。[alpha.19](../../iterations/I06/linux-cli-discovery.md)。
 
 OpenCode 的 DesktopHost 二次发现与机器节点使用相同安装扫描规则，并只核验原选中 executable；原安装不可调用不回退到另一套程序。安装成功仍不代表原生身份、服务或模型就绪。Windows Core 设置文件刷新/替换适配平台，不改变任务/原生身份核验。[完整范围](../../iterations/I06/opencode-discovery.md)。
 
 ## 3. 能力矩阵
+
+### 当前连接能力与恢复
+
+M06-F01/F05：注册描述显式声明execution/delegation/bridgeMcp，以及resume/cancellation/permissions/forms/verification。六工具可执行/被普通委派，原三工具可调用MCP，新三工具bridgeMcp=false；权限/表单/验证按[连接矩阵](../../agent-integration-matrix.md)分别声明。driver只可为native-cli或cli-http；源代码注册为能力上限，缺字段未知，不接受远端任意模块/命令或伪造声明扩权。自研适配器需实现并通过生命周期验证后才声明true。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
 
 “已实现”表示本地实现存在；真实工具证据范围见[测试报告](test-report.md)。原生版本、登录和模型可用性可能让已经实现的操作失败。
 
@@ -91,6 +111,18 @@ Codex 的快照当前声明 `resume: true`，表示已实现调用入口，不�
 
 ## 4. 原生配置继承
 
+### Hermes、Pi 与 DSH 直接会话
+
+| 工具 | 原生协议与绑定 | 完成证据与限制 |
+| --- | --- | --- |
+| Hermes | `chat --query-file - --format stream-json --no-restore-cwd`；原生 `session_id`，续聊传原 `--resume` | 原生 result 与进程退出共同核对；不指定模型/provider |
+| Pi | `--mode json --print --session-dir`；观察 session header ID，续聊先定位并核验唯一原会话文件，再传完整 `--session` 路径 | assistant 结果、原生轮次结束与退出共同核对；缺原文件不能静默创建替代会话 |
+| DSH | `--profile headless --json`；观察 `sessionId`，续聊使用原 `--session-id` | 本轮 completed、final 与退出共同核对；headless 使用原生环境/.env 配置，不搬运 web profile 凭据 |
+
+三个适配器共用持久 `NativeCliHost` 及独立 worker，使用不同事件解析器。首批声明续聊/取消能力，Bridge permissions/forms/verification/teamCollaboration 为 false；不支持的协作 scope 在派发前拒绝。取消收据与原任务终态分开，原生结束/取消与原进程退出必须核对。宿主重开只恢复原事件观察；原 worker/终态无法确认时保留 unknown 与占用，不重发。能力声明表示实现入口，真实原生版本及模型验收以报告为准。
+
+原生协议错误、原 Session 不匹配、缺文件或配置不匹配不能伪造成新会话成功。原生工具自己的权限策略仍适用；没有 Bridge 许可表单不代表自动允许工具。
+
 `MachineHost.context()` 拒绝 `model` 和 `providerID`，按已发现的 adapter/executable 选择宿主，创建私有上下文。Agent 节点本身不绑定项目或模型。
 
 | 工具 | 继承方式 | Bridge 允许增加的运行信息 |
@@ -104,6 +136,8 @@ Codex 的快照当前声明 `resume: true`，表示已实现调用入口，不�
 Bridge 的原生服务密码、MCP 内部令牌是进程间认证，不是用户 Provider API Key。上层界面不要求用户复制模型凭据。
 
 ## 5. 生命周期与身份
+
+CodexHost 与 NativeCliHost 的取消/核对收据持久保存 kind、taskId、operationId、state 与 data。相同 ID 同任务同类型读取原收据，跨任务/类型复用拒绝；历史无 kind 的取消收据按 cancel 兼容。unknown 核对不阻首次取消，unknown 取消只查原 ID；观察到原任务终态时推进原收据，不重新执行。confirmed 核对与任务成功/取消分开。[实际变更](../../iterations/I07/native-integration-guards.md)。
 
 ```mermaid
 sequenceDiagram
@@ -160,7 +194,9 @@ sequenceDiagram
 | 入口 | 责任 |
 | --- | --- |
 | [driver.ts](../../../src/drivers/driver.ts) | 核心 Driver 接口及能力 |
-| [machine-host.cjs](../../../desktop/electron/machine-host.cjs) | 固定适配器选择、私有上下文与原宿主路由 |
+| [machine-host.cjs](../../../desktop/electron/machine-host.cjs) | 注册适配器选择、私有上下文与原宿主路由 |
+| [builtin-adapters.cjs](../../../desktop/electron/builtin-adapters.cjs)、[契约](../../../desktop/electron/agent-adapter-contract.cjs) | 六种内置描述、源码扩展接口与宿主形状验证 |
+| [native-cli-host.cjs](../../../desktop/electron/native-cli-host.cjs)、[协议解析](../../../desktop/electron/native-cli-protocols.cjs) | Hermes/Pi/DSH 持久宿主、独立 worker 与各自终态规则 |
 | [tool-discovery.cjs](../../../desktop/electron/tool-discovery.cjs) | 程序发现、版本探测和安全启动命令 |
 | [api.ts](../../../desktop/src/api.ts) | 三种输出的可见段聚合 |
 | [worker-runtime.cjs](../../../desktop/electron/worker-runtime.cjs) | worker 使用持久运行资源，避免便携解压资源清理 |
@@ -169,6 +205,8 @@ sequenceDiagram
 新增工具或升级原生版本时，先记录版本与协议契约，再分别验证：发现、真实回复、同会话续聊、等待/取消、原 ID 去重、观察丢失恢复、原生配置不被替换。只声明已实现的能力；真实失败保留在报告。修复或更改本模块时，同时更新本页、涉及的子模块设计/测试报告、对应迭代需求与验收记录。
 
 ## 9. 验证入口
+
+2026-10-19当前WSL三工具已有[直接生命周期](../../iterations/I07/connection-native.md)及[六个普通委派方向](../../iterations/I07/connection-delegation.md)真实证据：实际回答、原Session回忆、取消终态、MCP调用方/被调用方及完整观察重开。能力静态声明不因这些指定版本通过而变成所有环境保证；新三工具、其他运输环境与新包仍分别验收。验收工具开发未改变本模块产品行为。
 
 [模块测试报告](test-report.md)汇总当前受控检查与历史真实工具证据。使用 OpenCode 的读写控制、Claude 的真实权限或 Codex 的新原生协议时，还须阅读各自子模块报告中的未验证项。
 

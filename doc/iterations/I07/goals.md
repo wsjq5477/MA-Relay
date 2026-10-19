@@ -1,5 +1,7 @@
 # I07 外部智能体接入与小队协作目标
 
+2026-10-18用户本轮校准：核心目标是给Agent提供发现和操控其他Agent的通路，自动续接、多用户不是本轮后续目标。以下保留I07历史范围和已实现事实，后续目标以[接入矩阵](../../agent-integration-matrix.md)CT-01至CT-05为准；ACP、公共MD与上下文复用的建议/依据见[连接研究](connectivity-research.md)。本轮为资料整理，未新增协议实现或模型验证。
+
 日期：2026-10-16。I07A/B基础继续适用；I07C首批已实现用户授权/预算、重要事件激活、Claude原会话自动续接和主角色持续跟进，实际分层证据见[首批交付](automation.md)。源码/本地候选alpha.24，GitHub预发布仍alpha.23；小队停止与真实原生终态核对见[停止专项](native-stop.md)。其他接入/独立SSH、权限等待专项及完整I07C/I06C仍未准出。
 
 完整材料：[需求](requirements.md) → [细化设计](design.md) → [开发切片](development.md) → [验收矩阵](testing.md)。原需求号保持不变。

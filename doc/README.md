@@ -1,15 +1,49 @@
 # AgentBridge 项目资料
 
-## alpha.28已预发布：SSH持久拒绝恢复
+2026-10-19：[CT-02真实MCP委派](iterations/I07/connection-delegation.md)完成三种已安装工具互相发现、普通委派、读取结果与主节点汇总，覆盖Claude/Codex/OpenCode之间全部六个有向组合。9个真实成功Task、9个原生Session，重开各链Task数3→3；新增验收保护7项，桌面517/517通过。无产品运行改动，公开alpha.28不变；新三工具、新EXE与独立SSH仍另验。
 
-当前源码/GitHub预发布alpha.28修复issue #5；旧版本说明保留原日期/交付范围。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
+2026-10-19完成[Claude Projects / Dots / Grok Bot最新研究](iterations/I07/projects-dots-bots-research.md)：核对共享记忆索引、Library、选定上下文、具名Agent和可见交接。相关建议细化CT-04/05；Grok Build官方ACP入口列为CT-03候选，三个云产品不冒充已接入。本轮仅资料/方案，无产品代码或发布变化。
+
+2026-10-19：[CT-02首批真实验证](iterations/I07/connection-native.md)已完成Claude2.1.302、OpenCode2.0.24、Codex0.163.0-alpha.10.2的真实直接回答、原Session续聊、取消及重开不重放。共9个原任务（6成功回答/3取消），观察后每工具任务仍3个。新三工具仍未实测；本轮不含新真实委派/SSH/EXE。新增可恢复验收工具及7项保护测试，全桌面510/510，未改变产品运行行为或公开alpha.28。
+
+2026-10-19连接增量：CT-01已在未发布源码中完成执行/被委派/MCP调用方的能力一致化，以及原关系拒绝恢复。桌面503/503、核心45/45、Windows生产前端5组/5图通过；三种新工具普通委派为受控生产链证据，真实工具/新EXE/独立SSH未验。[CT-01实际交付](iterations/I07/connection-capabilities.md)；公开alpha.28与旧本地候选保持各自冻结范围。
+
+2026-10-18本轮范围校准：核心目标是给Agent提供发现、调用和控制其他Agent的通路，自动续接、多用户不作为后续开发目标。[逐Agent接入矩阵与目标](agent-integration-matrix.md)区分CLI/HTTP执行、MCP调用方、被调用方及SDK/ACP；[ACP、Multica、公共MD与上下文研究](iterations/I07/connectivity-research.md)记录一手资料、固定源码与建议。本轮仅文档/研究，未新增产品或发布能力。
+
+2026-10-18完成[真实原生执行成员公共文档链](iterations/I07/native-members.md)：同WSL三个独立Claude宿主，五次自动原生回合、原会话协调、成员终态后逐项/总验收及恢复不重放通过。独立SSH、代码编译返修及完整I07C/I06C继续未准出。
+
+2026-10-18继续开发：[原生接入准入与核对收据](iterations/I07/native-integration-guards.md)补齐仅直接会话工具的小队准入，以及 Codex/Hermes/Pi/DSH 原 operationId 核对收据恢复。本片为未发布源码，不在先前 poll.4/公开 alpha.28 中。
+
+最终本地候选poll.4已生成并核验；普通Windows EXE90秒进程归属采样中新候选黑窗0、旧alpha.28黑窗3，模型0。[EXE、摘要及完整边界](iterations/I07/desktop-polling.md)。
+
+2026-10-18新增[桌面空闲黑窗与刷新优化](iterations/I07/desktop-polling.md)：实时轮询与安装扫描分开，稳定机器/Agent展示；本地候选与实际Windows验证按专项记录，公开alpha.28不变。
+
+当前源码修复升级后同一 Agent 多版本节点：按目标用户当前命令报告版本，旧安装保留历史及unknown占用。 [需求、开发与实际验证](iterations/I07/current-agent-discovery.md)。
+
+## 2026-10-18：Hermes / Pi / DSH 与自定义适配接口
+
+当前未发布源码新增三种原生 Agent 直接会话、六种工具本地图标及受校验的源码注册接口。[需求、开发与实际验证](iterations/I07/native-agent-expansion.md)、[自定义 Agent 开发指南](custom-agent-development.md)、[官方图标来源](../desktop/assets/agents/README.md)。新增适配器不声明 Bridge 权限表单/MCP 小队协作；真实模型、新 EXE 和独立 SSH 分别保留未测边界。下述 ui.2 与 GitHub alpha.28 的冻结范围不因此改变。
+
+## 2026-10-18：桌面 UI 重构与本地候选
+
+当前本地 UI 候选为 **0.6.0-alpha.28.ui.2**，主工作区 package/lock 和 GitHub 公开包仍为原 **alpha.28**；没有发布新 GitHub 附件。候选包含 UI 重构与原生会话/业务验收保护增量。入口：[CC Switch 研究](iterations/I07/cc-switch-ui-research.md) → [需求、设计与交付](iterations/I07/ui-redesign.md) → [Windows 逐图与交互验收](iterations/I07/ui-visual-acceptance.md)。
+
+UI冻结源码桌面381/381（含59项React SSR）；Windows Edge主界面5组12图、独立状态10组8图、小队3组3图与关系图10组分别通过。独立快照包资源匹配，普通无debug Windows EXE4项真实IPC/SQLite、关闭/重开及后台重启通过，模型0、原请求无新增重放；10条只读历史保留为观察基线。各层计数不相加，不替代用户profile、独立SSH或真实模型验收，完整I06C/I07C未准出。
+
+这些结果与候选绑定北京时间08:50的UI冻结源码。11:18后其他线程在共享目录加入的Agent适配、工具发现和图标增量未进入ui.2；不宣称当前共享目录全部最新代码已通过本轮验证。
+
+[本地候选 EXE](../artifacts/ui-redesign/2026-10-18/AgentBridge-0.6.0-alpha.28.ui.2-Windows-x64.exe)为129899528字节，SHA-256 `20a84ce98380457e5520d6bb9fc941c666c299a67b216e862d8568b7b3d015a6`；[包核验](../artifacts/ui-redesign/2026-10-18/package-ui2.json)、[普通EXE证据](../artifacts/ui-redesign/2026-10-18/portable-ui2.json)。本地文件不表示已公开分发；旧alpha.28 EXE保持原字节。
+
+## 2026-10-17：alpha.28已预发布，SSH持久拒绝恢复
+
+alpha.28公开包修复issue #5；以下旧版本说明保留原日期/交付范围。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
 
 2026-10-17 alpha.27历史交付：修复issue #3/#4的Windows Codex未派发任务与本地台账替换恢复；[下载EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/SHA256SUMS.txt)。桌面288/288、Windows契约86/86、普通EXE受控恢复5组通过，用户故障机/真实模型未复验。[完整交付](iterations/I06/windows-start-persistence.md)。以下保留各历史交付时点。
 2026-10-17新增 **alpha.26 GitHub预发布**：恢复对原 Linux alpha.24 的可信连接，随后可从原机器维护升级；同时补收 alpha.25 冻结清单。当前 GitHub 已分发 alpha.26；候选包未包含另有的 I07 续接源码增量。实际程序、升级步骤与验证边界见[Linux旧后台升级专项](iterations/I06/ssh-alpha24-upgrade.md)。
 
 2026-10-17较早alpha.25发布记录（历史时点），修复Windows未完成上下文遮挡原请求查询，并纳入先前不完整任务回应保护；[下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)。验收、升级、摘要及未测边界见[原请求恢复专项](iterations/I06/windows-context-recovery.md)。以下alpha.24/alpha.23段落保留其交付时点。
 
-更新：2026-10-16。这里维护项目的完整现状与已确认设计。阅读和开发不需要先复盘历次对话或迭代。
+更新：2026-10-18。这里维护项目的完整现状与已确认设计。阅读和开发不需要先复盘历次对话或迭代。
 
 历史交付说明（2026-10-16发布前）：稳定历史 Windows 程序是 **0.5.0**；当时源码/本地候选为 **alpha.24 / 小队停止与原生终态核对**（[当片交付](iterations/I07/native-stop.md)）；GitHub预发布为 **0.6.0-alpha.23 / 小队协作与I07C首批持续协调**（[EXE与发布记录](iterations/I07/github-release.md)），节点图、授权/布局事务、状态分层与原父权限主要范围在 alpha.6 已验收；alpha.7 主角色/方向/避让与中键证据保留；alpha.8 修复旧后台下拖动锁定、支持整组背景拖动和主居左，当前证据见 [拖动修复](iterations/I06/graph-drag-fix.md)。独立双向原生链保留 alpha.6 实测结果。alpha.2 的主要验收与 alpha.3–alpha.5 修复证据保持原版本；本次实际工程、界面、独立双向链及最终包状态见 [I06B 实施](iterations/I06/graph-implementation.md)。I06C 与正式 0.6.0 准出未完成。
 

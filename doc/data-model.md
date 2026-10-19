@@ -1,5 +1,13 @@
 # 对象、身份与持久数据
 
+2026-10-18文档核对：公共文档、消息与任务仍由TeamSpace SQLite保存；Markdown正文/阅读视图与原生私有Session不同。显式共享上下文包、MD导出仅为[后续研究](iterations/I07/connectivity-research.md)，本轮没有新增字段、数据库迁移或跨工作自动共享。[接入现状](agent-integration-matrix.md)。
+
+2026-10-18原生收据：Codex/NativeCliHost 的 operations 条目增加 kind=cancel/reconcile，与原 taskId/operationId 绑定。历史缺 kind 按 cancel 兼容，无状态文件版本迁移；新增核对收据可从 unknown 随原任务终态推进 confirmed，仍保留真实 status/message。节点快照可选 teamCollaboration，显式 false 优先、缺字段只按受校验原三种注册能力兼容；不改变节点身份或小队 SQLite 格式。[完整约束](iterations/I07/native-integration-guards.md)。
+
+## 2026-10-18 原生适配扩展（未发布源码）
+
+Machine/Node/Connection 的 adapter 增加稳定值 `hermes`、`pi`、`dsh`；不迁移旧 ID 或把模型/provider 绑定到节点。注册元数据包括稳定 id、name、commands、npmEntrypoints 与逐项 capabilities，运行时不含可加载模块路径。新增 NativeCliHost 在原私有上下文保存 `<adapter>-state.json`（agents/tasks/conversations/requests/operations），run 保存 job、events、heartbeat、取消意图与 worker 日志；Pi 原生会话文件位于该上下文 native-sessions。Conversation 私有保存原 Session 与 profile，公开 canContinue 需核对原绑定/终态，不能以缺文件创建替代 Session。原 requestId/operationId 和 unknown 占用规则保持不变。[生命周期与验证](iterations/I07/native-agent-expansion.md)。
+
 ## alpha.28已预发布：SSH持久拒绝恢复
 
 agent-network.json version=1请求可选daemonRejection：version=1、source=daemon.receiptRead、machineId/daemonId/profileId/requestId/op、target、规范参数fingerprint、code=NOT_CONFIGURED。只在可信实时读取与原意图双指纹/目标匹配后写入，并同步dispatched=false/preparationRejection；重开重核，不全量迁移，不含远端任意文案或秘密。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
@@ -43,7 +51,7 @@ runtime/runtime.json 新清单为 `{version:2,executable,files:[{name,size,sha25
 
 ## alpha.19 Linux CLI 发现边界
 
-Linux 扫描目录覆盖增加，不新增节点/配置字段；节点仍按原机器、适配器与规范 executable 识别。重扫保留同一安装身份；任意自定义 rc 环境仍非统一配置来源，不能靠目录或机器别名释放原 unknown。 见 [专项](iterations/I06/linux-cli-discovery.md)。
+历史alpha.19的Linux扫描目录覆盖增加，当次不新增节点/配置字段；当时节点按原机器、适配器与规范 executable 识别。当前源码的升级身份与supersededBy规则见本文第3节。重扫保留同一安装身份；任意自定义 rc 环境仍非统一配置来源，不能靠目录或机器别名释放原 unknown。 见 [专项](iterations/I06/linux-cli-discovery.md)。
 
 ## 1. 对象关系
 
@@ -87,13 +95,19 @@ RPC `id` 只把一条通道响应与请求配对。重连后换 RPC id 是正常
 
 Windows 本机目录初始化时保存随机 `local-...` machineId。WSL 按发行版名称生成稳定 ID，并记录 Windows 宿主。SSH 完成认证、daemon 检查与协议握手后使用 `ssh-<daemonId>`；不同用户/profile 各有自己 daemon 状态。
 
-节点通常由机器 ID、adapter 和可执行位置生成。若后端报告解析后的实际 launcher 路径，保留已有权威 nodeId，避免同一工具被分成两个节点。
+节点首次由机器 ID、adapter 和可执行位置生成。同机器同 adapter 升级后保留原角色/接入节点 nodeId，更新当前 executable/version；旧节点可带 supersededBy 指向当前节点，保留请求指纹、instance.nodeId 和历史归属。connection 快照可选 current 标记本次发现入口，旧配置连接为 false；离线不据此推定安装已删除。contextId 的旧生成规则保留；原键绑定其他安装时，新工作按原键材料加安装路径摘要创建新上下文，旧行不改写。见[当前版本发现](iterations/I07/current-agent-discovery.md)。
 
 后端 Task、Conversation、实例 ID 聚合到中央时用 `machineId::原ID` 定位来源。下发原机器时还原原 ID。原生 Session/Message ID 不加此前缀。请求或控制响应只能解除相同来源机器的未确认记录。
 
 显示名称可变，不能参与任务所属判断。SSH 地址别名只有在主机密钥、daemon 身份及用户归属核实后才能归并，不能只按相同 IP 合并。
 
 ## 4. 状态是不同维度
+
+### 节点连接能力投影
+
+CT-01为snapshot/MCP列表增加可选 `connectionCapabilities`：`execution`、`delegation`、`bridgeMcp`、`resume`、`cancellation`、`permissions`、`forms`、`verification`，值为boolean或null。`capabilitySource`为静态适配器的kind/adapterId/driver或unknown；不保存执行路径、账号或敏感配置。能力不是availability、任务终态或真实工具验收。缺字段老节点按已审核内置适配兼容，显式未知/false只收窄，未知适配器全部未知。
+
+既有图操作台账保持原schema：关系意图的本机确定能力拒绝持久为rejected及原错误码；原operationId/输入摘要保留。只有原ID结构化收据结算，外来ID和裸远端同码仍unknown；前端清除对应pending时保留base/草稿。无新数据库迁移，无原生Task/Conversation/Session身份改变。[完整契约](iterations/I07/connection-capabilities.md)。
 
 | 对象 | 当前字段 / 状态 | 阅读方式 |
 | --- | --- | --- |
@@ -227,3 +241,5 @@ pending.json 的原格式和状态不变；本地 pending IPC 的每条记录可
 小队attempt可选`waiting={kind:permission|input,requestCount}`保存安全的等待投影；私有`waitingFingerprint`对类别及去重排序的原requestIds摘要，仅用于重复通知抑制，公共attempt不返回该摘要或原生请求ID。unknown不抹掉上次等待；可信新快照/终态清除。格式仍为3，无迁移要求；旧记录缺字段即无已观察等待。见[I07C等待专项](iterations/I07/native-waiting.md)。
 
 自动attempt.resumeConversationId是原续接目标约束，首条观测写入conversationId之前就须匹配它；之后按既有绑定匹配。没有新增存储字段或版本，拒绝外来Conversation不改变原request/attempt/意图身份。[专项](iterations/I07/intended-conversation.md)。
+
+小队私有nativeSessionId仅从非空白字符串观测更新，原长度上限保持；空值不建立或清除已有绑定。字段仍可缺省，缺绑定不能自动续接；不trim原生身份或新增格式/迁移。见[专项](iterations/I07/blank-native-session.md)。

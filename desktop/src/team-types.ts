@@ -22,6 +22,7 @@ export interface TeamMessage {
 export interface TeamAttempt {
   attemptId: string; runId: string; agentId: string; nodeId: string; requestId: string;
   message: string; state: string; result?: string; taskId?: string;
+  continuationError?: string;
   waiting?: {kind: 'permission' | 'input'; requestCount: number};
   stop?: {state: string};
   error?: { code: string; message: string };

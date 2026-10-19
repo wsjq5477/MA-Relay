@@ -1,5 +1,21 @@
 # M10 构建、发布与持久运行资源设计
 
+本次桌面空闲修复使用独立冻结源码与候选版本 `0.6.0-alpha.28.poll.4`，公开 alpha.28/ui.2 字节不被覆盖；资源一致性、普通EXE和黑窗观察分层报告。[候选与实际验证](../../iterations/I07/desktop-polling.md)。
+
+2026-10-18 原生扩展未发布源码：新注册表、契约、NativeCliHost 与协议解析均为 electron 下 `.cjs`，沿用窗口包、持久后台与 Linux 包的模块集合打包；各工具本地图标通过 Vite 资源和桌面 assets 随包保存。Codex 独立 worker 冻结发现器时还需复制发现器依赖的注册表和契约，避免新旧资源混合。本次未为这些增量构建新 EXE 或公开发布；下述 ui.2 候选保持自己的冻结范围。[扩展交付边界](../../iterations/I07/native-agent-expansion.md)。
+
+## 2026-10-18：桌面 UI 本地候选 alpha.28.ui.2
+
+M10-F01/F02/F03/F05/F06：当前 UI 重构及原生会话/业务验收保护增量从独立工作区快照构建为 **0.6.0-alpha.28.ui.2 本地候选**。主工作区 `desktop/package.json` 与 lock 仍为 alpha.28；GitHub alpha.28 的冻结标签、EXE 和校验文件未改变，本候选没有发布到 GitHub。功能范围与交付见[界面重构](../../iterations/I07/ui-redesign.md)，浏览器各层证据见[视觉与交互验收](../../iterations/I07/ui-visual-acceptance.md)。
+
+本节的381项工程、前端及包记录只绑定北京时间08:50冻结的UI交付源码。11:18以后共享目录出现的其他线程Agent适配、工具发现和图标增量未进入ui.2，也不属于本次已验证范围；候选不随共享目录后续变化重建。
+
+构建快照为 `/tmp/agentbridge-ui-candidate-20261018-vVKZHc`，包含当次未发布源码；相对08:50冻结时的交付源码只在快照内调整桌面版本元数据，并新增原 alpha.28 的可信 Linux manifest。旧清单来自已验证 alpha.28 包，规范 JSON digest 为 `b06a14fe3716c2df46cb665e21f137d05aab6046a611cb0275c5cadbc365d00d`，不会将重新构建的不同字节继续标成同一 alpha.28。候选新 Linux manifest digest 为 `c0e1db13e63a1f7985f074afc5d9791b07b555b66f30566351b1d400251e2d83`；34 个后台 CJS、78 个 core 文件、1396 个 Linux 条目、窗口 ASAR 和前端逐项匹配，[包校验](../../../artifacts/ui-redesign/2026-10-18/package-ui2.json)为 passed。
+
+[本地候选 EXE](../../../artifacts/ui-redesign/2026-10-18/AgentBridge-0.6.0-alpha.28.ui.2-Windows-x64.exe)为 **129899528 字节**，SHA-256 为 `20a84ce98380457e5520d6bb9fc941c666c299a67b216e862d8568b7b3d015a6`。[普通无 debug EXE](../../../artifacts/ui-redesign/2026-10-18/portable-ui2.json)完成 4 项验证：实际启动版本、真实 IPC/SQLite 公共记录、关闭/重开复用原后台、全后台重启后原记录保留；模型 0，原 nativeRequests 无新增或重放。观察到的 10 条只读历史作为基线保留，不把“没有新执行”写成“没有历史”。没有使用用户 profile 或连接用户 SSH；清单收入不等于远端升级验收。
+
+以下各版本记录保留其原日期与交付范围；旧 alpha.28 包不包含本次 UI 增量。
+
 ## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
 M10-F01/F03/F05：alpha.28新包包含SSH持久拒绝读取、可信证明、原意图持久化和中央恢复。收录已发布alpha.27冻结manifest（规范摘要e3862fdd030496218e69166fb3bb928277b41477003f68dac48a2a5db09945af）保持上一版复用；不重写旧附件或扩大未知版本信任。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
@@ -29,12 +45,12 @@ M10-F01/F03/F05：当前源码及GitHub预发布alpha.25纳入未完成上下文
 
 | 功能 ID | 交付目标 | 当前状态 |
 | --- | --- | --- |
-| M10-F01 | 编译、类型检查、构建、自动化回归入口 | alpha.20 串行桌面 188/188、核心 45/45 于 2026-10-15 实测通过；当前界面/发布检查见 I06C 收尾报告 |
-| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | 0.6.0-alpha.16 便携 EXE 已重建并通过包一致性校验；本次未重新执行真实 Windows 用户流程 |
-| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.16 资源已随 Windows 包生成，包含 1381 个文件；独立远端真实场景仍按 I06C 报告的边界记录 |
+| M10-F01 | 编译、类型检查、构建、自动化回归入口 | 2026-10-18 UI冻结源码串行桌面381/381，含59项生产React SSR；核心45/45见原同日集成基线，不覆盖11:18后共享目录增量；各层不跨模块相加 |
+| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | alpha.28.ui.2本地候选资源匹配，普通无debug Windows EXE4项通过；GitHub公开包仍为原alpha.28 |
+| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.28.ui.2候选包含1396条目及原alpha.28可信清单；包一致性通过，未在用户独立服务器安装或升级 |
 | M10-F04 | 发布包坏路径/坏摘要拒绝安装，远端校验后原子激活版本 | 校验实现，受控安全检查及真实正常安装通过；破坏性故障矩阵未完成 |
-| M10-F05 | 便携启动器清理临时文件后，后台/worker 使用用户目录持久副本 | worker 受控测试通过；新 Coordinator 的 Windows 候选真实验收通过 |
-| M10-F06 | 发布报告记录版本、EXE 大小/SHA-256、实际验证环境和未测项 | 0.5.0 有报告；6A 候选验收及包摘要已形成；正式 0.6.0 准出待后续 |
+| M10-F05 | 便携启动器清理临时文件后，后台/worker 使用用户目录持久副本 | alpha.28.ui.2普通EXE关闭/重开与全后台重启保持原IPC/SQLite记录，原生请求台账无新增/重放；不是用户profile升级验收 |
+| M10-F06 | 发布报告记录版本、EXE 大小/SHA-256、实际验证环境和未测项 | alpha.28.ui.2本地候选大小、摘要和4项普通EXE证据已形成；未发布GitHub，完整I06C/I07C及正式0.6.0未准出 |
 | M10-F07 | 升级、回滚、旧配置迁移和安全删除有用户流程 | 部分历史配置兼容；alpha.11 可信升级/回滚/停止/卸载已实现；旧中央直接降级仍不支持 |
 
 M10 管理可执行材料和一致性，不管理模型/账号，也不把远端原生 CLI 打进包。用户机器或 Linux 上仍须已有可用 OpenCode/Claude/Codex 及其原生认证。缺少这些时，安装 Bridge 成功不代表 Agent 能回答。
@@ -44,15 +60,16 @@ M10 管理可执行材料和一致性，不管理模型/账号，也不把远端
 | 名称 | 当前值/位置 | 含义 |
 | --- | --- | --- |
 | 根 CLI 包版本 | `package.json` = `0.1.0` | 本地 CLI 工程包版本；不代表当前桌面功能发布版 |
-| 桌面源码版本 | `desktop/package.json` = `0.6.0-alpha.21` | 当前开发候选版本；也作为 Linux daemon 清单版本 |
-| 最新预发布 Windows EXE | `AgentBridge-0.6.0-alpha.20-Windows-x64.exe` | 核验源码标签分发；稳定历史为0.5.0，完整I06C尚未准出 |
+| 主工作区桌面元数据 | `desktop/package.json`及lock = `0.6.0-alpha.28` | 工作区另有未发布UI和原生会话/验收增量；元数据相同不等于旧EXE已经包含 |
+| GitHub 预发布 Windows EXE | `AgentBridge-0.6.0-alpha.28-Windows-x64.exe` | 对应原冻结源码与附件；稳定历史为0.5.0，完整I06C/I07C尚未准出 |
+| 当前本地 UI 候选 | `AgentBridge-0.6.0-alpha.28.ui.2-Windows-x64.exe` | 仅独立快照版本元数据使用ui.2，资源匹配和普通EXE4项通过；未发布，不覆盖原alpha.28 |
 | 根编译物 | `dist/` | TypeScript core/CLI/DesktopHost，供桌面与 daemon 共用 |
 | 前端编译物 | `desktop/dist/` | Vite 静态资源，Electron 窗口加载 |
 | 后台暂存物 | `desktop/.bridge-runtime/` | CJS 后台与根生产依赖闭包 |
 | Linux 离线资源 | `desktop/.linux-package/` | manifest + Linux 后台/依赖/runtime/node |
 | 解包目录 | `desktop/release/win-unpacked/` | 构建中间物，不是保证最新的发布事实 |
 
-当前 alpha.19 发布包已构建并通过资源一致性检查；普通 Windows EXE 启动、关闭、重开及受控旧原请求恢复 4 组通过，未执行模型任务；Linux 版本探测是本机隔离 SSH 链路，不是用户服务器。清单和摘要见 Linux 发现专项报告。
+历史 alpha.19 发布包已构建并通过资源一致性检查；普通 Windows EXE 启动、关闭、重开及受控旧原请求恢复 4 组通过，未执行模型任务；Linux 版本探测是本机隔离 SSH 链路，不是用户服务器。清单和摘要见 Linux 发现专项报告。
 
 alpha.19 将同一 Linux CLI 发现修复打入窗口 CJS、冻结后台及 Linux 离线资源；可信 alpha.18 清单先与已交付 digest 核对再收入。客户端与原远端后台版本分别显示，旧版本继续可信复用，不自动升级；SSH 发现修复须用户维护原 daemon 后生效。[交付和分层证据](../../iterations/I06/linux-cli-discovery.md)。
 
@@ -92,6 +109,8 @@ npm run desktop:dist
 ```
 
 `desktop:pack` 生成 Windows 解包目录，`desktop:dist` 生成 portable EXE；两者都先根编译和前端构建，再执行 staging。环境必须具备 electron-builder Windows 构建条件和已准备的 Linux Node 资源。运行这些命令会改写 `dist`、staging、release，不连接真实服务器，也不自动发布到外部站点。
+
+已有同版本公开包时，先冻结包括未跟踪源码的独立快照，再在快照内使用独立候选版本和报告路径；不能直接重建同名公开 EXE，或只换文件名而保留内部相同版本。当前校验器读取 `desktop/release/win-unpacked`，并核对桌面元数据、Linux manifest 和 portable 名称；单独改 electron-builder 输出目录或窗口版本不能替代一致的候选版本。版本变更后需要精确收录可复用的旧 daemon 清单，保持原 digest、归属和路径校验。
 
 `stage-bridge.cjs` 通过 npm 的实际执行路径运行 `ci --omit=dev --ignore-scripts`。这样从锁文件安装生产依赖，不执行依赖安装脚本；依赖下载仍可能访问注册表。SSH `ssh2` 属于根生产依赖，必须随 Bridge 后台复制，不能只在开发机 node_modules 存在。
 
@@ -160,7 +179,7 @@ Linux 构建默认使用当前 `process.execPath`；可通过 `AGENTBRIDGE_LINUX
 
 发布须同时满足：当前源码检查、所有必交功能测试、Windows 普通 EXE 启动/重开/后台资源生存、真实 SSH 接入和原任务恢复、实际发布包资源比对、包 SHA-256/大小及能力限制记录。前端构建成功、Node 自动化通过或旧 EXE 窗口能打开都不能替代这些准出条件。
 
-当前 alpha.13 机器维护候选 EXE 已生成并通过资源比对；alpha.2 的 Windows/SSH 主要验收保留为历史证据，正式 0.6.0 全量准出未完成。I06B 节点图和 I06C 升级/故障交付不能由 I06A 资源包推定完成。不自动升级远端；alpha.11 提供显式维护确认与原收据恢复，忙/unknown 拒绝切换。正式准出须当前真实测试满足门槛。
+当前 alpha.28.ui.2 是已通过资源比对和普通 Windows EXE 验证的本地候选，尚未发布。alpha.13 机器维护候选的资源比对与 alpha.2 的 Windows/SSH 主要验收保留为各自历史证据，正式 0.6.0 全量准出未完成。I06B 节点图和 I06C 升级/故障交付不能由 I06A 资源包推定完成。不自动升级远端；alpha.11 提供显式维护确认与原收据恢复，忙/unknown 拒绝切换。正式准出须当前真实测试满足门槛。
 
 ## 8. 代码与维护入口
 

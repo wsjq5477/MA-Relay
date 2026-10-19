@@ -1,10 +1,11 @@
 const {randomUUID}=require('node:crypto');
+const {supportsTeamCollaboration}=require('./builtin-adapters.cjs');
 const fail=(code,message)=>Object.assign(Error(message),{code});
 const terminal=a=>['succeeded','failed','cancelled','rejected'].includes(a.state);
 const now=()=>new Date().toISOString();
 function capability(agent,options){
   if(agent.kind!=='native')return {start:false,resume:false,runningMessages:false,reason:'外部MCP成员需从自身入口读取任务，本批不自动启动。'};
-  try{const node=options.validateNode(agent.nodeId);return node.adapter==='claude'?{start:true,resume:true,runningMessages:false,adapter:'claude',testedVersion:'2.1.299'}:{start:false,resume:false,runningMessages:false,reason:'该接入尚未通过小队自动续接验证，请手动执行。'};}
+  try{const node=options.validateNode(agent.nodeId);if(!supportsTeamCollaboration(node))return {start:false,resume:false,runningMessages:false,reason:'这个接入尚不支持小队协作，请从“机器与 Agent”使用直接会话。'};return node.adapter==='claude'?{start:true,resume:true,runningMessages:false,adapter:'claude',testedVersion:'2.1.299'}:{start:false,resume:false,runningMessages:false,reason:'该接入尚未通过小队自动续接验证，请手动执行。'};}
   catch{return {start:false,resume:false,runningMessages:false,reason:'原节点未连接或不可执行。'};}
 }
 function enqueue(s,run,agentId,key,kind,extra={}){
@@ -50,7 +51,7 @@ function settleAcceptance(s,run,space){
   if(!a||!terminal(a))return;
   delete run.acceptancePending;
   const items=s.workItems.filter(x=>x.runId===run.runId);
-  if(a.state!=='succeeded'||a.continuationError||run.state!=='active'||run.paused||run.revision!==pending.runRevision||s.activationEvents.slice(pending.eventCount).some(e=>e.runId===run.runId&&e.agentId===run.leaderId&&e.state==='pending')||items.some(x=>x.state!=='completed'||pending.revisions[x.workItemId]!==x.revision)||s.attempts.some(x=>x.runId===run.runId&&!terminal(x))){space.message(s,run,'system','主智能体提出的总验收尚未生效，请核对原执行、权限和最新任务。');return;}
+  if(a.state!=='succeeded'||a.continuationError||require('./team-work.cjs').hasBindingIssue(s,run)||run.state!=='active'||run.paused||run.revision!==pending.runRevision||s.activationEvents.slice(pending.eventCount).some(e=>e.runId===run.runId&&e.agentId===run.leaderId&&e.state==='pending')||items.some(x=>x.state!=='completed'||pending.revisions[x.workItemId]!==x.revision)||s.attempts.some(x=>x.runId===run.runId&&!terminal(x))){space.message(s,run,'system','主智能体提出的总验收尚未生效，请核对原执行、权限和最新任务。');return;}
   run.state='completed';run.acceptedAt=now();run.acceptedBy=run.leaderId;run.acceptanceSummary=pending.summary;run.revision++;
   for(const session of s.sessions.filter(x=>x.runId===run.runId))session.revoked=true;
   space.message(s,run,'system','主智能体原生轮已成功结束，总工作验收已生效。');

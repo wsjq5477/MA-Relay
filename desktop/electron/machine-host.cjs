@@ -1,7 +1,6 @@
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const {createHash,randomUUID}=require('node:crypto');
-const {ClaudeHost}=require('./claude-host.cjs');
-const {CodexHost}=require('./codex-host.cjs');
+const {adapters}=require('./builtin-adapters.cjs');
 const {scanTools}=require('./tool-discovery.cjs');
 const {CollaborationBroker}=require('./collaboration-broker.cjs');
 const terminal=new Set(['succeeded','failed','cancelled']);
@@ -20,7 +19,7 @@ class MachineHost {
   backend(row){
     if(!this.contexts.has(row.contextId)){
       const directory=path.join(this.directory,'node-contexts',row.contextId);
-      const host=row.adapter==='opencode'?this.options.openCode(directory):row.adapter==='claude'?new ClaudeHost({directory,home:this.options.home||os.homedir(),candidates:[row.executable],environment:this.options.environment}):this.options.codex?this.options.codex(directory,row.executable):new CodexHost({directory,executable:row.executable});
+      const host=adapters.createHost(row.adapter,{...this.options,directory,executable:row.executable,home:this.options.home||os.homedir()});
       if(!host)throw fail('ADAPTER_UNSUPPORTED','这个节点尚未完成执行适配。');
       this.contexts.set(row.contextId,host);
     }
@@ -29,7 +28,7 @@ class MachineHost {
   async discover(){
     const items=await scanTools(this.options);
     // Installation/transport checks are independent of an account's model availability.
-    return {items:items.map(i=>({...i,executable:i.executable,executionSupported:true}))};
+    return {items:items.map(i=>({...i,executable:i.executable,executionSupported:!!adapters.get(i.adapter)}))};
   }
   async context(params){
     if(params.model||params.providerID)throw fail('INVALID_INPUT','节点使用原生配置，不接受模型或供应商覆盖。');
@@ -39,10 +38,17 @@ class MachineHost {
     const defaultPath=path.join(this.directory,'sessions',params.nodeId.replace(/[^\w-]/g,'_'));
     if(!params.workspace)fs.mkdirSync(defaultPath,{recursive:true});
     let workspace;try{workspace=fs.realpathSync(params.workspace||defaultPath);if(!fs.statSync(workspace).isDirectory())throw new Error();}catch{throw fail('WORKSPACE_UNAVAILABLE','执行目录不存在，请选择目标机器上的目录。');}
-    const key=createHash('sha256').update(params.nodeId+':'+workspace+':'+(params.collaborationId||'direct')+(params.adapter==='opencode'?':cli-defaults-v1':'')).digest('hex').slice(0,24);
+    const base=params.nodeId+':'+workspace+':'+(params.collaborationId||'direct')+(params.adapter==='opencode'?':cli-defaults-v1':'');
+    let key=createHash('sha256').update(base).digest('hex').slice(0,24);
+    const original=this.rows.find(r=>r.contextId===key);
+    if(original&&original.adapter!==params.adapter)throw fail('DISCOVERY_CHANGED','原节点执行上下文绑定了不同原生工具，请保留原会话核对。');
+    // New work uses the current installation; old conversations still route
+    // through their original row and backend, without rebinding their identity.
+    if(original&&original.executable!==params.executable)key=createHash('sha256').update(base+':installation:'+params.executable).digest('hex').slice(0,24);
     if(this.connecting.has(key))return this.connecting.get(key);
     const job=(async()=>{
       let row=this.rows.find(r=>r.contextId===key);
+      if(row&&(row.adapter!==params.adapter||row.executable!==params.executable))throw fail('DISCOVERY_CHANGED','原节点执行上下文绑定了不同原生工具或安装路径，请保留原会话核对。');
       if(!row){row={contextId:key,nodeId:params.nodeId,adapter:params.adapter,executable:params.executable,workspace};this.rows.push(row);this.save();}
       if(params.scope)await this.call('scope',{contextId:row.contextId,scope:params.scope});
       const host=this.backend(row);
@@ -57,7 +63,7 @@ class MachineHost {
       }
       if(agent?.model)throw fail('CONVERSATION_CONFIG','旧执行上下文有模型覆盖，请保留原记录并新建原生配置会话。');
       if(row.adapter==='opencode'&&agent?.healthy===false)throw fail('AGENT_UNHEALTHY','原生工具尚未就绪，未提交需求；请检查原生账号或等待服务就绪。');
-      return {...row,teamCollaboration:true};
+      return {...row,teamCollaboration:adapters.get(row.adapter)?.capabilities.teamCollaboration===true};
     })().finally(()=>this.connecting.delete(key));this.connecting.set(key,job);return job;
   }
   async call(method,params={}){
@@ -66,6 +72,7 @@ class MachineHost {
     if(method==='environment')return this.legacy.call(method,params);
     if(method==='scope'){
       const row=this.rows.find(r=>r.contextId===params.contextId);if(!row)throw fail('CONTEXT_STATE','执行上下文不存在。');
+      if(adapters.get(row.adapter)?.capabilities.teamCollaboration!==true)throw fail('ADAPTER_UNSUPPORTED','这个原生接入暂未适配 Bridge MCP 协作，需求未派发。');
       const mcp=await this.broker.configure(row.contextId,params.scope);
       row.mcp=mcp;this.save();
       if(row.adapter==='opencode'){

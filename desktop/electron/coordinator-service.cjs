@@ -8,6 +8,7 @@ const { workerRuntime } = require('./worker-runtime.cjs');
 const { recoverJournal } = require('./pending-journal.cjs');
 const {digest}=require('./graph-layout.cjs');
 const { GraphOperationJournal } = require('./graph-operations.cjs');
+const { supportsTeamCollaboration, connectionCapabilities, isCollaborationCapabilityRejection } = require('./builtin-adapters.cjs');
 const teamMethods=new Set(['team.stopRun','team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
 const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview']);
@@ -323,6 +324,7 @@ async function call(input) {
       }
       if (input.method === "snapshot") {
         result.teamSpaceSupported=true;
+        result.nodes=(result.nodes||[]).map(node=>({...node,...connectionCapabilities(node),teamCollaboration:supportsTeamCollaboration(node)}));
         try {
           write("runtime.json", {
             time: new Date().toISOString(),
@@ -367,7 +369,7 @@ async function call(input) {
         operation(
           p.op,
           p,
-          runtimeRejection || !previousPending && [
+          runtimeRejection || !previousPending && (isCollaborationCapabilityRejection(error) || [
             "AGENT_BUSY",
             "PROJECT_BUSY",
             "AGENT_NOT_FOUND",
@@ -406,7 +408,7 @@ async function call(input) {
             "DISCOVERY_CHANGED",
             "COLLABORATION_FORBIDDEN",
             "TOOL_LAUNCHER",
-          ].includes(error.code)
+          ].includes(error.code))
             ? "rejected"
             : "unknown",
           { error: { code: error.code || "DESKTOP_ERROR", message: error.message || "操作未完成" } },

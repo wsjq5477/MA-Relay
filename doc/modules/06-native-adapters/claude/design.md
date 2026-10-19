@@ -1,10 +1,16 @@
 # Claude Code 适配器设计
 
+2026-10-18能力补验：Claude2.1.302已在同WSL三个独立MachineHost/profile/目录承担真实主协调、公共文档开发与独立复核；主协调同Session三轮、执行成员各一轮，终态后验收与完成重开观察无新回合。共享原生账号配置、受控机器路由，非独立SSH/代码编译返修；原生工具deny且无权限回复，不覆盖模型。[真实成员证据](../../../iterations/I07/native-members.md)。
+
+安装与认证CLI检查在首次缺少check、显式check以及提交前执行；实时snapshot读取既有check和原任务事件，不按30秒定期重新运行版本/auth子进程。check.time仍是原观察时间，发现更新不代表模型可用。[空闲专项](../../../iterations/I07/desktop-polling.md)。
+
 2026-10-17能力补验：本机WSL Claude2.1.299自动主角色首轮及原Conversation/原生Session续接后的独立权限等待、观察后台重启、精确隔离Write允许和真实终态已验证；首轮拒绝证据保留于上一专项。不扩大为真实执行成员交接、Windows或独立SSH。见[最新权限证据](../../../iterations/I07/resume-native-permission.md)。
 
 更新日期：2026-10-12。功能 **M06-CC-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途与能力
+
+2026-10-19当前WSL版本2.1.302经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
 
 Bridge 调用机器上已有的 Claude Code CLI，让它使用自己的账号和原生配置执行需求。每轮由独立 worker 保持原生 stdin/stdout 和控制通道；窗口或宿主停止观察时，worker 继续执行，重新连接后宿主读取原事件文件。
 

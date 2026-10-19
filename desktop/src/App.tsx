@@ -77,6 +77,7 @@ import type {
   ModelSelection,
 } from "./types";
 import { MachinesView, toolName } from "./MachinesView";
+import AgentIcon from "./AgentIcon";
 type Page =
   "machines" | "overview" | "agents" | "board" | "conversations" | "settings";
 type Toast = { text: string; error?: boolean };
@@ -2415,7 +2416,7 @@ function ModelFields({
   onProvider,
   onModel,
 }: {
-  adapter?: "claude" | "opencode" | "codex";
+  adapter?: Agent["adapter"];
   providerID: string;
   modelId: string;
   disabled: boolean;
@@ -2663,7 +2664,7 @@ export function TaskDetail({
       >
         <div className="drawer-head">
           <span>
-            <Terminal size={18} />
+            <AgentIcon adapter={adapter} size={22} />
             {name}
           </span>
           <button

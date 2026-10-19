@@ -7,7 +7,7 @@ const { scanTools } = createRequire(import.meta.url)('../desktop/electron/tool-d
 import { tmpdir } from 'node:os';
 import { discoverOpenCode } from '../src/discovery.js';
 
-test('discovery uses PATH and the native installation fallback, skips broken versions, and never connects', async () => {
+test('discovery honors the current PATH command, reports its failure, and uses native fallback only when absent', async () => {
   const home = mkdtempSync(resolve(tmpdir(), 'ab-discover-'));
   const bad = resolve(home, 'bad'), path = resolve(home, 'bin'), native = resolve(home, '.opencode/bin');
   for (const dir of [bad, path, native]) mkdirSync(dir, { recursive: true });
@@ -15,7 +15,8 @@ test('discovery uses PATH and the native installation fallback, skips broken ver
   writeFileSync(resolve(native, 'opencode'), '#!/bin/sh\n[ "$1" = "--version" ] || exit 9\necho "opencode v2.0.24"\n', { mode: 0o700 });
   symlinkSync(resolve(native, 'opencode'), resolve(path, 'opencode'));
   try {
-    assert.equal((await discoverOpenCode({ path: bad + ':' + path, home }))[0]!.executable, resolve(native, 'opencode'));
+    assert.deepEqual(await discoverOpenCode({ path: bad + ':' + path, home }), []);
+    assert.equal((await discoverOpenCode({ path, home }))[0]!.executable, resolve(native, 'opencode'));
     assert.equal((await discoverOpenCode({ path: '', home }))[0]!.version, '2.0.24');
     writeFileSync(resolve(native, 'opencode'), '#!/bin/sh\necho "opencode v1.0.0"\n', { mode: 0o700 });
     assert.deepEqual(await discoverOpenCode({ path: '', home }), []);
@@ -31,7 +32,7 @@ test('OpenCode revalidation uses the selected launcher outside PATH and never su
   writeFileSync(selected, "process.stdout.write('opencode v2.0.24\\n');", { mode: 0o700 });
   writeFileSync(other, '#!/bin/sh\n[ "$1" = "--version" ] || exit 9\necho "opencode v2.0.26"\n', { mode: 0o700 });
   const scanned = await scanTools({ home, platform: 'win32', environment: { Path: home },
-    candidates: { claude: [], codex: [], opencode: [selected] } });
+    candidates: { claude: [], codex: [], hermes: [], pi: [], dsh: [], opencode: [selected] } });
   assert.equal(scanned[0].healthy, true);
   const options = { home, path: '', executable: scanned[0].executable };
   assert.deepEqual(await discoverOpenCode(options), [{ name: 'OpenCode', executable: selected, version: '2.0.24' }]);

@@ -1,5 +1,13 @@
 # M07 任务、会话、交互控制与恢复设计
 
+2026-10-18能力补验：已验证同WSL三个独立Claude宿主的真实公共文档交付/独立复核/原主会话协调；开发与复核成员各一轮，主协调三轮，成员原生成功后才逐项验收，主原生成功后才总完成。原既有权限/事件/预算与接口不变；代码编译返修/独立SSH仍待验证。[范围与真实证据](../../iterations/I07/native-members.md)。
+
+2026-10-18 未发布源码：Hermes/Pi/DSH 原生宿主沿用本模块 Task/Conversation/原请求语义；独立 worker 持久记录原 Session、输出与终态，宿主重开只观察不重放。Pi 续聊必须找到同上下文、原 ID 的唯一原生会话文件；协议/绑定不匹配或在途/unknown 不允许另建会话续接。取消操作先保存原 operationId，原生终态与控制收据分别核对。[设计与验证](../../iterations/I07/native-agent-expansion.md)。
+
+业务验收除原生成功终态外，还须当前有效执行没有continuationError：工作项按当前业务轮次最后一次尝试，独立协调按每成员最后一次尝试。旧轮次/已被后续执行取代的异常保留历史但不永久阻塞。任务验收、直接总验收及延后提议生效前均核对，不改写Core原生终态。此为alpha.28后未发布源码增量，[规则与验证](../../iterations/I07/acceptance-native-binding.md)。
+
+原生Session字段只在非空白字符串且满足既有长度约束时作为绑定/变化证据；空值不建立绑定，也不清除已观察的有效Session。真实非空Session变化仍拒绝协作/后续激活，缺绑定仍不能自动续接。此alpha.28后源码增量未入EXE，[实际规则与验证](../../iterations/I07/blank-native-session.md)。
+
 ## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
 M07-F01/F06/F07：原SSH节点请求持久拒绝必须匹配认证来源、request/op和原参数摘要，无任务绑定才结算rejected；不把它当成功任务。续聊只绑定原父会话，原任务/会话终态不改，原ID/历史/time/params保留；裸配置查询错误保持unknown。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
@@ -58,6 +66,8 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 | M07-F07 | 读取原任务、回执、会话；重启和断线后只读对账 | 已实现；无绑定保留 unknown 和占用，不补发 Prompt |
 
 ## 2. 对象和身份
+
+Codex/Hermes/Pi/DSH 的 reconcile 沿原 operations 台账保存 kind=reconcile，原 ID 可在观察后台重启后查询；缺 kind 的旧条目按取消解释。同 ID 不同 taskId 或控制类型拒绝，空白 ID 无效。核对 unknown 继续占用原执行，不等于待取消；只有 unknown cancel 阻止换 ID 再发取消。原生终态可推进核对收据，不能从 confirmed 反推任务 succeeded/cancelled。[契约](../../iterations/I07/native-integration-guards.md)。
 
 | 对象 / ID | 用途 | 约束 |
 | --- | --- | --- |
@@ -122,7 +132,7 @@ sequenceDiagram
     C-->>U: 状态、结果或明确未知
 ```
 
-新会话按节点、真实目录和直接/协作模式创建或复用私有上下文。用户未指定目录时后台创建默认目录；上下文不覆盖用户原生模型和供应商。
+新会话按节点、真实目录、直接/协作模式和当前安装创建或复用私有上下文。安装变化只为新工作建立独立上下文，原上下文的 executable、agentId、Conversation/Session 和请求归属不改写；当前节点汇总历史安装的未知与在途占用。用户未指定目录时后台创建默认目录；上下文不覆盖用户原生模型和供应商。
 
 续聊先读取原 conversation，并验证节点及后端归属。Core 还核对 owner、resourceKey、配置 fingerprint、上一轮终态和 native 绑定。前一轮未知或忙碌，禁止续聊。验证连接的任务不作为普通工作会话续聊。
 
@@ -155,6 +165,10 @@ Core 事件按 executionId 和连续 seq 接收。重复同 seq 同内容不重�
 confirmed 表示原控制 API 已给出有效回应；任务 cancelled 需要中断终态证据。原任务已经自然完成时取消回执也可能 confirmed，而任务保持原 succeeded。Codex 取消尤其需要观察原进程退出。
 
 ## 7. 持久化与一致性
+
+### 当前连接能力与恢复
+
+M07-F06/F07：新准入不截获已有原requestId或委派收据；普通子任务collaboration:false，不要求被调用方支持MCP。原提交回应丢失仍保留unknown与原占位，观察器重开只读原请求。确定能力拒绝仅结算原操作，不改任务终态；取消收据confirmed与原Task成功/取消分别观察。原关系pending只凭匹配原ID持久拒绝结算，外来收据和裸码不释放。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
 
 | 记录 | 位置 / 所有者 | 目的 |
 | --- | --- | --- |
@@ -197,6 +211,8 @@ recoverPending 的本地结果包含 resolved 和可选 remaining/items；未解
 - 通用 Webhook、外部任意 JSONL 工具和其他 Harness 不是当前已完成任务入口。
 
 ## 10. 实现入口与共同维护
+
+原请求/原Session/控制规则在2026-10-19经当前WSL三工具[直接生命周期](../../iterations/I07/connection-native.md)及[MCP六方向委派](../../iterations/I07/connection-delegation.md)补验。新增的是可恢复验收脚本与证据，本模块生产代码/数据/协议未改变；不会用新脚本重放已有未知动作。
 
 状态与类型从 [core.ts](../../../src/core.ts) 开始，Core 数据规则见 [hub-store.ts](../../../src/storage/hub-store.ts)、[edge-journal.ts](../../../src/storage/edge-journal.ts)、[operations.ts](../../../src/storage/operations.ts)。桌面意图、恢复见 [agent-network.cjs](../../../desktop/electron/agent-network.cjs)、[pending-journal.cjs](../../../desktop/electron/pending-journal.cjs)、[coordinator-service.cjs](../../../desktop/electron/coordinator-service.cjs)。各原生能力见 [M06](../06-native-adapters/design.md)。
 

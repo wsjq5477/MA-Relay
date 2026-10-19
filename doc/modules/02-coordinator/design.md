@@ -1,5 +1,11 @@
 # M02 中央协调后台设计
 
+2026-10-18能力补验：已验证同WSL三个独立Claude宿主的真实公共文档交付/独立复核/原主会话协调；开发与复核成员各一轮，主协调三轮，成员原生成功后才逐项验收，主原生成功后才总完成。原既有权限/事件/预算与接口不变；代码编译返修/独立SSH仍待验证。[范围与真实证据](../../iterations/I07/native-members.md)。
+
+业务验收除原生成功终态外，还须当前有效执行没有continuationError：工作项按当前业务轮次最后一次尝试，独立协调按每成员最后一次尝试。旧轮次/已被后续执行取代的异常保留历史但不永久阻塞。任务验收、直接总验收及延后提议生效前均核对，不改写Core原生终态。此为alpha.28后未发布源码增量，[规则与验证](../../iterations/I07/acceptance-native-binding.md)。
+
+原生Session字段只在非空白字符串且满足既有长度约束时作为绑定/变化证据；空值不建立绑定，也不清除已观察的有效Session。真实非空Session变化仍拒绝协作/后续激活，缺绑定仍不能自动续接。此alpha.28后源码增量未入EXE，[实际规则与验证](../../iterations/I07/blank-native-session.md)。
+
 ## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
 M02-F04：捕获认证SSH提供的持久拒绝证明，经原意图核对并先落盘后结算；恢复CAS再检查证明。普通request返回state=rejected且无taskId，同ID提交仍错误返回；原时间/参数保留，不重放。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
@@ -60,6 +66,8 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 这里的“相同配置”指同一个 `userData` 目录。不同测试配置目录拥有不同后台身份和 IPC 地址，不能混用任务。
 
 ## 2. 模块边界
+
+Coordinator 对小队节点准入同时核对静态注册能力与节点显式声明，快照提供可选 teamCollaboration 展示字段。TeamSpace 在原收据幂等读取之后检查新登记/新执行，失败不写 attempt、不认领工作项、不派发；旧已派发原 ID 查询/重放不被新能力门槛截获。远端 scope 仍在原调用中确认实际后台能力，无新 RPC。[接入专项](../../iterations/I07/native-integration-guards.md)。
 
 ```mermaid
 flowchart LR
@@ -170,6 +178,10 @@ await client.request('recoverPending');
 
 ## 6. 写操作与中断处理
 
+### 当前连接能力与恢复
+
+M02-F04：GraphOperationJournal先保存原关系意图，再调用保存；仅saveCollaboration本机WeakSet标记的确定能力拒绝可持久为rejected。公开错误码不作为通用确定拒绝依据，其他lane/远端同码继续unknown。保存及查询返回的operationId必须匹配原意图。collaborationOperation重开后读取原拒绝，前端可解除对应等待；原请求查询优先于新准入，节点snapshot追加能力投影。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
+
 `ipc` / `nodeRequest` 中 `submit`、`continue`、`verify`、`reply`、`cancel` 必须带稳定 ID。服务先通过机器路由补齐原机器，再写 `pending.json`，最后执行。台账键由机器 ID 和请求/操作 ID 共同组成。
 
 | 台账状态 | 含义 | 后续行为 |
@@ -192,6 +204,8 @@ Windows OpenCode 的共享运行资源 INVALID/MISSING 可发生在上下文创�
 资源缓存摘要包含后台 CJS、根 `dist` 和 `package.json`，没有逐一纳入依赖目录与 Linux 包内容。发布时仍需核对冻结资源和离线包，不将缓存命中视为完整发布校验。
 
 ## 8. 代码定位与维护
+
+原请求/原Session/控制规则在2026-10-19经当前WSL三工具[直接生命周期](../../iterations/I07/connection-native.md)及[MCP六方向委派](../../iterations/I07/connection-delegation.md)补验。新增的是可恢复验收脚本与证据，本模块生产代码/数据/协议未改变；不会用新脚本重放已有未知动作。
 
 | 职责 | 代码 |
 | --- | --- |

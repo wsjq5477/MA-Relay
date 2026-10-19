@@ -1,5 +1,17 @@
 # 通信协议与接口
 
+2026-10-18通信内容与ACP研究见[连接研究](iterations/I07/connectivity-research.md)及[接入矩阵](agent-integration-matrix.md)。当前仍使用六工具主从MCP/已有小队工具和原IPC/SSH帧；没有ACP RPC、新上下文包接口或MD同步协议。后续建议不构成本轮已实现合约。
+
+2026-10-18原生接入补强：snapshot 节点可选 teamCollaboration；team.registerAgent/team.execute 新操作对不支持小队的原生节点返回 TEAM_CAPABILITY，拒绝发生在工作项认领/意图/派发前。原收据重放仍可查询。Codex/NativeCliHost 的 ipc reconcile/operation 保留原方法和 operationId/state/data，收据新增 kind/taskId 并持久保存；跨控制种类/任务复用同 ID 为 REQUEST_CONFLICT，历史无 kind 取消兼容。无新 RPC 或 daemon 帧版本。[专项](iterations/I07/native-integration-guards.md)。
+
+discover 的原方法/参数/返回结构不变，明确扫描同时重新枚举执行环境；snapshot 保留实时状态读取，不再按15/30秒触发安装发现。lastSyncedAt、请求/操作身份和 unknown 语义保持。[触发时机与兼容边界](iterations/I07/desktop-polling.md)。
+
+当前未发布源码：snapshot.connections 可选 current，snapshot.nodes 可选 supersededBy；前端仅展示当前节点，历史对象仍返回供原身份查询。历史节点的新 submit/attach 返回 NODE_SUPERSEDED，原 request 查询、continue 及收据语义保留；当前/历史安装共享占用。daemon 仍为协议2，未新增模型或远程命令接口。[发现修复](iterations/I07/current-agent-discovery.md)。
+
+## 2026-10-18 原生适配扩展（未发布源码）
+
+不增加远程任意命令、模块加载 RPC 或新的模型接口，daemon 线格式仍为协议 2。discover/context/snapshot 沿用原方法，adapter 新增 `hermes`、`pi`、`dsh`，发现的安装可调用性与执行/协作能力分开。MachineHost 用静态注册工厂创建宿主，未知类型返回 ADAPTER_UNSUPPORTED；新增三种不支持 Bridge MCP scope/权限/表单/连接验证时明确拒绝。宿主通过原 ipc submit/continue/request/task/conversation/cancel/operation/reconcile 接口返回原任务与独立收据。原生内部协议分别为 Hermes stream-json、Pi json print、DSH headless json，不混用帧格式。[原生设计](modules/06-native-adapters/design.md)、[开发接口](custom-agent-development.md)。
+
 ## alpha.28已预发布：SSH持久拒绝恢复
 
 SSH协议2和daemon.receiptRead线格式不变。客户端ipc/request裸NOT_CONFIGURED后只读同ID收据；同认证代次匹配持久rejected产生内部DAEMON_REQUEST_REJECTED能力，公开同码JSON/错误没有该能力。中央普通request可返回{state:rejected,requestId,machineId,error:{code:NOT_CONFIGURED,message},reconciliation}，没有taskId，禁止当成功任务；mutation仍报错。verify/控制语义不变。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
@@ -110,6 +122,12 @@ Windows 本机目录初始化时保存随机 `local-...` machineId。WSL 按发�
 显示名称可变，不能参与任务所属判断。SSH 地址别名只有在主机密钥、daemon 身份及用户归属核实后才能归并，不能只按相同 IP 合并。
 
 ## 4. 状态是不同维度
+
+### CT-01可选能力与关系拒绝收据
+
+现有snapshot节点和经典MCP `list_agents`条目可增加 `connectionCapabilities`（八项boolean|null）及 `capabilitySource`（`{kind:"static-adapter",adapterId,driver?}` / `{kind:"unknown"}`）；字段与静态上限见[CT-01](iterations/I07/connection-capabilities.md)。不增加工具方法、RPC帧或ACP/SDK协议，不将本机声明冒充远端握手/账号推理能力。
+
+新关系主节点要求execution和bridgeMcp，子节点要求delegation；新协作执行核验调用方，普通delegate子任务使用collaboration:false。原ID查询先于新准入。`collaborationOperation`可返回匹配原operationId的 `state:"rejected"` / `error.code:"COLLABORATION_CAPABILITY"` 持久收据。仅本机标记且在关系保存前确定的拒绝可产生该结算，裸RPC同码不是未执行证明；缺失/外来收据与not_found继续unknown。前端只解除原pending，草稿/原关系不被改写。
 
 | 对象 | 当前字段 / 状态 | 阅读方式 |
 | --- | --- | --- |
@@ -247,3 +265,7 @@ recoverPending 保留 resolved/remaining/items；items 中 NOT_CONFIGURED 的固
 小队消费原生Task观测前要求`taskId`及`conversationId`为非空白字符串，并匹配原requestId和既有绑定；即使status为succeeded，缺身份也不结算。首次派发后不完整回应保持unknown，后续只查原请求；不新增Task状态、RPC或帧版本。见[完整性专项](iterations/I07/incomplete-receipt.md)。
 
 自动续接任务的首次观测在尚无attempt.conversationId时，仍必须匹配已持久保存的resumeConversationId；requestId与native Session相同不能使外来Conversation有效。校验失败只保留原请求待核对，不绑定、不结算或重发。无新增字段/RPC/帧版本。[专项](iterations/I07/intended-conversation.md)。
+
+原生Task.native.sessionId为空/纯空白不构成小队会话绑定证据，不能开放自动续接，也不覆盖先前有效绑定；真实非空身份变化继续触发既有会话保护。Task终态与Session绑定能力分开，无RPC/帧版本变化。[专项](iterations/I07/blank-native-session.md)。
+
+小队业务验收须核对当前有效原生尝试的continuationError：工作项以当前轮最后一次执行为准，独立协调以每成员最后一次执行为准。原生succeeded不是身份异常报告的业务通过证明；直接验收和延后提议生效前都检查。历史轮次和被后续执行取代的异常保留，不永久阻塞。无新增接口/帧字段。[专项](iterations/I07/acceptance-native-binding.md)。

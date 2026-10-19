@@ -3,8 +3,10 @@ import {ReactFlow,Background,BaseEdge,Handle,Position,MarkerType,getSmoothStepPa
 import {Crown,Monitor,Terminal,Plus,Minus,Maximize,LayoutGrid,RefreshCw} from 'lucide-react';
 import {routeAroundNodes,type Obstacle} from './graph-routing';
 import {sshStageLabel} from './AddMachineDialog';
-import {time} from './api';
-import {connectionError,useGraphDraft} from './graph-state';
+import AgentIcon from './AgentIcon';
+import {PrimaryAgentButton} from './CollaborationChoice';
+import {bridgeCallerReason,canCallBridge,canExecuteNode,canReceiveDelegation,connectionCapabilitySummary} from './connection-capabilities';
+import {connectionError,relationCapabilityError,useGraphDraft} from './graph-state';
 import type {NodeAction} from './node-management';
 import type {AgentNode,Collaboration,Machine} from './types';
 import '@xyflow/react/dist/style.css';
@@ -30,7 +32,6 @@ const MachineNode=memo(({data,id}:NodeProps<FlowNode>)=>{
       <div className="graph-machine-title">{m.kind==='windows'?<Monitor size={17}/>:<Terminal size={17}/>}<strong>{m.name}</strong><span>{data.count} 节点</span></div>
       <p>{m.kind==='wsl'?'WSL · '+m.distribution+' · 宿主 '+data.hostName:m.kind==='ssh'?'SSH · '+m.username+'@'+m.host+':'+(m.port||22):m.platform}</p>
       <span className={'graph-machine-status '+(m.online?'online':'offline')}>{m.online?'在线':m.kind==='ssh'?sshStageLabel(m.connectionState||m.stage):'离线'}</span>
-      {m.lastSyncedAt&&<p>最近同步 {time(m.lastSyncedAt)}</p>}
       {m.error&&<p className="machine-error" role="status">{m.error}</p>}
       {!data.count&&<p>未发现受支持的 Agent。请连接或重新扫描。</p>}
     </div>
@@ -39,22 +40,22 @@ const MachineNode=memo(({data,id}:NodeProps<FlowNode>)=>{
   </section>;
 });
 const ToolNode=memo(({data,id}:NodeProps<FlowNode>)=>{
-  const n=data.node!,main=data.role==='主 Agent',updateNodeInternals=useUpdateNodeInternals();
+  const n=data.node!,main=data.role==='主 Agent',caller=canCallBridge(n),receiver=canReceiveDelegation(n),updateNodeInternals=useUpdateNodeInternals();
   // Role changes alter usable handles; remeasure retained hidden anchors after paint.
-  useEffect(()=>{const frame=requestAnimationFrame(()=>updateNodeInternals(id));return()=>cancelAnimationFrame(frame);},[id,main,updateNodeInternals]);
+  useEffect(()=>{const frame=requestAnimationFrame(()=>updateNodeInternals(id));return()=>cancelAnimationFrame(frame);},[id,main,caller,receiver,updateNodeInternals]);
   return <article className={'graph-tool '+(main?'is-leader ':'')+(!n.online?'is-offline ':'')+(data.keyboardTarget?'keyboard-target':'')} aria-label={n.name+' · '+data.role+' · '+graphNodeStatus(n)}
     onKeyDown={e=>{const delta=arrow(e.key,e.shiftKey);if(delta){e.preventDefault();e.stopPropagation();data.move?.(n.nodeId,false,delta);}}}>
-    <Handle type="target" id="input" position={Position.Left} tabIndex={main?-1:0} aria-hidden={main} isConnectable={!main&&!data.relationLocked} role="button" aria-label={'连接到 '+data.machineName+' / '+n.name} className={'nodrag nopan graph-port '+(main?'unused':'')}
+    <Handle type="target" id="input" position={Position.Left} tabIndex={main||!receiver?-1:0} aria-hidden={main||!receiver} isConnectable={!main&&receiver&&!data.relationLocked} role="button" aria-label={'连接到 '+data.machineName+' / '+n.name} className={'nodrag nopan graph-port '+(main||!receiver?'unused':'')}
       onKeyDown={e=>{e.stopPropagation();if(['Enter',' ','Escape','ArrowRight','ArrowLeft','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();data.keyboard?.(n.nodeId,'target',e.key);}}}/>
-    <div className="graph-tool-title">{main?<Crown className="graph-leader-icon" size={21}/>:<Terminal size={16}/>}<strong>{n.name}</strong><span>{data.role||'节点'}</span></div>
-    <small>{n.version||'版本未知'} · {graphNodeStatus(n)}</small>
+    <div className="graph-tool-title"><AgentIcon adapter={n.adapter} size={22}/><strong>{n.name}</strong><span className="graph-tool-role">{main&&<Crown className="graph-leader-icon" size={13}/>} {data.role||'节点'}</span></div>
+    <small title={connectionCapabilitySummary(n)}>{n.version||'版本未知'} · {graphNodeStatus(n)}</small>
     <div className="graph-tool-actions nodrag nopan">
-      {!n.connected?<button className="text-btn" disabled={data.managementLocked||!n.online||!n.executionSupported||n.busy} onClick={()=>data.attach?.(n.nodeId)}>接入</button>
-        :<><button className="text-btn" disabled={data.relationLocked||!n.executionSupported} onClick={()=>data.setMain?.(n.nodeId)}>{main?'当前主 Agent':'设为主 Agent'}</button><button className="text-btn" disabled={!n.available||data.locked} onClick={()=>data.start?.(n)}>开始会话</button></>}
+      {!n.connected?<button className="text-btn" disabled={data.managementLocked||!n.online||!canExecuteNode(n)||n.busy} onClick={()=>data.attach?.(n.nodeId)}>接入</button>
+        :<><PrimaryAgentButton node={n} current={main} className="text-btn" disabled={data.relationLocked} onSelect={()=>data.setMain?.(n.nodeId)}/><button className="text-btn" disabled={!n.available||!canExecuteNode(n)||data.locked} onClick={()=>data.start?.(n)}>开始会话</button></>}
       {n.connected&&<button className="text-btn" disabled={data.managementLocked||!n.online||n.busy} onClick={()=>data.nodeAction?.(n,'disconnect')}>断开</button>}
       <button className="text-btn" disabled={data.managementLocked||!n.online||n.busy} onClick={()=>data.nodeAction?.(n,'remove')}>移除</button>
     </div>
-    <Handle type="source" id="output" position={Position.Right} tabIndex={main?0:-1} aria-hidden={!main} isConnectable={main&&!data.relationLocked} role="button" aria-label={'从 '+n.name+' 允许委派'} className={'nodrag nopan graph-port '+(!main?'unused':'')}
+    <Handle type="source" id="output" position={Position.Right} tabIndex={main&&caller?0:-1} aria-hidden={!main||!caller} isConnectable={main&&caller&&!data.relationLocked} role="button" aria-label={'从 '+n.name+' 允许委派'} className={'nodrag nopan graph-port '+(!main||!caller?'unused':'')}
       onPointerDown={()=>{if(!main)data.warning?.('只有主 Agent 的输出端点可以创建授权。');}}
       onKeyDown={e=>{e.stopPropagation();if(['Enter',' ','Escape','ArrowRight','ArrowLeft','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();data.keyboard?.(n.nodeId,'source',e.key);}}}/>
   </article>;
@@ -85,6 +86,7 @@ interface Props{
   machineAction:(m:Machine,action:'scan'|'reconnect'|'disconnect'|'details'|'edit'|'remove'|'daemon')=>void;
   daemonManagementSupported?:boolean;machineManagementSupported?:boolean;managementSupported:boolean;addAgent:(m:Machine)=>void;nodeAction:(n:AgentNode,a:NodeAction)=>void;
   blocked:(machineId?:string,nodeId?:string)=>boolean;
+  onExecutionLockChange?:(locked:boolean)=>void;
 }
 export default function AgentGraph(props:Props){
   const {machines,nodes,relation,notify}=props;
@@ -97,6 +99,7 @@ export default function AgentGraph(props:Props){
   const focusedFilter=useRef<string|null>(null);
   const defaults=useRef<{groups:Record<string,Point>;nodes:Record<string,Point>}>({groups:{},nodes:{}});
   const executionLocked=!!state.relationPending||!props.online||props.busy;
+  useEffect(()=>{props.onExecutionLockChange?.(executionLocked);},[executionLocked,props.onExecutionLockChange]);
   const locked=executionLocked||!!props.metadataBusy||!editor.layoutAvailable;
   const layoutLocked=!!state.layoutPending||!editor.loaded;
   const finishPan=useRef(()=>{});
@@ -110,7 +113,8 @@ export default function AgentGraph(props:Props){
   useEffect(()=>{if(props.hidden||layoutLocked)finishPan.current();},[props.hidden,layoutLocked]);
   const machineById=(id:string)=>machines.find(m=>m.machineId===id);
   function main(id:string){
-    const node=nodes.find(n=>n.nodeId===id);if(!node?.connected||!node.executionSupported||locked)return;
+    const node=nodes.find(n=>n.nodeId===id);if(!node?.connected||locked)return;
+    if(!canCallBridge(node)){notify(bridgeCallerReason(node));return;}
     if(id===state.draft.leaderId)return;
     const removed=state.draft.memberIds.length;
     editor.edit(r=>({...r,leaderId:id,memberIds:[]}));
@@ -130,13 +134,14 @@ export default function AgentGraph(props:Props){
       if(type==='source'){
         if(source===id&&target){connect(source,target);keys(null,null);return;}
         if(id!==state.draft.leaderId){notify('请先设为主 Agent。');return;}
-        const first=nodes.find(n=>n.nodeId!==id&&n.connected&&n.executionSupported&&!state.draft.memberIds.includes(n.nodeId));
+        if(!canCallBridge(nodes.find(n=>n.nodeId===id))){notify(bridgeCallerReason(nodes.find(n=>n.nodeId===id)));return;}
+        const first=nodes.find(n=>n.nodeId!==id&&n.connected&&canReceiveDelegation(n)&&!state.draft.memberIds.includes(n.nodeId));
         keys(id,first?.nodeId||null);notify(first?'键盘连线：'+machineById(first.machineId)?.name+' / '+first.name+'；方向键切换，回车连接。':'没有可连接的子节点。');
       }else if(source){connect(source,id);keys(null,null);}
       return;
     }
     if(!source)return;
-    const targets=nodes.filter(n=>n.nodeId!==source&&n.connected&&n.executionSupported&&!state.draft.memberIds.includes(n.nodeId));
+    const targets=nodes.filter(n=>n.nodeId!==source&&n.connected&&canReceiveDelegation(n)&&!state.draft.memberIds.includes(n.nodeId));
     if(!targets.length)return;
     const i=targets.findIndex(n=>n.nodeId===target),next=targets[(i+(key==='ArrowLeft'||key==='ArrowUp'?-1:1)+targets.length)%targets.length]!;
     keys(source,next.nodeId);notify('键盘连线目标：'+machineById(next.machineId)?.name+' / '+next.name);
@@ -219,14 +224,16 @@ export default function AgentGraph(props:Props){
   useEffect(()=>{if(!flow||!editor.loaded||props.hidden||focusedFilter.current===props.filter)return;const first=focusedFilter.current===null;focusedFilter.current=props.filter;if(first&&(state.layout.layoutRevision>0||state.layoutDirty||state.layoutPending))return;const timer=setTimeout(()=>{if(props.filter==='all')void flow.fitView({padding:.12,maxZoom:1});else void flow.fitView({nodes:flowNodes.filter(n=>n.id==='machine:'+props.filter||n.parentId==='machine:'+props.filter),padding:.16,maxZoom:1});},50);return()=>clearTimeout(timer);},[flow,editor.loaded,props.filter,props.hidden]);
   useEffect(()=>{if(flow&&editor.loaded&&!state.layoutDirty&&!state.layoutPending&&JSON.stringify(flow.getViewport())!==JSON.stringify(state.layout.viewport))void flow.setViewport(state.layout.viewport);},[flow,editor.loaded,state.layout.layoutRevision,state.layoutPending,props.hidden]);
   const selectedNode=nodes.find(n=>n.nodeId===selection),selectedMachine=selectedNode?machineById(selectedNode.machineId):null,selectedEdge=edges.find(e=>e.id===edge);
+  const capabilityError=relationCapabilityError(state.draft,nodes);
   function removeEdge(){if(!selectedEdge||locked)return;editor.edit(r=>({...r,memberIds:r.memberIds.filter(id=>id!==selectedEdge.target)}));setEdge(null);notify('已移除授权草稿，保存后生效。');}
   return <section className={'agent-graph-panel '+(props.hidden?'graph-hidden':'')} aria-label="机器分组节点图" data-key-source={keySource||''} data-key-target={keyTarget||''} data-draft-members={state.draft.memberIds.join(',')}>
     <div className="graph-toolbar">
       <div><strong>{state.draft.leaderId?nodes.find(n=>n.nodeId===state.draft.leaderId)?.name+' 为主 Agent':'点击节点设为主 Agent'}</strong><span>{confirmed.memberIds.length} 条已保存授权 · {editor.dirty?'草稿待保存':'与后台一致'}</span></div>
-      <button className="btn primary" disabled={locked||!editor.dirty||editor.conflict} onClick={()=>void editor.saveRelation()}>{state.relationPending?'正在核对原保存':'保存授权'}</button>
+      <button className="btn primary" disabled={locked||!editor.dirty||editor.conflict||!!capabilityError} onClick={()=>{if(!relationCapabilityError(state.draft,nodes))void editor.saveRelation();}}>{state.relationPending?'正在核对原保存':'保存授权'}</button>
       <button className="btn" disabled={locked||!editor.dirty} onClick={editor.discard}>放弃草稿</button>
       <button className="btn" disabled={locked||!state.draft.leaderId} onClick={()=>editor.edit(r=>({...r,leaderId:null,memberIds:[]}))}>清除主节点</button>
     </div>
+    {capabilityError&&<div className="graph-warning" role="status">{capabilityError} 已有关系及原任务记录保留；请调整授权草稿后保存。</div>}
     {editor.conflict&&<div className="graph-warning" role="alert">另一窗口已更新授权。当前保存：{nodes.find(n=>n.nodeId===relation.leaderId)?.name||'无主节点'}，{relation.memberIds.length} 条授权。草稿仍保留。<button className="text-btn" onClick={editor.rebase}>保留草稿，以最新版本重新校验</button><button className="text-btn" onClick={editor.discard}>载入后台关系</button></div>}
     {state.relationPending&&<div className="graph-warning">授权保存回应尚未确认。草稿保留，仅查询原操作。<button className="text-btn" onClick={()=>void editor.queryRelation()}>查询原授权保存</button></div>}
     {editor.layoutError&&<div className="graph-warning" role="alert">后台暂不支持或无法读取图布局：{editor.layoutError}。{state.layoutPending?'原布局保存尚未确认，拖动保持锁定，仅查询原操作。':'画布、节点和机器仍可拖动，布局仅保存在本机。'}授权编辑需恢复支持图接口的后台；可在“设置 → 后台运行”停止旧后台后重新打开程序。<button className="text-btn" onClick={()=>void editor.reloadLayout()}>重新读取后台布局</button></div>}
@@ -257,7 +264,7 @@ export default function AgentGraph(props:Props){
     </div>
     <p className="graph-instructions" role="status">{keySource?'键盘连线中；当前目标 '+(nodes.find(n=>n.nodeId===keyTarget)?.name||'无')+'。回车连接，Esc 取消。':'左键拖动 Agent 卡片或机器组标题；中键拖动全图，滚轮缩放。自动整理会将主 Agent 所在机器放到左侧。端点连线后须保存授权。'}</p>
     {selectedEdge&&<div className="graph-details"><strong>允许委派：{nodes.find(n=>n.nodeId===selectedEdge.source)?.name} → {nodes.find(n=>n.nodeId===selectedEdge.target)?.name}</strong><button className="btn" disabled={locked||selectedEdge.data.removed} onClick={removeEdge}>删除这条授权</button></div>}
-    {selectedNode&&<div className="graph-details"><div><strong>{selectedMachine?.name} / {selectedNode.name}</strong><p>{graphNodeStatus(selectedNode)} · {selectedNode.version}</p>{(selectedNode.error||selectedNode.lastError)&&<p role="status">{selectedNode.error||selectedNode.lastError?.message}</p>}<details><summary>安装位置</summary><code>{selectedNode.executable}</code></details></div><button className="btn" disabled={locked||!selectedNode.connected||!selectedNode.executionSupported} onClick={()=>main(selectedNode.nodeId)}>设为主 Agent</button><button className="btn primary" disabled={!selectedNode.available||props.blocked(selectedNode.machineId,selectedNode.nodeId)} onClick={()=>props.start(selectedNode)}>开始会话</button></div>}
+    {selectedNode&&<div className="graph-details"><div><strong>{selectedMachine?.name} / {selectedNode.name}</strong><p>{graphNodeStatus(selectedNode)} · {selectedNode.version}</p><p>{connectionCapabilitySummary(selectedNode)}</p>{(selectedNode.error||selectedNode.lastError)&&<p role="status">{selectedNode.error||selectedNode.lastError?.message}</p>}<details><summary>安装位置</summary><code>{selectedNode.executable}</code></details></div><PrimaryAgentButton node={selectedNode} disabled={locked} onSelect={()=>main(selectedNode.nodeId)}/><button className="btn primary" disabled={!selectedNode.available||!canExecuteNode(selectedNode)||executionLocked||props.blocked(selectedNode.machineId,selectedNode.nodeId)} onClick={()=>props.start(selectedNode)}>开始会话</button></div>}
     {<div className="graph-machine-controls">{machines.map(m=><div key={m.machineId}><strong>{m.name}</strong><span>{m.online?'在线':m.kind==='ssh'?sshStageLabel(m.connectionState):'离线'}</span><button className="text-btn" disabled={props.busy||props.metadataBusy||!m.online} onClick={()=>props.machineAction(m,'scan')}><RefreshCw size={13}/>重新扫描</button>{m.kind==='ssh'&&<><button className="text-btn" disabled={props.busy||props.metadataBusy||m.online&&!!m.busy} onClick={()=>props.machineAction(m,m.online?'disconnect':'reconnect')}>{m.online?'断开':m.connectionState==='needs_credentials'?'输入凭据':'重新连接'}</button><button className="text-btn" disabled={props.busy} onClick={()=>props.machineAction(m,'details')}>连接详情</button><button className="text-btn" disabled={props.busy||props.metadataBusy||!props.machineManagementSupported||!m.online||m.busy||props.blocked(m.machineId)||nodes.some(n=>n.machineId===m.machineId&&n.busy)} onClick={()=>props.machineAction(m,'edit')}>编辑连接</button><button className="text-btn" disabled={props.busy||props.metadataBusy||!props.machineManagementSupported||!m.online||m.busy||props.blocked(m.machineId)||nodes.some(n=>n.machineId===m.machineId&&n.busy)} onClick={()=>props.machineAction(m,'remove')}>移除机器</button><button className="text-btn" disabled={props.busy||props.metadataBusy||!props.daemonManagementSupported||!m.online||m.busy} onClick={()=>props.machineAction(m,'daemon')}>后台维护</button></>}</div>)}</div>}
   </section>;
 }

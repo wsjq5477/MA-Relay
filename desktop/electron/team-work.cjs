@@ -2,6 +2,14 @@ const { randomUUID } = require('node:crypto');
 const fail = (code, message) => Object.assign(new Error(message), { code });
 const stamp = () => new Date().toISOString();
 const done = a => ['succeeded', 'failed', 'cancelled', 'rejected'].includes(a.state);
+function hasBindingIssue(s, run) {
+  const latest = new Map();
+  for (const a of s.attempts.filter(x => x.runId === run.runId)) {
+    if (a.workItemId && !s.workItems.some(x => x.workItemId === a.workItemId && x.runId === run.runId && x.round === a.workRound)) continue;
+    latest.set(a.workItemId ? 'task:' + a.workItemId : 'member:' + a.agentId, a);
+  }
+  return [...latest.values()].some(a => !!a.continuationError);
+}
 function text(v, max = 4000) {
   if (typeof v !== 'string' || !v.trim() || v.length > max) throw fail('TEAM_INPUT', '请填写有效的任务内容，并检查长度。');
   return v;
@@ -128,6 +136,7 @@ function applyTask(s, run, actor, method, p, space) {
     coordinator(run, actor); active(run);
     const items = s.workItems.filter(x => x.runId === run.runId);
     if (p.expectedRevision !== run.revision) throw fail('TEAM_REVISION', '工作状态已更新，请刷新。');
+    if (hasBindingIssue(s, run)) throw fail('TEAM_TASK_STATE', '当前原生执行的会话身份异常，不能验收总工作。');
     const live=s.attempts.filter(a=>a.runId===run.runId&&!done(a));
     const leaderAttempt=!actor.user&&s.attempts.find(a=>a.sessionId===actor.sessionId&&a.agentId===run.leaderId&&!a.workItemId);
     if(items.length&&items.every(x=>x.state==='completed')&&leaderAttempt&&live.length===1&&live[0]===leaderAttempt&&['running','accepted'].includes(leaderAttempt.state)){
@@ -191,7 +200,7 @@ function applyTask(s, run, actor, method, p, space) {
     coordinator(run, actor); active(run);
     if (item.state !== 'review') throw fail('TEAM_TASK_STATE', '任务须先提交交付或复验结果，才能验收。');
     const attempts = s.attempts.filter(a => a.workItemId === item.workItemId && a.workRound === item.round);
-    if (attempts.some(a => !done(a)) || (attempts.length && attempts.at(-1).state !== 'succeeded')) throw fail('TEAM_BUSY', '本轮原生执行尚未成功结束，不能仅按报告验收。');
+    if (attempts.some(a => !done(a)) || (attempts.length && (attempts.at(-1).state !== 'succeeded' || attempts.at(-1).continuationError))) throw fail('TEAM_BUSY', '本轮原生执行尚未成功结束或会话身份异常，不能仅按报告验收。');
     if (item.kind === 'delivery') {
       const checks = s.workItems.filter(x => x.runId === run.runId && x.sourceTaskId === item.workItemId);
       if (!checks.length || checks.some(x => x.state !== 'completed' || x.reports.find(r => r.reportId === x.currentReportId)?.targetArtifactId !== currentArtifact(item)?.artifactId)) throw fail('TEAM_ARTIFACT', '当前产物必须由另一成员复验并验收，旧版本结果不能替代。');
@@ -204,4 +213,4 @@ function applyTask(s, run, actor, method, p, space) {
   }
   throw fail('TEAM_METHOD', '任务操作不受支持。');
 }
-module.exports = { taskMethods, applyTask, taskView, task, currentArtifact, syncTasks, idle };
+module.exports = { taskMethods, applyTask, taskView, task, currentArtifact, syncTasks, idle, hasBindingIssue };

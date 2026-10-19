@@ -1,0 +1,62 @@
+[
+  {
+    "adapter": "codex",
+    "file": "codex.png",
+    "name": "Codex",
+    "source": "https://openai.gallerycdn.vsassets.io/extensions/openai/chatgpt/26.51007.21434/1791508178385/Microsoft.VisualStudio.Services.Icons.Default",
+    "productPage": "https://marketplace.visualstudio.com/items?itemName=OpenAI.chatgpt",
+    "license": "OpenAI brand asset; no open-source license asserted",
+    "retrievedAt": "2026-10-18",
+    "sha256": "2ce1c57dd3b312417106a487815ab1235bddce17e1fa9b32a2f048bd71ee25d3"
+  },
+  {
+    "adapter": "claude",
+    "file": "claude.png",
+    "name": "Claude Code",
+    "source": "https://anthropic.gallerycdn.vsassets.io/extensions/anthropic/claude-code/2.1.301/1792092236961/Microsoft.VisualStudio.Services.Icons.Default",
+    "productPage": "https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code",
+    "license": "Anthropic brand asset; no open-source license asserted",
+    "retrievedAt": "2026-10-18",
+    "sha256": "7241633e5a39b44a947c7b9a821637f30d6e86716e7a8c847136d91f9c3f6ba1"
+  },
+  {
+    "adapter": "hermes",
+    "file": "hermes.png",
+    "name": "Hermes Agent",
+    "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ccc695635094d7615373db267b77f894d978b1a0/apps/desktop/assets/appx/Square44x44Logo.targetsize-256.png",
+    "productPage": "https://github.com/NousResearch/hermes-agent/tree/ccc695635094d7615373db267b77f894d978b1a0",
+    "license": "MIT; see hermes.LICENSE.txt",
+    "retrievedAt": "2026-10-18",
+    "sha256": "4b75d873f29e3f330c7f9032051555b66218cf11e5a470876f3e0754cb32bc8e"
+  },
+  {
+    "adapter": "pi",
+    "file": "pi.svg",
+    "name": "Pi",
+    "source": "https://pi.dev/favicon.svg",
+    "productPage": "https://pi.dev/press-kit",
+    "license": "Official compact badge; project MIT notice in pi.LICENSE.txt",
+    "retrievedAt": "2026-10-18",
+    "sha256": "d266b2c1d2c7bf169ca30d438963b176fba16fea6263b9ac30c8302f34ad7ce7"
+  },
+  {
+    "adapter": "opencode",
+    "file": "opencode.svg",
+    "name": "OpenCode",
+    "source": "https://raw.githubusercontent.com/anomalyco/opencode/c38d83c0c4f92466ff9c8e12b8a741698e811012/packages/console/app/src/asset/brand/opencode-logo-light-square.svg",
+    "productPage": "https://opencode.ai/brand",
+    "license": "MIT; see opencode.LICENSE.txt",
+    "retrievedAt": "2026-10-18",
+    "sha256": "b1c48d82ebd304eab820658387642bcf4c9b8350d6860894d0fe21ddca25ef3f"
+  },
+  {
+    "adapter": "dsh",
+    "file": "dsh.svg",
+    "name": "DeepSeek Harness",
+    "source": "https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/687f282e8625c6b8d11ff58211a90524be2e4317/apps/web/public/favicon.svg",
+    "productPage": "https://github.com/deepseek-ai/deepseek-harness/tree/687f282e8625c6b8d11ff58211a90524be2e4317",
+    "license": "MIT; see dsh.LICENSE.txt and dsh.BRAND_GUIDELINES.md",
+    "retrievedAt": "2026-10-18",
+    "sha256": "9e983b4f649c25c6ca0623a50be1a6e705fd8f49f756638b980fa13b40575ab6"
+  }
+]

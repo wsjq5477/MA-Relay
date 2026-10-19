@@ -1,5 +1,49 @@
 # M06 原生 Agent 适配器测试报告
 
+## 2026-10-19：CT-02真实MCP六方向
+
+T-M06-146 / M06-F01：WSL Node22.23.1，真实Claude2.1.302/Codex0.163.0-alpha.10.2/OpenCode2.0.24轮流作主并各委派给另两种工具；生产Coordinator/AgentNetwork/MachineHost/stdioMCP/broker/原生CLI或HTTP，非假dispatcher。共9个成功原生Task、6个委派方向、16次实际MCP调用；原父/目标/机器/派生ID/消息与真实结果核对，重开每链Task3→3/委派2。保护7/7计入全桌面517/517（模型0），不与真实或跨模块计数叠加。生产行为无变更；新三工具、新EXE、独立SSH、权限/表单及执行中断点未测。[完整脚本、逐次报告与边界](../../iterations/I07/connection-delegation.md)。
+
+## 2026-10-19：CT-02首批真实直接生命周期
+
+T-M06-145 / M06-F01：WSL Node22.23.1，真实Claude2.1.302、OpenCode2.0.24、Codex0.163.0-alpha.10.2沿生产Coordinator/AgentNetwork/MachineHost分别通过直接回答、原Session续聊、原任务取消及完整观察重开。共9个原任务，6成功回答/3取消；每工具观察任务3→3，无新增执行。恢复保护7/7和桌面510/510为受控共享计数，不与真实任务或跨模块相加；根45/45保留CT-01日期。本模块产品行为无变更，新三工具/真实委派方向/新EXE/独立SSH未验。[脚本、逐次原始报告、首次失败与完整限制](../../iterations/I07/connection-native.md)。
+
+## 2026-10-19：CT-01连接能力与原拒绝恢复
+
+T-M06-144 / M06-F01/F05：alpha.28后未发布工作区，WSL Node22.23.1 / Windows Edge155。Hermes/Pi/DSH分别经完整生产Coordinator/MCP/broker/MachineHost/NativeCliHost链执行受控协议子进程，普通委派、取消竞争与原请求重开不重放通过；不是已安装真实工具/账号模型证据。共享定向32/32（全桌面503/503子集）、核心45/45及工程检查通过，无跳过；跨模块不相加。首次夹具失败及修正保留，真实新三工具/当前EXE/独立SSH未验。本轮模型0，先前真实Claude结果不计本轮。[脚本、命令、失败与最终原始证据](../../iterations/I07/connection-capabilities.md)。
+
+2026-10-18本轮[接入矩阵](../../agent-integration-matrix.md)与[ACP/通信研究](../../iterations/I07/connectivity-research.md)仅核对源码、既有证据和外部一手资料，没有新增原生/工程用例或EXE。CLI/SDK/ACP与MCP方向分别记录；新三种“普通被调用路径存在”是静态结论，不能算真实委派通过。下列原计数/版本保持，不累加文档检查。
+
+## 2026-10-18：真实原生执行成员公共文档链
+
+T-M06-143 / M06-F04：同WSL三个独立Bridge宿主、真实Claude2.1.302，五组限定检查通过、五次自动原生回合；开发/复核各一轮、主协调沿原会话三轮。原生终态后验收及恢复不重放通过，原生权限回复/非Bridge工具/模型覆盖0。机器路由受控，非独立SSH、真实WindowsEXE或代码编译返修；共享真实计数不跨模块叠加。[脚本、原始日志与准确边界](../../iterations/I07/native-members.md)。
+
+## 2026-10-18：原生接入准入与核对收据
+
+T-M06-142 / M06-F05：Hermes/Pi/DSH直接会话与小队边界分开；Codex/新宿主核对收据持久、原ID/类型/任务冲突及重启恢复，旧取消兼容。收据定向57/57，包含新契约23项，未知仍占用。 最终合并源码串行桌面474/474、核心45/45及工程检查通过；受控CLI/磁盘/浏览器，模型0，未升级用户后台或重建EXE，不替代真实原生或独立SSH。[需求、原始失败、最终日志与未测边界](../../iterations/I07/native-integration-guards.md)。
+
+2026-10-18 / T-M06-141：桌面空闲修复源码，WSL Node22.23.1 / Windows Node24.19.0及Edge155。核心45/45、桌面424/424、定向20/20、Windows受控界面3组通过，模型0；属于共享工程计数，不跨模块相加。普通EXE与黑窗观察、冻结包、首次环境失败及用户现场未测边界按[本次完整报告](../../iterations/I07/desktop-polling.md)记录，历史包不冒充本次修复。
+
+## 2026-10-18：当前 Agent 版本与历史安装合流
+
+T-M06-141 / M06-F01：alpha.28后未发布工作区、WSL Ubuntu/Node22.23.1。当前PATH安装为权威，新安装新上下文，旧会话/请求仍路由原后端；精确安装二次核验不替换原路径。 桌面424/424、核心45/45通过，计数为共享工程结果不跨模块相加；真实Claude版本2.1.302与受控历史节点合流明确分层。类型/lint/前端构建通过；当前EXE、用户运行中profile、真实模型和独立SSH未验证。[完整场景、原始日志与首次失败](../../iterations/I07/current-agent-discovery.md)。
+
+## 2026-10-18：三种原生适配与自定义接口
+
+T-M06-140 / M06-F01/F05：alpha.28 后未发布源码，WSL Node22.23.1，官方协议形状的受控独立进程/真实磁盘，模型0。最终定向 **43/43** 通过，其中新宿主19项、注册契约5项、发现9项、既有Codex5项、MachineHost readiness1项/routing4项；此为共享总数，模块之间不重复相加。[TAP](../../../artifacts/native-agent-expansion/2026-10-18/native-targeted.tap)、[官方源码固定引用与协议](../../../artifacts/native-agent-expansion/2026-10-18/upstream-contracts.json)。
+
+覆盖新会话/原 Session 续聊、只读原请求去重与冲突、失败帧不被成功覆盖、观察重开、unknown占位、Session变化禁续聊、Pi原文件缺失/重复禁续聊、在途旧会话禁用、取消原操作ID/自然成功竞争、忽略SIGTERM与超4MiB帧升级终止、未知adapter拒绝、原生配置覆盖与不支持的MCP拒绝。契约与[骨架检查](../../../examples/custom-agent/check.cjs)明确无真实执行。原生CLI本身未安装验收，三种真实模型、Windows EXE、独立SSH与新增三种MCP/许可/表单未验收。首次sandbox子进程I/O异常及Codex依赖缺失的失败与修正记录见[专项](../../iterations/I07/native-agent-expansion.md)。
+
+## 2026-10-18：当前工作区集成基线
+
+T-M06-132：alpha.28加未发布UI/会话补丁，WSL Node22.23.1，受控进程/SQLite/SSH/HTTP/React SSR，模型0。核心45/45、串行全桌面375/375（含既有父/子测试）、lint/根类型/前端类型及构建通过，无测试跳过；保留既有chunk体积提示。共享计数不跨模块相加。[完整命令、原始日志和源码观察清单](../../iterations/I07/integration-baseline.md)。未验证新UI浏览器/Windows EXE、独立SSH或真实模型；模块行为无新改动，发布附件未更新。
+
+
+## 2026-10-17：空白原生Session绑定保护
+
+T-M06-130：alpha.28之后的未发布源码增量，WSL Node22.23.1，受控原生execute/query与真实SQLite，模型0。首次纯空白值不绑定/不自动续接，后续空值不清除已有有效绑定；两个反例修复前失败，修复后相关51/51（含父/子测试）通过，真正Session变化仍受既有反例约束。[证据与复现](../../iterations/I07/blank-native-session.md)。未实测真实CLI返回空值、Windows或独立SSH，未重建EXE；共享计数不跨模块累加。
+
+
 ## 2026-10-17：Windows恢复专项
 
 T-M06-128：2026-10-17 / WSL Node22.23.1与Windows Node24.19.0 / alpha.27已预发布，模型0。Codex恢复10/10、共享原子写入10/10、网络最终50/50、Windows契约86/86；全桌面最终运行288/288、核心45/45及工程检查通过；新增alpha.26兼容文件另验10/10。共享计数不跨模块累加，Windows为受控目录/执行器，不是用户故障或真实模型。首轮限制/维护ENOENT与未测范围保留；最终普通Windows EXE对合成记录恢复/重开/重启/冻结源码共5组通过，包内33 CJS/78 core/1393 Linux条目一致；发布结果以[当片报告](../../iterations/I06/windows-start-persistence.md)后续实际记录为准。

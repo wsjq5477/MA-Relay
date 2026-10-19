@@ -1,5 +1,7 @@
 # M05 Linux 机器后台设计
 
+2026-10-18 未发布源码：daemon 的 MachineHost 静态注册增加 Hermes/Pi/DSH，仍在目标用户环境执行；任务属于同机宿主与持久 worker，relay 断开或观察器 close 不取消原任务。协议版本和认证不变；旧已安装 daemon 不因客户端更新自动获得新适配器，需要发布含新增模块的后台再在原机器升级。[扩展范围与证据](../../iterations/I07/native-agent-expansion.md)。
+
 ## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
 M05-F05/F06：daemon业务/协议不变，既有daemon.receiptRead返回原持久method/op/key/target/fingerprint/state/error。新客户端读取匹配rejected/NOT_CONFIGURED作为恢复证据；confirmed仍返回原任务，unknown缺证明仍保守。无需为本修复升级支持该endpoint的可信旧daemon。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
@@ -43,7 +45,7 @@ daemon 不开放 TCP 监听，也不接受用户密码、私钥或模型设置�
 
 `productionHost()` 加载根编译产物 `dist/desktop-host.js` 的 `DesktopHost` 和共享 CJS `MachineHost`。OpenCode 使用已有 Controller/driver；Claude 与 Codex 使用各自原生 host。无需另建远端模型 API 层，也不重写原生全局认证/供应商/默认模型。
 
-发现通过共享 tool-discovery 读取本 Linux 用户的 PATH、默认目录和常见版本管理器安装目录；不会执行交互 rc 脚本，不依赖 Windows 的安装或客户端 PATH。已验证可复用旧 daemon 继续使用其旧代码；新扫描功能须经原机器受控升级后生效。新增扫描不改变私有 socket/协议、用户/profile 归属或原任务收据。[alpha.19](../../iterations/I06/linux-cli-discovery.md)。
+发现通过共享 tool-discovery 选择本 Linux 用户 PATH 中首个已安装命令，以其 --version 为当前版本；探测失败报告当前入口异常。仅 PATH 无入口时才检查默认目录和常见版本管理器安装目录；不会执行交互 rc 脚本，不依赖 Windows 的安装或客户端 PATH。已验证可复用旧 daemon 继续使用其旧代码；新扫描功能须经原机器受控升级后生效。新增扫描不改变私有 socket/协议、用户/profile 归属或原任务收据。[alpha.19](../../iterations/I06/linux-cli-discovery.md)。
 
 ## 3. 身份、目录与单写者
 

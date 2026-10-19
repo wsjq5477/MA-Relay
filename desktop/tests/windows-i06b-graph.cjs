@@ -18,7 +18,7 @@ const check=s=>{report.checks.push(s);fs.writeFileSync(path.join(out,'ui.json'),
     window.fixtureDirectory=directory;
   },{directory:fixture.directory,version:report.version});
   let page=await context.newPage();
-  const open=async(allowLayoutPending=false)=>{activePage=page;await page.goto(process.argv[2]||'http://127.0.0.1:4216');await expect(page.locator('.graph-tool')).toHaveCount(3);if(!allowLayoutPending)await expect(page.getByRole('button',{name:'自动整理',exact:true})).toBeEnabled();};
+  const open=async(allowLayoutPending=false)=>{activePage=page;await page.goto(process.argv[2]||'http://127.0.0.1:4216');await page.getByRole('button',{name:'关系图',exact:true}).click();await expect(page.locator('.graph-tool')).toHaveCount(3);if(!allowLayoutPending)await expect(page.getByRole('button',{name:'自动整理',exact:true})).toBeEnabled();};
   await open();await page.getByRole('button',{name:'适配全图',exact:true}).click();await expect(page.locator('.graph-view-tools').getByText('布局已保存',{exact:true})).toBeVisible();await page.waitForTimeout(300);
   assert.equal(await page.locator('select[aria-label="选择机器"],select[aria-label="主 Agent"],select[aria-label="执行 Agent 节点"]').count(),0);
   check('Windows/WSL/SSH groups and empty-project tool nodes; core machine/relation/target dropdowns removed');

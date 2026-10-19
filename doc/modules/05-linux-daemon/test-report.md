@@ -1,5 +1,13 @@
 # M05 Linux daemon 测试报告
 
+## 2026-10-18：当前 Agent 版本与历史安装合流
+
+T-M05-141 / M05-F04：alpha.28后未发布工作区、WSL Ubuntu/Node22.23.1。真实本机WSL版本探测与生产MachineHost/AgentNetwork在隔离目录合流；没有独立SSH或用户后台升级。 桌面421/421、核心45/45通过，计数为共享工程结果不跨模块相加；真实Claude版本2.1.302与受控历史节点合流明确分层。类型/lint/前端构建通过；当前EXE、用户运行中profile、真实模型和独立SSH未验证。[完整场景、原始日志与首次失败](../../iterations/I07/current-agent-discovery.md)。
+
+## 2026-10-18：新增宿主的部署边界
+
+T-M05-140 / M05-F01/F02：alpha.28 后源码，新增 Hermes/Pi/DSH 宿主沿用现有 MachineHost 与协议2，无 daemon 身份/帧格式修改。受控本机原生 worker 的观察重开、原请求和 unknown 占用验证计入[原生专项](../../../artifacts/native-agent-expansion/2026-10-18/native-targeted.tap)；全桌面仍含原 daemon 回归，结果见[扩展验收](../../iterations/I07/native-agent-expansion.md)。本次未升级或测试独立 SSH daemon，没有把本机受控 CLI 当独立服务器/真实模型通过。
+
 ## 2026-10-17：SSH持久拒绝恢复
 
 T-M05-128：alpha.28已预发布，WSL Node22.23.1/Windows Node24.19.0，合成台账和受控TCP SSH，模型0。最终桌面317/317、核心45/45、Windows契约93/93，lint/类型/构建通过；真实TCP SSH丢响应/daemon重启1项及普通Windows无调试EXE合成验证6组通过，34 CJS/78 core/1395 Linux资源匹配源码。发布以[当次实际记录](../../iterations/I06/daemon-rejection-recovery.md)为准，不推定用户现场恢复。历史记录不计为本次重测。

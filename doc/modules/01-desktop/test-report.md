@@ -1,5 +1,39 @@
 # M01 桌面交互测试报告
 
+## 2026-10-19：CT-01连接能力与原拒绝恢复
+
+T-M01-144 / M01-F04/F05/F07/F09：alpha.28后未发布工作区，WSL Node22.23.1 / Windows Edge155。Windows生产前端5组/5图与SSR验证方向选择、历史直接会话、模拟丢回应/刷新/原ID拒绝恢复；模型及真实后台0。共享定向32/32（全桌面503/503子集）、核心45/45及工程检查通过，无跳过；跨模块不相加。首次夹具失败及修正保留，真实新三工具/当前EXE/独立SSH未验。本轮模型0，先前真实Claude结果不计本轮。[脚本、命令、失败与最终原始证据](../../iterations/I07/connection-capabilities.md)。
+
+## 2026-10-18：原生接入准入与核对收据
+
+T-M01-142 / M01-F10：登记及独立手动执行选择器只列支持小队的节点，旧误登记卡片/原尝试保留，Hermes/Pi/DSH直接会话入口仍可用。Windows生产前端6组/6图通过、0页面错误/0写入；首次布局夹具失败及修正保留。 最终合并源码串行桌面474/474、核心45/45及工程检查通过；受控CLI/磁盘/浏览器，模型0，未升级用户后台或重建EXE，不替代真实原生或独立SSH。[需求、原始失败、最终日志与未测边界](../../iterations/I07/native-integration-guards.md)。
+
+2026-10-18 / T-M01-141：桌面空闲修复源码，WSL Node22.23.1 / Windows Node24.19.0及Edge155。核心45/45、桌面424/424、定向20/20、Windows受控界面3组通过，模型0；属于共享工程计数，不跨模块相加。普通EXE与黑窗观察、冻结包、首次环境失败及用户现场未测边界按[本次完整报告](../../iterations/I07/desktop-polling.md)记录，历史包不冒充本次修复。
+
+## 2026-10-18：当前 Agent 版本与历史安装合流
+
+T-M01-141 / M01-F01/F02/F06：alpha.28后未发布工作区、WSL Ubuntu/Node22.23.1。概览/图/添加列表隐藏 supersededBy 旧安装，历史阅读保留原节点来源。 桌面424/424、核心45/45通过，计数为共享工程结果不跨模块相加；真实Claude版本2.1.302与受控历史节点合流明确分层。类型/lint/前端构建通过；当前EXE、用户运行中profile、真实模型和独立SSH未验证。[完整场景、原始日志与首次失败](../../iterations/I07/current-agent-discovery.md)。
+
+## 2026-10-18：六种 Agent 品牌图标
+
+T-M01-140 / M01-F15：alpha.28 后未发布源码；WSL Node22.23.1 前端 SSR **63/63**（图标4项与既有SSR59项，共享计数）通过。真实 Windows Node24.18.0 / Edge155.0.4283.45 / 冻结生产前端，六个受控节点的浅色、深色与关系图 **13项、3图**通过；检查实际图片加载与角色标记分离，外部资源请求0、模型0，无页面错误。 [浏览器报告](../../../artifacts/agent-support/2026-10-18/icons/report.json)、[浅色](../../../artifacts/agent-support/2026-10-18/icons/inventory-light.png)、[深色](../../../artifacts/agent-support/2026-10-18/icons/inventory-dark.png)、[图](../../../artifacts/agent-support/2026-10-18/icons/graph-dark.png)。复现：`node --test desktop/tests/agent-icons.test.cjs desktop/tests/ui-redesign.test.cjs`；Windows浏览器脚本[入口](../../../desktop/tests/windows-agent-icons.cjs)。不证明新 Agent 模型、Windows EXE 或独立 SSH。[完整边界](../../iterations/I07/native-agent-expansion.md)。
+
+## 2026-10-18：Windows视觉与交互检查（未发布工作区）
+
+T-M01-133 / M01-F01/02/05/06/07/08/09/10/14：Windows Node24.19.0、Edge155.0.4283.45，生产React前端、临时隔离Coordinator及合成历史，模型0。完整主脚本5组通过、12张截图已逐张查看；1440×960标准与980×660最小桌面窗口、深浅主题均有记录，全部截图document/content横向overflow=false，页面异常0。搜索/侧栏重开、关系草稿跨视图与页面、丢授权ACK后原收据恢复不重放、任务详情及系统主题/停止确认取消均通过。[逐步截图、健康、观察与限制](../../iterations/I07/ui-visual-acceptance.md)、[最终报告](../../../artifacts/ui-redesign/2026-10-18/verified/ui.json)、[脚本](../../../desktop/tests/windows-ui-redesign.cjs)。这5组不与旧375工程基线、53项SSR或其他模块相加。
+
+初次脚本在主题精确label等待处超时，已修控件可访问名称并完整重跑；初版续问区出视口和机器页说明留白过多也已修复，initial截图与失败报告保留。本次源码还修复菜单Escape/外点/单开及动作后关闭、清空搜索焦点、长名换行、详情固定原ID/丢弃迟到回应、续聊执行锁/节点在线门槛、范围排除当前选择时隐藏阅读区，以及小队continuationError提示且保留原生终态。最终状态矩阵10组/8图、小队3组/3图、原图交互10组与稳定截图均通过；`0.6.0-alpha.28.ui.2`普通EXE4项和包资源/摘要核验通过。未访问用户profile、独立SSH或真实模型，GitHub alpha.28附件未改变。
+
+## 2026-10-18：当前工作区集成基线
+
+T-M01-132：alpha.28加未发布UI/会话补丁，WSL Node22.23.1，受控进程/SQLite/SSH/HTTP/React SSR，模型0。核心45/45、串行全桌面375/375（含既有父/子测试）、lint/根类型/前端类型及构建通过，无测试跳过；保留既有chunk体积提示。共享计数不跨模块相加。[完整命令、原始日志和源码观察清单](../../iterations/I07/integration-baseline.md)。未验证新UI浏览器/Windows EXE、独立SSH或真实模型；模块行为无新改动，发布附件未更新。
+
+
+## 2026-10-17：桌面体验重构（未发布源码）
+
+T-M01-129 / M01-F01/05/06/07/09/14：WSL Node22.23.1、React19.3.0；新生产组件受控SSR门槛53/53通过，包含原节点unknown与独立节点、关系/断连共享执行锁、历史/验证/终态/canContinue续问、原恢复原因与生命周期入口。原图/管理受控回归24/24通过，模型0。最终桌面全量373/373、TypeScript/Vite与文档检查通过；预览和视觉/EXE未测边界见[当次专项](../../iterations/I07/ui-redesign.md)，[SSR原始TAP](../../../artifacts/ui-redesign/2026-10-17/render-tests.tap)。不把SSR当真实浏览器或普通EXE验收；旧版本界面证据仍只属于原版本。
+
+
 ## 2026-10-17：SSH持久拒绝恢复
 
 T-M01-128：alpha.28已预发布，WSL Node22.23.1/Windows Node24.19.0，合成台账和受控TCP SSH，模型0。最终桌面317/317、核心45/45、Windows契约93/93，lint/类型/构建通过；真实TCP SSH丢响应/daemon重启1项及普通Windows无调试EXE合成验证6组通过，34 CJS/78 core/1395 Linux资源匹配源码。发布以[当次实际记录](../../iterations/I06/daemon-rejection-recovery.md)为准，不推定用户现场恢复。历史记录不计为本次重测。
@@ -154,3 +188,7 @@ alpha.20已公开预发布：[Windows EXE](https://github.com/wsjq5477/MA-Relay/
 ## 2026-10-16：小队原生等待观察
 
 T-M01-120：基于alpha.23的未发布源码增量，WSL Linux / Node22.23.1。受控原执行与真实SQLite重启，模型0。小队自动化/公共空间/任务专项30/30（共享总数）通过，覆盖等待投影、脱敏、通知跨重启去重、unknown保留和终态清除，通知未增加执行；前端类型与构建通过。首次失败、完整TAP、复现和证据限制见[专项](../../iterations/I07/native-waiting.md)。未运行真实原生权限批准、Windows浏览器/EXE或独立SSH，未更新发布附件。
+
+2026-10-18最终补验：UI冻结源码全桌面381/381，原图真实鼠标/键盘10组、UI状态10组（无跳过、业务/模型0）通过；后两者与页面5组分别记录，不计为桌面单测数量。[最终桌面](../../../artifacts/ui-redesign/2026-10-18/desktop-tests-final.tap)、[状态](../../../artifacts/ui-redesign/2026-10-18/state/2026-10-18T00-48-05-809Z/ui.json)、[图](../../../artifacts/ui-redesign/2026-10-18/graph/ui.json)。原生EXE仍以[交付](../../iterations/I07/ui-redesign.md)实际字节为准。
+
+本轮候选冻结于2026-10-18 08:50前后。11:18以后共享工作区另有原生适配器/图标增量，不在这份候选或381项结果中；不能把当前目录后续变化当作已验证包。[最终普通EXE及源码边界](../../iterations/I07/ui-redesign.md)。

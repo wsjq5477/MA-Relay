@@ -1,5 +1,7 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+Windows官方Codex npm启动器直接解析原包内原生EXE，隐藏参数不再丢失于JS二次spawn；节点仍记录原JS身份，缺原二进制拒绝，未改账号/模型。Claude空闲snapshot不定期重跑版本/auth，显式检查与提交前检查保留。[复现与验收](../../iterations/I07/desktop-polling.md)。
+
 ## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
 M03-F04/F06：原节点submit/continue的双指纹、原agent/续聊父目标、机器/daemon/profile与远端参数摘要匹配且无任务绑定/在途job，才把dispatched改false并持久daemonRejection。写失败回退内存，重开重核缓存，其他unknown不释放。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
@@ -29,7 +31,7 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 ## 1. 用户得到什么
 
 
-用户先看到机器，再看到机器上安装的 Claude Code、OpenCode、Codex 等 Agent 节点。接入节点不要求项目目录、模型或供应商。发送任务时才选择执行目录；不处理现有项目时可留空，由后台创建默认目录。
+用户先看到机器，再看到机器上安装的 Claude Code、OpenCode、Codex、Hermes、Pi、DSH 等 Agent 节点。后三种是 alpha.28 后未发布源码扩展，详情见[原生扩展专项](../../iterations/I07/native-agent-expansion.md)。接入节点不要求项目目录、模型或供应商。发送任务时才选择执行目录；不处理现有项目时可留空，由后台创建默认目录。
 
 一台 Windows 电脑和它的 WSL 是两个执行环境，但 WSL 标明所属 Windows 宿主。通过 SSH 接入的 Linux 是独立机器，文件路径、任务和故障归属于它自己。
 
@@ -40,7 +42,7 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 | M03-F03 | 重扫、重开、启动脚本解析后保持节点归属，不按项目产生新节点 | 已实现；受控测试及已发布版验证 |
 | M03-F04 | 任务创建私有执行上下文；沿用原生设置，历史项目实例保留 | 已实现；Claude/OpenCode 真实验证，Codex 有原生限制 |
 | M03-F05 | 所有查询、续聊、回复和取消回到原机器、原后端 | 已实现；同名 ID 隔离受控验证 |
-| M03-F06 | 单节点串行；同一 Windows/WSL 共享目录互斥；一台离线不拖垮其他机器 | 已实现；离线缓存显示为不确定 |
+| M03-F06 | 同工具当前/历史节点串行；同一 Windows/WSL 共享目录互斥；一台离线不拖垮其他机器 | 已实现；离线缓存显示为不确定 |
 | M03-F07 | 导入旧目录、项目实例和历史，不改原生 Session ID | 已实现；兼容入口继续保留 |
 
 SSH 登录、凭据和安装见 [M04](../04-ssh-access/design.md)，Linux daemon 见 [M05](../05-linux-daemon/design.md)。本模块将已经连接的远端纳入统一目录；不负责服务器登录。
@@ -51,7 +53,7 @@ SSH 登录、凭据和安装见 [M04](../04-ssh-access/design.md)，Linux daemon
 | --- | --- | --- | --- |
 | Machine | 可独立发现、启动工具的执行环境 | 否 | 本机持久 UUID、WSL 分发名称、SSH 经过握手确认的远端身份 |
 | Tool Connection | 机器上某个可执行工具的安装及接入记录 | 否 | 机器 ID + 可执行路径；Windows 路径大小写归一 |
-| Agent Node | 用户看到和连接关系使用的工具节点 | 否 | 机器 ID + 适配器 + 可执行路径，已有上下文的 nodeId 优先 |
+| Agent Node | 每台机器每种工具的当前命令入口；旧安装节点保留历史引用 | 否 | 首次按机器/适配器/路径生成；升级沿用已有角色或已接入节点的 nodeId |
 | Execution Context | 某节点在某个目录、直接或协作模式下的私有运行配置 | 是 | 节点 + 真实目录 + 模式的摘要 |
 | Instance | 兼容旧核心协议的后端执行实例 | 是 | 原始 backendId，中央视图增加机器前缀 |
 | Conversation / Task | 会话与一轮执行 | 继承上下文 | 原后端 ID；中央视图带来源机器 |
@@ -73,7 +75,26 @@ flowchart TD
 
 ## 3. 职责与调用边界
 
+### 当前连接能力与恢复
+
+M03-F02/F04/F05：节点snapshot投影八项connectionCapabilities及capabilitySource；静态已审核适配器为上限，显式false/null、来源不匹配只能收窄，未知适配器不能借名称或availability开放。execution/delegation/bridgeMcp分别表示执行、普通被委派、调用Bridge；不改稳定节点/机器身份或原请求路由，不记录敏感安装/账号配置。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
+
 `MachineRouter` 管理机器目录、工具记录、后端实例导入、路径和来源路由。`AgentNetwork` 在其上增加用户节点、节点请求台账和协作关系。每台机器上的 `MachineHost` 管理工具发现及私有上下文，再调用原生适配器。
+
+发现与 MachineHost 派发共享同一受校验静态注册表，稳定 adapter ID 为 `claude`、`opencode`、`codex`、`hermes`、`pi`、`dsh`。导入快照按实际 adapter 取名称，不将未知工具标为 OpenCode。Windows npm 入口按注册路径解析，Pi 兼容新旧包作用域；原上下文选中安装失效不替换成另一套程序；新工作使用当前入口并在安装变化时建立独立上下文。安装健康仅代表版本命令可调用。扩展代码接口见[开发指南](../../custom-agent-development.md)。
+
+### 小队节点的静态接入资格
+
+2026-10-18 的未发布源码在 Coordinator 现有 `snapshot.nodes` 中投影可选 `teamCollaboration`，依据[静态注册表](../../../desktop/electron/builtin-adapters.cjs)判断原生小队接入资格。它独立于普通直接会话的 `executionSupported`，由中央生成，不修改原 nodeId、machineId、已接入状态或持久化节点格式。这是本地适配能力门槛；本片没有在 AgentNetwork 新增远端能力采集或持久化，也不能据该投影推定目标机器已经具备小队通信或原会话续接能力。实际执行仍由原 MachineHost `context` / `scope` 及 `teamContinuation` 确认来源后台支持情况。
+
+| 节点适配器与字段 | 新小队接入规则 |
+| --- | --- |
+| Claude Code / OpenCode / Codex，旧节点缺少该字段 | 按既有静态声明兼容手动小队接入，不能把缺字段一律视为不支持；自动续接仍只开放已验证的 Claude |
+| 原三种工具，传入节点确有显式 `false` | 保留拒绝，不能按工具名称覆盖 |
+| Hermes / Pi / DSH | 支持直接会话，不开放原生小队；可选字段伪造为 `true` 也不能授予能力 |
+| 未知或未注册适配器 | 不推定支持；仅有 `executionSupported` 或伪造 `true` 均不足以准入 |
+
+界面[节点选择器](../../../desktop/src/TeamNativeNodeSelect.tsx)同时过滤未接入、已移除和已被当前安装替代的节点；登记与独立手动执行下拉共用门槛，历史误登记成员及原尝试仍保留供阅读。[TeamSpace](../../../desktop/electron/team-space.cjs)在原收据幂等分支之后，再对新登记和既有成员的新执行校验静态能力。拒绝发生在认领工作项、消耗自动预算、保存新尝试或派发之前；查询原请求或同 ID 恢复已有执行不经过这项新准入，原身份、撤权及 unknown 保护照常生效。外部 MCP 成员仍从自身入口工作。需求与实际证据见[本片交付](../../iterations/I07/native-integration-guards.md)，不改变 GitHub alpha.28 或本地 poll.4 的冻结范围。
 
 | 组件 | 输入 | 输出与责任 |
 | --- | --- | --- |
@@ -103,12 +124,12 @@ Windows 的工具在 Windows 启动，WSL 的工具在选定分发中启动，SS
 
 1. 中央先确保本机存在；Windows 再枚举 WSL 分发，并保留曾配置但当前不可用的分发身份。
 2. 并行获取各机器快照；每台机器独立超时，当前默认为 10 秒。
-3. 工具扫描优先检查原 PATH 与原默认目录；Linux 再检查用户态 fnm/nvm/Volta/asdf/mise/Cargo/Bun/pnpm/npm prefix 目录与已传入的标准根目录变量，执行版本探测和 realpath 去重，不发模型 Prompt。扫描不 source Shell rc、不写原生配置；Windows 原处理保留。
-4. 将扫描结果归为工具连接，再建立或复用节点；不创建项目实例。
+3. 工具扫描按目标用户 PATH 顺序选择第一个已安装的可执行命令，只探测其版本；探测失败报告该入口异常，不悄悄切换到旧安装或版本号更高的安装。PATH 没有入口时才检查默认目录及 Linux fnm/nvm/Volta/asdf/mise/Cargo/Bun/pnpm/npm prefix 等目录；后备探测允许跳过损坏安装。扫描不 source Shell rc、不解释 alias/function、不写原生配置、不发模型 Prompt。显式指定原安装的二次核验仍只验证原路径。
+4. 每台机器每种 adapter 只展示一个当前节点。优先保留原主角色、原子角色、已接入及已有节点的身份；新发现更新当前 executable/version，不按版本号排序。其他旧节点写 supersededBy，保留原 ID、接入记录、请求、上下文和历史，概览/图/添加列表隐藏它们。不自动迁移旧授权或收据，也不创建项目实例。
 5. 用户接入节点时重新核对可执行工具仍存在且可调用，记录 connected。
 6. 真实发送任务才建立执行上下文，并核对目录真实存在。
 
-机器列表扫描缓存约 15 秒，工具扫描缓存约 30 秒；失败快照短暂退避约 5 秒。`snapshotJobs` 合并同机器正在进行的读取，避免卡住时持续启动新后台。
+机器列表在后台首次使用时枚举，并发首次读取合并；工具在该机器首次成功读取快照后尝试一次扫描。实时 snapshot 不按时间重新枚举 WSL 或启动工具版本探测，失败探测也不在后续快照自动重试；用户明确点击“扫描”才重新枚举环境并重扫目标工具。安装/卸载/升级工具或新增 WSL 后需扫描；实际执行前原安装核验保留。失败快照短暂退避约 5 秒，`snapshotJobs` 合并同机器正在进行的读取。详见[桌面空闲专项](../../iterations/I07/desktop-polling.md)。
 
 `healthy` 表示安装/调用检查可用；`connected` 表示用户接入过节点；真实模型能否回复由任务结果验证。账号拒绝不能被扫描成功掩盖。
 
@@ -130,7 +151,7 @@ OpenCode 的 core 二次检查复用同一共享扫描器，任务上下文核�
 | SSH `/mnt/d/project` | 作为远端 Linux 目录，不与本地 D 盘共享占用 |
 | SSH Windows 格式路径 | 不自动转换；由远端目录验证返回真实错误 |
 
-互斥有两个层次：节点上的非终态任务和未确认请求阻止新的节点执行；目录占用阻止同一项目在 Windows/WSL 的其他实例执行。检查全部实例和任务占用，不能只用前端显示的前 100 条任务。
+互斥有两个层次：当前节点汇总同工具历史节点上的非终态任务和未确认请求，历史节点的在途准备/管理锁也阻止当前入口并发；pending journal 的原历史节点占用覆盖同机器同 adapter。目录占用阻止同一项目在 Windows/WSL 的其他实例执行。检查全部实例和任务占用，不能只用前端显示的前 100 条任务。
 
 ## 7. API 使用示例
 
@@ -176,12 +197,14 @@ flowchart LR
 
 ## 9. 当前限制与已确认后续设计
 
-- 节点路径变化依靠已有上下文的权威 nodeId 保持归属；任意安装迁移和所有符号链接别名的统一合并没有完整验收。
+- 同机器同 adapter 的旧安装归为当前入口的历史节点；不跨机器或工具合并。历史节点不能新建任务或重新接入，原请求查询和原会话续接仍按原身份路由；原安装不可调用时保留实际失败。若同一工具曾有多个授权节点，仅保留原授权记录，不自动扩权。
 - Windows/WSL 真实链路已发布；alpha.6 候选的独立 SSH Linux 接入与 Windows 双向核心协作已实际验收；正式 0.6.0 与完整 I06C 专项尚未准出。
 - 当前只有一个默认协作组；alpha.6 节点图编辑同一真实授权。图的几何 parent、布局与 WSL 的物理宿主/机器身份分别管理，布局不改变任务路由。
 - alpha.10 远端连接编辑/移除/恢复已实现，原生工具卸载仍未完成；alpha.9 是节点管理历史增量。机器移除保留远端安装和历史。
 
 ## 10. 代码入口与维护
+
+原请求/原Session/控制规则在2026-10-19经当前WSL三工具[直接生命周期](../../iterations/I07/connection-native.md)及[MCP六方向委派](../../iterations/I07/connection-delegation.md)补验。新增的是可恢复验收脚本与证据，本模块生产代码/数据/协议未改变；不会用新脚本重放已有未知动作。
 
 从 [machine-router.cjs](../../../desktop/electron/machine-router.cjs) 读目录、路由和共享磁盘锁，从 [agent-network.cjs](../../../desktop/electron/agent-network.cjs) 读节点及请求台账，从 [machine-host.cjs](../../../desktop/electron/machine-host.cjs) 读上下文。发现细节见 [tool-discovery.cjs](../../../desktop/electron/tool-discovery.cjs)，中央宿主组装见 [coordinator-service.cjs](../../../desktop/electron/coordinator-service.cjs)。
 

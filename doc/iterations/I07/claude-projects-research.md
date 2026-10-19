@@ -1,5 +1,7 @@
 # I07：Claude Projects 与小队公共协作空间调研
 
+2026-10-19补充：下文保留10月15日调研时点。现行Projects文档已明确云线程的MEMORY.md索引/按需记忆文件、Library及Remote Control本机线程的上下文差异，最新一手资料与Dots/Grok Bot对比统一见[后续研究](projects-dots-bots-research.md)。没有把原文档或外部产品能力改写为AgentBridge实测。
+
 调研日期：2026-10-15。方法：阅读 Anthropic 官方公告和 Claude Code 官方文档；未运行 Claude Projects 或 Agent Teams。状态：设计参考，不是 AgentBridge 已实现能力，不把参考产品的内部能力移植为本项目验收事实。
 
 ## 1. 发布对象与时间

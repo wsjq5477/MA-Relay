@@ -1,5 +1,29 @@
 # 迭代路线与当前交付
 
+2026-10-19：CT-02继续完成[CT-02真实MCP委派](iterations/I07/connection-delegation.md)，当前WSL三工具已覆盖全部六个普通委派方向，真实主/子/结果/汇总及完成后恢复通过。新增验收工具/保护回归，产品运行代码未改；不是六工具/所有运输环境全部准出。下一步在真实原生环境可用后补新三工具，并冻结当前源码本地Windows候选及验证包/真实IPC；CT-03/04/05继续保持各自候选状态。
+
+2026-10-19研究补充：[Claude Projects、Dots与Grok Bot](iterations/I07/projects-dots-bots-research.md)建议在既有CT-04/05中细化公共索引、产物目录、可见交接与按需读取上下文；Grok Build作为CT-03的另一ACP目标候选。仅研究，未启动实现或改变CT-01/02真实交付状态；不引入自动规划、多用户或云端平台目标。
+
+2026-10-19：CT-02首批已完成当前WSL Claude/OpenCode/Codex真实直接回答、同Session续聊、原任务取消和重开观察，9个原任务且未重放。[CT-02首批真实验证](iterations/I07/connection-native.md)。下一优先为当前生产路由上的真实发现/委派/读结果方向，以及有已安装原生环境后的Hermes/Pi/DSH生命周期；新EXE/独立SSH仍另验。CT-02没有整体准出，自动续接/多用户继续不作为当前目标。
+
+## 2026-10-18：当前后续目标以连接通路为准
+
+2026-10-19进展：CT-01能力口径/界面与后台准入/原关系拒绝恢复已实现并通过受控验收（桌面503/503、核心45/45、Windows5组）。[CT-01实际交付](iterations/I07/connection-capabilities.md)。下一优先CT-02逐工具真实执行/受委派/取消恢复；新三种当前未检出常规安装，需可用原生环境才计真实验收。CT-03/04/05仍为后续设计，不因本片成为已交付功能。
+
+用户明确核心是让Agent发现、调用、观察和控制其他Agent；自动续接、多用户不是本轮目标。下方历史I07C/自动协调安排保留原日期，不继续用其完整程度判断核心产品完成度。
+
+后续目标按[接入矩阵](agent-integration-matrix.md)的CT-01至CT-05推进：先统一可执行/可被委派/可调用Bridge的能力口径及六种原生实测；在既有公共文档/任务/消息上明确MD视图和可移植上下文；ACP以OpenCode为首个可选通用驱动试点，再用第二种目标Agent证明复用收益。不是本轮已经实现或运行的结果，完整研究见[ACP/Multica与通信上下文](iterations/I07/connectivity-research.md)。不新增模型API、业务编排或云平台目标，现有恢复与发布边界保留。
+
+2026-10-18已补[真实三原生成员公共文档链](iterations/I07/native-members.md)：五次自动Claude回合，开发/复核成员均真实，主协调同会话三轮，总验收在原生终态后生效；恢复观察没有新回合。当时后续候选为真实代码编译/返修、独立SSH/产物可达性和故障矩阵；现按页首连接目标推进，完整I07C/I06C仍未准出。
+
+2026-10-18继续推进原生扩展合并缺口：[小队准入与原核对收据](iterations/I07/native-integration-guards.md)。本片为 poll.4 冻结后的未发布源码；真实原生执行成员/独立 SSH 与完整 I07C/I06C 继续逐项验收。
+
+2026-10-18新增桌面空闲修复候选：消除状态轮询中的周期安装探测，稳定机器与Agent展示。独立版本 `0.6.0-alpha.28.poll.4`；公开alpha.28、既有ui.2及完整I06C/I07C边界保留。[需求、源码、验证与本地交付](iterations/I07/desktop-polling.md)。
+
+2026-10-18：当前Agent发现新增升级合流修复，纳入未发布源码验证；不改变ui.2冻结包或GitHub alpha.28公开范围。 [需求、开发与实际验证](iterations/I07/current-agent-discovery.md)。
+
+2026-10-18 I07 新增原生适配源码交付：Hermes/Pi/DSH 直接会话、六种本地图标、自定义 Agent 注册接口/示例/开发指南。当前不改变 alpha.28/ui.2 已有冻结包；后续准出仍需三种真实原生版本/模型与新 EXE/独立 SSH 验收。[交付范围与证据](iterations/I07/native-agent-expansion.md)。
+
 ## 当前修复交付
 
 alpha.28：issue #5远端持久拒绝只读恢复；GitHub已预发布alpha.28，新包与普通EXE已验证分发，完整I06C/I07C未准出。[当次范围与证据](iterations/I06/daemon-rejection-recovery.md)。
@@ -157,3 +181,19 @@ alpha.24本地候选实现用户停止本项工作、撤销协作访问、原取
 2026-10-17：alpha.25本地候选修复MachineHost空Agent身份匹配；专项48/48、串行桌面243/243、Windows契约17/17通过。最终包与用户故障机边界见[专项](iterations/I06/windows-context-recovery.md)。不扩大完整I07C/I06C准出，GitHub保持alpha.24。
 
 2026-10-17当前源码增加[首次续接Conversation绑定保护](iterations/I07/intended-conversation.md)，受控专项48/48通过；未重建EXE或改写GitHub alpha.25附件，下次打包须重新核对源码。真实执行成员交接及完整I07C/I06C仍待验。
+
+2026-10-17当前源码增量：[空白原生Session保护](iterations/I07/blank-native-session.md)，受控专项51/51通过；未重建EXE，GitHub alpha.28附件保持原文件。真实执行成员交接、独立SSH与完整I07C/I06C仍待验证。
+
+## 2026-10-17：当前桌面体验专项
+
+I07并行桌面体验：先交付统一壳层/机器概览和图切换，再同步任务、会话、设置及小队展示；源码已实现，全桌面373/373及其中新增53项渲染门槛通过，视觉/EXE证据按[专项](iterations/I07/ui-redesign.md)分层记录。只改变M01展示与本机UI偏好，不扩展自动执行范围，不自动发布或替换GitHub alpha.28。
+
+2026-10-18源码增量：[当前会话异常的业务验收保护](iterations/I07/acceptance-native-binding.md)，受控相关53/53通过，未重建EXE。UI重构与真实执行成员/跨机器验收保持各自范围，完整I07C/I06C未准出。
+
+2026-10-18完成[当前工作区整体验证](iterations/I07/integration-baseline.md)：核心45/45、串行桌面375/375与工程检查通过。当前工作区仍未打包/发布；新UI交互、真实EXE、执行成员自动交接与独立SSH保持未验，不放行完整I07C/I06C。
+
+## 2026-10-18：UI继续开发与Windows验收
+
+用户批准后补齐菜单/焦点/长名、会话发送可见性、后台断连和迟到详情保护，以及会话异常可见提示。UI冻结源码桌面381/381、Windows页面5组/12图、状态10组/8图、小队状态3组/3图和原图鼠标键盘10组通过，模型0；本地Windows候选与普通EXE字节/边界以[交付专项](iterations/I07/ui-redesign.md)为准。旧alpha.28发布附件保持，未扩大完整I06C/I07C或独立SSH/真实模型验收。
+
+本片最终本地候选alpha.28.ui.2的包一致性及普通Windows EXE 4项通过，未发布GitHub。08:50冻结后的并行原生适配器/图标开发不包含在此候选和测试结论中，具体源码边界见上述交付专项。

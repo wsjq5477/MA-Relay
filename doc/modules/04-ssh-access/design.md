@@ -1,5 +1,15 @@
 # M04 SSH 机器接入设计
 
+## 2026-10-18：UI 本地候选的 alpha.28 后台兼容边界
+
+M04-F04/F05/F08：本地 UI 候选为 `0.6.0-alpha.28.ui.2`，独立快照额外收录原 alpha.28 的可信 manifest，规范 JSON digest 为 `b06a14fe3716c2df46cb665e21f137d05aab6046a611cb0275c5cadbc365d00d`；来源为已验证的原 alpha.28 Linux 包，不以当前源码重新生成的不同字节冒充旧清单。主工作区版本元数据仍为 alpha.28，新增兼容文件仅属于候选快照，本次未修改 GitHub alpha.28 附件。
+
+候选对应北京时间08:50冻结的UI交付源码。11:18以后其他线程加入共享目录的Agent适配、工具发现及图标增量未进入此包，本次包/界面结果不为这些后续源码提供验收结论。
+
+新候选与已安装旧后台分别按版本和精确 digest 核对；复用原 alpha.28 不自动替换 daemon。若候选沿用 alpha.28 版本却改变包字节，会与旧远端摘要冲突；若换候选版本却遗漏原 alpha.28 可信清单，版本校验会阻止复用。因此版本隔离与原可信清单必须同时成立，不能通过忽略校验、覆盖旧目录或更换 profile 绕过。实现继续沿用 [SshInstaller](../../../desktop/electron/ssh-install.cjs) 的 release/probe 和原身份、归属、路径校验。
+
+[候选包校验](../../../artifacts/ui-redesign/2026-10-18/package-ui2.json)已通过，候选 Linux manifest digest 为 `c0e1db13e63a1f7985f074afc5d9791b07b555b66f30566351b1d400251e2d83`，1396条目包括新增的旧可信清单。普通 Windows EXE 的4项IPC/SQLite与生命周期验证不连接用户SSH，模型0，也没有执行远端重连、安装、升级或回滚。本次界面断连/离线/unknown和筛选验证使用受控API，不能替代真实SSH链路。交付与分层限制见[界面重构](../../iterations/I07/ui-redesign.md)、[视觉与交互验收](../../iterations/I07/ui-visual-acceptance.md)及[本模块报告](test-report.md)。
+
 ## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
 M04-F04/F05/F08：ipc/request裸NOT_CONFIGURED后，仅在同一认证代次只读daemon.receiptRead；内部WeakMap区分可信台账与原生/伪造JSON。既有主机密钥、owner/profile/daemon/协议校验继续适用。为新包收录alpha.27原manifest精确摘要，不自动升级原daemon。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
@@ -11,7 +21,7 @@ M04-F04/F05/F08：alpha.27客户端收录原alpha.26冻结manifest，digest为66
 
 源码/预发布 alpha.26 在可信索引补收原 alpha.24/alpha.25 冻结 manifest。重连按旧清单逐文件核验，复用原 daemon，不自动替换；在线后用户确认维护升级至当前包。此前 alpha.25 漏收 alpha.24 导致连接与维护入口均被版本校验阻断。本片不放宽未知版本、摘要/归属/路径规则；其他未收录版本的离线维护仍有限制。[实现、升级与验收](../../iterations/I06/ssh-alpha24-upgrade.md)。
 
-更新日期：2026-10-14。基线：桌面源码与维护恢复候选 `0.6.0-alpha.17`，Windows 已发布便携版 `0.5.0`。alpha.2 的主要 Windows/SSH 验收保留；alpha.4 已实际使用用户原凭据核验并重连原 alpha.2 后台。系统 agent 与完整故障覆盖限制保留。详见 [测试报告](test-report.md)。
+历史功能基线（2026-10-14）：当时桌面源码与维护恢复候选 `0.6.0-alpha.17`，Windows 已发布便携版 `0.5.0`。alpha.2 的主要 Windows/SSH 验收保留；alpha.4 已实际使用用户原凭据核验并重连原 alpha.2 后台。系统 agent 与完整故障覆盖限制保留。详见 [测试报告](test-report.md)。
 
 ## 1. 功能与用户操作
 

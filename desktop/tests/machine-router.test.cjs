@@ -137,9 +137,72 @@ function fixture(t, options = {}) {
 function machine(router, kind) {
   return router.catalog.machines.find(m => m.kind === kind);
 }
+test('idle status polls never relaunch inventory probes; manual scan refreshes tools and WSL environments', async t => {
+  let now = Date.now();
+  t.mock.method(Date, 'now', () => now);
+  const distributions = ['Ubuntu'];
+  const f = fixture(t, { distributions });
+  let enumerations = 0;
+  f.router.options.distributions = async () => { enumerations++; return distributions; };
+  const initial = await f.router.snapshot();
+  const local = initial.machines.find(m => m.kind === 'windows');
+  const discoveries = () => Object.values(f.hosts).flatMap(h => h.calls).filter(c => c.method === 'discover').length;
+  const initialProbes = discoveries();
+  for (const elapsed of [16000, 31000, 60000, 300000]) {
+    now += elapsed;
+    f.hosts.windows.state.agents.items[0].busy = elapsed === 60000;
+    const live = await f.router.snapshot();
+    assert.equal(live.agents.items.find(a => a.machineId === local.machineId).busy, elapsed === 60000);
+    assert(live.machines.every(m => m.online));
+  }
+  assert.equal(enumerations, 1);
+  assert.equal(discoveries(), initialProbes);
+  distributions.push('Debian');
+  await f.router.call('discover', { machineId: local.machineId });
+  assert.equal(enumerations, 2);
+  assert.equal(discoveries(), initialProbes + 1);
+  assert(f.router.catalog.machines.some(m => m.distribution === 'Debian'));
+});
+
+test('failed startup discovery stays quiet until manual retry without hiding live machine state', async t => {
+  const f = fixture(t, { distributions: [] });
+  const original = f.hosts.windows.call.bind(f.hosts.windows);
+  let attempts = 0;
+  f.hosts.windows.call = async (method, params) => {
+    if (method === 'discover') { attempts++; throw error('FIXTURE_PROBE_FAILED'); }
+    return original(method, params);
+  };
+  const first = await f.router.snapshot();
+  const local = first.machines.find(m => m.kind === 'windows');
+  for (let i = 0; i < 3; i++) assert((await f.router.snapshot()).machines.find(m => m.machineId === local.machineId).online);
+  assert.equal(attempts, 1);
+  await assert.rejects(f.router.call('discover', { machineId: local.machineId }), { code: 'FIXTURE_PROBE_FAILED' });
+  assert.equal(attempts, 2);
+});
+
+test('concurrent initial status reads share one WSL enumeration', async t => {
+  const f = fixture(t);
+  let enumerations = 0;
+  let release;
+  f.router.options.distributions = () => { enumerations++; return new Promise(resolve => { release = resolve; }); };
+  const first = f.router.machines(), second = f.router.machines();
+  release(['Ubuntu']);
+  await Promise.all([first, second]);
+  assert.equal(enumerations, 1);
+});
 function submit(router, source, requestId = "new-request") {
   return router.call("ipc", { op: "submit", agentId: qualified(source.machineId, rawAgent), requestId, message: "fixture prompt" });
 }
+
+test('new native adapters retain their names and identities when snapshots are imported',async t=>{
+  const f=fixture(t,{distributions:[]});
+  for(const [adapter,name] of [['hermes','Hermes Agent'],['pi','Pi'],['dsh','DeepSeek Harness']]){
+    f.hosts.windows.state.agents.items=[{agentId:adapter+'-agent',adapter,name,enabled:true,executable:'C:\\Tools\\'+adapter+'.exe',workspace:'D:\\Project',online:true,healthy:true,available:true}];
+    const snapshot=await f.router.snapshot();
+    const connection=f.router.catalog.connections.find(item=>item.adapter===adapter);
+    assert.equal(connection.name,name);assert.equal(snapshot.agents.items.find(item=>item.adapter===adapter).name,name);
+  }
+});
 
 test("imports old instances and history with stable machine IDs without rewriting raw or native IDs", async t => {
   const f = fixture(t);

@@ -5,6 +5,9 @@ const worker=process.argv[2]==='--codex-worker';
 const terminal=new Set(['succeeded','failed','cancelled']);
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const now=()=>new Date().toISOString(),clone=x=>JSON.parse(JSON.stringify(x));
+const validIdentity=value=>typeof value==='string'&&value.trim().length>0&&value.length<=4096;
+// Historical receipts without a kind are cancellations.
+const operationKind=operation=>operation.kind??'cancel';
 // Applied only to native turns with a scoped Bridge MCP connection. Keep the
 // original message/receipt unchanged and inherit the user's native CLI policies.
 const collaborationInstructions='[AgentBridge 协作上下文]\n你是用户选定的 AgentBridge 主 Agent。用户所说的连接子 Agent 是用户在 AgentBridge 中允许连接的工具节点，可以位于其他机器。询问连接关系或需要协作时，必须先调用 agentbridge MCP 服务器的 list_agents（通常显示为 mcp__agentbridge__list_agents，按客户端实际命名调用）。Codex 原生 collaboration.list_agents / list_agents 只列出本次 CLI 内部的临时协作 Agent；它返回只有 /root 不能证明 AgentBridge 没有连接子节点。若 Bridge MCP 工具缺失或调用失败，报告协作通道故障，不能把故障解释为子节点列表为空，也不能通过终端绕过协作接口。通过同一 agentbridge 服务器的 delegate 向允许的子节点发任务，task_result 查询或等待真实结果，最后在当前会话汇总。每项委派使用稳定 requestId，回应未知时查询原请求或原任务，不换 ID 重复提交。子节点不能扩大连接关系。用户要求子节点报告模型时，实际委派询问并核对返回结果；无法确认的模型标明未知，不猜测。\n[/AgentBridge 协作上下文]\n\n';
@@ -15,17 +18,34 @@ class CodexHost{
   constructor(options){this.directory=options.directory;this.executable=options.executable;this.file=path.join(this.directory,'codex-state.json');this.state=read(this.file,{revision:1,agents:[],tasks:[],conversations:[],requests:[],operations:[]});this.chain=Promise.resolve();this.timer=setInterval(()=>{this.chain=this.chain.then(()=>this.sync()).catch(()=>{});},250);this.timer.unref();}
   save(){write(this.file,this.state);}
   event(task,kind,data={}){task.updatedAt=now();task.lastSeq++;task.events.push({seq:task.lastSeq,timestamp:task.updatedAt,event:{kind,...data}});}
+  existingOperation(task,operationId,kind){
+    if(!validIdentity(operationId))throw fail('INVALID_INPUT','控制操作需要有效操作 ID。');
+    const old=this.state.operations.find(r=>r.operationId===operationId);
+    if(old&&(old.taskId!==task.taskId||operationKind(old)!==kind))throw fail('REQUEST_CONFLICT','操作 ID 已用于其他任务或控制操作。');
+    return old;
+  }
+  confirmOperations(task,nativeExited){
+    const reason=nativeExited?'已读取 Codex 原执行终态，未重新提交。':'已确认原请求未派发，原任务已结束。';
+    for(const receipt of this.state.operations.filter(r=>r.taskId===task.taskId&&r.state==='unknown')){
+      receipt.state='confirmed';receipt.data={...receipt.data,status:task.status,...(operationKind(receipt)==='reconcile'?{message:reason}:{nativeExited})};
+      if(operationKind(receipt)==='reconcile')task.reconciliation={time:now(),state:task.status,reason};
+    }
+  }
   sync(){let changed=false;for(const task of this.state.tasks.filter(t=>!terminal.has(t.status))){
     const job=path.join(this.directory,'runs',task.taskId),file=path.join(job,'events.jsonl');
     let text='';try{text=fs.readFileSync(file,'utf8');}catch(e){if(e.code!=='ENOENT')throw e;}
     const lines=text.slice(0,text.lastIndexOf('\n')+1).split('\n').filter(Boolean);
-    for(const line of lines.slice(task.offset||0)){const e=JSON.parse(line);task.offset=(task.offset||0)+1;changed=true;
+    for(const line of lines.slice(task.offset||0)){
+      // A terminal event owns the final task/binding. Consume the remaining
+      // observed batch without applying late output or another native identity.
+      if(terminal.has(task.status)){task.offset=lines.length;changed=true;break;}
+      const e=JSON.parse(line);task.offset=(task.offset||0)+1;changed=true;
       if(e.kind==='started'){task.status='running';task.lastSummary='Codex 正在执行';this.event(task,'started');}
       if(e.kind==='native'){task.native={sessionId:e.sessionId,messageId:task.requestId};this.state.conversations.find(c=>c.conversationId===task.conversationId).sessionId=e.sessionId;this.event(task,'native');}
       if(e.kind==='output'){task.lastSummary=e.text;this.event(task,'output',{text:e.text});}
       if(e.kind==='progress')this.event(task,'progress',{text:e.text});
       if(e.kind==='terminal'){task.status=e.status;task.lastSummary=e.text;task.finishedAt=now();if(e.status==='succeeded')task.result={message:e.text};if(e.status==='failed')task.error={code:e.code||'CODEX_FAILED',message:e.text};this.event(task,e.status==='succeeded'?'completed':e.status==='failed'?'failed':'cancelled',{text:e.text,...(task.error?{error:task.error}:{})});
-        for(const r of this.state.operations.filter(r=>r.taskId===task.taskId&&r.state==='unknown')){r.state='confirmed';r.data={status:task.status,nativeExited:true};}
+        this.confirmOperations(task,true);
       }
     }
     if(!terminal.has(task.status)){const heartbeat=read(path.join(job,'heartbeat.json'),null);if(Date.now()-Date.parse(heartbeat?.time||task.createdAt)>15000&&task.status!=='unknown'){task.status='unknown';task.lastSummary='原执行状态待核对，不会自动重新提交。';changed=true;}}
@@ -35,7 +55,7 @@ class CodexHost{
     if(terminal.has(task.status))return this.publicTask(task);
     task.status='failed';task.finishedAt=now();
     task.error={code:error.code||'CODEX_START',message:safe('Codex 后台运行资源准备失败，原生任务未执行：'+(error.message||'后台未启动。'))};
-    task.lastSummary=task.error.message;this.event(task,'failed',{error:task.error});this.save();
+    task.lastSummary=task.error.message;this.event(task,'failed',{error:task.error});this.confirmOperations(task,false);this.save();
     return this.publicTask(task);
   }
   call(method,params={}){const job=this.chain.then(()=>this.handle(method,params));this.chain=job.catch(()=>{});return job;}
@@ -55,15 +75,18 @@ class CodexHost{
     if(params.op==='request'){const r=this.state.requests.find(r=>r.requestId===params.requestId);if(!r)throw fail('NOT_FOUND','原请求不存在。');return this.publicTask(this.state.tasks.find(t=>t.taskId===r.taskId));}
     if(params.op==='task'){if(!task)throw fail('TASK_NOT_FOUND','任务不存在。');return this.publicTask(task);}
     if(params.op==='conversation'){const c=this.state.conversations.find(c=>c.conversationId===params.conversationId);if(!c)throw fail('NOT_FOUND','会话不存在。');const r=clone(c);delete r.sessionId;return {...r,kind:'task',canContinue:!!c.sessionId,items:this.state.tasks.filter(t=>t.conversationId===c.conversationId).map(t=>this.publicTask(t))};}
-    if(params.op==='operation'){const r=this.state.operations.find(r=>r.operationId===params.operationId);if(!r)throw fail('NOT_FOUND','操作不存在。');return clone(r);}
+    if(params.op==='operation'){const r=this.state.operations.find(r=>r.operationId===params.operationId);if(!r||(params.taskId&&r.taskId!==params.taskId))throw fail('NOT_FOUND','操作不存在。');return clone(r);}
     if(params.op==='pending')return {permissions:[],forms:[]};
     if(params.op==='cancel'){
       if(!task)throw fail('TASK_NOT_FOUND','任务不存在。');if(!params.operationId)throw fail('INVALID_INPUT','取消需要操作 ID。');
-      const existing=this.state.operations.find(r=>r.operationId===params.operationId);if(existing){if(existing.taskId!==task.taskId)throw fail('REQUEST_CONFLICT','操作 ID 已用于其他任务。');return clone(existing);}
-      const receipt={operationId:params.operationId,taskId:task.taskId,state:terminal.has(task.status)?'confirmed':'unknown'};this.state.operations.push(receipt);this.save();if(receipt.state==='unknown')write(path.join(this.directory,'runs',task.taskId,'cancel.json'),{operationId:params.operationId});return clone(receipt);
+      const existing=this.existingOperation(task,params.operationId,'cancel');if(existing)return clone(existing);
+      if(!terminal.has(task.status)&&this.state.operations.some(r=>r.taskId===task.taskId&&r.state==='unknown'&&operationKind(r)==='cancel'))throw fail('REQUEST_CLAIMED','原取消操作尚待核对，请查询原 operationId，不换 ID 重复取消。');
+      const receipt={operationId:params.operationId,taskId:task.taskId,kind:'cancel',state:terminal.has(task.status)?'confirmed':'unknown'};this.state.operations.push(receipt);this.save();if(receipt.state==='unknown')write(path.join(this.directory,'runs',task.taskId,'cancel.json'),{operationId:params.operationId});return clone(receipt);
     }
     if(params.op==='reconcile'){
       if(!task)throw fail('TASK_NOT_FOUND','任务不存在。');
+      const operationId=params.operationId===undefined?randomUUID():params.operationId;
+      const old=this.existingOperation(task,operationId,'reconcile');if(old)return clone(old);
       let reason='原后台缺少可确认的终态事件，保留原请求与占用；请在原生 Codex 记录中核对。';
       if(terminal.has(task.status))reason='已读取 Codex 原执行终态，未重新提交。';
       else{
@@ -81,8 +104,9 @@ class CodexHost{
           }
         }
       }
-      task.reconciliation={time:now(),state:task.status,reason};this.save();
-      return {operationId:params.operationId||randomUUID(),state:terminal.has(task.status)?'confirmed':'unknown',data:{status:task.status,message:reason}};
+      const receipt={operationId,taskId:task.taskId,kind:'reconcile',state:terminal.has(task.status)?'confirmed':'unknown',data:{status:task.status,message:reason}};
+      task.reconciliation={time:now(),state:task.status,reason};this.state.operations.push(receipt);this.save();
+      return clone(receipt);
     }
     if(!['submit','continue'].includes(params.op))throw fail('ADAPTER_UNSUPPORTED','Codex 当前不支持此交互操作。');
     if(!params.requestId||!params.message?.trim()||params.message.length>65536)throw fail('INVALID_INPUT','请提供请求 ID 和需求。');
@@ -100,7 +124,7 @@ class CodexHost{
     let child,fd;
     try{
       const runtime=require('./worker-runtime.cjs').workerRuntime(this.directory),workerFile=path.join(this.directory,'runtime','codex-worker.cjs');
-      fs.mkdirSync(path.dirname(workerFile),{recursive:true});fs.copyFileSync(__filename,workerFile);fs.copyFileSync(path.join(__dirname,'tool-discovery.cjs'),path.join(path.dirname(workerFile),'tool-discovery.cjs'));
+      fs.mkdirSync(path.dirname(workerFile),{recursive:true});fs.copyFileSync(__filename,workerFile);for(const name of ['tool-discovery.cjs','builtin-adapters.cjs','agent-adapter-contract.cjs'])fs.copyFileSync(path.join(__dirname,name),path.join(path.dirname(workerFile),name));
       fd=fs.openSync(path.join(job,'worker.log'),'a',0o600);
       child=spawn(runtime,[workerFile,'--codex-worker',job],{cwd:a.workspace,env:{...process.env,ELECTRON_RUN_AS_NODE:'1'},detached:true,windowsHide:true,stdio:['ignore',fd,fd]});
       child.once('error',error=>{this.chain=this.chain.then(()=>this.failLaunch(fresh,error)).catch(()=>{});});child.unref();

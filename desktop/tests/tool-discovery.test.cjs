@@ -19,7 +19,7 @@ function managedFixture(t) {
     fs.writeFileSync(file,broken?'process.exit(1);':`process.stdout.write('codex-cli ${version}\\n');`,{mode:0o755});
     fs.symlinkSync(file,path.join(folder,'codex'));return file;
   }
-  const scan=extra=>scanTools({home,environment,platform:'linux',candidates:{claude:[],opencode:[]},...extra});
+  const scan=extra=>scanTools({home,environment,platform:'linux',candidates:{claude:[],opencode:[],hermes:[],pi:[],dsh:[]},...extra});
   return {home,environment,install,scan};
 }
 
@@ -60,4 +60,94 @@ test('Windows scanning still resolves its npm launcher and never uses Linux mana
   fs.writeFileSync(path.join(folder,'codex.cmd'),'controlled npm launcher');const file=path.join(folder,'node_modules/@openai/codex/bin/codex.js');fs.writeFileSync(file,"process.stdout.write('codex-cli 0.162.1\\n');");
   const items=await f.scan({platform:'win32',environment:{Path:folder,APPDATA:path.join(f.home,'AppData/Roaming')}});
   assert.equal(items.length,1);assert.equal(items[0].executable,file);assert.equal(items[0].healthy,true);
+});
+
+test('all six Agent installations are discovered without invoking task or account setup',async t=>{
+  const home=fs.mkdtempSync(path.join(os.tmpdir(),'ab-six-agents-'));
+  t.after(()=>fs.rmSync(home,{recursive:true,force:true}));
+  const folder=path.join(home,'bin');fs.mkdirSync(folder);
+  const names=['claude','opencode','codex','hermes','pi','dsh'];
+  for(const name of names){
+    const file=path.join(folder,name+'.cjs');
+    fs.writeFileSync(file,"if(process.argv.slice(2).join(' ')!=='--version')process.exit(91);process.stdout.write('"+name+" 1.2.3\\n');",{mode:0o700});
+    fs.symlinkSync(file,path.join(folder,name));
+  }
+  const items=await scanTools({home,platform:'linux',environment:{PATH:folder}});
+  assert.deepEqual(items.map(item=>item.adapter),[...names].sort());
+  assert(items.every(item=>item.healthy&&item.version==='1.2.3'));
+  const selected=await scanTools({home,platform:'linux',environment:{PATH:folder},candidates:{claude:[],opencode:[],codex:[],hermes:[],pi:[],dsh:[]}});
+  assert.deepEqual(selected,[],'explicit empty candidate lists disable probing');
+});
+
+test('Windows Pi and DSH npm launchers resolve official entrypoints including both Pi scopes',async t=>{
+  for(const [adapter,entry] of [['pi','@earendil-works/pi-coding-agent/dist/bundle/cli.js'],['pi','@mariozechner/pi-coding-agent/dist/cli.js'],['dsh','@deepseek-ai/dsh/lib/bin.js']]){
+    const home=fs.mkdtempSync(path.join(os.tmpdir(),'ab-new-agent-launcher-'));
+    t.after(()=>fs.rmSync(home,{recursive:true,force:true}));
+    const file=path.join(home,'node_modules',entry);fs.mkdirSync(path.dirname(file),{recursive:true});
+    fs.writeFileSync(file,"if(process.argv[2]!=='--version')process.exit(91);process.stdout.write('1.2.3\\n');");
+    fs.writeFileSync(path.join(home,adapter+'.cmd'),'must never execute through shell');
+    const items=await scanTools({home,platform:'win32',environment:{Path:home}});
+    assert.equal(items.length,1);assert.equal(items[0].adapter,adapter);assert.equal(items[0].healthy,true);assert.equal(items[0].executable,file);
+  }
+});
+
+test('a broken new Agent launcher stays unhealthy and is never executed as a shell command',async t=>{
+  const home=fs.mkdtempSync(path.join(os.tmpdir(),'ab-broken-new-agent-'));
+  t.after(()=>fs.rmSync(home,{recursive:true,force:true}));
+  fs.writeFileSync(path.join(home,'pi.cmd'),'exit 0');
+  const items=await scanTools({home,platform:'win32',environment:{Path:home}});
+  assert.equal(items.length,1);assert.equal(items[0].adapter,'pi');assert.equal(items[0].healthy,false);assert.match(items[0].error,/TOOL_LAUNCHER/);
+});
+
+test('current PATH Claude wins over newer installed versions and a broken current command is reported',async t=>{
+  const f=managedFixture(t),selected=path.join(f.home,'selected'),fallback=path.join(f.home,'.local/bin');
+  for(const [folder,version] of [[selected,'2.1.302'],[fallback,'2.1.399']]){
+    fs.mkdirSync(folder,{recursive:true});
+    const file=path.join(folder,'claude.cjs');fs.writeFileSync(file,`process.stdout.write('${version} (Claude Code)');`,{mode:0o755});
+    fs.symlinkSync(file,path.join(folder,'claude'));
+  }
+  const options={home:f.home,platform:'linux',environment:{PATH:selected},candidates:{codex:[],opencode:[],hermes:[],pi:[],dsh:[]}};
+  let items=await scanTools(options);assert.equal(items.length,1);assert.equal(items[0].version,'2.1.302');
+  fs.writeFileSync(path.join(selected,'claude.cjs'),'process.exit(1);');
+  items=await scanTools(options);assert.equal(items.length,1);assert.equal(items[0].healthy,false);
+  assert.equal(items[0].executable,path.join(selected,'claude.cjs'));
+});
+
+test('Windows Codex npm launches its own native binary directly and retains the selected JS identity', t => {
+  const {command}=require('../electron/tool-discovery.cjs');
+  for(const layout of ['optional','alias','bundled']) {
+    const home=fs.mkdtempSync(path.join(os.tmpdir(),'ab-codex-hidden-'));t.after(()=>fs.rmSync(home,{recursive:true,force:true}));
+    const root=path.join(home,'node_modules/@openai/codex'),entry=path.join(root,'bin/codex.js');
+    fs.mkdirSync(path.dirname(entry),{recursive:true});fs.writeFileSync(entry,'throw new Error("Wrapper must never run");');
+    fs.writeFileSync(path.join(root,'package.json'),JSON.stringify({name:'@openai/codex',version:'0.1.0'}));
+    const platformPackage='@openai/codex-win32-'+(process.arch==='arm64'?'arm64':'x64');
+    const nativeRoot=layout!=='bundled'?path.join(root,'node_modules',platformPackage):root;
+    fs.mkdirSync(nativeRoot,{recursive:true});
+    if(layout==='optional')fs.writeFileSync(path.join(nativeRoot,'package.json'),JSON.stringify({name:platformPackage}));
+    if(layout==='alias') {
+      fs.writeFileSync(path.join(root,'package.json'),JSON.stringify({name:'@openai/codex',optionalDependencies:{[platformPackage]:'npm:@openai/codex@0.145.0-win32-'+process.arch}}));
+      fs.writeFileSync(path.join(nativeRoot,'package.json'),JSON.stringify({name:'@openai/codex',version:'0.145.0-win32-'+process.arch,os:['win32'],cpu:[process.arch]}));
+    }
+    const native=path.join(nativeRoot,'vendor',process.arch==='arm64'?'aarch64-pc-windows-msvc':'x86_64-pc-windows-msvc','bin/codex.exe');
+    fs.mkdirSync(path.dirname(native),{recursive:true});fs.writeFileSync(native,'native fixture');
+    fs.writeFileSync(path.join(home,'codex.cmd'),'wrapper must never run');
+    const env={USERPROFILE:home,CODEX_MANAGED_BY_BUN:'1',ELECTRON_RUN_AS_NODE:'1'};
+    for(const selected of [entry,path.join(home,'codex.cmd')]) {
+      const result=command(selected,['exec','--json'],env,'win32');
+      assert.equal(result.executable,native);assert.equal(result.installationExecutable,entry);
+      assert.deepEqual(result.args,['exec','--json']);assert.equal(result.env.ELECTRON_RUN_AS_NODE,undefined);
+      assert.equal(result.env.CODEX_MANAGED_PACKAGE_ROOT,fs.realpathSync(root));assert.equal(result.env.CODEX_MANAGED_BY_NPM,'1');
+      assert.equal(result.env.CODEX_MANAGED_BY_BUN,undefined);assert.equal(result.env.USERPROFILE,home);
+    }
+    assert.equal(env.CODEX_MANAGED_BY_BUN,'1','caller environment remains untouched');
+  }
+});
+
+test('a missing Windows Codex native binary cannot fall back to a flashing npm wrapper or another installation', t => {
+  const {command}=require('../electron/tool-discovery.cjs');
+  const home=fs.mkdtempSync(path.join(os.tmpdir(),'ab-codex-missing-'));t.after(()=>fs.rmSync(home,{recursive:true,force:true}));
+  const root=path.join(home,'node_modules/@openai/codex'),entry=path.join(root,'bin/codex.js');
+  fs.mkdirSync(path.dirname(entry),{recursive:true});fs.writeFileSync(entry,'process.exit(0)');fs.writeFileSync(path.join(root,'package.json'),JSON.stringify({name:'@openai/codex'}));
+  assert.throws(()=>command(entry,['--version'],{},'win32'),{code:'TOOL_LAUNCHER'});
+  assert.equal(command(entry,['--version'],{},'linux').executable,process.execPath,'Linux launcher behavior remains unchanged');
 });

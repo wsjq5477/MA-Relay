@@ -1,8 +1,12 @@
 # OpenCode 适配器设计
 
+Windows 启动 OpenCode serve、Core Controller 与显式版本检查时设置 windowsHide，避免后台控制台干扰桌面。安装发现改为首次使用或明确扫描，执行前仍核验原安装。[空闲黑窗专项](../../../iterations/I07/desktop-polling.md)。
+
 更新日期：2026-10-14。所属功能 **M06-OC-F01**。对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途、边界与当前状态
+
+2026-10-19当前WSL版本2.0.24经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
 
 适配器将机器上已有 OpenCode CLI 的本地 `serve` 服务接入 Bridge。它使用原生 HTTP API，新会话创建原生 Session；续聊沿用原 Session、为本轮生成新用户 Message。每轮答案从该用户消息之后、下一条用户消息之前的原生时间线提取。
 

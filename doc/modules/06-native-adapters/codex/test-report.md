@@ -1,5 +1,23 @@
 # Codex 适配器测试报告
 
+## 2026-10-19：CT-02真实MCP调用方与被调用方
+
+T-M06-CX-146 / M06-CX-F01：当前WSL原生0.163.0-alpha.10.2，本工具真实作主发现/委派另外两种工具并读取成功结果，另在两条链中作为普通子任务被实际启动。各回答/原生Session/父子归属与精确消息通过，完整重开不重放；三工具共享9Task/6方向/16次MCP调用，不跨模块重复累加。保护7/7计入全桌面517/517，均为无模型回归，与真实Task分别计数。产品运行代码未改；Windows、新三工具、独立SSH/权限/表单/执行中断点未补验。[实际脚本、原始报告及边界](../../../iterations/I07/connection-delegation.md)。
+
+## 2026-10-19：CT-02真实直接生命周期
+
+T-M06-CX-145 / M06-CX-F01：当前WSL、Node22.23.1、真实原生0.163.0-alpha.10.2。首轮与原Session回忆均succeeded，取消收据与原Task cancelled分别核验，完整观察重开保留同Session/回答；3个原任务，重复只读观察前后3→3。沿用原生配置，未批准权限或重发原请求。新增验收保护7/7及最终桌面510/510为共享受控计数，不是该工具模型测试数。源码无产品行为变化；本轮未验真实委派/MCP调用方、新EXE或独立SSH。[原始结果、脚本、首次环境/契约失败及边界](../../../iterations/I07/connection-native.md)。
+
+## 2026-10-18：核对收据与同批终态保护
+
+T-M06-CX-142 / M06-CX-F01：核对原operationId收据持久/冲突/重启、取消kind兼容及原未派发边界通过；终态后晚到started/output/native不覆盖成功或失败，offset完整推进。原收据初17项及迟到事件2项修复前实际失败，最终跨宿主定向57/57、合并全桌面474/474；均为受控CLI/磁盘事件，非真实Codex模型或Windows EXE。[日志、源码摘要及完整边界](../../../iterations/I07/native-integration-guards.md)。
+
+2026-10-18 / T-M06-CX-140：Windows可见窗口/进程链确认旧alpha.28周期Codex黑窗和poll.1启动复现；最终修复验证原npm安装直接启动二进制并保留JS身份，嵌套optional/bundled和缺失拒绝有受控回归。最终普通EXE与真实版本探测以[专项](../../../iterations/I07/desktop-polling.md)实际结果为准，模型0。
+
+## 2026-10-18：发现器注册依赖回归
+
+T-M06-CX-140 / M06-CX-F01：alpha.28 后源码、WSL Node22.23.1、受控CLI进程。新发现器引入静态注册依赖后，首次Codex受控五项超时；冻结worker补齐builtin-adapters与契约模块后 **5/5**通过，计入[43项定向TAP](../../../../artifacts/native-agent-expansion/2026-10-18/native-targeted.tap)。未改变Codex原生协议，不重跑真实模型/Windows/原生续聊验收。[原因与交付边界](../../../iterations/I07/native-agent-expansion.md)。
+
 ## alpha.27：未派发任务恢复
 
 T-M06-CX-06 / M06-CX-F01：2026-10-17，WSL Node22.23.1、真实Windows Node24.19.0，合成目录，模型0。新增恢复10/10，修复前0/10；覆盖EEXIST持久失败/同ID去重/新请求可进入准备、原job证明、重开保留，以及缺run、空worker.log、旧/空心跳、事件、native/进度均保持unknown。Windows共享契约86/86、最终普通EXE合成恢复5组通过；旧原生POSIX夹具仍由WSL全量验证，未冒充真实Windows模型。[原始日志与未测项](../../../iterations/I06/windows-start-persistence.md)。

@@ -1,5 +1,17 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+2026-10-19[Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)补充公共索引、产物目录、可见交接与按需读取上下文的建议。当前仍为既有登记/工作/文档/消息/任务契约；没有新增私信RPC、实体MD同步或跨工作自动记忆。原生上下文和公共协作材料继续分开。
+
+2026-10-18连接核心、各Agent方向能力与后续目标见[接入矩阵](../../agent-integration-matrix.md)，通信负载、可选ACP、Multica及公共MD/上下文方案见[研究](../../iterations/I07/connectivity-research.md)。本轮仅研究与文档纠偏，没有新增协议、原生执行或公开能力。
+
+2026-10-18能力补验：已验证同WSL三个独立Claude宿主的真实公共文档交付/独立复核/原主会话协调；开发与复核成员各一轮，主协调三轮，成员原生成功后才逐项验收，主原生成功后才总完成。原既有权限/事件/预算与接口不变；代码编译返修/独立SSH仍待验证。[范围与真实证据](../../iterations/I07/native-members.md)。
+
+2026-10-18 未发布源码新增 Hermes/Pi/DSH 直接会话，三个适配器尚未实现 Bridge MCP 注入，`teamCollaboration=false`，MachineHost 在配置协作 scope 前明确拒绝，因此不能作为Bridge MCP调用方或原生小队成员。经典delegate以`collaboration:false`提交普通子任务，其被调用源码路径可达，但未进行三种真实Agent委派/最终包验收；不能把不能注入MCP等同于不能被委派。CT-01已按调用方/被调用方分别统一关系、任务与界面门禁，受控完整普通委派链通过；真实工具与最终包仍未验。自定义原生适配器要另行实现作用域注入并验收后才声明调用方能力。[扩展范围](../../iterations/I07/native-agent-expansion.md)、[开发指南](../../custom-agent-development.md)。
+
+业务验收除原生成功终态外，还须当前有效执行没有continuationError：工作项按当前业务轮次最后一次尝试，独立协调按每成员最后一次尝试。旧轮次/已被后续执行取代的异常保留历史但不永久阻塞。任务验收、直接总验收及延后提议生效前均核对，不改写Core原生终态。此为alpha.28后未发布源码增量，[规则与验证](../../iterations/I07/acceptance-native-binding.md)。
+
+原生Session字段只在非空白字符串且满足既有长度约束时作为绑定/变化证据；空值不建立绑定，也不清除已观察的有效Session。真实非空Session变化仍拒绝协作/后续激活，缺绑定仍不能自动续接。此alpha.28后源码增量未入EXE，[实际规则与验证](../../iterations/I07/blank-native-session.md)。
+
 ## 2026-10-17：Windows未派发与持久化恢复
 
 M08-F02：关系/布局/图操作与普通网络保存共享有界原子替换，EPERM/EACCES/EBUSY最多6次，ENOSPC等不重试。原revision、稳定操作ID、磁盘成功后更新事务状态及unknown权限保护不变；没有扩大Agent权限。 alpha.27当次源码与预发布；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
@@ -43,7 +55,7 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 
 | 功能 ID | 用户可验收功能 | 当前状态 |
 | --- | --- | --- |
-| M08-F01 | 保存一个主节点和多个子节点，重开保留，过期修订拒绝覆盖 | alpha.6 通过图草稿编辑；稳定操作收据与修订原子提交 |
+| M08-F01 | 保存一个主节点和多个子节点，重开保留，过期修订拒绝覆盖 | 图草稿/原子修订保留；CT-01新关系按主MCP调用/子普通委派能力准入，确定拒绝可原ID恢复 |
 | M08-F02 | 主 Agent 只发现用户允许的子节点，显示机器和忙碌状态 | 已实现；来源机器和主执行 scope 后台校验 |
 | M08-F03 | 委派真实子任务，稳定 ID 去重，子节点不继续委派 | 已实现；Windows/WSL 四条真实链通过 |
 | M08-F04 | 主会话读取/等待子结果，查询 pending、回复和取消自己委派的任务 | 已实现；原父会话及活跃 scope 限制 |
@@ -99,6 +111,10 @@ flowchart LR
 内部 token 用于本机回调认证，不是用户需要录入的设备接入凭据。SSH 接入仍使用既有系统账号认证。
 
 ## 4. 保存关系
+
+### 当前连接能力与恢复
+
+M08-F01/F02/F03/F05/F06：保存新关系要求主节点execution=true且bridgeMcp=true，子节点delegation=true；本机静态注册与明确元数据收窄共同决定。经典delegate子任务使用collaboration:false，Hermes/Pi/DSH可被普通委派，不能作为MCP调用方或原生小队成员。已有原操作/委派先查询，不让新能力检查阻断恢复；历史关系展示保留但不能据历史主身份新发协作任务。MCP list_agents追加能力/来源，不泄漏执行/模型/认证配置。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
 
 用户提交 operationId、expectedRevision 和完整主/成员集合。后台先查原收据，同 ID 同内容返回原结果；改变内容返回 OPERATION_CONFLICT。新保存校验所有节点存在、已接入并支持执行、唯一主、无重复/自连与期望修订，随后在 agent-network.json 同一次原子替换中提交关系 revision+1 和 relationOperations 收据。坐标/状态不能成为授权。过期修订返回 REVISION_CONFLICT，前端保留草稿；收据最多 4096 项，到限明确拒绝，不删除未确认历史来释放占位。兼容旧内部调用不带 operationId 时返回原 collaboration 形状；新图入口总使用稳定 ID 和中央图意图台账。
 
@@ -162,6 +178,8 @@ MCP 暴露的是六个操作，原生客户端可按自己的命名空间显示�
 
 ## 7. 权限判定和重要当前边界
 
+新原生小队登记以及历史已登记成员的新执行，必须支持注册表 teamCollaboration，并且节点没有显式声明不支持。Hermes/Pi/DSH 当前支持普通原生执行/接收委派，尚不支持MCP小队注入，拒绝为 TEAM_CAPABILITY，发生在认领工作项/持久尝试之前。自动激活能力同样区分“小队不支持”和“支持手动但自动续接未支持”；不能对前三种新工具提示手动小队执行。原 operationId 的幂等分支先读取原尝试，继续仅核对原请求；外部 MCP 的独立入口与原三种工具手动流程保持。[设计与验收](../../iterations/I07/native-integration-guards.md)。
+
 每次协作调用先校验传输来源机器与 scope.nodeId 的真实归属，再验证父 requestId 的持久主请求、collaboration=true、已提交及原父仍活跃。原父终态使其 MCP scope 失效。新委派另查当前 leader 与实时 memberIds；父状态 unknown 不允许新委派。旧子查询/控制按 leaderId、原 parentRequestId、parentTaskId、parentConversationId 的委派账本核验，不因换主转给新父。
 
 | 情况 | 当前行为 |
@@ -190,6 +208,8 @@ broker 将 token 对应 scope 与业务参数分开，中央宿主/远端 relay 
 双向独立 Linux 的真实验收须分别记录实际 list_agents/delegate/task_result、子原生回复与父汇总；Windows/WSL 同宿主历史不能替代。完整网络故障、daemon 升级回滚、所有原生权限类型及最终 0.6.0 准出继续属于 I06C。多组、多层委派、模型管理和外部 Harness 未纳入本默认组。
 
 ## 10. 实现入口与维护
+
+当前WSL三工具的生产MCP发现、普通委派、真实结果读取与汇总已于2026-10-19完成[六个有向组合验证](../../iterations/I07/connection-delegation.md)：每链一个真实主Task与两个真实子Task，原父/机器/派生ID/消息精确核对；子任务collaboration:false，原父终态后scope失效。新增仅为验收脚本/保护测试，本模块生产协议、权限和行为无改动，历史Windows/SSH证据保持各自范围。
 
 关系与权限从 [agent-network.cjs](../../../desktop/electron/agent-network.cjs) 的 `saveCollaboration`、`collaborationTool` 阅读；MCP 接入见 [machine-host.cjs](../../../desktop/electron/machine-host.cjs)、[collaboration-broker.cjs](../../../desktop/electron/collaboration-broker.cjs)、[mcp-client.cjs](../../../desktop/electron/mcp-client.cjs)。
 
