@@ -51,7 +51,7 @@ EXE、Linux资源包和校验文件已复制到Windows下载目录，目标文�
 
 本地候选 [Windows x64 EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.26-Windows-x64.exe)，**129,881,117 bytes**，SHA-256 `2a796481261d9caf2788aa87f5d40114ed372a85cc0300fc71c1cc5106845ce2`。包内33个后台CJS、78个核心文件、1392个Linux清单条目与冻结构建匹配。源码边界见[冻结输入](../../../artifacts/ssh-alpha24-recovery/2026-10-17/frozen-source.json)，基线提交 `6bf680a`；以上为构建验收时的候选；现已按下节发布为GitHub预发布，EXE字节与摘要保持一致。
 
-另提供 [Linux x64 daemon 离线资源包](../../../desktop/release/AgentBridge-0.6.0-alpha.26-Linux-x64-daemon.tar.gz)及[两包校验文件](../../../artifacts/ssh-alpha24-recovery/2026-10-17/SHA256SUMS.txt)。归档根为 `linux-package/`，包含同一份私有Node、后台、依赖和manifest，不是Linux桌面版或独立一键升级器；原机器仍由客户端可信维护升级，不能把整个归档直接覆盖原版本目录。归档的独立分发不改变机器安装/owner/profile/原请求规则。
+当时另生成本地 Linux x64 daemon 离线资源包 `AgentBridge-0.6.0-alpha.26-Linux-x64-daemon.tar.gz`及[两包校验文件](../../../artifacts/ssh-alpha24-recovery/2026-10-17/SHA256SUMS.txt)。历史归档现已不在原本地路径，alpha.26 GitHub实际附件仅EXE和校验文件，不提供失效下载链接。归档根为 `linux-package/`，包含同一份私有Node、后台、依赖和manifest，不是Linux桌面版或独立一键升级器；原机器仍由客户端可信维护升级，不能把整个归档直接覆盖原版本目录。归档的独立分发不改变机器安装/owner/profile/原请求规则。
 
 ## GitHub EXE 预发布分发
 

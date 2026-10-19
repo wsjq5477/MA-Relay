@@ -70,7 +70,8 @@ for(const [version,expectedDigest] of [
  ['0.6.0-alpha.24','e631db77604099d70c96bf7c7d85657bb957a3dd251a2ae91ad89fc33c7b9955'],
  ['0.6.0-alpha.25','54ada2b6d01fd9537de00e93b277f2cae50de5d969ebefc08544b49647654146'],
  ['0.6.0-alpha.26','6674f37902908e329ce76cb634d6ebae36c55f33f8e7ad836488986b10879c4e'],
- ['0.6.0-alpha.27','e3862fdd030496218e69166fb3bb928277b41477003f68dac48a2a5db09945af']
+ ['0.6.0-alpha.27','e3862fdd030496218e69166fb3bb928277b41477003f68dac48a2a5db09945af'],
+ ['0.6.0-alpha.29','71ac17c760bc26122581c06bf1a2b0522234e62040312c4a6c1aeec4e6084983']
 ])test(`published ${version} reconnects and previews upgrade using its exact frozen manifest without replacing the daemon`,async t=>{
  const old=require('../compatible-daemons/'+version+'.json');
  assert.equal(old.version,version);assert.equal(digest(old),expectedDigest);

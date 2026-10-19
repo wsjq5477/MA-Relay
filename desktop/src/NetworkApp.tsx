@@ -29,6 +29,7 @@ import TeamWorkspace from "./TeamWorkspace";
 import { useNodeManagement, type NodeAction } from "./node-management";
 import type {
   Snapshot,
+  DetailRead,
   AgentNode,
   Conversation,
   Task,
@@ -90,6 +91,9 @@ export default function NetworkApp() {
     [task, setTask] = useState<Task | null>(null),
     [followup, setFollowup] = useState(""),
     [showChecks, setShowChecks] = useState(false);
+  const [conversationRead,setConversationRead]=useState<DetailRead|null>(null),
+    [taskRead,setTaskRead]=useState<DetailRead|null>(null);
+  const detailJobs=useRef(new Set<string>()),conversationMachine=useRef<string|undefined>(undefined),taskMachine=useRef<string|undefined>(undefined);
   const [stopDialog, setStopDialog] = useState(false),
     [pickTarget, setPickTarget] = useState(false);
   const [recoveryItems, setRecoveryItems] = useState<RecoveryItem[]>([]),
@@ -161,58 +165,58 @@ export default function NetworkApp() {
               data.agents.items.find((a) => a.agentId === t.targetAgent)
                 ?.adapter,
         );
+  async function refreshDetail(kind: "conversation" | "task", snapshot: Snapshot) {
+    const id=kind==='conversation'?conversationId.current:taskId.current;
+    const source=kind==='conversation'?conversationMachine.current:taskMachine.current;
+    if(!id)return;
+    const key=kind+':'+source+':'+id;
+    if(detailJobs.current.has(key))return;
+    detailJobs.current.add(key);
+    const current=()=>alive.current&&(kind==='conversation'?conversationId.current===id&&conversationMachine.current===source:taskId.current===id&&taskMachine.current===source);
+    try {
+      const value=await invoke<Conversation|Task>(kind,{[kind==='conversation'?'conversationId':'taskId']:id,machineId:source});
+      if((kind==='conversation'?(value as Conversation)?.conversationId:(value as Task)?.taskId)!==id||(source&&value.machineId&&value.machineId!==source))
+        throw Object.assign(Error('原记录身份不匹配。'),{code:'RECEIPT_MISMATCH'});
+      if(!current())return;
+      if(kind==='conversation'){
+        const meta=snapshot.conversations.find(c=>c.conversationId===id&&(!source||c.machineId===source));
+        setConversation(previous=>shareUnchanged(previous,{...value as Conversation,nodeId:meta?.nodeId??value.nodeId,workspace:meta?.workspace??value.workspace}));
+        setConversationRead(previous=>shareUnchanged(previous,{id,status:'ready'}));
+      }else{
+        const meta=snapshot.tasks.find(t=>t.taskId===id&&(!source||t.machineId===source));
+        setTask(previous=>shareUnchanged(previous,{...value as Task,nodeId:meta?.nodeId??value.nodeId,workspace:meta?.workspace??value.workspace}));
+        setTaskRead(previous=>shareUnchanged(previous,{id,status:'ready'}));
+      }
+    }catch(error){
+      if(!current())return;
+      const missing=['NOT_FOUND','CONVERSATION_NOT_FOUND','TASK_NOT_FOUND'].includes((error as {code?:string}).code||'');
+      const label=kind==='conversation'?'会话':'任务';
+      const state:DetailRead={id,status:missing?'missing':'error',message:missing?'原后台和保留历史中未找到这条'+label+'，其他会话仍可使用。':'来源后台暂时无法读取这条'+label+'的详情；请稍后重新读取原记录。'};
+      if(kind==='conversation')setConversationRead(previous=>shareUnchanged(previous,state));else setTaskRead(previous=>shareUnchanged(previous,state));
+    }finally{detailJobs.current.delete(key);}
+  }
   async function refresh() {
     if (updating.current || stopping.current) return;
     updating.current = true;
+    let snapshot: Snapshot;
     try {
-      const [snapshot, pending] = await Promise.all([
-        call<Snapshot>("snapshot"),
-        bridge().pending(),
-      ]);
+      const result = await Promise.all([call<Snapshot>("snapshot"),bridge().pending()]);
+      snapshot=result[0];
       if (!alive.current) return;
-      setData((previous) => shareUnchanged(previous, snapshot));
-      setJournal((previous) => shareUnchanged(previous, pending));
+      setData(previous=>shareUnchanged(previous,snapshot));
+      setJournal(previous=>shareUnchanged(previous,result[1]));
       setError("");
-      const requestedConversation = conversationId.current;
-      if (requestedConversation) {
-        const c = await invoke<Conversation>("conversation", {
-          conversationId: requestedConversation,
-        });
-        const meta = snapshot.conversations.find(
-          (c) => c.conversationId === requestedConversation,
-        );
-        if (
-          alive.current &&
-          conversationId.current === requestedConversation &&
-          c.conversationId === requestedConversation
-        )
-          setConversation((previous) => shareUnchanged(previous, {
-            ...c,
-            nodeId: meta?.nodeId ?? c.nodeId,
-            workspace: meta?.workspace ?? c.workspace,
-          }));
-      }
-      const requestedTask = taskId.current;
-      if (requestedTask) {
-        const t = await invoke<Task>("task", { taskId: requestedTask });
-        const meta = snapshot.tasks.find((t) => t.taskId === requestedTask);
-        if (
-          alive.current &&
-          taskId.current === requestedTask &&
-          t.taskId === requestedTask
-        )
-          setTask((previous) => shareUnchanged(previous, {
-            ...t,
-            nodeId: meta?.nodeId ?? t.nodeId,
-            workspace: meta?.workspace ?? t.workspace,
-          }));
-      }
     } catch (e) {
       if (alive.current) setError((e as Error).message);
+      return;
     } finally {
       updating.current = false;
       if (alive.current) setLoading(false);
     }
+    // Detail reads have independent lifetimes and errors. A slow/missing object
+    // cannot interrupt machine snapshots or an unrelated selected object.
+    void refreshDetail('conversation',snapshot);
+    void refreshDetail('task',snapshot);
   }
   useEffect(() => {
     alive.current = true;
@@ -363,6 +367,8 @@ export default function NetworkApp() {
   }
   async function openConversation(c: Conversation) {
     conversationId.current = c.conversationId;
+    conversationMachine.current=c.machineId;
+    setConversationRead({id:c.conversationId,status:"loading"});
     setConversation(c);
     setPage("conversations");
     setFollowup("");
@@ -370,6 +376,8 @@ export default function NetworkApp() {
   }
   async function openTask(t: Task) {
     taskId.current = t.taskId;
+    taskMachine.current=t.machineId;
+    setTaskRead({id:t.taskId,status:"loading"});
     setTask(t);
     await refresh();
   }
@@ -831,6 +839,8 @@ export default function NetworkApp() {
           executionLocked={executionLocked}
           conversations={scopedConversations}
           selected={conversation}
+          detailRead={conversationRead}
+          onReload={()=>void refresh()}
           showChecks={showChecks}
           onShowChecks={setShowChecks}
           machineName={machineName}
@@ -849,6 +859,7 @@ export default function NetworkApp() {
               !node.online ||
               !node.connected ||
               node.removed ||
+              (conversationRead?.id===conversation.conversationId&&conversationRead.status!=="ready") ||
               conversation.historical ||
               !conversation.canContinue ||
               !conversation.items?.length ||
@@ -1410,13 +1421,15 @@ export default function NetworkApp() {
       {task && (
         <TaskDetail
           task={task}
+          readState={taskRead}
           name={nodeFor(task)?.name || "历史 Agent"}
           adapter={nodeFor(task)?.adapter}
           modelOverride={false}
           busy={
             busy ||
             blocked(task.machineId, nodeFor(task)?.nodeId) ||
-            !!task.historical
+            !!task.historical ||
+            (taskRead?.id===task.taskId&&taskRead.status!=="ready")
           }
           onClose={() => {
             taskId.current = null;

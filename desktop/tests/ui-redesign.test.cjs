@@ -768,3 +768,11 @@ test("settings restores the original removed machine only with supported managem
     });
   }
 });
+
+// View status is separate from Task/Conversation facts and does not lock new work.
+test('conversation details distinguish loading, missing and backend error while preserving independent compose',async t=>{
+ for(const [status,title] of [['loading','正在读取原会话'],['missing','未找到原会话'],['error','会话详情暂不可用']])await t.test(status,()=>{
+  const props=conversationsProps();props.selected={...props.selected,items:[]};props.detailRead={id:props.selected.conversationId,status,message:'只读原记录暂不可用。'};const before=structuredClone(props.selected);
+  const html=render(ConversationsPage,props);assert.match(plainText(html),new RegExp(title));assert.equal(buttonNamed(html,'发送').disabled,true);assert.equal(buttonNamed(html,'新建会话').disabled,false);assert.deepEqual(props.selected,before);
+ });
+});

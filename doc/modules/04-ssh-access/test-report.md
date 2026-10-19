@@ -1,5 +1,9 @@
 # M04 SSH 接入测试报告
 
+## 2026-10-19：历史详情路由与局部错误
+
+T-M04-150 / M04-F04/F05/F08：alpha.30隔离修复；合成路由6项、受控TCP SSH1项、Windows纯CJS91/91、Linux SSR63/63，新生产前端7组和既有10组通过，模型0。最终桌面529/529、核心45/45、lint/类型/构建通过；38 CJS/78 core/1401 Linux资源匹配145个冻结源文件。普通Windows无调试EXE合成原两轮/Session只读与关闭重开/后台重启4组通过。分发实际结果及首次失败统一见[当次专项](../../iterations/I07/history-detail-recovery.md)；共享计数不跨模块叠加，用户故障profile/独立服务器未复测。
+
 ## 2026-10-18：UI 本地候选的旧 alpha.28 可信清单
 
 M04-F04/F05/F08：`0.6.0-alpha.28.ui.2` 本地候选在独立源码快照中收入原 alpha.28 Linux manifest，原清单 digest 为 `b06a14fe3716c2df46cb665e21f137d05aab6046a611cb0275c5cadbc365d00d`，来源对应[原 alpha.28 包报告](../../../artifacts/daemon-rejection-recovery/2026-10-17/package.json)。没有修改主工作区版本/lock或原发布包，也没有放宽未知版本信任。

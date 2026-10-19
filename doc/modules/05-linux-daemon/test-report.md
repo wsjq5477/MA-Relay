@@ -1,5 +1,9 @@
 # M05 Linux daemon 测试报告
 
+## 2026-10-19：历史详情路由与局部错误
+
+T-M05-150 / M05-F04/F06：alpha.30隔离修复；合成路由6项、受控TCP SSH1项、Windows纯CJS91/91、Linux SSR63/63，新生产前端7组和既有10组通过，模型0。最终桌面529/529、核心45/45、lint/类型/构建通过；38 CJS/78 core/1401 Linux资源匹配145个冻结源文件。普通Windows无调试EXE合成原两轮/Session只读与关闭重开/后台重启4组通过。分发实际结果及首次失败统一见[当次专项](../../iterations/I07/history-detail-recovery.md)；共享计数不跨模块叠加，用户故障profile/独立服务器未复测。
+
 ## 2026-10-18：当前 Agent 版本与历史安装合流
 
 T-M05-141 / M05-F04：alpha.28后未发布工作区、WSL Ubuntu/Node22.23.1。真实本机WSL版本探测与生产MachineHost/AgentNetwork在隔离目录合流；没有独立SSH或用户后台升级。 桌面421/421、核心45/45通过，计数为共享工程结果不跨模块相加；真实Claude版本2.1.302与受控历史节点合流明确分层。类型/lint/前端构建通过；当前EXE、用户运行中profile、真实模型和独立SSH未验证。[完整场景、原始日志与首次失败](../../iterations/I07/current-agent-discovery.md)。

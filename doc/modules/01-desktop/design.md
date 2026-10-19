@@ -1,5 +1,9 @@
 # M01 桌面界面与交互设计
 
+## 当前历史详情读取与错误作用域
+
+M01-F04/F05/F07：顶层快照/pending错误保持全局同步锁；单条会话/任务详情独立加载与错误，按原ID/来源核对迟到回应。详情失败仅锁本条继续/控制，保留已读内容，独立新建可用；加载/未找到/历史/真实后台错误/零轮次分开显示。 2026-10-19源码候选alpha.30，GitHub仍alpha.29；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+
 ## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
 
 M01-F04：未确认操作沿既有recoverPending入口读取原请求；匹配远端拒绝后列表移除，缺证据仍显示保守诊断。普通request返回明确rejected而非任务，不改界面布局。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。

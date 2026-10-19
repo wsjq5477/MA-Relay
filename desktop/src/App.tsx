@@ -63,6 +63,7 @@ import {
 } from "./api";
 import type {
   Snapshot,
+  DetailRead,
   Task,
   Agent,
   Conversation,
@@ -2568,6 +2569,7 @@ function InstanceModelDialog({
 }
 export function TaskDetail({
   task,
+  readState,
   adapter,
   name,
   modelOverride,
@@ -2578,6 +2580,7 @@ export function TaskDetail({
   onConversation,
 }: {
   task: Task;
+  readState?: DetailRead | null;
   adapter?: Agent["adapter"];
   name: string;
   modelOverride: boolean;
@@ -2676,6 +2679,7 @@ export function TaskDetail({
           </button>
         </div>
         <div className="drawer-body">
+          {readState?.id===task.taskId&&readState.status!=='ready'&&<div className="workspace-inline-note" role="status"><div><strong>{readState.status==='loading'?'正在读取原任务':readState.status==='missing'?'未找到原任务':'任务详情暂不可用'}</strong><p>{readState.message||'只读取原任务，不会重新执行。'}</p></div></div>}
           <div className="task-title">
             <Badge
               text={taskLabel(task)}

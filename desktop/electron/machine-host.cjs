@@ -16,6 +16,31 @@ class MachineHost {
   }
   save(){fs.mkdirSync(this.directory,{recursive:true});const tmp=this.file+'.'+randomUUID()+'.tmp';fs.writeFileSync(tmp,JSON.stringify(this.rows,null,2),{mode:0o600});fs.renameSync(tmp,this.file);}
   setCollaboration(handler){this.options.collaboration=handler;}
+  async readOwnedObject(params){
+    const key=params.op==='task'?'taskId':'conversationId',collection=params.op==='task'?'tasks':'conversations';
+    if(typeof params[key]!=='string'||!params[key].trim())throw fail('INVALID_INPUT','读取原记录需要原对象 ID。');
+    const sources=[null,...this.rows.filter(r=>typeof r.agentId==='string'&&r.agentId.trim())];
+    const failures=[],owners=new Map();
+    await Promise.all(sources.map(async row=>{
+      try{
+        const host=row?this.backend(row):this.legacy,snapshot=await host.call('snapshot',{});
+        if(snapshot[collection]?.some(item=>item[key]===params[key]))owners.set(host,row);
+      }catch(error){failures.push(error);}
+    }));
+    if(owners.size>1)throw fail('OBJECT_SOURCE_CONFLICT','多个原后台包含同一记录，无法安全选择来源。');
+    if(!owners.size){
+      if(failures.length)throw failures[0];
+      throw fail('NOT_FOUND',params.op==='task'?'原后台未找到这个任务。':'原后台未找到这个会话。');
+    }
+    const [host,row]=[...owners][0];
+    const result=await host.call('ipc',params);
+    if(result?.[key]!==params[key])throw fail('RECEIPT_MISMATCH','返回记录与原对象 ID 不一致。');
+    // Reading an old object does not establish a usable execution owner. Keep
+    // its native session intact, but never advertise continuation on a stale ID.
+    if(params.op==='conversation'&&row&&result.targetAgent!==row.agentId)
+      return {...result,canContinue:false,continuationReason:'原会话的 Agent 归属缺失，仅可查看保留记录，不能继续。'};
+    return result;
+  }
   backend(row){
     if(!this.contexts.has(row.contextId)){
       const directory=path.join(this.directory,'node-contexts',row.contextId);
@@ -90,6 +115,9 @@ class MachineHost {
       const base=all[0];return {...base,agents:{...base.agents,items:all.flatMap(s=>s.agents?.items||[]).map(a=>{const row=this.rows.find(r=>r.agentId===a.agentId);return {...a,...(row?{adapter:row.adapter,nodeId:row.nodeId,contextId:row.contextId}:{})};})},tasks:all.flatMap(s=>s.tasks||[]),conversations:all.flatMap(s=>s.conversations||[])};
     }
     if(method==='ipc'){
+      // A read belongs to the backend whose own snapshot contains the object.
+      // Neither a missing/stale owner nor a supplied agent may select root IPC.
+      if(['task','conversation'].includes(params.op))return this.readOwnedObject(params);
       // Failed context preparation may persist a row before it has an agent.
       // Two absent IDs must never route a read/control to that unfinished row.
       const byAgent=typeof params.agentId==='string'&&params.agentId.trim()

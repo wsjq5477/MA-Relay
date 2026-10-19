@@ -1,5 +1,9 @@
 # M04 SSH 机器接入设计
 
+## 当前历史详情读取与错误作用域
+
+M04-F04/F05/F08：alpha.30保持alpha.29冻结manifest精确验证和重连/维护入口，未知版本与摘要/归属不符仍拒绝。归属修复位于远端MachineHost，用户确认空闲维护升级后才生效；仅升级客户端先隔离UI错误，不自动替换远端。 2026-10-19源码候选alpha.30，GitHub仍alpha.29；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+
 ## 2026-10-18：UI 本地候选的 alpha.28 后台兼容边界
 
 M04-F04/F05/F08：本地 UI 候选为 `0.6.0-alpha.28.ui.2`，独立快照额外收录原 alpha.28 的可信 manifest，规范 JSON digest 为 `b06a14fe3716c2df46cb665e21f137d05aab6046a611cb0275c5cadbc365d00d`；来源为已验证的原 alpha.28 Linux 包，不以当前源码重新生成的不同字节冒充旧清单。主工作区版本元数据仍为 alpha.28，新增兼容文件仅属于候选快照，本次未修改 GitHub alpha.28 附件。

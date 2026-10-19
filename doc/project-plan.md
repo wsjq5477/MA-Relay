@@ -1,5 +1,9 @@
 # 迭代路线与当前交付
 
+## alpha.30候选：历史详情读取恢复
+
+alpha.30源码修复候选解决issue #6历史会话误走根OpenCode及全局同步污染；GitHub仍alpha.29，包/分发待验，完整I06C/I07C未准出。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 2026-10-19：CT-02继续完成[CT-02真实MCP委派](iterations/I07/connection-delegation.md)，当前WSL三工具已覆盖全部六个普通委派方向，真实主/子/结果/汇总及完成后恢复通过。新增验收工具/保护回归，产品运行代码未改；不是六工具/所有运输环境全部准出。下一步在真实原生环境可用后补新三工具，并冻结当前源码本地Windows候选及验证包/真实IPC；CT-03/04/05继续保持各自候选状态。

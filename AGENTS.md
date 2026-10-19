@@ -1,5 +1,7 @@
 # AgentBridge 开发与文档协作
 
+2026-10-19源码候选alpha.30修复issue #6，GitHub仍alpha.29；原CT-04未提交开发保持独立，[源码/EXE、远端升级和验证边界](doc/iterations/I07/history-detail-recovery.md)。
+
 2026-10-19当前GitHub预发布 **0.6.0-alpha.29**，标签冻结源码`23d256e`，包含当前UI/原生接入/发现/刷新与连接能力修改；EXE及SHA-256附件已发布并完成匿名完整下载核验。以下alpha.28及更早条目保留历史范围，当前发布与验收边界见[alpha.29交付](doc/iterations/I07/alpha29-release.md)，完整I06C/I07C仍未准出。
 
 2026-10-17源码/GitHub预发布alpha.28修复issue #5远端持久拒绝恢复，GitHub已预发布alpha.28；开发、验证和未测边界见[专项](doc/iterations/I06/daemon-rejection-recovery.md)。

@@ -1,5 +1,9 @@
 # I07 开发分解与当前记录
 
+## alpha.30候选：历史详情读取恢复
+
+独立alpha.29修复分支实现MachineHost只读对象来源、MachineRouter明确未找到历史回退和NetworkApp详情局部状态；新增真实TCP SSH、Windows生产前端及普通EXE合成验证入口。CT-04原工作区未提交开发不纳入。 [需求、实现、逐项证据与边界](history-detail-recovery.md)。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 2026-10-19完成[CT-02真实MCP六方向](connection-delegation.md)：新增默认零执行、持久设置/父请求意图、匿名被动观察与原ID恢复的验收脚本，以及7项保护回归。三种原生工具轮流作为主/子，9个Task全部成功；重开每链仍3Task/2委派。生产dispatcher未替换，产品运行/协议/存储无变化；桌面517/517通过，未构建或发布新EXE。

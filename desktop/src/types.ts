@@ -21,6 +21,11 @@ export interface Event {
     error?: { message: string };
   };
 }
+export interface DetailRead {
+  id: string;
+  status: "loading" | "ready" | "missing" | "error";
+  message?: string;
+}
 export interface Task {
   historical?:boolean;
   nodeId?: string;

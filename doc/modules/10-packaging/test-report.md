@@ -1,5 +1,9 @@
 # M10 构建与发布测试报告
 
+## 2026-10-19：历史详情路由与局部错误
+
+T-M10-150 / M10-F01/F03/F05：alpha.30隔离修复；合成路由6项、受控TCP SSH1项、Windows纯CJS91/91、Linux SSR63/63，新生产前端7组和既有10组通过，模型0。最终桌面529/529、核心45/45、lint/类型/构建通过；38 CJS/78 core/1401 Linux资源匹配145个冻结源文件。普通Windows无调试EXE合成原两轮/Session只读与关闭重开/后台重启4组通过。分发实际结果及首次失败统一见[当次专项](../../iterations/I07/history-detail-recovery.md)；共享计数不跨模块叠加，用户故障profile/独立服务器未复测。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](../../iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 poll.4最终候选：129,933,135字节，SHA-256与[校验文件](../../../artifacts/desktop-polling/2026-10-18/SHA256SUMS.txt)一致，普通EXE4组通过；没有创建GitHub发布，用户profile未升级。[完整交付](../../iterations/I07/desktop-polling.md)。
