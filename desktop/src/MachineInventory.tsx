@@ -62,6 +62,8 @@ const machineKind = (machine: Machine) =>
 
 function nodeState(node: AgentNode): { label: string; tone: Tone } {
   if (!node.online) return { label: "机器离线", tone: "neutral" };
+  if (node.status === "upgrade_required") return {label:"后台需要升级",tone:"warning"};
+  if (node.status === "needs_check") return {label:"需要检查原生 API",tone:"warning"};
   if (node.status === "tool_error")
     return { label: "工具检查异常", tone: "danger" };
   if (!canExecuteNode(node))
@@ -424,7 +426,7 @@ export default function MachineInventory(props: Props) {
                       {resourceBlocked && <small>原操作待核对</small>}
                     </div>
                     <div className="inventory-node-actions">
-                      {node.connected ? (
+                      {(node.connected && node.status !== "needs_check") ? (
                         <button
                           className="btn small inventory-start"
                           disabled={!canStart}
@@ -439,7 +441,7 @@ export default function MachineInventory(props: Props) {
                           disabled={
                             nodeManagementLocked ||
                             !node.healthy ||
-                            !canExecuteNode(node)
+                            (!canExecuteNode(node) && node.status !== "needs_check")
                           }
                           onClick={() => props.attach(node.nodeId)}
                         >

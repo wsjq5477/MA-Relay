@@ -78,6 +78,7 @@ function mock(initial) {
       activeTasks: 0,
       version: "fixture-version",
       status: "connected",
+      ...(n.machineId==='remote'&&state.compatibilityStatus?{status:state.compatibilityStatus,executionSupported:false,available:false,error:state.compatibilityStatus==='needs_check'?'需要重新接入检查原生 API':'来源后台缺少安全读取能力，请升级后台。'}:{}),
       ...(n.nodeId === "a" && state.pendingOriginal
         ? { unconfirmed: 1, uncertain: true }
         : {}),

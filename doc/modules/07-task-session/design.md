@@ -1,5 +1,9 @@
 # M07 任务、会话、交互控制与恢复设计
 
+## 2026-10-19：issue #7 协作兼容修复
+
+M07-F03/F04：当前行为：task/conversation/pending/reply/cancel/operation/continue/reconcile先确认实际原对象backend；无owner不猜根legacy，迟到对象仍查询原ID，原控制收据及原生终态核对不变。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+
 读取归属已失配的旧会话只允许查看，即使宿主保有原生Session也不宣告可继续；不改其Agent、ID或Session，正常绑定和真正legacy能力保留。
 
 ## 当前历史详情读取与错误作用域

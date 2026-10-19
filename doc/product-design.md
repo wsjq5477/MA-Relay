@@ -1,5 +1,9 @@
 # AgentBridge 整体功能设计
 
+## 2026-10-19：协作兼容修复（alpha.31候选）
+
+AB-F02/F03/F07/F10/F11/F13/F17：统一OpenCode实际API兼容判定、准备拒绝委派与原对象控制路由，新增中央/daemon安全读取语义能力门禁。用户现场和真实企业版API未复验。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+
 ## alpha.30已预发布：历史详情读取恢复
 
 AB-F08/F10/F11/F17：历史详情由实际backend读取，明确未找到才按同机器同ID回历史；详情错误只影响本面板，不触发全局同步锁。仅顶层snapshot/pending失败保留全局锁，不重发原需求。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。

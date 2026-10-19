@@ -8,6 +8,7 @@ const { CredentialStore } = require('./ssh-credentials.cjs');
 const { SshInstaller, quote, remoteExec } = require('./ssh-install.cjs');
 const { FramedStream } = require('./machine-protocol.cjs');
 const {rejectedError}=require('./daemon-rejection.cjs');
+const {supportsRecovery}=require('./runtime-capabilities.cjs');
 
 const SSH_METHODS = new Set(['machine.createSshDraft', 'credential.provide', 'machine.testSsh', 'machine.trustHost', 'machine.connectSsh', 'machine.reconnect', 'machine.disconnect']);
 const {digest,operationId}=require('./graph-layout.cjs');
@@ -80,6 +81,8 @@ class SshHost {
   }
   async call(method, params = {}) {
     if (this.connection.stage !== 'online') throw problem('MACHINE_OFFLINE', this.connection.stage === 'needs_credentials' ? '远端机器需要重新输入 SSH 凭据。' : '远端机器当前离线，已接收任务仍由远端后台保留。');
+    if(this.connection.objectRoutingSupported===false&&(method==='context'||method==='scope'||method==='ipc'&&['task','conversation','pending','reply','cancel','operation','continue','reconcile','submit','verify'].includes(params.op)))
+      throw problem('DAEMON_UPGRADE_REQUIRED','来源机器后台缺少原对象安全读取能力；请在该机器的后台维护中升级后台，再查询原任务。已接受任务不会重发。');
     const generation=this.generation;
     try{return await this.request(method, params);}
     catch(error){
@@ -140,7 +143,7 @@ class SshManager {
   }
   touch(connection) { connection.lastSeenAt = new Date().toISOString(); }
   publicState(connection) {
-    return { connectionId: connection.connectionId, ...(connection.machineId ? { machineId: connection.machineId } : {}), revision:connection.revision, removed:!!connection.removed, name: connection.name, host: connection.host, port: connection.port, username: connection.username, authKind: connection.authKind === 'privateKey' ? 'key' : connection.authKind, ...(connection.keyPath ? { keyPath: connection.keyPath } : {}), kind: 'ssh', platform: 'linux', stage: connection.stage, status: connection.stage, connectionState: connection.stage, online: connection.online, daemonVersion:connection.daemonVersion||connection.identity?.daemonVersion,daemonMaintenance:connection.maintenance?{operationId:connection.maintenance.operationId,state:connection.maintenance.state,action:connection.maintenance.action}:undefined,credentialAvailable: this.credentials.available(connection), credentialSaveSupported: this.credentials.saveSupported, ...(connection.lastSeenAt ? { lastSeenAt: connection.lastSeenAt } : {}), ...(connection.lastSyncedAt ? { lastSyncedAt: connection.lastSyncedAt } : {}), ...(connection.error ? { error: connection.error.message, connectionError: connection.error } : {}), ...(connection.probe ? { probe: connection.probe } : {}), ...(connection.progress ? { installProgress: connection.progress } : {}) };
+    return { connectionId: connection.connectionId, ...(connection.machineId ? { machineId: connection.machineId } : {}), revision:connection.revision, removed:!!connection.removed, name: connection.name, host: connection.host, port: connection.port, username: connection.username, authKind: connection.authKind === 'privateKey' ? 'key' : connection.authKind, ...(connection.keyPath ? { keyPath: connection.keyPath } : {}), kind: 'ssh', platform: 'linux', stage: connection.stage, status: connection.stage, connectionState: connection.stage, online: connection.online, daemonVersion:connection.daemonVersion||connection.identity?.daemonVersion,objectRoutingSupported:connection.objectRoutingSupported,daemonMaintenance:connection.maintenance?{operationId:connection.maintenance.operationId,state:connection.maintenance.state,action:connection.maintenance.action}:undefined,credentialAvailable: this.credentials.available(connection), credentialSaveSupported: this.credentials.saveSupported, ...(connection.lastSeenAt ? { lastSeenAt: connection.lastSeenAt } : {}), ...(connection.lastSyncedAt ? { lastSyncedAt: connection.lastSyncedAt } : {}), ...(connection.error ? { error: connection.error.message, connectionError: connection.error } : {}), ...(connection.probe ? { probe: connection.probe } : {}), ...(connection.progress ? { installProgress: connection.progress } : {}) };
   }
   states() { return this.connections.map(connection => this.publicState(connection)); }
   find(params) {
@@ -466,7 +469,8 @@ class SshManager {
       const machineId = 'ssh-' + identity.daemonId;
       connection.machineId = machineId; connection.daemonId = identity.daemonId;
       connection.daemonVersion=hello.version;
-      connection.identity = { machineId, name: connection.name, kind: 'ssh', platform: 'linux', connectionId: connection.connectionId, daemonId: identity.daemonId, hostname: hello.hostname, username: connection.username, uid: probe.uid, arch: probe.arch, daemonVersion: hello.version, protocolVersion: 2, profileId: install.profileId, installDirectory: probe.installPath, stateDirectory: install.stateDirectory, host: connection.host, port: connection.port };
+      connection.objectRoutingSupported=supportsRecovery(hello.capabilities);
+      connection.identity = { machineId, name: connection.name, kind: 'ssh', platform: 'linux', connectionId: connection.connectionId, daemonId: identity.daemonId, hostname: hello.hostname, username: connection.username, uid: probe.uid, arch: probe.arch, daemonVersion: hello.version, objectRoutingSupported:connection.objectRoutingSupported, protocolVersion: 2, profileId: install.profileId, installDirectory: probe.installPath, stateDirectory: install.stateDirectory, host: connection.host, port: connection.port };
       // Resume observation only; this path never submits an Agent Prompt.
       this.options.onMachine?.(connection.identity);
       await this.restoreObservation(host,connection,machineId);

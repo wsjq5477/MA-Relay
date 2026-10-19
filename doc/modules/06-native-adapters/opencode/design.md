@@ -1,5 +1,9 @@
 # OpenCode 适配器设计
 
+## 2026-10-19：issue #7 协作兼容修复
+
+M06-OC-F01：当前行为：二次发现接受可启动的原安装，实际接入、serve启动/复用和健康检查共享info/agent/model及所需config响应契约；1.x只有实际响应兼容才通过。不兼容报OPENCODE_API_UNSUPPORTED，不再误报DISCOVERY_CHANGED或被网络错误遮蔽。 [完整需求、验证与交付](../../../iterations/I07/collaboration-compatibility.md)。
+
 Windows 启动 OpenCode serve、Core Controller 与显式版本检查时设置 windowsHide，避免后台控制台干扰桌面。安装发现改为首次使用或明确扫描，执行前仍核验原安装。[空闲黑窗专项](../../../iterations/I07/desktop-polling.md)。
 
 更新日期：2026-10-14。所属功能 **M06-OC-F01**。对应[模块总设计](../design.md)与[测试报告](test-report.md)。
@@ -12,7 +16,7 @@ Windows 启动 OpenCode serve、Core Controller 与显式版本检查时设置 w
 
 | 子能力 | 当前实现 | 验证边界 |
 | --- | --- | --- |
-| 版本/模型健康检查 | `/api/info`、默认与可用模型、原生配置源读取 | 接受 OpenCode 2 API；安装检查不是模型可调用证明 |
+| 版本/模型健康检查 | `/api/info`、默认与可用模型、原生配置源读取 | 接受经过实际API契约检查的安装；安装检查不是模型可调用证明 |
 | CLI 默认配置继承 | 原生配置优先，否则 CLI 最近可用模型；不写原文件 | 2.0.24 真实默认与受控回归；远端 2.0.26 已有真实回复 |
 | 新会话/原会话续聊 | Session/Message 预绑定、只发一次 Prompt、原时间线核验 | 2.0.24 真实三轮；2.0.26 两轮缺 native ID 比较产物 |
 | 输出/工具/等待 | HTTP 轮询已生成的文本和工具状态，permission/form 接口 | 不是原生 token 流订阅 |
@@ -32,7 +36,7 @@ flowchart LR
 
 | 操作 | 原生接口 | Bridge 行为 |
 | --- | --- | --- |
-| 服务类型/版本 | `GET /api/info` | 只接受版本字符串 `2.*`；契约字段另作检查 |
+| 服务类型/版本 | `GET /api/info` | 显示版本仅作元数据；info/agent/model及所需config契约须通过 |
 | 原生模型来源 | `GET /api/model/default`、`/api/model`、`/api/config` | 使用 `location[directory]`；确定当前执行目录的默认 |
 | 新建 Session | `POST /api/session` | Bridge 指定 Session ID、原目录/agent，附 Bridge 关联 metadata |
 | 本轮需求 | `POST /api/session/{id}/prompt` | 指定 Message ID；校验返回 ID 与所属 Session |
@@ -45,7 +49,7 @@ flowchart LR
 
 Windows OpenCode 的 DesktopHost 先用共享 workerRuntime 准备 Electron/ICU 资源，再创建本机后台。缓存复制排除 runtime.json，兼容旧自引用清单；真正资源损坏时发布完整新副本、保留旧目录。若在派发前仍失败，中央依据原意图保存明确拒绝，并可严格核对 alpha.9 旧 unknown；不把查不到 Task 当作未执行。详见 [alpha.18](../../../iterations/I06/runtime-recovery.md)。
 
-OpenCode 创建上下文前复用共享 tool-discovery 对原 executable 版本核验，支持 Windows exe/cmd/npm 解析与共享 Linux 目录规则，保留 2.x API 门槛。原安装删除/损坏时明确拒绝，不能由 PATH 变化换另一安装；Windows 私有 SettingsStore 保留可写文件 flush、原子替换与修订锁，Linux 另刷新目录。实际 Windows 版本/配置/受控退出证据不代表真实模型或原生 Session 恢复。[专项](../../../iterations/I06/opencode-discovery.md)。
+OpenCode 创建上下文前复用共享 tool-discovery 对原 executable 版本核验，支持 Windows exe/cmd/npm 解析与共享 Linux 目录规则，显示版本不设2.x门槛，连接实际核对API契约。原安装删除/损坏时明确拒绝，不能由 PATH 变化换另一安装；Windows 私有 SettingsStore 保留可写文件 flush、原子替换与修订锁，Linux 另刷新目录。实际 Windows 版本/配置/受控退出证据不代表真实模型或原生 Session 恢复。[专项](../../../iterations/I06/opencode-discovery.md)。
 
 ## 3. 原生服务与配置来源
 

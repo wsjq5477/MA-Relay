@@ -1,5 +1,9 @@
 # M04 SSH 机器接入设计
 
+## 2026-10-19：issue #7 协作兼容修复
+
+M04-F03/F05：当前行为：精确清单和身份验证后另核对daemon安全路由能力；缺能力允许观察、原收据与维护，阻止对象读控和执行；确认空闲维护升级前不替换后台。alpha.30冻结manifest已收入供安全连接/维护。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+
 ## 当前历史详情读取与错误作用域
 
 M04-F04/F05/F08：alpha.30保持alpha.29冻结manifest精确验证和重连/维护入口，未知版本与摘要/归属不符仍拒绝。归属修复位于远端MachineHost，用户确认空闲维护升级后才生效；仅升级客户端先隔离UI错误，不自动替换远端。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。

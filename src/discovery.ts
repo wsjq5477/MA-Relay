@@ -24,7 +24,8 @@ export async function discoverOpenCode(options: DiscoveryEnvironment = {}): Prom
   }
   const items = await scanTools({ home: options.home, platform, environment,
     candidates: { claude: [], codex: [], hermes: [], pi: [], dsh: [], ...(options.executable ? { opencode: [options.executable] } : {}) } });
-  // Installation detection accepts other majors; this adapter requires OpenCode 2 API.
-  return items.filter(item => item.healthy && /^2\./.test(item.version))
+  // CLI display versions do not establish the HTTP contract. Connect probes the
+  // selected installation before admitting work, including enterprise builds.
+  return items.filter(item => item.healthy)
     .map(({ name, executable, version }) => ({ name, executable, version }));
 }

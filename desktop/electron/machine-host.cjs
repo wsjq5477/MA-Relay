@@ -17,7 +17,7 @@ class MachineHost {
   save(){fs.mkdirSync(this.directory,{recursive:true});const tmp=this.file+'.'+randomUUID()+'.tmp';fs.writeFileSync(tmp,JSON.stringify(this.rows,null,2),{mode:0o600});fs.renameSync(tmp,this.file);}
   setCollaboration(handler){this.options.collaboration=handler;}
   async readOwnedObject(params){
-    const key=params.op==='task'?'taskId':'conversationId',collection=params.op==='task'?'tasks':'conversations';
+    const conversation=['conversation','continue'].includes(params.op),key=conversation?'conversationId':'taskId',collection=conversation?'conversations':'tasks';
     if(typeof params[key]!=='string'||!params[key].trim())throw fail('INVALID_INPUT','读取原记录需要原对象 ID。');
     const sources=[null,...this.rows.filter(r=>typeof r.agentId==='string'&&r.agentId.trim())];
     const failures=[],owners=new Map();
@@ -30,11 +30,11 @@ class MachineHost {
     if(owners.size>1)throw fail('OBJECT_SOURCE_CONFLICT','多个原后台包含同一记录，无法安全选择来源。');
     if(!owners.size){
       if(failures.length)throw failures[0];
-      throw fail('NOT_FOUND',params.op==='task'?'原后台未找到这个任务。':'原后台未找到这个会话。');
+      throw fail('NOT_FOUND',conversation?'原后台未找到这个会话。':'原后台未找到这个任务。');
     }
     const [host,row]=[...owners][0];
-    const result=await host.call('ipc',params);
-    if(result?.[key]!==params[key])throw fail('RECEIPT_MISMATCH','返回记录与原对象 ID 不一致。');
+    const result=await host.call('ipc',{...params,...(row?.mcp&&row.adapter!=='opencode'?{mcp:row.mcp}:{})});
+    if((['task','conversation'].includes(params.op)||result?.[key]!==undefined)&&result?.[key]!==params[key])throw fail('RECEIPT_MISMATCH','返回记录与原对象 ID 不一致。');
     // Reading an old object does not establish a usable execution owner. Keep
     // its native session intact, but never advertise continuation on a stale ID.
     if(params.op==='conversation'&&row&&result.targetAgent!==row.agentId)
@@ -87,6 +87,7 @@ class MachineHost {
         snapshot=await host.call('snapshot',{});agent=snapshot.agents.items.find(a=>a.agentId===row.agentId);
       }
       if(agent?.model)throw fail('CONVERSATION_CONFIG','旧执行上下文有模型覆盖，请保留原记录并新建原生配置会话。');
+      if(row.adapter==='opencode'&&agent?.startupError?.code==='OPENCODE_API_UNSUPPORTED')throw fail(agent.startupError.code,agent.startupError.message);
       if(row.adapter==='opencode'&&agent?.healthy===false)throw fail('AGENT_UNHEALTHY','原生工具尚未就绪，未提交需求；请检查原生账号或等待服务就绪。');
       return {...row,teamCollaboration:adapters.get(row.adapter)?.capabilities.teamCollaboration===true};
     })().finally(()=>this.connecting.delete(key));this.connecting.set(key,job);return job;
@@ -117,24 +118,17 @@ class MachineHost {
     if(method==='ipc'){
       // A read belongs to the backend whose own snapshot contains the object.
       // Neither a missing/stale owner nor a supplied agent may select root IPC.
-      if(['task','conversation'].includes(params.op))return this.readOwnedObject(params);
+      if(['task','conversation','pending','reply','cancel','operation','continue','reconcile'].includes(params.op))return this.readOwnedObject(params);
       // Failed context preparation may persist a row before it has an agent.
       // Two absent IDs must never route a read/control to that unfinished row.
       const byAgent=typeof params.agentId==='string'&&params.agentId.trim()
         ?this.rows.find(r=>r.agentId===params.agentId):undefined;
       if(byAgent)return this.backend(byAgent).call(method,{...params,...(byAgent.mcp&&byAgent.adapter!=='opencode'?{mcp:byAgent.mcp}:{})});
       if(['tasks','conversations','agents'].includes(params.op)){const snapshot=await this.call('snapshot',{});return params.op==='agents'?snapshot.agents:{items:snapshot[params.op]};}
-      // Each original receipt/session stays with its backend; only reads search.
-      if(['request','task','conversation','pending','operation','continue','cancel','reply','reconcile'].includes(params.op)){
-        if(params.op==='request'){
-          for(const h of [this.legacy,...this.rows.filter(r=>r.agentId).map(r=>this.backend(r))]){try{return await h.call('ipc',params);}catch(e){if(!['NOT_FOUND','REQUEST_NOT_FOUND','NOT_CONFIGURED'].includes(e.code))throw e;}}
-          throw fail('NOT_FOUND','原请求尚无可核对收据。');
-        }
-        const snapshot=await this.call('snapshot',{});
-        const owner=params.conversationId?snapshot.conversations.find(c=>c.conversationId===params.conversationId):snapshot.tasks.find(t=>t.taskId===params.taskId);
-        const row=typeof owner?.targetAgent==='string'&&owner.targetAgent.trim()
-          ?this.rows.find(r=>r.agentId===owner.targetAgent):undefined;
-        if(row)return this.backend(row).call(method,{...params,...(row.mcp&&row.adapter!=='opencode'?{mcp:row.mcp}:{})});
+      // Original request recovery remains read-only; it never creates a context.
+      if(params.op==='request'){
+        for(const h of [this.legacy,...this.rows.filter(r=>r.agentId).map(r=>this.backend(r))]){try{return await h.call('ipc',params);}catch(e){if(!['NOT_FOUND','REQUEST_NOT_FOUND','NOT_CONFIGURED'].includes(e.code))throw e;}}
+        throw fail('NOT_FOUND','原请求尚无可核对收据。');
       }
     }
     return this.legacy.call(method,params);

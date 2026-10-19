@@ -11,7 +11,7 @@ import type {NodeAction} from './node-management';
 import type {AgentNode,Collaboration,Machine} from './types';
 import '@xyflow/react/dist/style.css';
 import './graph.css';
-export const graphNodeStatus=(n:AgentNode)=>!n.online?'机器离线':n.status==='tool_error'?'工具检查异常':!n.executionSupported?'尚未支持执行':!n.connected?'已发现，待接入':n.unconfirmed||n.uncertain?'执行待核对':n.waiting?'等待你处理':n.busy?'正在工作':n.lastError?'最近执行失败':'已接入';
+export const graphNodeStatus=(n:AgentNode)=>!n.online?'机器离线':n.status==='upgrade_required'?'后台需要升级':n.status==='needs_check'?'需要检查原生 API':n.status==='tool_error'?'工具检查异常':!n.executionSupported?'尚未支持执行':!n.connected?'已发现，待接入':n.unconfirmed||n.uncertain?'执行待核对':n.waiting?'等待你处理':n.busy?'正在工作':n.lastError?'最近执行失败':'已接入';
 type Point={x:number;y:number};
 type Data={
   machine?:Machine;node?:AgentNode;hostName?:string;count?:number;role?:string;
@@ -50,7 +50,7 @@ const ToolNode=memo(({data,id}:NodeProps<FlowNode>)=>{
     <div className="graph-tool-title"><AgentIcon adapter={n.adapter} size={22}/><strong>{n.name}</strong><span className="graph-tool-role">{main&&<Crown className="graph-leader-icon" size={13}/>} {data.role||'节点'}</span></div>
     <small title={connectionCapabilitySummary(n)}>{n.version||'版本未知'} · {graphNodeStatus(n)}</small>
     <div className="graph-tool-actions nodrag nopan">
-      {!n.connected?<button className="text-btn" disabled={data.managementLocked||!n.online||!canExecuteNode(n)||n.busy} onClick={()=>data.attach?.(n.nodeId)}>接入</button>
+      {(!n.connected||n.status==='needs_check')?<button className="text-btn" disabled={data.managementLocked||!n.online||(!canExecuteNode(n)&&n.status!=='needs_check')||n.busy} onClick={()=>data.attach?.(n.nodeId)}>接入</button>
         :<><PrimaryAgentButton node={n} current={main} className="text-btn" disabled={data.relationLocked} onSelect={()=>data.setMain?.(n.nodeId)}/><button className="text-btn" disabled={!n.available||!canExecuteNode(n)||data.locked} onClick={()=>data.start?.(n)}>开始会话</button></>}
       {n.connected&&<button className="text-btn" disabled={data.managementLocked||!n.online||n.busy} onClick={()=>data.nodeAction?.(n,'disconnect')}>断开</button>}
       <button className="text-btn" disabled={data.managementLocked||!n.online||n.busy} onClick={()=>data.nodeAction?.(n,'remove')}>移除</button>

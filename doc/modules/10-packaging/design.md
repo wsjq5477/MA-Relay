@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## 2026-10-19：issue #7 协作兼容修复
+
+M10-F01/F03/F05：当前行为：alpha.31候选同时包含窗口、中央与Linux能力/路由修复；收入已发布alpha.30原manifest精确摘要，不把旧版本连接信任等同业务能力。发布、完整下载及普通EXE证据按本次专项记录。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+
 ## 当前历史详情读取与错误作用域
 
 M10-F01/F03/F05：alpha.30从已发布alpha.29隔离修复，CT-04未提交内容不入包。Windows窗口、冻结后台及Linux资源同时包含详情归属/错误隔离；收录alpha.29原manifest精确摘要保持原远端维护路径，不自动升级远端。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。

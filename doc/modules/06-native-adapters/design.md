@@ -1,5 +1,9 @@
 # M06 原生 Agent 适配器设计
 
+## 2026-10-19：issue #7 协作兼容修复
+
+M06-F01：当前行为：OpenCode显示版本不决定兼容性；发现只验证原安装，启动/复用/检查共享只读probe，接口不兼容明确拒绝。其他适配器行为未修改；真实错误字段仍透传。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+
 ## 当前历史详情读取与错误作用域
 
 M06-F01/F02：原生adapter不新建模型/API层；历史task/conversation由MachineHost确认实际backend后只读原ID，空/旧targetAgent不把Codex/Claude读误导到根OpenCode。原生Session、返回轮次、取消和原请求规则不变。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。

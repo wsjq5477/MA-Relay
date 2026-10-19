@@ -62,3 +62,18 @@ test('a genuine snapshot failure is preserved when no source can prove ownership
  f.snapshots.codex.conversations=[{conversationId:'known'}];
  assert.equal((await f.host.call('ipc',{op:'conversation',conversationId:'known'})).conversationId,'known');
 });
+
+// Issue #7: controls and pending must use the same original-object lookup.
+test('pending, reply and cancel never fall through to root; delayed task visibility recovers the same ID',async t=>{
+ const f=fixture(t);const call=f.hosts.codex.call;
+ f.hosts.codex.call=async(method,p)=>method==='ipc'&&['pending','reply','cancel','operation'].includes(p.op)?{taskId:p.taskId,operationId:p.operationId,items:[]}:call(method,p);
+ for(const op of ['pending','reply','cancel','operation']){
+  for(const agentId of [undefined,'claude-agent'])await assert.rejects(f.host.call('ipc',{op,taskId:'late',operationId:'original-control',agentId}),{code:'NOT_FOUND'});
+  assert.equal(f.calls.filter(c=>c.method==='ipc').length,0);
+ }
+ f.snapshots.codex.tasks=[{taskId:'late',status:'failed',error:{code:'CODEX_EVENT_LIMIT',message:'Codex 事件超过长度限制'}}];
+ for(const op of ['task','pending','reply','cancel','operation'])assert.equal((await f.host.call('ipc',{op,taskId:'late',operationId:'original-control',agentId:'claude-agent'})).taskId,'late');
+ assert.equal(f.calls.filter(c=>c.name==='legacy'&&c.method==='ipc').length,0);
+ f.snapshots.claude.tasks=[...f.snapshots.codex.tasks];
+ await assert.rejects(f.host.call('ipc',{op:'cancel',taskId:'late',operationId:'another-control'}),{code:'OBJECT_SOURCE_CONFLICT'});
+});

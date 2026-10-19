@@ -1,5 +1,9 @@
 # M01 桌面界面与交互设计
 
+## 2026-10-19：issue #7 协作兼容修复
+
+M01-F04/F05/F07：当前行为：节点区分needs_check/upgrade_required，禁用派发与主从能力；needs_check保留接入按钮，任务详情显示来源机器升级入口。旧中央不支持新语义时全局业务阻断，设置及显式停止后台可用。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+
 ## 当前历史详情读取与错误作用域
 
 M01-F04/F05/F07：顶层快照/pending错误保持全局同步锁；单条会话/任务详情独立加载与错误，按原ID/来源核对迟到回应。详情失败仅锁本条继续/控制，保留已读内容，独立新建可用；加载/未找到/历史/真实后台错误/零轮次分开显示。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。

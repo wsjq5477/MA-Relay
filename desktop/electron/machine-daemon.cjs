@@ -10,6 +10,7 @@ const { FramedStream, MAX_FRAME_BYTES } = require('./machine-protocol.cjs');
 const PROTOCOL_VERSION = 2;
 // Checkout uses desktop/package.json; the staged Linux bundle owns its root package.json.
 const versionFile = fs.existsSync(path.join(__dirname,'../package.json')) ? path.join(__dirname,'../package.json') : path.join(__dirname,'../../package.json');
+const {runtimeCapabilities}=require('./runtime-capabilities.cjs');
 const VERSION = JSON.parse(fs.readFileSync(versionFile,'utf8')).version;
 const MAX_INFLIGHT = 64;
 const fail = (code, message) => Object.assign(new Error(message), { code });
@@ -351,7 +352,7 @@ async function startDaemon(options) {
               client.ready = true; client.generation = info.generation; client.sessionId = params.sessionId || params.nonce; clearTimeout(helloTimer);
               const previous = active; active = client;
               if (previous) { removeCallbacks(previous); previous.channel.close(); }
-              respond(frame.id, { ...info, pid: process.pid, nonce: params.nonce, sessionId: client.sessionId, generation: client.generation, lastEventCursor: cursor, capabilities: ['discover', 'contexts', 'native-sessions', 'durable-receipts', 'events', 'collaboration-callbacks'] }); return;
+              respond(frame.id, { ...info, pid: process.pid, nonce: params.nonce, sessionId: client.sessionId, generation: client.generation, lastEventCursor: cursor, capabilities: ['discover', 'contexts', 'native-sessions', 'durable-receipts', 'events', 'collaboration-callbacks',...runtimeCapabilities] }); return;
             }
             if (!client.ready || active !== client) throw fail('PROTOCOL_HELLO', '此通道尚未绑定中央后台，不能执行操作。');
             if (frame.method === 'ping') { respond(frame.id, { nonce: params.nonce, generation: client.generation, timestamp: now() }); return; }

@@ -60,19 +60,42 @@ export class OpenCodeClient {
       throw new BridgeError('NATIVE_CONTRACT', 'OpenCode response is incomplete or invalid', 503);
     } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
   }
+  /** Read-only contract probe shared by startup, reconnect and execution checks. */
+  async probe(): Promise<{version: string; selected: {id:string;providerID:string;variant?:string}|null; models:{id:string;providerID:string}[]}> {
+    try {
+      const info = await this.call<{version?: unknown}>('/api/info');
+      const location = '?location%5Bdirectory%5D=' + encodeURIComponent(this.config.workspace);
+      const [agents, selected, models] = await Promise.all([
+        this.call<{data?: {id?: string; name?: string}[]}>('/api/agent' + location),
+        this.call<{data?: unknown}>('/api/model/default' + location),
+        this.call<{data?: unknown[]}>('/api/model' + location),
+      ]);
+      const model = (value: unknown): value is {id: string; providerID: string} => !!value && typeof value === 'object'
+        && typeof (value as {id?: unknown}).id === 'string' && typeof (value as {providerID?: unknown}).providerID === 'string';
+      if (!info || typeof info.version !== 'string' || !info.version.trim()
+        || !Array.isArray(agents?.data) || !agents.data.every(a => a && (typeof a.id === 'string' || typeof a.name === 'string'))
+        || !selected || selected.data !== null && !model(selected.data)
+        || !Array.isArray(models?.data) || !models.data.every(model)) throw new BridgeError('NATIVE_CONTRACT', 'API shape mismatch', 503);
+      if (this.config.inheritNativeCli) {
+        const config = await this.call<unknown>('/api/config' + location);
+        if (!Array.isArray(config) || !config.every(s => s && typeof s === 'object')) throw new BridgeError('NATIVE_CONTRACT', 'API config shape mismatch', 503);
+      }
+      return {version: info.version, selected:selected.data as {id:string;providerID:string;variant?:string}|null, models:models.data as {id:string;providerID:string}[]};
+    } catch (error) {
+      if (error instanceof BridgeError && ['NATIVE_CONTRACT','OPENCODE_HTTP_404','OPENCODE_HTTP_405'].includes(error.code))
+        throw new BridgeError('OPENCODE_API_UNSUPPORTED', '当前 OpenCode 未提供兼容的原生 API，需求未派发；请使用提供 /api/info、agent 和 model 契约的安装后重新接入。', 503);
+      throw error;
+    }
+  }
   async check(warmupMs = 0): Promise<{ version: string; workspace: string; model: { id: string; providerID: string; variant?: string } | null; healthy: boolean }> {
     let workspace: string;
     try { workspace = realpathSync(this.config.workspace); if (!statSync(workspace).isDirectory()) throw new Error(); }
     catch { throw new BridgeError('WORKSPACE_UNAVAILABLE', 'Configured workspace is unavailable'); }
-    const info = await this.call<{ version: string }>('/api/info');
-    if (typeof info.version !== 'string' || !/^2\./.test(info.version)) throw new BridgeError('NATIVE_VERSION', 'This adapter requires the OpenCode 2 API', 503);
+    let info = await this.probe();
     const location = '?location%5Bdirectory%5D=' + encodeURIComponent(workspace);
     const deadline = Date.now() + warmupMs;
     for (;;) {
-      const [selected, available] = await Promise.all([
-        this.call<{ data: { id: string; providerID: string; variant?: string } | null }>('/api/model/default' + location),
-        this.call<{ data: { id: string; providerID: string }[] }>('/api/model' + location),
-      ]);
+      const selected={data:info.selected},available={data:info.models};
       let model = this.config.model || selected.data;
       if(this.config.inheritNativeCli && !this.config.model){
         const sources=await this.call<{info?:{model?:unknown;agents?:Record<string,{model?:unknown}>}}[]>('/api/config'+location);
@@ -92,6 +115,7 @@ export class OpenCodeClient {
       // v2 can publish an empty model catalogue while initializing this location.
       // Retry only read-only metadata; never retry session or prompt mutations.
       await delay(150);
+      info = await this.probe();
     }
   }
   async session(id: string, signal?: AbortSignal): Promise<NativeSession> {

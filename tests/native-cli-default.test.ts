@@ -15,7 +15,7 @@ test('OpenCode node inherits CLI recent preference after native config, reads up
  class Client extends OpenCodeClient{
   override async call<T>(route:string):Promise<T>{
    const path=route.split('?')[0]!;
-   const responses:Record<string,unknown>={'/api/info':{version:'2.0.24'},'/api/model/default':{data:{providerID:'native',id:'server-default'}},'/api/model':{data:[{providerID:'native',id:'server-default'},{providerID:'native',id:'DeepSeek'}]},'/api/config':[{info:configured?{model:'native/server-default'}:{}}]};
+   const responses:Record<string,unknown>={'/api/agent':{data:[{id:'build'}]},'/api/info':{version:'2.0.24'},'/api/model/default':{data:{providerID:'native',id:'server-default'}},'/api/model':{data:[{providerID:'native',id:'server-default'},{providerID:'native',id:'DeepSeek'}]},'/api/config':[{info:configured?{model:'native/server-default'}:{}}]};
    assert(Object.hasOwn(responses,path));return responses[path] as T;
   }
  }

@@ -38,6 +38,8 @@ export function bridgeCallerReason(node?: AgentNode) {
 }
 
 export function connectionCapabilitySummary(node: AgentNode) {
+  if(node.status==='upgrade_required')return '后台需要升级后才能执行和读取协作结果';
+  if(node.status==='needs_check')return '需要重新接入并检查原生 API';
   const execution = connectionCapability(node, 'execution');
   if (execution !== true) return execution === false ? '尚未支持执行' : '执行能力未知';
   const delegation = connectionCapability(node, 'delegation');

@@ -1,5 +1,9 @@
 # 通信协议与接口
 
+## 2026-10-19：协作兼容修复（alpha.31候选）
+
+wire protocol仍2；中央及daemon hello新增capabilities中的owned-object-controls-v1。旧中央仅保留preferences/runtimes/shutdown；旧SSH仍可snapshot/discover/request和daemon原收据/维护，对context/scope及task/conversation/pending/reply/cancel/operation/continue/reconcile/submit/verify返回DAEMON_UPGRADE_REQUIRED。新增OPENCODE_API_UNSUPPORTED、COORDINATOR_UPGRADE_REQUIRED；既有NOT_FOUND与OBJECT_SOURCE_CONFLICT继续适用。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+
 ## alpha.30已预发布：历史详情读取恢复
 
 协议2和ipc请求形状不变。task/conversation按实际backend读取，明确NOT_FOUND/TASK_NOT_FOUND/CONVERSATION_NOT_FOUND可回原机器保留历史；historical=true/canContinue=false。OBJECT_SOURCE_CONFLICT表示多后台同ID，RECEIPT_MISMATCH表示响应ID不符；两者及真实NOT_CONFIGURED不假装历史成功。request/operation/submit/continue/reply/cancel不受此回退影响。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。

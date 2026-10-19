@@ -511,3 +511,39 @@ test('native upgrades keep one current node and its role, retaining historical a
   assert.equal(refreshed.version,'2.1.302');assert.equal(refreshed.busy,true);
   assert.equal(snapshot.nodes.filter(n=>n.machineId===original.machineId&&n.adapter==='claude'&&!n.supersededBy).length,1);
 });
+
+test('delegation uses durable undispatched preparation rejection for any code and keeps it on same-ID retry',async t=>{
+ const f=await setup(t),leader=f.nodes.find(n=>n.adapter==='claude'),member=f.nodes.find(n=>n.adapter==='codex');
+ await f.router.call('attachNode',{nodeId:member.nodeId});
+ await f.router.call('saveCollaboration',{leaderId:leader.nodeId,memberIds:[member.nodeId],expectedRevision:0});
+ await f.router.call('nodeRequest',{nodeId:leader.nodeId,requestId:'proof-parent',message:'delegate',collaboration:true});
+ const h=f.hosts.get(member.machineId),call=h.call.bind(h),scope={nodeId:leader.nodeId,parentRequestId:'proof-parent'};let preparations=0;
+ h.call=async(method,p)=>{if(method==='context'){preparations++;throw Object.assign(Error('当前原生 API 不兼容，请接入受支持的工具。'),{code:'FUTURE_PREPARATION_ERROR'});}return call(method,p);};
+ const args={nodeId:member.nodeId,requestId:'same-child',message:'must never dispatch'};
+ for(let i=0;i<2;i++){
+  await assert.rejects(f.router.collaborationTool(scope,'delegate',args,'fixture',leader.machineId),e=>e.code==='FUTURE_PREPARATION_ERROR'&&e.message==='当前原生 API 不兼容，请接入受支持的工具。');
+  assert.equal(f.router.network.delegations[0].state,'rejected');
+ }
+ assert.equal(preparations,1);assert.equal(h.executions,1,'only parent executed on this shared machine');
+ const receipt=f.router.network.requests.find(r=>r.requestId===f.router.network.delegations[0].requestId);assert.equal(receipt.dispatched,false);assert.equal(receipt.taskId,undefined);
+});
+
+test('API compatibility and old-daemon capability constrain node availability before delegation',async t=>{
+ const f=await setup(t),node=f.nodes.find(n=>n.adapter==='opencode'),machine=f.router.machine(node.machineId),h=f.hosts.get(node.machineId),call=h.call.bind(h);
+ let observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.status,'needs_check');assert.equal(observed.available,false);assert.equal(observed.connectionCapabilities.execution,false);
+ h.call=async(method,p)=>{if(method==='context')throw Object.assign(Error('原生 API 不兼容'),{code:'OPENCODE_API_UNSUPPORTED'});return call(method,p);};
+ await assert.rejects(f.router.call('attachNode',{nodeId:node.nodeId}),{code:'OPENCODE_API_UNSUPPORTED'});
+ observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.available,false);assert.equal(observed.status,'needs_check');assert.match(observed.error,/API 不兼容/);
+ h.call=call;await f.router.call('attachNode',{nodeId:node.nodeId});observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.status,'connected');assert.equal(observed.connectionCapabilities.delegation,true);
+ machine.objectRoutingSupported=false;observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.status,'upgrade_required');assert.equal(observed.available,false);assert.equal(observed.connectionCapabilities.delegation,false);
+});
+
+test('delegated result exposes each backend native failure and preserves original task IDs',async t=>{
+ const f=await setup(t),leader=f.nodes.find(n=>n.adapter==='claude'),member=f.nodes.find(n=>n.adapter==='opencode');await f.router.call('attachNode',{nodeId:member.nodeId});
+ await f.router.call('saveCollaboration',{leaderId:leader.nodeId,memberIds:[member.nodeId],expectedRevision:0});await f.router.call('nodeRequest',{nodeId:leader.nodeId,requestId:'error-parent',message:'read errors',collaboration:true});
+ const scope={nodeId:leader.nodeId,parentRequestId:'error-parent'},h=f.hosts.get(member.machineId),task=await f.router.collaborationTool(scope,'delegate',{nodeId:member.nodeId,requestId:'child-error',message:'controlled'},'fixture',leader.machineId),raw=h.tasks[0];
+ for(const error of [{code:'CLAUDE_SSL',message:'API SSL certificate verification failed'},{code:'CODEX_EVENT_LIMIT',message:'Codex 事件超过长度限制'}]){
+  raw.status='failed';raw.error=error;const result=await f.router.collaborationTool(scope,'task_result',{taskId:task.taskId},'fixture',leader.machineId);assert.equal(result.status,'failed');assert.deepEqual(result.error,error);assert.equal(result.taskId,task.taskId);
+ }
+ assert.equal(h.executions,1);
+});

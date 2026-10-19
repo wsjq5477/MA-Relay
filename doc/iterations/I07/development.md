@@ -1,5 +1,9 @@
 # I07 开发分解与当前记录
 
+## 2026-10-19：协作兼容修复（alpha.31候选）
+
+从48254b0隔离完成OpenCode统一probe、委派原拒绝核对、对象控制路由及新旧后台能力门禁；新增三个旧源码失败回归和分层受控验证。 [需求、实现、实测与边界](collaboration-compatibility.md)。
+
 ## alpha.30已预发布：历史详情读取恢复
 
 独立alpha.29修复分支实现MachineHost只读对象来源、MachineRouter明确未找到历史回退和NetworkApp详情局部状态；新增真实TCP SSH、Windows生产前端及普通EXE合成验证入口。CT-04原工作区未提交开发不纳入。 [需求、实现、逐项证据与边界](history-detail-recovery.md)。

@@ -1,5 +1,9 @@
 # I07 测试与验收计划
 
+## 2026-10-19：协作兼容修复（alpha.31候选）
+
+回归覆盖企业版1.x实际握手与拒绝、迟到对象及根回退、任意准备错误码、旧hello门禁和真实错误字段透传；模型0，用户现场未测。 [需求、实现、实测与边界](collaboration-compatibility.md)。
+
 ## alpha.30已预发布：历史详情读取恢复
 
 路由、真实本机TCP SSH、Windows CJS及生产前端分层验收；未修复根legacy/OpenCode/同步中断失败日志保留。包、全工程及普通EXE实际结果分别记录，不以受控证据替代现场恢复。 [需求、实现、逐项证据与边界](history-detail-recovery.md)。

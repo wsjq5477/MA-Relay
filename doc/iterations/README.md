@@ -1,5 +1,9 @@
 # 迭代资料目录
 
+## 2026-10-19：协作兼容修复（alpha.31候选）
+
+issue #7 / alpha.31候选：兼容性、原对象控制路由、委派状态及新旧后台能力激活；实际发布和验证按专项。 [需求、实现、实测与边界](I07/collaboration-compatibility.md)。
+
 ## alpha.30已预发布：历史详情读取恢复
 
 alpha.30已发布源码修复处理issue #6；GitHub已预发布alpha.30，用户现场归属待确认。 [需求、实现、逐项证据与边界](I07/history-detail-recovery.md)。

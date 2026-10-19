@@ -21,6 +21,7 @@ function mergeSshState(machine, state, snapshot = false) {
   const snapshotError = snapshot && snapshotOnline === false ? machine.error : undefined;
   Object.assign(machine, state);
   delete machine.error;
+  if(typeof state.objectRoutingSupported==='boolean')machine.objectRoutingSupported=state.objectRoutingSupported;
   delete machine.connectionError;
   if (state.error || snapshotError) machine.error = state.error || snapshotError;
   if (state.connectionError) machine.connectionError = state.connectionError;

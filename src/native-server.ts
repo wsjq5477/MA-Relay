@@ -16,8 +16,7 @@ export async function startNativeServer(config: OpenCodeConfig): Promise<NativeS
   if (url.hostname !== '127.0.0.1' || !url.port) throw new BridgeError('NATIVE_ADDRESS', 'Managed OpenCode requires 127.0.0.1 and an explicit port');
   const previous = readNativeIdentity(config);
   if (previous && validateOwnedIdentity(config, previous)) {
-    const info = await new OpenCodeClient(config).call<{ version: string }>('/api/info');
-    if (!/^2\./.test(info.version)) throw new BridgeError('NATIVE_OWNERSHIP', '存活服务认证或类型无法确认', 409);
+    await new OpenCodeClient(config).probe();
     let resolveClosed!: () => void; const closed = new Promise<void>(r => { resolveClosed = r; });
     const monitor = setInterval(() => { try { if (!sameProcess(previous)) { clearInterval(monitor); resolveClosed(); } } catch { clearInterval(monitor); resolveClosed(); } }, 250);
     return { pid: previous.pid, reused: true, closed, async close() {
@@ -69,13 +68,12 @@ export async function startNativeServer(config: OpenCodeConfig): Promise<NativeS
       if (ended) throw new BridgeError(launchError ? 'NATIVE_EXECUTABLE' : 'NATIVE_EXITED', launchError ? 'Cannot launch OpenCode; check the executable path' : 'OpenCode exited during startup; check configuration', 503);
       if (!identity && child.pid) { const current = processIdentity(child.pid); if (current) identity = saveNativeIdentity(config, current); }
       try {
-        const info = await client.call<{ version: string }>('/api/info');
-        if (!/^2\./.test(info.version)) throw new BridgeError('NATIVE_VERSION', 'This adapter requires OpenCode 2', 503);
+        await client.probe();
         if (!identity || !sameBirth(identity)) throw new BridgeError('NATIVE_OWNERSHIP', '服务进程身份在启动期间改变', 409);
         const settled = processIdentity(child.pid!); if (!settled) throw new BridgeError('NATIVE_EXITED', '服务就绪后退出', 503);
         identity = saveNativeIdentity(config, settled);
         return { pid: child.pid!, reused: false, close, closed };
-      } catch (e) { if (e instanceof BridgeError && ['NATIVE_VERSION', 'NATIVE_OWNERSHIP'].includes(e.code)) throw e; }
+      } catch (e) { if (e instanceof BridgeError && ['OPENCODE_API_UNSUPPORTED', 'NATIVE_OWNERSHIP'].includes(e.code)) throw e; }
       await delay(100);
     }
     throw new BridgeError('NATIVE_START_TIMEOUT', 'OpenCode did not become ready within 20 seconds', 503);

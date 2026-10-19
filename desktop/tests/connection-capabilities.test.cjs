@@ -67,7 +67,7 @@ test('new classic callers reject before business intent while direct-only agents
   const request=await f.service.call({method:'nodeRequest',params:{op:'submit',nodeId:target.nodeId,requestId:'reject-'+adapter,message:'controlled',collaboration:true}});
   assert.equal(request.ok,false);assert.equal(request.error.code,'COLLABORATION_CAPABILITY');
  }
- assert.equal(f.network.network.requests.length,0);assert.equal(f.host.executions,0);assert.equal(f.host.calls.filter(c=>c.method==='context').length,0);
+ assert.equal(f.network.network.requests.length,0);assert.equal(f.host.executions,0);assert.equal(f.host.calls.filter(c=>c.method==='context'&&c.p.scope).length,0); // OpenCode attach probes read-only API metadata without a task scope.
  assert.equal(f.service.pending().length,0);
  const graphRows=JSON.parse(fs.readFileSync(path.join(f.directory,'graph-pending.json')));assert(graphRows.every(row=>row.state==='rejected'));
  for(const row of graphRows){const original=await f.service.call({method:'collaborationOperation',params:{operationId:row.operationId}});assert.equal(original.result.state,'rejected');assert.equal(original.result.error.code,'COLLABORATION_CAPABILITY');}

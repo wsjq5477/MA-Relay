@@ -184,10 +184,12 @@ export class DesktopHost {
         },
       });
       await ipc(this.directory, { op: "start" });
-      return {
-        agentId,
-        check: await ipc(this.directory, { op: "check", agentId }),
-      };
+      const ready = await ipc<{items: {agentId: string; startupError?: {code: string; message: string}}[]}>(this.directory, {op:'agents'});
+      const startupError = ready.items.find(a => a.agentId === agentId)?.startupError;
+      if (startupError) throw new BridgeError(startupError.code, startupError.message);
+      const check = await ipc<{code?: string; message?: string; connection: string}>(this.directory, { op: "check", agentId });
+      if (check.connection !== 'connected') throw new BridgeError(check.code || 'AGENT_UNHEALTHY', check.message || 'OpenCode 原生 API 尚未就绪，需求未派发。');
+      return { agentId, check };
     }
     if (request.method === "ipc") {
       if (params.op === "save")

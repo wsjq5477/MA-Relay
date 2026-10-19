@@ -19,7 +19,7 @@ test('B05: owned native process is reused; wrong PID/start identity and unsafe f
   writeFileSync(executable, `#!/usr/bin/env node
 import {createServer} from 'node:http';
 const port=Number(process.argv[process.argv.indexOf('--port')+1]);
-createServer((req,res)=>{res.setHeader('content-type','application/json');if(req.headers.authorization!=='Basic '+Buffer.from('opencode:'+(process.env.OPENCODE_PASSWORD||'identity-fixture-secret')).toString('base64')){res.statusCode=401;res.end('{}');return;}res.end(JSON.stringify({version:'2.0.24'}));}).listen(port,'127.0.0.1',()=>{console.log('server password identity-fixture-secret');console.log('server listening on http://127.0.0.1:'+port);});
+createServer((req,res)=>{res.setHeader('content-type','application/json');if(req.headers.authorization!=='Basic '+Buffer.from('opencode:'+(process.env.OPENCODE_PASSWORD||'identity-fixture-secret')).toString('base64')){res.statusCode=401;res.end('{}');return;}res.end(JSON.stringify(req.url==='/api/info'?{version:'2.0.24'}:req.url?.startsWith('/api/model/default')?{data:null}:{data:[]}));}).listen(port,'127.0.0.1',()=>{console.log('server password identity-fixture-secret');console.log('server listening on http://127.0.0.1:'+port);});
 `, { mode: 0o700 });
   const config = opencodeSchema.parse({ agentId: 'native', name: 'Native', adapter: 'opencode', workspace: root, executable, passwordFile: resolve(root, 'secret'), serverUrl: 'http://127.0.0.1:' + port });
   const first = await startNativeServer(config); let second: Awaited<ReturnType<typeof startNativeServer>> | undefined;
@@ -54,7 +54,7 @@ test('B05: native diagnostic output after parent SIGKILL does not kill the adopt
   writeFileSync(executable, `#!/usr/bin/env node
 import{createServer}from'node:http';
 const port=Number(process.argv[process.argv.indexOf('--port')+1]);
-createServer((req,res)=>{console.log('native diagnostic after parent loss');console.error('native error diagnostic');res.setHeader('content-type','application/json');res.end(JSON.stringify({version:'2.0.24'}));}).listen(port,'127.0.0.1');
+createServer((req,res)=>{console.log('native diagnostic after parent loss');console.error('native error diagnostic');res.setHeader('content-type','application/json');res.end(JSON.stringify(req.url==='/api/info'?{version:'2.0.24'}:req.url?.startsWith('/api/model/default')?{data:null}:{data:[]}));}).listen(port,'127.0.0.1');
 `, { mode: 0o700 });
   const config = opencodeSchema.parse({ agentId: 'orphan', name: 'Orphan', adapter: 'opencode', workspace: root, executable, passwordFile: resolve(root, 'secret'), serverUrl: 'http://127.0.0.1:' + port });
   const parent = spawn(process.execPath, ['--input-type=module', '-e', `import{startNativeServer}from ${JSON.stringify(new URL('../dist/native-server.js', import.meta.url).href)};const h=await startNativeServer(${JSON.stringify(config)});console.log(JSON.stringify({pid:h.pid}));`], { stdio: ['ignore', 'pipe', 'pipe'] });

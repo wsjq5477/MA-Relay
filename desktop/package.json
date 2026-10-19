@@ -1,6 +1,6 @@
 {
   "name": "agentbridge-desktop",
-  "version": "0.6.0-alpha.30",
+  "version": "0.6.0-alpha.31",
   "private": true,
   "type": "module",
   "description": "AgentBridge Windows desktop dashboard",

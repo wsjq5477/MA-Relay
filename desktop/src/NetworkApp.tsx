@@ -53,6 +53,8 @@ const empty: Snapshot = {
 const nodeStatus = (n: AgentNode) =>
   n.status === "offline"
     ? "机器离线"
+    : n.status === "upgrade_required" ? "后台需要升级"
+    : n.status === "needs_check" ? "需要检查原生 API"
     : n.status === "tool_error"
       ? "工具检查异常"
       : n.status === "unsupported"
@@ -191,7 +193,7 @@ export default function NetworkApp() {
       if(!current())return;
       const missing=['NOT_FOUND','CONVERSATION_NOT_FOUND','TASK_NOT_FOUND'].includes((error as {code?:string}).code||'');
       const label=kind==='conversation'?'会话':'任务';
-      const state:DetailRead={id,status:missing?'missing':'error',message:missing?'原后台和保留历史中未找到这条'+label+'，其他会话仍可使用。':'来源后台暂时无法读取这条'+label+'的详情；请稍后重新读取原记录。'};
+      const state:DetailRead={id,status:missing?'missing':'error',message:(error as {code?:string}).code==='DAEMON_UPGRADE_REQUIRED'?'来源机器后台需要升级；请在该机器的后台维护中升级后重新读取原记录。':missing?'原后台和保留历史中未找到这条'+label+'，其他会话仍可使用。':'来源后台暂时无法读取这条'+label+'的详情；请稍后重新读取原记录。'};
       if(kind==='conversation')setConversationRead(previous=>shareUnchanged(previous,state));else setTaskRead(previous=>shareUnchanged(previous,state));
     }finally{detailJobs.current.delete(key);}
   }
