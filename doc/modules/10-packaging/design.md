@@ -2,7 +2,7 @@
 
 ## 当前版本准入与管理作用域
 
-M10-F01/F03/F05：alpha.32候选同时冻结窗口/中央/Linux修复，收入alpha.31精确原manifest。新前台拒绝旧中央管理/版本语义，设置显式停止仍可用；普通EXE及完整公开下载验证分开，原CT-04未提交工作不入包。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+M10-F01/F03/F05：alpha.32已预发布同时冻结窗口/中央/Linux修复，收入alpha.31精确原manifest。新前台拒绝旧中央管理/版本语义，设置显式停止仍可用；普通EXE及完整公开下载验证分开，原CT-04未提交工作不入包。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
 ## 当前历史详情读取与错误作用域
 

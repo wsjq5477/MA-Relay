@@ -1,6 +1,6 @@
 # I07 设计：外部智能体的小队公共协作空间
 
-## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 OpenCode2.x同时约束原CLI与实际info；已派发收据优先于当前版本门禁。node/machine管理按机器冲突，relation仍全局保护，缺来源保守阻断。前端多意图持久与中央冲突规则一致，只有原匹配终态可结算。 [需求、实现、验证与边界](version-management-recovery.md)。
 

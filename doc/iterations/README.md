@@ -1,6 +1,6 @@
 # 迭代资料目录
 
-## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 I07新增issues #8/#9专项：2.x严格准入、快速错误和多机管理unknown隔离，原请求不重放。 [需求、实现、验证与边界](I07/version-management-recovery.md)。
 

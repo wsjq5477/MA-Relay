@@ -1,6 +1,6 @@
 # OpenCode 2.x准入与按机器管理恢复（issues #8 / #9）
 
-日期：2026-10-19（北京时间）。候选 **0.6.0-alpha.32**，从已发布alpha.31源码/文档`ff4194638da0a1a59d791be0d44c34c06c1ad488`隔离修复；原工作区CT-04/MCP未提交修改不入包。源码、普通EXE与公开发布分别以本页实际证据为准，完整I06C/I07C仍未准出。
+日期：2026-10-19（北京时间）。源码/GitHub预发布 **0.6.0-alpha.32**，从已发布alpha.31源码/文档`ff4194638da0a1a59d791be0d44c34c06c1ad488`隔离修复；原工作区CT-04/MCP未提交修改不入包。源码、普通EXE与公开发布分别以本页实际证据为准，完整I06C/I07C仍未准出。
 
 ## 需求与基线
 
@@ -96,4 +96,17 @@ Windows新增版本准入/机器台账模块另 **9/9**通过：[Windows管理�
 
 ## 冻结与发布状态
 
-候选EXE **129955724字节**，SHA-256 `87adda262cde786ba602971c4d03c5b25a6a0da9ac00e3cdfaba1e7fc5a14440`。普通无调试EXE五组通过，尚不声明公开发布；标签、冻结源码与匿名完整下载证据在实际完成后补记。
+候选EXE **129955724字节**，SHA-256 `87adda262cde786ba602971c4d03c5b25a6a0da9ac00e3cdfaba1e7fc5a14440`。普通无调试EXE五组通过；已发布，冻结源码、附件及匿名完整下载证据如下。
+
+
+### 已完成的GitHub预发布
+
+GitHub预发布 **v0.6.0-alpha.32** 已公开，标签冻结源码 **`fcdad72fba454bf731cf66df54bc1caf2a06e0a2`**。之后仅补录发布结果，不移动标签；原CT-04/MCP未提交开发不纳入。
+
+- [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.32/AgentBridge-0.6.0-alpha.32-Windows-x64.exe)
+- [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.32/SHA256SUMS.txt)
+- [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.32)
+
+EXE **129955724字节**，SHA-256 **`87adda262cde786ba602971c4d03c5b25a6a0da9ac00e3cdfaba1e7fc5a14440`**。上传后的GitHub size/digest匹配；匿名下载16个精确HTTP Range片段，按连续字节顺序拼接计算全部129955724字节摘要，与本地包及GitHub资产digest一致；校验附件HTTP200完整字节一致。不是HEAD或仅部分下载验证。
+
+原始[发布记录](../../../artifacts/version-management-recovery/2026-10-19/github-release.json)、[公开完整下载](../../../artifacts/version-management-recovery/2026-10-19/github-download.json)、[上传及验证过程](../../../artifacts/version-management-recovery/2026-10-19/publish.log)。本次分发已完成，不把用户现场修复、真实OpenCode/独立SSH或完整I06C/I07C改成通过。

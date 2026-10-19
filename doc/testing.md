@@ -1,10 +1,12 @@
 # 整体测试与验收报告
 
-## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 核心51/51、桌面543/543、定向7/7及工程检查通过；版本拒绝/中央机器冲突与Windows交互按受控证据记录。39 CJS/78 core/1404 Linux及148冻结文件匹配；当前普通EXE/分发状态以专项实际结果为准，现场未测。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
 
 Windows最终证据：95项原路由CJS及9项版本/管理CJS通过；alpha.32生产前端专项4组、既有状态10组/8图及普通无调试EXE5组通过，模型0。
+
+alpha.32已完成普通EXE及公开完整下载核验，标签冻结`fcdad72fba454bf731cf66df54bc1caf2a06e0a2`，EXE与SHA-256附件公开可取；后续文档补录不移动标签。[发布与升级边界](iterations/I07/version-management-recovery.md)。
 
 ## 2026-10-19：协作兼容修复（alpha.31已预发布）
 

@@ -1,6 +1,6 @@
 # AgentBridge 整体架构
 
-## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 共享发现器决定版本准入，MachineHost与Core在serve/上下文创建前复验。前端管理范围与中央GraphOperationJournal一致；中央能力新增scoped-management-v1/opencode-v2-admission-v1防止复用旧语义，SSH原路由门禁保持。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
 

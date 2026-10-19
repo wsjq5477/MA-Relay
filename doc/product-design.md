@@ -1,6 +1,6 @@
 # AgentBridge 整体功能设计
 
-## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 AB-F02/F03/F07/F10/F11/F13/F17：安装健康与执行兼容分离，仅OpenCode 2.x可新接入；旧上下文不能绕过。概览/关系图/设置及中央管理台账按机器隔离，原unknown与授权保护保留。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
 
