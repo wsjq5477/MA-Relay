@@ -2,7 +2,7 @@
 
 ## 当前历史详情读取与错误作用域
 
-M10-F01/F03/F05：alpha.30从已发布alpha.29隔离修复，CT-04未提交内容不入包。Windows窗口、冻结后台及Linux资源同时包含详情归属/错误隔离；收录alpha.29原manifest精确摘要保持原远端维护路径，不自动升级远端。 2026-10-19源码候选alpha.30，GitHub仍alpha.29；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+M10-F01/F03/F05：alpha.30从已发布alpha.29隔离修复，CT-04未提交内容不入包。Windows窗口、冻结后台及Linux资源同时包含详情归属/错误隔离；收录alpha.29原manifest精确摘要保持原远端维护路径，不自动升级远端。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
 
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](../../iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 

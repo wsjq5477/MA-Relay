@@ -1,6 +1,6 @@
 # 历史会话详情归属与工作台错误隔离（issue #6）
 
-日期：2026-10-19（北京时间）。源码候选 **0.6.0-alpha.30**，基于alpha.29冻结产品23d256e及文档提交a872275的独立工作树；原工作区CT-04公共材料未提交开发不在此包。GitHub当前alpha.29，alpha.30包及发布尚待完成。完整I06C/I07C未准出。
+日期：2026-10-19（北京时间）。源码/GitHub预发布 **0.6.0-alpha.30**，基于alpha.29冻结产品23d256e及文档提交a872275的独立工作树；原工作区CT-04公共材料未提交开发不在此包。标签绑定修复提交`5667304c1133a64d3b68244b0580250ea8b1ba38`，Windows EXE和校验文件已公开分发。完整I06C/I07C未准出。
 
 ## 需求与已确认边界
 
@@ -85,3 +85,11 @@ flowchart TD
 普通EXE脚本首次在程序启动前遇到重复变量声明，修正测试脚本后继续，未改产品代码或包；[原日志](../../../artifacts/history-detail-recovery/2026-10-19/portable-script-initial.log)。
 
 普通EXE最终4组通过：[报告](../../../artifacts/history-detail-recovery/2026-10-19/portable.json)、[日志](../../../artifacts/history-detail-recovery/2026-10-19/portable.log)。原两轮/native Session/Task/Conversation/request/operations在三次打开与完整后台重启后不变，旧Agent失配仍只读，无新原生worker目录；冻结MachineHost/MachineRouter/CodexHost匹配源码。
+
+## 最终发布与验收
+
+[Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/AgentBridge-0.6.0-alpha.30-Windows-x64.exe) · [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/SHA256SUMS.txt) · [GitHub预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.30)。标签v0.6.0-alpha.30绑定修复提交`5667304c1133a64d3b68244b0580250ea8b1ba38`，后续文档提交不改变冻结标签/EXE；两附件uploaded，大小与GitHub digest一致。公开完整精确分段下载覆盖全部129950572字节，按顺序重算SHA-256 `ab17091cb0a38e916a887a83c4c5740f72442e3534b15550e40923592a9b51c2`，校验文本HTTP200匹配。[上传](../../../artifacts/history-detail-recovery/2026-10-19/github-upload.json)、[分发](../../../artifacts/history-detail-recovery/2026-10-19/github-release.json)、[完整公开下载](../../../artifacts/history-detail-recovery/2026-10-19/github-download.json)。
+
+普通Windows EXE4组通过：真实生产Coordinator/MachineHost/CodexHost读取合成的失配归属原两轮；即使有原native Session也只读，原持久Task/Conversation/request/Session不变，缺失返回NOT_FOUND且快照可用；普通窗口关闭重开复用原后台、完整后台重启回读和3个冻结模块匹配。无原生worker目录或新任务，无调试端口，模型0。[报告](../../../artifacts/history-detail-recovery/2026-10-19/portable.json)、[日志](../../../artifacts/history-detail-recovery/2026-10-19/portable.log)。
+
+最终桌面529/529、核心45/45、Windows CJS91/91、Linux SSR63/63、Windows生产前端新7组与既有10组、受控TCP SSH链及lint/类型/构建/文档检查通过。R01–R06在本页声明的证据范围内通过；用户现场、独立服务器/SSH升级和真实模型仍未验。原工作区CT-04未提交内容保持独立，不以其工作树状态冒充本包能力。

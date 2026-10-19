@@ -1,6 +1,6 @@
 # 对象、身份与持久数据
 
-## alpha.30候选：历史详情读取恢复
+## alpha.30已预发布：历史详情读取恢复
 
 DetailRead为仅存在于前端内存的{id,status:loading/ready/missing/error,message?}，与Task/Conversation事实分离，不新增持久字段。保留历史按machine分区且raw ID和内嵌machineId匹配；非终态只在historical投影标unknown，原数据/Session/时间不写改。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
 

@@ -4,7 +4,7 @@
 
 ## 当前历史详情读取与错误作用域
 
-M07-F02/F06/F07：task/conversation实时未找到只回同机器同ID保留历史，已有轮次及native Session保留，historical=true/canContinue=false；非终态仅在历史投影显示unknown。配置/来源冲突不伪装不存在；不重发/迁移或修改原任务终态。 2026-10-19源码候选alpha.30，GitHub仍alpha.29；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+M07-F02/F06/F07：task/conversation实时未找到只回同机器同ID保留历史，已有轮次及native Session保留，historical=true/canContinue=false；非终态仅在历史投影显示unknown。配置/来源冲突不伪装不存在；不重发/迁移或修改原任务终态。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
 
 2026-10-18能力补验：已验证同WSL三个独立Claude宿主的真实公共文档交付/独立复核/原主会话协调；开发与复核成员各一轮，主协调三轮，成员原生成功后才逐项验收，主原生成功后才总完成。原既有权限/事件/预算与接口不变；代码编译返修/独立SSH仍待验证。[范围与真实证据](../../iterations/I07/native-members.md)。
 

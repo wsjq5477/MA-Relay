@@ -4,7 +4,7 @@
 
 ## 当前历史详情读取与错误作用域
 
-M03-F04/F05/F06：task/conversation按backend自身快照确认来源，单一来源才读详情；不凭空/旧targetAgent猜根OpenCode。MachineRouter仅对明确未找到加同机器同ID历史回退，内嵌异机身份拒绝。历史非终态仅投影unknown且不可继续，不改保存记录或原Session。 2026-10-19源码候选alpha.30，GitHub仍alpha.29；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+M03-F04/F05/F06：task/conversation按backend自身快照确认来源，单一来源才读详情；不凭空/旧targetAgent猜根OpenCode。MachineRouter仅对明确未找到加同机器同ID历史回退，内嵌异机身份拒绝。历史非终态仅投影unknown且不可继续，不改保存记录或原Session。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
 
 Windows官方Codex npm启动器直接解析原包内原生EXE，隐藏参数不再丢失于JS二次spawn；节点仍记录原JS身份，缺原二进制拒绝，未改账号/模型。Claude空闲snapshot不定期重跑版本/auth，显式检查与提交前检查保留。[复现与验收](../../iterations/I07/desktop-polling.md)。
 

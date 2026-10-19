@@ -1,8 +1,8 @@
 # 迭代路线与当前交付
 
-## alpha.30候选：历史详情读取恢复
+## alpha.30已预发布：历史详情读取恢复
 
-alpha.30源码修复候选解决issue #6历史会话误走根OpenCode及全局同步污染；GitHub仍alpha.29，包/分发待验，完整I06C/I07C未准出。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
+alpha.30已发布源码修复解决issue #6历史会话误走根OpenCode及全局同步污染；GitHub已预发布alpha.30，包/分发已验证，完整I06C/I07C未准出。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
 
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
@@ -41,9 +41,9 @@ alpha.28：issue #5远端持久拒绝只读恢复；GitHub已预发布alpha.28�
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | 0.6.0-alpha.28 / SSH持久拒绝恢复；标签绑定3df2534，[EXE与校验](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.28)，完整I06C/I07C未准出 |
-| 当前自动回归 | 2026-10-17 / alpha.28：桌面317/317、核心45/45、Windows合成契约93/93；受控TCP SSH丢响应/daemon重启和普通无调试EXE6组通过，模型0。包与发布见[专项](iterations/I06/daemon-rejection-recovery.md)，用户现场未复测 |
-| 当前源码 | alpha.28已预发布，冻结修复提交3df2534与EXE一致；只读核对原daemon持久拒绝后结算，裸错误/缺证据保持unknown。[实际结果与边界](iterations/I06/daemon-rejection-recovery.md) |
+| 最新 Windows 预发布 | 0.6.0-alpha.30 / issue #6历史详情恢复；标签绑定5667304，[EXE/校验](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.30)。CT-04未提交片不入包；完整I06C/I07C未准出 |
+| 当前自动回归 | 2026-10-19 alpha.30：桌面529/529、核心45/45、Windows CJS91/91、Linux SSR63/63、Windows生产前端新7组/既有10组及普通EXE4组通过；受控TCP SSH/分发与未测边界见[交付](iterations/I07/history-detail-recovery.md) |
+| 当前源码 | alpha.30修复提交5667304已发布；原CT-04未提交开发保持独立。历史详情不误走根OpenCode，详情错误不触发全局同步锁，失配归属只读；用户现场待核对 |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
 | alpha.24历史自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |

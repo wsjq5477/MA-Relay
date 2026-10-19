@@ -1,5 +1,11 @@
 # AgentBridge Windows
 
+## 当前alpha.30下载与历史详情恢复
+
+[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/AgentBridge-0.6.0-alpha.30-Windows-x64.exe) · [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/SHA256SUMS.txt)。停止旧后台并退出后重开新EXE；SSH原daemon还需空闲时从后台维护确认升级alpha.30，再查询原会话。实际backend有原对象则读取原轮次，旧Agent失配则只读；仅历史或缺失只影响详情，不再锁住其他新建会话。顶层同步故障和unknown保护继续生效。
+
+工程/Windows生产前端/普通EXE与公开完整下载核验见[alpha.30交付](../doc/iterations/I07/history-detail-recovery.md)。保留原ID/Session/历史，不自动重发；用户现场未复测。下面alpha.29及更早说明保留当次冻结范围。
+
 当前GitHub预发布 **0.6.0-alpha.28**：修复issue #5，保留alpha.27的Codex/本地持久化恢复等既有修复。
 
 [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/AgentBridge-0.6.0-alpha.28-Windows-x64.exe) · [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/SHA256SUMS.txt) · [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.28)。下载附件双击即可运行，无需自行编译或安装Node/WSL；原生Agent工具仍需自行安装登录。

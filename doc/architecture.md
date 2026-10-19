@@ -1,6 +1,6 @@
 # AgentBridge 整体架构
 
-## alpha.30候选：历史详情读取恢复
+## alpha.30已预发布：历史详情读取恢复
 
 只读task/conversation由MachineHost向各已绑定backend自身快照确认来源；唯一来源返回详情、冲突拒绝、真正未找到才由中央按原machine/ID投影历史。前端详情生命周期与机器/pending同步分开；无Agent或Session重绑。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
 

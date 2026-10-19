@@ -4,7 +4,7 @@
 
 ## 历史详情的相邻路由契约
 
-Codex宿主仍按原task/conversation ID读取持久轮次，不修改Session和终态。MachineHost在自身backend快照定位对象，不依赖历史targetAgent还能对应当前row；本片不改Codex执行、取消或reconcile实现。alpha.30源码候选，[归属专项](../../../iterations/I07/history-detail-recovery.md)。
+Codex宿主仍按原task/conversation ID读取持久轮次，不修改Session和终态。MachineHost在自身backend快照定位对象，不依赖历史targetAgent还能对应当前row；本片不改Codex执行、取消或reconcile实现。alpha.30已预发布源码，[归属专项](../../../iterations/I07/history-detail-recovery.md)。
 
 已确认原终态后，同批晚到started/output/native帧不再改变原任务、结果或Session；已观察offset仍完整推进。原生退出事实与准备失败分开，未启动不标nativeExited=true。
 

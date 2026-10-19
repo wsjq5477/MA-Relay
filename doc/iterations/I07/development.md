@@ -1,6 +1,6 @@
 # I07 开发分解与当前记录
 
-## alpha.30候选：历史详情读取恢复
+## alpha.30已预发布：历史详情读取恢复
 
 独立alpha.29修复分支实现MachineHost只读对象来源、MachineRouter明确未找到历史回退和NetworkApp详情局部状态；新增真实TCP SSH、Windows生产前端及普通EXE合成验证入口。CT-04原工作区未提交开发不纳入。 [需求、实现、逐项证据与边界](history-detail-recovery.md)。
 

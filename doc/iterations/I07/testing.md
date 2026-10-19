@@ -1,6 +1,6 @@
 # I07 测试与验收计划
 
-## alpha.30候选：历史详情读取恢复
+## alpha.30已预发布：历史详情读取恢复
 
 路由、真实本机TCP SSH、Windows CJS及生产前端分层验收；未修复根legacy/OpenCode/同步中断失败日志保留。包、全工程及普通EXE实际结果分别记录，不以受控证据替代现场恢复。 [需求、实现、逐项证据与边界](history-detail-recovery.md)。
 

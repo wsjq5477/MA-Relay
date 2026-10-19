@@ -2,13 +2,11 @@
 
 ## Windows EXE 下载
 
-当前GitHub预发布 **0.6.0-alpha.28**：修复issue #5远端daemon已拒绝但客户端长期保留NOT_CONFIGURED占位的问题，保留alpha.27既有修复。[实际验证和边界](doc/iterations/I06/daemon-rejection-recovery.md)。
+当前预发布 **alpha.30 / 历史详情归属与错误隔离**，修复issue #6。保留alpha.29已发布UI/原生接入能力，CT-04未提交公共材料开发不在此包。
 
-[直接下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/AgentBridge-0.6.0-alpha.28-Windows-x64.exe) · [SHA-256校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/SHA256SUMS.txt) · [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.28)。先在“设置 → 后台运行 → 停止后台并退出”后打开新版，再到“未确认操作 → 查询原请求”。仅匹配原daemon持久拒绝才释放占位，缺证据仍unknown，不自动重发；支持现有收据接口的可信远端无需为此升级。稳定历史仍0.5.0，完整I06C/I07C及正式0.6.0未准出。
+[直接下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/AgentBridge-0.6.0-alpha.30-Windows-x64.exe) · [SHA-256校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/SHA256SUMS.txt) · [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.30)。先在“设置 → 后台运行 → 停止后台并退出”后打开新版；SSH机器还需空闲时“后台维护 → 升级后台 → 确认升级”至alpha.30，再重新读取原会话。仅新客户端先隔离详情错误，远端不会自动升级，忙/unknown仍受保护。
 
-下载 EXE 后双击运行；原生 Agent 工具仍需按所用工具安装并登录。GitHub 自动生成的源码 ZIP 不包含 EXE。
-
-AgentBridge 连接机器上的 Claude Code、OpenCode、Codex，提供 Windows 桌面节点管理、会话与主从协作；旧 OpenCode CLI 执行入口继续兼容。迭代三已实现自动发现与空格连接、后台运行、多连接维护、连续会话、取消、自动重连补传、原执行对账，以及同终端权限/文本表单回复。当前支持 Linux/WSL、Node 22.13+、OpenCode 2；无工具验证契约已核验版本为 2.0.24。
+只读原记录，不重发Prompt或控制，不重绑ID/Agent/Session。实际工程、普通EXE与分发核验及未测边界见[完整交付](doc/iterations/I07/history-detail-recovery.md)。用户故障现场/生产服务器和真实模型未复测，完整I06C/I07C及正式0.6.0未准出。源码ZIP不包含EXE。
 
 ## Windows 桌面看板
 

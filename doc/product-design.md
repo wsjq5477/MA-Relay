@@ -1,6 +1,6 @@
 # AgentBridge 整体功能设计
 
-## alpha.30候选：历史详情读取恢复
+## alpha.30已预发布：历史详情读取恢复
 
 AB-F08/F10/F11/F17：历史详情由实际backend读取，明确未找到才按同机器同ID回历史；详情错误只影响本面板，不触发全局同步锁。仅顶层snapshot/pending失败保留全局锁，不重发原需求。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
 
