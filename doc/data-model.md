@@ -1,5 +1,9 @@
 # 对象、身份与持久数据
 
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+
+节点视图新增version_incompatible和compatibility，安装healthy不表示执行可用；connected:false仅为不兼容投影，不删除原绑定。原node/machine localStorage key接受旧单对象并写数组，多机意图追加；graph-pending.json格式/原ID不变，缺来源保守保护。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
 ## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
 AgentNode新增可选apiCompatibility={executable,version,compatible,error?}，原请求新增可选preparationError={code,message}；节点视图新增needs_check/upgrade_required，SSH身份/连接视图新增objectRoutingSupported。均为旧JSON的可选增量，不迁移或重绑定原Session/任务/请求。旧unknown委派仅凭同源原意图证明结算。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。

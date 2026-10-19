@@ -1,5 +1,9 @@
 # AgentBridge 项目资料
 
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+
+issues #8/#9：严格OpenCode 2.x准入与旧配置快速拒绝；未知节点操作按机器阻断，另一空闲SSH可打开维护并确认。当前包已验证，公开发布另记。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
 ## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
 本轮issue #7修复与alpha.31已预发布：OpenCode接入兼容、委派rejected、原任务读控及后台升级门禁。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。

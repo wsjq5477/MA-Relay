@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const {createHash,randomUUID}=require('node:crypto');
 const {adapters}=require('./builtin-adapters.cjs');
-const {scanTools}=require('./tool-discovery.cjs');
+const {scanTools,openCodeVersionError}=require('./tool-discovery.cjs');
 const {CollaborationBroker}=require('./collaboration-broker.cjs');
 const terminal=new Set(['succeeded','failed','cancelled']);
 const fail=(code,message)=>Object.assign(new Error(message),{code});
@@ -53,12 +53,13 @@ class MachineHost {
   async discover(){
     const items=await scanTools(this.options);
     // Installation/transport checks are independent of an account's model availability.
-    return {items:items.map(i=>({...i,executable:i.executable,executionSupported:!!adapters.get(i.adapter)}))};
+    return {items:items.map(i=>({...i,executable:i.executable,executionSupported:!!adapters.get(i.adapter)&&i.compatibility?.supported!==false}))};
   }
   async context(params){
     if(params.model||params.providerID)throw fail('INVALID_INPUT','节点使用原生配置，不接受模型或供应商覆盖。');
     const detected=(await this.discover()).items.find(i=>i.adapter===params.adapter&&i.executable===params.executable);
     if(!detected?.healthy)throw fail('DISCOVERY_CHANGED','这个工具当前不可调用，请重新扫描。');
+    if(detected.compatibility?.supported===false)throw openCodeVersionError(detected.version);
     if(!detected.executionSupported)throw fail('ADAPTER_UNSUPPORTED','这个工具已发现，执行适配尚未完成。');
     const defaultPath=path.join(this.directory,'sessions',params.nodeId.replace(/[^\w-]/g,'_'));
     if(!params.workspace)fs.mkdirSync(defaultPath,{recursive:true});

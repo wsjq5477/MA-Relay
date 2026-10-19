@@ -7,6 +7,7 @@ import { dirname, resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import type { OpenCodeConfig } from './config.js';
 import { BridgeError } from './core.js';
+import { verifyOpenCodeInstallation } from './discovery.js';
 import { OpenCodeClient } from './drivers/opencode-client.js';
 import { readNativeIdentity, validateOwnedIdentity, saveNativeIdentity, processIdentity, sameProcess, sameBirth, type NativeIdentity } from './native-identity.js';
 
@@ -16,6 +17,7 @@ export async function startNativeServer(config: OpenCodeConfig): Promise<NativeS
   if (url.hostname !== '127.0.0.1' || !url.port) throw new BridgeError('NATIVE_ADDRESS', 'Managed OpenCode requires 127.0.0.1 and an explicit port');
   const previous = readNativeIdentity(config);
   if (previous && validateOwnedIdentity(config, previous)) {
+    await verifyOpenCodeInstallation(config.executable);
     await new OpenCodeClient(config).probe();
     let resolveClosed!: () => void; const closed = new Promise<void>(r => { resolveClosed = r; });
     const monitor = setInterval(() => { try { if (!sameProcess(previous)) { clearInterval(monitor); resolveClosed(); } } catch { clearInterval(monitor); resolveClosed(); } }, 250);
@@ -36,6 +38,7 @@ export async function startNativeServer(config: OpenCodeConfig): Promise<NativeS
   const releaseDeadline = Date.now() + (previous ? 2000 : 0);
   while (occupied && previous && Date.now() < releaseDeadline) { await delay(100); occupied = await portOccupied(); }
   if (occupied) throw new BridgeError('NATIVE_OWNERSHIP', '端口已有未确认归属的服务；请在高级设置连接已有服务或核对旧托管实例', 409);
+  await verifyOpenCodeInstallation(config.executable);
   // OpenCode 2 accepts OPENCODE_PASSWORD. Detached-safe stdio is essential:
   // pipes to a killed controller can later terminate the surviving native server on EPIPE.
   const password = randomBytes(32).toString('base64url');
@@ -73,7 +76,7 @@ export async function startNativeServer(config: OpenCodeConfig): Promise<NativeS
         const settled = processIdentity(child.pid!); if (!settled) throw new BridgeError('NATIVE_EXITED', '服务就绪后退出', 503);
         identity = saveNativeIdentity(config, settled);
         return { pid: child.pid!, reused: false, close, closed };
-      } catch (e) { if (e instanceof BridgeError && ['OPENCODE_API_UNSUPPORTED', 'NATIVE_OWNERSHIP'].includes(e.code)) throw e; }
+      } catch (e) { if (e instanceof BridgeError && ['NATIVE_VERSION','OPENCODE_API_UNSUPPORTED','OPENCODE_HTTP_401','OPENCODE_HTTP_403','NATIVE_OWNERSHIP'].includes(e.code)) throw e; }
       await delay(100);
     }
     throw new BridgeError('NATIVE_START_TIMEOUT', 'OpenCode did not become ready within 20 seconds', 503);

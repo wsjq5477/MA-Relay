@@ -1,8 +1,8 @@
 # M04 SSH 机器接入设计
 
-## 2026-10-19：issue #7 协作兼容修复
+## 当前版本准入与管理作用域
 
-M04-F03/F05：当前行为：精确清单和身份验证后另核对daemon安全路由能力；缺能力允许观察、原收据与维护，阻止对象读控和执行；确认空闲维护升级前不替换后台。alpha.30冻结manifest已收入供安全连接/维护。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+M04-F03/F05：原空闲SSH机器维护不因其他机器节点unknown禁用；同机任务/未知仍保护，预览无写入且确认后才维护。精确收入alpha.31原manifest；旧SSH对象路由仍按原能力门禁，不能把信任等同新2.x启动语义。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
 ## 当前历史详情读取与错误作用域
 

@@ -5,6 +5,13 @@ const {execFile} = require('node:child_process');
 const {createRequire} = require('node:module');
 const {adapters} = require('./builtin-adapters.cjs');
 const descriptors = adapters.list();
+const versionRejections=new WeakSet();
+function openCodeCompatibility(version){
+ const supported=typeof version==='string'&&/^2\.\d+\.\d+(?:[.+-][\w.-]+)?$/.test(version);
+ return {supported,requiredMajor:2,...(!supported?{code:'NATIVE_VERSION',message:'当前适配器需要 OpenCode 2.x，检测到的版本不兼容；请升级原安装后重新扫描。旧节点、会话和历史保留。'}:{})};
+}
+function openCodeVersionError(version){const c=openCodeCompatibility(version),error=Object.assign(Error(c.message),{code:'NATIVE_VERSION'});versionRejections.add(error);return error;}
+const isOpenCodeVersionRejection=error=>!!error&&versionRejections.has(error);
 const tools = Object.fromEntries(descriptors.map(item=>[item.id,item.name]));
 function windowsCodex(executable,args,environment,platform) {
   if(platform!=='win32'||path.basename(executable)!=='codex.js'||path.basename(path.dirname(executable))!=='bin')return null;
@@ -83,10 +90,10 @@ async function scanTools(options={}) {
       try{
         const launch=command(executable,['--version'],env,platform);
         const output=await new Promise((resolve,reject)=>execFile(launch.executable,launch.args,{env:launch.env,cwd:home,windowsHide:true,timeout:5000,maxBuffer:65536},(error,stdout)=>error?reject(error):resolve(stdout)));
-        const version=String(output).match(/\bv?(\d+\.\d+\.\d+(?:[-+][\w.-]+)?)/)?.[1];
+        const version=String(output).match(/\bv?(\d+\.\d+\.\d+(?:[.+-][\w.-]+)?)/)?.[1];
         if(!version)throw new Error('版本信息不可识别');
         executable=launch.installationExecutable||(/\.(cmd|bat)$/i.test(executable)?(launch.args[0]&&/\.[cm]?js$/i.test(launch.args[0])?launch.args[0]:launch.executable):executable);
-        result.push({adapter,name,executable,version,healthy:true});broken=undefined;break;
+        result.push({adapter,name,executable,version,healthy:true,...(adapter==='opencode'?{compatibility:openCodeCompatibility(version)}:{})});broken=undefined;break;
       }catch(error){
         broken||={adapter,name,executable,healthy:false,error:'工具启动检查失败：'+(error.code||error.message)};
         // The first installed command on PATH is the user's selection. A
@@ -98,4 +105,4 @@ async function scanTools(options={}) {
   }));
   return result.sort((a,b)=>a.adapter.localeCompare(b.adapter));
 }
-module.exports={scanTools,command,tools};
+module.exports={scanTools,command,tools,openCodeCompatibility,openCodeVersionError,isOpenCodeVersionRejection};

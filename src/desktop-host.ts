@@ -8,7 +8,7 @@ import { createRequire } from "node:module";
 import { z } from "zod";
 import { BridgeError } from "./core.js";
 import { ensureController, ipc, type IpcRequest } from "./controller.js";
-import { discoverOpenCode } from "./discovery.js";
+import { discoverOpenCode, requireOpenCodeVersion } from "./discovery.js";
 import { SettingsStore, stateDirectory } from "./settings.js";
 import { safeTerminal } from "./terminal.js";
 
@@ -148,6 +148,7 @@ export class DesktopHost {
           "DISCOVERY_CHANGED",
           "这个 OpenCode 已不可用，请重新扫描",
         );
+      requireOpenCodeVersion(installed.find(a => a.executable === chosen.executable)!.version);
       this.store.initialize();
       await ensureController(this.directory);
       const views = await ipc<{

@@ -776,3 +776,17 @@ test('conversation details distinguish loading, missing and backend error while 
   const html=render(ConversationsPage,props);assert.match(plainText(html),new RegExp(title));assert.equal(buttonNamed(html,'发送').disabled,true);assert.equal(buttonNamed(html,'新建会话').disabled,false);assert.deepEqual(props.selected,before);
  });
 });
+
+test('scoped node or machine unknown blocks only the target machine maintenance and explains the blocker',()=>{
+ const remote=machine({machineId:'remote'}),reason=id=>id==='local'?'本机节点接入原操作待核对。':'';
+ const allowed=render(MachineInventory,inventoryProps({machines:[remote],metadataBusy:true,managementReason:reason}));
+ assert.equal(buttonNamed(allowed,'后台维护').disabled,false);assert.equal(buttonNamed(allowed,'编辑连接').disabled,false);assert.equal(buttonNamed(allowed,'断开连接').disabled,false);
+ const denied=render(MachineInventory,inventoryProps({machines:[remote],managementReason:()=> '原后台维护操作待核对。'}));
+ const button=buttonNamed(denied,'后台维护');assert.equal(button.disabled,true);assert.match(button.attributes,/title="原后台维护操作待核对/);
+ const busy=render(MachineInventory,inventoryProps({machines:[remote],nodes:[node({machineId:'remote',busy:true})],managementReason:()=>''}));assert.equal(buttonNamed(busy,'后台维护').disabled,true);
+});
+test('incompatible OpenCode never appears connected or executable; safe history management remains',()=>{
+ const n=node({adapter:'opencode',name:'Old OpenCode',version:'1.2.22',status:'version_incompatible',connected:false,executionSupported:false,available:false});
+ const html=render(MachineInventory,inventoryProps({nodes:[n]})),article=nodeArticle(html,n.name);
+ assert.match(article,/版本不兼容/);assert.doesNotMatch(article,/已接入/);assert.equal(buttonNamed(article,'接入').disabled,true);assert.equal(buttonNamed(article,'移除 Agent').disabled,false);
+});

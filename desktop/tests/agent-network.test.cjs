@@ -6,7 +6,7 @@ function fixture(t){
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-network-')),hosts=new Map();
   const createHost=machine=>{
     const adapter=machine.kind==='windows'?'claude':'opencode',executable=machine.kind==='windows'?'C:/tools/claude.exe':'/opt/opencode';
-    const host={items:[{adapter,name:adapter,executable,healthy:true,executionSupported:true},{adapter:'codex',name:'Codex',executable:machine.kind==='windows'?'C:/tools/codex.exe':'/opt/codex',healthy:true,executionSupported:true}],agents:[{agentId:'old-a',adapter,name:'project A',workspace:machine.kind==='windows'?'D:/a':'/home/a',executable,available:true,healthy:true,online:true,enabled:true,busy:false,model:{id:'legacy-model',providerID:'legacy'}}],tasks:[],conversations:[],requests:new Map(),calls:[],executions:0,contexts:new Map(),offline:false,lose:false,
+    const host={items:[{adapter,name:adapter,executable,version:'2.0.24',healthy:true,executionSupported:true},{adapter:'codex',name:'Codex',executable:machine.kind==='windows'?'C:/tools/codex.exe':'/opt/codex',version:'2.0.24',healthy:true,executionSupported:true}],agents:[{agentId:'old-a',adapter,name:'project A',workspace:machine.kind==='windows'?'D:/a':'/home/a',executable,available:true,healthy:true,online:true,enabled:true,busy:false,model:{id:'legacy-model',providerID:'legacy'}}],tasks:[],conversations:[],requests:new Map(),calls:[],executions:0,contexts:new Map(),offline:false,lose:false,
       setCollaboration(handler){this.handler=handler;},close(){},
       async call(method,p={}){this.calls.push({method,p:structuredClone(p)});if(this.offline)throw error('OFFLINE');
         if(method==='discover')return {items:this.items};

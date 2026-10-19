@@ -11,7 +11,7 @@ function fixture(t){
   setCollaboration(){},close(){},
   async call(method,p={}){
    this.calls.push({method,p:structuredClone(p)});
-   if(method==='discover')return {items:tools.map(adapter=>({adapter,name:adapter,executable:'/controlled/'+adapter,healthy:true,executionSupported:true}))};
+   if(method==='discover')return {items:tools.map(adapter=>({adapter,name:adapter,version:'2.0.24',executable:'/controlled/'+adapter,healthy:true,executionSupported:true}))};
    if(method==='snapshot')return structuredClone({agents:{items:this.agents,revision:0},tasks:this.tasks,conversations:this.conversations});
    if(method==='connectTool')return {};
    if(method==='context'){

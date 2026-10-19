@@ -51,3 +51,24 @@ test('node and authority writes share a safety barrier but layout remains indepe
   assert.equal((await journal.save('saveGraphLayout',{operationId:'layout',expectedLayoutRevision:0,layout:{}},dispatch)).state,'confirmed');
   receipt=actual;assert.deepEqual(await journal.save('manageNode',p,dispatch),actual);assert.equal(writes,1);assert.equal(journal.pending().length,0);
 });
+
+test('an original local node unknown does not block another machine maintenance; same-machine and missing provenance still block',async t=>{
+ const {journal}=fixture(t);let writes=0;
+ const dispatch=async(method,p)=>{if(method==='manageNode')throw Object.assign(Error('original timeout'),{code:'NATIVE_START_TIMEOUT'});if(method==='nodeOperation')return {operationId:p.operationId,state:'unknown'};writes++;return {operationId:p.operationId,state:'confirmed'};};
+ await assert.rejects(journal.save('manageNode',{operationId:'local-original',machineId:'windows',nodeId:'opencode',action:'attach'},dispatch));
+ const before=journal.pending()[0];
+ assert.equal((await journal.save('machine.maintainDaemon',{operationId:'remote-upgrade',machineId:'ssh-original',connectionId:'ssh-connection',expectedRevision:1,config:{action:'upgrade'}},dispatch)).state,'confirmed');
+ assert.equal(writes,1);assert.deepEqual(journal.pending()[0],before);
+ await assert.rejects(journal.save('machine.maintainDaemon',{operationId:'same-machine',machineId:'windows',connectionId:'local',expectedRevision:1,config:{action:'upgrade'}},dispatch),{code:'GRAPH_UNCONFIRMED'});
+ assert.equal(writes,1);
+});
+
+test('scope isolation preserves same-machine, missing-source and authority barriers despite unrelated query failure',async t=>{
+ const {journal}=fixture(t);let writes=0;
+ const dispatch=async(method,p)=>{if(method==='nodeOperation')throw Object.assign(Error('source offline'),{code:'MACHINE_OFFLINE'});writes++;return {operationId:p.operationId,state:'confirmed'};};
+ const row={operationId:'old-node',lane:'node',method:'manageNode',params:{operationId:'old-node',machineId:'local',nodeId:'old',action:'attach'},state:'unknown',time:'original-time',error:{code:'NATIVE_START_TIMEOUT',message:'original'}};journal.update(row);
+ assert.equal((await journal.save('machine.disconnect',{operationId:'other',machineId:'remote',connectionId:'remote-conn'},dispatch)).state,'confirmed');assert.equal(writes,1);assert.deepEqual(journal.pending()[0],row);
+ await assert.rejects(journal.save('machine.remove',{operationId:'same',machineId:'local',connectionId:'local-conn'},dispatch),{code:'GRAPH_UNCONFIRMED'});
+ await assert.rejects(journal.save('saveCollaboration',{operationId:'relation',expectedRevision:0,leaderId:null,memberIds:[]},dispatch),{code:'GRAPH_UNCONFIRMED'});
+ delete row.params.machineId;journal.update(row);await assert.rejects(journal.save('machine.disconnect',{operationId:'no-source',machineId:'remote',connectionId:'remote-conn'},dispatch),{code:'GRAPH_UNCONFIRMED'});assert.equal(writes,1);
+});

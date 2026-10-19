@@ -1,8 +1,12 @@
 # I07 需求：外部智能体、小队与公共协作空间
 
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+
+V01–V03/M01–M03/P01：OpenCode仅2.x、原安装/旧上下文一致准入、确定错误快速返回；多机管理独立、同机与来源不足保护、多原意图保留以及当前EXE交付。此策略取代alpha.31按API兼容接纳1.x。 [需求、实现、验证与边界](version-management-recovery.md)。
+
 ## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
-R01–R06：OpenCode只按实际API兼容准入、持久准备拒绝稳定rejected、原对象安全读控、中央与daemon能力激活以及当前Windows EXE交付。不得重发现场任务。 [需求、实现、实测与边界](collaboration-compatibility.md)。
+R01–R06：历史alpha.31按实际API兼容准入（已被本轮仅2.x策略覆盖）、持久准备拒绝稳定rejected、原对象安全读控、中央与daemon能力激活以及当前Windows EXE交付。不得重发现场任务。 [需求、实现、实测与边界](collaboration-compatibility.md)。
 
 ## alpha.30已预发布：历史详情读取恢复
 

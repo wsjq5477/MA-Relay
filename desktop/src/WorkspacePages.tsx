@@ -692,6 +692,7 @@ export interface SettingsPageProps {
   machineName: (id?: string) => string;
   busy: boolean;
   managementLocked: boolean;
+  managementReason?: (machineId?:string)=>string;
   machineManagementSupported: boolean;
   onRestore: (machine: Machine) => void;
   onCloseWindow: () => void;
@@ -720,6 +721,7 @@ export function SettingsPage({
   machineName,
   busy,
   managementLocked,
+  managementReason,
   machineManagementSupported,
   onRestore,
   onCloseWindow,
@@ -967,7 +969,7 @@ export function SettingsPage({
                 <button
                   className="btn"
                   disabled={
-                    managementLocked ||
+                    (managementReason?!!managementReason(machine.machineId):managementLocked) ||
                     !machineManagementSupported ||
                     !machine.connectionId
                   }

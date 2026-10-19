@@ -1,8 +1,8 @@
 # M03 机器、Agent 节点与执行上下文设计
 
-## 2026-10-19：issue #7 协作兼容修复
+## 当前版本准入与管理作用域
 
-M03-F01/F02/F03：当前行为：OpenCode接入完成只读API检查后才保存对应安装/版本的兼容证据；未检查或不兼容标needs_check、不可派发。旧SSH缺路由能力标upgrade_required，已有节点、角色和历史保留。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+M03-F01/F02/F03：安装健康与执行兼容分开，OpenCode1.x可被发现但不新建执行上下文。version_incompatible投影connected=false/available=false及执行委派关闭；原存储关联和历史保留。管理按机器隔离，原已派发请求查询不被当前版本门禁遮蔽。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
 读取归属已失配的旧会话只允许查看，即使宿主保有原生Session也不宣告可继续；不改其Agent、ID或Session，正常绑定和真正legacy能力保留。
 

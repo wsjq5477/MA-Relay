@@ -1,8 +1,8 @@
 # M05 Linux 机器后台设计
 
-## 2026-10-19：issue #7 协作兼容修复
+## 当前版本准入与管理作用域
 
-M05-F02/F04：当前行为：hello声明owned-object-controls-v1，MachineHost对task/conversation/pending及原控制按实际持有backend路由；缺owner不得回根后台，来源冲突明确拒绝。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+M05-F02/F04：Linux包包含MachineHost/Core的原OpenCode版本复验与快速API/认证拒绝，hello声明新增能力。旧daemon需在原机器空闲时显式升级；原对象/收据身份和协议2不变。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
 读取归属已失配的旧会话只允许查看，即使宿主保有原生Session也不宣告可继续；不改其Agent、ID或Session，正常绑定和真正legacy能力保留。
 

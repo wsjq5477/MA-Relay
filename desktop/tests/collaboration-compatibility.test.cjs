@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {CoordinatorClient}=require('../electron/coordinator-client.cjs');
 const {identity,endpoint,readLines}=require('../electron/coordinator.cjs');
 const {SshHost}=require('../electron/ssh-host.cjs');
-const {supportsRecovery,RECOVERY_CAPABILITY}=require('../electron/runtime-capabilities.cjs');
+const {supportsRecovery,RECOVERY_CAPABILITY,runtimeCapabilities}=require('../electron/runtime-capabilities.cjs');
 test('new frontend blocks old coordinator semantics while authenticated settings and explicit shutdown stay usable',async t=>{
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-old-central-')),owner=identity(directory),calls=[];let capabilities;
  const sockets=new Set();const server=net.createServer(socket=>{sockets.add(socket);socket.on('close',()=>sockets.delete(socket));let ready=false;readLines(socket,input=>{
@@ -12,7 +12,7 @@ test('new frontend blocks old coordinator semantics while authenticated settings
  t.after(async()=>{client.close();for(const socket of sockets)socket.destroy();await new Promise(r=>server.close(r));fs.rmSync(directory,{recursive:true,force:true});});
  await assert.rejects(client.request('call',{method:'snapshot',params:{}}),e=>e.code==='COORDINATOR_UPGRADE_REQUIRED'&&e.message.includes('停止后台并退出'));
  assert.deepEqual(calls,[]);await client.request('preferences');await client.request('shutdown');assert.deepEqual(calls,['preferences','shutdown']);
- client.close();capabilities=[RECOVERY_CAPABILITY];await client.request('call',{method:'snapshot',params:{}});assert.equal(calls.at(-1),'call');
+ client.close();capabilities=runtimeCapabilities;await client.request('call',{method:'snapshot',params:{}});assert.equal(calls.at(-1),'call');
 });
 test('old daemon remains observable and maintainable but cannot dispatch or misroute object reads and controls',async()=>{
  const connection={stage:'online',objectRoutingSupported:false},host=new SshHost({},connection),calls=[];

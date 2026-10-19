@@ -78,6 +78,7 @@ function mock(initial) {
       activeTasks: 0,
       version: "fixture-version",
       status: "connected",
+      ...(n.nodeId==='a'&&state.incompatibleLocal?{adapter:'opencode',name:'旧版 OpenCode',version:'1.2.22.h0.r1',status:'version_incompatible',connected:false,executionSupported:false,available:false,error:'当前适配器需要 OpenCode 2.x，旧节点与历史保留。'}:{}),
       ...(n.machineId==='remote'&&state.compatibilityStatus?{status:state.compatibilityStatus,executionSupported:false,available:false,error:state.compatibilityStatus==='needs_check'?'需要重新接入检查原生 API':'来源后台缺少安全读取能力，请升级后台。'}:{}),
       ...(n.nodeId === "a" && state.pendingOriginal
         ? { unconfirmed: 1, uncertain: true }
@@ -179,6 +180,7 @@ function mock(initial) {
     call: async (method, params = {}) => {
       const entry = {
         method,
+        operationId:params.operationId,
         op: params.op,
         conversationId: params.conversationId,
         taskId: params.taskId,
@@ -229,7 +231,10 @@ function mock(initial) {
         };
       }
       if (method === "graphLayout") return { ok: true, result: copy(layout) };
-      if (method === "graphPending") return { ok: true, result: [] };
+      if (method === "graphPending") return { ok: true, result: copy(state.managementPending||[]) };
+      if(['nodeOperation','machine.operation'].includes(method))return {ok:true,result:{operationId:params.operationId,state:'unknown'}};
+      if(method==='machine.daemonPreview')return {ok:true,result:{daemonVersion:'0.6.0-alpha.24',targetVersion:'0.6.0-alpha.32',rollbackVersion:'0.6.0-alpha.9',previewId:'synthetic-preview',installPath:'/synthetic/install',stateDirectory:'/synthetic/state'}};
+      if(method==='machine.maintainDaemon'){entry.managementAttempt=true;return {ok:true,result:{operationId:params.operationId,state:'unknown'}};}
       if (method === "saveGraphLayout") {
         layout = {
           ...copy(params.layout),

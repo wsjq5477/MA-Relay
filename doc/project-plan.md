@@ -1,5 +1,9 @@
 # 迭代路线与当前交付
 
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+
+issues #8/#9隔离修复已实现并构建alpha.32候选，修复前失败与修复后回归均记录。OpenCode策略按本轮用户要求改为仅2.x；下一交付为普通EXE和公开下载核验，不推进CT-04或完整I06C/I07C准出。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
 ## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
 本次issue #7按alpha.30隔离修复，alpha.31已公开分发Windows EXE与校验附件；CT-04/MCP未提交工作不纳入，完整I06C/I07C未准出。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。

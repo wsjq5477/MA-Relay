@@ -3,6 +3,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import type { OpenCodeConfig } from '../config.js';
+import { requireOpenCodeVersion } from '../discovery.js';
 import { BridgeError } from '../core.js';
 
 export interface NativeSession {
@@ -64,6 +65,7 @@ export class OpenCodeClient {
   async probe(): Promise<{version: string; selected: {id:string;providerID:string;variant?:string}|null; models:{id:string;providerID:string}[]}> {
     try {
       const info = await this.call<{version?: unknown}>('/api/info');
+      if(info&&typeof info.version==='string')requireOpenCodeVersion(info.version);
       const location = '?location%5Bdirectory%5D=' + encodeURIComponent(this.config.workspace);
       const [agents, selected, models] = await Promise.all([
         this.call<{data?: {id?: string; name?: string}[]}>('/api/agent' + location),

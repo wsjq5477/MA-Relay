@@ -9,7 +9,9 @@ interface DiscoveryEnvironment {
   executable?: string;
 }
 interface ScannedTool extends DetectedAgent { adapter: string; healthy: boolean }
-const { scanTools } = createRequire(import.meta.url)('../desktop/electron/tool-discovery.cjs') as {
+import { BridgeError } from './core.js';
+const { scanTools, openCodeCompatibility } = createRequire(import.meta.url)('../desktop/electron/tool-discovery.cjs') as {
+  openCodeCompatibility(version: unknown): {supported:boolean;code?:string;message?:string};
   scanTools(options: { home?: string; platform: NodeJS.Platform; environment: NodeJS.ProcessEnv;
     candidates: { claude: string[]; codex: string[]; hermes: string[]; pi: string[]; dsh: string[]; opencode?: string[] } }): Promise<ScannedTool[]>;
 };
@@ -28,4 +30,15 @@ export async function discoverOpenCode(options: DiscoveryEnvironment = {}): Prom
   // selected installation before admitting work, including enterprise builds.
   return items.filter(item => item.healthy)
     .map(({ name, executable, version }) => ({ name, executable, version }));
+}
+
+export function requireOpenCodeVersion(version: unknown): void {
+  const compatibility=openCodeCompatibility(version);
+  if(!compatibility.supported)throw new BridgeError('NATIVE_VERSION',compatibility.message!,503);
+}
+/** Revalidate only the original selected installation; never choose an alias. */
+export async function verifyOpenCodeInstallation(executable:string):Promise<void>{
+  const [installation]=await discoverOpenCode({executable});
+  if(!installation)throw new BridgeError('DISCOVERY_CHANGED','这个 OpenCode 已不可用，请核对原安装后重新扫描。');
+  requireOpenCodeVersion(installation.version);
 }

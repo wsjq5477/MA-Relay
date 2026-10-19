@@ -139,7 +139,7 @@ export interface AgentNode {
   uncertain?:boolean;
   waiting?:boolean;
   lastError?:{code:string;message:string};
-  status:"connected"|"discovered"|"offline"|"tool_error"|"unsupported"|"needs_check"|"upgrade_required";
+  status:"connected"|"discovered"|"offline"|"tool_error"|"unsupported"|"needs_check"|"upgrade_required"|"version_incompatible";
   error?:string;
 }
 export interface ConnectionCapabilities {

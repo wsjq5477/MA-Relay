@@ -3,6 +3,7 @@ const {randomUUID,createHash}=require('node:crypto');
 const {MachineRouter,qualified,project,folderPath,workspaceKey}=require('./machine-router.cjs');
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');
 const {rejectionProof,marker:daemonRejectionMarker}=require('./daemon-rejection.cjs');
+const {openCodeCompatibility,openCodeVersionError}=require('./tool-discovery.cjs');
 const {connectionCapabilities,collaborationCapabilityError}=require('./builtin-adapters.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const hash=value=>createHash('sha256').update(value).digest('hex');
@@ -85,9 +86,10 @@ class AgentNetwork extends MachineRouter {
       }).length;
       const occupied=snapshot.instances.filter(i=>instances.some(saved=>saved.instanceId===i.instanceId)).some(i=>i.busy||i.currentTask&&!terminal.has(i.currentTask.status));
       const needsUpgrade=machine?.objectRoutingSupported===false,apiReady=node.adapter!=='opencode'||node.apiCompatibility?.compatible===true&&node.apiCompatibility.executable===node.executable&&node.apiCompatibility.version===node.version;
-      const gatedNode={...node,executionSupported:node.executionSupported&&!needsUpgrade&&apiReady};
-      const status=!machine?.online?'offline':needsUpgrade?'upgrade_required':!apiReady?'needs_check':!connection?.healthy?'tool_error':!node.executionSupported?'unsupported':node.connected?'connected':'discovered';
-      return {...gatedNode,...connectionCapabilities(gatedNode),...(needsUpgrade?{error:'来源后台需要升级，请使用后台维护。'}:!apiReady?{error:node.apiCompatibility?.error?.message||'请重新接入节点，检查原生 API 兼容性。'}:{}),online:!!machine?.online,healthy:!!connection?.healthy,status,busy:occupied||active.length+unconfirmed>0,activeTasks:active.length,unconfirmed,uncertain:active.some(t=>t.status==='unknown'),waiting:active.some(t=>t.waiting),lastError:last?.status==='failed'?last.error:undefined,available:!node.supersededBy&&!machine?.removed&&!node.removed&&status==='connected'&&!occupied&&!active.length&&!unconfirmed};
+      const versionCompatibility=node.adapter==='opencode'?openCodeCompatibility(node.version):{supported:true},incompatible=!versionCompatibility.supported;
+      const gatedNode={...node,...(node.adapter==='opencode'?{compatibility:versionCompatibility}:{}),connected:incompatible?false:node.connected,executionSupported:node.executionSupported&&!needsUpgrade&&apiReady&&!incompatible};
+      const status=!machine?.online?'offline':needsUpgrade?'upgrade_required':incompatible?'version_incompatible':!apiReady?'needs_check':!connection?.healthy?'tool_error':!node.executionSupported?'unsupported':node.connected?'connected':'discovered';
+      return {...gatedNode,...connectionCapabilities(gatedNode),...(needsUpgrade?{error:'来源后台需要升级，请使用后台维护。'}:incompatible?{error:versionCompatibility.message}:!apiReady?{error:node.apiCompatibility?.error?.message||'请重新接入节点，检查原生 API 兼容性。'}:{}),online:!!machine?.online,healthy:!!connection?.healthy,status,busy:occupied||active.length+unconfirmed>0,activeTasks:active.length,unconfirmed,uncertain:active.some(t=>t.status==='unknown'),waiting:active.some(t=>t.waiting),lastError:last?.status==='failed'?last.error:undefined,available:!node.supersededBy&&!machine?.removed&&!node.removed&&status==='connected'&&!occupied&&!active.length&&!unconfirmed};
     });
     const annotate=item=>{const instance=this.catalog.instances.find(i=>i.instanceId===item.targetAgent);return {...item,nodeId:instance?.nodeId,workspace:instance?.workspace};};
     this.save();this.saveNetwork();
@@ -180,7 +182,7 @@ class AgentNetwork extends MachineRouter {
     if(prior?.teamSessionId&&!params.teamScope)throw fail('TEAM_FORBIDDEN','小队原生会话须由新的成员执行身份续接。');
     if(prior?.collaboration)params={...params,collaboration:true};
     if(node.removed||!node.connected)throw fail('NODE_DISCONNECTED','请先接入这个 Agent 节点。');
-    if(!node.executionSupported)throw fail('ADAPTER_UNSUPPORTED','这个节点已发现，尚未完成执行适配。');
+
     if(params.model||params.providerID)throw fail('INVALID_INPUT','任务沿用原生工具配置，不接受模型或供应商覆盖。');
     if(!['submit','continue',undefined].includes(params.op)||typeof params.requestId!=='string'||!params.requestId||params.requestId.length>128||typeof params.message!=='string'||!params.message.trim()||params.message.length>65536)throw fail('INVALID_INPUT','请填写有效需求和请求 ID。');
     const fingerprint=requestFingerprint(node.nodeId,params);
@@ -191,6 +193,8 @@ class AgentNetwork extends MachineRouter {
       try{return await super.call('ipc',{op:'request',machineId:node.machineId,requestId:params.requestId});}catch(e){if(!['NOT_FOUND','REQUEST_NOT_FOUND','NOT_CONFIGURED'].includes(e.code))throw e;}
       if(previous.dispatched)throw fail('DESKTOP_UNCONFIRMED','原请求提交状态尚未确认，请查询原请求，不能重复执行。');
     }
+    if(node.adapter==='opencode'&&!openCodeCompatibility(node.version).supported)throw openCodeVersionError(node.version);
+    if(!node.executionSupported)throw fail('ADAPTER_UNSUPPORTED','这个节点已发现，尚未完成执行适配。');
     // Original dispatched receipts above remain readable if current capabilities
     // change. New native execution intent is admitted from the static contract.
     const capabilities=connectionCapabilities(node).connectionCapabilities;
@@ -349,6 +353,7 @@ class AgentNetwork extends MachineRouter {
         const discovered=await super.call('discover',{machineId:node.machineId});
         const item=discovered.items.find(i=>i.executable===node.executable&&i.adapter===node.adapter);
         if(!item)throw fail('DISCOVERY_CHANGED','这个工具已不可用，请重新扫描。');
+        if(item.adapter==='opencode'&&!openCodeCompatibility(item.version??node.version).supported)throw openCodeVersionError(item.version??node.version);
         if(item.healthy===false||!node.executionSupported)throw fail('AGENT_UNAVAILABLE','工具尚不可用，请检查原生安装、登录或执行支持。');
         if(machine.objectRoutingSupported===false)throw fail('DAEMON_UPGRADE_REQUIRED','请先通过原机器后台维护升级后台，再接入执行节点。');
         if(node.adapter==='opencode'){

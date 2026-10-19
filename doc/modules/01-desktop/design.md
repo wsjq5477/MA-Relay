@@ -1,8 +1,8 @@
 # M01 桌面界面与交互设计
 
-## 2026-10-19：issue #7 协作兼容修复
+## 当前版本准入与管理作用域
 
-M01-F04/F05/F07：当前行为：节点区分needs_check/upgrade_required，禁用派发与主从能力；needs_check保留接入按钮，任务详情显示来源机器升级入口。旧中央不支持新语义时全局业务阻断，设置及显式停止后台可用。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+M01-F04/F05/F07：概览、关系图和设置按目标机器展示管理阻断原因；异机unknown不禁空闲机器维护。同机、来源不足、原授权pending和全局同步错误继续保护；OpenCode1.x明确版本不兼容，需要2.x，历史保留。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
 ## 当前历史详情读取与错误作用域
 

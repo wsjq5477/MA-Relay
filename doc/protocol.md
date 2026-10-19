@@ -1,5 +1,9 @@
 # 通信协议与接口
 
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+
+协议仍2；hello.capabilities新增scoped-management-v1与opencode-v2-admission-v1，新前台要求中央与owned-object-controls-v1同时具备，缺项COORDINATOR_UPGRADE_REQUIRED。NATIVE_VERSION表示仅支持OpenCode 2.x；401/403与API契约错误快速独立返回，裸远端错误不作未发送证明。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
 ## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
 wire protocol仍2；中央及daemon hello新增capabilities中的owned-object-controls-v1。旧中央仅保留preferences/runtimes/shutdown；旧SSH仍可snapshot/discover/request和daemon原收据/维护，对context/scope及task/conversation/pending/reply/cancel/operation/continue/reconcile/submit/verify返回DAEMON_UPGRADE_REQUIRED。新增OPENCODE_API_UNSUPPORTED、COORDINATOR_UPGRADE_REQUIRED；既有NOT_FOUND与OBJECT_SOURCE_CONFLICT继续适用。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。

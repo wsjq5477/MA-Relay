@@ -1,5 +1,9 @@
 # 迭代资料目录
 
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32候选）
+
+I07新增issues #8/#9专项：2.x严格准入、快速错误和多机管理unknown隔离，原请求不重放。 [需求、实现、验证与边界](I07/version-management-recovery.md)。
+
 ## 2026-10-19：协作兼容修复（alpha.31已预发布）
 
 issue #7 / alpha.31已预发布：兼容性、原对象控制路由、委派状态及新旧后台能力激活；实际发布和验证按专项。 [需求、实现、实测与边界](I07/collaboration-compatibility.md)。

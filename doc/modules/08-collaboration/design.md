@@ -1,8 +1,8 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
-## 2026-10-19：issue #7 协作兼容修复
+## 当前版本准入与管理作用域
 
-M08-F02/F03/F04：当前行为：委派以原请求持久dispatched=false与准备拒绝及同源指纹判断rejected；快照可只读结算旧unknown，同ID返回原码/说明，不重准备或重发；已派发/缺证明保持unknown。task_result透传目标真实错误。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+M08-F02/F03/F04：OpenCode版本不兼容时执行/委派能力关闭，关系与原历史保留。relation未知仍阻断非布局元数据，异机node/machine放行不放宽授权编辑；原请求/派生ID及确定拒绝证明规则保持。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
 2026-10-19[Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)补充公共索引、产物目录、可见交接与按需读取上下文的建议。当前仍为既有登记/工作/文档/消息/任务契约；没有新增私信RPC、实体MD同步或跨工作自动记忆。原生上下文和公共协作材料继续分开。
 

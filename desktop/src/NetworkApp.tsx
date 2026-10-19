@@ -54,6 +54,7 @@ const nodeStatus = (n: AgentNode) =>
   n.status === "offline"
     ? "机器离线"
     : n.status === "upgrade_required" ? "后台需要升级"
+    : n.status === "version_incompatible" ? "版本不兼容，需要 OpenCode 2.x"
     : n.status === "needs_check" ? "需要检查原生 API"
     : n.status === "tool_error"
       ? "工具检查异常"
@@ -259,8 +260,7 @@ export default function NetworkApp() {
         ? r.blockedNodeIds.includes(nodeId)
         : !r.machineId || r.machineId === machineId,
     ) ||
-    (!!machineManagement.pending &&
-      machineManagement.pending.machineId === machineId);
+    !!managementReason(machineId);
   const pendingKey = journal.map((r) => r.id + ":" + r.state).join("|");
   useEffect(() => {
     if (!pendingKey || !bridge().recoverPending) return;
@@ -349,6 +349,11 @@ export default function NetworkApp() {
     !!management.pending ||
     machineManagement.working ||
     !!machineManagement.pending;
+  function managementReason(machineId?:string){
+    const machine=allMachines.find(m=>m.machineId===machineId);
+    const reason=management.blockReason(machineId,machine?.connectionId)||machineManagement.blockReason(machineId,machine?.connectionId);
+    return reason?(machine?.name||'来源机器')+'：'+reason:'';
+  }
   function nodeAction(node: AgentNode, action: NodeAction) {
     setNodeDialog({ node, action });
   }
@@ -565,7 +570,7 @@ export default function NetworkApp() {
       )}
       {machineManagement.pending && (
         <div className="notice-banner" role="status">
-          机器操作回应尚未确认。只查询原操作，机器与授权编辑暂停。
+          原机器管理操作待核对，仅暂停相关机器操作与授权编辑；其他机器仍可管理。
           <button
             className="text-btn"
             onClick={() => void machineManagement.query()}
@@ -576,7 +581,7 @@ export default function NetworkApp() {
       )}
       {management.pending && (
         <div className="notice-banner" role="status">
-          节点操作回应尚未确认。只查询原操作，节点管理与授权编辑暂停。
+          原节点管理操作待核对，仅暂停相关机器操作与授权编辑；其他机器仍可管理。
           <button className="text-btn" onClick={() => void management.query()}>
             查询原节点操作
           </button>
@@ -725,6 +730,7 @@ export default function NetworkApp() {
                   executionLocked={executionLocked}
                   busy={busy}
                   metadataBusy={managementLocked}
+                  managementReason={managementReason}
                   managementSupported={!!data.nodeManagement}
                   machineManagementSupported={!!data.machineManagement}
                   daemonManagementSupported={!!data.daemonManagement}
@@ -756,6 +762,7 @@ export default function NetworkApp() {
           online={!error && !loading}
           busy={busy}
           metadataBusy={managementLocked}
+                  managementReason={managementReason}
           notify={setNotice}
           start={newConversation}
           blocked={blocked}
@@ -902,6 +909,7 @@ export default function NetworkApp() {
           machineName={machineName}
           busy={busy}
           managementLocked={managementLocked}
+          managementReason={managementReason}
           machineManagementSupported={!!data.machineManagement}
           onRestore={(m) =>
             void machineManagement.run(
@@ -946,7 +954,7 @@ export default function NetworkApp() {
               <button
                 className="btn"
                 disabled={
-                  managementLocked || graphExecutionLocked || !addAgent.online
+                  !!managementReason(addAgent.machineId) || busy || graphExecutionLocked || !addAgent.online
                 }
                 onClick={() =>
                   void act(
@@ -973,7 +981,7 @@ export default function NetworkApp() {
                       <button
                         className="btn"
                         disabled={
-                          managementLocked ||
+                          !!managementReason(n.machineId) || busy ||
                           graphExecutionLocked ||
                           !data.nodeManagement ||
                           !n.online ||
@@ -1059,7 +1067,7 @@ export default function NetworkApp() {
               <button
                 className="btn primary"
                 disabled={
-                  managementLocked ||
+                  !!managementReason(nodeDialog.node.machineId) || busy ||
                   graphExecutionLocked ||
                   !data.nodeManagement ||
                   !nodeDialog.node.online ||
@@ -1127,7 +1135,7 @@ export default function NetworkApp() {
               </button>{" "}
               <button
                 className="btn primary"
-                disabled={managementLocked || !data.machineManagement}
+                disabled={busy || !!managementReason(machineDialog.machine.machineId) || !data.machineManagement}
                 onClick={() =>
                   void machineManagement
                     .run(
@@ -1374,7 +1382,7 @@ export default function NetworkApp() {
       {daemonDialog && (
         <DaemonDialog
           machine={daemonDialog}
-          pending={!!machineManagement.pending}
+          pending={!!managementReason(daemonDialog.machineId)}
           onClose={() => setDaemonDialog(null)}
           run={(config) =>
             machineManagement.run(
@@ -1394,7 +1402,7 @@ export default function NetworkApp() {
         <AddMachineDialog
           machine={sshDialog.machine}
           editing={sshDialog.editing}
-          managementPending={!!machineManagement.pending}
+          managementPending={!!managementReason(sshDialog.machine?.machineId)}
           updateConnection={(config) =>
             machineManagement.run(
               sshDialog.machine!.connectionId!,
