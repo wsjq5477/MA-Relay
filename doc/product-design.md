@@ -1,6 +1,6 @@
 # AgentBridge 整体功能设计
 
-2026-10-19：当前完整源码正在构建 **alpha.29** 并准备新 GitHub 预发布；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 2026-10-19 / AB-F07/F09/F11/F12/F13：当前未发布源码上的Claude/Codex/OpenCode三主节点真实生产MCP发现→委派→读结果→汇总均通过，共六个有向组合、9个成功原生Task；重开只查原请求，无重放。新增可恢复验收工具及7项保护测试，产品接口/存储/权限/模型配置未改。[CT-02真实MCP委派](iterations/I07/connection-delegation.md)。
 

@@ -1,6 +1,6 @@
 # AgentBridge 项目资料
 
-2026-10-19：当前完整源码正在构建 **alpha.29** 并准备新 GitHub 预发布；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 2026-10-19：[CT-02真实MCP委派](iterations/I07/connection-delegation.md)完成三种已安装工具互相发现、普通委派、读取结果与主节点汇总，覆盖Claude/Codex/OpenCode之间全部六个有向组合。9个真实成功Task、9个原生Session，重开各链Task数3→3；新增验收保护7项，桌面517/517通过。无产品运行改动，公开alpha.28不变；新三工具、新EXE与独立SSH仍另验。
 
