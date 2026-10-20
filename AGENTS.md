@@ -1,6 +1,8 @@
 # AgentBridge 开发与文档协作
 
-2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](doc/iterations/I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](doc/iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+
+2026-10-20发布前准备记录 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](doc/iterations/I07/alpha34-release.md)登记；当时仍在发布准备阶段，旧包/标签范围不变。
 
 2026-10-20 **0.6.0-alpha.33已预发布**：PR #11已合并，标签冻结`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`，EXE与校验附件已公开并完成匿名完整下载核验。本次为公开alpha.32上的issue #10独立补丁，不含主工作区CT-04/独立MCP/CT-05或后续OpenCode1.x未发布驱动。维护上传的进度错误不再中断SFTP，最终台账保存失败仍不发送原维护输入。 [交付、校验与升级边界](doc/iterations/I07/maintenance-persistence.md)。
 
@@ -36,7 +38,7 @@
 
 - 阅读整体功能设计、相关模块的 `design.md`、`test-report.md` 和当前迭代。
 - 核对实际源码、发布包和测试证据，区分已发布、源码已实现、已确认设计与候选功能。
-- 稳定历史 Windows 版本为 0.5.0；当前 GitHub 预发布为 0.6.0-alpha.33；工作源码已整合，另有未发布integrated.3本地候选，完整 I07C/I06C 仍未准出。I06A 候选 0.6.0-alpha.2 的 Windows/SSH 主要流程已验收，专项覆盖限制见 doc/iterations/I06/acceptance.md；I06B alpha.6 主要范围已验收，专项限制见 doc/iterations/I06/graph-implementation.md；alpha.7 图可用性优化见 doc/iterations/I06/graph-usability.md，alpha.8 旧后台拖动与主居左修复见 doc/iterations/I06/graph-drag-fix.md；alpha.9 合并页面与节点管理见 doc/iterations/I06/node-management.md；I06C alpha.10 首批机器管理/历史与事件补偿见 doc/iterations/I06/machine-management.md；alpha.13 可信后台维护/控制恢复及 alpha.15 维护入口通道拒绝恢复及 alpha.16 未发送边界补强见 doc/iterations/I06/final-delivery.md，以该页当前逐项证据为准。
+- 稳定历史 Windows 版本为 0.5.0；当前 GitHub 预发布为 0.6.0-alpha.34；当前整合源码已提交并推送，新Tag/EXE绑定1af4dab，旧integrated.3保持历史范围，完整 I07C/I06C 仍未准出。I06A 候选 0.6.0-alpha.2 的 Windows/SSH 主要流程已验收，专项覆盖限制见 doc/iterations/I06/acceptance.md；I06B alpha.6 主要范围已验收，专项限制见 doc/iterations/I06/graph-implementation.md；alpha.7 图可用性优化见 doc/iterations/I06/graph-usability.md，alpha.8 旧后台拖动与主居左修复见 doc/iterations/I06/graph-drag-fix.md；alpha.9 合并页面与节点管理见 doc/iterations/I06/node-management.md；I06C alpha.10 首批机器管理/历史与事件补偿见 doc/iterations/I06/machine-management.md；alpha.13 可信后台维护/控制恢复及 alpha.15 维护入口通道拒绝恢复及 alpha.16 未发送边界补强见 doc/iterations/I06/final-delivery.md，以该页当前逐项证据为准。
 
 alpha.18 的 Windows 运行缓存与原未派发提交恢复见 [专项](doc/iterations/I06/runtime-recovery.md)。源码已提交独立修复分支及 PR #1，尚未合入 master；发布标签绑定已验证源码，不以预发布替代完整 I06C 准出。
 

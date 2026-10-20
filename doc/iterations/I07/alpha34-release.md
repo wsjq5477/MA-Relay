@@ -1,6 +1,6 @@
 # alpha.34：OpenCode 双协议与当前源码整合发布
 
-日期：2026-10-20。当前状态：准备发布 **0.6.0-alpha.34** Windows x64 预发布；只有最终上传与公开下载核验完成后才标记已交付。稳定历史版仍为 0.5.0，完整 I06C/I07C 未准出。
+日期：2026-10-20。当前状态：**0.6.0-alpha.34 已作为 GitHub Windows x64 预发布交付**，源码/新标签、EXE/校验附件及匿名完整下载均已核验。稳定历史版仍为 0.5.0，完整 I06C/I07C 未准出。
 
 ## 1. 本次源码范围
 
@@ -19,11 +19,22 @@
 
 发布前当前工作源码已完成核心 **56/56**、桌面 **592/592**，build/typecheck/lint/文档检查通过，见[OpenCode 专项证据](../../../artifacts/opencode-v1/2026-10-20/summary.json)。历史专项保留原日期，不把旧源码结果归为新包实测。
 
-本次在源码提交之后导出独立构建副本，所有打包检查对该固定副本执行。`verify-package.cjs --portable` 核对前端、app.asar、Core、Windows后台、Linux 后台与实际 EXE 摘要；普通 Windows EXE 使用隔离 profile 验证启动、生产 IPC、保留历史、窗口/后台重开和未重发。实际执行后记录结果，不提前填写通过。
+本次在源码提交之后导出独立构建副本，所有打包检查对该固定副本执行。`verify-package.cjs --portable` 核对前端、app.asar、Core、Windows后台、Linux 后台与实际 EXE 摘要；普通 Windows EXE 使用隔离 profile 验证启动、生产 IPC、保留历史、窗口/后台重开和未重发。最终冻结提交 `1af4dab415d63072be59c103a606df0952ab2ff8`，570 个 tracked 文件逐一与独立副本匹配。实际验证：核心 56/56、桌面 592/592，构建/类型/lint/文档检查通过；43 个后台 CJS、81 个 Core 构建文件、1451 个 Linux 文件、app.asar 与前端均匹配冻结源码。Linux alpha.34 manifest digest 为 `1174495692496e1e594a87cf4d312edc5defa162e01fdf7b6815e44bc9fc8678`。
+
+Windows 包内 Core 受控协议五组通过，模型 0：原 1.x 启动器准入/未知 major 拒绝、原生生成 Session 下的续聊、重开只读、不重发、取消证据及旧协议绑定隔离。普通无调试 EXE 另有整合功能五组与 alpha.33→alpha.34 升级五组通过，包含 SQLite 精确修订、MCP 导出、孤立历史、原 unknown、窗口重开和完整中央后台重启；未执行原生模型任务。不同层级不相加为真实模型验收数。
 
 ## 3. 当前分发状态
 
-新 Tag、源码提交、EXE 大小与 SHA-256、公开 URL 与完整匿名下载结果在完成后补录。本页准备阶段不构成发布成功证明，alpha.33 标签和旧 EXE 不移动。
+已推送源码提交：`1af4dab415d63072be59c103a606df0952ab2ff8`；新标签 **v0.6.0-alpha.34** 固定该提交，旧标签和旧 EXE 不移动。后续发布材料提交只更新文档，不改变已上传 EXE 或冻结标签。
+
+- [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.34/AgentBridge-0.6.0-alpha.34-Windows-x64.exe)
+- [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.34/SHA256SUMS.txt)
+- [GitHub 预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.34)
+- [冻结源码](https://github.com/wsjq5477/MA-Relay/commit/1af4dab415d63072be59c103a606df0952ab2ff8)
+
+EXE 大小 **130,025,537 字节**，SHA-256：`12252dc8627c31f0d7a010c14e8080e3e2673a22586f535e1cc7013662094180`。GitHub asset uploaded/size/digest、校验附件及匿名 HTTP 200 完整下载均一致。
+
+实际原始证据：[发布元数据](../../../artifacts/alpha34-release/2026-10-20/github-release.json)、[匿名完整下载](../../../artifacts/alpha34-release/2026-10-20/public-download.json)、[发布日志](../../../artifacts/alpha34-release/2026-10-20/publish.log)、[最终汇总](../../../artifacts/alpha34-release/2026-10-20/verification-summary.json)、[源文件逐项复核](../../../artifacts/alpha34-release/2026-10-20/source-verification.json)、[包一致性](../../../artifacts/alpha34-release/2026-10-20/package.json)、[核心](../../../artifacts/alpha34-release/2026-10-20/core-tests.log)、[桌面](../../../artifacts/alpha34-release/2026-10-20/desktop-tests.log)、[Windows包内Core](../../../artifacts/alpha34-release/2026-10-20/windows-opencode-v1.json)、[普通整合EXE](../../../artifacts/alpha34-release/2026-10-20/windows-integrated-portable.json)、[旧后台升级EXE](../../../artifacts/alpha34-release/2026-10-20/windows-upgrade-portable.json)。
 
 ## 4. 升级与未测边界
 

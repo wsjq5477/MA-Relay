@@ -1,6 +1,6 @@
 # OpenCode 1.x 与 2.x 双协议兼容修复
 
-日期：2026-10-20。关联 AB-F02/F07/F08/F10/F11/F12/F13，M03/M05/M06-OC/M07/M08/M09。本轮为当前工作源码修复，保留既有 CT-04/CT-05、MCP 与 alpha.30–32 整合增量；未修改公开标签或打包版本，旧 alpha.32 / integrated.3 EXE 不包含本片。
+日期：2026-10-20。关联 AB-F02/F07/F08/F10/F11/F12/F13，M03/M05/M06-OC/M07/M08/M09。本片最初为工作源码修复，保留既有 CT-04/CT-05、MCP 与 alpha.30–33 整合增量；随后随[alpha.34](alpha34-release.md)提交并发布，新EXE与公开完整下载已核验。旧 alpha.33及更早版本 / integrated.3 EXE 不包含本片。
 
 ## 1. 问题与需求
 
@@ -79,12 +79,12 @@ MCP：V1 使用 `mcp.agentbridge`，V2 使用 `mcp.servers.agentbridge`；V1 不
 
 最终全套日志：[核心](../../../artifacts/opencode-v1/2026-10-20/core-tests.log)、[桌面](../../../artifacts/opencode-v1/2026-10-20/desktop-tests-final.log)、[类型检查](../../../artifacts/opencode-v1/2026-10-20/typecheck.log)、[lint](../../../artifacts/opencode-v1/2026-10-20/lint.log)、[文档](../../../artifacts/opencode-v1/2026-10-20/docs-final.log)、[选定源码摘要](../../../artifacts/opencode-v1/2026-10-20/source-manifest.json)。首次桌面 591/592 为已有维护测试 mock 返回 undefined，而当前生产接口返回对象；只修夹具返回值后 592/592，不修改 SSH 产品逻辑。首次全局文档检查的 13 个失效链接属于同时存在的维护专项，已从其独立工作树同步原始附件并保留[同步摘要](../../../artifacts/opencode-v1/2026-10-20/document-evidence-sync.json)，没有伪造或重标该专项验收。
 
-**未测**：当前 Windows 原生 OpenCode 1.x/普通 EXE、用户机器、独立 SSH 服务器、真实账号/真实模型推理、复杂原生问题表单、所有 1.x 小版本。官方 CLI 加受控模型传输不等于真实模型验收。完整 I06C/I07C 继续未准出。
+**未测**：Windows 原生 OpenCode 1.x真实工具/推理、用户机器、独立 SSH 服务器、真实账号/真实模型推理、复杂原生问题表单、所有 1.x 小版本。后续alpha.34已补Windows包内Core受控协议5组和普通EXE两套各5组；这不是Windows原生Agent/真实模型验收。官方 CLI 加受控模型传输不等于真实模型验收。完整 I06C/I07C 继续未准出。
 
 复现：`npm run build`；`node --import tsx --test --test-concurrency=1 tests/opencode-v1.test.ts`；`node --import tsx scripts/opencode-v1-acceptance.ts OFFICIAL_BINARY NEW_RUN_DIRECTORY`。真实 CLI 脚本首次发送前持久意图与原引用，已有报告目录拒绝重跑；不会覆盖用户配置或调用外部账号。
 
 ## 5. 源码、发布与使用边界
 
-本轮没有更改现有公开 alpha.32、integrated.3 冻结源码或 EXE。安装中的客户端与 SSH 后台不能通过重新扫描自动获得新协议；应使用包含本修复的新构建，远端后台还需在原机器维护升级。旧请求始终查询原 ID，不能通过新版本、新节点或目录别名放行占位。
+本片已随 alpha.34 交付；没有修改旧 alpha.32/33、integrated.3 冻结源码或 EXE。安装中的客户端与 SSH 后台不能通过重新扫描自动获得新协议；应使用包含本修复的新构建，远端后台还需在原机器维护升级。旧请求始终查询原 ID，不能通过新版本、新节点或目录别名放行占位。
 
 官方依据：[1.19.3 发布](https://github.com/anomalyco/opencode/releases/tag/v1.19.3)、[HTTP 文档](https://opencode.ai/docs/server/)、[固定标签 Session 路由](https://github.com/anomalyco/opencode/blob/v1.19.3/packages/opencode/src/server/routes/instance/httpapi/groups/session.ts)、[Session 创建与身份](https://github.com/anomalyco/opencode/blob/v1.19.3/packages/opencode/src/session/session.ts)、[原生 Prompt 与完成条件](https://github.com/anomalyco/opencode/blob/v1.19.3/packages/opencode/src/session/prompt.ts)。

@@ -1,6 +1,8 @@
 # I07 测试与验收计划
 
-2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](alpha34-release.md)。完整I06C/I07C仍未准出。
+
+2026-10-20发布前准备记录 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](alpha34-release.md)登记；当时仍在发布准备阶段，旧包/标签范围不变。
 
 2026-10-20：alpha.33已按用户批准合并PR #11并预发布，冻结合并源码`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`；普通EXE与公开完整下载匹配，验收与现场边界保持。 [交付、校验与升级边界](maintenance-persistence.md)。
 

@@ -1,5 +1,7 @@
 # Agent 接入现状与后续目标
 
+2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
 
 OpenCode 当前支持 1.x/2.x 各自 HTTP 协议和 MCP 配置布局；已用官方 1.19.3 CLI 加本机受控模型传输验证生命周期及生产 broker 连接。真实模型、Windows 1.x、独立 SSH 仍未测，历史 2.x 证据保留原日期。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。

@@ -1,5 +1,7 @@
 # OpenCode 适配器测试报告
 
+2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
 
 T-M06-OC-150–154：V1 新任务/续聊、原绑定恢复、取消收据与终态、权限/问题及双格式 MCP 受控验证；官方 1.19.3 CLI 加本机受控模型传输完成生命周期与生产 broker 连接。最终原始日志和首次失败在专项，不把它写成真实账号/Windows/独立 SSH 验收。 [需求、实现、验证与未测边界](../../../iterations/I07/opencode-v1-compatibility.md)。

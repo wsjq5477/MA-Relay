@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器测试报告
 
+2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
 
 M06-F01/F02/F04：OpenCode 新增独立 V1 原生生命周期和 MCP 配置，保留 V2；CLI 版本可识别与实际契约有效分别检查。不改变其他 Agent 的账号/模型、原生 Session 或台账归属。 本次共用专项的全套日志，不跨模块累加；受控测试、官方 CLI 加受控传输与未测 Windows/SSH/真实模型分列。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。

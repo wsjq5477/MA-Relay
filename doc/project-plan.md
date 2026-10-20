@@ -1,6 +1,8 @@
 # 迭代路线与当前交付
 
-2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](iterations/I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+
+2026-10-20发布前准备记录 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](iterations/I07/alpha34-release.md)登记；当时仍在发布准备阶段，旧包/标签范围不变。
 
 2026-10-20 **0.6.0-alpha.33已预发布**：PR #11已合并，标签冻结`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`，EXE与校验附件已公开并完成匿名完整下载核验。本次为公开alpha.32上的issue #10独立补丁，不含主工作区CT-04/独立MCP/CT-05或后续OpenCode1.x未发布驱动。维护上传的进度错误不再中断SFTP，最终台账保存失败仍不发送原维护输入。 [交付、校验与升级边界](iterations/I07/maintenance-persistence.md)。
 
@@ -79,9 +81,9 @@ alpha.28：issue #5远端持久拒绝只读恢复；GitHub已预发布alpha.28�
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | alpha.32 / fcdad72，已发布证据保留原日期；本次只读API和原EXE字节摘要核对，不重新公开下载。另有未发布integrated.3本地候选，见[整合专项](iterations/I07/integrated-source.md) |
-| 当前自动回归 | 2026-10-19整合源码核心51/51、桌面570/570（零跳过）、Windows前端26组/模型0及类型/lint/构建通过；包/普通EXE与真实Agent边界见整合专项，历史模型证据不相加 |
-| 当前源码 | Git HEAD仍a872275，工作文件已三方整合alpha.32冻结fcdad72与MCP/CT-04，并补精确alpha.32兼容清单及TOML1.9.1；随后新增CT-05只读选材包及桌面明确选择/核对导出，未入integrated.3冻结EXE；未commit/push，未公开新版本 |
+| 最新 Windows 预发布 | 0.6.0-alpha.34，标签冻结1af4dab；[EXE、校验与实际边界](iterations/I07/alpha34-release.md)，匿名完整下载一致 |
+| 当前自动回归 | alpha.34冻结核心56/56、桌面592/592，构建/类型/lint/文档通过；Windows包内Core受控5组，普通整合/旧后台升级EXE各5组。真实模型/现场范围不扩大 |
+| 当前源码 | alpha.34全整合源码1af4dab已提交并推送，新Tag与EXE绑定；包含CT-04/CT-05/MCP、OpenCode双协议与alpha.33维护修复。后续仅发布材料更新，不移动冻结标签 |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
 | alpha.24历史自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
