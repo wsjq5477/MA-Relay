@@ -1,5 +1,7 @@
 # M02 中央协调后台设计
 
+2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+
 ## 当前维护进度与持久化边界
 
 M02-F04：进度通知仅内存合并；正确性通知同步保存，失败恢复原机器投影。要求maintenance-persistence-v1避免复用旧中央。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。

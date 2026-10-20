@@ -1,5 +1,7 @@
 # M01 桌面界面与交互设计
 
+2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+
 ## 当前维护进度与持久化边界
 
 M01-F03：机器显示安全进度告警，上传继续不等同升级成功；最终保存拒绝保留具体原因。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。

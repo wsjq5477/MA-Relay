@@ -12,6 +12,8 @@ test('new frontend blocks old coordinator semantics while authenticated settings
  t.after(async()=>{client.close();for(const socket of sockets)socket.destroy();await new Promise(r=>server.close(r));fs.rmSync(directory,{recursive:true,force:true});});
  await assert.rejects(client.request('call',{method:'snapshot',params:{}}),e=>e.code==='COORDINATOR_UPGRADE_REQUIRED'&&e.message.includes('停止后台并退出'));
  assert.deepEqual(calls,[]);await client.request('preferences');await client.request('shutdown');assert.deepEqual(calls,['preferences','shutdown']);
+ client.close();capabilities=['owned-object-controls-v1','scoped-management-v1','opencode-v2-admission-v1','maintenance-persistence-v1'];
+ await assert.rejects(client.request('call',{method:'snapshot',params:{}}),{code:'COORDINATOR_UPGRADE_REQUIRED'});assert.equal(calls.length,2,'alpha.33 cannot handle new dual-API/MCP material calls');
  client.close();capabilities=runtimeCapabilities;await client.request('call',{method:'snapshot',params:{}});assert.equal(calls.at(-1),'call');
 });
 test('old daemon remains observable and maintainable but cannot dispatch or misroute object reads and controls',async()=>{

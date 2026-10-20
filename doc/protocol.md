@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
 
 机器主协议仍为 2；Core 原生引用的 snapshot.nativeProtocol 为可选字段，旧数据缺省 v2。新增 V1 /global/health、/session、prompt_async、permission/question 与 abort 映射，不与 /api/* 混用。204 或 abort=true 只是原生接收/控制响应；终态仍核对原输入、助手 parentID/完成时间与会话状态。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。

@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
 
 机器仍仅连接已有原生 Agent。OpenCodeClient 在原服务只读握手后选择 V1/V2；V1 由服务端生成 Session，invocation 先持久化，返回后在 Prompt 前持久绑定。新增 snapshot.nativeProtocol，历史缺省 v2，不跨协议续接或重放。Controller/Hub/Edge 仍使用同一原请求台账，不新增模型 API 层。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。
