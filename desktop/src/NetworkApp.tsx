@@ -25,6 +25,7 @@ import AgentIcon from "./AgentIcon";
 import CollaborationChoice from "./CollaborationChoice";
 import {canCallBridge,canExecuteNode} from "./connection-capabilities";
 import { TasksPage, ConversationsPage, SettingsPage } from "./WorkspacePages";
+import {useGraphRecovery,mergeRecoveryRows,executionRecoveryReason,querySummaryText,type ManagementLane} from './management-recovery';
 import TeamWorkspace from "./TeamWorkspace";
 import { useNodeManagement, type NodeAction } from "./node-management";
 import type {
@@ -254,13 +255,13 @@ export default function NetworkApp() {
     media.addEventListener("change", apply);
     return () => media.removeEventListener("change", apply);
   }, [prefs.theme]);
-  const blocked = (machineId?: string, nodeId?: string) =>
+  const blocked = (machineId?: string, nodeId?: string, chosenWorkspace?:string) =>
     journal.some((r) =>
       nodeId && r.blockedNodeIds
         ? r.blockedNodeIds.includes(nodeId)
         : !r.machineId || r.machineId === machineId,
     ) ||
-    !!managementReason(machineId);
+    !!executionReason(machineId,nodeId,chosenWorkspace);
   const pendingKey = journal.map((r) => r.id + ":" + r.state).join("|");
   useEffect(() => {
     if (!pendingKey || !bridge().recoverPending) return;
@@ -333,11 +334,13 @@ export default function NetworkApp() {
       setQuerying(false);
     }
   }
-  const management = useNodeManagement(data.directory, setNotice, refresh);
+  const graphRecovery=useGraphRecovery(data.directory);
+  const management = useNodeManagement(data.directory, setNotice, refresh,graphRecovery);
   const machineManagement = useMachineManagement(
     data.directory,
     setNotice,
     refresh,
+    graphRecovery,
   );
   const [machineDialog, setMachineDialog] = useState<{
     machine: Machine;
@@ -349,6 +352,16 @@ export default function NetworkApp() {
     !!management.pending ||
     machineManagement.working ||
     !!machineManagement.pending;
+  const managementRows=mergeRecoveryRows(graphRecovery.rows,management.pendingItems.map(management.asRow),machineManagement.pendingItems.map(machineManagement.asRow));
+  const managementSummary=querySummaryText(graphRecovery.summary);
+  function executionReason(machineId?:string,nodeId?:string,chosenWorkspace?:string){
+    if(!graphRecovery.loaded||graphRecovery.error||management.storageError||machineManagement.storageError)return '原管理台账尚未安全读取，请保留原记录。';
+    return executionRecoveryReason(managementRows,machineId,nodeId,allNodes,allMachines,data.instances,chosenWorkspace);
+  }
+  function queryManagement(lane:ManagementLane){
+    if(lane==='node')return management.query();if(lane==='machine')return machineManagement.query();
+    return graphRecovery.query(managementRows.filter(row=>row.lane===lane));
+  }
   function managementReason(machineId?:string){
     const machine=allMachines.find(m=>m.machineId===machineId);
     const reason=management.blockReason(machineId,machine?.connectionId)||machineManagement.blockReason(machineId,machine?.connectionId);
@@ -568,25 +581,31 @@ export default function NetworkApp() {
           </button>
         </div>
       )}
-      {machineManagement.pending && (
+      {managementRows.some(row=>row.lane==='machine') && (
         <div className="notice-banner" role="status">
-          原机器管理操作待核对，仅暂停相关机器操作与授权编辑；其他机器仍可管理。
+          原机器管理操作待核对，相关机器的执行、管理与授权编辑继续受保护。
           <button
             className="text-btn"
-            onClick={() => void machineManagement.query()}
+            disabled={graphRecovery.querying} onClick={() => void queryManagement('machine')}
           >
-            查询原机器操作
+            {graphRecovery.querying?'正在查询原管理操作…':'查询原机器操作'}
           </button>
         </div>
       )}
-      {management.pending && (
+      {managementRows.some(row=>row.lane==='node') && (
         <div className="notice-banner" role="status">
-          原节点管理操作待核对，仅暂停相关机器操作与授权编辑；其他机器仍可管理。
-          <button className="text-btn" onClick={() => void management.query()}>
-            查询原节点操作
+          原节点管理操作待核对，同机管理与授权编辑受保护；独立执行资源仍可使用。
+          <button className="text-btn" disabled={graphRecovery.querying} onClick={() => void queryManagement('node')}>
+            {graphRecovery.querying?'正在查询原管理操作…':'查询原节点操作'}
           </button>
         </div>
       )}
+      {(['relation','layout'] as const).filter(lane=>managementRows.some(row=>row.lane===lane)).map(lane=><div key={lane} className="notice-banner" role="status">
+        {lane==='relation'?'原协作授权操作待核对，执行与授权保护保留。':'原布局操作待核对，独立执行仍可使用。'}
+        <button className="text-btn" disabled={graphRecovery.querying} onClick={()=>void queryManagement(lane)}>{graphRecovery.querying?'正在查询原管理操作…':lane==='relation'?'查询原授权操作':'查询原布局操作'}</button>
+      </div>)}
+      {managementSummary&&<div className="notice-banner" role="status">{managementSummary}</div>}
+      {graphRecovery.error&&<div className="notice-banner" role="status">管理台账读取失败，原未知记录与保护保留；请稍后查询原操作。</div>}
       {page === "teams" &&
         (data.teamSpaceSupported ? (
           <TeamWorkspace nodes={nodes} directory={data.directory} />
@@ -731,6 +750,7 @@ export default function NetworkApp() {
                   busy={busy}
                   metadataBusy={managementLocked}
                   managementReason={managementReason}
+                  executionReason={executionReason}
                   managementSupported={!!data.nodeManagement}
                   machineManagementSupported={!!data.machineManagement}
                   daemonManagementSupported={!!data.daemonManagement}
@@ -763,6 +783,7 @@ export default function NetworkApp() {
           busy={busy}
           metadataBusy={managementLocked}
                   managementReason={managementReason}
+                  executionReason={executionReason}
           notify={setNotice}
           start={newConversation}
           blocked={blocked}
@@ -906,6 +927,11 @@ export default function NetworkApp() {
           nodes={nodes}
           journal={journal}
           recoveryItems={recoveryItems}
+          managementRows={managementRows}
+          managementOutcomes={graphRecovery.outcomes}
+          managementSummary={managementSummary}
+          managementQuerying={graphRecovery.querying}
+          onQueryManagement={lane=>void queryManagement(lane)}
           machineName={machineName}
           busy={busy}
           managementLocked={managementLocked}
@@ -1224,7 +1250,7 @@ export default function NetworkApp() {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (executionLocked) return;
-                if(!canExecuteNode(targetNode)||blocked(targetNode?.machineId,target)){
+                if(!canExecuteNode(targetNode)||blocked(targetNode?.machineId,target,workspace.trim()||undefined)){
                   setNotice("当前节点不能开始新执行，请先核对执行能力与原操作。");return;
                 }
                 if(collaborate&&!collaborationAllowed){setNotice("当前节点不能调用 Bridge MCP，请关闭协作后使用直接会话。");return;}
@@ -1352,11 +1378,10 @@ export default function NetworkApp() {
               </details>
               {blocked(
                 nodes.find((n) => n.nodeId === target)?.machineId,
-                target,
+                target,workspace.trim()||undefined,
               ) && (
                 <p role="status">
-                  当前 Agent 有未确认操作，请查询原请求；可选择其他可用 Agent
-                  开始独立会话。
+                  {executionReason(targetNode?.machineId,target,workspace.trim()||undefined)||'当前 Agent 有未确认操作，请查询原请求；可选择其他可用 Agent 开始独立会话。'}
                 </p>
               )}
               <button
@@ -1369,7 +1394,7 @@ export default function NetworkApp() {
                   !nodes.find((n) => n.nodeId === target)?.available ||
                   blocked(
                     nodes.find((n) => n.nodeId === target)?.machineId,
-                    target,
+                    target,workspace.trim()||undefined,
                   )
                 }
               >

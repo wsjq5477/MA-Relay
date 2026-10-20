@@ -116,6 +116,19 @@ class AgentNetwork extends MachineRouter {
     const owned=instance?[instance]:this.catalog.instances.filter(i=>node&&i.nodeId===node.nodeId);
     return {nodeId:node?.nodeId,workspaces:owned.filter(i=>i.workspace).map(i=>workspaceKey(this.machine(i.machineId),i.workspace))};
   }
+  managementBlocks(row,params){
+    if(row.lane==='layout')return false;
+    if(row.lane==='relation')return true;
+    const source=row.params||{},machineId=typeof source.machineId==='string'&&source.machineId.trim()?source.machineId:this.catalog.machines.find(m=>m.connectionId&&m.connectionId===source.connectionId)?.machineId;
+    if(!machineId||!this.catalog.machines.some(m=>m.machineId===machineId)||!params.machineId)return true;
+    if(row.lane==='machine')return machineId===params.machineId;
+    const original=this.network.nodes.find(n=>n.nodeId===source.nodeId&&n.machineId===machineId),targetResource=this.pendingResource(params,params.machineId),target=this.network.nodes.find(n=>n.nodeId===targetResource.nodeId&&n.machineId===params.machineId);
+    if(!original||!target)return machineId===params.machineId;
+    if(original.nodeId===target.nodeId||original.machineId===target.machineId&&(original.adapter===target.adapter||original.executable===target.executable))return true;
+    const oldWork=this.catalog.instances.filter(i=>i.nodeId===original.nodeId&&i.workspace).map(i=>workspaceKey(this.machine(i.machineId),i.workspace));
+    const targetWork=[...targetResource.workspaces,...(params.workspace?[workspaceKey(this.machine(params.machineId),params.workspace)]:[])];
+    return oldWork.some(w=>targetWork.includes(w));
+  }
   pendingBlocks(row,params){
     if(!row.machineId)return true;
     const original=this.pendingResource(row.params||{},row.machineId),target=this.pendingResource(params,params.machineId);

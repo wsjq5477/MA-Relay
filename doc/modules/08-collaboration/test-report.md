@@ -1,5 +1,11 @@
 # M08 主从协作测试报告
 
+## 同机独立执行与完整恢复（2026-10-20）
+
+T-M08-190 / M08-F02/F03/F04：alpha.34 d9bf2a5 派生隔离源码、alpha.35 候选。受控定向71/71，Windows生产前端15组/0页面错误，Windows后台纯CJS83/83，Core56/56通过。桌面第二轮600/600通过；最后来源保护的全量结果及包/普通EXE/分发状态以专项实际登记为准。模型0，不改用户profile/原操作，不升级独立SSH。计数为跨模块共享，不能相加；用户现场及完整I06C/I07C未验。
+
+复现：`node --test --test-concurrency=1 desktop/tests/agent-network.test.cjs desktop/tests/graph-operations.test.cjs desktop/tests/management-recovery.test.cjs`；Windows运行`desktop/tests/windows-scoped-execution-recovery.cjs`、`windows-scoped-execution-contract.cjs`。原始失败、日志、截图及最终结果见[专项](../../iterations/I07/scoped-execution-recovery.md)。
+
 2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
 
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复

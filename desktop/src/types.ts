@@ -238,6 +238,7 @@ export interface ToolConnection {
   error?: string;
 }
 export interface AgentInstance extends Agent {
+  nodeId?: string;
   instanceId: string;
   machineId: string;
   connectionId: string;

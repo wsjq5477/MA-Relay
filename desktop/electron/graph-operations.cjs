@@ -22,7 +22,12 @@ class GraphOperationJournal{
   async lookup(method,params,dispatch){
     operationId(params.operationId);const receipt=await dispatch(method,params);
     const row=this.read().find(r=>r.lane===lane(method)&&r.operationId===params.operationId);
-    if(row&&receipt?.operationId===params.operationId&&['confirmed','rejected'].includes(receipt.state)){row.state=receipt.state;if(receipt.error)row.error=receipt.error;this.update(row);}
+    if(row&&receipt?.operationId===params.operationId&&['confirmed','rejected'].includes(receipt.state)){
+      const p=row.params||{},data=receipt.data||{},node=data.node||{};
+      for(const key of ['machineId','connectionId','nodeId'])if((data[key]??node[key])!==undefined&&p[key]!==undefined&&(data[key]??node[key])!==p[key])throw fail('RECEIPT_MISMATCH','原收据来源不匹配，原操作继续保留。');
+      const expected=row.lane==='node'?digest({nodeId:p.nodeId,machineId:p.machineId,action:p.action}):row.lane==='relation'?digest({leaderId:p.leaderId,memberIds:p.memberIds,expectedRevision:p.expectedRevision}):row.lane==='layout'?digest({expectedLayoutRevision:p.expectedLayoutRevision,layout:p.layout}):digest(row.method==='machine.maintainDaemon'?p:{method:row.method,...p});
+      if(receipt.fingerprint&&receipt.fingerprint!==expected)throw fail('RECEIPT_MISMATCH','原收据内容不匹配，原操作继续保留。');
+      row.state=receipt.state;if(receipt.error)row.error=receipt.error;this.update(row);}
     const savedRejection=['nodeOperation','machine.operation'].includes(method)||method==='collaborationOperation'&&row?.error?.code==='COLLABORATION_CAPABILITY';
     return savedRejection&&row?.state==='rejected'?{operationId:row.operationId,state:'rejected',error:row.error}:receipt;
   }

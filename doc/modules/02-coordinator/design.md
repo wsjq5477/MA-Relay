@@ -1,5 +1,11 @@
 # M02 中央协调后台设计
 
+## 管理恢复与执行范围（2026-10-20）
+
+M02-F04：graphPending 共享持久台账投影附加 blockedNodeIds，管理写入互锁仍按机器，nodeRequest/IPC 的 submit/continue/verify 根据原节点、同安装或共享目录检查；上下文解析后由 executionAdmissionCheck 再检查。机器维护 unknown 仍保护同机变更，relation 全局执行保护、layout 独立。确定收据结算增加原来源与可选 lane 内容指纹匹配；不匹配/未知/未找到均不释放。中央要求 scoped-management-execution-v1，旧中央只留设置与显式停止，不修改原请求或重发。
+
+[需求、接口、源码与验收](../../iterations/I07/scoped-execution-recovery.md)。
+
 2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
 
 ## 当前维护进度与持久化边界

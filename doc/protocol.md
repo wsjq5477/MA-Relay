@@ -1,5 +1,11 @@
 # 通信协议与接口
 
+## issue #12：执行资源保护与原查询反馈
+
+wire/IPC 仍为2；中央 hello.capabilities 新增 scoped-management-execution-v1。缺能力时 COORDINATOR_UPGRADE_REQUIRED，preferences/runtimes/shutdown 仍可使用；SSH 的 supportsRecovery 要求不变。graphPending 返回原持久行并可附加 blockedNodeIds，不发送新管理请求。
+
+nodeOperation / machine.operation / collaborationOperation / graphLayoutOperation 均只传原 operationId。仅匹配原 ID、已提供的 machineId/connectionId/nodeId 与原 lane 内容指纹的 confirmed/rejected 才结算；缺失可选来源字段保持旧契约，明确冲突则 RECEIPT_MISMATCH 并保留 unknown。not_found/unknown/异常不证明未发送。DESKTOP_UNCONFIRMED 也用于执行准入仍被原管理资源保护的拒绝，最终上下文检查标记 executionNotDispatched；不扩大旧任务或控制结算证明。[完整专项](iterations/I07/scoped-execution-recovery.md)。
+
 2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
 
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
