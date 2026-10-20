@@ -41,6 +41,7 @@ interface Props {
   executionLocked?: boolean;
   metadataBusy: boolean;
   managementReason?: (machineId:string)=>string;
+  executionReason?: (machineId?:string,nodeId?:string)=>string;
   managementSupported: boolean;
   machineManagementSupported: boolean;
   daemonManagementSupported: boolean;
@@ -433,12 +434,13 @@ export default function MachineInventory(props: Props) {
                       <span className="ui-status" data-tone={state.tone}>
                         {state.label}
                       </span>
-                      {resourceBlocked && <small title={metadataReason}>原操作待核对</small>}
+                      {resourceBlocked && <small title={props.executionReason?.(node.machineId,node.nodeId)}>原操作待核对</small>}
                     </div>
                     <div className="inventory-node-actions">
                       {(node.connected && node.status !== "needs_check") ? (
                         <button
                           className="btn small inventory-start"
+                          title={props.executionReason?.(node.machineId,node.nodeId)}
                           disabled={!canStart}
                           onClick={() => props.start(node)}
                         >

@@ -1,5 +1,11 @@
 # 对象、身份与持久数据
 
+## 管理恢复展示投影
+
+graph-pending.json 仍保存原数组、lane、operationId、method、params、fingerprint、state、time、error；没有迁移、清空或新 ID 替换。graphPending 只读响应附加可选 blockedNodeIds，表示当前快照中受此管理 unknown 保护的执行节点，覆盖请求自选目录时须再次判断。节点/机器原 localStorage key 与旧单对象兼容，中央行优先、按 lane+operationId 去重。
+
+查询 loading、逐项结果和统计只在前端内存；不冒充原收据或改写时间。手动查询结果包含尝试、confirmed、rejected、unresolved、not_found、failed；自动轮询不覆盖手动反馈。显示 operationId 的确定性哈希标签，不显示完整 ID、params 或远端原始错误；仅展示受校验错误码、原时间和最近查询时间。[规则与证据](iterations/I07/scoped-execution-recovery.md)。
+
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
 
 NativeReference.snapshot 新增可选 nativeProtocol（v1/v2）；缺省按历史 v2 核对，原生绑定仍唯一且不可改写。V1 创建响应丢失时 invocation 已持久但没有可猜测绑定，保留 unknown。独立 MCP 连接行按需保存 nativeProtocol，配置与删除使用原布局；任务、收据和 Conversation ID 不迁移。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。

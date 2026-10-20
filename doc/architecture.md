@@ -1,5 +1,11 @@
 # AgentBridge 整体架构
 
+## 管理未知与执行资源的独立准入
+
+M01 使用单一 `useGraphRecovery` 读取中央 graphPending，并合并原节点/机器本地意图；概览、图、详情、表单和设置消费同一投影。管理写入沿用 GraphOperationJournal 的机器范围互锁。新执行由 M03 的 managementBlocks 判定原节点、同机器同适配器/安装、共享工作目录；中央在请求入口和上下文实例解析后复验，前端放行不构成后台授权。机器维护 unknown 保护同机执行，relation unknown 保护全局执行，layout 不阻断执行，来源不全继续保守。
+
+hello 增加 scoped-management-execution-v1，旧中央须显式停止并重开；SSH 原对象能力门槛不变。原 Session、任务、权限、台账格式和模型层不变。[完整流程与证据](iterations/I07/scoped-execution-recovery.md)。
+
 2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
 
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复

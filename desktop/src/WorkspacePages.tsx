@@ -1,4 +1,5 @@
 import type {DetailRead} from './types';
+import {laneNames,redactedOperation,recoveryKey,type RecoveryRow,type QueryOutcome,type ManagementLane} from './management-recovery';
 import { useId, useRef, useState, type ReactNode } from "react";
 import McpSettings from './McpSettings';
 import {
@@ -690,6 +691,11 @@ export interface SettingsPageProps {
   nodes: AgentNode[];
   journal: Journal[];
   recoveryItems: RecoveryItem[];
+  managementRows?:RecoveryRow[];
+  managementOutcomes?:Record<string,QueryOutcome>;
+  managementSummary?:string;
+  managementQuerying?:boolean;
+  onQueryManagement?:(lane:ManagementLane)=>void;
   machineName: (id?: string) => string;
   busy: boolean;
   managementLocked: boolean;
@@ -719,6 +725,7 @@ export function SettingsPage({
   nodes,
   journal,
   recoveryItems,
+  managementRows=[],managementOutcomes={},managementSummary='',managementQuerying=false,onQueryManagement,
   machineName,
   busy,
   managementLocked,
@@ -881,7 +888,7 @@ export function SettingsPage({
         <section
           className={
             "settings-card settings-recovery" +
-            (journal.length ? " pending-operations" : "")
+            (journal.length+managementRows.length ? " pending-operations" : "")
           }
           aria-labelledby="settings-recovery"
         >
@@ -891,7 +898,7 @@ export function SettingsPage({
               <h2 id="settings-recovery">未确认操作</h2>
               <p>沿原请求核对结果，保留原执行归属。</p>
             </div>
-            <span className="workspace-count">{journal.length}</span>
+            <span className="workspace-count">{journal.length+managementRows.length}</span>
           </div>
           {journal.length > 0 ? (
             <>
@@ -940,7 +947,7 @@ export function SettingsPage({
                 </button>
               </div>
             </>
-          ) : (
+          ) : managementRows.length?null:(
             <div className="settings-clear-state">
               <CheckCheck size={20} aria-hidden="true" />
               <div>
@@ -949,6 +956,18 @@ export function SettingsPage({
               </div>
             </div>
           )}
+          {managementRows.length>0&&<div className="settings-pending-list">
+            <p>任务 {journal.length} 项 · 节点 {managementRows.filter(r=>r.lane==='node').length} 项 · 机器 {managementRows.filter(r=>r.lane==='machine').length} 项 · 授权 {managementRows.filter(r=>r.lane==='relation').length} 项 · 布局 {managementRows.filter(r=>r.lane==='layout').length} 项</p>
+            {managementSummary&&<p role="status">{managementSummary}</p>}
+            {managementRows.map(row=>{const result=managementOutcomes[recoveryKey(row)],action=String(row.params.action||row.method||'管理'),safeCode=row.error?.code&&/^[A-Z][A-Z0-9_]{0,63}$/.test(row.error.code)?row.error.code:undefined;return <article className="settings-pending" key={recoveryKey(row)}>
+              <div className="settings-pending-heading"><strong>{laneNames[row.lane]} · {({attach:'接入',disconnect:'断开',remove:'移除'} as Record<string,string>)[action]||laneNames[row.lane]}</strong><time>{row.time?time(row.time):'历史时间未记录'}</time></div>
+              <span>{machineName(typeof row.params.machineId==='string'?row.params.machineId:machines.find(m=>m.connectionId&&m.connectionId===row.params.connectionId)?.machineId)} · {nodes.find(n=>n.nodeId===row.params.nodeId)?.name||laneNames[row.lane]} · {redactedOperation(row.operationId)}</span>
+              {safeCode&&<code>{safeCode}</code>}
+              <p>{result?.message||'原回应未确认，记录继续保留；只查询原操作。'}</p>
+              {result&&<small>上次查询：{time(result.at)}{result.code?' · '+result.code:''}</small>}
+            </article>;})}
+            {(['node','machine','relation','layout'] as ManagementLane[]).filter(lane=>managementRows.some(row=>row.lane===lane)).map(lane=><button key={lane} className="btn" disabled={busy||managementQuerying} onClick={()=>onQueryManagement?.(lane)}>{managementQuerying?'正在查询原管理操作…':{node:'查询原节点操作',machine:'查询原机器操作',relation:'查询原授权操作',layout:'查询原布局操作'}[lane]}</button>)}
+          </div>}
         </section>
         {removed.length > 0 && (
           <section

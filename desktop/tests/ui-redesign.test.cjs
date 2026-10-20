@@ -795,3 +795,10 @@ test('incompatible OpenCode never appears connected or executable; safe history 
   const m=machine({progressWarning:{code:'SSH_PROGRESS_WARNING',causeCode:'EPERM',message:'进度显示更新失败（EPERM），上传继续；发送维护前仍须保存本地台账。'}});
   const html=render(MachineInventory,inventoryProps({machines:[m]}));assert.match(html,/进度显示更新失败（EPERM）/);assert.doesNotMatch(html,/后台已升级/);
  });
+
+ test('settings projects all management lanes with task totals and safe original identity',()=>{
+ const lanes=['node','machine','relation','layout'],rows=lanes.map(lane=>({lane,operationId:'sensitive-original-'+lane,method:'manageNode',params:{nodeId:'node-a',machineId:'machine-a',action:'attach'},state:'unknown',time:timestamp,error:{code:'NATIVE_START_TIMEOUT',message:'PRIVATE_REMOTE_ERROR'}}));
+ const html=render(SettingsPage,settingsProps({managementRows:rows}));assert.match(plainText(html),/任务 0 项 · 节点 1 项 · 机器 1 项 · 授权 1 项 · 布局 1 项/);assert(!html.includes('当前没有未确认操作'));assert(!html.includes('sensitive-original'));assert(!html.includes('PRIVATE_REMOTE_ERROR'));assert(html.includes('NATIVE_START_TIMEOUT'));assert(html.includes('操作 #'));
+ for(const name of ['节点','机器','授权','布局'])assert(!buttonNamed(html,'查询原'+name+'操作').disabled);
+ const loading=render(SettingsPage,settingsProps({managementRows:rows,managementQuerying:true}));assert.equal(buttons(loading).filter(b=>b.text==='正在查询原管理操作…'&&b.disabled).length,4);
+ });

@@ -594,3 +594,34 @@ test('integrated standalone MCP preserves a durable preparation refusal and neve
  await assert.rejects(f.router.collaborationTool(foreign,'task_result',{taskId:'missing-original-task'},'foreign',leader.machineId),{code:'COLLABORATION_FORBIDDEN'});
  assert.deepEqual(receipt,retained);assert.deepEqual(d,retainedDelegation);
 });
+
+test('node management uncertainty uses original node, installation and shared workspace instead of the whole machine',async t=>{
+ const f=await setup(t),a=f.nodes.find(n=>n.adapter==='claude'),b=f.nodes.find(n=>n.machineId===a.machineId&&n.adapter==='codex'),row={lane:'node',params:{nodeId:a.nodeId,machineId:a.machineId,action:'attach'}};
+ assert.equal(f.router.managementBlocks(row,{nodeId:b.nodeId,machineId:b.machineId}),false);assert.equal(f.router.managementBlocks(row,{nodeId:a.nodeId,machineId:a.machineId}),true);
+ const alias={...a,nodeId:'historical-installation-alias'};f.router.network.nodes.push(alias);assert.equal(f.router.managementBlocks(row,{nodeId:alias.nodeId,machineId:alias.machineId}),true);
+ const shared=f.router.catalog.instances.find(i=>i.nodeId===a.nodeId);assert(shared);assert.equal(f.router.managementBlocks(row,{nodeId:b.nodeId,machineId:b.machineId,workspace:shared.workspace}),true);
+ assert.equal(f.router.managementBlocks({lane:'node',params:{machineId:a.machineId}},{nodeId:b.nodeId,machineId:b.machineId}),true);
+ assert.equal(f.router.managementBlocks({lane:'node',params:{nodeId:a.nodeId}},{nodeId:b.nodeId,machineId:b.machineId}),true);
+ for(const machineId of ['', ' ', 'unrecognized-machine'])assert.equal(f.router.managementBlocks({lane:'node',params:{nodeId:a.nodeId,machineId}},{nodeId:b.nodeId,machineId:b.machineId}),true);
+ assert.equal(f.router.managementBlocks({lane:'machine',params:{machineId:a.machineId}},{nodeId:b.nodeId,machineId:b.machineId}),true);
+ assert.equal(f.router.managementBlocks({lane:'relation',params:{}},{nodeId:b.nodeId,machineId:b.machineId}),true);
+ assert.equal(f.router.managementBlocks({lane:'layout',params:{}},{nodeId:b.nodeId,machineId:b.machineId}),false);
+});
+test('production coordinator graph projection and controlled submission agree; original unknown is never replayed or released',async t=>{
+ const f=await setup(t),a=f.nodes.find(n=>n.adapter==='claude'),b=f.nodes.find(n=>n.machineId===a.machineId&&n.adapter==='codex'),host=f.hosts.get(a.machineId),{GraphOperationJournal}=require('../electron/graph-operations.cjs'),{digest}=require('../electron/graph-layout.cjs');
+ await f.router.call('attachNode',{nodeId:b.nodeId});
+ const params={operationId:'original-node-intent',nodeId:a.nodeId,machineId:a.machineId,action:'attach'},row={lane:'node',operationId:params.operationId,method:'manageNode',params,fingerprint:digest(params),state:'unknown',time:timestamp};new GraphOperationJournal(f.directory).update(row);
+ const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());const projection=await service.call({method:'graphPending',params:{}});assert(projection.ok);assert(projection.result[0].blockedNodeIds.includes(a.nodeId));assert(!projection.result[0].blockedNodeIds.includes(b.nodeId));
+ const blocked=await service.call({method:'nodeRequest',params:{nodeId:a.nodeId,machineId:a.machineId,op:'submit',requestId:'blocked',message:'controlled',collaboration:false}});assert.equal(blocked.error.code,'DESKTOP_UNCONFIRMED');assert.equal(host.executions,0);
+ const request={nodeId:b.nodeId,machineId:b.machineId,op:'submit',requestId:'independent-original',message:'controlled',workspace:'D:/independent',collaboration:false};const result=await service.call({method:'nodeRequest',params:request});assert(result.ok,JSON.stringify(result));assert.equal(host.executions,1);
+ assert((await service.call({method:'nodeRequest',params:request})).ok);assert.equal(host.executions,1);assert.deepEqual(new GraphOperationJournal(f.directory).pending()[0],row);
+ const missing=await service.call({method:'nodeOperation',params:{operationId:params.operationId}});assert.equal(missing.result.state,'not_found');assert.equal(new GraphOperationJournal(f.directory).pending().length,1);
+});
+test('final resolved context workspace still protects shared resources before a native prompt',async t=>{
+ const f=await setup(t),a=f.nodes.find(n=>n.adapter==='claude'),b=f.nodes.find(n=>n.machineId===a.machineId&&n.adapter==='codex'),host=f.hosts.get(a.machineId),{GraphOperationJournal}=require('../electron/graph-operations.cjs');
+ await f.router.call('attachNode',{nodeId:b.nodeId});
+ new GraphOperationJournal(f.directory).update({lane:'node',operationId:'shared-original',method:'manageNode',params:{operationId:'shared-original',nodeId:a.nodeId,machineId:a.machineId,action:'attach'},state:'unknown',time:timestamp});
+ const original=host.call.bind(host),oldWorkspace=f.router.catalog.instances.find(i=>i.nodeId===a.nodeId).workspace;host.call=async(m,p)=>{const value=await original(m,p);if(m==='context'){host.agents.find(a=>a.agentId===value.agentId).workspace=oldWorkspace;return {...value,workspace:oldWorkspace};}return value;};
+ const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());const result=await service.call({method:'nodeRequest',params:{nodeId:b.nodeId,machineId:b.machineId,op:'submit',requestId:'resolved-alias',message:'controlled',workspace:'D:/apparently-independent',collaboration:false}});
+ assert.equal(result.error.code,'DESKTOP_UNCONFIRMED');assert.equal(host.executions,0);assert.equal(new GraphOperationJournal(f.directory).pending().length,1);
+});

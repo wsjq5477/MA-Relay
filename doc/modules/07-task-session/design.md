@@ -1,5 +1,11 @@
 # M07 任务、会话、交互控制与恢复设计
 
+## 管理恢复与执行范围（2026-10-20）
+
+M07-F01/F03/F05：管理 unknown 不再自动扩大成所有同机节点的执行占位。原节点、同安装/共享目录、机器维护/授权和来源缺失仍按各自范围保护；原任务 pendingBlocks、blockedNodeIds、原 ID 查询、历史和 Session 绑定规则保持。节点请求和旧 IPC 均在后台解析实例后复验，不能通过前端、目录别名或直接 IPC 绕过。查询反馈仅说明收据核对结果，不把 confirmed 元数据收据当成任务成功。
+
+[需求、接口、源码与验收](../../iterations/I07/scoped-execution-recovery.md)。
+
 2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
 
 ## 2026-10-20：OpenCode 1.x / 2.x 兼容修复

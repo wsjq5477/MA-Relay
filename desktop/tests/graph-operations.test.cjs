@@ -72,3 +72,11 @@ test('scope isolation preserves same-machine, missing-source and authority barri
  await assert.rejects(journal.save('saveCollaboration',{operationId:'relation',expectedRevision:0,leaderId:null,memberIds:[]},dispatch),{code:'GRAPH_UNCONFIRMED'});
  delete row.params.machineId;journal.update(row);await assert.rejects(journal.save('machine.disconnect',{operationId:'no-source',machineId:'remote',connectionId:'remote-conn'},dispatch),{code:'GRAPH_UNCONFIRMED'});assert.equal(writes,1);
 });
+
+test('original graph query never settles a foreign machine or changed content receipt',async t=>{
+ const {journal}=fixture(t),{digest}=require('../electron/graph-layout.cjs'),params={operationId:'original-source',machineId:'local',nodeId:'node-a',action:'attach'};journal.update({lane:'node',method:'manageNode',operationId:params.operationId,params,state:'unknown',fingerprint:digest(params)});
+ const receipt={operationId:params.operationId,state:'confirmed',fingerprint:digest({nodeId:params.nodeId,machineId:params.machineId,action:params.action}),data:{node:{nodeId:params.nodeId,machineId:params.machineId}}};
+ await assert.rejects(journal.lookup('nodeOperation',{operationId:params.operationId},async()=>({...receipt,data:{node:{nodeId:params.nodeId,machineId:'foreign'}}})),{code:'RECEIPT_MISMATCH'});assert.equal(journal.pending().length,1);
+ await assert.rejects(journal.lookup('nodeOperation',{operationId:params.operationId},async()=>({...receipt,fingerprint:'changed'})),{code:'RECEIPT_MISMATCH'});assert.equal(journal.pending().length,1);
+ assert.equal((await journal.lookup('nodeOperation',{operationId:params.operationId},async()=>receipt)).state,'confirmed');assert.equal(journal.pending().length,0);
+});

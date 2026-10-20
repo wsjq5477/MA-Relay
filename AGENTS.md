@@ -1,5 +1,7 @@
 # AgentBridge 开发与文档协作
 
+2026-10-20 issue #12：当前隔离源码修复同机独立节点被管理 unknown 误锁、原操作查询无反馈及设置台账漏项。管理写入仍按机器保护，执行按原节点/同安装/共享目录保护；机器维护、授权和来源缺失继续保守保护。本地 **0.6.0-alpha.35** EXE、包核验和普通无调试 EXE 五组验证已完成，修复位于 PR #13；尚未合并/公开发布，公开仍 alpha.34，未把用户现场或完整 I06C/I07C 改为通过。[需求、开发、验收与交付](doc/iterations/I07/scoped-execution-recovery.md)。
+
 2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](doc/iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
 
 2026-10-20发布前准备记录 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](doc/iterations/I07/alpha34-release.md)登记；当时仍在发布准备阶段，旧包/标签范围不变。
