@@ -1,5 +1,9 @@
 # M07 任务、会话、交互控制与恢复设计
 
+## 当前维护进度与持久化边界
+
+M07-F03/F04：明确未发送持久化拒绝可结算该原维护意图；已发unknown保持原ID查询，当前进度异常不是任务/取消终态。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
 ## 当前版本准入与管理作用域
 
 M07-F03/F04：版本改变或不兼容不能遮蔽原已派发收据。旧配置恢复失败显式NATIVE_VERSION，不创建替代Session。历史NATIVE_START_TIMEOUT保持unknown，只查原ID；仅本地明确版本准入拒绝可确定结算新管理意图。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。

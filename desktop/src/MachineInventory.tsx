@@ -351,6 +351,7 @@ export default function MachineInventory(props: Props) {
                 </details>
               </div>
             </header>
+            {machine.progressWarning && <p className="inventory-machine-error" role="status">{machine.progressWarning.message}</p>}
             {machine.error && (
               <p className="inventory-machine-error" role="status">
                 {machine.error}

@@ -1,5 +1,9 @@
 # M02 中央协调后台设计
 
+## 当前维护进度与持久化边界
+
+M02-F04：进度通知仅内存合并；正确性通知同步保存，失败恢复原机器投影。要求maintenance-persistence-v1避免复用旧中央。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
 ## 当前版本准入与管理作用域
 
 M02-F04：中央要求三项能力owned-object-controls-v1/scoped-management-v1/opencode-v2-admission-v1；旧中央仍允许设置/运行信息/显式停止。GraphOperationJournal的node/machine按machineId或connectionId冲突，缺来源和relation保守互锁。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。

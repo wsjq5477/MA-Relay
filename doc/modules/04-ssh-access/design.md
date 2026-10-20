@@ -1,5 +1,9 @@
 # M04 SSH 机器接入设计
 
+## 当前维护进度与持久化边界
+
+M04-F04/F06：ACK不触发目录落盘，observer异常不影响上传；最终目录与原维护意图全部保存才发输入。原错误/安全details保留，仅清已验证当前upload。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
 ## 当前版本准入与管理作用域
 
 M04-F03/F05：原空闲SSH机器维护不因其他机器节点unknown禁用；同机任务/未知仍保护，预览无写入且确认后才维护。精确收入alpha.31原manifest；旧SSH对象路由仍按原能力门禁，不能把信任等同新2.x启动语义。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。

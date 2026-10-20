@@ -1,5 +1,9 @@
 # I07 开发分解与当前记录
 
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+已同步隔离alpha.32修复分支与当前整合源码，复用atomicWrite，分离progressOnly、最终checkpoint及安全错误/清理；保留CT-04/CT-05原增量与旧包摘要。 [完整设计、实测与边界](maintenance-persistence.md)。
+
 ## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 从ff41946隔离完成共享版本判定、Core旧配置启动前复验、机器范围管理hook及中央台账、旧中央能力门禁和alpha.31精确manifest。原CT-04/MCP脏工作区未纳入。 [需求、实现、验证与边界](version-management-recovery.md)。

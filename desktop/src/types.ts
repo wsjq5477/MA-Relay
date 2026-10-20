@@ -190,6 +190,7 @@ export interface Machine {
   credentialSaveSupported?: boolean;
   credentialAvailable?:boolean;
   daemonVersion?: string;
+  progressWarning?: {code:string;causeCode:string;message:string};
   installProgress?: {phase: string; completedBytes: number; totalBytes: number};
 }
 export type SshAuthKind = "password" | "key" | "agent";

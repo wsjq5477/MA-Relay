@@ -1,5 +1,9 @@
 # M05 Linux 机器后台设计
 
+## 当前维护进度与持久化边界
+
+M05-F04/F06：本片不改变daemon原请求或维护协议；完整上传/解包/逐文件校验后仍待中央最终保存，再发送原维护输入，安全失败保留旧版本/身份。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
 ## 当前版本准入与管理作用域
 
 M05-F02/F04：Linux包包含MachineHost/Core的原OpenCode版本复验与快速API/认证拒绝，hello声明新增能力。旧daemon需在原机器空闲时显式升级；原对象/收据身份和协议2不变。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。

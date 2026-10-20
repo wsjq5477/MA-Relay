@@ -1,5 +1,9 @@
 # AgentBridge 项目资料
 
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+维护上传进度只更新内存并合并通知；本地诊断失败不中止SFTP，最终机器/维护台账必须保存才发送。公开alpha.33候选与主工作区CT-04/CT-05源码范围分开。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
 ## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 issues #8/#9：严格OpenCode 2.x准入与旧配置快速拒绝；未知节点操作按机器阻断，另一空闲SSH可打开维护并确认。Windows EXE、校验附件已公开，匿名完整下载核验一致。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。

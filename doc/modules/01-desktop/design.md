@@ -1,5 +1,9 @@
 # M01 桌面界面与交互设计
 
+## 当前维护进度与持久化边界
+
+M01-F03：机器显示安全进度告警，上传继续不等同升级成功；最终保存拒绝保留具体原因。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
 ## 当前版本准入与管理作用域
 
 M01-F04/F05/F07：概览、关系图和设置按目标机器展示管理阻断原因；异机unknown不禁空闲机器维护。同机、来源不足、原授权pending和全局同步错误继续保护；OpenCode1.x明确版本不兼容，需要2.x，历史保留。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。

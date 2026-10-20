@@ -5,13 +5,13 @@ const { randomUUID } = require('node:crypto');
 const { Client, utils } = require('ssh2');
 const { KnownHosts, problem } = require('./ssh-known-hosts.cjs');
 const { CredentialStore } = require('./ssh-credentials.cjs');
-const { SshInstaller, quote, remoteExec } = require('./ssh-install.cjs');
+const { SshInstaller, quote, remoteExec, progressFailure } = require('./ssh-install.cjs');
 const { FramedStream } = require('./machine-protocol.cjs');
 const {rejectedError}=require('./daemon-rejection.cjs');
 const {supportsRecovery}=require('./runtime-capabilities.cjs');
 
 const SSH_METHODS = new Set(['machine.createSshDraft', 'credential.provide', 'machine.testSsh', 'machine.trustHost', 'machine.connectSsh', 'machine.reconnect', 'machine.disconnect']);
-const {digest,operationId}=require('./graph-layout.cjs');
+const {digest,operationId,atomicWrite}=require('./graph-layout.cjs');
 const lifecycleMethods=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.maintainDaemon']);
 const fatal = new Set(['SSH_HOST_KEY_CHANGED', 'SSH_HOST_KEY_REVOKED', 'SSH_HOST_CA_UNSUPPORTED', 'SSH_KNOWN_HOSTS_INVALID', 'DAEMON_IDENTITY_CHANGED', 'MACHINE_IDENTITY_CHANGED', 'PROTOCOL_MISMATCH', 'DAEMON_OWNER_CONFLICT', 'DAEMON_PROTOCOL', 'REMOTE_DIRECTORY_UNSAFE', 'SSH_PACKAGE_CHECKSUM', 'SSH_PLATFORM_UNSUPPORTED', 'SSH_LIBC_UNSUPPORTED']);
 function safeFailure(error) {
@@ -131,10 +131,22 @@ class SshManager {
     }
   }
   save() {
-    const fields = ['connectionId', 'revision', 'name', 'host', 'port', 'username', 'authKind', 'keyPath', 'credentialRef', 'autoReconnect', 'machineId', 'daemonId', 'trustedFingerprint', 'identity', 'stage', 'online', 'lastCursor', 'lastSeenAt', 'lastSyncedAt', 'error', 'removed','maintenance','daemonVersion'];
+    const fields = ['connectionId', 'revision', 'name', 'host', 'port', 'username', 'authKind', 'keyPath', 'credentialRef', 'autoReconnect', 'machineId', 'daemonId', 'trustedFingerprint', 'identity', 'stage', 'online', 'lastCursor', 'lastSeenAt', 'lastSyncedAt', 'error', 'removed','maintenance','daemonVersion','progressWarning'];
     const connections = this.connections.map(connection => Object.fromEntries(fields.filter(key => connection[key] !== undefined).map(key => [key, connection[key]])));
-    fs.mkdirSync(path.dirname(this.file), { recursive: true, mode: 0o700 }); const temp = this.file + '.' + randomUUID() + '.tmp';
-    fs.writeFileSync(temp, JSON.stringify({ version: 1, connections, operations: this.operations, lifecycleOperations:this.lifecycleOperations }, null, 2), { mode: 0o600 }); fs.renameSync(temp, this.file);
+    fs.mkdirSync(path.dirname(this.file), { recursive: true, mode: 0o700 });
+    atomicWrite(this.file,{version:1,connections,operations:this.operations,lifecycleOperations:this.lifecycleOperations});
+  }
+  progress(connection,progress){
+    connection.progress=progress;
+    const previous=connection.progressNotice,now=Date.now();
+    if(previous&&previous.phase===progress.phase&&now-previous.time<500&&progress.completedBytes!==progress.totalBytes)return;
+    connection.progressNotice={phase:progress.phase,time:now};
+    try{this.options.onChange?.(this.publicState(connection),{progressOnly:true});}
+    catch(error){connection.progressWarning=progressFailure(error,progress);}
+  }
+  persistenceFailure(error,connection,phase,extracted=false){
+    const causeCode=['EPERM','EACCES','EBUSY','ENOSPC','EDQUOT'].includes(error?.code)?error.code:'LOCAL_SAVE_FAILED',progress=connection.progress||{};
+    return Object.assign(problem('DAEMON_PERSIST_FAILED','本地机器/维护台账保存失败（'+causeCode+'）；已确认 '+(progress.completedBytes||0)+' / '+(progress.totalBytes||0)+' 字节。原维护输入未发送，未切换后台，原版本与历史保留。'),{details:{stage:phase,causeCode,completedBytes:progress.completedBytes||0,totalBytes:progress.totalBytes||0,extracted,remoteInputSent:false}});
   }
   state(connection, stage, error) {
     connection.stage = stage; connection.online = stage === 'online';
@@ -143,7 +155,7 @@ class SshManager {
   }
   touch(connection) { connection.lastSeenAt = new Date().toISOString(); }
   publicState(connection) {
-    return { connectionId: connection.connectionId, ...(connection.machineId ? { machineId: connection.machineId } : {}), revision:connection.revision, removed:!!connection.removed, name: connection.name, host: connection.host, port: connection.port, username: connection.username, authKind: connection.authKind === 'privateKey' ? 'key' : connection.authKind, ...(connection.keyPath ? { keyPath: connection.keyPath } : {}), kind: 'ssh', platform: 'linux', stage: connection.stage, status: connection.stage, connectionState: connection.stage, online: connection.online, daemonVersion:connection.daemonVersion||connection.identity?.daemonVersion,objectRoutingSupported:connection.objectRoutingSupported,daemonMaintenance:connection.maintenance?{operationId:connection.maintenance.operationId,state:connection.maintenance.state,action:connection.maintenance.action}:undefined,credentialAvailable: this.credentials.available(connection), credentialSaveSupported: this.credentials.saveSupported, ...(connection.lastSeenAt ? { lastSeenAt: connection.lastSeenAt } : {}), ...(connection.lastSyncedAt ? { lastSyncedAt: connection.lastSyncedAt } : {}), ...(connection.error ? { error: connection.error.message, connectionError: connection.error } : {}), ...(connection.probe ? { probe: connection.probe } : {}), ...(connection.progress ? { installProgress: connection.progress } : {}) };
+    return { connectionId: connection.connectionId, ...(connection.machineId ? { machineId: connection.machineId } : {}), revision:connection.revision, removed:!!connection.removed, name: connection.name, host: connection.host, port: connection.port, username: connection.username, authKind: connection.authKind === 'privateKey' ? 'key' : connection.authKind, ...(connection.keyPath ? { keyPath: connection.keyPath } : {}), kind: 'ssh', platform: 'linux', stage: connection.stage, status: connection.stage, connectionState: connection.stage, online: connection.online, daemonVersion:connection.daemonVersion||connection.identity?.daemonVersion,objectRoutingSupported:connection.objectRoutingSupported,daemonMaintenance:connection.maintenance?{operationId:connection.maintenance.operationId,state:connection.maintenance.state,action:connection.maintenance.action}:undefined,credentialAvailable: this.credentials.available(connection), credentialSaveSupported: this.credentials.saveSupported, ...(connection.lastSeenAt ? { lastSeenAt: connection.lastSeenAt } : {}), ...(connection.lastSyncedAt ? { lastSyncedAt: connection.lastSyncedAt } : {}), ...(connection.error ? { error: connection.error.message, connectionError: connection.error } : {}), ...(connection.probe ? { probe: connection.probe } : {}), ...(connection.progress ? { installProgress: connection.progress } : {}),...(connection.progressWarning?{progressWarning:connection.progressWarning}:{}) };
   }
   states() { return this.connections.map(connection => this.publicState(connection)); }
   find(params) {
@@ -186,7 +198,7 @@ class SshManager {
   async lifecycle(method,params){
     operationId(params.operationId);
     if(method==='machine.maintainDaemon')return this.maintainDaemon(params).catch(error=>{
-      if(this.lifecycleOperations.some(r=>r.operationId===params.operationId)||['MACHINE_BUSY','REVISION_CONFLICT','OPERATION_CONFLICT','INSTALL_PREVIEW_CHANGED','INVALID_INPUT'].includes(error.code))throw error;
+      if(this.lifecycleOperations.some(r=>r.operationId===params.operationId)||['MACHINE_BUSY','REVISION_CONFLICT','OPERATION_CONFLICT','INSTALL_PREVIEW_CHANGED','INVALID_INPUT','SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED','SSH_PACKAGE_CHECKSUM','SSH_PACKAGE_EXTRACT'].includes(error.code))throw error;
       const c=this.connections.find(row=>row.connectionId===params.connectionId);
       if(c&&['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(error.code)){this.state(c,'needs_credentials',error);throw error;}
       throw problem('DAEMON_STAGE_REJECTED','原维护未发送；登录、暂存或校验失败，原后台与历史保留。');
@@ -263,17 +275,31 @@ class SshManager {
       if(config.previewId!==probe.previewId||config.expectedVersion!==probe.daemonVersion)throw problem('INSTALL_PREVIEW_CHANGED','维护摘要已变化，请重新检查。');
       const targetVersion=config.action==='upgrade'?probe.targetVersion:config.action==='rollback'?probe.rollbackVersion:undefined;
       if(['upgrade','rollback'].includes(config.action)&&(!targetVersion||config.targetVersion!==targetVersion))throw problem('INSTALL_PREVIEW_CHANGED','目标版本不符合当前可信摘要。');
-      c.autoReconnect=false;clearTimeout(this.reconnectTimers.get(c.connectionId));this.reconnectTimers.delete(c.connectionId);this.save();
+      c.autoReconnect=false;clearTimeout(this.reconnectTimers.get(c.connectionId));this.reconnectTimers.delete(c.connectionId);delete c.progressNotice;delete c.progressWarning;try{this.save();}catch(error){throw this.persistenceFailure(error,c,'preparing');}
       const client=await this.authenticate(c);
-      const staged=await this.installer.stageMaintenance(client,probe,params.operationId,progress=>{c.progress=progress;this.options.onChange?.(this.publicState(c));});
+      const staged=await this.installer.stageMaintenance(client,probe,params.operationId,progress=>this.progress(c,progress));
+      if(staged.progressWarning)c.progressWarning ||= staged.progressWarning;
       // Verify the current file tree once for this input; compatibility release()
       // still reads and authenticates each pinned manifest against that tree.
       const bundle=this.installer.bundle(),from=this.installer.release(probe.daemonVersion,bundle),target=targetVersion?this.installer.release(targetVersion,bundle):null;
       const input={action:config.action,operationId:params.operationId,home:probe.home,installPath:probe.installPath,stateDirectory:probe.stateDirectory,ownerCoordinatorId:this.options.coordinatorId,profileId:probe.profileId,daemonId:c.daemonId,uid:probe.uid,from:{version:from.manifest.version,digest:from.digest,manifest:from.manifest},target:target?{version:target.manifest.version,digest:target.digest,manifest:target.manifest}:null,controller:staged.release,releases:[staged.release,...(bundle.manifest.compatibleDaemons||[]).map(pin=>{const r=this.installer.release(pin.version,bundle);return {version:r.manifest.version,digest:r.digest,manifest:r.manifest};})]};
       const row={operationId:params.operationId,state:'unknown',remoteLaunched:false,fingerprint,remoteInput:input,controller:staged.directory,data:{action:'maintainDaemon',remoteAction:config.action,machineId:c.machineId,connectionId:c.connectionId,revision:c.revision+1}};
-      const previous=this.lifecycleOperations;this.lifecycleOperations=[...previous,row];try{this.save();}catch(e){this.lifecycleOperations=previous;throw e;}
-      c.revision++;c.maintenance={operationId:row.operationId,state:'unknown',action:config.action};this.hosts.get(c.connectionId)?.detach(problem('DESKTOP_TRANSPORT','后台维护中，原执行保持。'));delete c.probe;delete c.progress;this.state(c,'maintaining');
-      row.remoteLaunched=true;this.save();
+      // Progress is optional, but both catalogs and the original intent must be
+      // durable before any maintenance input can reach the remote controller.
+      try{
+        this.options.onChange?.(this.publicState(c));
+        this.lifecycleOperations=[...this.lifecycleOperations,row];this.save();
+        c.revision++;c.maintenance={operationId:row.operationId,state:'unknown',action:config.action};this.hosts.get(c.connectionId)?.detach(problem('DESKTOP_TRANSPORT','后台维护中，原执行保持。'));delete c.probe;this.state(c,'maintaining');
+        row.remoteLaunched=true;this.save();
+      }catch(error){
+        const failure=this.persistenceFailure(error,c,'before-maintenance-input',true);
+        row.remoteLaunched=false;row.state='rejected';row.error={code:failure.code,message:failure.message,details:failure.details};
+        if(!this.lifecycleOperations.includes(row))this.lifecycleOperations.push(row);
+        c.maintenance={operationId:row.operationId,state:'rejected',action:config.action};c.error=row.error;c.stage='disconnected_manual';c.online=false;
+        try{this.save();}catch{/* The central original intent remains durable if this store is unavailable. */}
+        throw failure;
+      }
+      delete c.progress;
       try{await this.installer.remoteMaintenance(client,input,row.controller);}
       catch(error){
         // A rejected channel open proves the original input never left this
@@ -448,7 +474,7 @@ class SshManager {
       const operation = this.operations[input.operationId] = { connectionId: connection.connectionId, previewId: probe.previewId, status: 'pending', updatedAt: new Date().toISOString() }; this.save();
       connection.autoReconnect = true; clearTimeout(this.clients.get(connection.connectionId).idleTimer);
       this.state(connection, probe.installNeeded ? 'installing' : 'starting');
-      const install = await this.installer.install(client, probe, input.operationId, progress => { connection.progress = progress; this.options.onChange?.(this.publicState(connection)); });
+      const install = await this.installer.install(client, probe, input.operationId, progress => this.progress(connection,progress));
       delete connection.progress; this.state(connection, 'starting');
       const common = ' --state-directory ' + quote(install.stateDirectory) + ' --owner ' + quote(this.options.coordinatorId) + ' --profile ' + quote(install.profileId);
       const raw = await remoteExec(client, quote(install.node) + ' ' + quote(path.posix.join(install.versionPath, 'desktop/electron/machine-daemon.cjs')) + common, '', { timeoutMs: 20000, errorCode: 'DAEMON_START_FAILED', errorMessage: 'Linux 后台启动失败，请检查目录拥有权和运行环境。' });
