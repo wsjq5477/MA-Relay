@@ -2,7 +2,7 @@
 
 ## 同机独立执行与完整恢复（2026-10-20）
 
-T-M07-190 / M07-F01/F03/F05：alpha.34 d9bf2a5 派生隔离源码、alpha.35 候选。受控定向71/71，Windows生产前端15组/0页面错误，Windows后台纯CJS83/83，Core56/56通过。最终源码桌面601/601通过，Windows83/83已在冻结源码副本复验；冻结包43CJS/81Core/1452Linux与源码一致，普通无调试EXE五组通过；本地候选已备妥，PR #13尚未合并/公开发布。模型0，不改用户profile/原操作，不升级独立SSH。计数为跨模块共享，不能相加；用户现场及完整I06C/I07C未验。
+T-M07-190 / M07-F01/F03/F05：alpha.34 d9bf2a5 派生隔离源码、alpha.35 候选。受控定向71/71，Windows生产前端15组/0页面错误，Windows后台纯CJS83/83，Core56/56通过。最终源码桌面601/601通过，Windows83/83已在冻结源码副本复验；冻结包43CJS/81Core/1452Linux与源码一致，普通无调试EXE五组通过；PR #13已合并，alpha.35 EXE/校验附件已公开并通过匿名完整下载；用户现场仍未复验。模型0，不改用户profile/原操作，不升级独立SSH。计数为跨模块共享，不能相加；用户现场及完整I06C/I07C未验。
 
 复现：`node --test --test-concurrency=1 desktop/tests/agent-network.test.cjs desktop/tests/graph-operations.test.cjs desktop/tests/management-recovery.test.cjs`；Windows运行`desktop/tests/windows-scoped-execution-recovery.cjs`、`windows-scoped-execution-contract.cjs`。原始失败、日志、截图及最终结果见[专项](../../iterations/I07/scoped-execution-recovery.md)。
 
