@@ -1,5 +1,7 @@
 # I07 开发分解与当前记录
 
+2026-10-20：alpha.33已按用户批准合并PR #11并预发布，冻结合并源码`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`；普通EXE与公开完整下载匹配，验收与现场边界保持。 [交付、校验与升级边界](maintenance-persistence.md)。
+
 ## 2026-10-20：维护上传进度与持久化修复（issue #10）
 
 已同步隔离alpha.32修复分支与当前整合源码，复用atomicWrite，分离progressOnly、最终checkpoint及安全错误/清理；保留CT-04/CT-05原增量与旧包摘要。 [完整设计、实测与边界](maintenance-persistence.md)。

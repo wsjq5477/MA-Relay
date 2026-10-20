@@ -1,5 +1,7 @@
 # M10 构建、发布与持久运行资源设计
 
+M10-F01/F03/F05：alpha.33已预发布，采用原已验证候选字节并绑定合并源码，39 CJS/78 core/1405 Linux资源及149冻结文件匹配；不纳入主工作区后续未发布功能。 [交付、校验与升级边界](../../iterations/I07/maintenance-persistence.md)。
+
 ## 当前维护进度与持久化边界
 
 M10-F01/F03/F05：alpha.33仅公开alpha.32加issue10补丁，收入精确alpha.32 manifest，窗口/中央/Linux同源冻结。主工作区CT-04/CT-05未提交增量不纳入，旧integrated.3 EXE不被改写。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。

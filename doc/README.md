@@ -1,5 +1,7 @@
 # AgentBridge 项目资料
 
+2026-10-20 **0.6.0-alpha.33已预发布**：PR #11已合并，标签冻结`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`，EXE与校验附件已公开并完成匿名完整下载核验。本次为公开alpha.32上的issue #10独立补丁，不含主工作区CT-04/独立MCP/CT-05或后续OpenCode1.x未发布驱动。维护上传的进度错误不再中断SFTP，最终台账保存失败仍不发送原维护输入。 [交付、校验与升级边界](iterations/I07/maintenance-persistence.md)。
+
 ## 2026-10-20：维护上传进度与持久化修复（issue #10）
 
 维护上传进度只更新内存并合并通知；本地诊断失败不中止SFTP，最终机器/维护台账必须保存才发送。公开alpha.33候选与主工作区CT-04/CT-05源码范围分开。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。

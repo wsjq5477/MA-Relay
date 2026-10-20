@@ -1,10 +1,12 @@
 # AgentBridge
 
-当前预发布 **0.6.0-alpha.32**（2026-10-19）：修复issues #8/#9，OpenCode仅2.x准入、旧配置快速版本拒绝，管理unknown按机器隔离，另一空闲SSH可进入维护。[Windows EXE及校验附件](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.32)；[验证范围与升级步骤](doc/iterations/I07/version-management-recovery.md)。旧中央需在设置中停止后台并退出后重开；SSH原机器需空闲时单独确认后台维护升级。原请求/历史保留，不重发。
+当前预发布 **0.6.0-alpha.33**（2026-10-20），修复issue #10的SSH维护上传与本地持久化。[下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/AgentBridge-0.6.0-alpha.33-Windows-x64.exe) · [SHA-256校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/SHA256SUMS.txt)。先在设置“停止后台并退出”后重开；SSH原机器需空闲时单独确认维护升级。旧unknown只查原ID，不重发。 [交付、校验与升级边界](doc/iterations/I07/maintenance-persistence.md)。
+
+历史预发布 **0.6.0-alpha.32**（2026-10-19）：修复issues #8/#9，OpenCode仅2.x准入、旧配置快速版本拒绝，管理unknown按机器隔离，另一空闲SSH可进入维护。[Windows EXE及校验附件](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.32)；[验证范围与升级步骤](doc/iterations/I07/version-management-recovery.md)。旧中央需在设置中停止后台并退出后重开；SSH原机器需空闲时单独确认后台维护升级。原请求/历史保留，不重发。
 
 ## Windows EXE 下载
 
-当前预发布 **alpha.30 / 历史详情归属与错误隔离**，修复issue #6。保留alpha.29已发布UI/原生接入能力，CT-04未提交公共材料开发不在此包。
+历史预发布 **alpha.30 / 历史详情归属与错误隔离**，修复issue #6。保留alpha.29已发布UI/原生接入能力，CT-04未提交公共材料开发不在此包。
 
 [直接下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/AgentBridge-0.6.0-alpha.30-Windows-x64.exe) · [SHA-256校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/SHA256SUMS.txt) · [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.30)。先在“设置 → 后台运行 → 停止后台并退出”后打开新版；SSH机器还需空闲时“后台维护 → 升级后台 → 确认升级”至alpha.30，再重新读取原会话。仅新客户端先隔离详情错误，远端不会自动升级，忙/unknown仍受保护。
 

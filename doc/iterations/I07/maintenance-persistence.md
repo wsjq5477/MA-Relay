@@ -1,6 +1,6 @@
 # 维护上传进度与本地持久化隔离（issue #10）
 
-日期：2026-10-20（北京时间）。公开修复以alpha.32冻结源码/发布文档`9203b18`为基线，在独立工作树构建alpha.33候选。当前整合工作区同步修复，CT-04/独立MCP/CT-05原未提交增量保留；这些增量不纳入本次公开补丁包，也不把旧integrated.3 EXE改称含本片。
+日期：2026-10-20（北京时间）。公开修复以alpha.32冻结源码/发布文档`9203b18`为基线，独立工作树构建的alpha.33现已预发布。当前整合工作区同步修复，CT-04/独立MCP/CT-05原未提交增量保留；这些增量不纳入本次公开补丁包，也不把旧integrated.3 EXE改称含本片。
 
 ## 需求与复现
 
@@ -100,3 +100,18 @@ alpha.33包核验通过：**39 CJS / 78 core / 1405 Linux资源**，前端及ASA
 修复提交`75789421b5a95b5d2dcefc65ac7a16e670267954`已推送独立分支`codex/issue-10-maintenance-persistence`，已建立[草稿PR #11](https://github.com/wsjq5477/MA-Relay/pull/11)。自动审批拒绝直接更新共享默认master，理由为缺少用户对该具体远程分支副作用的明确授权。因此尚未合并master、未发布alpha.33公开Release、未关闭issue #10；现有公开alpha.32不变。
 
 alpha.33候选EXE与校验文件已在主工作区artifacts/maintenance-persistence/2026-10-20提供本地交付，包摘要与普通EXE验收一致。批准合并/公开发布后，还需执行公开附件完整匿名下载核验；本页不提前填写通过。主工作区全部原未提交增量及Git HEAD/index保持，本轮只在独立分支提交修复。
+
+
+## 已批准并完成的alpha.33公开交付
+
+用户在前述自动审批拒绝后明确批准合并与发布，PR #11已合并；原审批边界段落保留历史时点，不再表示当前阻断。GitHub预发布 **v0.6.0-alpha.33** 绑定合并源码 **`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`**。合并树的149份运行源码/配置/素材与已测试候选逐项摘要一致，因此发布同一已验包字节；后续文档补录不移动标签。
+
+- [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/AgentBridge-0.6.0-alpha.33-Windows-x64.exe)
+- [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/SHA256SUMS.txt)
+- [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.33)
+
+EXE **129,965,530字节**，SHA-256 **`84e36905af42ea2adcb15fedbd29fa85cd10a31c91266e8031058802ede62e5e`**。GitHub上传size/digest匹配；匿名下载16个精确HTTP Range片段覆盖全部字节，按顺序合并计算完整SHA-256，匹配本地包与GitHub资产摘要；校验附件HTTP200、完整字节一致。不是只检查HEAD或部分文件。
+
+[发布元数据](../../../artifacts/maintenance-persistence/2026-10-20/github-release.json)、[公开完整下载](../../../artifacts/maintenance-persistence/2026-10-20/github-download.json)、[发布/下载日志](../../../artifacts/maintenance-persistence/2026-10-20/publish.log)。核心51/51、隔离桌面551/551、Windows专项7/7、前端3组、普通EXE5组与本机TCP安装/清理3组均保持原验收范围，没有把发布成功算作用户profile/独立生产服务器升级成功。
+
+使用新EXE前先在设置显式“停止后台并退出”，再打开alpha.33；原alpha.24服务器仍在空闲时查看维护预览并确认升级。Windows中央修复先解决上传进度问题，服务器不会自动替换。原unknown只查询原operationId；既有历史残包不批量清理。本次不包含工作区后续未发布的OpenCode1.x驱动、MCP/CT-04/CT-05，旧integrated.3候选也未重新打包。

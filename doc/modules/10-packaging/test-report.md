@@ -1,5 +1,7 @@
 # M10 构建与发布测试报告
 
+2026-10-20 / M10-F01/F03/F05：alpha.33 EXE129965530字节及SHA-256附件公开完整下载核验一致；普通EXE5组通过，发布不代替用户现场或独立SSH验收。 [交付、校验与升级边界](../../iterations/I07/maintenance-persistence.md)。
+
 ## 2026-10-20：维护上传进度与持久化修复（issue #10）
 
 M10-F01/F03/F05：本轮WSL专项7/7、相关42/42与核心51/51，Windows最终7/7及SSR66/66通过；最终全量/真实TCP/普通EXE/公开下载逐层记录。用户profile及独立服务器未验，共享计数不跨模块叠加。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。

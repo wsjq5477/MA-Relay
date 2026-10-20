@@ -1,6 +1,8 @@
 # AgentBridge Windows
 
-## 当前alpha.32下载与升级
+当前GitHub预发布 **0.6.0-alpha.33**：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/AgentBridge-0.6.0-alpha.33-Windows-x64.exe) · [校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/SHA256SUMS.txt)。完整公开下载已核验。先停止旧中央并退出后重开；远端升级仍需在原机器空闲时确认，不自动重发原维护。 [交付、校验与升级边界](../doc/iterations/I07/maintenance-persistence.md)。
+
+## 历史alpha.32下载与升级
 
 [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.32/AgentBridge-0.6.0-alpha.32-Windows-x64.exe) · [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.32/SHA256SUMS.txt)。公开完整下载已核验：129955724字节，SHA-256 `87adda262cde786ba602971c4d03c5b25a6a0da9ac00e3cdfaba1e7fc5a14440`。
 
