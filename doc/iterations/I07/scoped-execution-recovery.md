@@ -53,14 +53,14 @@ flowchart TD
 | --- | --- | --- |
 | WSL Node22.23.1 Core | 56/56，0失败/跳过 | [日志](../../../artifacts/scoped-execution-recovery/2026-10-20/core-final.tap) |
 | Windows Node24.19.0 / Edge155生产前端 | 15组，0页面错误，原始ID/远端错误不渲染 | [报告与截图](../../../artifacts/scoped-execution-recovery/2026-10-20/ui-final-source/report.json) |
-| Windows Node生产后台纯CJS | 83/83，0失败/跳过 | [日志](../../../artifacts/scoped-execution-recovery/2026-10-20/windows-contract.tap) |
-| 桌面第二轮全量 | 600/600，0失败/跳过；最后新增来源防护再跑全量 | [汇总](../../../artifacts/scoped-execution-recovery/2026-10-20/second-full/desktop-full.json) |
+| Windows Node生产后台纯CJS | 83/83，0失败/跳过 | [日志](../../../artifacts/scoped-execution-recovery/2026-10-20/windows-contract-final.tap) |
+| WSL桌面最终全量 | 601/601，0失败/跳过 | [汇总](../../../artifacts/scoped-execution-recovery/2026-10-20/desktop-full.json)、[过程](../../../artifacts/scoped-execution-recovery/2026-10-20/desktop-full.log) |
 | 工程 | lint、根类型及最终前端构建通过 | [lint](../../../artifacts/scoped-execution-recovery/2026-10-20/lint.log)、[类型](../../../artifacts/scoped-execution-recovery/2026-10-20/typecheck.log)、[构建](../../../artifacts/scoped-execution-recovery/2026-10-20/build-desktop-final.log) |
 
-Windows生产前端覆盖概览/图/详情/受控表单提交、查询loading/not_found/unknown/失败/不匹配/confirmed/rejected、轮询不擦除反馈、reload保留原意图、机器/授权/布局/缺来源门槛、五类台账与每lane原查询。后台定向另证共享目录与解析实际上下文的拦截，受控新请求只执行一次且原unknown不改。Windows83项在最后空白/未知来源防护前运行，最终Windows定向将另记，不冒充最终字节验证。
+Windows生产前端覆盖概览/图/详情/受控表单提交、查询loading/not_found/unknown/失败/不匹配/confirmed/rejected、轮询不擦除反馈、reload保留原意图、机器/授权/布局/缺来源门槛、五类台账与每lane原查询。后台定向另证共享目录与解析实际上下文的拦截，受控新请求只执行一次且原unknown不改。Windows83项已在冻结b5de577源码副本复验通过。既有按机器管理4组及状态恢复10组/8图也通过，0业务/模型提交：[管理](../../../artifacts/scoped-execution-recovery/2026-10-20/ui-version-regression/report.json)、[状态](../../../artifacts/scoped-execution-recovery/2026-10-20/ui-state-regression/ui.json)。
 
 ## 候选、发布与未测边界
 
-候选/包与普通 EXE 尚待本页后续实测登记；公开 alpha.34 的原标签/附件保持。alpha.35 含精确 alpha.34 daemon 清单，客户端更新不会替换真实 SSH daemon。
+源码冻结 **b5de577980e140150352518c19bb6e9709a2bd20**，独立 git archive 构建；[逐文件核验](../../../artifacts/scoped-execution-recovery/2026-10-20/source-verification.json) 通过。候选/包与普通 EXE 尚待本页后续实测登记；公开 alpha.34 的原标签/附件保持。alpha.35 含精确 alpha.34 daemon 清单，客户端更新不会替换真实 SSH daemon。
 
 本轮不读取或清理用户原配置，不重试其管理操作，不发送真实模型任务，不升级独立 SSH。用户故障 profile、真实原生 Agent/模型、独立服务器及完整 I06C/I07C 继续未测。升级新客户端前须在设置“后台运行 → 停止后台并退出”，再打开新 EXE；只关窗口可能仍保留旧中央。
