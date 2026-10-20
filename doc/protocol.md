@@ -1,5 +1,9 @@
 # 通信协议与接口
 
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+协议仍2；中央capabilities新增maintenance-persistence-v1，新前台需要原三项加此项，缺失只保留设置/运行信息/显式停止。SSH旧路由要求不变。DAEMON_PERSIST_FAILED明确本地发送前失败；SSH_UPLOAD_FAILED及安全details不再泛化为暂存错误。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
 ## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 协议仍2；hello.capabilities新增scoped-management-v1与opencode-v2-admission-v1，新前台要求中央与owned-object-controls-v1同时具备，缺项COORDINATOR_UPGRADE_REQUIRED。NATIVE_VERSION表示仅支持OpenCode 2.x；401/403与API契约错误快速独立返回，裸远端错误不作未发送证明。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。

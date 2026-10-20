@@ -6,7 +6,7 @@ const {isOpenCodeVersionRejection}=require('./tool-discovery.cjs');
 const machineMethods=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.operation','machine.maintainDaemon']);
 const lane=method=>machineMethods.has(method)?'machine':['manageNode','nodeOperation'].includes(method)?'node':method==='saveCollaboration'||method==='collaborationOperation'?'relation':'layout';
 const query=kind=>kind==='machine'?'machine.operation':kind==='node'?'nodeOperation':kind==='relation'?'collaborationOperation':'graphLayoutOperation';
-const rejected=new Set(['INVALID_INPUT','NODE_NOT_FOUND','NODE_DISCONNECTED','REVISION_CONFLICT','LAYOUT_REVISION_CONFLICT','OPERATION_CONFLICT','OPERATION_LIMIT','AGENT_BUSY','MACHINE_OFFLINE','WRONG_MACHINE','AGENT_UNAVAILABLE','DISCOVERY_CHANGED','MACHINE_BUSY','MACHINE_REMOVED','MACHINE_NOT_FOUND','SSH_CONNECTION_NOT_FOUND','SSH_USER_CHANGE','SSH_ENDPOINT_CONFLICT','DESKTOP_UNCONFIRMED','INSTALL_PREVIEW_CHANGED','DAEMON_BUSY','DAEMON_STAGE_REJECTED']);
+const rejected=new Set(['INVALID_INPUT','NODE_NOT_FOUND','NODE_DISCONNECTED','REVISION_CONFLICT','LAYOUT_REVISION_CONFLICT','OPERATION_CONFLICT','OPERATION_LIMIT','AGENT_BUSY','MACHINE_OFFLINE','WRONG_MACHINE','AGENT_UNAVAILABLE','DISCOVERY_CHANGED','MACHINE_BUSY','MACHINE_REMOVED','MACHINE_NOT_FOUND','SSH_CONNECTION_NOT_FOUND','SSH_USER_CHANGE','SSH_ENDPOINT_CONFLICT','DESKTOP_UNCONFIRMED','INSTALL_PREVIEW_CHANGED','DAEMON_BUSY','DAEMON_STAGE_REJECTED','SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED','SSH_PACKAGE_CHECKSUM','SSH_PACKAGE_EXTRACT']);
 function conflicts(kind,params,row){
  if(kind==='layout'||row.lane==='layout')return kind===row.lane;
  if(kind==='relation'||row.lane==='relation')return true;
@@ -41,7 +41,7 @@ class GraphOperationJournal{
     const row={operationId:params.operationId,lane:kind,method,params,fingerprint,state:'pending',time:new Date().toISOString()};
     try{this.update(row);}catch{throw fail('GRAPH_INTENT_FAILED','保存未发送：图操作意图无法落盘，请检查磁盘。');}
     try{const receipt=await dispatch(method,params);row.state=receipt?.operationId===params.operationId&&['confirmed','rejected'].includes(receipt.state)?receipt.state:'unknown';if(receipt?.error)row.error=receipt.error;this.update(row);return receipt;}
-    catch(error){row.state=isOpenCodeVersionRejection(error)||rejected.has(error.code)||method==='saveCollaboration'&&isCollaborationCapabilityRejection(error)?'rejected':'unknown';row.error={code:error.code,message:error.message};try{this.update(row);}catch{/* Original pending intent stays durable. */}throw error;}
+    catch(error){row.state=isOpenCodeVersionRejection(error)||rejected.has(error.code)||method==='saveCollaboration'&&isCollaborationCapabilityRejection(error)?'rejected':'unknown';row.error={code:error.code,message:error.message,...(['SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED'].includes(error.code)&&error.details?{details:error.details}:{})};try{this.update(row);}catch{/* Original pending intent stays durable. */}throw error;}
   }
 }
 module.exports={GraphOperationJournal};

@@ -1,5 +1,11 @@
 # 整体测试与验收报告
 
+2026-10-20 issue #10最终：隔离补丁桌面551/551、整合源码快照592/592，核心51/51；Windows专项7/7、生产前端3组与普通EXE5组通过，真实本机TCP安装/清理3组通过。均为受控、模型0，独立用户服务器未验。[完整证据与失败保留](iterations/I07/maintenance-persistence.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+公开修复分支和当前整合源码分开验证，核心/定向/Windows/真实本机TCP SFTP与包证据分别记录。没有重做用户服务器维护，现场EPERM具体形态未证实。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
 ## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 核心51/51、桌面543/543、定向7/7及工程检查通过；版本拒绝/中央机器冲突与Windows交互按受控证据记录。39 CJS/78 core/1404 Linux及148冻结文件匹配；当前普通EXE/分发状态以专项实际结果为准，现场未测。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。

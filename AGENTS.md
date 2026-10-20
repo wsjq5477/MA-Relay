@@ -1,5 +1,9 @@
 # AgentBridge 开发与文档协作
 
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+进度仅内存通知、异常不打断上传，原子保存有界重试；最终台账保存失败不发送维护。主工作区CT-04/CT-05与旧integrated.3范围保留，公开补丁独立构建。 [完整设计、实测与边界](doc/iterations/I07/maintenance-persistence.md)。
+
 2026-10-19 issues #8/#9已在隔离工作树实现并发布 **0.6.0-alpha.32**：OpenCode仅2.x、新旧上下文快速版本拒绝；按机器隔离管理unknown并保留原意图。公开alpha.32已完成普通EXE及匿名完整下载核验，发布以[本轮专项](doc/iterations/I07/version-management-recovery.md)实际证据为准，原CT-04/MCP修改不入包。
 
 2026-10-19较早issue #7独立修复已发布 **0.6.0-alpha.31**：OpenCode实际API兼容、委派持久准备拒绝、原对象控制路由及中央/daemon能力激活；冻结源码`002107da776687474c2d369d9a182a9f81d50e90`，Windows EXE与SHA-256已公开完整下载核验；发布与分层证据见[本次交付](doc/iterations/I07/collaboration-compatibility.md)。CT-04/MCP未提交工作不纳入，完整I06C/I07C未准出。

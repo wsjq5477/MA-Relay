@@ -23,6 +23,8 @@ function mergeSshState(machine, state, snapshot = false) {
   delete machine.error;
   if(typeof state.objectRoutingSupported==='boolean')machine.objectRoutingSupported=state.objectRoutingSupported;
   delete machine.connectionError;
+  if(!state.installProgress)delete machine.installProgress;
+  if(!state.progressWarning)delete machine.progressWarning;
   if (state.error || snapshotError) machine.error = state.error || snapshotError;
   if (state.connectionError) machine.connectionError = state.connectionError;
   if (snapshot) machine.online = state.online && snapshotOnline;
@@ -119,10 +121,14 @@ function connection() {
   ssh = new SshManager({directory: options.directory, coordinatorId: options.coordinatorId,
     packageDirectory: options.packageDirectory, onMachine: register,
     onSnapshot:(machineId,snapshot)=>{const machine=host.machine(machineId);host.importSnapshot(machine,snapshot);host.cache.set(machineId,snapshot);host.retryAfter.delete(machineId);},
-    onChange: () => { if (!host) return; for (const state of ssh.states()) {
-      const machine = host.catalog.machines.find(m => m.connectionId === state.connectionId);
-      if (machine) mergeSshState(machine, state);
-    } host.save(); }});
+    onChange: (_state,meta) => { if (!host) return;
+      const previous=structuredClone(host.catalog.machines);
+      try{for (const state of ssh.states()) {
+        const machine = host.catalog.machines.find(m => m.connectionId === state.connectionId);
+        if (machine) mergeSshState(machine, state);
+      } if(!meta?.progressOnly)host.save();}
+      catch(error){host.catalog.machines=previous;throw error;}
+    }});
   host = new AgentNetwork({ directory: options.directory, platform: platform,
     preferences: settings, distributions,
     createHost: machine => machine.kind === 'ssh' ? ssh.host(machine)

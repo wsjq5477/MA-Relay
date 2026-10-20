@@ -1,5 +1,9 @@
 # 迭代路线与当前交付
 
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+issue #10完成进度/最终保存边界修复，准备独立alpha.33补丁；不把CT-04/CT-05未提交增量纳入该公开包，不替代完整I06C/I07C准出。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
 ## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 issues #8/#9隔离修复已实现，alpha.32已预发布，修复前失败与修复后回归均记录。OpenCode策略按本轮用户要求改为仅2.x；普通EXE和公开完整下载核验已完成；后续为用户现场复验，不推进CT-04或完整I06C/I07C准出。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。

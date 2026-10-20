@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## 当前维护进度与持久化边界
+
+M10-F01/F03/F05：alpha.33仅公开alpha.32加issue10补丁，收入精确alpha.32 manifest，窗口/中央/Linux同源冻结。主工作区CT-04/CT-05未提交增量不纳入，旧integrated.3 EXE不被改写。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
 ## 当前版本准入与管理作用域
 
 M10-F01/F03/F05：alpha.32已预发布同时冻结窗口/中央/Linux修复，收入alpha.31精确原manifest。新前台拒绝旧中央管理/版本语义，设置显式停止仍可用；普通EXE及完整公开下载验证分开，原CT-04未提交工作不入包。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。

@@ -1,5 +1,9 @@
 # 迭代资料目录
 
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+I07新增维护持久化专项，修复本地机器目录保存异常中止SFTP和错误泛化。 [完整设计、实测与边界](I07/maintenance-persistence.md)。
+
 ## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
 
 I07新增issues #8/#9专项：2.x严格准入、快速错误和多机管理unknown隔离，原请求不重放。 [需求、实现、验证与边界](I07/version-management-recovery.md)。

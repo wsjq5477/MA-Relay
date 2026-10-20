@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
 const { randomUUID, createHash } = require("node:crypto");
+const {atomicWrite}=require("./graph-layout.cjs");
 
 const idKeys = new Set(["agentId", "instanceId", "targetAgent", "defaultAgent", "taskId", "conversationId", "lastTaskId"]);
 const terminal = new Set(["succeeded", "failed", "cancelled"]);
@@ -64,9 +65,7 @@ class MachineRouter {
     }
   }
   save() {
-    const temp = this.file + "." + randomUUID() + ".tmp";
-    fs.writeFileSync(temp, JSON.stringify(this.catalog, null, 2), { mode: 0o600 });
-    fs.renameSync(temp, this.file);
+    atomicWrite(this.file,this.catalog);
   }
   preferences() { return this.options.preferences?.() || {}; }
   async machines(rescan = false) {

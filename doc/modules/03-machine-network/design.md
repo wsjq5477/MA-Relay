@@ -1,5 +1,9 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+## 当前维护进度与持久化边界
+
+M03-F04：机器目录通过已有atomicWrite有界重试/fsync/原子替换，永久失败保留完整原文件并仅清当前tmp。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
 ## 当前版本准入与管理作用域
 
 M03-F01/F02/F03：安装健康与执行兼容分开，OpenCode1.x可被发现但不新建执行上下文。version_incompatible投影connected=false/available=false及执行委派关闭；原存储关联和历史保留。管理按机器隔离，原已派发请求查询不被当前版本门禁遮蔽。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。

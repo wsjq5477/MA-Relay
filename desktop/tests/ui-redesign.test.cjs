@@ -790,3 +790,8 @@ test('incompatible OpenCode never appears connected or executable; safe history 
  const html=render(MachineInventory,inventoryProps({nodes:[n]})),article=nodeArticle(html,n.name);
  assert.match(article,/版本不兼容/);assert.doesNotMatch(article,/已接入/);assert.equal(buttonNamed(article,'接入').disabled,true);assert.equal(buttonNamed(article,'移除 Agent').disabled,false);
 });
+
+ test('local progress warning remains visible without claiming daemon activation',()=>{
+  const m=machine({progressWarning:{code:'SSH_PROGRESS_WARNING',causeCode:'EPERM',message:'进度显示更新失败（EPERM），上传继续；发送维护前仍须保存本地台账。'}});
+  const html=render(MachineInventory,inventoryProps({machines:[m]}));assert.match(html,/进度显示更新失败（EPERM）/);assert.doesNotMatch(html,/后台已升级/);
+ });
