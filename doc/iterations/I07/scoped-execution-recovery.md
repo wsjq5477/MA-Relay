@@ -1,6 +1,6 @@
 # 同机独立执行与完整管理恢复（issue #12）
 
-日期：2026-10-20；隔离分支 codex/issue-12-scoped-execution-recovery，基于公开 alpha.34 后文档提交 d9bf2a5。当前准备 alpha.35 候选，公开仍 alpha.34，完整 I06C/I07C 未准出。不包含主工作区另一个线程未提交的 DSH 改动。
+日期：2026-10-20；隔离分支 codex/issue-12-scoped-execution-recovery，基于公开 alpha.34 后文档提交 d9bf2a5。本地 alpha.35 候选已生成并核验，PR #13 尚未合并，公开仍 alpha.34，完整 I06C/I07C 未准出。不包含主工作区另一个线程未提交的 DSH 改动。
 
 ## 需求与修复前证据
 
@@ -42,7 +42,7 @@ flowchart TD
 
 ## 实际验证
 
-受控结果、生产前端、普通包和公开发布分别记录，模型调用均为0。实际完整结果在交付前补录，不以历史测试代替本次测试。
+受控结果、生产前端、普通包和公开发布分别记录，模型调用均为0。下列均为本次实际运行；公开分发仍待授权执行。
 
 - 定向后台/前端范围/收据测试 **71/71**：[日志](../../../artifacts/scoped-execution-recovery/2026-10-20/scoped-contract-provenance.tap)。包括独立 B 生产 Coordinator 提交一次、同请求不重放、原 A unknown 完整保留，解析后的共享目录阻止原生提交。
 - 修复后最小生产前端三项观察全通过：[报告](../../../artifacts/scoped-execution-recovery/2026-10-20/ui-smoke/report.json)。
@@ -61,6 +61,8 @@ Windows生产前端覆盖概览/图/详情/受控表单提交、查询loading/no
 
 ## 候选、发布与未测边界
 
-源码冻结 **b5de577980e140150352518c19bb6e9709a2bd20**，独立 git archive 构建；[逐文件核验](../../../artifacts/scoped-execution-recovery/2026-10-20/source-verification.json) 通过。候选/包与普通 EXE 尚待本页后续实测登记；公开 alpha.34 的原标签/附件保持。alpha.35 含精确 alpha.34 daemon 清单，客户端更新不会替换真实 SSH daemon。
+源码冻结 **b5de577980e140150352518c19bb6e9709a2bd20**，独立 git archive 构建；[逐文件核验](../../../artifacts/scoped-execution-recovery/2026-10-20/source-verification.json) 通过。候选包核验通过：43个后台CJS、81个Core文件、1452个Linux文件，ASAR/前端/Windows/Linux后台与冻结源码一致。Linux alpha.35 manifest digest为 `e4db314070688509489ba1a8a2bf3720575d76dd481502884181031e2fae1189`。普通无调试 Windows EXE 五组通过：旧alpha.34中央门禁、原两轮历史与unknown查询、窗口关闭重开、完整中央重启、冻结后台摘要一致；模型0。[包核验](../../../artifacts/scoped-execution-recovery/2026-10-20/package.json)、[普通EXE](../../../artifacts/scoped-execution-recovery/2026-10-20/portable.json)、[普通EXE日志](../../../artifacts/scoped-execution-recovery/2026-10-20/portable.log)。
+
+本地 [Windows EXE](../../../artifacts/scoped-execution-recovery/2026-10-20/AgentBridge-0.6.0-alpha.35-Windows-x64.exe) 为 **130,024,572字节**，SHA-256 **`759e36efe2f4ad41cbd273ee17cfe54e6512758574f7bc424458db15f26d8aa1`**；[SHA256SUMS.txt](../../../artifacts/scoped-execution-recovery/2026-10-20/SHA256SUMS.txt)。[PR #13](https://github.com/wsjq5477/MA-Relay/pull/13) 已包含全部修复与文档，尚未合并或公开发布，不把本地候选当成可公开下载的新版本。公开 alpha.34 的原标签/附件保持。alpha.35 含精确 alpha.34 daemon 清单，客户端更新不会替换真实 SSH daemon。
 
 本轮不读取或清理用户原配置，不重试其管理操作，不发送真实模型任务，不升级独立 SSH。用户故障 profile、真实原生 Agent/模型、独立服务器及完整 I06C/I07C 继续未测。升级新客户端前须在设置“后台运行 → 停止后台并退出”，再打开新 EXE；只关窗口可能仍保留旧中央。
