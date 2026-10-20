@@ -2,7 +2,7 @@
 
 ## 管理恢复与执行范围（2026-10-20）
 
-M10-F01/F03/F05：alpha.35 候选基于已发布 alpha.34 完整源码，新增 scoped-management-execution-v1 门禁；新前台复用旧 alpha.34 中央时须显式停止并重开。精确收录已发布 alpha.34 Linux manifest，digest 为 1174495692496e1e594a87cf4d312edc5defa162e01fdf7b6815e44bc9fc8678，不信任任意同协议 daemon。固定源码、包一致性、普通 EXE、公开发布分别记证据，未发布不能称已有公开新 EXE。
+M10-F01/F03/F05：alpha.35 预发布基于已发布 alpha.34 完整源码，新增 scoped-management-execution-v1 门禁；新前台复用旧 alpha.34 中央时须显式停止并重开。精确收录已发布 alpha.34 Linux manifest，digest 为 1174495692496e1e594a87cf4d312edc5defa162e01fdf7b6815e44bc9fc8678，不信任任意同协议 daemon。固定源码、包一致性、普通 EXE、公开发布分别记证据，未发布不能称已有公开新 EXE。
 
 [需求、接口、源码与验收](../../iterations/I07/scoped-execution-recovery.md)。
 
