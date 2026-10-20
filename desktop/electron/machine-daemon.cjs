@@ -10,6 +10,7 @@ const { FramedStream, MAX_FRAME_BYTES } = require('./machine-protocol.cjs');
 const PROTOCOL_VERSION = 2;
 // Checkout uses desktop/package.json; the staged Linux bundle owns its root package.json.
 const versionFile = fs.existsSync(path.join(__dirname,'../package.json')) ? path.join(__dirname,'../package.json') : path.join(__dirname,'../../package.json');
+const {runtimeCapabilities}=require('./runtime-capabilities.cjs');
 const VERSION = JSON.parse(fs.readFileSync(versionFile,'utf8')).version;
 const MAX_INFLIGHT = 64;
 const fail = (code, message) => Object.assign(new Error(message), { code });
@@ -17,7 +18,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const now = () => new Date().toISOString();
 const own = value => value && Object.getPrototypeOf(value) === Object.prototype;
 const validId = value => typeof value === 'string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
-const methods = new Set(['snapshot', 'discover', 'context', 'scope', 'ipc', 'environment', 'connect']);
+const methods = new Set(['mcp.status', 'mcp.install', 'mcp.remove', 'mcp.export', 'snapshot', 'discover', 'context', 'scope', 'ipc', 'environment', 'connect']);
 const mutations = new Set(['submit', 'continue', 'verify', 'reply', 'cancel']);
 const knownRejections = new Set(['INVALID_INPUT', 'REQUEST_CONFLICT', 'AGENT_BUSY', 'AGENT_UNHEALTHY', 'TASK_NOT_FOUND', 'CONVERSATION_NOT_FOUND', 'CONVERSATION_CONFIG', 'CONVERSATION_BUSY', 'EXECUTION_MISMATCH', 'REQUEST_NOT_FOUND', 'STALE_OPERATION', 'PERMISSION_NOT_FOUND', 'PERMISSION_REPLIED', 'NODE_NOT_FOUND', 'WORKSPACE_UNAVAILABLE', 'DISCOVERY_CHANGED', 'NOT_CONFIGURED', 'ADAPTER_UNSUPPORTED']);
 
@@ -269,7 +270,7 @@ async function startDaemon(options) {
       if (row && row.state !== 'confirmed') return queryRecord(row);
     }
     if (method !== 'ipc' || !mutations.has(params.op)){
-      if(['context','connect'].includes(method)){if(maintenance)throw fail('DAEMON_MAINTENANCE','后台正在维护，不接受新执行上下文。');admissions++;try{return await host.call(method,params);}finally{admissions--;}}
+      if(['context','connect','mcp.install','mcp.remove','mcp.export'].includes(method)){if(maintenance)throw fail('DAEMON_MAINTENANCE','后台正在维护，不接受配置变更或新执行上下文。');admissions++;try{return await host.call(method,params);}finally{admissions--;}}
       return host.call(method,params);
     }
     const key = receiptKey(params);
@@ -351,7 +352,7 @@ async function startDaemon(options) {
               client.ready = true; client.generation = info.generation; client.sessionId = params.sessionId || params.nonce; clearTimeout(helloTimer);
               const previous = active; active = client;
               if (previous) { removeCallbacks(previous); previous.channel.close(); }
-              respond(frame.id, { ...info, pid: process.pid, nonce: params.nonce, sessionId: client.sessionId, generation: client.generation, lastEventCursor: cursor, capabilities: ['discover', 'contexts', 'native-sessions', 'durable-receipts', 'events', 'collaboration-callbacks'] }); return;
+              respond(frame.id, { ...info, pid: process.pid, nonce: params.nonce, sessionId: client.sessionId, generation: client.generation, lastEventCursor: cursor, capabilities: ['discover', 'contexts', 'native-sessions', 'durable-receipts', 'events', 'collaboration-callbacks',...runtimeCapabilities] }); return;
             }
             if (!client.ready || active !== client) throw fail('PROTOCOL_HELLO', '此通道尚未绑定中央后台，不能执行操作。');
             if (frame.method === 'ping') { respond(frame.id, { nonce: params.nonce, generation: client.generation, timestamp: now() }); return; }

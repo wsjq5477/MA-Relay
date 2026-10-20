@@ -6,6 +6,7 @@ const { StringDecoder } = require('node:string_decoder');
 const { createHash, randomBytes, randomUUID, timingSafeEqual } = require('node:crypto');
 const { ensurePrivateDirectory } = require('./private-directory.cjs');
 const { createCoordinatorService } = require('./coordinator-service.cjs');
+const {runtimeCapabilities}=require('./runtime-capabilities.cjs');
 const PROTOCOL = 2;
 function identity(directory) {
   ensurePrivateDirectory(directory);
@@ -57,7 +58,7 @@ async function startCoordinator(options) {
       if(!authorized) {
         if(input.protocol!==PROTOCOL || input.coordinatorId!==owner.coordinatorId || !sameSecret(input.auth,owner.token)) {socket.destroy();return;}
         authorized=true;clearTimeout(authDeadline);
-        send({hello:true,protocol:PROTOCOL,coordinatorId:owner.coordinatorId,pid:process.pid,version:options.version});return;
+        send({hello:true,protocol:PROTOCOL,coordinatorId:owner.coordinatorId,pid:process.pid,version:options.version,capabilities:runtimeCapabilities});return;
       }
       if(typeof input.id!=='string'||input.id.length>128||typeof input.method!=='string'||inFlight>=64||Buffer.byteLength(JSON.stringify(input))>1048576) {socket.destroy();return;}
       inFlight++;

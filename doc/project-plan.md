@@ -1,6 +1,48 @@
 # 迭代路线与当前交付
 
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](iterations/I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+2026-10-20 **0.6.0-alpha.33已预发布**：PR #11已合并，标签冻结`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`，EXE与校验附件已公开并完成匿名完整下载核验。本次为公开alpha.32上的issue #10独立补丁，不含主工作区CT-04/独立MCP/CT-05或后续OpenCode1.x未发布驱动。维护上传的进度错误不再中断SFTP，最终台账保存失败仍不发送原维护输入。 [交付、校验与升级边界](iterations/I07/maintenance-persistence.md)。
+
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+本轮解决官方 1.x 被 2.x 门禁拒绝的实际接入缺口，当前工作源码已实现双协议和受控/官方 CLI 验证。公开 alpha.32、integrated.3 的旧包范围不变；Windows 原生/独立 SSH/真实模型验收及新包分发尚不属于本次已有证据，完整 I06C/I07C 继续未准出。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+issue #10完成进度/最终保存边界修复，准备独立alpha.33补丁；不把CT-04/CT-05未提交增量纳入该公开包，不替代完整I06C/I07C准出。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
+2026-10-20后续源码完成[CT-05桌面选材与导出](iterations/I07/context-packet-ui.md)：明确目标成员及文档/任务/消息/历史产物版本，核对后文字预览、复制、MD/JSON本机下载。观察到任务修订/成员变化或切工作时旧包失效，不发送/授权/执行。桌面581/581、Windows生产前端9组通过，模型0；未打新包，公开alpha.32与本地integrated.3旧冻结范围不变。
+
+2026-10-20当前源码新增[CT-05明确选择的材料包](iterations/I07/context-packet.md)：同一工作有效成员、明确文档修订/任务轮次/消息/产物版本，只读JSON/Markdown；每类8项、总响应256 KiB，不派发/授权/已读/搬原生Session。WSL桌面576/576、Windows定向14/14，真实Claude2.1.303一个Task读取旧版并重开不重放。公开仍alpha.32，本地integrated.3冻结EXE不含本片，未打新包；以下按原日期保留历史范围。
+
+2026-10-19当前推进点：[源码整合与本地候选](iterations/I07/integrated-source.md)完成。alpha.30–32已发布修复现与CT-04/MCP在同一工作源码，核心51/51、桌面570/570、Windows前端26组通过；本地integrated.3包已校验，公开仍alpha.32。下一个功能为产物/显式交接与CT-05；发布仍需独立提交/版本与公开分发核验，不能重用alpha.32标签或把Git HEAD说成已更新。
+
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+
+issues #8/#9隔离修复已实现，alpha.32已预发布，修复前失败与修复后回归均记录。OpenCode策略按本轮用户要求改为仅2.x；普通EXE和公开完整下载核验已完成；后续为用户现场复验，不推进CT-04或完整I06C/I07C准出。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
+alpha.32已完成普通EXE及公开完整下载核验，标签冻结`fcdad72fba454bf731cf66df54bc1caf2a06e0a2`，EXE与SHA-256附件公开可取；后续文档补录不移动标签。[发布与升级边界](iterations/I07/version-management-recovery.md)。
+
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
+
+本次issue #7按alpha.30隔离修复，alpha.31已公开分发Windows EXE与校验附件；CT-04/MCP未提交工作不纳入，完整I06C/I07C未准出。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+
+## alpha.30已预发布：历史详情读取恢复
+
+alpha.30已发布源码修复解决issue #6历史会话误走根OpenCode及全局同步污染；GitHub已预发布alpha.30，包/分发已验证，完整I06C/I07C未准出。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
+2026-10-19当前增量：[CT-04桌面阅读/复制/MD下载](iterations/I07/public-materials-ui.md)完成，桌面541/541与Windows前端八组通过，模型0。公开alpha.31来自独立修复分支，本工作区仍a872275/alpha.29派生；发布前须整合alpha.30/31安全路由/兼容修复，不能覆盖它们。下一功能为历史产物/显式交接及CT-05；新工具真实环境、EXE/独立SSH继续另验。
+
+## 独立 MCP 文件与原生配置管理（2026-10-19）
+
+I07-MCP01 / AB-F02/F12/F13：独立Bridge MCP配置文件、三种Agent原生用户配置增删、长期接入撤权与外部委派归属已实现。桌面537/537、核心45/45、类型/构建/lint通过；真实Claude2.1.303/Codex0.162.1/OpenCode2.0.24列表增删通过，Windows生产前端4组通过。均使用隔离配置，模型调用0；真实新EXE/独立SSH仍未验，公开alpha.29冻结范围不变。[需求、开发、验收和首次失败](iterations/I07/mcp-installation.md)。
+
+2026-10-19当前推进点：[CT-04首片](iterations/I07/public-materials.md)只读材料索引/Markdown和指定文档修订已完成源码、525项回归及一个真实Claude Task；未进入较早发布的alpha.29。下一增量为桌面阅读/复制及产物/交接入口，再明确CT-05选定版本上下文；有真实环境再补Hermes/Pi/DSH与独立SSH。CT-03仍为候选，自动续接/多用户不作为当前目标。
+
+2026-10-19较早：冻结源码23d256e已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 2026-10-19：CT-02继续完成[CT-02真实MCP委派](iterations/I07/connection-delegation.md)，当前WSL三工具已覆盖全部六个普通委派方向，真实主/子/结果/汇总及完成后恢复通过。新增验收工具/保护回归，产品运行代码未改；不是六工具/所有运输环境全部准出。下一步在真实原生环境可用后补新三工具，并冻结当前源码本地Windows候选及验证包/真实IPC；CT-03/04/05继续保持各自候选状态。
 
@@ -37,9 +79,9 @@ alpha.28：issue #5远端持久拒绝只读恢复；GitHub已预发布alpha.28�
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | 0.6.0-alpha.28 / SSH持久拒绝恢复；标签绑定3df2534，[EXE与校验](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.28)，完整I06C/I07C未准出 |
-| 当前自动回归 | 2026-10-17 / alpha.28：桌面317/317、核心45/45、Windows合成契约93/93；受控TCP SSH丢响应/daemon重启和普通无调试EXE6组通过，模型0。包与发布见[专项](iterations/I06/daemon-rejection-recovery.md)，用户现场未复测 |
-| 当前源码 | alpha.28已预发布，冻结修复提交3df2534与EXE一致；只读核对原daemon持久拒绝后结算，裸错误/缺证据保持unknown。[实际结果与边界](iterations/I06/daemon-rejection-recovery.md) |
+| 最新 Windows 预发布 | alpha.32 / fcdad72，已发布证据保留原日期；本次只读API和原EXE字节摘要核对，不重新公开下载。另有未发布integrated.3本地候选，见[整合专项](iterations/I07/integrated-source.md) |
+| 当前自动回归 | 2026-10-19整合源码核心51/51、桌面570/570（零跳过）、Windows前端26组/模型0及类型/lint/构建通过；包/普通EXE与真实Agent边界见整合专项，历史模型证据不相加 |
+| 当前源码 | Git HEAD仍a872275，工作文件已三方整合alpha.32冻结fcdad72与MCP/CT-04，并补精确alpha.32兼容清单及TOML1.9.1；随后新增CT-05只读选材包及桌面明确选择/核对导出，未入integrated.3冻结EXE；未commit/push，未公开新版本 |
 | 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
 | alpha.24历史自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
 | I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |

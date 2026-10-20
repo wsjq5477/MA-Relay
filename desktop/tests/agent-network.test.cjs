@@ -6,7 +6,7 @@ function fixture(t){
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-network-')),hosts=new Map();
   const createHost=machine=>{
     const adapter=machine.kind==='windows'?'claude':'opencode',executable=machine.kind==='windows'?'C:/tools/claude.exe':'/opt/opencode';
-    const host={items:[{adapter,name:adapter,executable,healthy:true,executionSupported:true},{adapter:'codex',name:'Codex',executable:machine.kind==='windows'?'C:/tools/codex.exe':'/opt/codex',healthy:true,executionSupported:true}],agents:[{agentId:'old-a',adapter,name:'project A',workspace:machine.kind==='windows'?'D:/a':'/home/a',executable,available:true,healthy:true,online:true,enabled:true,busy:false,model:{id:'legacy-model',providerID:'legacy'}}],tasks:[],conversations:[],requests:new Map(),calls:[],executions:0,contexts:new Map(),offline:false,lose:false,
+    const host={items:[{adapter,name:adapter,executable,version:'2.0.24',healthy:true,executionSupported:true},{adapter:'codex',name:'Codex',executable:machine.kind==='windows'?'C:/tools/codex.exe':'/opt/codex',version:'2.0.24',healthy:true,executionSupported:true}],agents:[{agentId:'old-a',adapter,name:'project A',workspace:machine.kind==='windows'?'D:/a':'/home/a',executable,available:true,healthy:true,online:true,enabled:true,busy:false,model:{id:'legacy-model',providerID:'legacy'}}],tasks:[],conversations:[],requests:new Map(),calls:[],executions:0,contexts:new Map(),offline:false,lose:false,
       setCollaboration(handler){this.handler=handler;},close(){},
       async call(method,p={}){this.calls.push({method,p:structuredClone(p)});if(this.offline)throw error('OFFLINE');
         if(method==='discover')return {items:this.items};
@@ -510,4 +510,87 @@ test('native upgrades keep one current node and its role, retaining historical a
   const refreshed=snapshot.nodes.find(n=>n.nodeId===original.nodeId);
   assert.equal(refreshed.version,'2.1.302');assert.equal(refreshed.busy,true);
   assert.equal(snapshot.nodes.filter(n=>n.machineId===original.machineId&&n.adapter==='claude'&&!n.supersededBy).length,1);
+});
+
+test('standalone MCP delegates without a native parent, retains original request and isolates connection ownership',async t=>{
+ const f=await setup(t),leader=f.nodes.find(n=>n.adapter==='claude'),member=f.nodes.find(n=>n.adapter==='opencode');
+ for(const n of [leader,member])await f.router.call('attachNode',{nodeId:n.nodeId});
+ await f.router.call('saveCollaboration',{leaderId:leader.nodeId,memberIds:[member.nodeId],expectedRevision:0});
+ const host=f.hosts.get(leader.machineId),scope={nodeId:leader.nodeId,parentRequestId:'external-one',externalConnectionId:'external-one'};
+ assert.deepEqual((await host.handler(scope,'list_agents',{},'list')).items.map(n=>n.nodeId),[member.nodeId]);
+ const params={nodeId:member.nodeId,message:'external request',requestId:'stable'};
+ const first=await host.handler(scope,'delegate',params,'first'),again=await host.handler(scope,'delegate',params,'retry');
+ assert.equal(first.taskId,again.taskId);assert.equal(first.parentTaskId,null);assert.equal(f.router.network.delegations[0].externalConnectionId,'external-one');
+ assert.equal(f.router.network.requests.length,1);assert.equal(f.hosts.get(member.machineId).executions,1);
+ await assert.rejects(host.handler({...scope,externalConnectionId:'external-two'},'task_result',{taskId:first.taskId},'foreign'),{code:'COLLABORATION_FORBIDDEN'});
+ assert.equal((await host.handler(scope,'task_result',{taskId:first.taskId},'own')).status,'running');
+ await f.router.call('saveCollaboration',{leaderId:null,memberIds:[],expectedRevision:1});
+ await assert.rejects(host.handler(scope,'delegate',{...params,requestId:'new'},'removed'),{code:'COLLABORATION_FORBIDDEN'});
+ assert.equal((await host.handler(scope,'task_result',{taskId:first.taskId},'history')).status,'running');
+ assert.equal(f.hosts.get(member.machineId).executions,1);
+});
+
+test('desktop MCP operations derive machine and adapter from the selected node',async t=>{
+ const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude');await f.router.call('attachNode',{nodeId:node.nodeId});
+ const host=f.hosts.get(node.machineId),original=host.call.bind(host);host.call=async(method,params)=>method==='mcp.status'?{method,params}:original(method,params);
+ const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());
+ const wrong=await service.call({method:'mcp.status',params:{nodeId:node.nodeId,machineId:'foreign'}});assert.equal(wrong.error.code,'WRONG_MACHINE');
+ const reply=await service.call({method:'mcp.status',params:{nodeId:node.nodeId,adapter:'foreign',path:'/foreign'}});
+ assert.equal(reply.ok,true);assert.deepEqual(reply.result.params,{nodeId:node.nodeId,adapter:'claude'});
+});
+
+test('delegation uses durable undispatched preparation rejection for any code and keeps it on same-ID retry',async t=>{
+ const f=await setup(t),leader=f.nodes.find(n=>n.adapter==='claude'),member=f.nodes.find(n=>n.adapter==='codex');
+ await f.router.call('attachNode',{nodeId:member.nodeId});
+ await f.router.call('saveCollaboration',{leaderId:leader.nodeId,memberIds:[member.nodeId],expectedRevision:0});
+ await f.router.call('nodeRequest',{nodeId:leader.nodeId,requestId:'proof-parent',message:'delegate',collaboration:true});
+ const h=f.hosts.get(member.machineId),call=h.call.bind(h),scope={nodeId:leader.nodeId,parentRequestId:'proof-parent'};let preparations=0;
+ h.call=async(method,p)=>{if(method==='context'){preparations++;throw Object.assign(Error('当前原生 API 不兼容，请接入受支持的工具。'),{code:'FUTURE_PREPARATION_ERROR'});}return call(method,p);};
+ const args={nodeId:member.nodeId,requestId:'same-child',message:'must never dispatch'};
+ for(let i=0;i<2;i++){
+  await assert.rejects(f.router.collaborationTool(scope,'delegate',args,'fixture',leader.machineId),e=>e.code==='FUTURE_PREPARATION_ERROR'&&e.message==='当前原生 API 不兼容，请接入受支持的工具。');
+  assert.equal(f.router.network.delegations[0].state,'rejected');
+ }
+ assert.equal(preparations,1);assert.equal(h.executions,1,'only parent executed on this shared machine');
+ const receipt=f.router.network.requests.find(r=>r.requestId===f.router.network.delegations[0].requestId);assert.equal(receipt.dispatched,false);assert.equal(receipt.taskId,undefined);
+});
+
+test('API compatibility and old-daemon capability constrain node availability before delegation',async t=>{
+ const f=await setup(t),node=f.nodes.find(n=>n.adapter==='opencode'),machine=f.router.machine(node.machineId),h=f.hosts.get(node.machineId),call=h.call.bind(h);
+ let observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.status,'needs_check');assert.equal(observed.available,false);assert.equal(observed.connectionCapabilities.execution,false);
+ h.call=async(method,p)=>{if(method==='context')throw Object.assign(Error('原生 API 不兼容'),{code:'OPENCODE_API_UNSUPPORTED'});return call(method,p);};
+ await assert.rejects(f.router.call('attachNode',{nodeId:node.nodeId}),{code:'OPENCODE_API_UNSUPPORTED'});
+ observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.available,false);assert.equal(observed.status,'needs_check');assert.match(observed.error,/API 不兼容/);
+ h.call=call;await f.router.call('attachNode',{nodeId:node.nodeId});observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.status,'connected');assert.equal(observed.connectionCapabilities.delegation,true);
+ machine.objectRoutingSupported=false;observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.status,'upgrade_required');assert.equal(observed.available,false);assert.equal(observed.connectionCapabilities.delegation,false);
+});
+
+test('delegated result exposes each backend native failure and preserves original task IDs',async t=>{
+ const f=await setup(t),leader=f.nodes.find(n=>n.adapter==='claude'),member=f.nodes.find(n=>n.adapter==='opencode');await f.router.call('attachNode',{nodeId:member.nodeId});
+ await f.router.call('saveCollaboration',{leaderId:leader.nodeId,memberIds:[member.nodeId],expectedRevision:0});await f.router.call('nodeRequest',{nodeId:leader.nodeId,requestId:'error-parent',message:'read errors',collaboration:true});
+ const scope={nodeId:leader.nodeId,parentRequestId:'error-parent'},h=f.hosts.get(member.machineId),task=await f.router.collaborationTool(scope,'delegate',{nodeId:member.nodeId,requestId:'child-error',message:'controlled'},'fixture',leader.machineId),raw=h.tasks[0];
+ for(const error of [{code:'CLAUDE_SSL',message:'API SSL certificate verification failed'},{code:'CODEX_EVENT_LIMIT',message:'Codex 事件超过长度限制'}]){
+  raw.status='failed';raw.error=error;const result=await f.router.collaborationTool(scope,'task_result',{taskId:task.taskId},'fixture',leader.machineId);assert.equal(result.status,'failed');assert.deepEqual(result.error,error);assert.equal(result.taskId,task.taskId);
+ }
+ assert.equal(h.executions,1);
+});
+
+test('integrated standalone MCP preserves a durable preparation refusal and never prepares that original child twice',async t=>{
+ const f=await setup(t),leader=f.nodes.find(n=>n.adapter==='claude'),member=f.nodes.find(n=>n.adapter==='codex');
+ for(const node of [leader,member])await f.router.call('attachNode',{nodeId:node.nodeId});
+ await f.router.call('saveCollaboration',{leaderId:leader.nodeId,memberIds:[member.nodeId],expectedRevision:0});
+ const h=f.hosts.get(member.machineId),original=h.call.bind(h),scope={nodeId:leader.nodeId,parentRequestId:'external-refusal',externalConnectionId:'external-refusal'};let prepared=0;
+ h.call=async(method,p)=>{if(method==='context'){prepared++;throw Object.assign(Error('原目标准备失败，未派发。'),{code:'INTEGRATED_PREPARATION_ERROR'});}return original(method,p);};
+ const args={nodeId:member.nodeId,requestId:'original-child',message:'do not replay'};
+ for(let i=0;i<2;i++){
+  await assert.rejects(f.router.collaborationTool(scope,'delegate',args,'controlled',leader.machineId),e=>e.code==='INTEGRATED_PREPARATION_ERROR'&&e.message==='原目标准备失败，未派发。');
+  await f.router.snapshot();
+ }
+ assert.equal(prepared,1);assert.equal(h.executions,0);
+ const d=f.router.network.delegations[0];assert.equal(d.state,'rejected');assert.equal(d.parentTaskId,null);assert.equal(d.externalConnectionId,scope.externalConnectionId);
+ const receipt=f.router.network.requests.find(r=>r.requestId===d.requestId);assert.equal(receipt.dispatched,false);assert.equal(receipt.taskId,undefined);
+ const retained=structuredClone(receipt),retainedDelegation=structuredClone(d);
+ const foreign={...scope,externalConnectionId:'foreign-scope',parentRequestId:'foreign-scope'};
+ await assert.rejects(f.router.collaborationTool(foreign,'task_result',{taskId:'missing-original-task'},'foreign',leader.machineId),{code:'COLLABORATION_FORBIDDEN'});
+ assert.deepEqual(receipt,retained);assert.deepEqual(d,retainedDelegation);
 });

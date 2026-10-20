@@ -1,5 +1,9 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+M09-F01：Core 接受可识别 1.x/2.x 并只读握手选择原生协议；Edge 使用统一 reply/interrupt 客户端分派，operationId 仍先持久且控制不重试。V1 permission/question 映射复用原表单校验；禁工具验证入口仍仅核验过 2.0.24。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
+
 Windows Core Controller 后台启动及显式版本检查使用 windowsHide；保留 detached、日志与原身份/任务归属，CLI 前台交互不变。[桌面空闲专项](../../iterations/I07/desktop-polling.md)。
 
 更新日期：2026-10-12。CLI 是已交付的本机 OpenCode 使用和自动化入口；Core Hub/Edge 也是 OpenCode 桌面适配器内部使用的兼容执行链。它与当前桌面中央 Coordinator、SSH daemon 分属不同层，不应混称一个公网中央 server。
@@ -40,7 +44,7 @@ Coordinator 管理多机器、节点和桌面台账；Core controller 管理一�
 
 1. TTY 中无子命令时进入交互菜单；非 TTY 默认调用只显示帮助，不启动服务或调用模型。
 2. 首次初始化私有状态目录和内部凭据，启动或复用 Core controller。
-3. 通过共享 tool-discovery 扫描当前平台安装位置，复用 Windows exe/cmd/npm 解析及 Linux 用户目录规则，跳过损坏版本；OpenCode Core 仍要求 2.x。
+3. 通过共享 tool-discovery 扫描当前平台安装位置，复用 Windows exe/cmd/npm 解析及 Linux 用户目录规则，跳过损坏版本；OpenCode Core 当前支持 1.x/2.x 各自原生协议。
 4. 显示发现的工具，空格选择，回车后记录并启用当前目录的连接。
 5. 自动调用 start 和只读 check；失败显示原生启动原因，不把保存草稿当成已连接。
 6. 已配置启用连接再次进入时自动连接；高级路径/服务/历史配置单独入口。

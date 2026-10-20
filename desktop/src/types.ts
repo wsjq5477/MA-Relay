@@ -21,6 +21,11 @@ export interface Event {
     error?: { message: string };
   };
 }
+export interface DetailRead {
+  id: string;
+  status: "loading" | "ready" | "missing" | "error";
+  message?: string;
+}
 export interface Task {
   historical?:boolean;
   nodeId?: string;
@@ -134,7 +139,7 @@ export interface AgentNode {
   uncertain?:boolean;
   waiting?:boolean;
   lastError?:{code:string;message:string};
-  status:"connected"|"discovered"|"offline"|"tool_error"|"unsupported";
+  status:"connected"|"discovered"|"offline"|"tool_error"|"unsupported"|"needs_check"|"upgrade_required"|"version_incompatible";
   error?:string;
 }
 export interface ConnectionCapabilities {
@@ -185,6 +190,7 @@ export interface Machine {
   credentialSaveSupported?: boolean;
   credentialAvailable?:boolean;
   daemonVersion?: string;
+  progressWarning?: {code:string;causeCode:string;message:string};
   installProgress?: {phase: string; completedBytes: number; totalBytes: number};
 }
 export type SshAuthKind = "password" | "key" | "agent";

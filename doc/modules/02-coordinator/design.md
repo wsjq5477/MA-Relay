@@ -1,5 +1,17 @@
 # M02 中央协调后台设计
 
+## 当前维护进度与持久化边界
+
+M02-F04：进度通知仅内存合并；正确性通知同步保存，失败恢复原机器投影。要求maintenance-persistence-v1避免复用旧中央。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
+## 当前版本准入与管理作用域
+
+M02-F04：中央要求三项能力owned-object-controls-v1/scoped-management-v1/opencode-v2-admission-v1；旧中央仍允许设置/运行信息/显式停止。GraphOperationJournal的node/machine按machineId或connectionId冲突，缺来源和relation保守互锁。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+
+## 独立 MCP 配置与运行契约（2026-10-19）
+
+M02-F03/F05：白名单加入mcp.status/install/export/remove。先由原节点归属派生机器和adapter，忽略客户端路径或可执行项，错误机器拒绝。长期MCP的配置状态独立于原执行pending；状态刷新不提交模型任务。四方法沿原MachineHost/RPC路由，不能扩大连接关系或重放原请求。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
+
 2026-10-18能力补验：已验证同WSL三个独立Claude宿主的真实公共文档交付/独立复核/原主会话协调；开发与复核成员各一轮，主协调三轮，成员原生成功后才逐项验收，主原生成功后才总完成。原既有权限/事件/预算与接口不变；代码编译返修/独立SSH仍待验证。[范围与真实证据](../../iterations/I07/native-members.md)。
 
 业务验收除原生成功终态外，还须当前有效执行没有continuationError：工作项按当前业务轮次最后一次尝试，独立协调按每成员最后一次尝试。旧轮次/已被后续执行取代的异常保留历史但不永久阻塞。任务验收、直接总验收及延后提议生效前均核对，不改写Core原生终态。此为alpha.28后未发布源码增量，[规则与验证](../../iterations/I07/acceptance-native-binding.md)。
@@ -49,6 +61,8 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。代码基线：桌面源码 `0.6.0-alpha.18`，根 CLI 包 `0.1.0`；Windows 已发布便携版仍为 `0.5.0`。本模块已实现独立后台和本地 IPC，Windows 候选生命周期与普通 EXE 已验收。测试结论见 [本模块测试报告](test-report.md)。
 
 ## 1. 用途与交付功能
+
+**当前整合实现（2026-10-19，M02-F01/F03/F04/F05/F08）**：中央/客户端三项能力门禁和按机器持久管理台账已与mcp.status/install/export/remove、team.materials/精确revision读取共存；写操作原幂等收据保持，长期MCP无父Task不影响中央原任务恢复。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
 
 
 中央协调后台（Coordinator）是这份 AgentBridge 配置的管理进程。它保存机器、Agent 节点、协作关系和待核对操作，连接 Windows、WSL、SSH 机器，并把用户需求转发到指定节点。它自身没有模型，不负责推理；主 Agent 由用户从已接入的原生 Agent 节点中指定。
@@ -141,13 +155,21 @@ sequenceDiagram
   K->>B: 复用原后台和持久身份
 ```
 
-新 EXE 的界面与已运行的后台可以属于不同发布版本。只要当前 profile 身份和 IPC 协议握手通过，新窗口可读取该旧后台，也可从自己的“设置 → 后台运行 → 停止后台并退出”停止它；不需要旧 EXE 或旧窗口。停止后再次打开新 EXE，原配置身份保留，后台从新 EXE 的冻结资源启动。此操作不会自动把正在运行的后台替换成新版本；侧栏版本当前来自后台 preferences，连接旧后台时可能仍显示旧版本。
+新 EXE 的界面与已运行的后台可以属于不同发布版本。当前profile身份、IPC协议和三项业务语义能力全部通过后，新窗口可读取该后台；缺新能力时只保留设置/运行信息和显式停止，也可从自己的“设置 → 后台运行 → 停止后台并退出”停止它；不需要旧 EXE 或旧窗口。停止后再次打开新 EXE，原配置身份保留，后台从新 EXE 的冻结资源启动。此操作不会自动把正在运行的后台替换成新版本；侧栏版本当前来自后台 preferences，连接旧后台时可能仍显示旧版本。
 
 首次后台启动发生在首次业务请求时，不是窗口构造时。已存在地址只允许连接，不能因握手失败自动新建后台或删除未知进程。Linux 残留 socket 只有确认无服务、是当前用户 socket 后才移除。Windows 同名管道已占用时直接拒绝第二个服务。
 
 资源冻结先写临时目录，完成后原子改名；复制根 `dist`、后台 CJS 文件、`package.json` 及其生产依赖闭包，并复制 Linux 离线包。真正启动的是冻结副本中的 `coordinator.cjs`。Electron 的 ICU/V8 等运行资源由 `workerRuntime` 另存，避免便携启动器清理临时目录后后台无法执行。
 
 ## 5. 本地 IPC 与业务 API
+
+### 公共材料只读入口（M02-F08，CT-04/05）
+
+当前另支持 `team.contextPacket({runId,targetAgentId,selections})`：同一次状态读取先授权view，再补本工作的全消息供明确ID/seq选择，交由纯team-context-packet模块校验精确引用/目标/限额。成功和失败均不写receipt、不派发或确认消息；256 KiB含完整JSON/Markdown，超限拒绝。成员工具沿原scope，不授予目标访问或发送给目标。接口/数据/错误/源码与当前证据见[CT-05](../../iterations/I07/context-packet.md)。
+
+alpha.29之后源码：service.dispatch的team方法集合增加 `team.materials`，用户参数runId、可选limit/documentAfter；获准成员MCP调用 `team_materials` 沿原scope路由。TeamSpace先授权，再将同一次read所得view交给纯投影 `team-materials.cjs`，返回schema1 JSON及Markdown。没有新写操作/幂等收据、通知确认、网络可达性探测或任务派发。
+
+`team.document` 可选revision严格读既有不可变history；缺失修订返回TEAM_DOCUMENT_REVISION，无参数保留原完整当前文档结构。跨工作/撤权/原生终态scope继续拒绝，所有者可读历史。索引摘要是返回页内容摘要，不是全局工作修订或权限。限额/白名单与[完整合约](../../iterations/I07/public-materials.md)一致；IPC/daemon协议版本不变。本片尚未进入alpha.29包。
 
 本地 IPC 使用 UTF-8 JSON 行，协议版本为 `2`，不同于远端 daemon 的四字节长度帧。`StringDecoder` 保留跨 chunk 的完整中文和 emoji。未经握手不能调用业务；握手限时 5 秒。单条请求最大 1 MiB、每客户端最多 64 项在途请求，输出缓冲达到 8 MiB 时关闭通道。
 
@@ -199,7 +221,7 @@ Windows OpenCode 的共享运行资源 INVALID/MISSING 可发生在上下文创�
 
 已实现但已通过候选主要流程：便携包后台冻结、关闭/重开窗口、明确停止及真实 SSH 原任务恢复。Windows 跨用户管道 ACL 等专项边界未测。2026-10-10 的已有真实记录来自 Linux 开发端，不能替代 Windows 新包。
 
-尚未完成：后台版本升级/兼容迁移、完整连接故障指标验收。设置页已提供“仅关闭窗口”和“停止后台并退出”；后者展示连接/协作暂停与远端任务保留的确认，确认时暂停界面轮询，避免退出过程中再次拉起后台。新客户端可以附着到已有协议兼容的后台；当前附着握手未强制核对源码版本一致，发布验收应检查实际后台版本，不能仅看窗口版本。
+尚未完成：后台版本升级/兼容迁移、完整连接故障指标验收。设置页已提供“仅关闭窗口”和“停止后台并退出”；后者展示连接/协作暂停与远端任务保留的确认，确认时暂停界面轮询，避免退出过程中再次拉起后台。新客户端仅在协议及显式语义能力齐备时使用已有后台；握手不要求源码版本字符串一致，发布验收应检查实际后台版本，不能仅看窗口版本。
 
 资源缓存摘要包含后台 CJS、根 `dist` 和 `package.json`，没有逐一纳入依赖目录与 Linux 包内容。发布时仍需核对冻结资源和离线包，不将缓存命中视为完整发布校验。
 

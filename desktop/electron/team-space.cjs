@@ -129,7 +129,7 @@ class TeamSpace {
   }
   async call(method, p = {}, actor = { user: true, key: 'user' }) {
     if (!p || typeof p !== 'object' || Array.isArray(p)) throw fail('TEAM_INPUT', '小队请求不合法。');
-    if (!actor.user && !['team.context', 'team.messages', 'team.postMessage', 'team.document', 'team.writeDocument', 'team.acknowledge', 'team.operation', 'team.tasks', 'team.wake', ...taskMethods].includes(method))
+    if (!actor.user && !['team.contextPacket', 'team.materials', 'team.context', 'team.messages', 'team.postMessage', 'team.document', 'team.writeDocument', 'team.acknowledge', 'team.operation', 'team.tasks', 'team.wake', ...taskMethods].includes(method))
       throw fail('TEAM_FORBIDDEN', '成员只能使用获准的小队协作操作。');
     if (method === 'team.snapshot') {
       const s = this.read();
@@ -150,6 +150,11 @@ class TeamSpace {
     }
     if (method === 'team.tasks') { const s = this.read(); const r = this.authorize(s, actor, p.runId) || this.run(s, p.runId); return taskView(s, r); }
     if (method === 'team.context') return this.view(this.read(), p.runId, actor);
+    if (method === 'team.materials') return require('./team-materials.cjs').materials(this.view(this.read(), p.runId, actor), p);
+    if (method === 'team.contextPacket') {
+      const s=this.read(),view=this.view(s,p.runId,actor);
+      return require('./team-context-packet.cjs').contextPacket({...view,messages:s.messages.filter(m=>m.runId===view.run.runId)},p);
+    }
     if (method === 'team.messages') {
       const s = this.read(), r = this.authorize(s, actor, p.runId) || this.run(s, p.runId);
       const after = p.after ?? 0;
@@ -161,7 +166,7 @@ class TeamSpace {
       const s = this.read(); this.authorize(s, actor, p.runId);
       const d = s.documents.find(d => d.runId === p.runId && d.documentId === p.documentId);
       if (!d) throw fail('TEAM_DOCUMENT', '共享文档不存在。');
-      return d;
+      return p.revision===undefined?d:require('./team-materials.cjs').pinnedDocument(d,p.revision);
     }
     if (method === 'team.execute') return this.execute(p);
     if (method === 'team.stopRun') {
@@ -292,7 +297,7 @@ class TeamSpace {
     const actor = { sessionId }, s = this.read();
     const run = this.authorize(s, actor);
     actor.key = 'member:' + run.runId + ':' + actor.agentId;
-    const methods = { team_request_attention: 'team.wake', team_retry_task: 'team.retryTask', team_tasks: 'team.tasks', team_operation: 'team.operation', team_create_task: 'team.createTask', team_claim_task: 'team.claimTask', team_report_task: 'team.reportTask', team_handoff_task: 'team.handoffTask', team_accept_task: 'team.acceptTask', team_accept_run: 'team.acceptRun', team_context: 'team.context', team_messages: 'team.messages', team_post_message: 'team.postMessage', team_document: 'team.document', team_update_document: 'team.writeDocument', team_acknowledge: 'team.acknowledge' };
+    const methods = { team_context_packet: 'team.contextPacket', team_materials: 'team.materials', team_request_attention: 'team.wake', team_retry_task: 'team.retryTask', team_tasks: 'team.tasks', team_operation: 'team.operation', team_create_task: 'team.createTask', team_claim_task: 'team.claimTask', team_report_task: 'team.reportTask', team_handoff_task: 'team.handoffTask', team_accept_task: 'team.acceptTask', team_accept_run: 'team.acceptRun', team_context: 'team.context', team_messages: 'team.messages', team_post_message: 'team.postMessage', team_document: 'team.document', team_update_document: 'team.writeDocument', team_acknowledge: 'team.acknowledge' };
     if (!methods[name]) throw fail('TEAM_METHOD', '当前阶段不支持该协作操作。');
     if (p.runId && p.runId !== run.runId) throw fail('TEAM_FORBIDDEN', '不能访问其他工作。');
     if (['team_claim_task', 'team_report_task'].includes(name)) {

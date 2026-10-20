@@ -1,6 +1,32 @@
 # M10 构建、发布与持久运行资源设计
 
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](../../iterations/I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+M10-F01/F03/F05：alpha.33已预发布，采用原已验证候选字节并绑定合并源码，39 CJS/78 core/1405 Linux资源及149冻结文件匹配；不纳入主工作区后续未发布功能。 [交付、校验与升级边界](../../iterations/I07/maintenance-persistence.md)。
+
+## 当前维护进度与持久化边界
+
+M10-F01/F03/F05：alpha.33仅公开alpha.32加issue10补丁，收入精确alpha.32 manifest，窗口/中央/Linux同源冻结。主工作区CT-04/CT-05未提交增量不纳入，旧integrated.3 EXE不被改写。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
+2026-10-20后续：CT-05桌面新增React组件与验证/输出模块，仅Vite/TypeScript源码构建，不改生产依赖、资源收集或发布版本。本片无新EXE/Linux包；integrated.3与公开alpha.32冻结字节保持，未来候选须同时冻结CT-05后端/前端再验包。[源码/程序范围](../../iterations/I07/context-packet-ui.md)。
+
+2026-10-20包范围：新team-context-packet.cjs沿现有electron CJS收集规则进入未来冻结副本，无新依赖/资源布局或发布协议。本片没有打包；公开alpha.32及此前integrated.3 EXE均不含CT-05。package.json仍integrated.3不代表当前源码已封包，后续须独立版本、冻结与包校验，保留原附件摘要。[当前源码增量与未测边界](../../iterations/I07/context-packet.md)。
+
+## 当前版本准入与管理作用域
+
+M10-F01/F03/F05：alpha.32已预发布同时冻结窗口/中央/Linux修复，收入alpha.31精确原manifest。新前台拒绝旧中央管理/版本语义，设置显式停止仍可用；普通EXE及完整公开下载验证分开，原CT-04未提交工作不入包。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+
+## 当前历史详情读取与错误作用域
+
+M10-F01/F03/F05：alpha.30从已发布alpha.29隔离修复，CT-04未提交内容不入包。Windows窗口、冻结后台及Linux资源同时包含详情归属/错误隔离；收录alpha.29原manifest精确摘要保持原远端维护路径，不自动升级远端。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](../../iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
+## 独立 MCP 配置与运行契约（2026-10-19）
+
+M10-F01/F02：独立MCP实现需要根生产依赖jsonc-parser与smol-toml。现有stage-bridge/stage-linux-package及Coordinator运行时收集根生产依赖并复制electron实现，未修改发布版本和冻结资源。三份MCP文件在目标机器运行时生成，不含Token，不能跨机器直接复用。本片未构建EXE或Linux发布包，包内验证保持未测。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
+
+2026-10-19较早：冻结源码23d256e已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](../../iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 本次桌面空闲修复使用独立冻结源码与候选版本 `0.6.0-alpha.28.poll.4`，公开 alpha.28/ui.2 字节不被覆盖；资源一致性、普通EXE和黑窗观察分层报告。[候选与实际验证](../../iterations/I07/desktop-polling.md)。
 
@@ -45,14 +71,16 @@ M10-F01/F03/F05：当前源码及GitHub预发布alpha.25纳入未完成上下文
 
 ## 1. 功能范围
 
+**当前整合实现（2026-10-19，M10-F01/F02/F03/F05/F06）**：当前本地候选0.6.0-alpha.32.integrated.3从独立358文件源码/配置/测试/素材清单冻结，42后台CJS、78核心文件、1446 Linux条目及窗口ASAR/前端摘要一致，含smol-toml1.9.1与精确alpha.32兼容pin。旧.1/.2候选保留各自源码/摘要；公开仍alpha.32，Git未提交。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
+
 | 功能 ID | 交付目标 | 当前状态 |
 | --- | --- | --- |
-| M10-F01 | 编译、类型检查、构建、自动化回归入口 | 2026-10-18 UI冻结源码串行桌面381/381，含59项生产React SSR；核心45/45见原同日集成基线，不覆盖11:18后共享目录增量；各层不跨模块相加 |
-| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | alpha.28.ui.2本地候选资源匹配，普通无debug Windows EXE4项通过；GitHub公开包仍为原alpha.28 |
-| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.28.ui.2候选包含1396条目及原alpha.28可信清单；包一致性通过，未在用户独立服务器安装或升级 |
+| M10-F01 | 编译、类型检查、构建、自动化回归入口 | 本轮核心51/51、桌面570/570及类型/lint/构建通过；跨模块共享计数，不含真实模型 |
+| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | integrated.3本地候选42后台CJS/窗口ASAR/前端资源匹配；普通EXE五组通过，公开仍alpha.32 |
+| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | integrated.3包含1446条目、Linux Node22.23.1和精确已发布alpha.32清单；未部署用户独立服务器 |
 | M10-F04 | 发布包坏路径/坏摘要拒绝安装，远端校验后原子激活版本 | 校验实现，受控安全检查及真实正常安装通过；破坏性故障矩阵未完成 |
-| M10-F05 | 便携启动器清理临时文件后，后台/worker 使用用户目录持久副本 | alpha.28.ui.2普通EXE关闭/重开与全后台重启保持原IPC/SQLite记录，原生请求台账无新增/重放；不是用户profile升级验收 |
-| M10-F06 | 发布报告记录版本、EXE 大小/SHA-256、实际验证环境和未测项 | alpha.28.ui.2本地候选大小、摘要和4项普通EXE证据已形成；未发布GitHub，完整I06C/I07C及正式0.6.0未准出 |
+| M10-F05 | 便携启动器清理临时文件后，后台/worker 使用用户目录持久副本 | integrated.3持久副本与窗口/后台重开五组通过，原请求/unknown与同一MCP连接保留；不把旧ui.2或.2候选证据扩大 |
+| M10-F06 | 发布报告记录版本、EXE 大小/SHA-256、实际验证环境和未测项 | 公开alpha.32保留原发布摘要；integrated.3仅本地候选，新大小/摘要/实际边界见整合专项，未公开发布 |
 | M10-F07 | 升级、回滚、旧配置迁移和安全删除有用户流程 | 部分历史配置兼容；alpha.11 可信升级/回滚/停止/卸载已实现；旧中央直接降级仍不支持 |
 
 M10 管理可执行材料和一致性，不管理模型/账号，也不把远端原生 CLI 打进包。用户机器或 Linux 上仍须已有可用 OpenCode/Claude/Codex 及其原生认证。缺少这些时，安装 Bridge 成功不代表 Agent 能回答。
@@ -78,6 +106,10 @@ alpha.19 将同一 Linux CLI 发现修复打入窗口 CJS、冻结后台及 Linu
 alpha.19 合并 OpenCode 二次发现/Windows Core 配置刷新与 Linux CLI 发现两项修复；包内 bridge/dist、Linux dist 与共享 CJS 都必须匹配最终源码。原早先 alpha.19 Linux-only 包不能作为合并包的核验事实。[OpenCode 范围](../../iterations/I06/opencode-discovery.md)、[统一交付](../../iterations/I06/linux-cli-discovery.md)。
 
 ## 3. 构建流程
+
+CT-04桌面材料入口当前只做TypeScript/Vite生产构建，新增TeamMaterials/版本核对代码进入该dist；没有新EXE、verify-package或Linux打包。当前公开alpha.31属于独立修复分支，本工作区仍alpha.29派生且保留MCP/材料未提交增量，必须先整合alpha.30/31修复再冻结候选；不能直接把本工作区标成alpha.31或沿用其包验收。[核对元数据与源码边界](../../iterations/I07/public-materials-ui.md)。
+
+CT-04新增 `electron/team-materials.cjs` 沿既有顶层CJS收集规则进入未来窗口/持久后台/Linux包；仍需新冻结版本的完整构建与verify-package，不能因源码测试通过或package.json仍为alpha.29就声称已收录。当前公开alpha.29绑定23d256e、38后台CJS，未含本片；本次没有打包/发布或修改可信清单。[源码增量边界](../../iterations/I07/public-materials.md)。
 
 ```mermaid
 flowchart TD

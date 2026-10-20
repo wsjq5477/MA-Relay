@@ -47,8 +47,22 @@ export interface TeamContext {
 }
 export interface TeamConnection { configuration: { command: string; args: string[]; env: Record<string, string> }; instructions: string }
 
+export interface PinnedTeamDocument {
+  documentId: string; runId: string; revision: number; currentRevision: number;
+  title: string; content: string; authorId: string; time: string; contentSha256: string;
+}
+export interface TeamMaterials {
+  schema: 1; readOnly: true; snapshotId: string; markdown: string;
+  run: {runId: string; name: string; state: string};
+  documents: {
+    items: {documentId: string; title: string; revision: number; contentSha256: string}[];
+    total: number; hasMore: boolean; next: string | null;
+  };
+  artifacts: {artifactId: string; workItemId: string; version: string; reference: string; access: 'reference-not-checked'}[];
+}
+
 export interface TeamWorkReport {
-  reportId: string; round: number; outcome: string; summary: string; reporterId: string;
+  reportId: string; round: number; outcome: string; summary: string; reporterId: string; evidenceSource?: string;
   artifact?: { artifactId: string; version: string; reference: string };
   targetArtifactId?: string; targetVersion?: string; accessConfirmed?: boolean; evidenceReference?: string;
 }

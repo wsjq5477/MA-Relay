@@ -1,6 +1,46 @@
 # AgentBridge 整体功能设计
 
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](iterations/I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+2026-10-20 **0.6.0-alpha.33已预发布**：PR #11已合并，标签冻结`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`，EXE与校验附件已公开并完成匿名完整下载核验。本次为公开alpha.32上的issue #10独立补丁，不含主工作区CT-04/独立MCP/CT-05或后续OpenCode1.x未发布驱动。维护上传的进度错误不再中断SFTP，最终台账保存失败仍不发送原维护输入。 [交付、校验与升级边界](iterations/I07/maintenance-persistence.md)。
+
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+AB-F02/F07/F08/F10/F11/F12/F13：当前源码支持官方 OpenCode 1.x 的独立原生 HTTP 协议，并保留 2.x。发现、实际契约、原生配置继承、同会话续聊、权限/问题与取消/恢复分别适配；原请求只读恢复，不以空闲或取消回执推断完成。MCP 按版本写对应布局。未打新包，公开 alpha.32 与 integrated.3 旧冻结范围不变。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+AB-F05/F06/F10/F17：进度告警独立于传输错误，展示具体本地持久化原因；最终保存失败不发送维护，原版本/历史保留。机器目录与SSH收据有界原子替换，仅清当前tmp和上传归档。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
+2026-10-20后续源码完成[CT-05桌面选材与导出](iterations/I07/context-packet-ui.md)：明确目标成员及文档/任务/消息/历史产物版本，核对后文字预览、复制、MD/JSON本机下载。观察到任务修订/成员变化或切工作时旧包失效，不发送/授权/执行。桌面581/581、Windows生产前端9组通过，模型0；未打新包，公开alpha.32与本地integrated.3旧冻结范围不变。
+
+2026-10-20当前源码新增[CT-05明确选择的材料包](iterations/I07/context-packet.md)：同一工作有效成员、明确文档修订/任务轮次/消息/产物版本，只读JSON/Markdown；每类8项、总响应256 KiB，不派发/授权/已读/搬原生Session。WSL桌面576/576、Windows定向14/14，真实Claude2.1.303一个Task读取旧版并重开不重放。公开仍alpha.32，本地integrated.3冻结EXE不含本片，未打新包；以下按原日期保留历史范围。
+
+2026-10-19 / AB-F02/F03/F07/F08/F10/F11/F12/F13/F17/F20/F21：工作源码现已同时具备已发布原对象路由/旧后台门禁/OpenCode仅2.x与按机器管理，以及未发布独立MCP、材料索引/精确修订/桌面MD入口；长期MCP准备拒绝复用原持久证据，不重发子任务。TOML生产依赖升至1.9.1，合法长注释/原文件保留通过。integrated.3为本地候选、公开仍alpha.32，[最终设计/源码/分层证据](iterations/I07/integrated-source.md)。
+
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+
+AB-F02/F03/F07/F10/F11/F13/F17：安装健康与执行兼容分离，仅OpenCode 2.x可新接入；旧上下文不能绕过。概览/关系图/设置及中央管理台账按机器隔离，原unknown与授权保护保留。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
+
+AB-F02/F03/F07/F10/F11/F13/F17：统一OpenCode实际API兼容判定、准备拒绝委派与原对象控制路由，新增中央/daemon安全读取语义能力门禁。用户现场和真实企业版API未复验。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+
+## alpha.30已预发布：历史详情读取恢复
+
+AB-F08/F10/F11/F17：历史详情由实际backend读取，明确未找到才按同机器同ID回历史；详情错误只影响本面板，不触发全局同步锁。仅顶层snapshot/pending失败保留全局锁，不重发原需求。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
+2026-10-19 / AB-F20/F21：CT-04现有Agent索引之上，源码已补桌面按需材料阅读、准确历史修订、复制和MD下载；核对工作/文档/修订及正文摘要后才开放文档传出，当前页索引不冒充全文档包。桌面541/541、Windows生产前端八组通过，模型0；未打包。[功能/失败路径/源码与范围](iterations/I07/public-materials-ui.md)。公开alpha.31与本地alpha.29派生源码分开，CT-05仍待实现。
+
+## I07-MCP01 独立 MCP 接入（2026-10-19，源码未发布）
+
+AB-F02/F12/F13：设置页支持选择机器上的Claude/Codex/OpenCode 2，生成独立JSON/TOML/JSONC文件、添加到原生用户配置、移除并撤销接入。日常原生会话可见agentbridge；独立接入沿用已保存连接关系，以connectionId归属委派，不伪造父Task。托管任务继续用原任务scope隔离。同名外部/已改配置不覆盖，旧接入撤销后不能复用。桌面537/537、核心45/45通过；三种真实CLI列表增删通过（Claude/OpenCode真实连接，Codex仅列表），Windows生产界面4组通过。没有新EXE或独立SSH验收。[完整需求、行为与边界](iterations/I07/mcp-installation.md)。
+
+2026-10-19 / AB-F20/F21：alpha.29之后未发布源码新增只读公共工作索引及Markdown视图，文档按指定不可变revision读取，不存在则拒绝。索引保留业务/原生/报告来源差别，不授权、不标已读、不推断完成或产物可达。桌面525/525与一个真实Claude2.1.303 Task通过；CT-04桌面/导出及CT-05尚未实现。[需求、契约与证据](iterations/I07/public-materials.md)。
+
+2026-10-19较早：冻结源码23d256e已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 2026-10-19 / AB-F07/F09/F11/F12/F13：当前未发布源码上的Claude/Codex/OpenCode三主节点真实生产MCP发现→委派→读结果→汇总均通过，共六个有向组合、9个成功原生Task；重开只查原请求，无重放。新增可恢复验收工具及7项保护测试，产品接口/存储/权限/模型配置未改。[CT-02真实MCP委派](iterations/I07/connection-delegation.md)。
 
@@ -39,7 +79,7 @@ AB-F05/F06/F17，M04/M10：alpha.26 预发布补收原 alpha.24/alpha.25 可信�
 
 ## 1. 产品解决什么问题
 
-用户已经在不同机器上安装并配置了自己的 Agent。当前源码接入 Claude Code、OpenCode、Codex、Nous Research Hermes、Pi Coding Agent 和 DeepSeek Harness（DSH）；后三种为 alpha.28 后新增的直接会话适配，尚未进入已发布 EXE。AgentBridge 把这些工具呈现为可观察的 Agent 节点，用户在一个客户端中发需求、看进度和读取结果；权限与协作能力按工具分别声明。
+用户已经在不同机器上安装并配置了自己的 Agent。当前源码接入 Claude Code、OpenCode、Codex、Nous Research Hermes、Pi Coding Agent 和 DeepSeek Harness（DSH）；后三种直接会话适配已收录alpha.29冻结包，真实新工具/模型与独立SSH仍待验。AgentBridge 把这些工具呈现为可观察的 Agent 节点，用户在一个客户端中发需求、看进度和读取结果；权限与协作能力按工具分别声明。
 
 中央后台管理连接与消息，不作为主 Agent 推理。主 Agent 是用户从已接入工具节点中指定的真实 Claude Code、OpenCode 或 Codex；它只能通过受限协作接口发现、委派和查询获准的子 Agent。
 
@@ -78,15 +118,15 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | AB-F10 权限、输入与取消 | 通过原任务处理原生等待；取消结果以原生确认判断 | alpha.12 严格核对原控制收据、表单遮罩及恢复台账脱敏；原生支持范围分别记录 | [M06](modules/06-native-adapters/design.md)、[M07](modules/07-task-session/design.md) |
 | AB-F11 未确认请求与恢复 | 原 ID 查询，不重发 Prompt；保留历史和占位 | alpha.18 修复 Windows OpenCode 未派发资源错误的原记录恢复，显示查询结果与原因；历史功能已发布；alpha.10 已观察历史跨重开保留，cursorGap 全量快照/分页补偿通过隔离 TCP SSH 验证 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
 | AB-F12 指定主从关系 | 用户指定主 Agent 及允许的子节点 | 一个默认组已发布；alpha.6 图编辑及稳定保存已实现，换主后活跃原父权限已修复 | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md) |
-| AB-F13 原生 Agent 协作 | 主 Agent 实际调用工具委派，读取子结果并汇总 | 当前未发布源码：WSL Claude/Codex/OpenCode六个委派方向真实通过；历史Windows/WSL与独立SSH双向证据保留原日期，本片不覆盖新EXE/独立SSH | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md)、[CT-02](iterations/I07/connection-delegation.md) |
+| AB-F13 原生 Agent 协作 | 主 Agent 实际调用工具委派，读取子结果并汇总 | alpha.29已收录连接能力/验收工具；WSL Claude/Codex/OpenCode六个委派方向真实通过，不能等同alpha.29 EXE模型或独立SSH验收；历史证据保留原日期 | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md)、[CT-02](iterations/I07/connection-delegation.md) |
 | AB-F14 常驻中央后台 | 关闭窗口继续协调，重开复用历史与连接 | I06A 源码已实现；0.6.0-alpha.2 候选 Windows 关闭/停止/重开已验收 | [M02](modules/02-coordinator/design.md) / [报告](modules/02-coordinator/test-report.md) |
 | AB-F15 CLI 兼容入口 | 单终端自动发现、提交、续聊、查看和控制 OpenCode | 已实现；不等同于桌面节点网络的全部入口 | [M09](modules/09-cli-hub-edge/design.md) / [报告](modules/09-cli-hub-edge/test-report.md) |
 | AB-F16 节点图 | 机器分组、拖动节点、拖拽端点授权连线 | alpha.8 支持旧后台下本机拖动、整组背景拖动及主居左；主角色/方向/避让保留；alpha.10 保留原图交互并加入机器维护，当前首批证据见 6C 报告，原生链保留 alpha.6 证据 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md) |
 | AB-F17 发布与安装维护 | 源码、离线包、Windows EXE 一致，版本可验证 | 0.5.0 历史稳定；6A 候选已验收，alpha.12 可信升级/回滚/停止/卸载源码与受控验证通过；正式 0.6.0 准出见当前报告 | [M10](modules/10-packaging/design.md) / [报告](modules/10-packaging/test-report.md) |
 | AB-F18 网页资料入口 | 桌面分组目录、同源 Markdown、章节导航、全文搜索、主题和图表 | 已实现；独立于 Agent 控制界面 | [M11 设计](modules/11-documentation-portal/design.md) / [报告](modules/11-documentation-portal/test-report.md) |
 | AB-F19 智能体登记与小队 | 登记外部已有功能的智能体、说明职责/边界，组成小队和独立工作 | alpha.23预发布已包含；不实现Skill/模型/目录或业务能力 | [M03](modules/03-machine-network/design.md)、[M08](modules/08-collaboration/design.md) |
-| AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | alpha.23预发布包含I07A基础；任务交接见AB-F21，自动持续协调首批见AB-F22，完整I07C未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[本次交付](iterations/I07/delivery.md) |
-| AB-F21 小队任务与授权交接 | 分配/接手、依赖、精确产物版本、限额交接、返修历史与业务验收 | alpha.23预发布包含I07B基础；未授权自动成员保持手动，交接本身不等于原生已启动 | [M07](modules/07-task-session/design.md)、[M08](modules/08-collaboration/design.md)、[I07B任务交接交付](iterations/I07/task-handoff.md) |
+| AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | 公开alpha.32与本地integrated.3冻结范围分开；CT-04索引/旧修订/桌面MD已实现，后续源码新增CT-05明确选择的只读材料包并经真实Claude消费；桌面明确选材/预览/MD与JSON本机导出已实现并经Windows生产前端验证，实际投递/收件证明及同步待开发，完整I07C未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[CT-04首片](iterations/I07/public-materials.md)、[CT-05首片](iterations/I07/context-packet.md)、[桌面选材](iterations/I07/context-packet-ui.md) |
+| AB-F21 小队任务与授权交接 | 分配/接手、依赖、精确产物版本、限额交接、返修历史与业务验收 | I07B任务/授权交接基础保留；CT-05桌面可选当前任务/历史产物生成核对副本，观察到任务/成员变化会使旧导出失效；不改变交接授权或证明接收。未授权自动成员保持手动，交接本身不等于原生已启动 | [M07](modules/07-task-session/design.md)、[M08](modules/08-collaboration/design.md)、[I07B任务交接交付](iterations/I07/task-handoff.md) |
 | AB-F22 持续协调首批 | 用户授权自动成员与预算，重要事件激活、原会话续接、原生终态后验收 | alpha.23已分发；alpha.24本地候选新增停止/撤权与原生终态核对，真实Claude取消通过；其他接入/多原生角色/完整故障矩阵未准出 | [M02](modules/02-coordinator/design.md)、[M06](modules/06-native-adapters/design.md)、[I07C首批交付](iterations/I07/automation.md) |
 
 ## 4. 用户的完整操作路径

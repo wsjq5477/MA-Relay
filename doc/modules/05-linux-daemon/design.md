@@ -1,5 +1,27 @@
 # M05 Linux 机器后台设计
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+M05-F02/F04：源码内的 MachineHost/Core 共用新的 V1/V2 适配与 MCP 格式，主协议和认证不变。本次在 WSL 直接验证，不冒充独立 SSH；旧已安装 daemon 需获取含本修复的新包后在原机器维护升级。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
+
+## 当前维护进度与持久化边界
+
+M05-F04/F06：本片不改变daemon原请求或维护协议；完整上传/解包/逐文件校验后仍待中央最终保存，再发送原维护输入，安全失败保留旧版本/身份。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
+## 当前版本准入与管理作用域
+
+M05-F02/F04：Linux包包含MachineHost/Core的原OpenCode版本复验与快速API/认证拒绝，hello声明新增能力。旧daemon需在原机器空闲时显式升级；原对象/收据身份和协议2不变。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+
+读取归属已失配的旧会话只允许查看，即使宿主保有原生Session也不宣告可继续；不改其Agent、ID或Session，正常绑定和真正legacy能力保留。
+
+## 当前历史详情读取与错误作用域
+
+M05-F04/F06：生产MachineHost的task/conversation按实际backend快照路由；根legacy只有自身含原对象才接收详情读，多来源冲突或ID不符拒绝，未知来源明确未找到，真实探测/配置失败保留。协议2、原请求去重及控制语义不变。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+
+## 独立 MCP 配置与运行契约（2026-10-19）
+
+M05-F04：认证主连接新增四个mcp.*方法，沿原MachineHost处理目标Linux用户的配置。install/export/remove参与维护admissions计数，quiesce后拒绝配置写入，status仍只读。旧包无此方法，客户端不得当作已安装；需要升级原远端后台。独立stdio服务只连同机回环broker，再经原主连接回中央验关系。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
+
 2026-10-18 未发布源码：daemon 的 MachineHost 静态注册增加 Hermes/Pi/DSH，仍在目标用户环境执行；任务属于同机宿主与持久 worker，relay 断开或观察器 close 不取消原任务。协议版本和认证不变；旧已安装 daemon 不因客户端更新自动获得新适配器，需要发布含新增模块的后台再在原机器升级。[扩展范围与证据](../../iterations/I07/native-agent-expansion.md)。
 
 ## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
@@ -13,6 +35,8 @@ M05-F05/F06：daemon业务/协议不变，既有daemon.receiptRead返回原持�
 原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。代码基线：新安装 daemon `0.6.0-alpha.19`；可复用可信清单内的 alpha.2–alpha.11，实际运行版本由握手确认、远端协议 `2`。独立进程、私有 socket、收据去重、relay 分离已实现；已有独立服务器断线期间任务继续记录。事件过期补偿已在 alpha.10 实现；完整故障矩阵尚未完成，详见 [测试报告](test-report.md)。
 
 ## 1. 用途与功能
+
+**当前整合实现（2026-10-19，M05-F02/F04/F05/F08）**：owned-object-controls-v1随daemon hello公布；对象读控回原MachineHost，独立mcp.*仍经认证原主连接与机器归属，旧daemon不能按同协议号冒充新方法。客户端scoped-management/opencode-v2能力不变成所有旧SSH方法的额外通用门槛。新候选Windows与Linux包同源，未实际部署独立服务器。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
 
 Linux daemon 是目标 Linux 上由 AgentBridge 安装的机器管理进程。它发现本用户可用的原生 Agent、建立执行上下文、接收需求并保存操作收据。SSH 会话内的 relay 只负责数据转发，远端已接收任务的生命周期由 daemon/原生 worker 负责，SSH 断开不等于取消任务。
 

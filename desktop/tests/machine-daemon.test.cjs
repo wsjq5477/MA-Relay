@@ -301,3 +301,13 @@ test('foreign native control receipt IDs never confirm the original action and r
  const d=await startDaemon({...opts,hostFactory:()=>host});t.after(()=>d.close());const c=await client(t,opts);assert.equal((await c.call('ipc',{op:'cancel',taskId:'owned',operationId:'original'})).state,'unknown');
  assert.equal((await c.call('ipc',{op:'operation',taskId:'owned',operationId:'original'})).state,'rejected');assert.equal((await c.call('ipc',{op:'operation',taskId:'owned',operationId:'original'})).state,'rejected');assert.equal(effect,1);
 });
+
+test('authenticated daemon exposes MCP configuration methods and blocks configuration writes during maintenance',async t=>{
+ const opts=setup(t),host=hostFixture(),original=host.call.bind(host),calls=[];
+ host.call=async(method,params)=>{if(method.startsWith('mcp.')){calls.push(method);return {nodeId:params.nodeId,state:'absent'};}return original(method,params);};
+ const daemon=await startDaemon({...opts,hostFactory:()=>host});t.after(()=>daemon.close());const connection=await client(t,opts);
+ for(const method of ['mcp.status','mcp.install','mcp.export','mcp.remove'])assert.equal((await connection.call(method,{nodeId:'node',adapter:'claude'})).nodeId,'node');
+ await connection.call('daemon.quiesce',{operationId:'maintenance'});
+ await assert.rejects(connection.call('mcp.install',{nodeId:'node',adapter:'claude'}),{code:'DAEMON_MAINTENANCE'});
+ await connection.call('mcp.status',{nodeId:'node',adapter:'claude'});assert.equal(calls.length,5);assert.equal(host.executions,0);
+});

@@ -19,7 +19,7 @@ test('discovery honors the current PATH command, reports its failure, and uses n
     assert.equal((await discoverOpenCode({ path, home }))[0]!.executable, resolve(native, 'opencode'));
     assert.equal((await discoverOpenCode({ path: '', home }))[0]!.version, '2.0.24');
     writeFileSync(resolve(native, 'opencode'), '#!/bin/sh\necho "opencode v1.0.0"\n', { mode: 0o700 });
-    assert.deepEqual(await discoverOpenCode({ path: '', home }), []);
+    assert.equal((await discoverOpenCode({ path: '', home }))[0]?.version, '1.0.0');
   } finally { rmSync(home, { recursive: true, force: true }); }
 });
 
@@ -40,8 +40,8 @@ test('OpenCode revalidation uses the selected launcher outside PATH and never su
   assert.deepEqual(await discoverOpenCode(options), [], 'a healthy alternative must not replace a broken selected node');
   rmSync(selected);
   assert.deepEqual(await discoverOpenCode(options), [], 'a deleted installation must remain rejected');
-  writeFileSync(selected, "process.stdout.write('opencode v1.0.0\\n');");
-  assert.deepEqual(await discoverOpenCode(options), [], 'shared discovery must not broaden the OpenCode 2 API contract');
+  writeFileSync(selected, "process.stdout.write('opencode v1.0.0\\n');", {mode:0o700});
+  assert.equal((await discoverOpenCode(options))[0]?.version, '1.0.0', 'connection must probe API rather than reject CLI display version');
 });
 
 test('OpenCode secondary discovery honors Windows npm launcher resolution', async t => {
@@ -56,4 +56,15 @@ test('OpenCode secondary discovery honors Windows npm launcher resolution', asyn
   const detected = await discoverOpenCode({ home, path: home, platform: 'win32' });
   assert.equal(detected[0]?.executable, binary);
   assert.deepEqual(await discoverOpenCode({ home, path: '', executable: binary }), detected);
+});
+
+test('enterprise 1.x selected installation reaches API validation instead of a contradictory second discovery',async t=>{
+ const home=mkdtempSync(resolve(tmpdir(),'ab-enterprise-'));t.after(()=>rmSync(home,{recursive:true,force:true}));
+ const executable=resolve(home,'opencode.cjs');
+ for(const version of ['1.2.22.h0.r1','1.19.0']){
+  writeFileSync(executable,`process.stdout.write('opencode v${version}\\n');`,{mode:0o700});
+  const scanned=await scanTools({home,platform:'linux',environment:{PATH:''},candidates:{claude:[],codex:[],hermes:[],pi:[],dsh:[],opencode:[executable]}});
+  assert.equal(scanned[0].healthy,true);
+  assert.equal((await discoverOpenCode({home,path:'',executable}))[0]?.executable,executable);
+ }
 });

@@ -1,5 +1,21 @@
 # M06 原生 Agent 适配器设计
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+M06-F01/F02/F04：OpenCode 新增独立 V1 原生生命周期和 MCP 配置，保留 V2；CLI 版本可识别与实际契约有效分别检查。不改变其他 Agent 的账号/模型、原生 Session 或台账归属。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
+
+## alpha.32 历史版本准入与管理作用域
+
+M06-F01：OpenCode安装检测可返回1.x健康，但新接入/执行只支持2.x；托管启动/旧配置恢复在serve前复验原安装，实际只读API契约继续检查，401/403与契约错误快速透传。其他适配器不受2.x限制。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+
+## 当前历史详情读取与错误作用域
+
+M06-F01/F02：原生adapter不新建模型/API层；历史task/conversation由MachineHost确认实际backend后只读原ID，空/旧targetAgent不把Codex/Claude读误导到根OpenCode。原生Session、返回轮次、取消和原请求规则不变。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+
+## 独立 MCP 配置与运行契约（2026-10-19）
+
+M06-F01/F04：Claude/Codex/OpenCode 2支持独立MCP接入的配置格式适配。Claude改mcpServers.agentbridge，Codex改mcp_servers.agentbridge标记块，OpenCode 2改mcp.servers.agentbridge；尊重各自配置目录变量，仅修改自己拥有的条目。生成JSON/TOML/JSONC独立文件，模型/登录配置保持；Hermes/Pi/DSH无兼容声明。Bridge托管任务仍用任务scope覆盖同名MCP，长期入口面向外部会话。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
+
 2026-10-19[Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)核对产品入口与公开驱动区别：Grok Build的headless/ACP列为CT-03候选，尚未注册；Claude Projects协调器、Dots和Grok Bot也没有因已有CLI适配而成为可直接操控入口。本轮无原生协议或产品代码变化。
 
 2026-10-18当前适配方式和后续目标统一见[接入矩阵](../../agent-integration-matrix.md)：六种内置实际为原CLI或自写HTTP客户端，没有采用厂家SDK或ACP；MCP是Agent调用Bridge的方向。可选ACP试点、公共材料与上下文建议见[研究](../../iterations/I07/connectivity-research.md)，本轮仅文档核对，未增加驱动。
@@ -41,6 +57,8 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 
 ## 1. 用户看到的功能与边界
 
+**当前整合实现（2026-10-19，M06-F01/F02）**：OpenCode仍仅2.x，显示版本/启动成功不代表API/账号推理可用；旧已派发收据先查询，不按当前兼容状态隐藏。integrated.3冻结时小队工具17项；后续CT-05源码为18项，经典六工具与长期MCP作用域保持分开。Codex用户配置由smol-toml1.9.1读写，JSONC不变；解析器无原型表保留，原文件冲突/损坏仍拒绝覆盖。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
+
 
 用户先在机器中接入一个已安装的 Agent 节点，再对该节点新建会话。接入节点不需要文件夹、模型或供应商；需要处理已有文件时，在新会话阶段填写目标机器上的目录。留空使用该节点默认执行目录，同节点/目录/模式/当前安装复用上下文；安装路径更新后新工作建立独立上下文，旧上下文的 executable、agentId 与原会话归属保持原值；不同新会话不保证文件隔离。
 
@@ -57,6 +75,14 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 本模块不负责 SSH 登录、机器身份或主/子节点关系。机器通信交给机器连接层；允许委派哪些节点交给协作层。工具被选为主 Agent 时，适配器注入受限的 AgentBridge MCP 连接和协作指引，实际推理由该工具完成。
 
 ## 2. 模块内部结构
+
+### 小队材料MCP（M06-F02，CT-04/05）
+
+当前team-tools小队集合18项，新增只读team_context_packet；原生scope/权限注入机制不变，工具schema要求目标成员与明确四类版本引用，缺材料通过原工具回查。每类8项、总JSON/Markdown256 KiB；正文属于外部材料，不当作系统指令。调用不启动/续接/取消原生任务、不改原生配置，经典六工具与长期MCP分开；Hermes/Pi/DSH不因此获得小队能力。真实Claude2.1.303一次旧版包消费和重开只观察已验证，其他工具/Windows EXE/SSH未验。[完整当前契约](../../iterations/I07/context-packet.md)。下方CT-04当次记录保留原冻结范围。
+
+alpha.29之后源码的 `team-tools.cjs` 通过tools/list公布17项小队工具，新增只读 `team_materials`；`team_document`增加可选正整数revision。原生新scope沿原机制复制描述/指令和stdio MCP，经典主从六工具不变，未赋予Hermes/Pi/DSH小队MCP能力。成员先读短索引，再按文档ID/revision取正文；新字段须核对实际响应，旧后台忽略字段不能冒充历史读取。
+
+入口只读，不启动/续接/取消原生任务，不注入厂商SDK/模型配置。实际WSL Claude2.1.303一个Task成功调用两种新读取，其他原生工具和Windows/SSH尚未验；未构建新EXE。[契约与证据](../../iterations/I07/public-materials.md)。
 
 ```mermaid
 flowchart TD

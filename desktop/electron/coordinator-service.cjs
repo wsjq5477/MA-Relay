@@ -9,10 +9,10 @@ const { recoverJournal } = require('./pending-journal.cjs');
 const {digest}=require('./graph-layout.cjs');
 const { GraphOperationJournal } = require('./graph-operations.cjs');
 const { supportsTeamCollaboration, connectionCapabilities, isCollaborationCapabilityRejection } = require('./builtin-adapters.cjs');
-const teamMethods=new Set(['team.stopRun','team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
+const teamMethods=new Set(['team.contextPacket','team.materials','team.stopRun','team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
 const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview']);
-const methods = new Set(['snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
+const methods = new Set(['mcp.status','mcp.install','mcp.remove','mcp.export','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
 // SSH state is a complete observation: absent errors revoke cached failures.
 // A live transport must not hide a failed business snapshot (e.g. RPC timeout).
 function mergeSshState(machine, state, snapshot = false) {
@@ -21,7 +21,10 @@ function mergeSshState(machine, state, snapshot = false) {
   const snapshotError = snapshot && snapshotOnline === false ? machine.error : undefined;
   Object.assign(machine, state);
   delete machine.error;
+  if(typeof state.objectRoutingSupported==='boolean')machine.objectRoutingSupported=state.objectRoutingSupported;
   delete machine.connectionError;
+  if(!state.installProgress)delete machine.installProgress;
+  if(!state.progressWarning)delete machine.progressWarning;
   if (state.error || snapshotError) machine.error = state.error || snapshotError;
   if (state.connectionError) machine.connectionError = state.connectionError;
   if (snapshot) machine.online = state.online && snapshotOnline;
@@ -118,10 +121,14 @@ function connection() {
   ssh = new SshManager({directory: options.directory, coordinatorId: options.coordinatorId,
     packageDirectory: options.packageDirectory, onMachine: register,
     onSnapshot:(machineId,snapshot)=>{const machine=host.machine(machineId);host.importSnapshot(machine,snapshot);host.cache.set(machineId,snapshot);host.retryAfter.delete(machineId);},
-    onChange: () => { if (!host) return; for (const state of ssh.states()) {
-      const machine = host.catalog.machines.find(m => m.connectionId === state.connectionId);
-      if (machine) mergeSshState(machine, state);
-    } host.save(); }});
+    onChange: (_state,meta) => { if (!host) return;
+      const previous=structuredClone(host.catalog.machines);
+      try{for (const state of ssh.states()) {
+        const machine = host.catalog.machines.find(m => m.connectionId === state.connectionId);
+        if (machine) mergeSshState(machine, state);
+      } if(!meta?.progressOnly)host.save();}
+      catch(error){host.catalog.machines=previous;throw error;}
+    }});
   host = new AgentNetwork({ directory: options.directory, platform: platform,
     preferences: settings, distributions,
     createHost: machine => machine.kind === 'ssh' ? ssh.host(machine)

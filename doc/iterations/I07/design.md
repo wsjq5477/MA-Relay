@@ -1,5 +1,39 @@
 # I07 设计：外部智能体的小队公共协作空间
 
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+当前源码覆盖 V1/V2 两套 OpenCode 协议；V1 invocation→原生生成 Session→持久绑定→单次 Prompt，恢复只查原绑定。新增可选协议快照，缺省历史 v2；MCP 按原安装版本注入/导出/删除。后文 alpha.32 的“仅2.x”是该旧发布包历史行为。 [需求、实现、验证与未测边界](opencode-v1-compatibility.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+进度是内存观测，最终目录及维护意图是发送硬边界。当前profile原操作只查原收据，不因进度失败切换daemon或释放未知。 [完整设计、实测与边界](maintenance-persistence.md)。
+
+2026-10-20后续：CT-05桌面现在支持同工作成员、文档历史修订/任务当前轮次/历史消息/历史产物明确选择；生成后严格核对再预览复制/下载。作用域/代次丢弃迟到回应，原unknown不解除；副本不自动发送或授予权限。[完整当前流程、失效与限额](context-packet-ui.md)。
+
+2026-10-20：当前CT-05首片：原scope先授权，再按明确目标成员与四类版本引用生成只读包；文档旧版不回退，任务变化拒绝，消息/产物匹配原引用。包不是访问凭据/发送记录，不增加自动执行/跨工作导入；界面选材和实际接收证明待开发。[最终契约与数据](context-packet.md)。
+
+2026-10-19当前设计已整合：原对象按自身backend快照路由、原持久拒绝恢复、旧中央三项能力/旧daemon对象能力、OpenCode仅2.x与按机器unknown管理，同独立connectionId MCP/TeamSpace材料接口共存。无新模型API、身份迁移或unknown释放。配置解析依赖与当前已发布daemon清单随新冻结候选收录。[完整最终行为与证据](integrated-source.md)。
+
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+
+OpenCode2.x同时约束原CLI与实际info；已派发收据优先于当前版本门禁。node/machine管理按机器冲突，relation仍全局保护，缺来源保守阻断。前端多意图持久与中央冲突规则一致，只有原匹配终态可结算。 [需求、实现、验证与边界](version-management-recovery.md)。
+
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
+
+OpenCode接入以实际只读API握手建立安装/版本兼容证据；委派原拒绝持久核对；前台、中央与远端通过显式语义能力避免旧读控回退。原对象ID和unknown保护不变。 [需求、实现、实测与边界](collaboration-compatibility.md)。
+
+2026-10-19 CT-04桌面当前实现：小队工作增加按需公共材料入口，复用team.materials/team.document.revision。以原工作/文档/修订/摘要核对后读取并复制/下载，不自动刷新/同步、不确认消息已读、不改变权限/任务。索引导出限当前页，文档导出固定修订；旧后台明确失败。[完整当前流程与验证](public-materials-ui.md)。
+
+## 独立 MCP 文件与原生配置管理（2026-10-19）
+
+I07-MCP01 / AB-F02/F12/F13：独立Bridge MCP配置文件、三种Agent原生用户配置增删、长期接入撤权与外部委派归属已实现。桌面537/537、核心45/45、类型/构建/lint通过；真实Claude2.1.303/Codex0.162.1/OpenCode2.0.24列表增删通过，Windows生产前端4组通过。均使用隔离配置，模型调用0；真实新EXE/独立SSH仍未验，公开alpha.29冻结范围不变。[需求、开发、验收和首次失败](mcp-installation.md)。
+
+## 2026-10-19：CT-04首片当前实现
+
+alpha.29之后源码新增TeamSpace授权view的只读材料投影：短目标/成员职责、分页文档版本、任务当前报告/产物、原生状态与消息观察位置，JSON和Markdown同源。team_document可选revision严格读取不可变history；无revision保持旧结构。索引不是全局修订/授权，不确认已读、不触发Agent、不推断完成/可达；普通委派不强制进入公共工作。[完整当前契约及实际验收](public-materials.md)。桌面/物理导出、全历史Library、显式交接包仍待开发；下方历史时点保留。
+
 日期：2026-10-16。I07A/B基础继续适用；I07C首批已实现用户授权/预算、重要事件激活、Claude原会话自动续接和主角色持续跟进，实际分层证据见[首批交付](automation.md)。源码/本地候选alpha.24，GitHub预发布仍alpha.23；小队停止与真实原生终态核对见[停止专项](native-stop.md)。其他接入/独立SSH、权限等待专项及完整I07C/I06C仍未准出。
 
 ## I07A/B 已实现边界

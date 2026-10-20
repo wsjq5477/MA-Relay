@@ -1,5 +1,23 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+M03-F01/F02/F03：原 PATH 与原安装核验不变；OpenCode 可识别 1.x/2.x 都可进入实际服务契约检查，未知主版本继续明确拒绝。只读原对象/收据和按机器占位规则不变。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
+
+## 当前维护进度与持久化边界
+
+M03-F04：机器目录通过已有atomicWrite有界重试/fsync/原子替换，永久失败保留完整原文件并仅清当前tmp。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
+## alpha.32 历史版本准入与管理作用域
+
+M03-F01/F02/F03：安装健康与执行兼容分开，OpenCode1.x可被发现但不新建执行上下文。version_incompatible投影connected=false/available=false及执行委派关闭；原存储关联和历史保留。管理按机器隔离，原已派发请求查询不被当前版本门禁遮蔽。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+
+读取归属已失配的旧会话只允许查看，即使宿主保有原生Session也不宣告可继续；不改其Agent、ID或Session，正常绑定和真正legacy能力保留。
+
+## 当前历史详情读取与错误作用域
+
+M03-F04/F05/F06：task/conversation按backend自身快照确认来源，单一来源才读详情；不凭空/旧targetAgent猜根OpenCode。MachineRouter仅对明确未找到加同机器同ID历史回退，内嵌异机身份拒绝。历史非终态仅投影unknown且不可继续，不改保存记录或原Session。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+
 Windows官方Codex npm启动器直接解析原包内原生EXE，隐藏参数不再丢失于JS二次spawn；节点仍记录原JS身份，缺原二进制拒绝，未改账号/模型。Claude空闲snapshot不定期重跑版本/auth，显式检查与提交前检查保留。[复现与验收](../../iterations/I07/desktop-polling.md)。
 
 ## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
@@ -29,6 +47,8 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。本文描述当时源码行为；桌面源码为 `0.6.0-alpha.19`，已发布 Windows 便携版为 `0.5.0`。SSH 的源码交付和 Windows 发布验收分别标记，不能以源码版本代表发布完成。
 
 ## 1. 用户得到什么
+
+**当前整合实现（2026-10-19，M03-F02/F04/F05/F06）**：MachineHost先按原对象ID探测已绑定backend自己的快照，不依据空/旧targetAgent回根IPC；孤立会话保留历史/Session且canContinue=false。委派准备拒绝须持久原节点/机器/输入指纹、未派发且无任务绑定；同规则适用于原生父与长期connectionId MCP，未知保留。OpenCode接入/API证明与旧daemon能力共同约束可执行性。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
 
 
 用户先看到机器，再看到机器上安装的 Claude Code、OpenCode、Codex、Hermes、Pi、DSH 等 Agent 节点。后三种是 alpha.28 后未发布源码扩展，详情见[原生扩展专项](../../iterations/I07/native-agent-expansion.md)。接入节点不要求项目目录、模型或供应商。发送任务时才选择执行目录；不处理现有项目时可留空，由后台创建默认目录。
@@ -135,7 +155,7 @@ Windows 的工具在 Windows 启动，WSL 的工具在选定分发中启动，SS
 
 SSH 工具列表来自远端实际 daemon 的共享扫描器。旧兼容 daemon 复用不会自动换代码；alpha.19 的用户目录覆盖需要在原 SSH 机器“后台维护 → 升级后台”后重扫，不能仅更新客户端或重建机器来推定生效。[完整范围](../../iterations/I06/linux-cli-discovery.md)。
 
-OpenCode 的 core 二次检查复用同一共享扫描器，任务上下文核验原 executable，不重新按 PATH 选另一安装；原路径删除/损坏仍拒绝，OpenCode HTTP 入口仍限 2.x。Windows 私有配置使用可写文件句柄 flush 与原子替换，Linux 继续目录 flush。[二次发现专项](../../iterations/I06/opencode-discovery.md)。
+OpenCode 的 core 二次检查复用同一共享扫描器，任务上下文核验原 executable，不重新按 PATH 选另一安装；原路径删除/损坏仍拒绝，OpenCode HTTP 入口当前区分 1.x/2.x 原生协议。Windows 私有配置使用可写文件句柄 flush 与原子替换，Linux 继续目录 flush。[二次发现专项](../../iterations/I06/opencode-discovery.md)。
 
 ## 6. 任务路由与目录互斥
 

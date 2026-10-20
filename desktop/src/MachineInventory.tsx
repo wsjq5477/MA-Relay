@@ -40,6 +40,7 @@ interface Props {
   busy: boolean;
   executionLocked?: boolean;
   metadataBusy: boolean;
+  managementReason?: (machineId:string)=>string;
   managementSupported: boolean;
   machineManagementSupported: boolean;
   daemonManagementSupported: boolean;
@@ -62,6 +63,9 @@ const machineKind = (machine: Machine) =>
 
 function nodeState(node: AgentNode): { label: string; tone: Tone } {
   if (!node.online) return { label: "机器离线", tone: "neutral" };
+  if (node.status === "upgrade_required") return {label:"后台需要升级",tone:"warning"};
+  if (node.status === "version_incompatible") return {label:"版本不兼容，需要 OpenCode 2.x",tone:"danger"};
+  if (node.status === "needs_check") return {label:"需要检查原生 API",tone:"warning"};
   if (node.status === "tool_error")
     return { label: "工具检查异常", tone: "danger" };
   if (!canExecuteNode(node))
@@ -181,6 +185,7 @@ export default function MachineInventory(props: Props) {
       }}
     >
       {groups.map(({ machine, owned, visible }) => {
+        const metadataReason=props.managementReason?.(machine.machineId)??(props.metadataBusy?"原管理操作进行中或待核对。":"");
         const MachineIcon =
           machine.kind === "windows"
             ? Monitor
@@ -190,14 +195,14 @@ export default function MachineInventory(props: Props) {
         const managementLocked =
           props.busy ||
           props.executionLocked ||
-          props.metadataBusy ||
+          !!metadataReason ||
           !props.managementSupported ||
           !machine.online ||
           props.blocked(machine.machineId);
         const machineEditLocked =
           props.busy ||
           props.executionLocked ||
-          props.metadataBusy ||
+          !!metadataReason ||
           !props.machineManagementSupported ||
           !machine.online ||
           !!machine.busy ||
@@ -253,7 +258,8 @@ export default function MachineInventory(props: Props) {
               <div className="inventory-machine-actions">
                 <button
                   className="btn small"
-                  disabled={props.busy || props.metadataBusy || !machine.online}
+                  title={metadataReason}
+                  disabled={props.busy || !!metadataReason || !machine.online}
                   onClick={() => props.machineAction(machine, "scan")}
                   aria-label={`重新扫描 · ${machine.name}`}
                 >
@@ -262,7 +268,8 @@ export default function MachineInventory(props: Props) {
                 </button>
                 <button
                   className="btn small"
-                  disabled={props.busy || props.metadataBusy}
+                  title={metadataReason}
+                  disabled={props.busy || !!metadataReason}
                   onClick={() => props.addAgent(machine)}
                   aria-label={`添加 Agent · ${machine.name}`}
                 >
@@ -291,9 +298,10 @@ export default function MachineInventory(props: Props) {
                           连接详情
                         </button>
                         <button
+                          title={metadataReason}
                           disabled={
                             props.busy ||
-                            props.metadataBusy ||
+                            !!metadataReason ||
                             (machine.online && !!machine.busy)
                           }
                           onClick={() =>
@@ -310,6 +318,7 @@ export default function MachineInventory(props: Props) {
                               : "重新连接"}
                         </button>
                         <button
+                          title={metadataReason || (machineEditLocked?"来源机器仍有未结束或待核对的原执行。":"")}
                           disabled={machineEditLocked}
                           onClick={() => props.machineAction(machine, "edit")}
                         >
@@ -318,17 +327,19 @@ export default function MachineInventory(props: Props) {
                         <button
                           disabled={
                             props.busy ||
-                            props.metadataBusy ||
+                            !!metadataReason ||
                             !props.daemonManagementSupported ||
                             !machine.online ||
-                            !!machine.busy
+                            !!machine.busy || owned.some(node=>node.busy) || props.blocked(machine.machineId)
                           }
                           onClick={() => props.machineAction(machine, "daemon")}
+                          title={metadataReason || (!machine.online?"请先连接来源机器。":machine.busy||owned.some(node=>node.busy)||props.blocked(machine.machineId)?"来源机器仍有运行、等待或待核对的原执行。":!props.daemonManagementSupported?"当前后台不支持维护。":"预览来源后台版本，确认后才执行维护。 ")}
                         >
                           后台维护
                         </button>
                         <button
                           className="inventory-danger"
+                          title={metadataReason || (machineEditLocked?"来源机器仍有未结束或待核对的原执行。":"")}
                           disabled={machineEditLocked}
                           onClick={() => props.machineAction(machine, "remove")}
                         >
@@ -340,6 +351,7 @@ export default function MachineInventory(props: Props) {
                 </details>
               </div>
             </header>
+            {machine.progressWarning && <p className="inventory-machine-error" role="status">{machine.progressWarning.message}</p>}
             {machine.error && (
               <p className="inventory-machine-error" role="status">
                 {machine.error}
@@ -404,7 +416,7 @@ export default function MachineInventory(props: Props) {
                       <div className="inventory-node-meta">
                         <span>{toolLabel(node.adapter)}</span>
                         <span>{node.version || "版本未知"}</span>
-                        <span>{node.connected ? "已接入" : "未接入"}</span>
+                        <span>{node.status === "version_incompatible" ? "版本不兼容" : node.connected ? "已接入" : "未接入"}</span>
                       </div>
                       <small>{connectionCapabilitySummary(node)}</small>
                       <details className="inventory-node-details">
@@ -421,10 +433,10 @@ export default function MachineInventory(props: Props) {
                       <span className="ui-status" data-tone={state.tone}>
                         {state.label}
                       </span>
-                      {resourceBlocked && <small>原操作待核对</small>}
+                      {resourceBlocked && <small title={metadataReason}>原操作待核对</small>}
                     </div>
                     <div className="inventory-node-actions">
-                      {node.connected ? (
+                      {(node.connected && node.status !== "needs_check") ? (
                         <button
                           className="btn small inventory-start"
                           disabled={!canStart}
@@ -439,7 +451,7 @@ export default function MachineInventory(props: Props) {
                           disabled={
                             nodeManagementLocked ||
                             !node.healthy ||
-                            !canExecuteNode(node)
+                            (!canExecuteNode(node) && node.status !== "needs_check")
                           }
                           onClick={() => props.attach(node.nodeId)}
                         >

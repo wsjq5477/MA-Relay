@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
 const { randomUUID, createHash } = require("node:crypto");
+const {atomicWrite}=require("./graph-layout.cjs");
 
 const idKeys = new Set(["agentId", "instanceId", "targetAgent", "defaultAgent", "taskId", "conversationId", "lastTaskId"]);
 const terminal = new Set(["succeeded", "failed", "cancelled"]);
@@ -64,9 +65,7 @@ class MachineRouter {
     }
   }
   save() {
-    const temp = this.file + "." + randomUUID() + ".tmp";
-    fs.writeFileSync(temp, JSON.stringify(this.catalog, null, 2), { mode: 0o600 });
-    fs.renameSync(temp, this.file);
+    atomicWrite(this.file,this.catalog);
   }
   preferences() { return this.options.preferences?.() || {}; }
   async machines(rescan = false) {
@@ -295,9 +294,10 @@ class MachineRouter {
   }
   historical(machine,p){
     const snapshot=this.history[machine.machineId]||this.cache.get(machine.machineId);if(!snapshot)return null;
+    const sameSource=item=>!item.machineId||item.machineId===machine.machineId;
     const mark=t=>({...t,...(!terminal.has(t.status)?{status:'unknown',uncertaintyReason:'历史快照，等待来源机器核对。'}:{}),historical:true});
-    if(p.op==='task'){const task=snapshot.tasks.find(t=>t.taskId===p.taskId);return task?mark(task):null;}
-    if(p.op==='conversation'){const conversation=snapshot.conversations.find(c=>c.conversationId===p.conversationId);return conversation?{...conversation,items:snapshot.tasks.filter(t=>t.conversationId===p.conversationId).map(mark),canContinue:false,historical:true}:null;}
+    if(p.op==='task'){const task=snapshot.tasks.find(t=>t.taskId===p.taskId&&sameSource(t));return task?mark(task):null;}
+    if(p.op==='conversation'){const conversation=snapshot.conversations.find(c=>c.conversationId===p.conversationId&&sameSource(c));return conversation?{...conversation,items:snapshot.tasks.filter(t=>t.conversationId===p.conversationId&&sameSource(t)).map(mark),canContinue:false,historical:true}:null;}
     return null;
   }
   async call(method, params = {}) {
@@ -333,7 +333,7 @@ class MachineRouter {
     let result;
     try{if((this.network?.removedMachines||[]).includes(machine.machineId)&&['task','conversation'].includes(p.op))fail('MACHINE_REMOVED','机器已移除。');result=await this.execute(machine,p);}
     catch(error){
-      if(!['task','conversation'].includes(p.op)||!['MACHINE_REMOVED','MACHINE_OFFLINE','DESKTOP_TRANSPORT','DESKTOP_TIMEOUT','MACHINE_TIMEOUT'].includes(error.code))throw error;
+      if(!['task','conversation'].includes(p.op)||!['NOT_FOUND','TASK_NOT_FOUND','CONVERSATION_NOT_FOUND','MACHINE_REMOVED','MACHINE_OFFLINE','DESKTOP_TRANSPORT','DESKTOP_TIMEOUT','MACHINE_TIMEOUT'].includes(error.code))throw error;
       result=this.historical(machine,p);if(!result)throw error;
     }
     return { ...project(result, machine.machineId), machineId: machine.machineId };

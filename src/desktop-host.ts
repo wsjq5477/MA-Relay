@@ -8,7 +8,7 @@ import { createRequire } from "node:module";
 import { z } from "zod";
 import { BridgeError } from "./core.js";
 import { ensureController, ipc, type IpcRequest } from "./controller.js";
-import { discoverOpenCode } from "./discovery.js";
+import { discoverOpenCode, requireOpenCodeVersion } from "./discovery.js";
 import { SettingsStore, stateDirectory } from "./settings.js";
 import { safeTerminal } from "./terminal.js";
 
@@ -148,6 +148,7 @@ export class DesktopHost {
           "DISCOVERY_CHANGED",
           "这个 OpenCode 已不可用，请重新扫描",
         );
+      requireOpenCodeVersion(installed.find(a => a.executable === chosen.executable)!.version);
       this.store.initialize();
       await ensureController(this.directory);
       const views = await ipc<{
@@ -184,10 +185,12 @@ export class DesktopHost {
         },
       });
       await ipc(this.directory, { op: "start" });
-      return {
-        agentId,
-        check: await ipc(this.directory, { op: "check", agentId }),
-      };
+      const ready = await ipc<{items: {agentId: string; startupError?: {code: string; message: string}}[]}>(this.directory, {op:'agents'});
+      const startupError = ready.items.find(a => a.agentId === agentId)?.startupError;
+      if (startupError) throw new BridgeError(startupError.code, startupError.message);
+      const check = await ipc<{code?: string; message?: string; connection: string}>(this.directory, { op: "check", agentId });
+      if (check.connection !== 'connected') throw new BridgeError(check.code || 'AGENT_UNHEALTHY', check.message || 'OpenCode 原生 API 尚未就绪，需求未派发。');
+      return { agentId, check };
     }
     if (request.method === "ipc") {
       if (params.op === "save")

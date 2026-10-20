@@ -1,5 +1,17 @@
 # Claude Code 适配器测试报告
 
+## 2026-10-20：CT-05实际材料包消费
+
+T-M06-CC-151 / M06-CC-F01：WSL Node22.23.1、真实Claude2.1.303，一个原Task成功，实际MCP调用team_context/team_materials/team_context_packet共3次。当前文档2版时明确选择1版，返回正文摘要与最终回答严格匹配；完整重开及重复观察仍1Task、未重派。共享桌面576/576/Windows定向14项为受控检查，不能与真实任务或重复报告相加。不是另一个成员已收到或跨工具/Windows EXE/独立SSH验收。[实际报告、最终严格核对和可恢复脚本](../../../iterations/I07/context-packet.md)。
+
+## 独立 MCP 接入（2026-10-19）
+
+默认编辑用户.claude.json中的mcpServers.agentbridge，尊重CLAUDE_CONFIG_DIR；独立导出为agentbridge.mcp.json。真实2.1.303在隔离配置中添加、stdio连接和删除通过。托管任务原--mcp-config仍保持原任务授权范围。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
+
+## 2026-10-19：CT-04真实材料读取
+
+T-M06-CC-147 / M06-CC-F01：WSL Node22.23.1 / 真实Claude2.1.303，一个原Task成功，两次真实MCP调用team_materials/team_document(revision:1)，当文档最新第2版时准确返回第1版正文。三个限定检查及完整观察器重开通过，仍1Task；重复报告不计额外执行。受控8项及stdioMCP检查纳入共享桌面525/525（无模型），不与真实Task相加。本片未打包，Windows EXE/独立SSH/其他工具未验。[报告与恢复脚本](../../../iterations/I07/public-materials.md)。
+
 ## 2026-10-19：CT-02真实MCP调用方与被调用方
 
 T-M06-CC-146 / M06-CC-F01：当前WSL原生2.1.302，本工具真实作主发现/委派另外两种工具并读取成功结果，另在两条链中作为普通子任务被实际启动。各回答/原生Session/父子归属与精确消息通过，完整重开不重放；三工具共享9Task/6方向/16次MCP调用，不跨模块重复累加。保护7/7计入全桌面517/517，均为无模型回归，与真实Task分别计数。产品运行代码未改；Windows、新三工具、独立SSH/权限/表单/执行中断点未补验。[实际脚本、原始报告及边界](../../../iterations/I07/connection-delegation.md)。

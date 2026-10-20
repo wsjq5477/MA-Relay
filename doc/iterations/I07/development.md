@@ -1,6 +1,46 @@
 # I07 开发分解与当前记录
 
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+2026-10-20：alpha.33已按用户批准合并PR #11并预发布，冻结合并源码`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`；普通EXE与公开完整下载匹配，验收与现场边界保持。 [交付、校验与升级边界](maintenance-persistence.md)。
+
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+在保留全部既有整合/CT-04/CT-05 增量的前提下新增 opencode-v1 客户端，替换 2.x 独占门禁，统一 Driver 和 Edge 控制分派；增加原协议快照和 MCP 双布局。没有提交/发布或覆盖旧冻结 EXE。 [需求、实现、验证与未测边界](opencode-v1-compatibility.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+已同步隔离alpha.32修复分支与当前整合源码，复用atomicWrite，分离progressOnly、最终checkpoint及安全错误/清理；保留CT-04/CT-05原增量与旧包摘要。 [完整设计、实测与边界](maintenance-persistence.md)。
+
+2026-10-20后续：新增TeamContextPacket与team-context-transfer，在既有TeamWorkspace接入；只消费team.contextPacket和显式历史消息页，不改Coordinator/TeamSpace。保留原报告evidenceSource语义，客户端重新核对摘要并从结构化字段生成导出Markdown；无新协议/存储/依赖。[实现、失败记录与源码](context-packet-ui.md)。
+
+2026-10-20：新增纯team-context-packet投影、team.contextPacket白名单和team_context_packet只读MCP；同一次已授权状态读取，消息显式引用可覆盖旧分页，输出白名单/摘要/Markdown，无迁移、派发或文件探测。原未提交整合/MCP/CT-04保留；现18小队工具，经典六工具不变。[实现、恢复脚本与发布边界](context-packet.md)。
+
+2026-10-19完成[源码整合](integrated-source.md)：基于共同a872275读取冻结fcdad72与最终文档9203b18，三方整合100路径，保留两侧历史；长期MCP owner分支接入持久准备拒绝，新增同ID不重准备保护。补TOML1.9.1、长注释/损坏配置保护及alpha.32精确兼容pin。Git不变更，仅工作文件；最终本地候选integrated.3，公开版本不动。
+
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+
+从ff41946隔离完成共享版本判定、Core旧配置启动前复验、机器范围管理hook及中央台账、旧中央能力门禁和alpha.31精确manifest。原CT-04/MCP脏工作区未纳入。 [需求、实现、验证与边界](version-management-recovery.md)。
+
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
+
+从48254b0隔离完成OpenCode统一probe、委派原拒绝核对、对象控制路由及新旧后台能力门禁；新增三个旧源码失败回归和分层受控验证。 [需求、实现、实测与边界](collaboration-compatibility.md)。
+
+## alpha.30已预发布：历史详情读取恢复
+
+独立alpha.29修复分支实现MachineHost只读对象来源、MachineRouter明确未找到历史回退和NetworkApp详情局部状态；新增真实TCP SSH、Windows生产前端及普通EXE合成验证入口。CT-04原工作区未提交开发不纳入。 [需求、实现、逐项证据与边界](history-detail-recovery.md)。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
+2026-10-19完成[CT-04桌面材料入口](public-materials-ui.md)：新增TeamMaterials和传出/版本核对，按directory/runId隔离，手动刷新/分页/精确文档阅读、受控clipboard与Blob下载；沿原API，无后端/存储/原生行为变化。桌面541/541、Windows八组通过。保留既有未提交源码；公开alpha.31修复与本地alpha.29派生分支尚未整合，本片未打包。
+
+## 独立 MCP 文件与原生配置管理（2026-10-19）
+
+I07-MCP01 / AB-F02/F12/F13：独立Bridge MCP配置文件、三种Agent原生用户配置增删、长期接入撤权与外部委派归属已实现。桌面537/537、核心45/45、类型/构建/lint通过；真实Claude2.1.303/Codex0.162.1/OpenCode2.0.24列表增删通过，Windows生产前端4组通过。均使用隔离配置，模型调用0；真实新EXE/独立SSH仍未验，公开alpha.29冻结范围不变。[需求、开发、验收和首次失败](mcp-installation.md)。
+
+2026-10-19完成[CT-04首片](public-materials.md)：在23d256e隔离副本开发，alpha.29发布完成后核对原文件摘要才集成。新增team-materials只读投影、team.materials路由、MCP team_materials及team_document.revision；旧无revision结构保持，无数据库迁移。定向27/27、桌面525/525、真实Claude2.1.303一个Task及重开不重放通过，尚未打包/发布。
+
+2026-10-19较早：冻结源码23d256e已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 2026-10-19完成[CT-02真实MCP六方向](connection-delegation.md)：新增默认零执行、持久设置/父请求意图、匿名被动观察与原ID恢复的验收脚本，以及7项保护回归。三种原生工具轮流作为主/子，9个Task全部成功；重开每链仍3Task/2委派。生产dispatcher未替换，产品运行/协议/存储无变化；桌面517/517通过，未构建或发布新EXE。
 

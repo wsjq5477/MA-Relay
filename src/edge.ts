@@ -151,7 +151,7 @@ export async function startEdge(config: EdgeConfig, log: (message: string) => vo
       const claim = journal.operations.claim(input); if (!claim.fresh) return claim.operation;
       if (evidence.outcome) return journal.operations.finish(input.operationId, 'confirmed', { interrupted: false, effect: evidence.outcome });
       try {
-        const receipt = await driver.client.call<{ interrupted: boolean }>('/api/session/' + reference.sessionId + '/interrupt?resume=false', {});
+        const receipt = await driver.client.interrupt(reference.sessionId);
         if (typeof receipt?.interrupted !== 'boolean') throw new BridgeError('NATIVE_CONTRACT', '原生取消收据无效', 503);
         return journal.operations.finish(input.operationId, 'confirmed', { interrupted: receipt.interrupted, effect: 'awaiting_native_evidence' });
       } catch { return journal.operations.finish(input.operationId, 'unknown', { effect: 'query_original_turn_only' }); }
@@ -169,7 +169,7 @@ export async function startEdge(config: EdgeConfig, log: (message: string) => vo
     }
     const claim = journal.operations.claim(input); if (!claim.fresh) return claim.operation;
     try {
-      await driver.client.call('/api/session/' + reference.sessionId + '/' + input.action + '/' + input.requestId + '/reply', input.action === 'permission' ? { decision: input.decision } : { answer: input.answer });
+      await driver.client.reply(reference.sessionId, input.action, input.requestId, {decision:input.decision,answer:input.answer});
       return journal.operations.finish(input.operationId, 'confirmed');
     } catch { return journal.operations.finish(input.operationId, 'unknown'); }
   };

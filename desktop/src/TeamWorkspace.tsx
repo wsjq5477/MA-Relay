@@ -7,6 +7,8 @@ import type { AgentNode } from './types';
 import type { TeamSnapshot, TeamContext, TeamDocument, TeamConnection, TeamRun } from './team-types';
 import './team.css';
 import TeamTaskBoard from './TeamTaskBoard';
+import TeamMaterials from './TeamMaterials';
+import TeamContextPacket from './TeamContextPacket';
 import TeamAutomationSettings from './TeamAutomationSettings';
 import TeamStopStatus, {cancellationLabel} from './TeamStopStatus';
 import NativeTeamNodeSelect, { nativeTeamNodes } from './TeamNativeNodeSelect';
@@ -120,6 +122,8 @@ export default function TeamWorkspace({ nodes, directory }: { nodes: AgentNode[]
         <article className="team-card"><div className="team-row"><h2>{context.run.name}</h2><span>{active ? context.run.paused ? '暂停新执行' : '工作进行中' : context.run.state === 'stopping' ? '正在停止并核对原执行' : context.run.state === 'completed' ? '总工作已验收' : '已归档'}</span><div className="team-actions"><button className="btn small" disabled={disabled || !active} onClick={() => void act('team.pause', { runId, paused: !context.run.paused })}>{context.run.paused ? '恢复手动执行' : '暂停新执行'}</button><button className="btn small" disabled={disabled || !active || !context.stopSupported} onClick={() => { if (confirm('停止本项工作将阻止新调度、撤销成员访问，并取消Bridge关联的原生执行。外部MCP成员自身的运行需在原入口停止。已有记录保留，是否继续？')) void act('team.stopRun', { runId, expectedRevision: context.run.revision }); }}>停止本项工作</button><button className="btn small" disabled={disabled || !active} onClick={() => { if (confirm('归档将结束成员访问，已有消息与文档保留。请先核对所有原执行。')) void act('team.closeRun', { runId }); }}>结束并归档</button></div></div><p>{context.run.goal}</p><h3>完成标准</h3><pre>{context.run.acceptance}</pre><details><summary>小队公共约定</summary><pre>{context.run.charter || '未填写'}</pre></details></article>
         <div className="team-members">{context.members.map(a => <article className="team-card" key={a.agentId}><h3>{a.name} · {a.role === 'leader' ? '主智能体' : '队员'}</h3><p>{a.purpose}</p><small>{a.limitations || '未说明职责边界'}</small><div className="team-actions"><button className="btn small" disabled={disabled || !active} onClick={() => void act('team.connect', { runId, agentId: a.agentId })}>生成接入配置</button><button className="text-btn" disabled={disabled || !active} onClick={() => { if (confirm('撤销该成员后，原接入配置立即失效；已有执行不会自动取消。')) void act('team.revokeMember', { runId, agentId: a.agentId, expectedRevision: context.run.revision }); }}>撤销本次访问</button></div></article>)}</div>
         <TeamStopStatus context={context}/>
+        <TeamMaterials key={directory+':'+runId+':materials'} runId={runId}/>
+        <TeamContextPacket key={directory+':'+runId+':context-packet'} runId={runId} context={context}/>
         <TeamAutomationSettings key={runId+':auto'} context={context} act={act} disabled={disabled}/>
         <TeamTaskBoard key={runId} context={context} act={act} disabled={disabled}/>
         <div className="team-columns">

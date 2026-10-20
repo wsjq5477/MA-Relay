@@ -1,5 +1,11 @@
 # Claude Code 适配器设计
 
+2026-10-20当前M06-CC-F01：原Claude成员scope现可发现并调用team_context_packet，明确选择同工作文档/任务/消息/产物版本；只是读取，不发送给目标或改变权限。真实WSL Claude2.1.303一个Task实际消费第1版（当前第2版）、最终正文一致及观察器重开不重放通过；未改驱动、原生配置或Session。[当前API及限定证据](../../../iterations/I07/context-packet.md)。
+
+## 独立 MCP 接入（2026-10-19）
+
+默认编辑用户.claude.json中的mcpServers.agentbridge，尊重CLAUDE_CONFIG_DIR；独立导出为agentbridge.mcp.json。真实2.1.303在隔离配置中添加、stdio连接和删除通过。托管任务原--mcp-config仍保持原任务授权范围。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
+
 2026-10-18能力补验：Claude2.1.302已在同WSL三个独立MachineHost/profile/目录承担真实主协调、公共文档开发与独立复核；主协调同Session三轮、执行成员各一轮，终态后验收与完成重开观察无新回合。共享原生账号配置、受控机器路由，非独立SSH/代码编译返修；原生工具deny且无权限回复，不覆盖模型。[真实成员证据](../../../iterations/I07/native-members.md)。
 
 安装与认证CLI检查在首次缺少check、显式check以及提交前执行；实时snapshot读取既有check和原任务事件，不按30秒定期重新运行版本/auth子进程。check.time仍是原观察时间，发现更新不代表模型可用。[空闲专项](../../../iterations/I07/desktop-polling.md)。
@@ -9,6 +15,8 @@
 更新日期：2026-10-12。功能 **M06-CC-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途与能力
+
+M06-CC-F01 / CT-04：alpha.29之后源码的新小队scope提供team_materials与team_document.revision，沿原Claude MCP注入读取已授权公共材料，不改变Claude驱动/原Session/权限模型。2026-10-19真实WSL Claude2.1.303一个Task已读索引并准确取得旧第1版文档（当前第2版）；完整重开只观察原Task，未重派。新接口尚未进入EXE，其他环境不由此验收。[限定证据](../../../iterations/I07/public-materials.md)。
 
 2026-10-19当前WSL版本2.1.302经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
 

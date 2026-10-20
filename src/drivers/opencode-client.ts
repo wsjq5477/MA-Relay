@@ -3,14 +3,17 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import type { OpenCodeConfig } from '../config.js';
-import { BridgeError } from '../core.js';
+import { requireOpenCodeVersion } from '../discovery.js';
+import { BridgeError, type NativeReference } from '../core.js';
+import type { Answer } from './forms.js';
+import { OpenCodeV1 } from './opencode-v1.js';
 
 export interface NativeSession {
   id: string; agent?: string; model?: { id: string; providerID: string; variant?: string }; permissions?: unknown; location: { directory: string }; outcome?: 'succeeded' | 'failed' | 'interrupted';
 }
 export interface NativeMessage {
-  id: string; type: string; text?: string; outcome?: string;
-  time?: { created?: number; completed?: number }; error?: { message?: string };
+  id: string; type: string; text?: string; outcome?: string; parentID?: string; finish?: string;
+  time?: { created?: number; completed?: number }; error?: { message?: string; name?: string };
   content?: { type: string; text?: string; id?: string; name?: string;
     state?: { status: string; input?: Record<string, unknown>; content?: { type?: string; text?: string }[] } }[];
 }
@@ -24,7 +27,9 @@ export class NativeHttpError extends BridgeError {
   }
 }
 export class OpenCodeClient {
-  constructor(readonly config: OpenCodeConfig) {}
+  protocol?: 'v1' | 'v2';
+  private readonly v1: OpenCodeV1;
+  constructor(readonly config: OpenCodeConfig) { this.v1 = new OpenCodeV1(config, (route, body, signal) => this.call(route, body, signal)); }
   async call<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
     let password: string;
     try { password = readFileSync(this.config.passwordFile, 'utf8').trim(); if (!password) throw new Error(); }
@@ -41,7 +46,7 @@ export class OpenCodeClient {
     if (!response.ok) { await response.body?.cancel(); throw new NativeHttpError(response.status); }
     if (response.status === 204) return undefined as T;
     if (!response.headers.get('content-type')?.includes('application/json')) {
-      await response.body?.cancel(); throw new BridgeError('NATIVE_CONTRACT', 'OpenCode did not return the expected v2 JSON response', 503);
+      await response.body?.cancel(); throw new BridgeError('NATIVE_CONTRACT', 'OpenCode did not return the expected JSON response', 503);
     }
     // Bound response memory; this endpoint may include tool output from the native runtime.
     const reader = response.body?.getReader();
@@ -60,21 +65,57 @@ export class OpenCodeClient {
       throw new BridgeError('NATIVE_CONTRACT', 'OpenCode response is incomplete or invalid', 503);
     } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
   }
+  /** Read-only contract probe shared by startup, reconnect and execution checks. */
+  async probe(): Promise<{version: string; selected: {id:string;providerID:string;variant?:string}|null; models:{id:string;providerID:string}[]}> {
+    try {
+      let info: {version?: unknown};
+      try { info = await this.call<{version?: unknown}>('/api/info'); }
+      catch (error) {
+        if (!(error instanceof BridgeError) || !['NATIVE_CONTRACT','OPENCODE_HTTP_404','OPENCODE_HTTP_405'].includes(error.code)) throw error;
+        const result = await this.v1.probe();
+        requireOpenCodeVersion(result.version);
+        this.protocol = 'v1';
+        return result;
+      }
+      if(info&&typeof info.version==='string')requireOpenCodeVersion(info.version);
+      if (info && typeof info.version === 'string' && info.version.startsWith('1.')) {
+        const result = await this.v1.probe(); requireOpenCodeVersion(result.version); this.protocol = 'v1'; return result;
+      }
+      const location = '?location%5Bdirectory%5D=' + encodeURIComponent(this.config.workspace);
+      const [agents, selected, models] = await Promise.all([
+        this.call<{data?: {id?: string; name?: string}[]}>('/api/agent' + location),
+        this.call<{data?: unknown}>('/api/model/default' + location),
+        this.call<{data?: unknown[]}>('/api/model' + location),
+      ]);
+      const model = (value: unknown): value is {id: string; providerID: string} => !!value && typeof value === 'object'
+        && typeof (value as {id?: unknown}).id === 'string' && typeof (value as {providerID?: unknown}).providerID === 'string';
+      if (!info || typeof info.version !== 'string' || !info.version.trim()
+        || !Array.isArray(agents?.data) || !agents.data.every(a => a && (typeof a.id === 'string' || typeof a.name === 'string'))
+        || !selected || selected.data !== null && !model(selected.data)
+        || !Array.isArray(models?.data) || !models.data.every(model)) throw new BridgeError('NATIVE_CONTRACT', 'API shape mismatch', 503);
+      if (this.config.inheritNativeCli) {
+        const config = await this.call<unknown>('/api/config' + location);
+        if (!Array.isArray(config) || !config.every(s => s && typeof s === 'object')) throw new BridgeError('NATIVE_CONTRACT', 'API config shape mismatch', 503);
+      }
+      this.protocol = 'v2';
+      return {version: info.version, selected:selected.data as {id:string;providerID:string;variant?:string}|null, models:models.data as {id:string;providerID:string}[]};
+    } catch (error) {
+      if (error instanceof BridgeError && ['NATIVE_CONTRACT','OPENCODE_HTTP_404','OPENCODE_HTTP_405'].includes(error.code))
+        throw new BridgeError('OPENCODE_API_UNSUPPORTED', '当前 OpenCode 未提供兼容的 1.x 或 2.x 原生 API，需求未派发；请核对原安装的服务接口和配置。', 503);
+      throw error;
+    }
+  }
   async check(warmupMs = 0): Promise<{ version: string; workspace: string; model: { id: string; providerID: string; variant?: string } | null; healthy: boolean }> {
     let workspace: string;
     try { workspace = realpathSync(this.config.workspace); if (!statSync(workspace).isDirectory()) throw new Error(); }
     catch { throw new BridgeError('WORKSPACE_UNAVAILABLE', 'Configured workspace is unavailable'); }
-    const info = await this.call<{ version: string }>('/api/info');
-    if (typeof info.version !== 'string' || !/^2\./.test(info.version)) throw new BridgeError('NATIVE_VERSION', 'This adapter requires the OpenCode 2 API', 503);
+    let info = await this.probe();
     const location = '?location%5Bdirectory%5D=' + encodeURIComponent(workspace);
     const deadline = Date.now() + warmupMs;
     for (;;) {
-      const [selected, available] = await Promise.all([
-        this.call<{ data: { id: string; providerID: string; variant?: string } | null }>('/api/model/default' + location),
-        this.call<{ data: { id: string; providerID: string }[] }>('/api/model' + location),
-      ]);
+      const selected={data:info.selected},available={data:info.models};
       let model = this.config.model || selected.data;
-      if(this.config.inheritNativeCli && !this.config.model){
+      if(this.protocol !== 'v1' && this.config.inheritNativeCli && !this.config.model){
         const sources=await this.call<{info?:{model?:unknown;agents?:Record<string,{model?:unknown}>}}[]>('/api/config'+location);
         if(!Array.isArray(sources))throw new BridgeError('NATIVE_CONTRACT','OpenCode 配置源响应格式不正确',503);
         // The CLI falls back to its recent model only when native config has no model.
@@ -92,14 +133,17 @@ export class OpenCodeClient {
       // v2 can publish an empty model catalogue while initializing this location.
       // Retry only read-only metadata; never retry session or prompt mutations.
       await delay(150);
+      info = await this.probe();
     }
   }
   async session(id: string, signal?: AbortSignal): Promise<NativeSession> {
+    if (this.protocol === 'v1') return this.v1.session(id, signal);
     const { data } = await this.call<{ data: NativeSession }>('/api/session/' + encodeURIComponent(id), undefined, signal);
     if (!data || data.id !== id || !data.location?.directory) throw new BridgeError('NATIVE_CONTRACT', 'Native session identity is invalid', 503);
     return data;
   }
   async messages(id: string, signal?: AbortSignal): Promise<NativeMessage[]> {
+    if (this.protocol === 'v1') return this.v1.messages(id, signal);
     const items: NativeMessage[] = []; let cursor: string | null | undefined;
     const visited = new Set<string>();
     do {
@@ -113,6 +157,7 @@ export class OpenCodeClient {
     return items;
   }
   async waiting(id: string, signal?: AbortSignal): Promise<{ permissions: NativePermission[]; forms: NativeForm[] }> {
+    if (this.protocol === 'v1') return this.v1.waiting(id, signal);
     const base = '/api/session/' + encodeURIComponent(id);
     const [{ data: permissions }, { data: forms }] = await Promise.all([
       this.call<{ data: NativePermission[] }>(base + '/permission', undefined, signal),
@@ -120,5 +165,28 @@ export class OpenCodeClient {
     ]);
     if (!Array.isArray(permissions) || !Array.isArray(forms) || [...permissions, ...forms].some(p => p.sessionID !== id)) throw new BridgeError('NATIVE_CONTRACT', 'Native waiting request belongs to another session', 503);
     return { permissions, forms };
+  }
+  async ensureProtocol(expected: 'v1' | 'v2'): Promise<void> {
+    if (!this.protocol) await this.probe();
+    if (this.protocol !== expected) throw new BridgeError('NATIVE_BINDING', '原生协议与原任务绑定不一致；保留原会话和占位，不能切换协议重发。', 409);
+  }
+  async createV1Session(title: string, snapshot: NativeReference['snapshot'], signal?: AbortSignal): Promise<NativeSession> {
+    await this.ensureProtocol('v1');
+    return this.v1.create(title, snapshot?.model, snapshot, signal);
+  }
+  async prompt(reference: NativeReference, text: string, signal?: AbortSignal): Promise<void> {
+    if (this.protocol === 'v1') return this.v1.prompt(reference, text, signal);
+    const admitted = await this.call<{data:{id:string;sessionID:string}}>('/api/session/' + reference.sessionId + '/prompt', {id:reference.messageId,text}, signal);
+    if (admitted.data?.id !== reference.messageId || admitted.data.sessionID !== reference.sessionId) throw new BridgeError('NATIVE_BINDING', 'Native input admission does not match this task', 503);
+  }
+  async turnOutcome(id: string, turn: NativeMessage[], hasLaterInput: boolean, signal?: AbortSignal): Promise<string | undefined> {
+    return this.protocol === 'v1' ? this.v1.outcome(id, turn, hasLaterInput, signal) : turn.findLast(m => m.type === 'idle')?.outcome;
+  }
+  async interrupt(id: string): Promise<{interrupted:boolean}> {
+    return this.protocol === 'v1' ? this.v1.interrupt(id) : this.call('/api/session/' + id + '/interrupt?resume=false', {});
+  }
+  async reply(id: string, action: 'permission' | 'form', requestId: string, value: {decision?:string;answer?:Answer}): Promise<void> {
+    if (this.protocol === 'v1') return this.v1.reply(id, action, requestId, value);
+    await this.call('/api/session/' + id + '/' + action + '/' + encodeURIComponent(requestId) + '/reply', action === 'permission' ? {decision:value.decision} : {answer:value.answer});
   }
 }

@@ -29,3 +29,20 @@ test('a new installation creates a separate context while the original backend r
   assert.equal((await host.call('ipc',{op:'request',agentId:old.agentId,requestId:'original'})).originalExecutable,saved.executable);
   assert.equal((await host.context({nodeId:'same-node',adapter:'claude',executable:host.selected})).contextId,current.contextId);
 });
+
+test('installed OpenCode 3.x remains visible but cannot create a context or start a native backend',async t=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-old-version-node-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));
+ const executable=path.join(directory,'opencode.cjs');fs.writeFileSync(executable,"console.log('opencode 3.0.0');",{mode:0o700});let starts=0;
+ const host=new MachineHost({directory,home:directory,legacy:{close(){}},candidates:{opencode:[executable],claude:[],codex:[],hermes:[],pi:[],dsh:[]},openCode:()=>{starts++;throw Error('must not start');}});t.after(()=>host.close());
+ const item=(await host.discover()).items[0];assert.equal(item.healthy,true);assert.equal(item.version,'3.0.0');assert.equal(item.executionSupported,false);assert.equal(item.compatibility.supported,false);
+ await assert.rejects(host.context({nodeId:'original',adapter:'opencode',executable}),e=>e.code==='NATIVE_VERSION'&&e.message.includes('1.x'));
+ assert.equal(starts,0);assert.deepEqual(host.rows,[]);assert.equal(fs.existsSync(path.join(directory,'node-contexts.json')),false);
+});
+test('installed OpenCode 1.x reaches production context preparation instead of a 2.x rejection',async t=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-v1-node-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));
+ const executable=path.join(directory,'opencode.cjs');fs.writeFileSync(executable,"console.log('opencode 1.19.3');",{mode:0o700});
+ const calls=[],backend={async call(method){calls.push(method);return method==='connect'?{agentId:'v1-agent'}:{agents:{items:[{agentId:'v1-agent',healthy:true}]}};},close(){}};
+ const host=new MachineHost({directory,home:directory,legacy:{close(){}},candidates:{opencode:[executable],claude:[],codex:[],hermes:[],pi:[],dsh:[]},openCode:()=>backend});t.after(()=>host.close());
+ const item=(await host.discover()).items[0];assert.equal(item.executionSupported,true);assert.equal(item.compatibility.supported,true);
+ assert.equal((await host.context({nodeId:'v1',adapter:'opencode',executable})).agentId,'v1-agent');assert.deepEqual(calls,['connect','snapshot']);
+});

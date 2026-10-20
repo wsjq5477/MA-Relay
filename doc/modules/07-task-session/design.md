@@ -1,5 +1,27 @@
 # M07 任务、会话、交互控制与恢复设计
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+M07-F01/F02：V1 Session 由服务端生成，invocation 在创建前持久，Session/Message 绑定在 Prompt 前持久。快照保存可选 nativeProtocol；旧缺省 v2，协议变化禁止续接。当前轮只按原输入及助手完成/中断证据结算，丢响应不重放。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
+
+## 当前维护进度与持久化边界
+
+M07-F03/F04：明确未发送持久化拒绝可结算该原维护意图；已发unknown保持原ID查询，当前进度异常不是任务/取消终态。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
+## 当前版本准入与管理作用域
+
+M07-F03/F04：版本改变或不兼容不能遮蔽原已派发收据。旧配置恢复失败显式NATIVE_VERSION，不创建替代Session。历史NATIVE_START_TIMEOUT保持unknown，只查原ID；仅本地明确版本准入拒绝可确定结算新管理意图。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+
+读取归属已失配的旧会话只允许查看，即使宿主保有原生Session也不宣告可继续；不改其Agent、ID或Session，正常绑定和真正legacy能力保留。
+
+## 当前历史详情读取与错误作用域
+
+M07-F02/F06/F07：task/conversation实时未找到只回同机器同ID保留历史，已有轮次及native Session保留，historical=true/canContinue=false；非终态仅在历史投影显示unknown。配置/来源冲突不伪装不存在；不重发/迁移或修改原任务终态。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+
+## 独立 MCP 配置与运行契约（2026-10-19）
+
+M07-F06/F07：独立接入可以发起普通委派而不先产生原生主Task；委派以connectionId归属，parentTaskId=null，mcp:范围标识不是原生Session。原stable requestId派生、unknown查询原请求及子任务控制归属不变。撤销接入不取消已派发任务，不删除历史；用户继续在Bridge原任务入口观察。临时原生主任务终态校验继续保留。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
+
 2026-10-18能力补验：已验证同WSL三个独立Claude宿主的真实公共文档交付/独立复核/原主会话协调；开发与复核成员各一轮，主协调三轮，成员原生成功后才逐项验收，主原生成功后才总完成。原既有权限/事件/预算与接口不变；代码编译返修/独立SSH仍待验证。[范围与真实证据](../../iterations/I07/native-members.md)。
 
 2026-10-18 未发布源码：Hermes/Pi/DSH 原生宿主沿用本模块 Task/Conversation/原请求语义；独立 worker 持久记录原 Session、输出与终态，宿主重开只观察不重放。Pi 续聊必须找到同上下文、原 ID 的唯一原生会话文件；协议/绑定不匹配或在途/unknown 不允许另建会话续接。取消操作先保存原 operationId，原生终态与控制收据分别核对。[设计与验证](../../iterations/I07/native-agent-expansion.md)。
@@ -52,13 +74,15 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 
 ## 1. 功能目标与验收口径
 
+**当前整合实现（2026-10-19，M07-F02/F06/F07/F08）**：详情/控制按原对象来源，孤立历史只读，不重绑native Session。长期MCP parentTaskId=null/connectionId与真实原生父会话继续分别归属；确定未派发拒绝不生成Task，原未知仍占位。公共材料读取不改变任务/取消/权限终态。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
+
 
 用户发出需求后，应能看到真实执行状态、回答、需要人工处理的权限或表单，以及断线后原任务的结果。继续会话应接续原生会话；无法确认时显示未知，不重复执行来获得一个看似成功的答案。
 
 | 功能 ID | 可验收功能 | 当前状态 |
 | --- | --- | --- |
 | M07-F01 | 向已接入节点提交需求，保存稳定请求 ID 和一轮任务 | 已实现；Claude/OpenCode 真实验证，Codex 依原生环境 |
-| M07-F02 | 在上一轮结束后续聊，保持来源节点及原生会话 | 已实现；Claude/OpenCode 已验证，WSL Codex 原生续聊未通过 |
+| M07-F02 | 在上一轮结束后续聊，保持来源节点及原生会话 | 已实现；当前WSL Claude/OpenCode及Codex0.163原会话续聊已验证，历史Codex版本/Windows失败保留原记录 |
 | M07-F03 | 展示真实状态、增量输出、最终回答和历史轮次 | 已实现；底层增量、前端快照观察，非浏览器直连原工具 |
 | M07-F04 | 查询原权限/表单，授权或填写后用原交互 ID 回复 | 已实现但分适配器；不把所有工具能力声明为一致 |
 | M07-F05 | 显式取消原任务，分别显示操作回执和任务终态 | 已实现；确认回执不等同原生执行已退出 |
@@ -165,6 +189,14 @@ Core 事件按 executionId 和连续 seq 接收。重复同 seq 同内容不重�
 confirmed 表示原控制 API 已给出有效回应；任务 cancelled 需要中断终态证据。原任务已经自然完成时取消回执也可能 confirmed，而任务保持原 succeeded。Codex 取消尤其需要观察原进程退出。
 
 ## 7. 持久化与一致性
+
+### 公共材料的状态投影（M07-F08/F09，CT-04/05）
+
+CT-05当前包仅选明确引用：文档准确不可变旧版；任务须匹配当前revision/round，变化报TEAM_CONTEXT_STALE而非猜旧状态；消息ID+seq从同工作全历史核对；产物ID/version可选历史报告，标明可达性未检查。任务报告仍是成员声明，不是原生/业务成功证明。桌面消费者现保留选择时的task revision/round；观察到变化清除预览/导出并要求重选，不悄悄选择新轮次。它还核对原当前报告来源/产物引用，不把用户/成员报告冒充原生成功。[消费者验证](../../iterations/I07/context-packet-ui.md)。packetId是瞬时投影摘要，不是Task/权限修订或持久交接ID；读取不改attempt/receipt/event/通知，不释放unknown。数据库格式与原请求控制不变；归档用户可按原规则读取，撤权/终态scope拒绝。[字段、错误和验证](../../iterations/I07/context-packet.md)。
+
+alpha.29之后源码的材料索引保留每个工作项当前业务state/revision/round、负责人/依赖以及当前报告来源/摘要，只列当前报告的产物引用。原生执行另列最近20项的state、等待种类/数量及会话异常标记，未知继续未知；描述文字、权限/取消收据和索引读取均不推进业务/原生终态或释放占用。旧报告/产物仍由原team_tasks历史读取。
+
+文档ID+revision指定不可变history正文，摘要按UTF-8正文计算；当前文档改为第2版不影响第1版。索引snapshotId仅绑定本页投影，不是Task版本或总验收。SQLite格式3/原请求和操作收据未迁移，恢复观察仍只查原ID。[当前契约与实际证据](../../iterations/I07/public-materials.md)。
 
 ### 当前连接能力与恢复
 

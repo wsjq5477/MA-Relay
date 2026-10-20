@@ -1,5 +1,17 @@
 # M04 SSH 机器接入设计
 
+## 当前维护进度与持久化边界
+
+M04-F04/F06：ACK不触发目录落盘，observer异常不影响上传；最终目录与原维护意图全部保存才发输入。原错误/安全details保留，仅清已验证当前upload。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
+## 当前版本准入与管理作用域
+
+M04-F03/F05：原空闲SSH机器维护不因其他机器节点unknown禁用；同机任务/未知仍保护，预览无写入且确认后才维护。精确收入alpha.31原manifest；旧SSH对象路由仍按原能力门禁，不能把信任等同新2.x启动语义。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+
+## 当前历史详情读取与错误作用域
+
+M04-F04/F05/F08：alpha.30保持alpha.29冻结manifest精确验证和重连/维护入口，未知版本与摘要/归属不符仍拒绝。归属修复位于远端MachineHost，用户确认空闲维护升级后才生效；仅升级客户端先隔离UI错误，不自动替换远端。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+
 ## 2026-10-18：UI 本地候选的 alpha.28 后台兼容边界
 
 M04-F04/F05/F08：本地 UI 候选为 `0.6.0-alpha.28.ui.2`，独立快照额外收录原 alpha.28 的可信 manifest，规范 JSON digest 为 `b06a14fe3716c2df46cb665e21f137d05aab6046a611cb0275c5cadbc365d00d`；来源为已验证的原 alpha.28 Linux 包，不以当前源码重新生成的不同字节冒充旧清单。主工作区版本元数据仍为 alpha.28，新增兼容文件仅属于候选快照，本次未修改 GitHub alpha.28 附件。
@@ -24,6 +36,8 @@ M04-F04/F05/F08：alpha.27客户端收录原alpha.26冻结manifest，digest为66
 历史功能基线（2026-10-14）：当时桌面源码与维护恢复候选 `0.6.0-alpha.17`，Windows 已发布便携版 `0.5.0`。alpha.2 的主要 Windows/SSH 验收保留；alpha.4 已实际使用用户原凭据核验并重连原 alpha.2 后台。系统 agent 与完整故障覆盖限制保留。详见 [测试报告](test-report.md)。
 
 ## 1. 功能与用户操作
+
+**当前整合实现（2026-10-19，M04-F04/F05/F08）**：精确收录公开alpha.29–32原Linux清单；当前alpha.32清单来自摘要匹配原公开EXE，规范digest33bbd002f9163bbada063b5ef9feb89aaa8653e12dcd6b86d068c5beaa190d19。兼容仅保留认证连接/观察/维护，不绕过原对象能力和同机/缺来源unknown保护，不自动升级远端。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
 
 本模块把一台已有 SSH 登录能力的 Linux 服务器加入 AgentBridge 的机器列表。用户使用服务器原有账号认证，无需额外申请 Bridge 设备令牌；服务器仍需要 Bridge daemon，由客户端在用户目录自动安装。
 

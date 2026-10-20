@@ -1,5 +1,47 @@
 # AgentBridge 整体架构
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+机器仍仅连接已有原生 Agent。OpenCodeClient 在原服务只读握手后选择 V1/V2；V1 由服务端生成 Session，invocation 先持久化，返回后在 Prompt 前持久绑定。新增 snapshot.nativeProtocol，历史缺省 v2，不跨协议续接或重放。Controller/Hub/Edge 仍使用同一原请求台账，不新增模型 API 层。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+SSH进度通知携progressOnly，中央合并内存快照但不因每ACK写目录；正确性通知仍同步持久且失败回滚机器投影。维护最终双台账硬边界位于远端输入前。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
+## CT-05桌面消费者（2026-10-20后续源码）
+
+M01新增TeamContextPacket，在原工作上下文上明确选择目标/四类版本，仅点击生成时调用既有team.contextPacket；显式分页历史消息仍走team.messages。客户端核对身份、原引用/本地history、报告来源及规范摘要，再从验证后结构化字段生成本机Markdown/JSON；不复制未经核对的后台Markdown。工作/成员/所选任务变化或选择变化使预览与在途代次失效；无新Coordinator/daemon/存储层、模型调用、派发或发送动作。[当前完整流程与证据](iterations/I07/context-packet-ui.md)。
+
+## CT-05选定材料的只读路径（2026-10-20源码）
+
+原成员MCP → team_context_packet → 原scope/工作授权 → 同一次TeamSpace状态读取 → team-context-packet纯投影；本机用户经Coordinator白名单team.contextPacket并指定runId。四类材料仅取明确引用，目标必须原工作当前有效成员；JSON/Markdown返回调用者，无投递/调度/授权/文件或网络读取。目标职责与外部正文不成为系统指令，原生Session不参与包。数据库格式3、IPC/daemon帧2不变；经典六工具和长期MCP归属保持。源码在integrated.3冻结之后，旧EXE不含本片。[完整流程、数据与验证](iterations/I07/context-packet.md)。
+
+2026-10-19当前工作架构已整合：原对象归属/旧中央与daemon能力/按机器管理锁沿已发布alpha.32实现，长期MCP和TeamSpace材料接口保留在同一中央/MachineHost。没有新模型层或身份迁移，配置信息与原生Session仍由各工具/原上下文拥有。Git HEAD未动、仅工作源码整合，本地integrated.3与公开alpha.32分开。[完整最终边界](iterations/I07/integrated-source.md)。
+
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+
+共享发现器决定版本准入，MachineHost与Core在serve/上下文创建前复验。前端管理范围与中央GraphOperationJournal一致；中央能力新增scoped-management-v1/opencode-v2-admission-v1防止复用旧语义，SSH原路由门禁保持。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
+
+中央与daemon握手将wire协议兼容和安全对象路由语义分开；已验证旧版本可连接维护，但缺owned-object-controls-v1不能执行/读控。MachineHost按backend自己的原对象快照定位来源，M08按原意图持久拒绝结算委派。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+
+## alpha.30已预发布：历史详情读取恢复
+
+只读task/conversation由MachineHost向各已绑定backend自身快照确认来源；唯一来源返回详情、冲突拒绝、真正未找到才由中央按原machine/ID投影历史。前端详情生命周期与机器/pending同步分开；无Agent或Session重绑。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
+
+2026-10-19 CT-04桌面路径：M01按需调用既有team.materials/team.document.revision，在原工作组件内核对身份/修订/正文摘要，再以文字、clipboard或用户发起的Blob下载呈现。没有新后端层/写入者/文件RPC或模型调用；只生成本机静态阅读副本，授权与执行仍由原中央/宿主管理。[读取、失效与验证](iterations/I07/public-materials-ui.md)。公开alpha.31与本地alpha.29派生源码暂未整合。
+
+## 独立 MCP 与任务 scope 两条接入（2026-10-19）
+
+设置页经Coordinator→AgentNetwork从nodeId派生原机器/adapter，再交MachineHost的McpIntegration在目标用户环境读写原生配置。独立stdio子进程仍经本机回环broker→原认证RPC→中央检查关系；长期connectionId与临时原Task scope分开。后台恢复重写原描述文件动态地址，移除先持久撤权。Bridge启动的原生协作任务仍使用其原任务scope，不继承长期入口授权。配置写入与daemon维护互斥；安装不执行模型。[文件、错误与边界](iterations/I07/mcp-installation.md)。
+
+## CT-04公共材料只读路径（2026-10-19源码）
+
+已授权Agent → 原stdioMCP/team scope → broker → Coordinator.team.materials → TeamSpace授权view → team-materials纯投影 → JSON/Markdown。用户调用仍走本地已握手IPC并指定runId。授权发生在投影之前，文档指定revision从同一工作已有不可变history读取；没有新执行层、写入者、跨工作身份或模型API。材料引用/摘要不授予访问权，不触发消息确认或任务状态推进。
+
+投影不访问文件/网络，不验证产物可达性，不输出接入密钥/原请求/原生Session。存储继续TeamSpace SQLite格式3；Classic主从六工具和daemon协议2保持。CT-04首片尚未进入alpha.29，桌面阅读/导出和通用选定上下文包仍待开发。[当前接口、限额及验证](iterations/I07/public-materials.md)。
+
 2026-10-18连接研究：当前仍为Agent→Bridge的MCP入口、Coordinator路由和目标机器原生CLI/HTTP驱动，没有采用ACP。拟议可选ACP Client位于目标MachineHost，公共材料/MD视图和可移植上下文不改变当前进程/权限边界。[当前矩阵](agent-integration-matrix.md)、[研究与后续目标](iterations/I07/connectivity-research.md)。本轮无产品或部署变化。
 
 2026-10-18接入边界补齐：静态适配能力由 Coordinator/TeamSpace 在创建小队新执行意图前核对，界面仅呈现可用节点；旧原操作继续从原幂等分支读取。Codex/NativeCliHost 在原私有上下文持久核对收据，中央不代造终态。没有新增层、模型接口或远程执行面。[设计与验证](iterations/I07/native-integration-guards.md)。

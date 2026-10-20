@@ -1,5 +1,57 @@
 # 通信协议与接口
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+机器主协议仍为 2；Core 原生引用的 snapshot.nativeProtocol 为可选字段，旧数据缺省 v2。新增 V1 /global/health、/session、prompt_async、permission/question 与 abort 映射，不与 /api/* 混用。204 或 abort=true 只是原生接收/控制响应；终态仍核对原输入、助手 parentID/完成时间与会话状态。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+协议仍2；中央capabilities新增maintenance-persistence-v1，新前台需要原三项加此项，缺失只保留设置/运行信息/显式停止。SSH旧路由要求不变。DAEMON_PERSIST_FAILED明确本地发送前失败；SSH_UPLOAD_FAILED及安全details不再泛化为暂存错误。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
+## CT-05桌面消费约定（2026-10-20后续源码）
+
+不新增RPC/参数/schema；桌面用户复用team.contextPacket与team.messages。除原服务授权外，M01检查原工作/目标、精确引用与原材料、报告来源/状态、白名单及规范packetId，重算文档正文摘要；旧后台/损坏/过期响应拒绝且移除旧导出，不回退最新文档或旧包。Markdown不在packetId覆盖内，因此本机副本从核对后的结构化字段重新生成，JSON同存该本地视图。无自动投递/执行/收件合约，协议2及18项小队工具保持。[现行消费者规则](iterations/I07/context-packet-ui.md)。
+
+## CT-05明确选择接口（2026-10-20源码，未打包）
+
+用户 `team.contextPacket({runId,targetAgentId,selections})`；成员MCP `team_context_packet({targetAgentId,selections})`，工作只取原scope。selections的documents为documentId/revision，tasks为workItemId/revision/round，messages为messageId/seq，artifacts为artifactId/version；每类最多8项，至少1项。数字为正安全整数，字符串非空/≤150；嵌套额外字段及重复ID拒绝。输出schema1结构化包、确定摘要和Markdown，整个UTF-8 JSON≤256 KiB；具体白名单见[字段与失败表](iterations/I07/context-packet.md)。
+
+先授权，再核对目标及本工作原引用：TEAM_CONTEXT_TARGET/REFERENCE/STALE/CAPACITY分别表示无效目标、无效引用、任务过期、包超限；非法选择TEAM_INPUT，缺文档修订TEAM_DOCUMENT_REVISION，scope失效TEAM_FORBIDDEN。不回退最新版，不发送、不执行、不确认已读或授予权限。小队tools/list现18项，经典6项不变；旧工具表/后台不支持时明确失败，没有替代包或自动降级。原daemon帧/IPC版本2与TeamSpace格式3不变，integrated.3冻结包不含本片。
+
+2026-10-19当前整合保留alpha.32三项中央能力和SSH原对象路由能力；Classic六工具、小队17工具、独立MCP四方法及精确修订读取共存。没有新wire版本或跨厂家Session协议；旧后台不支持新方法时返回实际错误，不因版本名或manifest信任就扩大业务授权。[最终合约与实际边界](iterations/I07/integrated-source.md)。
+
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+
+协议仍2；hello.capabilities新增scoped-management-v1与opencode-v2-admission-v1，新前台要求中央与owned-object-controls-v1同时具备，缺项COORDINATOR_UPGRADE_REQUIRED。NATIVE_VERSION表示仅支持OpenCode 2.x；401/403与API契约错误快速独立返回，裸远端错误不作未发送证明。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
+
+wire protocol仍2；中央及daemon hello新增capabilities中的owned-object-controls-v1。旧中央仅保留preferences/runtimes/shutdown；旧SSH仍可snapshot/discover/request和daemon原收据/维护，对context/scope及task/conversation/pending/reply/cancel/operation/continue/reconcile/submit/verify返回DAEMON_UPGRADE_REQUIRED。新增OPENCODE_API_UNSUPPORTED、COORDINATOR_UPGRADE_REQUIRED；既有NOT_FOUND与OBJECT_SOURCE_CONFLICT继续适用。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+
+## alpha.30已预发布：历史详情读取恢复
+
+协议2和ipc请求形状不变。task/conversation按实际backend读取，明确NOT_FOUND/TASK_NOT_FOUND/CONVERSATION_NOT_FOUND可回原机器保留历史；historical=true/canContinue=false。OBJECT_SOURCE_CONFLICT表示多后台同ID，RECEIPT_MISMATCH表示响应ID不符；两者及真实NOT_CONFIGURED不假装历史成功。request/operation/submit/continue/reply/cancel不受此回退影响。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
+
+2026-10-19 CT-04桌面消费者不新增RPC/参数/daemon帧。team.document返回须匹配请求的runId/documentId/revision，并有有效currentRevision/contentSha256；浏览器重新计算正文摘要，索引指定修订还核对索引摘要。旧后台忽略revision/不支持索引时明确报错，不能把最新正文冒充旧版；clipboard/浏览器MD下载没有网络同步合约。[实际流程与测试](iterations/I07/public-materials-ui.md)。
+
+## 独立 MCP 配置管理（2026-10-19，新增源码方法）
+
+用户入口mcp.status / mcp.install / mcp.export / mcp.remove均传nodeId，Coordinator检查机器归属，AgentNetwork从节点派生adapter/机器；客户端不能指定文件或可执行命令。目标MachineHost内部方法接收nodeId/adapter。status只读返回state=absent/exported/installed/conflict、enabled/installed/conflict、configPath、可选connectionId/files；安装/导出另含不带Token的configuration。导出激活接入但不写原生配置。删除先撤权，再删除原样归属条目。回应丢失刷新status核对，配置操作不会执行模型任务。
+
+旧daemon未声明四方法时返回原方法错误；新daemon维护期间拒绝安装/导出/移除，允许只读状态。配置错误包括MCP_UNSUPPORTED、MCP_CONFIG_INVALID、MCP_CONFIG_CONFLICT、MCP_REVOKED；普通MCP的工具名和stdio协议不变。外部scope增加externalConnectionId，身份由broker登记提供，工具参数不可修改。Token/endpoint内容不在用户API响应内。[完整接口与验收](iterations/I07/mcp-installation.md)。
+
+## CT-04只读材料API（2026-10-19源码，未发布）
+
+| 入口 | 参数与响应 |
+| --- | --- |
+| 用户team.materials | runId；可选limit整数1–50（默认20）、documentAfter非空字符串≤150；返回schema1只读材料索引和markdown |
+| MCP team_materials | 可选limit/documentAfter，runId由原scope提供；tools/list声明readOnlyHint |
+| team.document / team_document | 原documentId和可选正整数revision；用户仍需runId。指定revision严格返回对应历史title/content/authorId/time、revision/currentRevision/contentSha256，不含history；无revision维持旧结构 |
+
+非法limit/游标格式/revision报TEAM_INPUT；当前工作无该文档游标报TEAM_DOCUMENT；不存在的文档修订报TEAM_DOCUMENT_REVISION，不能回退最新版。所有读取先经原成员/工作/有效原生尝试权限检查，外来ID不扩权。索引snapshotId仅校验返回页内容；状态/消息/收据无副作用，产物引用不证明可达。
+
+CT-04当次冻结范围为17项小队MCP工具，经典主从六工具不变；当前工具数以上方CT-05为准。新服务schema可发现；旧后台可能没有新工具或忽略revision，调用方须核对响应revision/摘要，不能仅据版本名宣称精确历史读取；可回原context/tasks/document通路并明确只读当前版本。原IPC/daemon帧版本保持2，没有MD同步/上下文包协议。本片在alpha.29标签之外，[完整契约与证据](iterations/I07/public-materials.md)。
+
 2026-10-18通信内容与ACP研究见[连接研究](iterations/I07/connectivity-research.md)及[接入矩阵](agent-integration-matrix.md)。当前仍使用六工具主从MCP/已有小队工具和原IPC/SSH帧；没有ACP RPC、新上下文包接口或MD同步协议。后续建议不构成本轮已实现合约。
 
 2026-10-18原生接入补强：snapshot 节点可选 teamCollaboration；team.registerAgent/team.execute 新操作对不支持小队的原生节点返回 TEAM_CAPABILITY，拒绝发生在工作项认领/意图/派发前。原收据重放仍可查询。Codex/NativeCliHost 的 ipc reconcile/operation 保留原方法和 operationId/state/data，收据新增 kind/taskId 并持久保存；跨控制种类/任务复用同 ID 为 REQUEST_CONFLICT，历史无 kind 取消兼容。无新 RPC 或 daemon 帧版本。[专项](iterations/I07/native-integration-guards.md)。

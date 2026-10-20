@@ -21,6 +21,7 @@ export const nativeSchema = z.object({
   sessionId: idSchema, messageId: idSchema, serverUrl: z.string().url(), workspace: z.string().min(1),
   priorMessageIds: z.array(idSchema).max(1000).optional(),
   snapshot: z.object({ nativeAgent: z.string(), passwordFile: z.string(), configFingerprint: z.string(),
+    nativeProtocol: z.enum(['v1', 'v2']).optional(),
     configRevision: z.number().int().positive().optional(), resourceKey: z.string().optional(),
     model: z.object({ providerID: z.string(), id: z.string(), variant: z.string().optional() }).strict().optional(),
     permissions: z.array(z.object({ action: z.string(), resource: z.string(), effect: z.enum(['ask', 'deny']) }).strict()).optional(),

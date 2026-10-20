@@ -1,6 +1,44 @@
 # 迭代资料目录
 
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+I07 新增官方 OpenCode 1.x 双协议兼容修复，源码、官方 CLI 的受控传输验收和旧发布包范围明确分开。 [需求、实现、验证与未测边界](I07/opencode-v1-compatibility.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+I07新增维护持久化专项，修复本地机器目录保存异常中止SFTP和错误泛化。 [完整设计、实测与边界](I07/maintenance-persistence.md)。
+
+2026-10-20后续：[I07 CT-05桌面选材与导出](I07/context-packet-ui.md)完成明确目标/四类材料选择、准确旧版核对、预览和MD/JSON本机下载；桌面581/581、Windows生产前端9组通过，模型0。观察到撤权/任务变化即废弃旧导出，无新包/发送或业务交接。
+
+2026-10-20：[I07 CT-05选定上下文首片](I07/context-packet.md)，明确目标成员及文档/任务/消息/产物版本的只读API/MCP；桌面576/576、Windows定向14/14，真实Claude一个Task消费旧版并重开不重放。未打新包，公开alpha.32/integrated.3冻结范围不变。
+
+2026-10-19：[I07已发布修复/MCP/公共材料整合](I07/integrated-source.md)，核心51/51、桌面570/570、Windows前端26组和integrated.3本地候选包核对完成。公开仍alpha.32；Git HEAD不动，原未提交增量保留。
+
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+
+I07新增issues #8/#9专项：2.x严格准入、快速错误和多机管理unknown隔离，原请求不重放。 [需求、实现、验证与边界](I07/version-management-recovery.md)。
+
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
+
+issue #7 / alpha.31已预发布：兼容性、原对象控制路由、委派状态及新旧后台能力激活；实际发布和验证按专项。 [需求、实现、实测与边界](I07/collaboration-compatibility.md)。
+
+## alpha.30已预发布：历史详情读取恢复
+
+alpha.30已发布源码修复处理issue #6；GitHub已预发布alpha.30，用户现场归属待确认。 [需求、实现、逐项证据与边界](I07/history-detail-recovery.md)。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
+2026-10-19：[I07 CT-04桌面材料入口](I07/public-materials-ui.md)完成按需阅读/精确版本/复制和MD下载，541项回归及Windows八组通过，模型0。公开alpha.31与本地alpha.29派生源码分开，后续打包须先整合。
+
+## 独立 MCP 文件与原生配置管理（2026-10-19）
+
+I07-MCP01 / AB-F02/F12/F13：独立Bridge MCP配置文件、三种Agent原生用户配置增删、长期接入撤权与外部委派归属已实现。桌面537/537、核心45/45、类型/构建/lint通过；真实Claude2.1.303/Codex0.162.1/OpenCode2.0.24列表增删通过，Windows生产前端4组通过。均使用隔离配置，模型调用0；真实新EXE/独立SSH仍未验，公开alpha.29冻结范围不变。[需求、开发、验收和首次失败](I07/mcp-installation.md)。
+
+2026-10-19：[I07 CT-04公共材料首片](I07/public-materials.md)完成只读索引/Markdown与指定文档修订；525/525受控回归及一个真实Claude Task通过，alpha.29之后源码，尚未构建新包。
+
+2026-10-19较早：冻结源码23d256e已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 2026-10-19：[I07 CT-02真实MCP六方向](I07/connection-delegation.md)完成当前WSL三工具发现、委派、真实结果读取与汇总；9个真实成功Task，完整重开无重放，桌面517/517。新增验收工具，未改生产行为或发布包。
 

@@ -1,10 +1,24 @@
 # OpenCode 适配器设计
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+M06-OC-F01：当前工作源码支持官方 1.x 和原 2.x；实际 API/配置/等待接口只读握手必需。V1 会话与消息、终态证据和恢复规则见专项；2.x 行为保留。后文 2026-10-19 的仅 2.x 限制属于原发布包历史。 [需求、实现、验证与未测边界](../../../iterations/I07/opencode-v1-compatibility.md)。
+
+## alpha.32 历史版本准入（2026-10-19）
+
+M06-OC-F01：仅OpenCode2.x准入；1.x、缺失/未知主版本均NATIVE_VERSION。原executable启动器可规范解析，不回退其他安装。MachineHost创建上下文及Core保存配置/启动serve前复验；info仍需2.x且agent/model/config契约有效。确定API或认证错误不消耗20秒等待，历史Session/密码与未知占用保留。 [完整规则与证据](../../../iterations/I07/version-management-recovery.md)。
+
+## 独立 MCP 接入（2026-10-19）
+
+仅支持V2的mcp.servers.agentbridge、local command数组/environment/codemode=false；尊重OPENCODE_CONFIG_DIR/XDG目录，保留既有JSONC。独立导出agentbridge.opencode.jsonc。真实2.0.24添加、stdio连接、删除通过；原生常驻服务异步加载/删除，列表可能延后，必要时重启其后台。V1布局或双配置同名冲突拒绝。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
+
 Windows 启动 OpenCode serve、Core Controller 与显式版本检查时设置 windowsHide，避免后台控制台干扰桌面。安装发现改为首次使用或明确扫描，执行前仍核验原安装。[空闲黑窗专项](../../../iterations/I07/desktop-polling.md)。
 
 更新日期：2026-10-14。所属功能 **M06-OC-F01**。对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途、边界与当前状态
+
+2026-10-19 integrated.3 冻结源码仅支持OpenCode 2.x原API，新接入/旧配置恢复在serve前校验，认证/确定API错误快速失败；没有实现官方1.x另一套API。MCP配置管理与原生执行方向分开，原已派发请求继续按原收据查询。整合本地候选含本模块现行修复，不沿用旧开发机版本推定真实推理/SSH验收。[整合限定证据](../../../iterations/I07/integrated-source.md)。
 
 2026-10-19当前WSL版本2.0.24经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
 
@@ -12,7 +26,7 @@ Windows 启动 OpenCode serve、Core Controller 与显式版本检查时设置 w
 
 | 子能力 | 当前实现 | 验证边界 |
 | --- | --- | --- |
-| 版本/模型健康检查 | `/api/info`、默认与可用模型、原生配置源读取 | 接受 OpenCode 2 API；安装检查不是模型可调用证明 |
+| 版本/模型健康检查 | `/api/info`、默认与可用模型、原生配置源读取 | 当前源码接受 1.x/2.x 各自契约；安装检查不是模型可调用证明 |
 | CLI 默认配置继承 | 原生配置优先，否则 CLI 最近可用模型；不写原文件 | 2.0.24 真实默认与受控回归；远端 2.0.26 已有真实回复 |
 | 新会话/原会话续聊 | Session/Message 预绑定、只发一次 Prompt、原时间线核验 | 2.0.24 真实三轮；2.0.26 两轮缺 native ID 比较产物 |
 | 输出/工具/等待 | HTTP 轮询已生成的文本和工具状态，permission/form 接口 | 不是原生 token 流订阅 |
@@ -20,6 +34,8 @@ Windows 启动 OpenCode serve、Core Controller 与显式版本检查时设置 w
 | 禁工具连接验证 | 2.0.24 特殊禁止工具契约 + 随机标记 | 其他版本返回 VERIFICATION_CONTRACT；普通任务不受此限制 |
 
 ## 2. 结构与调用协议
+
+当前 V1 协议表及安全约束见[双协议专项](../../../iterations/I07/opencode-v1-compatibility.md)；以下 `/api/*` 表为继续保留的 V2 路径。
 
 ```mermaid
 flowchart LR
@@ -32,7 +48,7 @@ flowchart LR
 
 | 操作 | 原生接口 | Bridge 行为 |
 | --- | --- | --- |
-| 服务类型/版本 | `GET /api/info` | 只接受版本字符串 `2.*`；契约字段另作检查 |
+| 服务类型/版本 | `GET /api/info` | info版本须2.x；info/agent/model及所需config契约须通过 |
 | 原生模型来源 | `GET /api/model/default`、`/api/model`、`/api/config` | 使用 `location[directory]`；确定当前执行目录的默认 |
 | 新建 Session | `POST /api/session` | Bridge 指定 Session ID、原目录/agent，附 Bridge 关联 metadata |
 | 本轮需求 | `POST /api/session/{id}/prompt` | 指定 Message ID；校验返回 ID 与所属 Session |
@@ -45,7 +61,7 @@ flowchart LR
 
 Windows OpenCode 的 DesktopHost 先用共享 workerRuntime 准备 Electron/ICU 资源，再创建本机后台。缓存复制排除 runtime.json，兼容旧自引用清单；真正资源损坏时发布完整新副本、保留旧目录。若在派发前仍失败，中央依据原意图保存明确拒绝，并可严格核对 alpha.9 旧 unknown；不把查不到 Task 当作未执行。详见 [alpha.18](../../../iterations/I06/runtime-recovery.md)。
 
-OpenCode 创建上下文前复用共享 tool-discovery 对原 executable 版本核验，支持 Windows exe/cmd/npm 解析与共享 Linux 目录规则，保留 2.x API 门槛。原安装删除/损坏时明确拒绝，不能由 PATH 变化换另一安装；Windows 私有 SettingsStore 保留可写文件 flush、原子替换与修订锁，Linux 另刷新目录。实际 Windows 版本/配置/受控退出证据不代表真实模型或原生 Session 恢复。[专项](../../../iterations/I06/opencode-discovery.md)。
+OpenCode 创建上下文前复用共享 tool-discovery 对原 executable 版本核验，支持 Windows exe/cmd/npm 解析与共享 Linux 目录规则，当前允许可识别 1.x/2.x，连接分别核对其 API 契约。原安装删除/损坏时明确拒绝，不能由 PATH 变化换另一安装；Windows 私有 SettingsStore 保留可写文件 flush、原子替换与修订锁，Linux 另刷新目录。实际 Windows 版本/配置/受控退出证据不代表真实模型或原生 Session 恢复。[专项](../../../iterations/I06/opencode-discovery.md)。
 
 ## 3. 原生服务与配置来源
 

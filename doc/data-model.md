@@ -1,5 +1,55 @@
 # 对象、身份与持久数据
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+NativeReference.snapshot 新增可选 nativeProtocol（v1/v2）；缺省按历史 v2 核对，原生绑定仍唯一且不可改写。V1 创建响应丢失时 invocation 已持久但没有可猜测绑定，保留 unknown。独立 MCP 连接行按需保存 nativeProtocol，配置与删除使用原布局；任务、收据和 Conversation ID 不迁移。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+连接新增可选progressWarning安全告警；维护/中央收据error.details增加安全stage/causeCode/completedBytes/totalBytes/extracted/remoteInputSent。原JSON格式、ID、指纹和历史不迁移，已发送unknown不据诊断失败结算。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
+## CT-05桌面选材状态（2026-10-20后续源码）
+
+M01内存保存明确targetAgentId、四类精确引用数组、文档下拉修订、已显式读取的历史消息页/游标，以及核对包和读取时间。directory+runId重建组件，不写localStorage/SQLite，也不改原pending意图。作用域比较工作身份/修订/状态/成员与成员修订，以及选定任务当前revision/round；变化使预览失效，原引用保留供用户明确取消重选。
+
+客户端类型补原已存在的report.evidenceSource，无新后端字段。packetId仍覆盖原结构化投影；MD从核对结构生成，导出JSON的markdown替换为该本地视图，其余结构化内容/摘要不变。快照/文件不是授权、已读、交接或原生Session凭据。[字段核对、生命周期与验证](iterations/I07/context-packet-ui.md)。
+
+## CT-05瞬时材料包（2026-10-20源码）
+
+新增返回投影而非持久实体：schema=1、kind=agentbridge.shared-context、readOnly=true，source工作引用、target成员职责、work目标/标准/约定，明确选择的documents/tasks/messages/artifacts，boundaries、readMore、packetId和markdown。文档含准确不可变修订/正文SHA-256；任务仅当前revision/round和报告，消息须ID+seq，产物从全部报告匹配ID+version；引用不代表可达。每类最多8项/至少1项，完整UTF-8 JSON（含Markdown）≤256 KiB，否则拒绝而非截短。
+
+packetId是结构化投影规范摘要，不包含packetId/Markdown自身，不是持久ID、全局修订、访问令牌或收件回执。messages.acknowledged=false仅说明本次没有确认阅读。无SQLite迁移、消息/收据/原生记录变更；不复制entryKey、私有端点、请求/native Session。正文和消息为用户选定的外部内容，原样保留；包本身不产生执行授权。[字段、错误、限定验证](iterations/I07/context-packet.md)。
+
+2026-10-19整合不更换原requestId/operationId、节点、目录或native Session；原管理双key兼容单对象/数组，持久JSON/SQLite版本不变。preparationError/兼容证明等沿alpha.32可选字段；长期MCP仍以connectionId独立归属、parentTaskId=null，材料仍schema1只读投影。Codex TOML解析器1.9.1生成无原型表，IPC仍为JSON数据，无原生配置格式迁移。[最终规则与证据](iterations/I07/integrated-source.md)。
+
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+
+节点视图新增version_incompatible和compatibility，安装healthy不表示执行可用；connected:false仅为不兼容投影，不删除原绑定。原node/machine localStorage key接受旧单对象并写数组，多机意图追加；graph-pending.json格式/原ID不变，缺来源保守保护。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
+
+AgentNode新增可选apiCompatibility={executable,version,compatible,error?}，原请求新增可选preparationError={code,message}；节点视图新增needs_check/upgrade_required，SSH身份/连接视图新增objectRoutingSupported。均为旧JSON的可选增量，不迁移或重绑定原Session/任务/请求。旧unknown委派仅凭同源原意图证明结算。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+
+## alpha.30已预发布：历史详情读取恢复
+
+DetailRead为仅存在于前端内存的{id,status:loading/ready/missing/error,message?}，与Task/Conversation事实分离，不新增持久字段。保留历史按machine分区且raw ID和内嵌machineId匹配；非终态只在historical投影标unknown，原数据/Session/时间不写改。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
+
+2026-10-19 CT-04桌面：复用schema1索引与指定修订响应，无SQLite/后端格式变化。UI只在内存保存当前工作/当前页/已核对文档；切工作/目录或刷新/分页使旧读失效。索引下载仅当前页，单文档MD带revision、读取时currentRevision、公开文档版本引用与UTF-8正文摘要，正文原样保存；本机副本不回写DB，不是权限凭据或交接记录。[当前视图与传出边界](iterations/I07/public-materials-ui.md)。
+
+## 独立 MCP 接入登记与委派归属（2026-10-19）
+
+每机器Bridge目录新增mcp-connections/connections.json数组：connectionId（随机UUID）、nodeId、adapter、enabled、configuration（自身管理的非密启动条目）。独立文件位于mcp-connections/<connectionId>/，描述/Token继续由原broker私有文件保存；配置文件只引用描述路径。重新添加生成新connectionId，旧授权永不复用；删除不抹原委派台账。
+
+外部委派在原delegations中增加可选externalConnectionId；parentRequestId等于接入ID，parentTaskId=null，parentConversationId带mcp:前缀代表接入范围而非原生Session。派生requestId及结果/取消归属沿用原去重规则。同一长期接入内的外部会话共享范围，未实现外部原生Session自动隔离。无TeamSpace数据库迁移。[详细契约](iterations/I07/mcp-installation.md)。
+
+## CT-04材料投影与文档修订（2026-10-19源码）
+
+只读返回schema:1/readOnly:true/source:team-space，字段为run、members、documents、tasks、artifacts、messages、executions、readMore、snapshotId和markdown。所有数据来自同一次已授权view。snapshotId是本次返回页投影摘要，非持久全局修订、Task版本或权限凭据。没有数据库字段/格式迁移，原格式3、修订冲突与原操作收据保持。
+
+文档分页默认20/最大50，next为原documentId游标，顺序沿创建顺序；另一工作的游标拒绝。元数据带documentId/title/revision/ownerId/updatedAt/contentSha256/reference，reference为team-document:<id>:<revision>；不展开正文/history。指定revision返回该历史项title/content/authorId/time、currentRevision及UTF-8正文SHA-256；无参数返回旧完整文档结构。
+
+任务最多原50项，只列当前报告及其产物；旧报告仍在team_tasks。原生最近20项另列state、等待种类/数量与会话异常布尔值，不暴露原requestId/nativeSession/endpoint。消息只含窗口计数/末序号/是否有历史，acknowledged:false。目标/完成条件截短1200、约定800、职责/报告摘要300、输入/输出/边界200字符；截短内容只作入口。产物固定标记reference-not-checked，成员能力来源仍user_declared，不能推断验收。Markdown同一投影并转义标题/名称等。[完整白名单、分页与证据](iterations/I07/public-materials.md)。
+
 2026-10-18文档核对：公共文档、消息与任务仍由TeamSpace SQLite保存；Markdown正文/阅读视图与原生私有Session不同。显式共享上下文包、MD导出仅为[后续研究](iterations/I07/connectivity-research.md)，本轮没有新增字段、数据库迁移或跨工作自动共享。[接入现状](agent-integration-matrix.md)。
 
 2026-10-18原生收据：Codex/NativeCliHost 的 operations 条目增加 kind=cancel/reconcile，与原 taskId/operationId 绑定。历史缺 kind 按 cancel 兼容，无状态文件版本迁移；新增核对收据可从 unknown 随原任务终态推进 confirmed，仍保留真实 status/message。节点快照可选 teamCollaboration，显式 false 优先、缺字段只按受校验原三种注册能力兼容；不改变节点身份或小队 SQLite 格式。[完整约束](iterations/I07/native-integration-guards.md)。

@@ -3,6 +3,7 @@ const {randomUUID,createHash}=require('node:crypto');
 const {MachineRouter,qualified,project,folderPath,workspaceKey}=require('./machine-router.cjs');
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');
 const {rejectionProof,marker:daemonRejectionMarker}=require('./daemon-rejection.cjs');
+const {openCodeCompatibility,openCodeVersionError}=require('./tool-discovery.cjs');
 const {connectionCapabilities,collaborationCapabilityError}=require('./builtin-adapters.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const hash=value=>createHash('sha256').update(value).digest('hex');
@@ -33,7 +34,18 @@ class AgentNetwork extends MachineRouter {
   }
   node(id){const node=this.network.nodes.find(n=>n.nodeId===id);if(!node)throw fail('NODE_NOT_FOUND','这个 Agent 节点不存在，请刷新。');return node;}
   host(machine){const host=super.host(machine);host.setCollaboration?.((scope,name,args,callId)=>this.collaborationTool(scope,name,args,callId,machine.machineId));return host;}
+  reconcileDelegation(delegation){
+    if(delegation.taskId||delegation.conversationId)return null;
+    const node=this.network.nodes.find(n=>n.nodeId===delegation.memberId);
+    if(!node)return null;
+    const receipt=this.network.requests.find(r=>r.requestId===delegation.requestId&&r.nodeId===node.nodeId&&r.machineId===node.machineId);
+    if(!receipt||receipt.dispatched!==false||!receipt.preparationRejection||receipt.taskId||receipt.conversationId
+      ||receipt.fingerprint!==requestFingerprint(node.nodeId,{op:'submit',message:delegation.message,workspace:delegation.workspace,collaboration:false}))return null;
+    delegation.state='rejected';delegation.error={code:receipt.preparationRejection,message:receipt.preparationError?.message||delegation.error?.message||'原委派在准备阶段被拒绝，未派发；请修复配置后新建请求。'};
+    return delegation.error;
+  }
   async snapshot(){
+    for(const delegation of this.network.delegations)this.reconcileDelegation(delegation);
     const snapshot=await super.snapshot();
     snapshot.machines=snapshot.machines.map(m=>({...m,removed:(this.network.removedMachines||[]).includes(m.machineId)}));
     const groups=new Map();
@@ -73,8 +85,11 @@ class AgentNetwork extends MachineRouter {
         return !terminal.has(r.lastStatus);
       }).length;
       const occupied=snapshot.instances.filter(i=>instances.some(saved=>saved.instanceId===i.instanceId)).some(i=>i.busy||i.currentTask&&!terminal.has(i.currentTask.status));
-      const status=!machine?.online?'offline':!connection?.healthy?'tool_error':!node.executionSupported?'unsupported':node.connected?'connected':'discovered';
-      return {...node,...connectionCapabilities(node),online:!!machine?.online,healthy:!!connection?.healthy,status,busy:occupied||active.length+unconfirmed>0,activeTasks:active.length,unconfirmed,uncertain:active.some(t=>t.status==='unknown'),waiting:active.some(t=>t.waiting),lastError:last?.status==='failed'?last.error:undefined,available:!node.supersededBy&&!machine?.removed&&!node.removed&&status==='connected'&&!occupied&&!active.length&&!unconfirmed};
+      const needsUpgrade=machine?.objectRoutingSupported===false,apiReady=node.adapter!=='opencode'||node.apiCompatibility?.compatible===true&&node.apiCompatibility.executable===node.executable&&node.apiCompatibility.version===node.version;
+      const versionCompatibility=node.adapter==='opencode'?openCodeCompatibility(node.version):{supported:true},incompatible=!versionCompatibility.supported;
+      const gatedNode={...node,...(node.adapter==='opencode'?{compatibility:versionCompatibility}:{}),connected:incompatible?false:node.connected,executionSupported:node.executionSupported&&!needsUpgrade&&apiReady&&!incompatible};
+      const status=!machine?.online?'offline':needsUpgrade?'upgrade_required':incompatible?'version_incompatible':!apiReady?'needs_check':!connection?.healthy?'tool_error':!node.executionSupported?'unsupported':node.connected?'connected':'discovered';
+      return {...gatedNode,...connectionCapabilities(gatedNode),...(needsUpgrade?{error:'来源后台需要升级，请使用后台维护。'}:incompatible?{error:versionCompatibility.message}:!apiReady?{error:node.apiCompatibility?.error?.message||'请重新接入节点，检查原生 API 兼容性。'}:{}),online:!!machine?.online,healthy:!!connection?.healthy,status,busy:occupied||active.length+unconfirmed>0,activeTasks:active.length,unconfirmed,uncertain:active.some(t=>t.status==='unknown'),waiting:active.some(t=>t.waiting),lastError:last?.status==='failed'?last.error:undefined,available:!node.supersededBy&&!machine?.removed&&!node.removed&&status==='connected'&&!occupied&&!active.length&&!unconfirmed};
     });
     const annotate=item=>{const instance=this.catalog.instances.find(i=>i.instanceId===item.targetAgent);return {...item,nodeId:instance?.nodeId,workspace:instance?.workspace};};
     this.save();this.saveNetwork();
@@ -82,7 +97,7 @@ class AgentNetwork extends MachineRouter {
   }
   async prepare(method,params={}){
     if(['saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','nodeOperation'].includes(method))return {machineId:null,params};
-    if(['attachNode','manageNode','nodeRequest'].includes(method)){
+    if(['attachNode','manageNode','nodeRequest','mcp.status','mcp.install','mcp.remove','mcp.export'].includes(method)){
       const node=params.nodeId?this.node(params.nodeId):this.node(this.network.collaboration.leaderId);
       if(params.machineId&&params.machineId!==node.machineId)throw fail('WRONG_MACHINE','节点属于另一台机器。');
       return {machineId:node.machineId,params:{...params,nodeId:node.nodeId,machineId:node.machineId}};
@@ -156,7 +171,7 @@ class AgentNetwork extends MachineRouter {
     const legacy=code==='NOT_CONFIGURED'||row.op==='submit'&&['CLAUDE_RUNTIME_INVALID','CLAUDE_RUNTIME_MISSING'].includes(code)&&node.adapter==='opencode'&&this.machine(row.machineId).kind==='windows';
     if(!preparation&&!legacy)return null;
     return {requestId:row.id,machineId:row.machineId,state:'rejected',
-      error:{code:preparation||code,message:'原请求在准备执行环境时被拒绝，尚未派发；请求与历史已保留，可修复配置后新建会话。'},
+      error:{code:preparation||code,message:original.preparationError?.message||'原请求在准备执行环境时被拒绝，尚未派发；请求与历史已保留，可修复配置后新建会话。'},
       reconciliation:'original undispatched node intent and rejection verified'};
   }
   async nodeRequest(params){
@@ -167,17 +182,19 @@ class AgentNetwork extends MachineRouter {
     if(prior?.teamSessionId&&!params.teamScope)throw fail('TEAM_FORBIDDEN','小队原生会话须由新的成员执行身份续接。');
     if(prior?.collaboration)params={...params,collaboration:true};
     if(node.removed||!node.connected)throw fail('NODE_DISCONNECTED','请先接入这个 Agent 节点。');
-    if(!node.executionSupported)throw fail('ADAPTER_UNSUPPORTED','这个节点已发现，尚未完成执行适配。');
+
     if(params.model||params.providerID)throw fail('INVALID_INPUT','任务沿用原生工具配置，不接受模型或供应商覆盖。');
     if(!['submit','continue',undefined].includes(params.op)||typeof params.requestId!=='string'||!params.requestId||params.requestId.length>128||typeof params.message!=='string'||!params.message.trim()||params.message.length>65536)throw fail('INVALID_INPUT','请填写有效需求和请求 ID。');
     const fingerprint=requestFingerprint(node.nodeId,params);
     const previous=this.network.requests.find(r=>r.requestId===params.requestId&&r.machineId===node.machineId);
     if(previous){
       if(previous.fingerprint!==fingerprint)throw fail('REQUEST_CONFLICT','原请求 ID 已用于其他内容，请查询原请求。');
-      if(previous.preparationRejection)throw fail(previous.preparationRejection,'原请求在派发前已拒绝，请修复配置后新建会话。');
+      if(previous.preparationRejection)throw fail(previous.preparationRejection,previous.preparationError?.message||'原请求在派发前已拒绝，请修复配置后新建会话。');
       try{return await super.call('ipc',{op:'request',machineId:node.machineId,requestId:params.requestId});}catch(e){if(!['NOT_FOUND','REQUEST_NOT_FOUND','NOT_CONFIGURED'].includes(e.code))throw e;}
       if(previous.dispatched)throw fail('DESKTOP_UNCONFIRMED','原请求提交状态尚未确认，请查询原请求，不能重复执行。');
     }
+    if(node.adapter==='opencode'&&!openCodeCompatibility(node.version).supported)throw openCodeVersionError(node.version);
+    if(!node.executionSupported)throw fail('ADAPTER_UNSUPPORTED','这个节点已发现，尚未完成执行适配。');
     // Original dispatched receipts above remain readable if current capabilities
     // change. New native execution intent is admitted from the static contract.
     const capabilities=connectionCapabilities(node).connectionCapabilities;
@@ -207,6 +224,7 @@ class AgentNetwork extends MachineRouter {
     }else{
       if(params.collaboration&&this.network.collaboration.leaderId!==node.nodeId)throw fail('COLLABORATION_FORBIDDEN','这个节点不是当前主 Agent。');
       const context=await this.host(machine).call('context',{nodeId:node.nodeId,adapter:node.adapter,executable:node.executable,workspace:params.workspace?folderPath(params.workspace,machine):undefined,...(params.teamScope?{collaborationId:'team:'+params.teamScope.teamSessionId,scope:params.teamScope}:params.collaboration?{collaborationId:'default',scope:{nodeId:node.nodeId,parentRequestId:params.requestId}}:{})});
+      if(node.adapter==='opencode')node.apiCompatibility={executable:node.executable,version:node.version,compatible:true};
       if(params.collaboration&&context.teamCollaboration===false)throw collaborationCapabilityError('来源后台未提供 Bridge MCP 通道，需求未派发。');
       if(params.teamScope&&!context.teamCollaboration)throw Object.assign(fail('TEAM_UPGRADE_REQUIRED','来源后台尚不支持小队通信，请升级该机器后台后再执行。'),{executionNotDispatched:true});
       const snapshot=await this.host(machine).call('snapshot',{});this.importSnapshot(machine,snapshot);this.cache.set(node.machineId,snapshot);
@@ -217,6 +235,8 @@ class AgentNetwork extends MachineRouter {
     }
     }catch(error){
       receipt.preparationRejection=typeof error.code==='string'&&/^[A-Z][A-Z0-9_]{0,79}$/.test(error.code)?error.code:'DESKTOP_ERROR';
+      receipt.preparationError={code:receipt.preparationRejection,message:error.message};
+      if(node.adapter==='opencode'&&error.code==='OPENCODE_API_UNSUPPORTED')node.apiCompatibility={executable:node.executable,version:node.version,compatible:false,error:receipt.preparationError};
       this.saveNetwork();throw error;
     }
     // Durable intent precedes a native mutation. An uncertain retry only reads receipts.
@@ -230,32 +250,43 @@ class AgentNetwork extends MachineRouter {
     const node=this.node(scope.nodeId),relation=this.network.collaboration;
     if(node.machineId!==sourceMachine)throw fail('COLLABORATION_FORBIDDEN','此调用者不属于原机器。');
     if(scope.teamSessionId){if(!this.options.teamTool)throw fail('TEAM_UNAVAILABLE','小队协作通道未接入。');return this.options.teamTool(scope,name,args,sourceMachine);}
+    if(scope.externalConnectionId)return this.externalCollaborationTool(scope,name,args,callId,sourceMachine);
     const parent=this.network.requests.find(r=>r.nodeId===node.nodeId&&r.requestId===scope.parentRequestId&&r.machineId===sourceMachine&&r.collaboration);
     if(!parent||!parent.dispatched)throw fail('COLLABORATION_FORBIDDEN','协作工具未绑定已提交的主任务。');
     const parentTask=await super.call('ipc',{op:'request',machineId:sourceMachine,requestId:parent.requestId});
     if(terminal.has(parentTask.status))throw fail('COLLABORATION_FORBIDDEN','主任务已结束，此执行身份不可继续委派。');
+    return this.scopedCollaborationTool(node,relation,{...parentTask,requestId:parent.requestId},name,args);
+  }
+  async externalCollaborationTool(scope,name,args,callId,sourceMachine){
+    const node=this.node(scope.nodeId);
+    if(node.machineId!==sourceMachine||!node.connected||node.removed||(this.network.removedMachines||[]).includes(sourceMachine))throw fail('COLLABORATION_FORBIDDEN','MCP 所属节点或机器已断开或移除。');
+    // A durable MCP connection owns its delegations; it is not a native Task.
+    return this.scopedCollaborationTool(node,this.network.collaboration,{requestId:scope.externalConnectionId,conversationId:'mcp:'+scope.externalConnectionId,taskId:null,externalConnectionId:scope.externalConnectionId},name,args);
+  }
+  async scopedCollaborationTool(node,relation,owner,name,args){
     if(name==='list_agents'){
       if(node.nodeId!==relation.leaderId)return {items:[]};
       const snapshot=await this.snapshot();return {items:snapshot.nodes.filter(n=>relation.memberIds.includes(n.nodeId)).map(({nodeId,machineId,name,adapter,status,busy,executionSupported,connectionCapabilities,capabilitySource})=>({nodeId,machineId,name,adapter,status,busy,executionSupported,connectionCapabilities,capabilitySource,machine:snapshot.machines.find(m=>m.machineId===machineId)?.name}))};
     }
     if(name==='delegate'){
       if(node.nodeId!==relation.leaderId)throw fail('COLLABORATION_FORBIDDEN','此调用者已不是当前主 Agent，不能新委派。');
-      if(parentTask.status==='unknown')throw fail('COLLABORATION_FORBIDDEN','原父执行尚未确认，不能新委派。');
+      if(owner.status==='unknown')throw fail('COLLABORATION_FORBIDDEN','原父执行尚未确认，不能新委派。');
       if(!relation.memberIds.includes(args.nodeId)||args.nodeId===node.nodeId)throw fail('COLLABORATION_FORBIDDEN','目标节点不在已允许的子 Agent 中。');
       if(typeof args.requestId!=='string'||!args.requestId||args.requestId.length>128||typeof args.message!=='string'||!args.message.trim()||args.message.length>65536)throw fail('INVALID_INPUT','委派需要稳定请求 ID 和需求文本。');
-      const requestId='delegation-'+hash(node.nodeId+':'+parentTask.conversationId+':'+args.requestId).slice(0,40);
+      const requestId='delegation-'+hash(node.nodeId+':'+owner.conversationId+':'+args.requestId).slice(0,40);
       let delegation=this.network.delegations.find(d=>d.requestId===requestId);
       if(delegation&&(delegation.memberId!==args.nodeId||delegation.message!==args.message||(delegation.workspace||'')!==(args.workspace||'')))throw fail('REQUEST_CONFLICT','此委派请求 ID 已用于另一条需求。');
       const child=this.node(args.nodeId);
+      if(delegation){const refusal=this.reconcileDelegation(delegation);if(refusal){this.saveNetwork();throw fail(refusal.code,refusal.message);}}
       if(!delegation){
         if(connectionCapabilities(node).connectionCapabilities.bridgeMcp!==true)throw collaborationCapabilityError('当前主节点没有已声明的 Bridge MCP 调用能力，未派发新委派。');
         if(connectionCapabilities(child).connectionCapabilities.delegation!==true)throw collaborationCapabilityError('目标节点没有已声明的受委派执行能力，未派发新委派。');
       }
-      if(!delegation){delegation={delegationId:randomUUID(),requestId,leaderId:node.nodeId,memberId:args.nodeId,parentRequestId:parent.requestId,parentTaskId:parentTask.taskId,parentConversationId:parentTask.conversationId,message:args.message,workspace:args.workspace,createdAt:new Date().toISOString(),state:'pending'};this.network.delegations.push(delegation);this.saveNetwork();}
-      try{const task=await this.call('nodeRequest',{op:'submit',nodeId:child.nodeId,machineId:child.machineId,requestId,message:args.message,workspace:args.workspace,collaboration:false});Object.assign(delegation,{taskId:task.taskId,conversationId:task.conversationId,state:task.status});this.saveNetwork();return {...task,parentTaskId:parentTask.taskId,delegationId:delegation.delegationId};}
-      catch(e){delegation.state=['AGENT_BUSY','PROJECT_BUSY','AGENT_UNHEALTHY','AGENT_UNAVAILABLE','NODE_DISCONNECTED','ADAPTER_UNSUPPORTED','INVALID_INPUT','WORKSPACE_UNAVAILABLE'].includes(e.code)?'rejected':'unknown';delegation.error={code:e.code,message:e.message};this.saveNetwork();throw e;}
+      if(!delegation){delegation={delegationId:randomUUID(),requestId,leaderId:node.nodeId,memberId:args.nodeId,parentRequestId:owner.requestId,parentTaskId:owner.taskId,...(owner.externalConnectionId?{externalConnectionId:owner.externalConnectionId}:{}),parentConversationId:owner.conversationId,message:args.message,workspace:args.workspace,createdAt:new Date().toISOString(),state:'pending'};this.network.delegations.push(delegation);this.saveNetwork();}
+      try{const task=await this.call('nodeRequest',{op:'submit',nodeId:child.nodeId,machineId:child.machineId,requestId,message:args.message,workspace:args.workspace,collaboration:false});Object.assign(delegation,{taskId:task.taskId,conversationId:task.conversationId,state:task.status});this.saveNetwork();return {...task,parentTaskId:owner.taskId,delegationId:delegation.delegationId};}
+      catch(e){const refusal=this.reconcileDelegation(delegation);if(!refusal){delegation.state=['AGENT_BUSY','PROJECT_BUSY','AGENT_UNHEALTHY','AGENT_UNAVAILABLE','NODE_DISCONNECTED','ADAPTER_UNSUPPORTED','INVALID_INPUT','WORKSPACE_UNAVAILABLE'].includes(e.code)?'rejected':'unknown';delegation.error={code:e.code,message:e.message};}this.saveNetwork();throw e;}
     }
-    const delegation=this.network.delegations.find(d=>d.taskId===args.taskId&&d.leaderId===node.nodeId&&d.parentRequestId===parent.requestId&&d.parentTaskId===parentTask.taskId&&d.parentConversationId===parentTask.conversationId);
+    const delegation=this.network.delegations.find(d=>d.taskId===args.taskId&&d.leaderId===node.nodeId&&d.parentRequestId===owner.requestId&&d.parentTaskId===owner.taskId&&d.parentConversationId===owner.conversationId);
     if(!delegation)throw fail('COLLABORATION_FORBIDDEN','只能读取或控制当前主会话委派的任务。');
     const member=this.node(delegation.memberId);
     if(name==='task_pending')return super.call('ipc',{op:'pending',machineId:member.machineId,taskId:args.taskId});
@@ -332,7 +363,13 @@ class AgentNetwork extends MachineRouter {
         const discovered=await super.call('discover',{machineId:node.machineId});
         const item=discovered.items.find(i=>i.executable===node.executable&&i.adapter===node.adapter);
         if(!item)throw fail('DISCOVERY_CHANGED','这个工具已不可用，请重新扫描。');
+        if(item.adapter==='opencode'&&!openCodeCompatibility(item.version??node.version).supported)throw openCodeVersionError(item.version??node.version);
         if(item.healthy===false||!node.executionSupported)throw fail('AGENT_UNAVAILABLE','工具尚不可用，请检查原生安装、登录或执行支持。');
+        if(machine.objectRoutingSupported===false)throw fail('DAEMON_UPGRADE_REQUIRED','请先通过原机器后台维护升级后台，再接入执行节点。');
+        if(node.adapter==='opencode'){
+          try{await this.host(machine).call('context',{nodeId:node.nodeId,adapter:node.adapter,executable:node.executable});node.apiCompatibility={executable:node.executable,version:node.version,compatible:true};}
+          catch(error){node.apiCompatibility={executable:node.executable,version:node.version,compatible:false,error:{code:error.code,message:error.message}};this.saveNetwork();throw error;}
+        }
       }
       const operations=this.network.nodeOperations||[];
       if(operations.length>=4096)throw fail('OPERATION_LIMIT','节点操作收据达到上限，请保留记录并联系维护者。');
@@ -349,6 +386,12 @@ class AgentNetwork extends MachineRouter {
   }
   async call(method,params={}){
     if(method==='snapshot')return this.snapshot();
+    if(['mcp.status','mcp.install','mcp.remove','mcp.export'].includes(method)){
+      const node=this.node(params.nodeId),machine=this.machine(node.machineId);
+      if(['mcp.install','mcp.export'].includes(method)&&(!node.connected||node.removed))throw fail('NODE_DISCONNECTED','请先接入此 Agent。');
+      this.assertMachineAdmission(machine);
+      return this.host(machine).call(method,{nodeId:node.nodeId,adapter:node.adapter});
+    }
     if(method==='collaboration')return {...this.network.collaboration};
     if(method==='collaborationOperation'){
       operationId(params.operationId);

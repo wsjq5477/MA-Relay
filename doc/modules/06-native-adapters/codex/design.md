@@ -1,5 +1,15 @@
 # Codex 适配器设计
 
+读取归属已失配的旧会话只允许查看，即使宿主保有原生Session也不宣告可继续；不改其Agent、ID或Session，正常绑定和真正legacy能力保留。
+
+## 历史详情的相邻路由契约
+
+Codex宿主仍按原task/conversation ID读取持久轮次，不修改Session和终态。MachineHost在自身backend快照定位对象，不依赖历史targetAgent还能对应当前row；本片不改Codex执行、取消或reconcile实现。alpha.30已预发布源码，[归属专项](../../../iterations/I07/history-detail-recovery.md)。
+
+## 独立 MCP 接入（2026-10-19）
+
+编辑CODEX_HOME/config.toml（默认~/.codex/config.toml）的自有mcp_servers.agentbridge标记块；导出agentbridge.codex.toml。保留其他设置/注释，外来条目或块内无关数据拒绝覆盖。真实0.162.1隔离用户配置增删与mcp list可见性通过，本次未通过模型调用该长期入口。原托管任务-c覆盖仍保留任务scope隔离。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
+
 已确认原终态后，同批晚到started/output/native帧不再改变原任务、结果或Session；已观察offset仍完整推进。原生退出事实与准备失败分开，未启动不标nativeExited=true。
 
 原任务核对收据保存在 codex-state.json 的 operations；kind=reconcile 与旧/新 cancel 收据分离，taskId/operationId 绑定不可改。原 ID 重查/重复核对不重新评估派发，观察到原终态才推进 unknown；严格未派发证明继续按既有条件落 failed。unknown 核对不阻首次取消，unknown 取消禁止换 ID 重发。[规则与证据](../../../iterations/I07/native-integration-guards.md)。

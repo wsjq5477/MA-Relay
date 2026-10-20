@@ -1,6 +1,62 @@
 # 整体测试与验收报告
 
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](iterations/I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+2026-10-20 **0.6.0-alpha.33已预发布**：PR #11已合并，标签冻结`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`，EXE与校验附件已公开并完成匿名完整下载核验。本次为公开alpha.32上的issue #10独立补丁，不含主工作区CT-04/独立MCP/CT-05或后续OpenCode1.x未发布驱动。维护上传的进度错误不再中断SFTP，最终台账保存失败仍不发送原维护输入。 [交付、校验与升级边界](iterations/I07/maintenance-persistence.md)。
+
+2026-10-20 issue #10最终：隔离补丁桌面551/551、整合源码快照592/592，核心51/51；Windows专项7/7、生产前端3组与普通EXE5组通过，真实本机TCP安装/清理3组通过。均为受控、模型0，独立用户服务器未验。[完整证据与失败保留](iterations/I07/maintenance-persistence.md)。
+
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+本轮分开记录 1.x 受控 HTTP + 生产 Hub/Edge、真实官方 1.19.3 CLI + 本机受控模型传输、原 2.x 回归。真实 CLI 的接入/同 Session 两轮/只读重开/原轮中断及生产 MCP broker 连接通过；不等于真实账号或模型推理。工程结果、首次失败和全套计数以专项最终日志为准；无当前 Windows EXE/独立 SSH 验收。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+公开修复分支和当前整合源码分开验证，核心/定向/Windows/真实本机TCP SFTP与包证据分别记录。没有重做用户服务器维护，现场EPERM具体形态未证实。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
+
+## 2026-10-20：CT-05桌面选材与本机导出
+
+最终桌面581/581零跳过、进程退出0，新5项/定向15项为子集；Windows Node24.19.0/Edge155生产前端、真实Coordinator/SQLite、受控机器9组通过，页面异常0，模型调用0。覆盖准确旧文档/当前任务/历史消息/旧产物、真实MD/JSON下载、clipboard拒绝、错误响应/旧后台、容量/数量、观察到撤权或任务变化失效、A迟到包不入B、原unknown和原生请求0。源码/类型/Vite构建通过；未打新包/未测真实Agent消费本轮导出或独立SSH，历史Claude单Task及integrated.3 EXE不扩大范围。[全部证据与复现](iterations/I07/context-packet-ui.md)。
+
+## 2026-10-20：CT-05选定公共上下文
+
+WSL Node22.23.1受控定向14/14（新6项）纳入全桌面576/576，Windows Node24.19.0同14项通过，零跳过，受控模型0。覆盖明确版本/过期/权限/无状态收据副作用/限额及生产MCP。真实WSL Claude2.1.303一个Task、3次MCP读取和重复观察通过，严格旧正文一致；不能把重复报告算新任务。Windows新EXE、其他工具实际消费、独立SSH及桌面选材未验；Core51/51、前端26组和integrated.3包为上一轮冻结证据，本轮不重计。[需求、逐项结果、日志与发布边界](iterations/I07/context-packet.md)。
+
+## 2026-10-19：整合源码与本地候选
+
+核心51/51、最终桌面570/570（零跳过），定向85/85和兼容15/15属于全量相关子集，不再相加；根类型/lint/构建及桌面构建通过。Windows生产前端26组通过，模型0；标准打包验证42 CJS/78核心/1446 Linux资源与冻结源码一致。原首次夹具/依赖原型失败、三份候选及最终普通EXE分别记录，不用旧报告冒充最终包。[完整证据与未测边界](iterations/I07/integrated-source.md)。
+
+## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+
+核心51/51、桌面543/543、定向7/7及工程检查通过；版本拒绝/中央机器冲突与Windows交互按受控证据记录。39 CJS/78 core/1404 Linux及148冻结文件匹配；当前普通EXE/分发状态以专项实际结果为准，现场未测。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+
+Windows最终证据：95项原路由CJS及9项版本/管理CJS通过；alpha.32生产前端专项4组、既有状态10组/8图及普通无调试EXE5组通过，模型0。
+
+alpha.32已完成普通EXE及公开完整下载核验，标签冻结`fcdad72fba454bf731cf66df54bc1caf2a06e0a2`，EXE与SHA-256附件公开可取；后续文档补录不移动标签。[发布与升级边界](iterations/I07/version-management-recovery.md)。
+
+## 2026-10-19：协作兼容修复（alpha.31已预发布）
+
+alpha.31源码/GitHub预发布在alpha.30基础补齐兼容/原对象控制/委派状态与能力激活；逐层实际日志、失败保留、Windows与发布结果以专项为准，完整I06C/I07C未准出。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
+
+## alpha.30已预发布：历史详情读取恢复
+
+2026-10-19：历史详情路由和局部错误专项已通过定向/Windows生产前端验证；核心45/45，完整桌面与普通EXE最终结果统一以专项记录为准，用户现场未确认。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
+## 2026-10-19：CT-04桌面材料入口
+
+本地alpha.29派生工作区：桌面541/541、零跳过（含新4项版本/摘要/导出保护），桌面类型/Vite构建通过；Windows Node24.18.0/Edge155生产前端→真实Coordinator/SQLite八组通过、页面错误0。受控clipboard内容/拒绝和实际浏览器MD下载分开；模型0、原未知操作不变、原生请求0。新EXE/独立SSH未测，较早真实Claude结果不计本片。[原始日志、环境限制和完整边界](iterations/I07/public-materials-ui.md)。公开alpha.31来自另一分支，当前源码未因此获得其修复或包验收。
+
+## 独立 MCP 文件与原生配置管理（2026-10-19）
+
+I07-MCP01 / AB-F02/F12/F13：独立Bridge MCP配置文件、三种Agent原生用户配置增删、长期接入撤权与外部委派归属已实现。桌面537/537、核心45/45、类型/构建/lint通过；真实Claude2.1.303/Codex0.162.1/OpenCode2.0.24列表增删通过，Windows生产前端4组通过。均使用隔离配置，模型调用0；真实新EXE/独立SSH仍未验，公开alpha.29冻结范围不变。[需求、开发、验收和首次失败](iterations/I07/mcp-installation.md)。
+
+## 2026-10-19：CT-04首片实际验证
+
+alpha.29之后源码：定向27/27（含新增8项）与最终桌面525/525、零跳过，受控SQLite/socket/子进程，无模型；授权/跨工作/分页/精确旧修订/Markdown及真实stdioMCP路由均覆盖。另有真实WSL Claude2.1.303一个成功Task、两次MCP读取、三组限定检查，读到当前第2版索引后准确取得第1版；完整重开仍一个原Task。未测新EXE/其他原生工具/独立SSH。核心45/45、前端检查及alpha.29包证据保留较早发布日期，本片未重跑或扩大。[源码清单、原始日志与完整限制](iterations/I07/public-materials.md)。
+
+2026-10-19较早：冻结源码23d256e已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 ## 2026-10-19：三工具真实MCP六方向
 

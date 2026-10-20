@@ -1,5 +1,41 @@
 # M08 主从协作测试报告
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+M08-F01：OpenCode 1.x 托管 scope 使用原生 mcp.agentbridge，不写 V2 codemode；独立连接安装/导出记录其协议，删除用原布局。Bridge scope、connectionId、原请求与 token 撤销规则保持，配置格式兼容不代表真实模型协作验收。 本次共用专项的全套日志，不跨模块累加；受控测试、官方 CLI 加受控传输与未测 Windows/SSH/真实模型分列。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
+
+## 2026-10-20：CT-05桌面选材/核对导出
+
+T-M08-152 / M08-F07/F08：WSL Node22.23.1最终桌面581/581零跳过/退出0，新5项和定向15项为全量子集；Windows Node24.19.0/Edge155生产前端、真实Coordinator/SQLite、受控机器9组通过、页面异常0。覆盖四类明确版本/本机MD与JSON实际下载、报告来源/正文/引用/摘要拒绝、目标/任务变化失效、跨工作迟到隔离及原unknown不变/原生请求0。clipboard受控，模型调用0，不等于系统剪贴板、EXE或真实Agent消费本轮导出。计数共用不相加；后端任务/权限/收据合约无变化。[日志、截图、首次构建与壳退出记录、复现和发布边界](../../iterations/I07/context-packet-ui.md)。
+
+## 2026-10-20：CT-05明确选材只读包
+
+T-M08-151 / M08-F07/F08：WSL Node22.23.1定向14/14（新6项）包含在全桌面576/576，Windows Node24.19.0同14项/真实命名管道与stdioMCP通过，零跳过、受控模型0。覆盖精确版本、旧消息/历史产物、任务过期/越权/撤权/终态scope、格式和UTF-8容量、完整state/receipt不变。真实Claude2.1.303一个成功Task、3次MCP读取及完整重开/重复观察仍1Task；各模块共享计数不相加。新EXE、其他工具实际消费/独立SSH及界面选材未验，源码晚于integrated.3冻结。[日志、脚本、环境首次失败与发布边界](../../iterations/I07/context-packet.md)。
+
+## 2026-10-19：整合源码与本地候选
+
+T-M08-149 / M08-F02/F05/F07：核心51/51、桌面570/570零跳过（定向85/85及兼容15/15是相关子集），根类型/lint/构建与桌面构建通过。Windows前端26组/模型0，按历史/门禁/管理/材料/MCP分别记录；最终integrated.3普通Windows EXE五组通过：原历史/文档/MCP导出、窗口/后台重开、持久资源和原unknown保留，原生请求0；这是隔离合成profile，不是真实Agent模型或用户现场。包42 CJS/78核心/1446 Linux条目匹配，未部署用户SSH或跑真实模型。各模块共用计数不相加；首次夹具/原型失败与原历史证据保留。[版本、源码、所有原始结果和限制](../../iterations/I07/integrated-source.md)。
+
+## 2026-10-19：issues #8/#9受控验证
+
+M08-F02/F03/F04：核心51/51、桌面543/543（含版本/管理/原路由回归）、最后定向7/7及工程检查通过；Windows95项原路由/9项管理CJS、前端专项4组/既有10组及普通EXE5组通过；分发另按专项逐项记录。无真实模型/用户profile/独立服务器升级，不跨模块累加共享计数。 [需求、实现、验证与边界](../../iterations/I07/version-management-recovery.md)。
+
+## 2026-10-19：issue #7 协作兼容修复
+
+M08-F02/F03/F04：本轮仅受控HTTP/CLI、生产后台无推理、TCP SSH及Windows交付验收；用户现场/独立SSH/真实模型未测。实际执行结果、首次失败与最终工程/包证据统一引用专项，共享计数不跨模块叠加。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+
+## 2026-10-19：CT-04桌面只读材料通路
+
+T-M08-148 / M08-F07：2026-10-19，本地a872275/alpha.29派生工作区（公开另分支alpha.31尚未合入）。WSL Node22.23.1桌面541/541零跳过，新版本/摘要/MD保护4/4为全量子集，桌面类型/Vite构建通过。Windows Node24.18.0/Edge155，生产前端→真实Coordinator/SQLite、受控机器八组流程通过，页面错误0、模型0；实际浏览器下载的UTF-8旧版正文与受控clipboard收到内容一致。clipboard是受控接收/拒绝，不冒充系统剪贴板实写。旧后台/缺版/摘要错误阻止传出、A迟到响应不入B、窄桌面/原unknown不变和原生请求0通过。未跑新EXE/独立SSH/真实Agent消费导出，计数跨模块共用不叠加。[完整原始日志、下载、截图与复现](../../iterations/I07/public-materials-ui.md)。
+
+## 独立 MCP 文件与配置增删（2026-10-19）
+
+M08-F02/F05；日期2026-10-19，alpha.29后未发布工作区。WSL Node22.23.1受控全桌面537/537、核心45/45；真实原生列表三工具增删通过，Claude/OpenCode连接、Codex仅列表；Windows Edge155生产界面4组通过但机器/原生执行受控。计数为共享结果不跨模块相加，模型调用0。新EXE、真实Windows原生Agent、独立SSH与独立接入真实模型委派未测。源码/命令、首次失败、原始日志和逐层边界见[专项验收](../../iterations/I07/mcp-installation.md)。
+
+## 2026-10-19：CT-04公共材料首片
+
+T-M08-147 / M08-F07：2026-10-19，alpha.29之后未发布源码，WSL Node22.23.1。定向27/27（含新8项）和最终桌面525/525通过，零跳过，无模型；覆盖只读/精确旧版/分页、跨工作/撤权/原生终态scope拒绝、状态/报告白名单、Markdown和生产Coordinator→stdioMCP→broker路由。定向是全量子集，各模块共用计数不相加。另有真实Claude2.1.303一个成功Task、两次MCP读取、三组限定检查；索引文档当前2版时准确取得第1版，完整重开仍一个原Task。本片没有新EXE/其他工具/独立SSH或桌面导出验收。[原始日志、版本、复现及限制](../../iterations/I07/public-materials.md)。
+
 ## 2026-10-19：CT-02真实MCP六方向
 
 T-M08-146 / M08-F01/F02/F03/F04/F05：WSL Node22.23.1，真实Claude2.1.302/Codex0.163.0-alpha.10.2/OpenCode2.0.24轮流作主并各委派给另两种工具；生产Coordinator/AgentNetwork/MachineHost/stdioMCP/broker/原生CLI或HTTP，非假dispatcher。共9个成功原生Task、6个委派方向、16次实际MCP调用；原父/目标/机器/派生ID/消息与真实结果核对，重开每链Task3→3/委派2。保护7/7计入全桌面517/517（模型0），不与真实或跨模块计数叠加。生产行为无变更；新三工具、新EXE、独立SSH、权限/表单及执行中断点未测。[完整脚本、逐次报告与边界](../../iterations/I07/connection-delegation.md)。

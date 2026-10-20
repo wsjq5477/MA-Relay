@@ -1,6 +1,52 @@
 # M10 构建与发布测试报告
 
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](../../iterations/I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+2026-10-20 / M10-F01/F03/F05：alpha.33 EXE129965530字节及SHA-256附件公开完整下载核验一致；普通EXE5组通过，发布不代替用户现场或独立SSH验收。 [交付、校验与升级边界](../../iterations/I07/maintenance-persistence.md)。
+
+## 2026-10-20：维护上传进度与持久化修复（issue #10）
+
+M10-F01/F03/F05：本轮WSL专项7/7、相关42/42与核心51/51，Windows最终7/7及SSR66/66通过；最终全量/真实TCP/普通EXE/公开下载逐层记录。用户profile及独立服务器未验，共享计数不跨模块叠加。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
+## 2026-10-20：CT-05桌面构建边界
+
+T-M10-152 / M10-F01/F02：桌面TypeScript/Vite生产构建通过，保留大于500KB单包提示；实际Windows前端9组验证相应生产资源，未构建新EXE/Linux包。公开alpha.32与integrated.3原候选文件/摘要保持，581项源码回归及浏览器下载不扩大旧包证据；真实Agent/独立SSH未测。[构建、资源摘要与交付范围](../../iterations/I07/context-packet-ui.md)。
+
+## 2026-10-20：CT-05包范围核对
+
+T-M10-151 / M10-F01/F02：仅核对新electron CJS模块沿原打包收集路径，无版本/依赖变化；本轮未构建或验收新EXE/Linux包。576/576桌面、Windows定向14项及真实Claude一次消费是源码证据，不能扩大先前integrated.3普通EXE五组的冻结范围，旧文件/摘要保留。公开仍alpha.32，工作源码晚于integrated.3。[本片未测与后续发布条件](../../iterations/I07/context-packet.md)。
+
+## 2026-10-19：整合源码与本地候选
+
+T-M10-149 / M10-F01/F02/F03/F05/F06：核心51/51、桌面570/570零跳过（定向85/85及兼容15/15是相关子集），根类型/lint/构建与桌面构建通过。Windows前端26组/模型0，按历史/门禁/管理/材料/MCP分别记录；最终integrated.3普通Windows EXE五组通过：原历史/文档/MCP导出、窗口/后台重开、持久资源和原unknown保留，原生请求0；这是隔离合成profile，不是真实Agent模型或用户现场。包42 CJS/78核心/1446 Linux条目匹配，未部署用户SSH或跑真实模型。各模块共用计数不相加；首次夹具/原型失败与原历史证据保留。[版本、源码、所有原始结果和限制](../../iterations/I07/integrated-source.md)。
+
+## 2026-10-19：issues #8/#9受控验证
+
+M10-F01/F03/F05：核心51/51、桌面543/543（含版本/管理/原路由回归）、最后定向7/7及工程检查通过；Windows95项原路由/9项管理CJS、前端专项4组/既有10组及普通EXE5组通过；分发另按专项逐项记录。无真实模型/用户profile/独立服务器升级，不跨模块累加共享计数。 [需求、实现、验证与边界](../../iterations/I07/version-management-recovery.md)。
+
+## 2026-10-19：issue #7 协作兼容修复
+
+M10-F01/F03/F05：本轮仅受控HTTP/CLI、生产后台无推理、TCP SSH及Windows交付验收；用户现场/独立SSH/真实模型未测。实际执行结果、首次失败与最终工程/包证据统一引用专项，共享计数不跨模块叠加。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
+
+## 2026-10-19：历史详情路由与局部错误
+
+T-M10-150 / M10-F01/F03/F05：alpha.30隔离修复；合成路由6项、受控TCP SSH1项、Windows纯CJS91/91、Linux SSR63/63，新生产前端7组和既有10组通过，模型0。最终桌面529/529、核心45/45、lint/类型/构建通过；38 CJS/78 core/1401 Linux资源匹配145个冻结源文件。普通Windows无调试EXE合成原两轮/Session只读与关闭重开/后台重启4组通过。分发实际结果及首次失败统一见[当次专项](../../iterations/I07/history-detail-recovery.md)；共享计数不跨模块叠加，用户故障profile/独立服务器未复测。
+
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](../../iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
+
+## 2026-10-19：桌面材料入口与公开版本核对
+
+本次桌面类型/Vite构建、541项受控回归和Windows前端八组通过，模型0；没有新包、普通EXE或verify-package，不登记新包通过。只读GitHub API确认alpha.31/标签002107da、两附件uploaded、EXE大小与服务器digest；未重新完整下载或执行该包。本地a872275/alpha.29派生尚未合入alpha.30/31修复，材料/MCP增量也不能视作alpha.31内容。[原始元数据/构建/源码与限制](../../iterations/I07/public-materials-ui.md)。
+
+## 独立 MCP 文件与配置增删（2026-10-19）
+
+M10-F01/F02；日期2026-10-19，alpha.29后未发布工作区。WSL Node22.23.1受控全桌面537/537、核心45/45；真实原生列表三工具增删通过，Claude/OpenCode连接、Codex仅列表；Windows Edge155生产界面4组通过但机器/原生执行受控。计数为共享结果不跨模块相加，模型调用0。新EXE、真实Windows原生Agent、独立SSH与独立接入真实模型委派未测。源码/命令、首次失败、原始日志和逐层边界见[专项验收](../../iterations/I07/mcp-installation.md)。 本次没有运行打包，不将源码构建当作包内验收。
+
+## 2026-10-19：CT-04尚未打包
+
+M10-F02/F03/F06边界核对：本次只改源码/测试和文档，桌面525/525及一个真实WSL Claude Task通过；没有执行新包构建、verify-package、新普通EXE或公开上传，不登记包通过用例。较早alpha.29冻结23d256e的38 CJS/1400 Linux条目、Windows EXE四项及公开摘要结果保留[原发布记录](../../iterations/I07/alpha29-release.md)，不覆盖新增team-materials模块。[本片源码与未测范围](../../iterations/I07/public-materials.md)。
+
+2026-10-19较早：冻结源码23d256e已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](../../iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
 poll.4最终候选：129,933,135字节，SHA-256与[校验文件](../../../artifacts/desktop-polling/2026-10-18/SHA256SUMS.txt)一致，普通EXE4组通过；没有创建GitHub发布，用户profile未升级。[完整交付](../../iterations/I07/desktop-polling.md)。
 

@@ -1,6 +1,26 @@
 # AgentBridge Windows
 
-当前GitHub预发布 **0.6.0-alpha.28**：修复issue #5，保留alpha.27的Codex/本地持久化恢复等既有修复。
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](../doc/iterations/I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+当前GitHub预发布 **0.6.0-alpha.33**：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/AgentBridge-0.6.0-alpha.33-Windows-x64.exe) · [校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/SHA256SUMS.txt)。完整公开下载已核验。先停止旧中央并退出后重开；远端升级仍需在原机器空闲时确认，不自动重发原维护。 [交付、校验与升级边界](../doc/iterations/I07/maintenance-persistence.md)。
+
+当前本地候选为0.6.0-alpha.32.integrated.3：已整合公开alpha.30–32及本工作区MCP/CT-04，公开仍alpha.32。包来源、验证、原EXE摘要与未测边界见[整合交付](../doc/iterations/I07/integrated-source.md)；不能把本地候选叫作已发布版本。
+
+## 历史alpha.32下载与升级
+
+[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.32/AgentBridge-0.6.0-alpha.32-Windows-x64.exe) · [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.32/SHA256SUMS.txt)。公开完整下载已核验：129955724字节，SHA-256 `87adda262cde786ba602971c4d03c5b25a6a0da9ac00e3cdfaba1e7fc5a14440`。
+
+修复issues #8/#9：OpenCode仅2.x，旧1.x配置恢复直接报版本要求；本机unknown不再禁用另一空闲SSH的维护。先在设置显式停止旧中央并退出，再开新EXE；原OpenCode升级2.x后重扫接入。SSH服务器需在原机器空闲时查看维护预览并确认升级，EXE不会自动替换远端。原unknown继续查询原ID，不重发。
+
+核心51/51、桌面543/543、Windows纯CJS95+9、生产前端4+10组、普通无调试EXE5组通过，均为受控合成、模型0。用户profile、真实原生OpenCode与独立SSH升级未实测；[冻结源码/完整证据与限制](../doc/iterations/I07/version-management-recovery.md)。下面内容仅保留各历史版本范围。
+
+## 历史alpha.30下载与历史详情恢复
+
+[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/AgentBridge-0.6.0-alpha.30-Windows-x64.exe) · [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/SHA256SUMS.txt)。停止旧后台并退出后重开新EXE；SSH原daemon还需空闲时从后台维护确认升级alpha.30，再查询原会话。实际backend有原对象则读取原轮次，旧Agent失配则只读；仅历史或缺失只影响详情，不再锁住其他新建会话。顶层同步故障和unknown保护继续生效。
+
+工程/Windows生产前端/普通EXE与公开完整下载核验见[alpha.30交付](../doc/iterations/I07/history-detail-recovery.md)。保留原ID/Session/历史，不自动重发；用户现场未复测。下面alpha.29及更早说明保留当次冻结范围。
+
+历史GitHub预发布 **0.6.0-alpha.28**：修复issue #5，保留alpha.27的Codex/本地持久化恢复等既有修复。
 
 [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/AgentBridge-0.6.0-alpha.28-Windows-x64.exe) · [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/SHA256SUMS.txt) · [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.28)。下载附件双击即可运行，无需自行编译或安装Node/WSL；原生Agent工具仍需自行安装登录。
 

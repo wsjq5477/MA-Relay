@@ -1,5 +1,13 @@
 # Codex 适配器测试报告
 
+## 2026-10-19：历史详情归属
+
+T-M06-CX-150：受控快照/真实本机TCP SSH读取原两轮与native Session，移除实时对象后只读保留历史；非用户服务器/模型调用。实际普通EXE的持久CodexHost验证及源码/包状态以[专项](../../../iterations/I07/history-detail-recovery.md)为准；不把受控host当真实模型通过。
+
+## 独立 MCP 接入（2026-10-19）
+
+编辑CODEX_HOME/config.toml（默认~/.codex/config.toml）的自有mcp_servers.agentbridge标记块；导出agentbridge.codex.toml。保留其他设置/注释，外来条目或块内无关数据拒绝覆盖。真实0.162.1隔离用户配置增删与mcp list可见性通过，本次未通过模型调用该长期入口。原托管任务-c覆盖仍保留任务scope隔离。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
+
 ## 2026-10-19：CT-02真实MCP调用方与被调用方
 
 T-M06-CX-146 / M06-CX-F01：当前WSL原生0.163.0-alpha.10.2，本工具真实作主发现/委派另外两种工具并读取成功结果，另在两条链中作为普通子任务被实际启动。各回答/原生Session/父子归属与精确消息通过，完整重开不重放；三工具共享9Task/6方向/16次MCP调用，不跨模块重复累加。保护7/7计入全桌面517/517，均为无模型回归，与真实Task分别计数。产品运行代码未改；Windows、新三工具、独立SSH/权限/表单/执行中断点未补验。[实际脚本、原始报告及边界](../../../iterations/I07/connection-delegation.md)。

@@ -1,4 +1,6 @@
+import type {DetailRead} from './types';
 import { useId, useRef, useState, type ReactNode } from "react";
+import McpSettings from './McpSettings';
 import {
   ArrowUpRight,
   CheckCheck,
@@ -313,6 +315,8 @@ export function TasksPage({
 }
 
 export interface ConversationsPageProps extends SourceProps {
+  detailRead?: DetailRead | null;
+  onReload?: () => void;
   conversations: Conversation[];
   scope?: ReactNode;
   selected: Conversation | null;
@@ -331,6 +335,8 @@ export interface ConversationsPageProps extends SourceProps {
 
 export function ConversationsPage({
   conversations,
+  detailRead,
+  onReload,
   scope,
   selected: requested,
   showChecks,
@@ -374,11 +380,14 @@ export function ConversationsPage({
   const node = selected ? nodeFor(selected) : undefined;
   const verification = selected ? isVerificationConversation(selected) : false;
   const isBlocked = !!selected && blocked(selected.machineId, node?.nodeId);
+  const read=detailRead?.id===selected?.conversationId?detailRead:undefined;
+  const detailUnavailable=!!read&&read.status!=="ready";
   const latest = selected?.items?.at(-1);
   const canSend =
     !!selected &&
     !verification &&
     !selected.historical &&
+    !detailUnavailable &&
     !busy &&
     !executionLocked &&
     !!followup.trim() &&
@@ -391,12 +400,14 @@ export function ConversationsPage({
     isTerminal(latest);
   const continuationHint = !selected
     ? ""
+    : detailUnavailable
+      ? read?.message || "正在读取原会话，核对完成后才能继续。"
     : isBlocked
       ? "当前 Agent 有未确认操作，请查询原请求；可选择其他可用 Agent 开始独立会话。"
       : executionLocked
         ? "请先恢复后台连接或核对原授权保存，再继续当前会话。"
         : selected.historical
-          ? "这是保留的历史快照。来源机器恢复后才能核对当前状态或继续会话。"
+          ? "这是保留的历史快照。来源后台暂未提供实时详情；仅可查看已保存的轮次，不能继续会话。"
           : !node?.connected || node.removed
             ? "来源 Agent 尚未接入，恢复连接后才能继续当前会话。"
             : !node.online
@@ -525,11 +536,15 @@ export function ConversationsPage({
                     <span>{selected.workspace}</span>
                   </div>
                 )}
+                {detailUnavailable && <div className="workspace-inline-note" role="status">
+                  <div><strong>{read?.status==='loading'?'正在读取原会话':read?.status==='missing'?'未找到原会话':'会话详情暂不可用'}</strong><p>{read?.message||'只读取原会话，不会重新发送需求。'}</p></div>
+                  {onReload&&read?.status!=='loading'&&<button className="text-btn" onClick={onReload}>重新读取原会话</button>}
+                </div>}
                 {selected.historical && (
                   <div className="workspace-inline-note" role="status">
                     <History size={16} aria-hidden="true" />
                     <span>
-                      这是保留的历史快照。来源机器恢复后才能核对当前状态或继续会话。
+                      这是保留的历史快照。来源后台暂未提供实时详情；仅可查看已保存的轮次，不能继续会话。
                     </span>
                   </div>
                 )}
@@ -605,13 +620,13 @@ export function ConversationsPage({
                       </article>
                     );
                   })}
-                  {!selected.items?.length && (
+                  {!selected.items?.length && !detailUnavailable && (
                     <EmptyState
                       compact
                       icon={MessageSquare}
-                      title="尚未读取到本轮记录"
+                      title={selected.historical?"保留快照暂无轮次记录":"本会话尚无轮次记录"}
                     >
-                      会话已选中，执行内容以原会话查询结果为准。
+                      来源后台未提供可展示的轮次；可稍后重新读取原会话。
                     </EmptyState>
                   )}
                 </div>
@@ -678,6 +693,7 @@ export interface SettingsPageProps {
   machineName: (id?: string) => string;
   busy: boolean;
   managementLocked: boolean;
+  managementReason?: (machineId?:string)=>string;
   machineManagementSupported: boolean;
   onRestore: (machine: Machine) => void;
   onCloseWindow: () => void;
@@ -706,6 +722,7 @@ export function SettingsPage({
   machineName,
   busy,
   managementLocked,
+  managementReason,
   machineManagementSupported,
   onRestore,
   onCloseWindow,
@@ -737,6 +754,7 @@ export function SettingsPage({
         )}
       </div>
       <div className="settings-grid">
+        <McpSettings nodes={nodes} machines={machines}/>
         <section
           className="settings-card network-relations"
           aria-labelledby="settings-appearance"
@@ -953,7 +971,7 @@ export function SettingsPage({
                 <button
                   className="btn"
                   disabled={
-                    managementLocked ||
+                    (managementReason?!!managementReason(machine.machineId):managementLocked) ||
                     !machineManagementSupported ||
                     !machine.connectionId
                   }

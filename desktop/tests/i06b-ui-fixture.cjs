@@ -10,13 +10,15 @@ async function graphFixture(options={}){
     const h={offline:false,calls:[],tasks,controls,setCollaboration(){},close(){},async call(method,p){
       this.calls.push({method,p});
       if(this.offline)throw Object.assign(Error('隔离测试：通道离线'),{code:'MACHINE_OFFLINE'});
-      if(method==='discover')return {items:(scale?[adapter,...['claude','opencode','codex'].filter(a=>a!==adapter)]:[adapter]).map(a=>({name:{claude:'Claude Code',opencode:'OpenCode',codex:'Codex'}[a],adapter:a,executable:m.kind==='windows'?'C:/tools/'+a+'.exe':'/opt/'+a,version:'test',healthy:true,executionSupported:true}))};
+      if(method==='discover')return {items:(scale?[adapter,...['claude','opencode','codex'].filter(a=>a!==adapter)]:[adapter]).map(a=>({name:{claude:'Claude Code',opencode:'OpenCode',codex:'Codex'}[a],adapter:a,executable:m.kind==='windows'?'C:/tools/'+a+'.exe':'/opt/'+a,version:'2.0.24',healthy:true,executionSupported:true}))};
       if(method==='snapshot')return {agents:{items:contexts.map(c=>({...c,enabled:true,online:true,healthy:true,available:!tasks.some(t=>t.targetAgent===c.agentId&&!['succeeded','failed','cancelled'].includes(t.status))})),revision:0,connected:true},tasks,conversations:[]};
       if(method==='connectTool')return {};
-      if(options.nativeExecution){
-        if(method==='context'){
+      // OpenCode attachment now checks its API through a prepared context.
+      // This fixture permits preparation; native IPC execution remains opt-in.
+        if(method==='context'&&(options.nativeExecution||p.adapter==='opencode')){
           const c={agentId:'controlled-agent-'+contexts.length,contextId:'controlled-context-'+contexts.length,workspace:p.workspace||'C:/controlled/'+contexts.length,executable:p.executable,adapter:p.adapter};contexts.push(c);return {...c,teamCollaboration:true};
         }
+      if(options.nativeExecution){
         if(method==='scope')return {configured:true,teamContinuation:true};
         if(method==='ipc'){
           if(p.op==='submit'){

@@ -1,5 +1,19 @@
 # 远端源码范围
 
+2026-10-20当前准备 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](iterations/I07/alpha34-release.md)登记；当前仍在发布准备阶段，旧包/标签范围不变。
+
+2026-10-20 **0.6.0-alpha.33已预发布**：PR #11已合并，标签冻结`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`，EXE与校验附件已公开并完成匿名完整下载核验。本次为公开alpha.32上的issue #10独立补丁，不含主工作区CT-04/独立MCP/CT-05或后续OpenCode1.x未发布驱动。维护上传的进度错误不再中断SFTP，最终台账保存失败仍不发送原维护输入。 [交付、校验与升级边界](iterations/I07/maintenance-persistence.md)。
+
+2026-10-19当前整合仅修改工作文件：Git HEAD仍a872275，读取独立工作树fcdad72冻结产品/9203b18最终文档完成三方整合，原未提交MCP/材料保留。没有commit/push/merge/tag；公开仍alpha.32，本地另有integrated.3候选。[源码清单和交付边界](iterations/I07/integrated-source.md)。
+
+2026-10-19当前alpha.32已预发布，源码标签冻结`fcdad72fba454bf731cf66df54bc1caf2a06e0a2`，master包含issues #8/#9修复；EXE与SHA-256附件上传及匿名完整下载一致。EXE 129955724字节，SHA-256 `87adda262cde786ba602971c4d03c5b25a6a0da9ac00e3cdfaba1e7fc5a14440`。普通EXE与现场验收分开，原CT-04/MCP修改未包含，后续文档提交不移动标签。[交付与升级边界](iterations/I07/version-management-recovery.md)。
+
+2026-10-19较早alpha.31已预发布，源码标签冻结`002107da776687474c2d369d9a182a9f81d50e90`，master包含此次issue #7修复。EXE与SHA-256附件已上传并匿名完整下载核验；原工作区CT-04/MCP未提交修改未包含。后续文档提交不移动冻结标签。[当次交付](iterations/I07/collaboration-compatibility.md)。
+
+## 2026-10-19 alpha.30历史详情修复
+
+修复提交`5667304c1133a64d3b68244b0580250ea8b1ba38`已发布为v0.6.0-alpha.30，EXE 129950572字节，SHA-256 `ab17091cb0a38e916a887a83c4c5740f72442e3534b15550e40923592a9b51c2`；[EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/AgentBridge-0.6.0-alpha.30-Windows-x64.exe)和[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/SHA256SUMS.txt)完整匿名下载核验一致。145个运行源码/配置/素材冻结后复核，38 CJS/78 core/1401 Linux资源与前端一致。隔离修复没有纳入原工作区CT-04未提交开发；不提交私有profile/原始证据/二进制。[功能、实际验证及边界](iterations/I07/history-detail-recovery.md)。
+
 ## 2026-10-17 alpha.28 源码与Windows EXE
 
 修复提交`3df2534ee862afd91c6f0c21e81982099d856789`已推送master，GitHub预发布标签v0.6.0-alpha.28绑定该确切源码；[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/AgentBridge-0.6.0-alpha.28-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.28/SHA256SUMS.txt)公开完整下载验证通过。EXE 129884570字节，SHA-256 `6d85f667c2e1009e26cd83f00afb09ad540b27787e71c5a2784af0e64c4602ef`。34 CJS/78 core/1395 Linux资源及前端匹配源码；普通Windows合成EXE6组通过。[功能、实际测试和未测边界](iterations/I06/daemon-rejection-recovery.md)。不提交私有profile、原始日志或二进制，不以分发替代用户现场验收。

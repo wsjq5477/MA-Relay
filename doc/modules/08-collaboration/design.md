@@ -1,5 +1,17 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+
+M08-F01：OpenCode 1.x 托管 scope 使用原生 mcp.agentbridge，不写 V2 codemode；独立连接安装/导出记录其协议，删除用原布局。Bridge scope、connectionId、原请求与 token 撤销规则保持，配置格式兼容不代表真实模型协作验收。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
+
+## 当前版本准入与管理作用域
+
+M08-F02/F03/F04：OpenCode版本不兼容时执行/委派能力关闭，关系与原历史保留。relation未知仍阻断非布局元数据，异机node/machine放行不放宽授权编辑；原请求/派生ID及确定拒绝证明规则保持。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+
+## 独立 MCP 配置与运行契约（2026-10-19）
+
+M08-F02/F05：McpIntegration登记长期外部接入并导出独立三格式文件，通过McpConfig合入原生用户配置。broker核对接入仍enabled，中央核对来源机器、节点、当前主从关系和原委派范围。移除先撤权后删自己拥有的条目；被外部修改则保留并报冲突，重装换新connectionId。长期接入不冒充原生父Task；托管任务/小队仍沿用原scope和权限。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
+
 2026-10-19[Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)补充公共索引、产物目录、可见交接与按需读取上下文的建议。当前仍为既有登记/工作/文档/消息/任务契约；没有新增私信RPC、实体MD同步或跨工作自动记忆。原生上下文和公共协作材料继续分开。
 
 2026-10-18连接核心、各Agent方向能力与后续目标见[接入矩阵](../../agent-integration-matrix.md)，通信负载、可选ACP、Multica及公共MD/上下文方案见[研究](../../iterations/I07/connectivity-research.md)。本轮仅研究与文档纠偏，没有新增协议、原生执行或公开能力。
@@ -47,6 +59,8 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。当时是单默认组、单层委派。真实 Windows/WSL 协作已发布；alpha.6 已实现节点图和旧父权限修复；独立设备与 EXE 验收状态以 I06B 报告为准，不能由源码或同宿主链推定。
 
 ## 1. 功能目标
+
+**当前整合实现（2026-10-19，M08-F02/F05/F07）**：scopedCollaborationTool同时接受原生父owner与长期MCP owner；共享原ID派生、持久准备拒绝、目标成员权限及原结果/控制归属。长期接入无伪造父Task，撤权不删除原历史或取消任务；材料引用/MD不扩大权限。TOML升级仅处理配置解析，不增加模型/Agent接入能力。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
 
 
 用户指定哪个已安装工具作为主 Agent，以及它可以连接哪些子 Agent。真正推理和规划的是用户选定的原生主工具，中央 Coordinator 只管理关系、身份、路由、回执和结果，不内置另一个默认大模型。
@@ -155,7 +169,19 @@ sequenceDiagram
 
 ## 6. 当前工具 API
 
-MCP 暴露的是六个操作，原生客户端可按自己的命名空间显示为 `agentbridge_*`。
+### 公共工作材料读取（M08-F07/F08，CT-04/05）
+
+当前小队MCP有18项，增加 `team_context_packet({targetAgentId,selections})`。只允许原工作有效成员作目标，先核对调用者原scope，再对文档准确revision、任务当前revision/round、消息ID/seq、产物ID/version作白名单投影；单类8项、完整响应256 KiB。输出包返回调用者，不发消息、不转已读、不派发/交接、不授予目标权限；引用与包ID都不是访问凭据。职责与外部正文不能覆盖原授权。旧后台不支持时明确失败，不用当前索引伪造包。[完整当前流程、错误和验证](../../iterations/I07/context-packet.md)。
+
+CT-04桌面原索引/文档MD入口保持；CT-05现已补明确目标/四类材料选材、核对预览及本机MD/JSON副本。客户端核对原引用/报告来源/摘要，从结构化字段重建Markdown；观察到撤权/所选任务变化或切工作时失效。该消费者不改变18工具/授权或产生发送/交接/已读，实体同步与自动投递仍未实现。[当前桌面行为与证据](../../iterations/I07/context-packet-ui.md)。源码现已整合alpha.30–32，但本片晚于integrated.3冻结，公开alpha.32/本地候选均不含新工具。下方CT-04历史冻结记录不能作为新包/CT-05全部验收。
+
+桌面M01已复用这些只读方法提供按需索引、精确修订及当前页/单份文档MD下载。它核对响应身份/修订/正文摘要，丢弃旧工作迟到结果；文件只是阅读副本，不授予成员资格、不写小队操作/任务/收据或验证引用可达。该桌面首片本身没有增加MCP/IPC方法或交接授权；后续整合与CT-05按上方当前范围，不把历史测试当新接口验收。[桌面限定证据](../../iterations/I07/public-materials-ui.md)。
+
+CT-04当次冻结源码：小队MCP有17项，包含新增 `team_materials({limit?,documentAfter?})`，工作来自原成员scope；不属于下方经典主从六工具。用户入口 `team.materials` 另需runId。limit默认20/最大50，游标须属于该工作；JSON/Markdown同源，文档只含标题/修订/摘要/版本引用，无正文和私有接入字段。目标/成员职责/当前任务报告/产物/原生状态与消息观察位置只读投影，未读不转已读，引用不代表可达。
+
+`team_document({documentId,revision?})` 指定revision时返回准确的title/content/authorId/time、revision/currentRevision及contentSha256，不附全部history；正整数非法报TEAM_INPUT，不存在报TEAM_DOCUMENT_REVISION，不回退。无revision保持原完整当前文档响应。先授权再查文档，引用不授予成员资格；跨工作/撤权/无效原生尝试继续拒绝。旧后台/旧工具表须按实际schema/返回revision辨别，不假定支持新字段。普通委派不强制建立公共工作；当前已有CT-04桌面MD副本及上方CT-05瞬时只读包，实体同步/实际投递仍未实现。[完整当前契约与验证](../../iterations/I07/public-materials.md)。
+
+经典主从MCP暴露六个操作，与上方小队工具集合分开；原生客户端可按自己的命名空间显示为 `agentbridge_*`。
 
 | 工具 | 关键参数 | 输出与限制 |
 | --- | --- | --- |

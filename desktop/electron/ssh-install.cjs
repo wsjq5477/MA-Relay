@@ -5,6 +5,11 @@ const zlib = require('node:zlib');
 const { createHash, randomUUID } = require('node:crypto');
 const { problem } = require('./ssh-known-hosts.cjs');
 
+// Observer failures are diagnostic only; never reinterpret them as SFTP faults.
+function progressFailure(error,progress={}){
+  const causeCode=['EPERM','EACCES','EBUSY','ENOSPC','EDQUOT'].includes(error?.code)?error.code:'LOCAL_PROGRESS_FAILED';
+  return {code:'SSH_PROGRESS_WARNING',causeCode,phase:progress.phase||'uploading',completedBytes:progress.completedBytes||0,totalBytes:progress.totalBytes||0,message:'进度显示更新失败（'+causeCode+'），上传继续；发送维护前仍须保存本地台账。'};
+}
 function quote(value) {
   if (typeof value !== 'string' || !value || /[\0\r\n]/.test(value)) throw problem('INVALID_INPUT', '远端受控路径包含不支持的字符。');
   return "'" + value.replaceAll("'", "'\\''") + "'";
@@ -181,6 +186,7 @@ async function uploadArchive(sftp, source, target, onProgress = () => {}, option
   // A buffer belongs to its WRITE until its callback, including ssh2's split
   // writes. A later ACK must not recycle an earlier outstanding buffer.
   const buffers = Array.from({ length: WINDOW }, () => Buffer.allocUnsafe(CHUNK));
+  let progressWarning;
   let handle, position = 0, inFlight = 0, completedBytes = 0, settled = false, closing = false, pumping = false, timer;
   const failure = (error, step) => {
     const reason = error?.code === 3 || error?.code === 'EACCES' || error?.code === 'EPERM' ? '服务器拒绝写入，请检查登录用户的目录权限'
@@ -190,7 +196,7 @@ async function uploadArchive(sftp, source, target, onProgress = () => {}, option
       : error?.code === 7 || error?.code === 'CHANNEL_CLOSED' || ['ECONNRESET','EPIPE','ENOTCONN'].includes(error?.code) ? 'SSH/SFTP 通道已关闭，请检查网络与服务器连接限制'
       : '服务器未能完成 SFTP 写入，请检查网络、目录权限和存储';
     const code = typeof error?.code === 'number' && Number.isSafeInteger(error.code) ? `（SFTP ${error.code}）` : '';
-    return problem('SSH_UPLOAD_FAILED', `安装包上传失败：${reason}${code}。阶段：${step}；已确认 ${completedBytes} / ${size} 字节。未解包或激活后台，请重新检测后安装。`);
+    return Object.assign(problem('SSH_UPLOAD_FAILED', `安装包上传失败：${reason}${code}。阶段：${step}；已确认 ${completedBytes} / ${size} 字节。未解包或激活后台，请重新检测后安装。`),{details:{stage:step,causeCode:typeof error?.code==='number'?error.code:['EPERM','EACCES','EBUSY','ENOSPC','EDQUOT','ECONNRESET','EPIPE','ENOTCONN','UPLOAD_IDLE','CHANNEL_CLOSED'].includes(error?.code)?error.code:'SFTP_FAILED',completedBytes,totalBytes:size,extracted:false,remoteInputSent:false}});
   };
   try {
     await new Promise((resolve, reject) => {
@@ -228,7 +234,7 @@ async function uploadArchive(sftp, source, target, onProgress = () => {}, option
               if (settled) return;
               if (error) return fail(error);
               inFlight--; completedBytes += bytesRead; buffers.push(buffer); touch();
-              try {onProgress({completedBytes, totalBytes:size});} catch (error) {fail(error); return;}
+              try {onProgress({completedBytes, totalBytes:size});} catch (error) {progressWarning=progressFailure(error,{completedBytes,totalBytes:size});}
               pump(); finish();
             });
           }
@@ -243,7 +249,7 @@ async function uploadArchive(sftp, source, target, onProgress = () => {}, option
         handle = opened; touch(); pump();
       });} catch (error) {fail(error, '打开上传文件');}
     });
-    return {size};
+    return {size,...(progressWarning?{progressWarning}:{})};
   } finally {fs.closeSync(descriptor);}
 }
 class SshInstaller {
@@ -312,11 +318,11 @@ class SshInstaller {
   }
   async stageMaintenance(client,probe,operationId,onProgress){
     const bundle=this.bundle(),target={...probe,daemonVersion:bundle.manifest.version,manifestDigest:bundle.digest,versionPath:path.posix.join(probe.installPath,'versions',bundle.manifest.version),installNeeded:true};
-    await this.install(client,target,operationId,onProgress,{deferActivation:true});
+    const staged=await this.install(client,target,operationId,onProgress,{deferActivation:true});
     const controller=path.posix.join(probe.stateDirectory,'maintenance-runtime',bundle.digest);
-    const script=`const fs=require('node:fs'),path=require('node:path');const source=${JSON.stringify(target.versionPath)},target=${JSON.stringify(controller)},uid=${probe.uid};let current='/';for(const part of target.split('/').filter(Boolean)){current=path.join(current,part);if(!fs.existsSync(current))fs.mkdirSync(current,{mode:0o700});const s=fs.lstatSync(current);if(s.isSymbolicLink()||!s.isDirectory())throw Error('unsafe');if(current.startsWith(${JSON.stringify(probe.stateDirectory)})&&(s.uid!==uid||(s.mode&0o077)))throw Error('owner');}const files=['package.json','runtime/node','runtime/owned-stop','desktop/electron/remote-maintenance.cjs','desktop/electron/machine-daemon.cjs','desktop/electron/machine-protocol.cjs'];for(const file of files){const dst=path.join(target,file);fs.mkdirSync(path.dirname(dst),{recursive:true,mode:0o700});let component=target;for(const part of path.dirname(file).split('/').filter(x=>x!=='.')){component=path.join(component,part);const stat=fs.lstatSync(component);if(stat.isSymbolicLink()||!stat.isDirectory()||stat.uid!==uid)throw Error('unsafe');}if(fs.existsSync(dst)){const stat=fs.lstatSync(dst);if(stat.isSymbolicLink()||!stat.isFile()||stat.uid!==uid)throw Error('unsafe');}const tmp=dst+'.tmp-'+process.pid;fs.writeFileSync(tmp,fs.readFileSync(path.join(source,file)),{flag:'wx',mode:file.startsWith('runtime/')?0o700:0o600});fs.renameSync(tmp,dst);}process.stdout.write('ready');`;
+    const script=`const fs=require('node:fs'),path=require('node:path');const source=${JSON.stringify(target.versionPath)},target=${JSON.stringify(controller)},uid=${probe.uid};let current='/';for(const part of target.split('/').filter(Boolean)){current=path.join(current,part);if(!fs.existsSync(current))fs.mkdirSync(current,{mode:0o700});const s=fs.lstatSync(current);if(s.isSymbolicLink()||!s.isDirectory())throw Error('unsafe');if(current.startsWith(${JSON.stringify(probe.stateDirectory)})&&(s.uid!==uid||(s.mode&0o077)))throw Error('owner');}const files=['package.json','runtime/node','runtime/owned-stop','desktop/electron/remote-maintenance.cjs','desktop/electron/machine-daemon.cjs','desktop/electron/machine-protocol.cjs','desktop/electron/runtime-capabilities.cjs'];for(const file of files){const dst=path.join(target,file);fs.mkdirSync(path.dirname(dst),{recursive:true,mode:0o700});let component=target;for(const part of path.dirname(file).split('/').filter(x=>x!=='.')){component=path.join(component,part);const stat=fs.lstatSync(component);if(stat.isSymbolicLink()||!stat.isDirectory()||stat.uid!==uid)throw Error('unsafe');}if(fs.existsSync(dst)){const stat=fs.lstatSync(dst);if(stat.isSymbolicLink()||!stat.isFile()||stat.uid!==uid)throw Error('unsafe');}const tmp=dst+'.tmp-'+process.pid;fs.writeFileSync(tmp,fs.readFileSync(path.join(source,file)),{flag:'wx',mode:file.startsWith('runtime/')?0o700:0o600});fs.renameSync(tmp,dst);}process.stdout.write('ready');`;
     await remoteExec(client,quote(path.posix.join(target.versionPath,'runtime/node'))+' -',script,{timeoutMs:60000,errorCode:'DAEMON_MAINTENANCE_STAGE',errorMessage:'维护运行资源暂存失败，原版本保留。'});
-    return {directory:controller,release:{version:bundle.manifest.version,digest:bundle.digest,manifest:bundle.manifest}};
+    return {directory:controller,release:{version:bundle.manifest.version,digest:bundle.digest,manifest:bundle.manifest},...(staged.progressWarning?{progressWarning:staged.progressWarning}:{})};
   }
   async remoteMaintenance(client,input,controller){
     const node=path.posix.join(controller,'runtime/node'),entry=path.posix.join(controller,'desktop/electron/remote-maintenance.cjs');
@@ -329,7 +335,8 @@ class SshInstaller {
     const reuseCompatible = manifest.version !== bundle.manifest.version;
     if (probe.manifestDigest !== digest) throw problem('INSTALL_PREVIEW_CHANGED', '安装包已变化，请重新检测并确认安装摘要。');
     const sftp = await sftpOpen(client);
-    let versionPath = probe.versionPath;
+    let versionPath = probe.versionPath,ownedArchive,progressWarning;
+    const notify=progress=>{try{onProgress(progress);}catch(error){progressWarning=progressFailure(error,progress);}};
     try {
       if (reuseCompatible) {
         if (probe.installNeeded || versionPath !== path.posix.join(probe.installPath, 'versions', manifest.version)) throw problem('INSTALL_PREVIEW_CHANGED', '兼容复用摘要已变化，请重新检测。');
@@ -372,19 +379,19 @@ class SshInstaller {
           const stage = path.posix.join(probe.installPath, '.staging-' + createHash('sha256').update(operationId).digest('hex').slice(0, 16) + '-' + randomUUID().slice(0, 8));
           await privateDirectory(sftp, stage, probe.home, probe.uid);
           await writeRemote(sftp, path.posix.join(stage, '.bridge-release.json'), JSON.stringify({ ownerCoordinatorId: this.options.coordinatorId, operationId, digest, version: manifest.version }));
-          const remoteArchive = path.posix.join(probe.installPath, '.upload-' + randomUUID().slice(0, 8) + '.tgz');
-          onProgress({ phase: 'uploading', completedBytes: 0, totalBytes: bundle.size });
-          await uploadArchive(sftp, bundle.archive, remoteArchive, progress => onProgress({ ...progress, phase: 'uploading' }));
-          onProgress({ phase: 'extracting', completedBytes: bundle.size, totalBytes: bundle.size });
+          const remoteArchive = ownedArchive = path.posix.join(probe.installPath, '.upload-' + createHash('sha256').update(operationId).digest('hex').slice(0,16) + '-' + randomUUID().slice(0, 8) + '.tgz');
+          notify({ phase: 'uploading', completedBytes: 0, totalBytes: bundle.size });
+          const upload=await uploadArchive(sftp, bundle.archive, remoteArchive, progress => notify({ ...progress, phase: 'uploading' }));progressWarning ||= upload.progressWarning;
+          notify({ phase: 'extracting', completedBytes: bundle.size, totalBytes: bundle.size });
           await remoteExec(client, 'tar -xzf ' + quote(remoteArchive) + ' -C ' + quote(stage), '', { timeoutMs: 240000, errorCode: 'SSH_PACKAGE_EXTRACT', errorMessage: '远端解压安装包失败，未激活安装。' });
-          try { await sftpCall(sftp, 'unlink', remoteArchive); } catch { /* A leftover upload is inert staging garbage. */ }
+          try { await sftpCall(sftp, 'unlink', remoteArchive);ownedArchive=undefined; } catch { /* A leftover upload is inert staging garbage. */ }
           const runtime = path.posix.join(stage, manifest.runtime.path);
           // The runtime hash is verified remotely before anything executes it;
           // the per-file check below re-confirms the whole tree afterwards.
           const runtimeSha = await remoteExec(client, 'sha256sum ' + quote(runtime), '', { timeoutMs: 60000, errorCode: 'SSH_PACKAGE_CHECKSUM', errorMessage: '远端私有 Node 摘要校验失败，未激活安装。' });
           if (runtimeSha.trim().split(/\s+/)[0] !== manifest.files.find(file => file.path === manifest.runtime.path).sha256) throw problem('SSH_PACKAGE_CHECKSUM', '远端私有 Node 摘要校验失败，未激活安装。');
           const node = sufficientNode(probe.nodeVersion) ? probe.nodePath : runtime;
-          onProgress({ phase: 'verifying', completedBytes: bundle.size, totalBytes: bundle.size });
+          notify({ phase: 'verifying', completedBytes: bundle.size, totalBytes: bundle.size });
           await remoteExec(client, quote(node) + ' -', verifyScript(stage, manifest), { timeoutMs: 120000, errorCode: 'SSH_PACKAGE_CHECKSUM', errorMessage: '远端发布包摘要校验失败，未激活安装。' });
           await sftpCall(sftp, 'rename', stage, versionPath);
         }
@@ -396,8 +403,11 @@ class SshInstaller {
       }
       const node = sufficientNode(probe.nodeVersion) ? probe.nodePath : path.posix.join(versionPath, manifest.runtime.path);
       await remoteExec(client, quote(node) + ' -', verifyScript(versionPath, manifest), { timeoutMs: 60000, errorCode: 'SSH_PACKAGE_CHECKSUM', errorMessage: '已安装后台的文件校验失败，连接已停止。' });
-      return { node, versionPath, stateDirectory: probe.stateDirectory, profileId: this.profileId, version: manifest.version };
-    } finally { sftp.end(); }
+      return { node, versionPath, stateDirectory: probe.stateDirectory, profileId: this.profileId, version: manifest.version,...(progressWarning?{progressWarning}:{}) };
+    } finally {
+      if(ownedArchive)try{const stat=await lstat(sftp,ownedArchive);if(stat?.isFile()&&!stat.isSymbolicLink()&&stat.uid===probe.uid)await sftpCall(sftp,'unlink',ownedArchive);}catch{/* Only this operation's generated archive is eligible; leave inaccessible files intact. */}
+      sftp.end();
+    }
   }
 }
-module.exports = { SshInstaller, quote, remoteExec, probeScript, sufficientNode, localManifest, privateDirectory, verifyScript, hashScript, packArchive, uploadArchive, sftpCall };
+module.exports = { SshInstaller, quote, remoteExec, probeScript, sufficientNode, localManifest, privateDirectory, verifyScript, hashScript, packArchive, uploadArchive, sftpCall, progressFailure };

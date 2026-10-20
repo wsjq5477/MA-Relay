@@ -1,0 +1,116 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const {TeamSpace}=require('../electron/team-space.cjs');
+const {materials}=require('../electron/team-materials.cjs');
+const {teamTools}=require('../electron/team-tools.cjs');
+async function fixture(t){
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-materials-')),sessions=[];
+  const space=new TeamSpace({directory,validateNode:id=>({nodeId:id,adapter:'claude'}),configure:async s=>{sessions.push(s);return {command:'unused'};},execute:()=>assert.fail('read started native work')});
+  t.after(()=>{space.close();fs.rmSync(directory,{recursive:true,force:true});});
+  let op=0;const call=(m,p={})=>space.call('team.'+m,{operationId:'setup-'+ ++op,...p});
+  const a=await call('registerAgent',{kind:'mcp',externalKey:'private-entry-marker',name:'开发',purpose:'实现所需变化',inputs:'需求',outputs:'版本',limitations:'不扩大授权'});
+  const b=await call('registerAgent',{kind:'mcp',externalKey:'private-peer-marker',name:'复核',purpose:'独立验证'});
+  const team=await call('createTeam',{name:'小队',leaderId:a.agentId,memberIds:[a.agentId,b.agentId],charter:'先核对原任务'});
+  const run=await call('createRun',{teamId:team.teamId,name:'公共工作',goal:'传递选定材料',acceptance:'读取正确版本'});
+  await call('connect',{runId:run.runId,agentId:a.agentId});await call('connect',{runId:run.runId,agentId:b.agentId});
+  return {space,call,a,b,run,aSession:sessions[0].sessionId,bSession:sessions[1].sessionId};
+}
+test('authorized member reads a deterministic short index without bodies, private entrances, writes or acknowledgements',async t=>{
+  const f=await fixture(t);const d=await f.call('writeDocument',{runId:f.run.runId,title:'共同结论',content:'private-document-body',expectedRevision:0});
+  const before=JSON.stringify(f.space.read()),receipts=f.space.db.prepare('SELECT count(*) AS n FROM receipts').get().n;
+  const result=await f.space.tool(f.bSession,'team_materials');
+  assert.equal(result.readOnly,true);assert.equal(result.documents.items[0].reference,'team-document:'+d.documentId+':1');
+  assert.equal(result.members[0].capabilitySource,'user_declared');assert.equal(result.messages.acknowledged,false);
+  for(const value of ['private-document-body','private-entry-marker','private-peer-marker',f.aSession,f.bSession])assert(!JSON.stringify(result).includes(value));
+  assert.deepEqual(await f.space.tool(f.bSession,'team_materials'),result);
+  assert.equal(JSON.stringify(f.space.read()),before);assert.equal(f.space.db.prepare('SELECT count(*) AS n FROM receipts').get().n,receipts);
+});
+test('an indexed revision remains exactly readable after later edits; missing versions never fall back to latest',async t=>{
+  const f=await fixture(t),d=await f.call('writeDocument',{runId:f.run.runId,title:'原标题',content:'version-one',expectedRevision:0});
+  const index=await f.space.tool(f.bSession,'team_materials');
+  await f.call('writeDocument',{runId:f.run.runId,documentId:d.documentId,title:'新标题',content:'version-two',expectedRevision:1});
+  const pinned=await f.space.tool(f.bSession,'team_document',{documentId:d.documentId,revision:index.documents.items[0].revision});
+  assert.equal(pinned.content,'version-one');assert.equal(pinned.title,'原标题');assert.equal(pinned.currentRevision,2);assert.equal(pinned.revision,1);
+  assert.equal(pinned.contentSha256,index.documents.items[0].contentSha256);assert.equal(pinned.history,undefined);
+  const latest=await f.space.tool(f.bSession,'team_document',{documentId:d.documentId});assert.equal(latest.content,'version-two');assert.equal(latest.history.length,2);
+  assert.notEqual((await f.space.tool(f.bSession,'team_materials')).snapshotId,index.snapshotId);
+  await assert.rejects(f.space.tool(f.bSession,'team_document',{documentId:d.documentId,revision:3}),{code:'TEAM_DOCUMENT_REVISION'});
+  for(const revision of [0,-1,1.5,'1',null,Number.MAX_SAFE_INTEGER+1])await assert.rejects(f.space.tool(f.bSession,'team_document',{documentId:d.documentId,revision}),{code:'TEAM_INPUT'});
+});
+test('materials and pinned reads enforce original work/member revocation and closed native execution scopes',async t=>{
+  const f=await fixture(t),d=await f.call('writeDocument',{runId:f.run.runId,title:'文档',content:'known',expectedRevision:0});
+  const other=await f.call('createRun',{teamId:f.run.teamId,name:'另一工作',goal:'隔离资料',acceptance:'不混用'});
+  const foreign=await f.call('writeDocument',{runId:other.runId,title:'foreign-title-hidden',content:'foreign-body-hidden',expectedRevision:0});
+  assert(!(await f.space.tool(f.bSession,'team_materials')).documents.items.some(x=>x.documentId===foreign.documentId));
+  await assert.rejects(f.space.tool(f.bSession,'team_document',{documentId:foreign.documentId,revision:1}),{code:'TEAM_DOCUMENT'});
+  await assert.rejects(f.space.tool(f.bSession,'team_materials',{documentAfter:foreign.documentId}),{code:'TEAM_DOCUMENT'});
+  await assert.rejects(f.space.tool(f.bSession,'team_materials',{runId:'foreign'}),{code:'TEAM_FORBIDDEN'});
+  await assert.rejects(f.space.tool(f.bSession,'team_document',{runId:'foreign',documentId:d.documentId,revision:1}),{code:'TEAM_FORBIDDEN'});
+  await f.call('revokeMember',{runId:f.run.runId,agentId:f.b.agentId,expectedRevision:1});
+  await assert.rejects(f.space.tool(f.bSession,'team_materials'),{code:'TEAM_FORBIDDEN'});
+  await assert.rejects(f.space.tool(f.bSession,'team_document',{documentId:d.documentId,revision:1}),{code:'TEAM_FORBIDDEN'});
+  assert.equal((await f.call('materials',{runId:f.run.runId})).documents.total,1);
+  const state=f.space.read();state.sessions.find(s=>s.sessionId===f.aSession).kind='native';state.attempts.push({sessionId:f.aSession,state:'succeeded'});
+  f.space.db.prepare('UPDATE state SET body=? WHERE id=1').run(JSON.stringify(state));
+  await assert.rejects(f.space.tool(f.aSession,'team_materials'),{code:'TEAM_FORBIDDEN'});
+});
+test('document pages are bounded and scoped; metadata can be consumed without loading document bodies',async t=>{
+  const f=await fixture(t);for(let i=0;i<23;i++)await f.call('writeDocument',{runId:f.run.runId,title:'文档'+i,content:'body',expectedRevision:0});
+  const first=await f.space.tool(f.aSession,'team_materials');assert.equal(first.documents.items.length,20);assert.equal(first.documents.hasMore,true);assert.equal(first.documents.total,23);
+  const last=await f.space.tool(f.aSession,'team_materials',{documentAfter:first.documents.next,limit:10});assert.equal(last.documents.items.length,3);assert.equal(last.documents.hasMore,false);
+  assert.equal(new Set([...first.documents.items,...last.documents.items].map(x=>x.documentId)).size,23);
+  for(const limit of [0,51,'20',null])await assert.rejects(f.space.tool(f.aSession,'team_materials',{limit}),{code:'TEAM_INPUT'});
+  await assert.rejects(f.space.tool(f.aSession,'team_materials',{documentAfter:'foreign'}),{code:'TEAM_DOCUMENT'});
+});
+test('index preserves actual task/unknown execution states, only current artifact and explicit unverified reference',async t=>{
+  const f=await fixture(t);const state=f.space.read();
+  state.workItems.push({runId:f.run.runId,workItemId:'work-item',title:'交付',ownerId:f.a.agentId,kind:'delivery',state:'blocked',revision:3,round:2,dependsOn:[],currentReportId:'r2',reports:[{reportId:'r1',round:1,artifact:{version:'old-version'}},{reportId:'r2',round:2,outcome:'submitted',summary:'文档声称已完成',evidenceSource:'member_report',artifact:{artifactId:'a2',version:'new-version',reference:'/not-checked',producerId:f.a.agentId,privateKey:'must-not-project'}}]});
+  state.attempts.push({runId:f.run.runId,attemptId:'attempt',agentId:f.a.agentId,workItemId:'work-item',state:'unknown',requestId:'private-request',nativeSessionId:'private-session',waiting:{kind:'permission',requestCount:1}});
+  f.space.db.prepare('UPDATE state SET body=? WHERE id=1').run(JSON.stringify(state));
+  const x=await f.space.tool(f.bSession,'team_materials');assert.equal(x.tasks[0].state,'blocked');assert.equal(x.executions.items[0].state,'unknown');assert.equal(x.executions.items[0].waiting.kind,'permission');
+  assert.equal(x.artifacts.length,1);assert.equal(x.artifacts[0].version,'new-version');assert.equal(x.artifacts[0].access,'reference-not-checked');
+  for(const secret of ['old-version','private-request','private-session','must-not-project'])assert(!JSON.stringify(x).includes(secret));
+  assert.match(x.markdown,/unknown/);assert.match(x.markdown,/blocked/);
+});
+test('Markdown view quotes untrusted labels and keeps long descriptions bounded',async t=>{
+  const f=await fixture(t),view=await f.call('context',{runId:f.run.runId});
+  view.run.name='<script>\n# forged';view.members[0].purpose='x'.repeat(2000);view.documents.push({documentId:'doc',title:'[link](javascript:bad)\n```',content:'',revision:1});
+  const x=materials(view);assert(!x.markdown.includes('<script>'));assert(!x.markdown.includes('\n# forged'));assert(!x.markdown.includes('[link](javascript:bad)'));assert.equal(x.members[0].purpose.length,300);
+});
+test('MCP advertises read-only index and explicit pinned revision without adding any mutation',()=>{
+  const index=teamTools.find(t=>t.name==='team_materials'),doc=teamTools.find(t=>t.name==='team_document');
+  assert.equal(index.annotations.readOnlyHint,true);assert.equal(index.inputSchema.properties.limit.maximum,50);assert.equal(doc.inputSchema.properties.revision.minimum,1);
+});
+test('production Coordinator and stdio MCP expose index/pinned reads with the same live work authorization',async t=>{
+  const {spawn}=require('node:child_process'),{createInterface}=require('node:readline');
+  const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-materials-mcp-'));
+  const service=createCoordinatorService({directory,network:{close(){},node(){throw Error('No native node needed');}}});
+  let child,lines;t.after(()=>{child?.kill();lines?.close();service.close();fs.rmSync(directory,{recursive:true,force:true});});
+  const call=async(method,params)=>{const r=await service.call({method,params});assert.equal(r.ok,true,JSON.stringify(r.error));return r.result;};
+  const a=await call('team.registerAgent',{operationId:'a',kind:'mcp',externalKey:'controlled-client',name:'阅读者',purpose:'只读材料'});
+  const team=await call('team.createTeam',{operationId:'team',name:'小队',leaderId:a.agentId,memberIds:[a.agentId]});
+  const run=await call('team.createRun',{operationId:'run',teamId:team.teamId,name:'读取工作',goal:'核对指定修订',acceptance:'原文匹配'});
+  const d=await call('team.writeDocument',{operationId:'doc',runId:run.runId,title:'原文',content:'pinned-content',expectedRevision:0});
+  await call('team.writeDocument',{operationId:'edit',runId:run.runId,documentId:d.documentId,title:'新文',content:'latest-content',expectedRevision:1});
+  const c=await call('team.connect',{operationId:'connect',runId:run.runId,agentId:a.agentId});
+  child=spawn(c.configuration.command,c.configuration.args,{env:{...process.env,...c.configuration.env},stdio:['pipe','pipe','pipe']});
+  lines=createInterface({input:child.stdout});const pending=new Map();let id=0;
+  lines.on('line',line=>{const r=JSON.parse(line),resolve=pending.get(r.id);pending.delete(r.id);resolve?.(r);});
+  const send=(method,params={})=>new Promise((resolve,reject)=>{const current=++id,timer=setTimeout(()=>{pending.delete(current);reject(Error('MCP timeout'));},10000);pending.set(current,r=>{clearTimeout(timer);resolve(r);});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id:current,method,params})+'\n');});
+  await send('initialize',{protocolVersion:'2025-03-26'});
+  const tool=async(name,args={})=>{const r=await send('tools/call',{name,arguments:args});assert.equal(r.error,undefined);return JSON.parse(r.result.content[0].text);};
+  const index=await tool('team_materials');assert.equal(index.documents.items[0].revision,2);
+  const direct=await call('team.materials',{runId:run.runId});assert.equal(direct.snapshotId,index.snapshotId);
+  assert.equal((await tool('team_document',{documentId:d.documentId,revision:1})).content,'pinned-content');
+  const selected={targetAgentId:a.agentId,selections:{documents:[{documentId:d.documentId,revision:1}]}};
+  const packet=await tool('team_context_packet',selected);
+  assert.equal(packet.documents[0].content,'pinned-content');assert.equal(packet.documents[0].currentRevision,2);
+  assert.equal(packet.boundaries.authorizesExecution,false);
+  assert.equal((await call('team.contextPacket',{runId:run.runId,...selected})).packetId,packet.packetId);
+  assert((await send('tools/list')).result.tools.some(x=>x.name==='team_context_packet'&&x.annotations.readOnlyHint));
+  assert.equal((await tool('team_materials',{runId:'foreign'})).error.code,'TEAM_FORBIDDEN');
+  await call('team.revokeMember',{operationId:'revoke',runId:run.runId,agentId:a.agentId,expectedRevision:1});
+  assert.equal((await tool('team_materials')).error.code,'TEAM_FORBIDDEN');
+  assert.equal((await tool('team_context_packet',selected)).error.code,'TEAM_FORBIDDEN');
+});
