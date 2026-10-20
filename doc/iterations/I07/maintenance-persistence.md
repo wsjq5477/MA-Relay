@@ -93,3 +93,10 @@ alpha.33包核验通过：**39 CJS / 78 core / 1405 Linux资源**，前端及ASA
 2026-10-20最终隔离公开修复分支桌面 **551/551，0跳过**，[逐文件结果](../../../artifacts/maintenance-persistence/2026-10-20/release-desktop.json)。当前整合工作区的验证快照为 **592/592，0跳过**，[独立结果](../../../artifacts/maintenance-persistence/2026-10-20/integrated-desktop.json)；包含既有CT-04/CT-05和并行新增回归，不将其计为本次公开EXE内功能。后续共享工作区变更不追溯扩大该快照。
 
 旧夹具失败见[原日志](../../../artifacts/maintenance-persistence/2026-10-20/second-full/full-collaboration-compatibility.test.cjs.tap)；低频worker失败见[原始TAP](../../../artifacts/maintenance-persistence/2026-10-20/third-full/full-daemon-maintenance.test.cjs.tap)及[独立8/8复核](../../../artifacts/maintenance-persistence/2026-10-20/daemon-maintenance-recheck.tap)，最终全量已再次通过。文档检查、git diff --check、源码/包149文件摘要核对通过，候选运行字节未因测试夹具调整改变。
+
+
+### 审批边界与可审阅交付
+
+修复提交`75789421b5a95b5d2dcefc65ac7a16e670267954`已推送独立分支`codex/issue-10-maintenance-persistence`，已建立[草稿PR #11](https://github.com/wsjq5477/MA-Relay/pull/11)。自动审批拒绝直接更新共享默认master，理由为缺少用户对该具体远程分支副作用的明确授权。因此尚未合并master、未发布alpha.33公开Release、未关闭issue #10；现有公开alpha.32不变。
+
+alpha.33候选EXE与校验文件已在主工作区artifacts/maintenance-persistence/2026-10-20提供本地交付，包摘要与普通EXE验收一致。批准合并/公开发布后，还需执行公开附件完整匿名下载核验；本页不提前填写通过。主工作区全部原未提交增量及Git HEAD/index保持，本轮只在独立分支提交修复。
