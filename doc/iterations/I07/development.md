@@ -1,5 +1,41 @@
 # I07 开发分解与当前记录
 
+## alpha.36 全量整合
+
+A36-01–04：包含当前全部修复并整合公开alpha.35，生成本地Windows EXE及校验文件，验证原收据/历史不重放、完整回归和包内一致性。[需求、实现与实际验收](alpha36-delivery.md)。
+
+## CT-07子任务上下文实现
+
+新增delegation-context固定v1渲染，AgentNetwork派发前持久可选版本，原台账保留需求；准备拒绝指纹同步核对同版本完整输入。原native-delegation受控CLI验证实际收到内容及去重/取消保持。[本轮契约、首次失败与验证](delegation-context.md)。
+
+## CT-07当前连接视图实现
+
+新增agent-connections纯投影/参数检查，AgentNetwork在原父请求查询后和snapshot await后分别读取当前关系，MCP补视图语义。保留原快照观察、单主关系、原派发、经典7工具/小队18项。[本轮完整契约与验收](agent-connections.md)。
+
+## CT-07只读列表首片
+
+新增delegation-list纯投影、AgentNetwork一个作用域分支、MCP第七项工具及Claude/Codex只读允许项/指引；不改当前单主模型、原派发或数据格式。与活跃DSH开发分开，用独立冻结副本回归；完整日志、首次资源遗漏和范围见[交付](delegation-list.md)。
+
+## OpenCode 宿主生命周期修复（2026-10-20）
+
+DesktopHost 补齐无副作用 close，stdio/daemon 两个 OpenCode 工厂直接返回完整门面。旧工厂双入口失败回放、修复后相关桌面 28/28 与核心会话 2/2、构建/类型/定向 lint 通过；当前仅源码，未构建或发布新 EXE。[需求、根因与实际证据](opencode-host-lifecycle.md)。
+
+## Agent 侧自主操作与通用调用方规划（2026-10-20，纯文档）
+
+按用户目标新增CT-06（通用MCP调用方，MCP优先、插件仅作无客户端时的薄传输缺口填补）、CT-07（Agent侧连接操作面）与CT-08（按身份多主关系与受确认流保护的连接管理）规划。本轮只写规划与索引文档并执行文档检查和站点构建，无运行代码、协议、存储或发布变更；[完整方案、决策规则与边界](agent-centric-operations.md)。
+
+## 接入方式比较与快速路径（2026-10-20，文档需求）
+
+用户要求结合现有接入矩阵，补充CLI/API/MCP/ACP/插件/SDK的优缺点、可实现功能、后续Agent选型与快速接入。当前[选型指南](../../agent-integration-guide.md)、矩阵和源码开发指南共同覆盖，真实接口与待开发功能明确区分；[本轮文档核对](agent-integration-guidance.md)不增加运行功能、模型调用、协议或发布验收。
+
+## I07-DSH01：Windows Desktop 与 Linux/WSL Web
+
+补齐[DSH EXE交付](dsh-exe-delivery.md)：冻结本地候选，真实Windows/WSL连接发现303与Typert命名参数错误并修复；真实Desktop两轮同Session/去重已观察但均原生RATE_LIMIT。构建、普通EXE与最终验证分层登记，不将受控成功冒充真实模型成功。
+
+AB-F02发现修复：识别并跳过Distributed Shell版本身份，继续寻找真正DSH；Linux Web profile增未配置提示，Windows已安装未配置/停用配置覆盖回归。源码、现场读取证据、测试失败与最终结果统一见[本轮记录](dsh-desktop-web.md#同名程序与服务发现修复)，不改变公开alpha.34字节。
+
+2026-10-20，AB-F02/F07/F08/F10/F11/F12：新增DSH两个独立服务入口，保留原CLI。明确机器与私有连接配置，共用本地图标；生命周期、普通被委派、原请求恢复及实际测试/未测范围统一见[本轮交付](dsh-desktop-web.md)。源码增量未进入公开alpha.34，不扩大I07C准出。
+
 2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](alpha34-release.md)。完整I06C/I07C仍未准出。
 
 2026-10-20发布前准备记录 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](alpha34-release.md)登记；当时仍在发布准备阶段，旧包/标签范围不变。
@@ -181,3 +217,11 @@ I07-N04/N05补齐Hermes/Pi/DSH的小队接入边界，原三工具旧字段兼�
 ## 2026-10-18：真实原生开发/复核成员
 
 新增默认仅计划、固定checkpoint的三原生成员验收脚本及8项安全/恢复契约。生产链路在同WSL三个独立Bridge宿主上使用真实Claude2.1.302；开发员公共文档交付、复核员读取精确修订复算，主协调原会话三轮，合计五次自动原生激活。成员原生成功后才逐项验收，总验收收据accepted=false，主原生终态后才completed；完成后重开观察未新增回合。没有业务代码/编译器、独立SSH或新EXE。[开发、完整证据和下一片](native-members.md)。
+
+## 扫描与管理恢复开发
+
+2026-10-20，I07-REC01：生产前端区分扫描/查看与写入，设置合并两类台账；中央严格原宿主拒绝结算，DSH安装提示分类及废弃纯发现提示投影修复。Windows界面6组通过；全工程与候选冻结证据以[专项](agent-management-recovery.md)为准，不扩张真实模型/独立SSH验收。
+
+## Agent 行配置开发
+
+2026-10-21，M01/M03/M06：新增AgentConfigurationDialog，概览/关系图共用；MCP/DSH组件单目标化、迟到状态隔离、token清空及焦点/窄窗口处理。后台仅同步DSH提示入口，原协议和存储不变。最终工程、Windows与本地候选证据见[专项](agent-row-configuration.md)。

@@ -28,7 +28,7 @@ export async function discoverOpenCode(options: DiscoveryEnvironment = {}): Prom
     candidates: { claude: [], codex: [], hermes: [], pi: [], dsh: [], ...(options.executable ? { opencode: [options.executable] } : {}) } });
   // CLI display versions do not establish the HTTP contract. Connect probes the
   // selected installation before admitting work, including enterprise builds.
-  return items.filter(item => item.healthy)
+  return items.filter(item => item.adapter === 'opencode' && item.healthy)
     .map(({ name, executable, version }) => ({ name, executable, version }));
 }
 

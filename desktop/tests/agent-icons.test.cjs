@@ -20,7 +20,9 @@ const noop = () => {};
 const kinds = ["claude", "codex", "opencode", "hermes", "pi", "dsh"];
 
 test("six official agent icons retain their exact source bytes and bundled provenance", () => {
-  assert.deepEqual(Object.keys(agentTools), kinds);
+  assert.deepEqual(Object.keys(agentTools).filter(k => !['dsh-desktop', 'dsh-web'].includes(k)), kinds);
+  assert.equal(agentTools['dsh-desktop'].icon, agentTools.dsh.icon);
+  assert.equal(agentTools['dsh-web'].icon, agentTools.dsh.icon);
   const directory = path.resolve(__dirname, "../assets/agents");
   const sources = JSON.parse(fs.readFileSync(path.join(directory, "sources.json"), "utf8"));
   assert.equal(sources.length, 6);

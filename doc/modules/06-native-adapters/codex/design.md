@@ -1,14 +1,22 @@
 # Codex 适配器设计
 
+## 普通子任务的最小上下文
+
+M06-CX-F01：作为普通委派目标时，中央v1固定说明+原始需求作为既有message传入，不新增MCP/TeamScope或更改原生账号、模型、权限、Session。Task.message显示收到的完整输入；历史无版本委派保持原文，主会话/直接请求不包装。统一宿主受控检查证明中央传参，不等于当前原生模型实际消费。[持久版本、大小与未测边界](../../../iterations/I07/delegation-context.md)。
+
+## 经典只读委派发现（M06-CX-F01）
+
+经典MCP逐工具approval_mode=auto增加list_delegations，default_tools_approval_mode仍prompt，reply_task未自动允许；指引区分Bridge委派台账与原生内部Agent列表。原Session/模型/目录/权限不变，受控启动参数与旧生命周期回归通过；真实模型另验。[完整边界](../../../iterations/I07/delegation-list.md)。
+
 读取归属已失配的旧会话只允许查看，即使宿主保有原生Session也不宣告可继续；不改其Agent、ID或Session，正常绑定和真正legacy能力保留。
 
 ## 历史详情的相邻路由契约
 
-Codex宿主仍按原task/conversation ID读取持久轮次，不修改Session和终态。MachineHost在自身backend快照定位对象，不依赖历史targetAgent还能对应当前row；本片不改Codex执行、取消或reconcile实现。alpha.30已预发布源码，[归属专项](../../../iterations/I07/history-detail-recovery.md)。
+Codex宿主仍按原task/conversation ID读取持久轮次，不修改Session和终态。MachineHost在自身backend快照定位对象，不依赖历史targetAgent还能对应当前row；本实现不改Codex执行、取消或reconcile实现；[归属专项](../../../iterations/I07/history-detail-recovery.md)。
 
-## 独立 MCP 接入（2026-10-19）
+## 独立 MCP 接入
 
-编辑CODEX_HOME/config.toml（默认~/.codex/config.toml）的自有mcp_servers.agentbridge标记块；导出agentbridge.codex.toml。保留其他设置/注释，外来条目或块内无关数据拒绝覆盖。真实0.162.1隔离用户配置增删与mcp list可见性通过，本次未通过模型调用该长期入口。原托管任务-c覆盖仍保留任务scope隔离。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
+编辑CODEX_HOME/config.toml（默认~/.codex/config.toml）的自有mcp_servers.agentbridge标记块；导出agentbridge.codex.toml。保留其他设置/注释，外来条目或块内无关数据拒绝覆盖。真实0.162.1隔离用户配置增删与mcp list可见性通过，未通过模型调用该长期入口。原托管任务-c覆盖仍保留任务scope隔离。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
 
 已确认原终态后，同批晚到started/output/native帧不再改变原任务、结果或Session；已观察offset仍完整推进。原生退出事实与准备失败分开，未启动不标nativeExited=true。
 
@@ -16,18 +24,18 @@ Codex宿主仍按原task/conversation ID读取持久轮次，不修改Session和
 
 Windows官方npm的codex.js会再次spawn原生EXE且未继承外层隐藏参数；Bridge在原选中包内解析optional platform package或bundled vendor，直接启动相同codex.exe，保留原JS安装身份及managed-package提示，缺原二进制拒绝，不跨安装回退。Linux和原Session/request规则保持。[复现与修复](../../../iterations/I07/desktop-polling.md)。
 
-2026-10-18 未发布源码：Codex worker 冻结 `tool-discovery.cjs` 时同步复制新发现器依赖的 `builtin-adapters.cjs` 和 `agent-adapter-contract.cjs`；Codex 原生执行协议不变。该依赖缺失曾导致受控任务超时，补齐后原 Codex 五项宿主回归通过；[原生扩展验证](../../../iterations/I07/native-agent-expansion.md)。
+Codex worker 冻结 `tool-discovery.cjs` 时同步复制新发现器依赖的 `builtin-adapters.cjs` 和 `agent-adapter-contract.cjs`；Codex 原生执行协议不变。依赖缺失会导致受控任务超时，补齐后原 Codex 五项宿主回归通过；[原生扩展验证](../../../iterations/I07/native-agent-expansion.md)。
 
-## alpha.27：启动准备与原任务核对
+## 启动准备与原任务核对
 
 运行准备/同步spawn及异步启动失败均保存原failed任务、原错误code、脱敏原因和事件；spawn已有child后错误不证明未派发。reconcile沿原task读取已有终态；仅原job存在且只有accepted、无native/offset、无worker.log/心跳/事件时可证明尚未越过启动边界，记failed并释放。worker.log在spawn之前创建，因此即使心跳尚未写出，有该文件仍保留unknown。核对不准备runtime、不启动CLI、不改原requestId/Conversation，无原生Session的旧会话仍不可续问。[完整设计与证据](../../../iterations/I06/windows-start-persistence.md)。
-更新日期：2026-10-14。当前发现修复源码：0.6.0-alpha.19；旧 0.6.0-alpha.2 包不含本次发现修复。功能 **M06-CX-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
+功能 **M06-CX-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)；当前发布状态见[迭代发布记录](../../../iterations/release-ledger.md)。
 
 ## 1. 用途与当前能力
 
-2026-10-19当前WSL版本0.163.0-alpha.10.2经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
+当前WSL版本0.163.0-alpha.10.2经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
 
-适配器启动机器已有的 Codex CLI `exec --json`，读取真实 JSON 事件，绑定原生 thread 并保存本轮结果。它使用 Codex 原有登录、配置和模型，不通过 OpenAI API 另建推理客户端。
+适配器启动机器已有的 Codex CLI `exec --json`，读取真实 JSON 事件，绑定原生 thread 并保存该轮结果。它使用 Codex 原有登录、配置和模型，不通过 OpenAI API 另建推理客户端。
 
 | 功能 | 当前实现 | 真实证据与限制 |
 | --- | --- | --- |
@@ -75,7 +83,7 @@ stdout 使用 UTF-8 JSONL；未完成行缓冲限制为 1 MiB。stderr 保存为
 
 CLI 使用原有账号、`config.toml`、模型和文件系统策略。适配器不设置 `model`、`model_provider`、`approval_policy` 或 `sandbox_mode`，不改原生 Session 数据库。`--skip-git-repo-check` 让用户可以在非 Git 目录发起任务，不等于放开文件系统权限。
 
-主 Agent 场景通过本次 `-c` 参数增加 `mcp_servers.agentbridge` 的本地命令、参数和环境；一般工具默认 prompt，`list_agents/delegate/task_result/cancel_task/task_pending` 限定为 auto。后端仍检查来源、父任务和允许子节点关系。`reply_task` 未自动批准，不能据 MCP 能运行就绕过原生权限。
+主 Agent 场景通过任务级 `-c` 参数增加 `mcp_servers.agentbridge` 的本地命令、参数和环境；一般工具默认 prompt，`list_agents/delegate/task_result/cancel_task/task_pending` 限定为 auto。后端仍检查来源、父任务和允许子节点关系。`reply_task` 未自动批准，不能据 MCP 能运行就绕过原生权限。
 
 只有带协作 MCP 的原生回合，worker 才在 stdin 原始需求前加入 AgentBridge 协作指引；新会话和 `exec resume` 都应用。指引明确通过 agentbridge MCP `list_agents`（常见完整名 `mcp__agentbridge__list_agents`）查询允许子节点，区分 Codex 原生 `collaboration.list_agents` / `list_agents` 的内部临时 Agent 列表。内部列表只有 `/root` 不能证明 Bridge 无连接子节点。Bridge 工具缺失或报错必须解释为通道故障，不能冒充空列表；模型信息通过实际委派、自报结果和可确认依据汇总，不猜精确型号。
 
@@ -88,7 +96,7 @@ Windows npm 命令包装由共享 `tool-discovery.command()` 解析为受支持�
 | 字段/文件 | 作用 |
 | --- | --- |
 | Bridge requestId + 指纹 | agent、conversation、需求的稳定去重；同键不同内容拒绝 |
-| conversationId / taskId / executionId | Bridge 会话与本轮执行 |
+| conversationId / taskId / executionId | Bridge 会话与该轮执行 |
 | 原生 sessionId | `thread.started.thread_id`；续聊必须传原 thread |
 | native.messageId | 当前使用 Bridge requestId 作为关联值，并非读取到原生用户 Message ID |
 | `codex-state.json` | agents、tasks、conversations、请求与操作收据 |
@@ -120,7 +128,7 @@ stateDiagram-v2
 
 成功要求原 child exitCode 为 0 且收到 `turn.completed`。`turn.failed`、`error` 和 stderr 原生错误保存为 failed。当前成功路径可出现空 answer，因此不能把成功状态单独作为非空业务回答证明；真实验收必须核对内容。
 
-原生 resume 报 `list_turns is not supported yet` 时本轮为 failed，保留原 thread/会话和错误；不能重建 Session、改用户数据库或替换模型来掩盖失败。
+原生 resume 报 `list_turns is not supported yet` 时该轮为 failed，保留原 thread/会话和错误；不能重建 Session、改用户数据库或替换模型来掩盖失败。
 
 ## 6. 展示与失败诊断
 
@@ -128,7 +136,7 @@ stateDiagram-v2
 
 | 情况 | 人类可读含义与处理 |
 | --- | --- |
-| 程序发现成功、模型报错 | 工具已安装；原账号/模型不可调用。本轮失败，请在原生 CLI 检查 |
+| 程序发现成功、模型报错 | 工具已安装；原账号/模型不可调用。该轮失败，请在原生 CLI 检查 |
 | CODEX_START | worker/原生启动失败；不能冒充成功 |
 | CONVERSATION_UNBOUND | 尚无原生 thread，不能继续 |
 | 原生 thread/resume 协议失败 | 保留真实原生错误，不换新会话 |
@@ -142,4 +150,4 @@ stateDiagram-v2
 
 Codex CLI 协议升级时须保存实际版本、新会话 thread、resume thread、完成项、取消后的原生退出和 MCP 限制证据。需要 token delta、原生许可或表单时，应单独设计它们的协议与收据，不能凭当前静态 capability 或夹具成功推断真实支持。同步[测试报告](test-report.md)、总能力表与对应迭代。
 
-终态成功必须同时满足退出码0、收到turn.completed且没有明确原生错误；错误优先于完成标记，取消仍等所属进程退出后确认。该规则适用于新会话与续聊，不据失败自动重发请求。当前源码修复与受控证据见[I07C终态专项](../../../iterations/I07/codex-terminal.md)，旧候选包不含本次修复。
+终态成功必须同时满足退出码0、收到turn.completed且没有明确原生错误；错误优先于完成标记，取消仍等所属进程退出后确认。该规则适用于新会话与续聊，不据失败自动重发请求。当前源码修复与受控证据见[I07C终态专项](../../../iterations/I07/codex-terminal.md)。

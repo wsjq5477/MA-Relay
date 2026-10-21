@@ -1,30 +1,48 @@
 # OpenCode 适配器设计
 
-2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+## alpha.36当前包验证
 
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+M06-OC-F01：本地alpha.36包含完整call/close工厂与公开alpha.35管理恢复；2026-10-21包内WSL stdio/daemon两入口2/2，普通EXE7组含原宿主拒绝恢复与真实MCP stdio通过。原Session/请求不迁移，用户实际模型/故障profile未验。[完整交付与文件](../../../iterations/I07/alpha36-delivery.md)。
 
-M06-OC-F01：当前工作源码支持官方 1.x 和原 2.x；实际 API/配置/等待接口只读握手必需。V1 会话与消息、终态证据和恢复规则见专项；2.x 行为保留。后文 2026-10-19 的仅 2.x 限制属于原发布包历史。 [需求、实现、验证与未测边界](../../../iterations/I07/opencode-v1-compatibility.md)。
+## 普通子任务的最小上下文
 
-## alpha.32 历史版本准入（2026-10-19）
+M06-OC-F01：作为普通委派目标时，中央v1固定说明+原始需求作为既有message传入，不新增MCP/TeamScope或更改原生账号、模型、权限、Session。Task.message显示收到的完整输入；历史无版本委派保持原文，主会话/直接请求不包装。统一宿主受控检查证明中央传参，不等于当前原生模型实际消费。[持久版本、大小与未测边界](../../../iterations/I07/delegation-context.md)。
 
-M06-OC-F01：仅OpenCode2.x准入；1.x、缺失/未知主版本均NATIVE_VERSION。原executable启动器可规范解析，不回退其他安装。MachineHost创建上下文及Core保存配置/启动serve前复验；info仍需2.x且agent/model/config契约有效。确定API或认证错误不消耗20秒等待，历史Session/密码与未知占用保留。 [完整规则与证据](../../../iterations/I07/version-management-recovery.md)。
+## 发现与其他原生服务共存
 
-## 独立 MCP 接入（2026-10-19）
+M06-OC-F01：通用扫描可包含健康的DSH Desktop/Web；OpenCode专用发现与原安装复核必须先限定adapter=opencode，再判断健康和版本。缺失/损坏原OpenCode时不得以同机其他健康工具代替，1.x/2.x版本与API检查保持。[同机共存回归与本轮交付](../../../iterations/I07/agent-row-configuration.md)。
+
+## 宿主错误与原接入核对
+
+M06-OC-F01：ADAPTER_HOST发生在API检查之前，不能据此判原生API或账号损坏。新宿主工厂具备call/close后，仍须核对原失败的接入operationId；仅符合中央持久准入拒绝条件时解除管理锁，之后用户可显式重新接入。普通API超时或原请求未知不自动重试。[恢复规则与验证](../../../iterations/I07/agent-management-recovery.md)。
+
+## 后台宿主生命周期
+
+M06-OC-F01：WSL/Linux stdio 与 SSH daemon 创建上下文时直接返回具备 call/close 的 DesktopHost。close 只释放无自有资源的门面，不发送停止、取消或新需求；原生 Controller 独立运行。此修复已在源码与本地config.2候选中，公开alpha.35的冻结源码未包含，[根因与验证](../../../iterations/I07/opencode-host-lifecycle.md)。
+
+## OpenCode 1.x / 2.x 兼容修复
+
+M06-OC-F01：当前工作源码支持官方 1.x 和原 2.x；实际 API/配置/等待接口只读握手必需。V1 会话与消息、终态证据和恢复规则见专项；2.x 行为保留。 [需求、实现、验证与未测边界](../../../iterations/I07/opencode-v1-compatibility.md)。
+
+## 版本复验与来源归属
+
+M06-OC-F01：新接入与旧配置恢复都在启动 `serve` 前复验；原生 executable 启动器按规范解析，不回退到其他安装。确定 API 或认证错误快速失败，不消耗 20 秒等待；历史 Session、密码与未知占用保留。准入规则随版本演进的过程见[版本管理与准入修复](../../../iterations/I07/version-management-recovery.md)，当前双协议支持的规则见[1.x/2.x 兼容修复](../../../iterations/I07/opencode-v1-compatibility.md)。
+
+## 独立 MCP 接入
 
 仅支持V2的mcp.servers.agentbridge、local command数组/environment/codemode=false；尊重OPENCODE_CONFIG_DIR/XDG目录，保留既有JSONC。独立导出agentbridge.opencode.jsonc。真实2.0.24添加、stdio连接、删除通过；原生常驻服务异步加载/删除，列表可能延后，必要时重启其后台。V1布局或双配置同名冲突拒绝。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
 
 Windows 启动 OpenCode serve、Core Controller 与显式版本检查时设置 windowsHide，避免后台控制台干扰桌面。安装发现改为首次使用或明确扫描，执行前仍核验原安装。[空闲黑窗专项](../../../iterations/I07/desktop-polling.md)。
 
-更新日期：2026-10-14。所属功能 **M06-OC-F01**。对应[模块总设计](../design.md)与[测试报告](test-report.md)。
+所属功能 **M06-OC-F01**。对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途、边界与当前状态
 
-2026-10-19 integrated.3 冻结源码仅支持OpenCode 2.x原API，新接入/旧配置恢复在serve前校验，认证/确定API错误快速失败；没有实现官方1.x另一套API。MCP配置管理与原生执行方向分开，原已派发请求继续按原收据查询。整合本地候选含本模块现行修复，不沿用旧开发机版本推定真实推理/SSH验收。[整合限定证据](../../../iterations/I07/integrated-source.md)。
+新接入与旧配置恢复在 `serve` 前校验，认证或确定 API 错误快速失败。MCP 配置管理与原生执行方向分开，原已派发请求继续按原收据查询。逐版本冻结范围与本地候选边界见[整合源码范围](../../../iterations/I07/integrated-source.md)，不沿用旧开发机版本推定真实推理/SSH验收。
 
-2026-10-19当前WSL版本2.0.24经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
+当前WSL版本2.0.24经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
 
-适配器将机器上已有 OpenCode CLI 的本地 `serve` 服务接入 Bridge。它使用原生 HTTP API，新会话创建原生 Session；续聊沿用原 Session、为本轮生成新用户 Message。每轮答案从该用户消息之后、下一条用户消息之前的原生时间线提取。
+适配器将机器上已有 OpenCode CLI 的本地 `serve` 服务接入 Bridge。它使用原生 HTTP API，新会话创建原生 Session；续聊沿用原 Session、为该轮生成新用户 Message。每轮答案从该用户消息之后、下一条用户消息之前的原生时间线提取。
 
 | 子能力 | 当前实现 | 验证边界 |
 | --- | --- | --- |
@@ -32,7 +50,7 @@ Windows 启动 OpenCode serve、Core Controller 与显式版本检查时设置 w
 | CLI 默认配置继承 | 原生配置优先，否则 CLI 最近可用模型；不写原文件 | 2.0.24 真实默认与受控回归；远端 2.0.26 已有真实回复 |
 | 新会话/原会话续聊 | Session/Message 预绑定、只发一次 Prompt、原时间线核验 | 2.0.24 真实三轮；2.0.26 两轮缺 native ID 比较产物 |
 | 输出/工具/等待 | HTTP 轮询已生成的文本和工具状态，permission/form 接口 | 不是原生 token 流订阅 |
-| 取消/恢复 | interrupt + 本轮 idle 证据；只读查原轮恢复 | 取消不撤销已执行文件或命令 |
+| 取消/恢复 | interrupt + 该轮 idle 证据；只读查原轮恢复 | 取消不撤销已执行文件或命令 |
 | 禁工具连接验证 | 2.0.24 特殊禁止工具契约 + 随机标记 | 其他版本返回 VERIFICATION_CONTRACT；普通任务不受此限制 |
 
 ## 2. 结构与调用协议
@@ -53,8 +71,8 @@ flowchart LR
 | 服务类型/版本 | `GET /api/info` | info版本须2.x；info/agent/model及所需config契约须通过 |
 | 原生模型来源 | `GET /api/model/default`、`/api/model`、`/api/config` | 使用 `location[directory]`；确定当前执行目录的默认 |
 | 新建 Session | `POST /api/session` | Bridge 指定 Session ID、原目录/agent，附 Bridge 关联 metadata |
-| 本轮需求 | `POST /api/session/{id}/prompt` | 指定 Message ID；校验返回 ID 与所属 Session |
-| 会话与消息 | `GET /api/session/{id}`、`.../message` | 分页读取，每页 100；原输入、先前输入和本轮 idle 必须匹配 |
+| 该轮需求 | `POST /api/session/{id}/prompt` | 指定 Message ID；校验返回 ID 与所属 Session |
+| 会话与消息 | `GET /api/session/{id}`、`.../message` | 分页读取，每页 100；原输入、先前输入和该轮 idle 必须匹配 |
 | 原生等待 | `GET .../permission`、`.../form` | 校验每条等待属于原 Session |
 | 回复 | `POST .../permission/{id}/reply`、`.../form/{id}/reply` | 持久 operationId，校验原等待与表单字段 |
 | 取消 | `POST .../interrupt?resume=false` | 保存操作收据，之后等待原轮 interrupted，不据 HTTP 成功直接结束 |
@@ -75,7 +93,7 @@ OpenCode 创建上下文前复用共享 tool-discovery 对原 executable 版本�
 
 需要协作时，在该上下文的进程级 `OPENCODE_CONFIG_CONTENT` 中合并 Bridge MCP 和指令，保留既有字段；不写原生全局配置。旧项目上下文的模型覆盖兼容能力不用于当前节点新建流程。
 
-## 4. 本轮身份与恢复
+## 4. 身份与恢复
 
 ```mermaid
 sequenceDiagram
@@ -85,7 +103,7 @@ sequenceDiagram
     B->>O: 只读健康 / 原会话核验
     B->>J: 原生 Session + Message + 配置快照
     B->>O: 新会话时创建 Session
-    B->>O: 发送本轮 Prompt 一次
+    B->>O: 发送该轮 Prompt 一次
     loop 观察原轮
         B->>O: Session / 分页消息 / 等待
         O-->>B: 文本快照 / 工具 / idle outcome
@@ -94,13 +112,13 @@ sequenceDiagram
     Note over B,O: 通信不明后只读 inspect，不补发 Prompt
 ```
 
-NativeReference 保存 `sessionId`、`messageId`、`serverUrl`、真实 workspace、先前 Message ID 列表和配置快照。恢复/续聊核验：服务与目录一致、配置指纹/认证文件一致、原 native agent/模型/权限一致、原用户输入仍存在、先前输入无外部插入。本轮未结束时出现后续用户输入属于干扰，拒绝控制并保留占位。
+NativeReference 保存 `sessionId`、`messageId`、`serverUrl`、真实 workspace、先前 Message ID 列表和配置快照。恢复/续聊核验：服务与目录一致、配置指纹/认证文件一致、原 native agent/模型/权限一致、原用户输入仍存在、先前输入无外部插入。该轮未结束时出现后续用户输入属于干扰，拒绝控制并保留占位。
 
 成功需要原轮 `idle.outcome=succeeded` 和非空文本答案；`failed` 保存原生错误，`interrupted` 才给出 cancelled。观察超时、缺绑定或原输入、冲突时间线属于未确认，不能转换成“没有执行”。
 
 ## 5. 输出与交互
 
-Driver 按 `pollMs` 周期读取原生消息；文本 part 的内容变化时发 `output`，内容是该 part 当前全文。工具状态变化发 `progress`。本实现限制观察期间输出/进度数量，终态仍读取本轮完整答案并限制保存长度。
+Driver 按 `pollMs` 周期读取原生消息；文本 part 的内容变化时发 `output`，内容是该 part 当前全文。工具状态变化发 `progress`。本实现限制观察期间输出/进度数量，终态仍读取该轮完整答案并限制保存长度。
 
 前端只在相邻 output 且新文本以前文为前缀时替换显示；不把完整快照当作 delta 逐次追加。原始事件不修改。它因此能逐步展示已生成内容，但不是连接 `/event` 的实时推流。
 
@@ -111,7 +129,7 @@ permission/form 变化发等待事件；回复前重新核验原轮和原请求�
 | 错误 | 处理 |
 | --- | --- |
 | NATIVE_AUTH_UNAVAILABLE / OPENCODE_HTTP_401/403 | 检查 Bridge 原生服务认证；不输出密码 |
-| 原生明确 HTTP 400/401/403/404/422 拒绝 | 本次执行失败；保留原消息/绑定 |
+| 原生明确 HTTP 400/401/403/404/422 拒绝 | 该次执行失败；保留原消息/绑定 |
 | NATIVE_UNAVAILABLE / 超时 / 观察中断 | 原执行可能仍在；unknown 并查原记录 |
 | NATIVE_BINDING / NATIVE_INTERFERENCE / NATIVE_INPUT_MISSING | 身份或时间线不符，拒绝续聊/取消并保留占位 |
 | NATIVE_CONTRACT / NATIVE_VERSION | 原生版本或响应不满足已实现契约 |
@@ -129,6 +147,6 @@ permission/form 变化发等待事件；回复前重新核验原轮和原请求�
 
 原生 API 或 CLI 最近模型格式变化时，同时补充契约夹具和真实版本验收；检查新 Session、原 Session 续聊、取消、等待、崩溃恢复与不改原配置。只在明确禁止工具契约经过验证后扩大连接验证版本白名单。
 
-## 2026-10-12：6A 收尾
+## 收尾行为
 
 会话列表与详情中的 canContinue 由 Hub 按原生 Session、上一轮状态、验证标识、配置/资源绑定和轮次上限计算。原生续聊仍使用原 conversationId/native Session；没有新建会话兜底。详见 [M07](../../07-task-session/design.md)。

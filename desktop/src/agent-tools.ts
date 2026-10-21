@@ -36,6 +36,14 @@ export const agentTools: Record<
     icon: new URL("../assets/agents/pi.svg", import.meta.url).href,
     background: "#ffffff",
   },
+  "dsh-desktop": {
+    name: "DSH Desktop", fullName: "DeepSeek Harness Desktop",
+    icon: new URL("../assets/agents/dsh.svg", import.meta.url).href, background: "#ffffff",
+  },
+  "dsh-web": {
+    name: "DSH Web", fullName: "DeepSeek Harness Web",
+    icon: new URL("../assets/agents/dsh.svg", import.meta.url).href, background: "#ffffff",
+  },
   dsh: {
     name: "DSH",
     fullName: "DeepSeek Harness",

@@ -1,12 +1,12 @@
 # M09 CLI、controller 与 Hub/Edge 测试报告
 
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+## OpenCode 1.x / 2.x 兼容修复
 
 M09-F01：Core 接受可识别 1.x/2.x 并只读握手选择原生协议；Edge 使用统一 reply/interrupt 客户端分派，operationId 仍先持久且控制不重试。V1 permission/question 映射复用原表单校验；禁工具验证入口仍仅核验过 2.0.24。 本次共用专项的全套日志，不跨模块累加；受控测试、官方 CLI 加受控传输与未测 Windows/SSH/真实模型分列。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
 
 2026-10-18 / T-M09-140：桌面空闲修复源码，WSL Node22.23.1 / Windows Node24.19.0及Edge155。核心45/45、桌面424/424、定向20/20、Windows受控界面3组通过，模型0；属于共享工程计数，不跨模块相加。普通EXE与黑窗观察、冻结包、首次环境失败及用户现场未测边界按[本次完整报告](../../iterations/I07/desktop-polling.md)记录，历史包不冒充本次修复。
 
-## alpha.19 OpenCode 二次发现与 Windows 配置专项
+## OpenCode 二次发现与 Windows 配置专项
 
 WSL Ubuntu / Node 22.23.1：discovery 3/3（含于核心 45/45），桌面 181/181；受控回归、模型 0。[核心 TAP](../../../artifacts/opencode-discovery/2026-10-14/root-tests.tap)、[桌面 TAP](../../../artifacts/opencode-discovery/2026-10-14/desktop-tests.tap)。Windows 原始报告 UTC 2026-10-14T17:35:28.789Z / Electron Node 24.21.0：真实 PE 版本/解析、旧二次发现失败、修复后原路径核验、配置完整写入与旧revision拒绝、serve受控退出保留NATIVE_EXITED、删除原安装，共6组通过，[实际报告](../../../artifacts/opencode-discovery/2026-10-14/windows.json)。这是隔离PE/进程夹具，无真实OpenCode模型或用户另一台电脑验收。原生Windows完整生命周期和断电持久性未验证。根因、失败原证据、最终包与边界见 [专项](../../iterations/I06/opencode-discovery.md)。
 

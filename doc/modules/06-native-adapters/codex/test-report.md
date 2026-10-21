@@ -1,35 +1,43 @@
 # Codex 适配器测试报告
 
-## 2026-10-19：历史详情归属
+## 普通子任务上下文输入
+
+T-M06-CX-155 / M06-CX-F01：2026-10-21，WSL Node22.23.1，未发布源码。统一生产AgentNetwork加受控宿主覆盖该目标入口的说明+原文与无scope/MCP/TeamScope传参；本轮667/667完整桌面/121项定向、Windows36项、Core构建为共用工程证据，不跨模块相加。没有以当前实际codex CLI/模型、Windows EXE或独立SSH消费新上下文，模型0。[实际范围与来源](../../../iterations/I07/delegation-context.md)。
+
+## CT-07只读委派列表（2026-10-20）
+
+T-M06-CX-153 / M06-CX-F01：WSL Node22.23.1定向110/110（含新7项列表+1项Claude允许项）与最终冻结桌面615/615零跳过/退出0；Windows Node24.19.0列表/真实stdio及独立MCP8/8。覆盖父/连接隔离、空身份/游标、unknown/非实时、撤销关系保留原读、父终态/连接撤权拒绝、观察器重开不重派，Claude/Codex允许只读项但reply_task仍需原审批。共用计数不相加，模型0；Windows原生CLI/真实模型/新EXE/独立SSH未验，首次冻结缺C资源及初次TAP覆盖如实记录。[日志、脚本、版本与范围](../../../iterations/I07/delegation-list.md)。
+
+## 历史详情归属
 
 T-M06-CX-150：受控快照/真实本机TCP SSH读取原两轮与native Session，移除实时对象后只读保留历史；非用户服务器/模型调用。实际普通EXE的持久CodexHost验证及源码/包状态以[专项](../../../iterations/I07/history-detail-recovery.md)为准；不把受控host当真实模型通过。
 
-## 独立 MCP 接入（2026-10-19）
+## 独立 MCP 接入
 
 编辑CODEX_HOME/config.toml（默认~/.codex/config.toml）的自有mcp_servers.agentbridge标记块；导出agentbridge.codex.toml。保留其他设置/注释，外来条目或块内无关数据拒绝覆盖。真实0.162.1隔离用户配置增删与mcp list可见性通过，本次未通过模型调用该长期入口。原托管任务-c覆盖仍保留任务scope隔离。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
 
-## 2026-10-19：CT-02真实MCP调用方与被调用方
+## CT-02真实MCP调用方与被调用方
 
 T-M06-CX-146 / M06-CX-F01：当前WSL原生0.163.0-alpha.10.2，本工具真实作主发现/委派另外两种工具并读取成功结果，另在两条链中作为普通子任务被实际启动。各回答/原生Session/父子归属与精确消息通过，完整重开不重放；三工具共享9Task/6方向/16次MCP调用，不跨模块重复累加。保护7/7计入全桌面517/517，均为无模型回归，与真实Task分别计数。产品运行代码未改；Windows、新三工具、独立SSH/权限/表单/执行中断点未补验。[实际脚本、原始报告及边界](../../../iterations/I07/connection-delegation.md)。
 
-## 2026-10-19：CT-02真实直接生命周期
+## CT-02真实直接生命周期
 
 T-M06-CX-145 / M06-CX-F01：当前WSL、Node22.23.1、真实原生0.163.0-alpha.10.2。首轮与原Session回忆均succeeded，取消收据与原Task cancelled分别核验，完整观察重开保留同Session/回答；3个原任务，重复只读观察前后3→3。沿用原生配置，未批准权限或重发原请求。新增验收保护7/7及最终桌面510/510为共享受控计数，不是该工具模型测试数。源码无产品行为变化；本轮未验真实委派/MCP调用方、新EXE或独立SSH。[原始结果、脚本、首次环境/契约失败及边界](../../../iterations/I07/connection-native.md)。
 
-## 2026-10-18：核对收据与同批终态保护
+## 核对收据与同批终态保护
 
 T-M06-CX-142 / M06-CX-F01：核对原operationId收据持久/冲突/重启、取消kind兼容及原未派发边界通过；终态后晚到started/output/native不覆盖成功或失败，offset完整推进。原收据初17项及迟到事件2项修复前实际失败，最终跨宿主定向57/57、合并全桌面474/474；均为受控CLI/磁盘事件，非真实Codex模型或Windows EXE。[日志、源码摘要及完整边界](../../../iterations/I07/native-integration-guards.md)。
 
 2026-10-18 / T-M06-CX-140：Windows可见窗口/进程链确认旧alpha.28周期Codex黑窗和poll.1启动复现；最终修复验证原npm安装直接启动二进制并保留JS身份，嵌套optional/bundled和缺失拒绝有受控回归。最终普通EXE与真实版本探测以[专项](../../../iterations/I07/desktop-polling.md)实际结果为准，模型0。
 
-## 2026-10-18：发现器注册依赖回归
+## 发现器注册依赖回归
 
 T-M06-CX-140 / M06-CX-F01：alpha.28 后源码、WSL Node22.23.1、受控CLI进程。新发现器引入静态注册依赖后，首次Codex受控五项超时；冻结worker补齐builtin-adapters与契约模块后 **5/5**通过，计入[43项定向TAP](../../../../artifacts/native-agent-expansion/2026-10-18/native-targeted.tap)。未改变Codex原生协议，不重跑真实模型/Windows/原生续聊验收。[原因与交付边界](../../../iterations/I07/native-agent-expansion.md)。
 
-## alpha.27：未派发任务恢复
+## 未派发任务恢复
 
 T-M06-CX-06 / M06-CX-F01：2026-10-17，WSL Node22.23.1、真实Windows Node24.19.0，合成目录，模型0。新增恢复10/10，修复前0/10；覆盖EEXIST持久失败/同ID去重/新请求可进入准备、原job证明、重开保留，以及缺run、空worker.log、旧/空心跳、事件、native/进度均保持unknown。Windows共享契约86/86、最终普通EXE合成恢复5组通过；旧原生POSIX夹具仍由WSL全量验证，未冒充真实Windows模型。[原始日志与未测项](../../../iterations/I06/windows-start-persistence.md)。
-## alpha.19 Linux CLI 发现专项
+## Linux CLI 发现专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。
 
@@ -83,6 +91,6 @@ I05 总报告保持 partial，两项原生失败没有被重写为通过。没�
 
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](../../../iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
 
-## 2026-10-16：Codex明确错误终态
+## Codex明确错误终态
 
 T-M06-CX-08 / M06-CX-F01：alpha.22源码工作区，WSL Linux / Node22.23.1，受控CLI/worker及磁盘、模型0。错误前后混合完成事件且退出0均保持failed；重开原请求仍失败，同ID不重复调用。修复前失败证据、修复后Codex/小队专项23/23（工程共享总数）和未测边界见[专项](../../../iterations/I07/codex-terminal.md)。未重建EXE、未验证真实原生续接或I07C激活。

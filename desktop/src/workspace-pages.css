@@ -760,6 +760,16 @@
 .workbench .settings-row:last-child {
   padding-bottom: 0;
 }
+.workbench .settings-dsh label.settings-row {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 12px;
+}
+.workbench .settings-dsh label.settings-row > input,
+.workbench .settings-dsh label.settings-row > select {
+  width: 100%;
+  min-width: 0;
+}
 .workbench .settings-row > div,
 .workbench .settings-row > label {
   flex: 1;
@@ -1168,3 +1178,21 @@
     transition: none;
   }
 }
+
+.workbench .agent-configuration {
+  width: min(720px, calc(100vw - 40px));
+  max-width: 720px;
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.workbench .agent-configuration .modal-head { flex: none; align-items: flex-start; }
+.workbench .agent-configuration .modal-head h2 { display: flex; align-items: center; gap: 10px; }
+.workbench .agent-configuration .modal-head p { margin: 7px 0 0; color: var(--secondary); font-size: 12px; overflow-wrap: anywhere; }
+.workbench .agent-configuration .modal-body { overflow-y: auto; min-height: 0; }
+.workbench .agent-configuration .settings-card { padding: 0; border: 0; border-radius: 0; background: transparent; min-width: 0; }
+.workbench .agent-configuration .ssh-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.workbench .agent-configuration code { overflow-wrap: anywhere; }
+.workbench .agent-native-configuration { font-size: 13px; line-height: 1.8; }
+.workbench .inventory-configure { color: var(--secondary); }

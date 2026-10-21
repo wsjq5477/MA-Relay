@@ -1,10 +1,36 @@
 # M03 机器、Agent 节点与执行上下文设计
 
-2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+## alpha.36整合边界
 
-2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+M03-F02：当前本地alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
 
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+OpenCode专用发现从通用扫描中仅接受自身adapter，避免DSH服务健康时被误选为OpenCode；缺失原工具不选择其他健康Agent代替。[发现共存回归](../../iterations/I07/agent-row-configuration.md)。
+
+## 节点配置的来源绑定
+
+M03-F02/F05：配置入口属于机器上的原Agent节点。MCP读写携带原nodeId，由后台派生所属机器/adapter；DSH读写使用弹窗固定machineId/adapter，读取仅采用原executable对应的服务条目，不能将同机另一服务当默认连接。关闭再开另一节点清空输入；本次不新增RPC或持久数据格式，不移动节点/任务/原请求身份。[实现与边界](../../iterations/I07/agent-row-configuration.md)。
+
+## 调用方获准连接视图
+
+M03-F02：list_agents不读取全网身份供调用者选择，仅按原scope节点与当前关系投影。当前主快照完成后再次读取关系，撤销目标或换主不会返回旧关系目标；非主无目标，caller区分leader/member/unassigned，节点来源和能力仍取原快照。没有节点/角色迁移、全网发现或接入行为。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
+
+## 发现提示与管理占位
+
+M03-F02/F05：DSH Desktop/Web只缺服务连接时带errorCode=DSH_CONNECTION_REQUIRED，节点投影configuration_required，不能开始执行。成功扫描后不再找到的纯发现提示不继续展示；仅在未接入/未显式管理、无目录上下文、原请求与主从角色时隐藏投影，持久nodeId不删除。任何原请求、上下文或管理状态仍保留身份与占位。扫描不触发接入、模型或未知请求重放。[完整规则与分层验证](../../iterations/I07/agent-management-recovery.md)。
+
+## OpenCode 宿主生命周期
+
+M03-F02：MachineHost 的 OpenCode 上下文工厂同步返回完整的 call/close 宿主；同一原 contextId 和 executable 继续路由到原目录。源码与本地 config.2 已包含，公开 alpha.35 的冻结源码未包含；[实现与验证](../../iterations/I07/opencode-host-lifecycle.md)。
+
+## DSH Desktop / Web 当前行为
+
+M03-F02/F05：两个DSH服务adapter各有独立节点、配置文件连接身份和目录上下文；节点配置按所属机器转发dsh.status/configure并执行维护准入。不同origin形成新身份，原上下文/executable/Session保留；损坏单连接不阻断其他工具发现。 [完整契约与证据](../../iterations/I07/dsh-desktop-web.md)。公开alpha.34不包含该能力；本地.dsh.3候选已构建并验证真实连接，Desktop模型两轮均RATE_LIMIT，独立SSH未验，见[本地交付](../../iterations/I07/dsh-exe-delivery.md)。
+
+M03-F02：CLI版本探测识别到Distributed Shell/Dancer's shell时忽略该无关同名程序（含退出1、stderr输出），继续寻找真实DSH；真正工具失败仍保留PATH选择。Linux发现`~/.dsh/profiles/web/package.json`（或`DSH_HOME`下同路径）且包名为`dsh-profile-web`时，仅显示未配置Web服务提示；Windows Desktop安装提示继续按实际EXE与包名核对。已有服务配置（包括停用）不再补安装提示，不启动服务、不读取原生凭据。安装提示不能执行，配置服务后按原adapter+origin建立连接身份；历史和unknown保持。[本轮复现与验证](../../iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)。
+
+中央hello公布`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力；新前台遇到仍在运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+
+## OpenCode 1.x / 2.x 兼容修复
 
 M03-F01/F02/F03：原 PATH 与原安装核验不变；OpenCode 可识别 1.x/2.x 都可进入实际服务契约检查，未知主版本继续明确拒绝。只读原对象/收据和按机器占位规则不变。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
 
@@ -12,48 +38,45 @@ M03-F01/F02/F03：原 PATH 与原安装核验不变；OpenCode 可识别 1.x/2.x
 
 M03-F04：机器目录通过已有atomicWrite有界重试/fsync/原子替换，永久失败保留完整原文件并仅清当前tmp。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
 
-## alpha.32 历史版本准入与管理作用域
+## 历史版本准入与管理作用域
 
-M03-F01/F02/F03：安装健康与执行兼容分开，OpenCode1.x可被发现但不新建执行上下文。version_incompatible投影connected=false/available=false及执行委派关闭；原存储关联和历史保留。管理按机器隔离，原已派发请求查询不被当前版本门禁遮蔽。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+M03-F01/F02/F03：安装健康与执行兼容分开，OpenCode接受可识别的1.x与2.x，其他主版本在启动前拒绝且不新建执行上下文。version_incompatible投影connected=false/available=false及执行委派关闭；原存储关联和历史保留。管理按机器隔离，原已派发请求查询不被当前版本门禁遮蔽。 [版本准入沿革](../../iterations/I07/version-management-recovery.md)、[1.x/2.x 兼容修复](../../iterations/I07/opencode-v1-compatibility.md)。
 
 读取归属已失配的旧会话只允许查看，即使宿主保有原生Session也不宣告可继续；不改其Agent、ID或Session，正常绑定和真正legacy能力保留。
 
 ## 当前历史详情读取与错误作用域
 
-M03-F04/F05/F06：task/conversation按backend自身快照确认来源，单一来源才读详情；不凭空/旧targetAgent猜根OpenCode。MachineRouter仅对明确未找到加同机器同ID历史回退，内嵌异机身份拒绝。历史非终态仅投影unknown且不可继续，不改保存记录或原Session。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+M03-F04/F05/F06：task/conversation按backend自身快照确认来源，单一来源才读详情；不凭空/旧targetAgent猜根OpenCode。MachineRouter仅对明确未找到加同机器同ID历史回退，内嵌异机身份拒绝。历史非终态仅投影unknown且不可继续，不改保存记录或原Session。 [设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
 
 Windows官方Codex npm启动器直接解析原包内原生EXE，隐藏参数不再丢失于JS二次spawn；节点仍记录原JS身份，缺原二进制拒绝，未改账号/模型。Claude空闲snapshot不定期重跑版本/auth，显式检查与提交前检查保留。[复现与验收](../../iterations/I07/desktop-polling.md)。
 
-## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
+## SSH持久拒绝恢复
 
-M03-F04/F06：原节点submit/continue的双指纹、原agent/续聊父目标、机器/daemon/profile与远端参数摘要匹配且无任务绑定/在途job，才把dispatched改false并持久daemonRejection。写失败回退内存，重开重核缓存，其他unknown不释放。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+M03-F04/F06：原节点submit/continue的双指纹、原agent/续聊父目标、机器/daemon/profile与远端参数摘要匹配且无任务绑定/在途job，才把dispatched改false并持久daemonRejection。写失败回退内存，重开重核缓存，其他unknown不释放。 [完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
 
-## 2026-10-17：Windows未派发与持久化恢复
+## Windows未派发与持久化恢复
 
-M03-F04/F05：saveNetwork与共享atomicWrite统一原子保存，分享锁最多重试6次。派发前保存失败回滚内存dispatched=false，派发后保存失败保留unknown；历史EPERM仅接受本profile的精确UUID临时文件rename形状和原未派发指纹证据。 alpha.27当次源码与预发布；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
-## 2026-10-17：Windows原请求上下文恢复
+M03-F04/F05：saveNetwork与共享atomicWrite统一原子保存，分享锁最多重试6次。派发前保存失败回滚内存dispatched=false，派发后保存失败保留unknown；历史EPERM仅接受本profile的精确UUID临时文件rename形状和原未派发指纹证据。 [需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
+## Windows原请求上下文恢复
 
 M03-F04/F05：node-contexts允许连接准备阶段尚无agentId的记录。按Agent直达仅接受非空白字符串ID；按task/Conversation查owner后亦须有有效targetAgent。无Agent的request只读搜索legacy及已分配Agent的上下文，未完成行不参与归属匹配。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。
 
-## alpha.23 / I07C首批当前实现
+## 小队续接与身份准入
 
-2026-10-16：源码及GitHub预发布alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。
+I07A/B基础继续适用，完整I07C与I06C未准出；当前发布状态见[迭代发布记录](../../iterations/release-ledger.md)。
 
 | 功能 ID | 功能 | 当前状态 |
 | --- | --- | --- |
-| M03-F08 | 外部智能体登记与资源绑定 | I07A源码已实现，分层证据见本模块报告 |
-| M03-F09 | 小队原上下文续接与新执行身份 | I07C首批源码实现，证据层级见本模块报告 |
+| M03-F08 | 外部智能体登记与资源绑定 | 源码已实现；分层证据见本模块报告 |
+| M03-F09 | 小队原上下文续接与新执行身份 | 源码已实现；证据层级见本模块报告 |
 
 新小队续接核对原节点/Conversation所属上下文，重新配置独立成员scope，并要求MachineHost的teamContinuation确认；旧后台在派发前拒绝。保存每轮teamSessionId，普通未带新成员身份的续接不能接管小队原会话。目录/机器/节点准入、原请求去重及旧主从范围继续适用；不使用别名释放unknown。
 
 I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交接继续按[I07B完整行为](../../iterations/I07/task-handoff.md)执行；新流程、异常、预算、接口和源码见[I07C首批交付](../../iterations/I07/automation.md)。以下原功能继续适用。
 
-原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。本文描述当时源码行为；桌面源码为 `0.6.0-alpha.19`，已发布 Windows 便携版为 `0.5.0`。SSH 的源码交付和 Windows 发布验收分别标记，不能以源码版本代表发布完成。
+桌面源码版本以工作区 `desktop/package.json` 为准，稳定历史 Windows 便携版为 `0.5.0`；当前发布状态见[资料入口](../../README.md)。SSH 的源码交付和 Windows 发布验收分别标记，不能以源码版本代表发布完成。
 
 ## 1. 用户得到什么
-
-**当前整合实现（2026-10-19，M03-F02/F04/F05/F06）**：MachineHost先按原对象ID探测已绑定backend自己的快照，不依据空/旧targetAgent回根IPC；孤立会话保留历史/Session且canContinue=false。委派准备拒绝须持久原节点/机器/输入指纹、未派发且无任务绑定；同规则适用于原生父与长期connectionId MCP，未知保留。OpenCode接入/API证明与旧daemon能力共同约束可执行性。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
-
 
 用户先看到机器，再看到机器上安装的 Claude Code、OpenCode、Codex、Hermes、Pi、DSH 等 Agent 节点。后三种是 alpha.28 后未发布源码扩展，详情见[原生扩展专项](../../iterations/I07/native-agent-expansion.md)。接入节点不要求项目目录、模型或供应商。发送任务时才选择执行目录；不处理现有项目时可留空，由后台创建默认目录。
 
@@ -61,13 +84,13 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 
 | 功能 ID | 功能与可验收表现 | 当前状态 |
 | --- | --- | --- |
-| M03-F01 | 没有项目或会话也能显示机器；Windows、各 WSL 分开显示 | 已实现；Windows/WSL 已真实验证 |
-| M03-F02 | 自动发现同机多种工具，选择后一次接入，不询问模型或项目 | 已实现；安装可调用不等于账号推理可用 |
-| M03-F03 | 重扫、重开、启动脚本解析后保持节点归属，不按项目产生新节点 | 已实现；受控测试及已发布版验证 |
-| M03-F04 | 任务创建私有执行上下文；沿用原生设置，历史项目实例保留 | 已实现；Claude/OpenCode 真实验证，Codex 有原生限制 |
-| M03-F05 | 所有查询、续聊、回复和取消回到原机器、原后端 | 已实现；同名 ID 隔离受控验证 |
-| M03-F06 | 同工具当前/历史节点串行；同一 Windows/WSL 共享目录互斥；一台离线不拖垮其他机器 | 已实现；离线缓存显示为不确定 |
-| M03-F07 | 导入旧目录、项目实例和历史，不改原生 Session ID | 已实现；兼容入口继续保留 |
+| M03-F01 | 没有项目或会话也能显示机器；Windows、各 WSL 分开显示 | 源码已实现；Windows/WSL 已真实验证 |
+| M03-F02 | 自动发现同机多种工具，选择后一次接入，不询问模型或项目 | 源码已实现；安装可调用不等于账号推理可用 |
+| M03-F03 | 重扫、重开、启动脚本解析后保持节点归属，不按项目产生新节点 | 源码已实现；受控测试及已发布版验证 |
+| M03-F04 | 任务创建私有执行上下文；沿用原生设置，历史项目实例保留 | 源码已实现；Claude/OpenCode 真实验证，Codex 有原生限制 |
+| M03-F05 | 所有查询、续聊、回复和取消回到原机器、原后端 | 源码已实现；同名 ID 隔离受控验证 |
+| M03-F06 | 同工具当前/历史节点串行；同一 Windows/WSL 共享目录互斥；一台离线不拖垮其他机器 | 源码已实现；离线缓存显示为不确定 |
+| M03-F07 | 导入旧目录、项目实例和历史，不改原生 Session ID | 源码已实现；兼容入口继续保留 |
 
 SSH 登录、凭据和安装见 [M04](../04-ssh-access/design.md)，Linux daemon 见 [M05](../05-linux-daemon/design.md)。本模块将已经连接的远端纳入统一目录；不负责服务器登录。
 
@@ -109,7 +132,7 @@ M03-F02/F04/F05：节点snapshot投影八项connectionCapabilities及capabilityS
 
 ### 小队节点的静态接入资格
 
-2026-10-18 的未发布源码在 Coordinator 现有 `snapshot.nodes` 中投影可选 `teamCollaboration`，依据[静态注册表](../../../desktop/electron/builtin-adapters.cjs)判断原生小队接入资格。它独立于普通直接会话的 `executionSupported`，由中央生成，不修改原 nodeId、machineId、已接入状态或持久化节点格式。这是本地适配能力门槛；本片没有在 AgentNetwork 新增远端能力采集或持久化，也不能据该投影推定目标机器已经具备小队通信或原会话续接能力。实际执行仍由原 MachineHost `context` / `scope` 及 `teamContinuation` 确认来源后台支持情况。
+Coordinator 在现有 `snapshot.nodes` 中投影可选 `teamCollaboration`，依据[静态注册表](../../../desktop/electron/builtin-adapters.cjs)判断原生小队接入资格。它独立于普通直接会话的 `executionSupported`，由中央生成，不修改原 nodeId、machineId、已接入状态或持久化节点格式。这是本地适配能力门槛；AgentNetwork 没有新增远端能力采集或持久化，也不能据该投影推定目标机器已经具备小队通信或原会话续接能力。实际执行仍由原 MachineHost `context` / `scope` 及 `teamContinuation` 确认来源后台支持情况。
 
 | 节点适配器与字段 | 新小队接入规则 |
 | --- | --- |
@@ -118,7 +141,7 @@ M03-F02/F04/F05：节点snapshot投影八项connectionCapabilities及capabilityS
 | Hermes / Pi / DSH | 支持直接会话，不开放原生小队；可选字段伪造为 `true` 也不能授予能力 |
 | 未知或未注册适配器 | 不推定支持；仅有 `executionSupported` 或伪造 `true` 均不足以准入 |
 
-界面[节点选择器](../../../desktop/src/TeamNativeNodeSelect.tsx)同时过滤未接入、已移除和已被当前安装替代的节点；登记与独立手动执行下拉共用门槛，历史误登记成员及原尝试仍保留供阅读。[TeamSpace](../../../desktop/electron/team-space.cjs)在原收据幂等分支之后，再对新登记和既有成员的新执行校验静态能力。拒绝发生在认领工作项、消耗自动预算、保存新尝试或派发之前；查询原请求或同 ID 恢复已有执行不经过这项新准入，原身份、撤权及 unknown 保护照常生效。外部 MCP 成员仍从自身入口工作。需求与实际证据见[本片交付](../../iterations/I07/native-integration-guards.md)，不改变 GitHub alpha.28 或本地 poll.4 的冻结范围。
+界面[节点选择器](../../../desktop/src/TeamNativeNodeSelect.tsx)同时过滤未接入、已移除和已被当前安装替代的节点；登记与独立手动执行下拉共用门槛，历史误登记成员及原尝试仍保留供阅读。[TeamSpace](../../../desktop/electron/team-space.cjs)在原收据幂等分支之后，再对新登记和既有成员的新执行校验静态能力。拒绝发生在认领工作项、消耗自动预算、保存新尝试或派发之前；查询原请求或同 ID 恢复已有执行不经过这项新准入，原身份、撤权及 unknown 保护照常生效。外部 MCP 成员仍从自身入口工作。需求与实际证据见[交付说明](../../iterations/I07/native-integration-guards.md)。
 
 | 组件 | 输入 | 输出与责任 |
 | --- | --- | --- |
@@ -228,8 +251,6 @@ flowchart LR
 
 ## 10. 代码入口与维护
 
-原请求/原Session/控制规则在2026-10-19经当前WSL三工具[直接生命周期](../../iterations/I07/connection-native.md)及[MCP六方向委派](../../iterations/I07/connection-delegation.md)补验。新增的是可恢复验收脚本与证据，本模块生产代码/数据/协议未改变；不会用新脚本重放已有未知动作。
-
 从 [machine-router.cjs](../../../desktop/electron/machine-router.cjs) 读目录、路由和共享磁盘锁，从 [agent-network.cjs](../../../desktop/electron/agent-network.cjs) 读节点及请求台账，从 [machine-host.cjs](../../../desktop/electron/machine-host.cjs) 读上下文。发现细节见 [tool-discovery.cjs](../../../desktop/electron/tool-discovery.cjs)，中央宿主组装见 [coordinator-service.cjs](../../../desktop/electron/coordinator-service.cjs)。
 
 变更节点身份、状态、路径归属、台账或接入功能时，同时更新本文、[模块测试报告](test-report.md)和对应迭代材料；兼容数据变化必须说明迁移和回退，不能只改新界面。
@@ -238,28 +259,28 @@ flowchart LR
 
 兼容复用旧 SSH daemon 时，机器 ID 仍来自原 daemonId，工具节点仍来自原机器与工具安装。客户端/离线包补丁版本变化不作为新机器、新节点、目录别名或释放 unknown 的依据；实际选择与验证由 [M04](../04-ssh-access/design.md)完成，未知或不可信发布继续拒绝。
 
-## I06B 节点运行事实与图投影
+## 节点运行事实与图投影
 
 成功读取机器快照后更新 lastSyncedAt，失联保留最后已知时刻。节点快照新增 uncertain、waiting、lastError：来自该节点原实例/任务的 unknown、原生等待与最近失败，不是模型配置。unknown 任务仍占用节点，available 不被图连线或位置修改释放。图为每个真实 memberId 投影一条 leaderId→memberId 边，不创建另一份授权。节点坐标相对于其所属机器组，不允许拖到另一机器来改 machineId。来源见 [I06B 实施](../../iterations/I06/graph-implementation.md)。
 
-## alpha.9 节点接入、断开、移除与恢复
+## 节点接入、断开、移除与恢复
 
 现有 M03-F02/F03/F05/F06/F07 包含节点生命周期：managed=true 后 connected/removed 以中央显式状态为准，扫描与原生实例不能自动重新接入；removed 节点仍在快照/持久化目录中，图和新会话目标隐藏，历史继续引用原 nodeId。添加仅接入受支持、健康的已发现安装；重新添加复用原 ID/坐标，不恢复旧授权。断开/移除及授权撤销和 nodeOperations 收据同文件原子提交；节点任务、请求、委派、原生上下文/配置保持。任务分页外实例 busy/currentTask、未确认派发、nodeJobs、启动目录锁参与占用检查；机器离线拒绝变更。并发接入锁及旧 IPC submit/continue/verify 同样执行接入校验。查询/控制旧任务继续回来源，详情见 [完整事务与验证](../../iterations/I06/node-management.md)。
 
-## I06C 当前机器管理与观察恢复
+## 当前机器管理与观察恢复
 
-机器移除是 removedMachines 中央可见性状态，不删除机器、节点、实例或布局；原节点新增准入检查机器移除/变更锁。移除同时撤销相关主/子授权，恢复原 machineId/nodeId 但不恢复授权。machine-history.json 私有保存已观察历史，合并后续分页；离线/移除/重开可读 historical 任务/会话，原任务/控制收据仍回原来源，历史非终态保持 unknown。 完整接口、事务、当次实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
+机器移除是 removedMachines 中央可见性状态，不删除机器、节点、实例或布局；原节点新增准入检查机器移除/变更锁。移除同时撤销相关主/子授权，恢复原 machineId/nodeId 但不恢复授权。machine-history.json 私有保存已观察历史，合并后续分页；离线/移除/重开可读 historical 任务/会话，原任务/控制收据仍回原来源，历史非终态保持 unknown。 完整接口、事务、实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
 
-## 当前维护与原操作恢复（alpha.13）
+## 当前维护与原操作恢复
 
 维护未知期间，所属机器的新执行和节点编辑被中央与原生准入双重阻断；其他机器原有会话可继续。卸载的原远端收据 confirmed 后按原 machineId 完成中央移除、撤销新协作权限及隐藏图节点，保留机器/节点/会话/任务历史。断开、停止、卸载不等于取消原任务，不以名字或地址别名释放未知占位。
 
 实现入口：[agent-network.cjs](../../../desktop/electron/agent-network.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
 
-## 未确认请求的节点与目录归属（alpha.20 已预发布）
+## 未确认请求的节点与目录归属
 
 pendingResource 从原 requests、实例及保留节点解析身份；不以当前筛选器、显示名称或新目录替换来源。原节点始终保留占位；共享实例目录使用 workspaceKey，Windows/WSL 盘符和挂载路径仍共享保护。不同节点且目录独立时不再被整机台账阻断，原任务的 busy/unknown、原生资源锁和接入校验照常执行；真实目录解析后、派发前再次由 Coordinator 核对。
 
-requests 新增可选 inputFingerprint（继承协作前的原输入）及 preparationRejection（原生调用前的准备拒绝码）；fingerprint 继续绑定实际有效参数。续聊自动继承协作时仍同时校验两份输入。旧版本资源错误恢复保持，最初保存的 NOT_CONFIGURED 也必须与原未派发意图完全匹配；新查询仅返回 NOT_CONFIGURED、无原意图或已派发均不足以解除占位。[当次交付](../../iterations/I06/pending-isolation.md)。
+requests 新增可选 inputFingerprint（继承协作前的原输入）及 preparationRejection（原生调用前的准备拒绝码）；fingerprint 继续绑定实际有效参数。续聊自动继承协作时仍同时校验两份输入。旧版本资源错误恢复保持，最初保存的 NOT_CONFIGURED 也必须与原未派发意图完全匹配；新查询仅返回 NOT_CONFIGURED、无原意图或已派发均不足以解除占位。[交付说明](../../iterations/I06/pending-isolation.md)。
 
 底层明确返回配置准入拒绝 NOT_CONFIGURED 时，也保存原拒绝并将 dispatched 置 false，避免台账已 rejected、节点仍被无任务的意图标忙。已派发后的传输失败不按该规则回收。

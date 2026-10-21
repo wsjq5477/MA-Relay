@@ -21,10 +21,12 @@ import { useMachineManagement, type MachineAction } from "./machine-management";
 import AgentGraph from "./AgentGraph";
 import AppShell, { type Page } from "./AppShell";
 import MachineInventory from "./MachineInventory";
+import AgentConfigurationDialog from './AgentConfigurationDialog';
 import AgentIcon from "./AgentIcon";
 import CollaborationChoice from "./CollaborationChoice";
 import {canCallBridge,canExecuteNode} from "./connection-capabilities";
 import { TasksPage, ConversationsPage, SettingsPage } from "./WorkspacePages";
+import {useGraphRecovery,mergeRecoveryRows,executionRecoveryReason,querySummaryText,type ManagementLane} from './management-recovery';
 import TeamWorkspace from "./TeamWorkspace";
 import { useNodeManagement, type NodeAction } from "./node-management";
 import type {
@@ -56,6 +58,7 @@ const nodeStatus = (n: AgentNode) =>
     : n.status === "upgrade_required" ? "后台需要升级"
     : n.status === "version_incompatible" ? "版本不兼容，需要 OpenCode 2.x"
     : n.status === "needs_check" ? "需要检查原生 API"
+    : n.status === "configuration_required" ? "待配置服务连接"
     : n.status === "tool_error"
       ? "工具检查异常"
       : n.status === "unsupported"
@@ -101,6 +104,21 @@ export default function NetworkApp() {
     [pickTarget, setPickTarget] = useState(false);
   const [recoveryItems, setRecoveryItems] = useState<RecoveryItem[]>([]),
     [querying, setQuerying] = useState(false);
+  const [settingsSection, setSettingsSection] = useState<'recovery'|null>(null);
+  const [configuration, setConfiguration] = useState<{node:AgentNode;machine:Machine}|null>(null);
+  function showSettings(section:'recovery') { setSettingsSection(section); setPage('settings'); }
+  function configureAgent(node:AgentNode) {
+    const machine=(data.machines || []).find(item=>item.machineId===node.machineId);
+    if(machine)setConfiguration({node,machine});
+  }
+  useEffect(()=>{
+    if(page!=='settings'||!settingsSection)return;
+    const frame=requestAnimationFrame(()=>{
+      document.getElementById('settings-'+settingsSection)?.closest('section')?.scrollIntoView({block:'start'});
+      setSettingsSection(null);
+    });
+    return()=>cancelAnimationFrame(frame);
+  },[page,settingsSection]);
   const stopping = useRef(false);
   const [machineView, setMachineView] = useState<"overview" | "graph">(() => {
     try {
@@ -254,13 +272,13 @@ export default function NetworkApp() {
     media.addEventListener("change", apply);
     return () => media.removeEventListener("change", apply);
   }, [prefs.theme]);
-  const blocked = (machineId?: string, nodeId?: string) =>
+  const blocked = (machineId?: string, nodeId?: string, chosenWorkspace?:string) =>
     journal.some((r) =>
       nodeId && r.blockedNodeIds
         ? r.blockedNodeIds.includes(nodeId)
         : !r.machineId || r.machineId === machineId,
     ) ||
-    !!managementReason(machineId);
+    !!executionReason(machineId,nodeId,chosenWorkspace);
   const pendingKey = journal.map((r) => r.id + ":" + r.state).join("|");
   useEffect(() => {
     if (!pendingKey || !bridge().recoverPending) return;
@@ -314,6 +332,10 @@ export default function NetworkApp() {
     setQuerying(true);
     try {
       await act("recover", async () => {
+        if(managementRows.some(row=>row.lane==='node'))await management.query();
+        if(managementRows.some(row=>row.lane==='machine'))await machineManagement.query();
+        const otherRows=managementRows.filter(row=>row.lane==='relation'||row.lane==='layout');
+        if(otherRows.length)await graphRecovery.query(otherRows);
         const api = bridge();
         if (!api.recoverPending)
           throw Error(
@@ -326,18 +348,20 @@ export default function NetworkApp() {
         setNotice(
           pending.length
             ? `查询完成，已核对 ${result.resolved} 项，仍有 ${pending.length} 项待确认。${result.items?.length ? "请查看下方查询原因。" : "当前后台未提供具体原因，请在设置中停止旧后台后重新打开新版程序。"}`
-            : `查询完成，已核对 ${result.resolved} 项，没有未确认操作。`,
+            : managementRows.length ? `执行请求已核对 ${result.resolved} 项；原管理操作已查询，请查看下方结果。` : `查询完成，已核对 ${result.resolved} 项，没有未确认操作。`,
         );
       });
     } finally {
       setQuerying(false);
     }
   }
-  const management = useNodeManagement(data.directory, setNotice, refresh);
+  const graphRecovery=useGraphRecovery(data.directory);
+  const management = useNodeManagement(data.directory, setNotice, refresh,graphRecovery);
   const machineManagement = useMachineManagement(
     data.directory,
     setNotice,
     refresh,
+    graphRecovery,
   );
   const [machineDialog, setMachineDialog] = useState<{
     machine: Machine;
@@ -349,6 +373,16 @@ export default function NetworkApp() {
     !!management.pending ||
     machineManagement.working ||
     !!machineManagement.pending;
+  const managementRows=mergeRecoveryRows(graphRecovery.rows,management.pendingItems.map(management.asRow),machineManagement.pendingItems.map(machineManagement.asRow));
+  const managementSummary=querySummaryText(graphRecovery.summary);
+  function executionReason(machineId?:string,nodeId?:string,chosenWorkspace?:string){
+    if(!graphRecovery.loaded||graphRecovery.error||management.storageError||machineManagement.storageError)return '原管理台账尚未安全读取，请保留原记录。';
+    return executionRecoveryReason(managementRows,machineId,nodeId,allNodes,allMachines,data.instances,chosenWorkspace);
+  }
+  function queryManagement(lane:ManagementLane){
+    if(lane==='node')return management.query();if(lane==='machine')return machineManagement.query();
+    return graphRecovery.query(managementRows.filter(row=>row.lane===lane));
+  }
   function managementReason(machineId?:string){
     const machine=allMachines.find(m=>m.machineId===machineId);
     const reason=management.blockReason(machineId,machine?.connectionId)||machineManagement.blockReason(machineId,machine?.connectionId);
@@ -555,7 +589,7 @@ export default function NetworkApp() {
             {journal.length}{" "}
             个操作的回应尚未确认。原执行资源保留占位，独立节点仍可使用。请查询原请求。
           </span>
-          <button className="text-btn" onClick={() => setPage("settings")}>
+          <button className="text-btn" onClick={() => showSettings('recovery')}>
             查看操作
           </button>
         </div>
@@ -568,25 +602,31 @@ export default function NetworkApp() {
           </button>
         </div>
       )}
-      {machineManagement.pending && (
+      {managementRows.some(row=>row.lane==='machine') && (
         <div className="notice-banner" role="status">
-          原机器管理操作待核对，仅暂停相关机器操作与授权编辑；其他机器仍可管理。
+          原机器管理操作待核对，相关机器的执行、管理与授权编辑继续受保护。
           <button
             className="text-btn"
-            onClick={() => void machineManagement.query()}
+            disabled={graphRecovery.querying} onClick={() => void queryManagement('machine')}
           >
-            查询原机器操作
+            {graphRecovery.querying?'正在查询原管理操作…':'查询原机器操作'}
           </button>
         </div>
       )}
-      {management.pending && (
+      {managementRows.some(row=>row.lane==='node') && (
         <div className="notice-banner" role="status">
-          原节点管理操作待核对，仅暂停相关机器操作与授权编辑；其他机器仍可管理。
-          <button className="text-btn" onClick={() => void management.query()}>
-            查询原节点操作
+          原节点管理操作待核对，同机管理与授权编辑受保护；独立执行资源仍可使用。
+          <button className="text-btn" disabled={graphRecovery.querying} onClick={() => void queryManagement('node')}>
+            {graphRecovery.querying?'正在查询原管理操作…':'查询原节点操作'}
           </button>
         </div>
       )}
+      {(['relation','layout'] as const).filter(lane=>managementRows.some(row=>row.lane===lane)).map(lane=><div key={lane} className="notice-banner" role="status">
+        {lane==='relation'?'原协作授权操作待核对，执行与授权保护保留。':'原布局操作待核对，独立执行仍可使用。'}
+        <button className="text-btn" disabled={graphRecovery.querying} onClick={()=>void queryManagement(lane)}>{graphRecovery.querying?'正在查询原管理操作…':lane==='relation'?'查询原授权操作':'查询原布局操作'}</button>
+      </div>)}
+      {managementSummary&&<div className="notice-banner" role="status">{managementSummary}</div>}
+      {graphRecovery.error&&<div className="notice-banner" role="status">管理台账读取失败，原未知记录与保护保留；请稍后查询原操作。</div>}
       {page === "teams" &&
         (data.teamSpaceSupported ? (
           <TeamWorkspace nodes={nodes} directory={data.directory} />
@@ -722,6 +762,8 @@ export default function NetworkApp() {
                 </div>
               ) : (
                 <MachineInventory
+                  openSettings={() => showSettings('recovery')}
+                  configure={configureAgent}
                   machines={machines}
                   nodes={nodes}
                   relation={relationship}
@@ -731,6 +773,7 @@ export default function NetworkApp() {
                   busy={busy}
                   metadataBusy={managementLocked}
                   managementReason={managementReason}
+                  executionReason={executionReason}
                   managementSupported={!!data.nodeManagement}
                   machineManagementSupported={!!data.machineManagement}
                   daemonManagementSupported={!!data.daemonManagement}
@@ -763,6 +806,7 @@ export default function NetworkApp() {
           busy={busy}
           metadataBusy={managementLocked}
                   managementReason={managementReason}
+                  executionReason={executionReason}
           notify={setNotice}
           start={newConversation}
           blocked={blocked}
@@ -776,6 +820,7 @@ export default function NetworkApp() {
             if (n) void management.run(n.nodeId, n.machineId, "attach");
           }}
           machineAction={machineAction}
+          configure={configureAgent}
         />
       )}
       {page === "machines" && (
@@ -906,6 +951,11 @@ export default function NetworkApp() {
           nodes={nodes}
           journal={journal}
           recoveryItems={recoveryItems}
+          managementRows={managementRows}
+          managementOutcomes={graphRecovery.outcomes}
+          managementSummary={managementSummary}
+          managementQuerying={graphRecovery.querying}
+          onQueryManagement={lane=>void queryManagement(lane)}
           machineName={machineName}
           busy={busy}
           managementLocked={managementLocked}
@@ -925,6 +975,13 @@ export default function NetworkApp() {
           onQuery={() => void queryOriginals()}
         />
       )}
+      {configuration && <AgentConfigurationDialog
+        key={configuration.node.machineId+':'+configuration.node.nodeId}
+        node={allNodes.find(node=>node.nodeId===configuration.node.nodeId&&node.machineId===configuration.node.machineId)||configuration.node}
+        machine={allMachines.find(machine=>machine.machineId===configuration.machine.machineId)||configuration.machine}
+        unavailable={!nodes.some(node=>node.nodeId===configuration.node.nodeId&&node.machineId===configuration.node.machineId)||!machines.some(machine=>machine.machineId===configuration.machine.machineId)}
+        onClose={()=>setConfiguration(null)}
+      />}
       {addAgent && (
         <div className="modal-overlay">
           <section
@@ -954,7 +1011,7 @@ export default function NetworkApp() {
               <button
                 className="btn"
                 disabled={
-                  !!managementReason(addAgent.machineId) || busy || graphExecutionLocked || !addAgent.online
+                  busy || !addAgent.online
                 }
                 onClick={() =>
                   void act(
@@ -1224,7 +1281,7 @@ export default function NetworkApp() {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (executionLocked) return;
-                if(!canExecuteNode(targetNode)||blocked(targetNode?.machineId,target)){
+                if(!canExecuteNode(targetNode)||blocked(targetNode?.machineId,target,workspace.trim()||undefined)){
                   setNotice("当前节点不能开始新执行，请先核对执行能力与原操作。");return;
                 }
                 if(collaborate&&!collaborationAllowed){setNotice("当前节点不能调用 Bridge MCP，请关闭协作后使用直接会话。");return;}
@@ -1352,11 +1409,10 @@ export default function NetworkApp() {
               </details>
               {blocked(
                 nodes.find((n) => n.nodeId === target)?.machineId,
-                target,
+                target,workspace.trim()||undefined,
               ) && (
                 <p role="status">
-                  当前 Agent 有未确认操作，请查询原请求；可选择其他可用 Agent
-                  开始独立会话。
+                  {executionReason(targetNode?.machineId,target,workspace.trim()||undefined)||'当前 Agent 有未确认操作，请查询原请求；可选择其他可用 Agent 开始独立会话。'}
                 </p>
               )}
               <button
@@ -1369,7 +1425,7 @@ export default function NetworkApp() {
                   !nodes.find((n) => n.nodeId === target)?.available ||
                   blocked(
                     nodes.find((n) => n.nodeId === target)?.machineId,
-                    target,
+                    target,workspace.trim()||undefined,
                   )
                 }
               >

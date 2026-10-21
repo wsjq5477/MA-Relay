@@ -80,7 +80,7 @@ async function scanTools(options={}) {
   if(windows)folders.push(path.join(env.APPDATA||path.join(home,'AppData/Roaming'),'npm'),path.join(home,'scoop/shims'));
   else if(platform==='linux')folders.push(...managedLinuxFolders(home,env),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'hermes-agent/.hermes/bin'),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'hermes-agent/venv/bin'),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'venv/bin'));
   const result=[];
-  await Promise.all(descriptors.map(async({id:adapter,name,commands})=>{
+  await Promise.all(descriptors.filter(d => !['dsh-desktop', 'dsh-web'].includes(d.id)).map(async({id:adapter,name,commands})=>{
     const candidates=options.candidates?.[adapter]||[...new Set(folders)].flatMap(dir=>commands.flatMap(commandName=>(windows?[commandName+'.exe',commandName+'.cmd']:[commandName]).map(file=>path.resolve(dir,file))));
     const seen=new Set();
     let broken;
@@ -89,7 +89,13 @@ async function scanTools(options={}) {
       const key=windows?executable.toLowerCase():executable;if(seen.has(key))continue;seen.add(key);
       try{
         const launch=command(executable,['--version'],env,platform);
-        const output=await new Promise((resolve,reject)=>execFile(launch.executable,launch.args,{env:launch.env,cwd:home,windowsHide:true,timeout:5000,maxBuffer:65536},(error,stdout)=>error?reject(error):resolve(stdout)));
+        const probe=await new Promise(resolve=>execFile(launch.executable,launch.args,{env:launch.env,cwd:home,windowsHide:true,timeout:5000,maxBuffer:65536},(error,stdout,stderr)=>resolve({error,stdout,stderr})));
+        // Debian's dsh is Distributed/Dancer's Shell, not DeepSeek Harness.
+        // It prints its identity even when --version exits 1. A known foreign
+        // command must not become an unhealthy Agent or hide an actual install.
+        if(adapter==='dsh'&&/\b(?:Distributed Shell|Dancer['’]s shell)\b/i.test(probe.stdout+'\n'+probe.stderr))continue;
+        if(probe.error)throw probe.error;
+        const output=probe.stdout;
         const version=String(output).match(/\bv?(\d+\.\d+\.\d+(?:[.+-][\w.-]+)?)/)?.[1];
         if(!version)throw new Error('版本信息不可识别');
         executable=launch.installationExecutable||(/\.(cmd|bat)$/i.test(executable)?(launch.args[0]&&/\.[cm]?js$/i.test(launch.args[0])?launch.args[0]:launch.executable):executable);
@@ -103,6 +109,9 @@ async function scanTools(options={}) {
     }
     if(broken)result.push(broken);
   }));
+  // command() is also frozen into legacy CLI workers; discovery-only
+  // dependencies are loaded exclusively by scanTools().
+  result.push(...await require('./dsh-connection.cjs').discover(options));
   return result.sort((a,b)=>a.adapter.localeCompare(b.adapter));
 }
 module.exports={scanTools,command,tools,openCodeCompatibility,openCodeVersionError,isOpenCodeVersionRejection};

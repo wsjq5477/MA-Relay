@@ -13,7 +13,7 @@ test('MCP approval adaptation is scoped to bridge tools and does not replace nat
  const task=await f.host.call('ipc',{op:'submit',agentId:a.agentId,requestId:'mcp',message:'hello',mcp:{command:process.execPath,args:['private-client.cjs'],env:{ELECTRON_RUN_AS_NODE:'1'}}});
  assert.equal((await done(f.host,task.taskId)).status,'succeeded');
  const {args}=JSON.parse(fs.readFileSync(path.join(f.directory,'calls.jsonl'),'utf8').trim());
- for(const name of ['list_agents','delegate','task_result','cancel_task','task_pending'])assert(args.includes('mcp_servers.agentbridge.tools.'+name+'.approval_mode="auto"'));
+ for(const name of ['list_delegations','list_agents','delegate','task_result','cancel_task','task_pending'])assert(args.includes('mcp_servers.agentbridge.tools.'+name+'.approval_mode="auto"'));
  assert(!args.some(a=>a.includes('reply_task.approval_mode')));assert(!args.some(a=>/^(model|model_provider|approval_policy|sandbox_mode)=/.test(a)));
  assert(!args.some(a=>a.includes('bypass')||a==='--full-auto'||a==='--model'));
 });

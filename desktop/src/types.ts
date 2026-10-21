@@ -1,4 +1,4 @@
-export type ToolKind = "claude" | "opencode" | "codex" | "hermes" | "pi" | "dsh";
+export type ToolKind = "claude" | "opencode" | "codex" | "hermes" | "pi" | "dsh" | "dsh-desktop" | "dsh-web";
 export type Status =
   | "queued"
   | "accepted"
@@ -139,7 +139,7 @@ export interface AgentNode {
   uncertain?:boolean;
   waiting?:boolean;
   lastError?:{code:string;message:string};
-  status:"connected"|"discovered"|"offline"|"tool_error"|"unsupported"|"needs_check"|"upgrade_required"|"version_incompatible";
+  status:"connected"|"discovered"|"offline"|"tool_error"|"unsupported"|"needs_check"|"upgrade_required"|"version_incompatible"|"configuration_required";
   error?:string;
 }
 export interface ConnectionCapabilities {
@@ -238,6 +238,7 @@ export interface ToolConnection {
   error?: string;
 }
 export interface AgentInstance extends Agent {
+  nodeId?: string;
   instanceId: string;
   machineId: string;
   connectionId: string;

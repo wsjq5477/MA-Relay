@@ -1,12 +1,12 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+## OpenCode 1.x / 2.x 兼容修复
 
 M09-F01：Core 接受可识别 1.x/2.x 并只读握手选择原生协议；Edge 使用统一 reply/interrupt 客户端分派，operationId 仍先持久且控制不重试。V1 permission/question 映射复用原表单校验；禁工具验证入口仍仅核验过 2.0.24。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
 
 Windows Core Controller 后台启动及显式版本检查使用 windowsHide；保留 detached、日志与原身份/任务归属，CLI 前台交互不变。[桌面空闲专项](../../iterations/I07/desktop-polling.md)。
 
-更新日期：2026-10-12。CLI 是已交付的本机 OpenCode 使用和自动化入口；Core Hub/Edge 也是 OpenCode 桌面适配器内部使用的兼容执行链。它与当前桌面中央 Coordinator、SSH daemon 分属不同层，不应混称一个公网中央 server。
+CLI 是已交付的本机 OpenCode 使用和自动化入口；Core Hub/Edge 也是 OpenCode 桌面适配器内部使用的兼容执行链。它与当前桌面中央 Coordinator、SSH daemon 分属不同层，不应混称一个公网中央 server。
 
 ## 1. 功能定位与当前范围
 
@@ -14,12 +14,12 @@ Windows Core Controller 后台启动及显式版本检查使用 windowsHide；�
 
 | 功能 ID | 可验收功能 | 当前状态 |
 | --- | --- | --- |
-| M09-F01 | 首次自动发现 OpenCode，空格选择，回车后真实尝试连接 | 已实现；无模型调用的元数据和连接检查 |
-| M09-F02 | 菜单和命令共用会话/任务台账，支持 JSON 与稳定请求 ID | 已实现；CLI/OpenCode 历史真实验收 |
-| M09-F03 | 按状态目录启动或复用独立 Core controller，查询/显式停止 | 已实现；并发启动与外来 IPC 拒绝测试 |
-| M09-F04 | 本机 HTTP 用户 API、WS Edge 注册与任务/事件通信 | 已实现；仅环回 HTTP/WS，没有当前公网 WSS 服务 |
-| M09-F05 | Edge 事件先落盘再补传，Hub 重启只读恢复原执行 | 已实现；受控故障与历史真实进程验证 |
-| M09-F06 | 凭据文件、owner/allowlist、配置修订、旧数据原位导入 | 已实现；有限授权不被导入扩大 |
+| M09-F01 | 首次自动发现 OpenCode，空格选择，回车后真实尝试连接 | 源码已实现；无模型调用的元数据和连接检查 |
+| M09-F02 | 菜单和命令共用会话/任务台账，支持 JSON 与稳定请求 ID | 源码已实现；CLI/OpenCode 历史真实验收 |
+| M09-F03 | 按状态目录启动或复用独立 Core controller，查询/显式停止 | 源码已实现；并发启动与外来 IPC 拒绝测试 |
+| M09-F04 | 本机 HTTP 用户 API、WS Edge 注册与任务/事件通信 | 源码已实现；仅环回 HTTP/WS，没有当前公网 WSS 服务 |
+| M09-F05 | Edge 事件先落盘再补传，Hub 重启只读恢复原执行 | 源码已实现；受控故障与历史真实进程验证 |
+| M09-F06 | 凭据文件、owner/allowlist、配置修订、旧数据原位导入 | 源码已实现；有限授权不被导入扩大 |
 
 CLI 当前快速向导仍创建绑定当前工作目录的 OpenCode 连接，只自动发现 OpenCode。桌面“机器 → 多工具节点 → 任务时目录”的新产品流程见 [M03](../03-machine-network/design.md)；不能宣称 CLI 已提供 Claude/Codex/SSH 拓扑管理。
 
@@ -84,7 +84,7 @@ Core IPC 在 Linux 用私有 Unix socket，在 Windows 用基于状态路径摘�
 | 行为 | 结果 |
 | --- | --- |
 | 多个 CLI 同时进入同目录 | 生命周期 SQLite 锁决定唯一后台，其余复用 |
-| Ctrl+C / EOF 退出菜单 | 关闭本次交互，不停止既有后台 |
+| Ctrl+C / EOF 退出菜单 | 关闭当前交互，不停止既有后台 |
 | Ctrl+C / 超时退出 watch | 仅结束观察，返回对应退出码，任务继续 |
 | `service stop` | 关闭拥有的 Edge、Hub、托管原生服务；不是单纯断开观察 |
 | 外来活 socket 或普通文件占据 IPC 路径 | 拒绝采用、停止或删除 |

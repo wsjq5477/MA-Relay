@@ -1,5 +1,41 @@
 # I07 需求：外部智能体、小队与公共协作空间
 
+## alpha.36 全量整合
+
+A36-01–04：包含当前全部修复并整合公开alpha.35，生成本地Windows EXE及校验文件，验证原收据/历史不重放、完整回归和包内一致性。[需求、实现与实际验收](alpha36-delivery.md)。
+
+## CT-07子任务上下文需求
+
+DC-01–06：新普通子会话最小感知、无新增身份或权限、持久版本/历史同ID兼容、严格原准备拒绝证明及有界完整输入。[本轮契约、首次失败与验证](delegation-context.md)。
+
+## CT-07当前连接视图需求
+
+AC-01–05 / AB-F02/F11/F13：原身份、空参数、当前角色及委派授权说明；查询期间撤销或换主后不返回旧获准目标、不沿原父查询前的旧主关系派发，兼容原items、原请求与unknown。[本轮完整契约与验收](agent-connections.md)。
+
+## CT-07只读列表首片
+
+DL-01至DL-05：原父或独立连接可有界列出原委派，缺/空身份不匹配，不查子任务或保存/恢复，不结算unknown；工具schema/原生允许项一并落地，原六工具与撤权回归保持。[当前需求、实现和验收](delegation-list.md)。
+
+## OpenCode 宿主生命周期修复
+
+OCH-01–03 / AB-F02 / M03-F02 / M05-F02 / M06-F01 / M06-OC-F01：修复 stdio 与 daemon OpenCode 工厂缺 close 导致的 ADAPTER_HOST；保留同步契约、原绑定和 unknown，不通过停止 Controller 或重放请求修复连接。[完整需求与验收](opencode-host-lifecycle.md)。
+
+## Agent 侧自主操作与通用调用方（2026-10-20，规划需求）
+
+用户要求Agent能在自己会话内查看并操作所连接的其他Agent，Bridge收缩为接入配置、策略与审计；同时核对Hermes/Pi/DSH的调用方路径与DSH原生插件的取舍。结论落为CT-06/CT-07/CT-08三个后续目标，[本轮规划](agent-centric-operations.md)不增加运行功能、模型调用、协议或发布验收；I07C六工具真实覆盖仍是前置，静态bridgeMcp维持false至逐工具验收。
+
+## 接入方式比较与快速路径（2026-10-20，文档需求）
+
+用户要求结合现有接入矩阵，补充CLI/API/MCP/ACP/插件/SDK的优缺点、可实现功能、后续Agent选型与快速接入。当前[选型指南](../../agent-integration-guide.md)、矩阵和源码开发指南共同覆盖，真实接口与待开发功能明确区分；[本轮文档核对](agent-integration-guidance.md)不增加运行功能、模型调用、协议或发布验收。
+
+## I07-DSH01：Windows Desktop 与 Linux/WSL Web
+
+用户补充要求交付可直接使用的EXE，并验证两个原生服务；不能仅交源码/夹具。按[EXE交付](dsh-exe-delivery.md)修复真实303与命名参数差异，分别登记包一致性、真实连接、模型限流及未测范围。
+
+补充AB-F02：修复WSL将系统Distributed Shell误报为DeepSeek Harness；区分CLI、Web profile与Desktop安装，未配置服务给出明确接入提示。运行旧alpha.34包缺少新入口的事实与源码修复分别记录，真实服务认证不伪造通过。[需求、复现与验收](dsh-desktop-web.md#同名程序与服务发现修复)。
+
+2026-10-20，AB-F02/F07/F08/F10/F11/F12：新增DSH两个独立服务入口，保留原CLI。明确机器与私有连接配置，共用本地图标；生命周期、普通被委派、原请求恢复及实际测试/未测范围统一见[本轮交付](dsh-desktop-web.md)。源码增量未进入公开alpha.34，不扩大I07C准出。
+
 2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](alpha34-release.md)。完整I06C/I07C仍未准出。
 
 2026-10-20发布前准备记录 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](alpha34-release.md)登记；当时仍在发布准备阶段，旧包/标签范围不变。
@@ -122,3 +158,11 @@ R08/09/10/11/12本片增加仅用户可发起的整项工作停止、原取消�
 2026-10-17新增 I07-UI-R01至R05：基于 CC Switch 当前正式版源码调研，统一桌面导航/机器概览/任务/会话/设置和小队展示，保留原业务身份、占位与控制语义。需求与验收单列在[界面重构专项](ui-redesign.md)，不扩大小队自动执行与正式准出范围。
 
 2026-10-18用户批准继续开发，I07-UI-R01至R05已完成当前本地候选的生产前端与普通Windows程序验收，实际矩阵/字节及尚未准出范围统一见[交付](ui-redesign.md)。
+
+## 扫描与管理恢复需求
+
+2026-10-20，I07-REC01：修复同机管理原操作造成扫描/添加不可点击、Codex提示无法定位原操作、OpenCode宿主准入失败后管理屏障及DSH服务配置误报。AB-F02/F03/F07/F11；实际需求、准入条件及验收见[专项](agent-management-recovery.md)。
+
+## Agent 行配置需求
+
+2026-10-21，I07-UI-CONFIG01：按用户CC Switch参考图，在开始会话右侧增加配置入口，把Bridge MCP与DSH接入从全局设置移出；目标由原机器/节点固定，原生模型与权限边界不变。详见[需求与验收](agent-row-configuration.md)。

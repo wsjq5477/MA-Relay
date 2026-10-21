@@ -1,6 +1,6 @@
 # 交互设计入口
 
-更新：2026-10-12。当前完整用户流程维护在 [整体功能设计](product-design.md) 和 [M01 桌面设计](modules/01-desktop/design.md)。
+当前完整用户流程维护在 [整体功能设计](product-design.md) 和 [M01 桌面设计](modules/01-desktop/design.md)。
 
 | 交互范围 | 完整设计 / 验收 |
 | --- | --- |

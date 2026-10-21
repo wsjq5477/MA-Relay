@@ -1,6 +1,40 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {GraphOperationJournal}=require('../electron/graph-operations.cjs');
+const {digest}=require('../electron/graph-layout.cjs');
 function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ab-graph-journal-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));return {dir,journal:new GraphOperationJournal(dir)};}
+const hostError={code:'ADAPTER_HOST',message:'opencode must synchronously create a host with call() and close().'};
+function failedHostIntent(){const params={operationId:'original-host',nodeId:'opencode',machineId:'wsl',action:'attach'};return {operationId:params.operationId,lane:'node',method:'manageNode',params,fingerprint:digest(params),state:'unknown',time:'original-time',error:{...hostError}};}
+test('persisted original host factory refusal settles only its attach intent after an original receipt read, with no replay',async t=>{
+ const {journal,dir}=fixture(t),row=failedHostIntent();journal.update(row);const calls=[];
+ const restored=new GraphOperationJournal(dir),receipt=await restored.lookup('nodeOperation',{operationId:row.operationId},async(method,p)=>{calls.push({method,p});return {operationId:p.operationId,state:'not_found'};});
+ assert.equal(receipt.state,'rejected');assert.deepEqual(receipt.error,hostError);assert.deepEqual(restored.pending(),[]);
+ const saved=restored.read()[0];assert.deepEqual(saved.params,row.params);assert.equal(saved.fingerprint,row.fingerprint);assert.equal(saved.time,row.time);assert.equal(calls.length,1);assert.equal(calls[0].method,'nodeOperation');
+});
+test('host refusal recovery requires original durable error and fingerprint; bare query errors, wrong lane, changed inputs and foreign receipts retain uncertainty',async t=>{
+ for(const mode of ['no-original-error','different-error','bad-fingerprint','remove','wrong-lane','wrong-id','foreign-receipt','query-error'])await t.test(mode,async t=>{
+  const {journal}=fixture(t),row=failedHostIntent();
+  if(mode==='no-original-error')delete row.error;
+  if(mode==='different-error')row.error={code:'NATIVE_START_TIMEOUT',message:'unknown'};
+  if(mode==='bad-fingerprint')row.fingerprint='wrong';
+  if(mode==='remove'){row.params.action='remove';row.fingerprint=digest(row.params);}
+  if(mode==='wrong-lane')row.method='machine.remove';
+  if(mode==='wrong-id'){row.params.operationId='other';row.fingerprint=digest(row.params);}
+  journal.update(row);
+  const dispatch=async()=>{if(mode==='query-error')throw Object.assign(Error(hostError.message),hostError);return {operationId:mode==='foreign-receipt'?'other':row.operationId,state:'not_found'};};
+  if(mode==='query-error')await assert.rejects(journal.lookup('nodeOperation',{operationId:row.operationId},dispatch));else await journal.lookup('nodeOperation',{operationId:row.operationId},dispatch);
+  assert.deepEqual(journal.pending(),[row]);
+ });
+});
+test('an actual original confirmed receipt takes priority over the historical host factory error',async t=>{
+ const {journal}=fixture(t),row=failedHostIntent();journal.update(row);
+ const receipt={operationId:row.operationId,state:'confirmed',data:{node:{connected:true}}};
+ assert.deepEqual(await journal.lookup('nodeOperation',{operationId:row.operationId},async()=>receipt),receipt);assert.equal(journal.read()[0].state,'confirmed');
+});
+test('new attach host factory refusal is recorded as rejected without admitting any task or replaying attach',async t=>{
+ const {journal}=fixture(t),row=failedHostIntent();let writes=0;
+ await assert.rejects(journal.save('manageNode',row.params,async()=>{writes++;throw Object.assign(Error(hostError.message),hostError);}),{code:'ADAPTER_HOST'});
+ assert.equal(journal.read()[0].state,'rejected');assert.equal(journal.pending().length,0);assert.equal(writes,1);
+});
 test('central graph uncertainty survives restart, blocks new IDs in its lane and only queries the original request',async t=>{
   const {journal,dir}=fixture(t),calls=[];let receipt;
   const dispatch=async(m,p)=>{calls.push(m);if(m==='saveCollaboration')throw Object.assign(Error('transport'),{code:'DESKTOP_TRANSPORT'});return receipt||{operationId:p.operationId,state:'not_found'};};
@@ -71,4 +105,12 @@ test('scope isolation preserves same-machine, missing-source and authority barri
  await assert.rejects(journal.save('machine.remove',{operationId:'same',machineId:'local',connectionId:'local-conn'},dispatch),{code:'GRAPH_UNCONFIRMED'});
  await assert.rejects(journal.save('saveCollaboration',{operationId:'relation',expectedRevision:0,leaderId:null,memberIds:[]},dispatch),{code:'GRAPH_UNCONFIRMED'});
  delete row.params.machineId;journal.update(row);await assert.rejects(journal.save('machine.disconnect',{operationId:'no-source',machineId:'remote',connectionId:'remote-conn'},dispatch),{code:'GRAPH_UNCONFIRMED'});assert.equal(writes,1);
+});
+
+test('original graph query never settles a foreign machine or changed content receipt',async t=>{
+ const {journal}=fixture(t),{digest}=require('../electron/graph-layout.cjs'),params={operationId:'original-source',machineId:'local',nodeId:'node-a',action:'attach'};journal.update({lane:'node',method:'manageNode',operationId:params.operationId,params,state:'unknown',fingerprint:digest(params)});
+ const receipt={operationId:params.operationId,state:'confirmed',fingerprint:digest({nodeId:params.nodeId,machineId:params.machineId,action:params.action}),data:{node:{nodeId:params.nodeId,machineId:params.machineId}}};
+ await assert.rejects(journal.lookup('nodeOperation',{operationId:params.operationId},async()=>({...receipt,data:{node:{nodeId:params.nodeId,machineId:'foreign'}}})),{code:'RECEIPT_MISMATCH'});assert.equal(journal.pending().length,1);
+ await assert.rejects(journal.lookup('nodeOperation',{operationId:params.operationId},async()=>({...receipt,fingerprint:'changed'})),{code:'RECEIPT_MISMATCH'});assert.equal(journal.pending().length,1);
+ assert.equal((await journal.lookup('nodeOperation',{operationId:params.operationId},async()=>receipt)).state,'confirmed');assert.equal(journal.pending().length,0);
 });

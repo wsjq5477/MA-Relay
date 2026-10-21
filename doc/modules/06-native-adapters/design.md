@@ -1,28 +1,64 @@
 # M06 原生 Agent 适配器设计
 
-2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+## alpha.36整合边界
 
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+M06-F01：当前本地alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+
+## 普通被委派输入上下文
+
+M06-F01/F02：新普通子任务在中央按持久contextVersion=1给原需求附固定角色/交回结果/不继续委派的说明；八个目标仍接收普通message，沿用原生模型、账号和权限。collaboration=false且不注入MCP/TeamScope，原有独立工具配置保持。说明不复制父对话或私有身份，不是授权机制；历史无版本输入保持原文。[完整输入、恢复与证据](../../iterations/I07/delegation-context.md)。
+
+## 原生接入配置入口
+
+M06-F01/F02：Claude/Codex/OpenCode在原节点配置弹窗管理Bridge MCP；DSH Desktop/Web在其原节点管理已有服务连接。Hermes/Pi/DSH CLI只展示原生配置说明与安装位置，不提供未适配的MCP/服务/模型表单。配置入口可查看，不推定执行成功；DSH发现/认证错误指向机器页对应Agent配置。MCP所有权、冲突保留、先撤权后删除及原请求恢复契约不变。[当前流程与验证](../../iterations/I07/agent-row-configuration.md)。
+
+## MCP连接视图契约
+
+M06-F02：经典list_agents保留items，增加schema/readOnly/view、relationRevision与安全caller字段；不接受身份/筛选参数。工具说明区分当前委派授权与目标在线/空闲，工具缺失/调用失败不解释为空关系。经典7工具、小队18项及原生允许项保持，未新增原生协议或调用方能力。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
+
+## 安装提示与服务就绪
+
+M06-F01/F02：DSH Desktop/Web未保存原生服务连接与程序启动失败分开投影；连接提示DSH_CONNECTION_REQUIRED不是原生模型/账号故障。已保存连接的真实认证、网络或协议失败仍显示工具检查异常。OpenCode宿主须同步提供call/close；失败的管理接入只影响管理收据，不改变原任务终态或原生Session。[完整规则与分层验证](../../iterations/I07/agent-management-recovery.md)。
+
+## 经典MCP只读委派发现（M06-F02）
+
+未发布源码经典MCP现7项，增加list_delegations，小队18项保持；服务按原父/connectionId核对并只读列表。Claude --allowedTools及Codex逐工具approval_mode加入该只读项，reply_task保持原审批边界；指引区分台账与实时结果。OpenCode按原MCP发现schema；不增加SDK/ACP，不将Hermes/Pi/DSH翻为MCP调用方，不改原生模型/账号/目录权限。原生实际调用与新EXE另验。[契约和受控证据](../../iterations/I07/delegation-list.md)。
+
+## OpenCode 宿主生命周期
+
+M06-F01：OpenCode 的 stdio 与 daemon 工厂共用 DesktopHost 的 call/close 生命周期；保留同步宿主校验，不用放宽契约掩盖缺失方法。源码与本地 config.2 已包含，公开 alpha.35 的冻结源码未包含；[实现与验证](../../iterations/I07/opencode-host-lifecycle.md)。
+
+## 接入方式与新增Agent开发导航
+
+M06-F01/F05：当前逐Agent路径以[接入矩阵](../../agent-integration-matrix.md)为唯一状态表；[选型指南](../../agent-integration-guide.md)比较CLI/API/MCP/ACP/插件/SDK并给出后续建议，[开发指南](../../custom-agent-development.md)维护八入口、实际Host/静态注册与阶段交付步骤。推荐尚未实现的协议不能据文档开放能力；当前运行契约及所有既有行为保持。
+
+## DSH Desktop / Web 当前行为
+
+M06-F01/F05：新增dsh-desktop/dsh-web静态注册服务适配器，与原dsh headless分开。HTTP认证与Session控制沿用原生登录/模型/权限；直接会话、普通被委派、原Session续聊、取消/只读恢复可用，Bridge MCP/小队/权限和问题回复未声明。原生请求只发一次，逐轮按原requestId与turn持久事件结算。 [完整契约与证据](../../iterations/I07/dsh-desktop-web.md)。公开alpha.34不包含该能力；本地.dsh.3候选已构建并验证真实连接，Desktop模型两轮均RATE_LIMIT，独立SSH未验，见[本地交付](../../iterations/I07/dsh-exe-delivery.md)。
+
+发现阶段排除Distributed Shell/Dancer's shell同名命令，识别stdout/stderr与非零退出中的明确身份；不把无关程序的版本当成DSH，也不改变真正CLI启动失败时的PATH选择。Desktop安装和Linux Web profile是未配置服务的提示，不表示认证、服务在线或模型可用；已有停用配置不会重现为未配置安装。[现场原因与回归](../../iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)。
+
+当前HTTP客户端接受附Cookie的302/303，不跟随跳转；Typert命名参数list为`_request`，其他已支持Session方法为`request`。原requestId/轮次核对与unknown保护不改。[真实服务发现的问题及修复](../../iterations/I07/dsh-exe-delivery.md)。
+
+## OpenCode 1.x / 2.x 兼容修复
 
 M06-F01/F02/F04：OpenCode 新增独立 V1 原生生命周期和 MCP 配置，保留 V2；CLI 版本可识别与实际契约有效分别检查。不改变其他 Agent 的账号/模型、原生 Session 或台账归属。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
 
-## alpha.32 历史版本准入与管理作用域
+## 历史版本准入与管理作用域
 
-M06-F01：OpenCode安装检测可返回1.x健康，但新接入/执行只支持2.x；托管启动/旧配置恢复在serve前复验原安装，实际只读API契约继续检查，401/403与契约错误快速透传。其他适配器不受2.x限制。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+M06-F01：OpenCode接受可识别的1.x与2.x，其他主版本在启动前拒绝；托管启动/旧配置恢复在serve前复验原安装，实际只读API契约继续检查，401/403与契约错误快速透传。安装检测回报的健康状态不代表API或账号推理可用；其他适配器不受此限制。 [版本准入沿革](../../iterations/I07/version-management-recovery.md)、[1.x/2.x 兼容修复](../../iterations/I07/opencode-v1-compatibility.md)。
 
 ## 当前历史详情读取与错误作用域
 
-M06-F01/F02：原生adapter不新建模型/API层；历史task/conversation由MachineHost确认实际backend后只读原ID，空/旧targetAgent不把Codex/Claude读误导到根OpenCode。原生Session、返回轮次、取消和原请求规则不变。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+M06-F01/F02：原生adapter不新建模型/API层；历史task/conversation由MachineHost确认实际backend后只读原ID，空/旧targetAgent不把Codex/Claude读误导到根OpenCode。原生Session、返回轮次、取消和原请求规则不变。 [设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
 
-## 独立 MCP 配置与运行契约（2026-10-19）
+## 独立 MCP 配置与运行契约
 
 M06-F01/F04：Claude/Codex/OpenCode 2支持独立MCP接入的配置格式适配。Claude改mcpServers.agentbridge，Codex改mcp_servers.agentbridge标记块，OpenCode 2改mcp.servers.agentbridge；尊重各自配置目录变量，仅修改自己拥有的条目。生成JSON/TOML/JSONC独立文件，模型/登录配置保持；Hermes/Pi/DSH无兼容声明。Bridge托管任务仍用任务scope覆盖同名MCP，长期入口面向外部会话。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
 
-2026-10-19[Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)核对产品入口与公开驱动区别：Grok Build的headless/ACP列为CT-03候选，尚未注册；Claude Projects协调器、Dots和Grok Bot也没有因已有CLI适配而成为可直接操控入口。本轮无原生协议或产品代码变化。
+[Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)核对产品入口与公开驱动区别：Grok Build的headless/ACP列为CT-03候选，尚未注册；Claude Projects协调器、Dots和Grok Bot也没有因已有CLI适配而成为可直接操控入口。未增加原生协议或产品代码。
 
-2026-10-18当前适配方式和后续目标统一见[接入矩阵](../../agent-integration-matrix.md)：六种内置实际为原CLI或自写HTTP客户端，没有采用厂家SDK或ACP；MCP是Agent调用Bridge的方向。可选ACP试点、公共材料与上下文建议见[研究](../../iterations/I07/connectivity-research.md)，本轮仅文档核对，未增加驱动。
-
-2026-10-18能力补验：已验证同WSL三个独立Claude宿主的真实公共文档交付/独立复核/原主会话协调；开发与复核成员各一轮，主协调三轮，成员原生成功后才逐项验收，主原生成功后才总完成。原既有权限/事件/预算与接口不变；代码编译返修/独立SSH仍待验证。[范围与真实证据](../../iterations/I07/native-members.md)。
+当前适配方式和后续目标统一见[接入矩阵](../../agent-integration-matrix.md)：六种内置实际为原CLI或自写HTTP客户端，没有采用厂家SDK或ACP；MCP是Agent调用Bridge的方向。可选ACP试点、公共材料与上下文建议见[研究](../../iterations/I07/connectivity-research.md)，未增加驱动。
 
 Windows官方Codex npm启动器直接解析原包内原生EXE，隐藏参数不再丢失于JS二次spawn；节点仍记录原JS身份，缺原二进制拒绝，未改账号/模型。Claude空闲snapshot不定期重跑版本/auth，显式检查与提交前检查保留。[复现与验收](../../iterations/I07/desktop-polling.md)。
 
@@ -30,37 +66,34 @@ Windows 的 Core Controller、显式安装版本检查及 OpenCode serve 子进�
 
 原生Session字段只在非空白字符串且满足既有长度约束时作为绑定/变化证据；空值不建立绑定，也不清除已观察的有效Session。真实非空Session变化仍拒绝协作/后续激活，缺绑定仍不能自动续接。此alpha.28后源码增量未入EXE，[实际规则与验证](../../iterations/I07/blank-native-session.md)。
 
-## 2026-10-17：Windows未派发与持久化恢复
+## Windows未派发与持久化恢复
 
-M06-F01：Codex运行准备失败落原failed任务并保留原始错误；reconcile核对原job/accepted事件/worker.log启动边界，证据完整且未派发才结束原任务。其他原生适配、原账号/模型配置与MCP权限不变。 alpha.27当次源码与预发布；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
-## 2026-10-17：Windows原请求上下文恢复
+M06-F01：Codex运行准备失败落原failed任务并保留原始错误；reconcile核对原job/accepted事件/worker.log启动边界，证据完整且未派发才结束原任务。其他原生适配、原账号/模型配置与MCP权限不变。 [需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
+## Windows原请求上下文恢复
 
 M06-F01：MachineHost按原身份选择后端时，缺少agentId/owner.targetAgent不能与准备失败留下的空agentId上下文匹配；原请求仍只读查询原收据，既有原生账号/模型配置继承不变。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。
 
-2026-10-17能力补验：本机WSL Claude2.1.299自动主角色首轮及原Conversation/原生Session续接后的独立权限等待、观察后台重启、精确隔离Write允许和真实终态已验证；首轮拒绝证据保留于上一专项。不扩大为真实执行成员交接、Windows或独立SSH。见[最新权限证据](../../iterations/I07/resume-native-permission.md)。
+## 小队MCP与自动续接
 
-## alpha.23 / I07C首批当前实现
-
-2026-10-16：源码及GitHub预发布alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。
+源码已随 GitHub 预发布交付（版本与包摘要见[历史发布登记](../../iterations/release-ledger.md)）；I07A/B基础继续适用，完整I07C与I06C未准出。
 
 | 功能 ID | 功能 | 当前状态 |
 | --- | --- | --- |
-| M06-F02 | 小队MCP接入与手动原生执行 | I07A基础继续适用 |
-| M06-F03 | 任务作用域与版本报告工具 | I07B源码已实现，实际分层证据见报告 |
-| M06-F04 | 原生会话能力分级与自动续接 | I07C首批源码实现，证据层级见本模块报告 |
+| M06-F02 | 小队MCP接入与手动原生执行 | 已发布；小队基础行为继续适用 |
+| M06-F03 | 任务作用域与版本报告工具 | 源码已实现；实际分层证据见本模块报告 |
+| M06-F04 | 原生会话能力分级与自动续接 | 源码已实现；证据层级见本模块报告 |
 
-本批对Claude适配开放自动新轮/原会话续接，真实CLI2.1.299三轮自动主协调和重启原Session核对通过；运行中收信不支持，重要事项排队。Codex/OpenCode保留手动，不根据resume参数推定新小队已通过。工具扩展至16项，主角色可待本轮终态完成业务验收；新一轮注入新scope/指引，旧终态token失效。外部MCP仍自启动，不新增模型API或接管业务功能。
+Claude适配已开放自动新轮/原会话续接，真实CLI2.1.299三轮自动主协调和重启原Session核对通过；运行中收信不支持，重要事项排队。Codex/OpenCode保留手动，不根据resume参数推定新小队已通过。工具扩展至16项，主角色可待该轮终态完成业务验收；新一轮注入新scope/指引，旧终态token失效。外部MCP仍自启动，不新增模型API或接管业务功能。
 
 I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交接继续按[I07B完整行为](../../iterations/I07/task-handoff.md)执行；新流程、异常、预算、接口和源码见[I07C首批交付](../../iterations/I07/automation.md)。以下原功能继续适用。
 
-原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-12。当时实现基线：源码 `0.6.0-alpha.19`。稳定历史 Windows 便携包为 `0.5.0`，最新修复候选为 `0.6.0-alpha.18`；alpha.2 的主要 Windows/SSH 证据保留，alpha.3 的自然语言发现证据保留，历史 alpha.4 兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
+稳定历史 Windows 便携包为 `0.5.0`，当前发布状态见[历史发布登记](../../iterations/release-ledger.md)；早期版本的主要 Windows/SSH 证据与自然语言发现证据保留，兼容范围沿革见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
 
-本模块把用户机器上已有的 OpenCode、Claude Code、Codex CLI、Nous Research Hermes、Pi Coding Agent 和 DeepSeek Harness（DSH）接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。后三种是 2026-10-18 的未发布源码增量；真实模型和发布包边界见[扩展专项](../../iterations/I07/native-agent-expansion.md)。模型、供应商、账号和原生配置仍由原工具管理。
+本模块把用户机器上已有的 OpenCode、Claude Code、Codex CLI、Nous Research Hermes、Pi Coding Agent 和 DeepSeek Harness（DSH）接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。后三种为未发布源码扩展；真实模型和发布包边界见[扩展专项](../../iterations/I07/native-agent-expansion.md)。模型、供应商、账号和原生配置仍由原工具管理。
 
 ## 1. 用户看到的功能与边界
 
-**当前整合实现（2026-10-19，M06-F01/F02）**：OpenCode仍仅2.x，显示版本/启动成功不代表API/账号推理可用；旧已派发收据先查询，不按当前兼容状态隐藏。integrated.3冻结时小队工具17项；后续CT-05源码为18项，经典六工具与长期MCP作用域保持分开。Codex用户配置由smol-toml1.9.1读写，JSONC不变；解析器无原型表保留，原文件冲突/损坏仍拒绝覆盖。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
-
+M06-F01/F02：OpenCode接受可识别的1.x与2.x，其他主版本在启动前拒绝；显示版本/启动成功不代表API/账号推理可用。旧已派发收据先查询，不按当前兼容状态隐藏；小队工具与经典MCP工具、长期MCP作用域保持分开。Codex用户配置由smol-toml1.9.1读写，JSONC不变；解析器无原型表保留，原文件冲突/损坏仍拒绝覆盖。 [实现与实际证据](../../iterations/I07/integrated-source.md)。
 
 用户先在机器中接入一个已安装的 Agent 节点，再对该节点新建会话。接入节点不需要文件夹、模型或供应商；需要处理已有文件时，在新会话阶段填写目标机器上的目录。留空使用该节点默认执行目录，同节点/目录/模式/当前安装复用上下文；安装路径更新后新工作建立独立上下文，旧上下文的 executable、agentId 与原会话归属保持原值；不同新会话不保证文件隔离。
 
@@ -68,11 +101,11 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 
 | 功能 ID | 功能 | 当前设计与状态 | 详细设计 |
 | --- | --- | --- | --- |
-| M06-F01 | 原生配置继承与能力边界 | 六种工具静态注册；当前节点入口拒绝模型和供应商覆盖；能力按工具分别声明 | 本文及各子模块 |
-| M06-F05 | 三种原生扩展与自定义适配接口 | Hermes/Pi/DSH 直接会话；代码内受校验注册、宿主接口与示例；当前未发布源码 | 本文及[开发指南](../../custom-agent-development.md) |
-| M06-OC-F01 | OpenCode 真实执行 | HTTP API 创建/续用原生会话，轮询输出、工具和等待；支持经证据确认的取消与恢复 | [OpenCode](opencode/design.md) |
-| M06-CC-F01 | Claude Code 真实执行 | CLI `stream-json`、增量文本、工具许可、原生会话恢复和独立 worker | [Claude Code](claude/design.md) |
-| M06-CX-F01 | Codex 真实执行 | CLI `exec --json`、完成项输出、原生 thread 绑定和独立 worker；真实续聊存在原生版本限制 | [Codex](codex/design.md) |
+| M06-F01 | 原生配置继承与能力边界 | 源码已实现；六种工具静态注册；当前节点入口拒绝模型和供应商覆盖；能力按工具分别声明 | 本文及各子模块 |
+| M06-F05 | 三种原生扩展与自定义适配接口 | 源码已实现；Hermes/Pi/DSH 直接会话；代码内受校验注册、宿主接口与示例；未进入公开发布包 | 本文及[开发指南](../../custom-agent-development.md) |
+| M06-OC-F01 | OpenCode 真实执行 | 已发布；HTTP API 创建/续用原生会话，轮询输出、工具和等待；支持经证据确认的取消与恢复 | [OpenCode](opencode/design.md) |
+| M06-CC-F01 | Claude Code 真实执行 | 已发布；CLI `stream-json`、增量文本、工具许可、原生会话恢复和独立 worker | [Claude Code](claude/design.md) |
+| M06-CX-F01 | Codex 真实执行 | 已发布；CLI `exec --json`、完成项输出、原生 thread 绑定和独立 worker；真实续聊存在原生版本限制 | [Codex](codex/design.md) |
 
 本模块不负责 SSH 登录、机器身份或主/子节点关系。机器通信交给机器连接层；允许委派哪些节点交给协作层。工具被选为主 Agent 时，适配器注入受限的 AgentBridge MCP 连接和协作指引，实际推理由该工具完成。
 
@@ -80,9 +113,9 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 
 ### 小队材料MCP（M06-F02，CT-04/05）
 
-当前team-tools小队集合18项，新增只读team_context_packet；原生scope/权限注入机制不变，工具schema要求目标成员与明确四类版本引用，缺材料通过原工具回查。每类8项、总JSON/Markdown256 KiB；正文属于外部材料，不当作系统指令。调用不启动/续接/取消原生任务、不改原生配置，经典六工具与长期MCP分开；Hermes/Pi/DSH不因此获得小队能力。真实Claude2.1.303一次旧版包消费和重开只观察已验证，其他工具/Windows EXE/SSH未验。[完整当前契约](../../iterations/I07/context-packet.md)。下方CT-04当次记录保留原冻结范围。
+当前team-tools小队集合18项，新增只读team_context_packet；原生scope/权限注入机制不变，工具schema要求目标成员与明确四类版本引用，缺材料通过原工具回查。每类8项、总JSON/Markdown256 KiB；正文属于外部材料，不当作系统指令。调用不启动/续接/取消原生任务、不改原生配置，经典MCP工具与长期MCP分开；Hermes/Pi/DSH不因此获得小队能力。真实Claude2.1.303一次旧版包消费和重开只观察已验证，其他工具/Windows EXE/SSH未验。[完整当前契约](../../iterations/I07/context-packet.md)。下方CT-04记录保留原冻结范围。
 
-alpha.29之后源码的 `team-tools.cjs` 通过tools/list公布17项小队工具，新增只读 `team_materials`；`team_document`增加可选正整数revision。原生新scope沿原机制复制描述/指令和stdio MCP，经典主从六工具不变，未赋予Hermes/Pi/DSH小队MCP能力。成员先读短索引，再按文档ID/revision取正文；新字段须核对实际响应，旧后台忽略字段不能冒充历史读取。
+`team-tools.cjs` 通过 tools/list 公布小队工具，其中含只读 `team_materials`；`team_document` 支持可选正整数 revision。原生新scope沿原机制复制描述/指令和stdio MCP，经典主从六工具不变，未赋予Hermes/Pi/DSH小队MCP能力。成员先读短索引，再按文档ID/revision取正文；新字段须核对实际响应，旧后台忽略字段不能冒充历史读取。
 
 入口只读，不启动/续接/取消原生任务，不注入厂商SDK/模型配置。实际WSL Claude2.1.303一个Task成功调用两种新读取，其他原生工具和Windows/SSH尚未验；未构建新EXE。[契约与证据](../../iterations/I07/public-materials.md)。
 
@@ -131,7 +164,7 @@ M06-F01/F05：注册描述显式声明execution/delegation/bridgeMcp，以及res
 | 继续同会话 | 已实现；核验目录、配置和输入时间线 | 已实现；传原 Session ID，保留会话快照 | 已实现 `exec resume`；WSL 0.161.0 的真实续聊未通过 |
 | 工具许可 | 原生 permission 接口 | `can_use_tool` 控制消息 | 未适配为 Bridge 许可表单 |
 | 结构化表单 | 原生 form 接口；受支持字段校验 | `AskUserQuestion` 当前拒绝 | 未适配 |
-| 取消 | interrupt 收据 + 本轮 interrupted 证据 | 原控制通道 interrupt + 原进程退出 | 终止所属进程树/进程组 + 原进程退出 |
+| 取消 | interrupt 收据 + 该轮 interrupted 证据 | 原控制通道 interrupt + 原进程退出 | 终止所属进程树/进程组 + 原进程退出 |
 | 观察断开后继续执行 | Controller 原生服务 + 原记录恢复 | worker 持久运行，宿主重读日志 | worker 持久运行，宿主重读日志 |
 | 限工具连接验证 | 仅对 2.0.24 的禁止工具契约放行 | `--tools ""`，同时核对标记与工具使用数 | 未实现 |
 
@@ -145,7 +178,7 @@ Codex 的快照当前声明 `resume: true`，表示已实现调用入口，不�
 | --- | --- | --- |
 | Hermes | `chat --query-file - --format stream-json --no-restore-cwd`；原生 `session_id`，续聊传原 `--resume` | 原生 result 与进程退出共同核对；不指定模型/provider |
 | Pi | `--mode json --print --session-dir`；观察 session header ID，续聊先定位并核验唯一原会话文件，再传完整 `--session` 路径 | assistant 结果、原生轮次结束与退出共同核对；缺原文件不能静默创建替代会话 |
-| DSH | `--profile headless --json`；观察 `sessionId`，续聊使用原 `--session-id` | 本轮 completed、final 与退出共同核对；headless 使用原生环境/.env 配置，不搬运 web profile 凭据 |
+| DSH | `--profile headless --json`；观察 `sessionId`，续聊使用原 `--session-id` | 该轮 completed、final 与退出共同核对；headless 使用原生环境/.env 配置，不搬运 web profile 凭据 |
 
 三个适配器共用持久 `NativeCliHost` 及独立 worker，使用不同事件解析器。首批声明续聊/取消能力，Bridge permissions/forms/verification/teamCollaboration 为 false；不支持的协作 scope 在派发前拒绝。取消收据与原任务终态分开，原生结束/取消与原进程退出必须核对。宿主重开只恢复原事件观察；原 worker/终态无法确认时保留 unknown 与占用，不重发。能力声明表示实现入口，真实原生版本及模型验收以报告为准。
 
@@ -175,10 +208,10 @@ sequenceDiagram
     participant T as 原生工具
     U->>H: 请求 ID + 节点 + 需求 + 会话目录
     H->>J: 保存请求与原生调用意图
-    H->>T: 创建/续用原生会话并发送本轮需求
+    H->>T: 创建/续用原生会话并发送该轮需求
     T-->>H: 原生会话身份、输出、等待、完成证据
     H->>J: 保存事件与原生绑定
-    H-->>U: 本轮状态与回答
+    H-->>U: 该轮状态与回答
     Note over U,T: 连接丢失后按原 ID 查询；不自动补发需求
 ```
 
@@ -186,7 +219,7 @@ sequenceDiagram
 | --- | --- |
 | machineId / nodeId | 工具所在机器与安装节点；跨机器路由由上层保护 |
 | contextId | 节点 + 真实目录 + 直接/协作上下文形成的私有执行上下文 |
-| conversationId / taskId / executionId | Bridge 会话、本轮任务和本次执行，不等于原生 ID |
+| conversationId / taskId / executionId | Bridge 会话、该轮任务和该次执行，不等于原生 ID |
 | requestId / operationId | 需求和取消/回复的稳定去重键；同 ID 不同内容必须拒绝 |
 | native Session/thread/message | 原工具返回或预绑定的身份；查结果和续聊必须回到原宿主 |
 
@@ -200,7 +233,7 @@ sequenceDiagram
 
 因此“流式输出”在三个适配器中含义不同。Claude 能逐个 token/片段到达；OpenCode 是周期性读取已经生成的文本；Codex 当前主要在 `item.completed` 时产生可见回答，不是 token 级流式。
 
-连接验证的标记不逐片显示在执行过程里；验证和实际需求会话分开。最终回答以适配器确认的本轮结果为准。
+连接验证的标记不逐片显示在执行过程里；验证和实际需求会话分开。最终回答以适配器确认的该轮结果为准。
 
 ## 7. 错误与不确定性
 
@@ -234,14 +267,13 @@ sequenceDiagram
 
 ## 9. 验证入口
 
-2026-10-19当前WSL三工具已有[直接生命周期](../../iterations/I07/connection-native.md)及[六个普通委派方向](../../iterations/I07/connection-delegation.md)真实证据：实际回答、原Session回忆、取消终态、MCP调用方/被调用方及完整观察重开。能力静态声明不因这些指定版本通过而变成所有环境保证；新三工具、其他运输环境与新包仍分别验收。验收工具开发未改变本模块产品行为。
+当前WSL三工具已有[直接生命周期](../../iterations/I07/connection-native.md)及[六个普通委派方向](../../iterations/I07/connection-delegation.md)真实证据：实际回答、原Session回忆、取消终态、MCP调用方/被调用方及完整观察重开。能力静态声明不因这些指定版本通过而变成所有环境保证；新三工具、其他运输环境与新包仍分别验收。验收工具开发未改变本模块产品行为。
 
 [模块测试报告](test-report.md)汇总当前受控检查与历史真实工具证据。使用 OpenCode 的读写控制、Claude 的真实权限或 Codex 的新原生协议时，还须阅读各自子模块报告中的未验证项。
 
-
 共享 MachineHost 在 OpenCode 新上下文就绪阶段在 10 秒观察预算内轮询原生健康快照，期间零用户 Prompt；未健康在执行前拒绝。原生 Driver、账号/模型继承与权限仍由各适配器负责，不新增模型 API 层。I06B 受控就绪证据见 [M03 报告](../03-machine-network/test-report.md)，真实链范围见 [迭代验收](../../iterations/I06/graph-implementation.md)。
 
-## 当前维护与原操作恢复（alpha.13）
+## 当前维护与原操作恢复
 
 原生 Driver 与账号/模型继承方式不变。daemon/Coordinator 只接受原控制操作和原 execution/task 的可核对收据；原生 unknown、外来 operationId、缺收据不会变成成功。表单秘密答案在 UI 遮罩、中央台账脱敏；适配器自身原生能力仍以各子模块报告为准，未支持交互不假成功。
 
@@ -249,4 +281,4 @@ sequenceDiagram
 
 ## Codex终态约束
 
-Codex原生明确error/turn.failed不能被同轮turn.completed与退出码0覆盖。源码成功条件增加无明确原生错误；取消和原请求去重不变。未代表原生续聊或自动激活已验收；[本次实现与验证](../../iterations/I07/codex-terminal.md)。
+Codex原生明确error/turn.failed不能被同轮turn.completed与退出码0覆盖。源码成功条件增加无明确原生错误；取消和原请求去重不变。未代表原生续聊或自动激活已验收；[实现与验证](../../iterations/I07/codex-terminal.md)。

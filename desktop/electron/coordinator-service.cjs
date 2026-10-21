@@ -12,7 +12,7 @@ const { supportsTeamCollaboration, connectionCapabilities, isCollaborationCapabi
 const teamMethods=new Set(['team.contextPacket','team.materials','team.stopRun','team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
 const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview']);
-const methods = new Set(['mcp.status','mcp.install','mcp.remove','mcp.export','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
+const methods = new Set(['dsh.status','dsh.configure','mcp.status','mcp.install','mcp.remove','mcp.export','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
 // SSH state is a complete observation: absent errors revoke cached failures.
 // A live transport must not hide a failed business snapshot (e.g. RPC timeout).
 function mergeSshState(machine, state, snapshot = false) {
@@ -232,6 +232,7 @@ async function call(input) {
     connection().options.admissionCheck=machine=>{if(graphJournal.pending().some(r=>r.lane==='machine'&&r.params.machineId===machine.machineId))throw Object.assign(Error('原机器维护尚未确认，请查询原操作。'),{code:'DESKTOP_UNCONFIRMED'});};
     connection().options.executionAdmissionCheck=(machine,instance,params)=>{
       if(params.teamScope)teamService().admit(params.teamScope,instance.nodeId);
+      if(graphJournal.pending().some(row=>connection().managementBlocks?.(row,{...params,machineId:machine.machineId,nodeId:instance.nodeId,agentId:instance.instanceId,workspace:instance.workspace})))throw Object.assign(Error('原管理操作影响这个执行资源，请查询原操作；独立节点仍可使用。'),{code:'DESKTOP_UNCONFIRMED',executionNotDispatched:true});
       if(read('pending.json',[]).some(row=>['pending','unknown'].includes(row.state)&&
         connection().pendingBlocks?.(row,{machineId:machine.machineId,agentId:instance.instanceId})&&
         !(row.id===journalKey(params)&&row.machineId===machine.machineId)))throw Object.assign(Error('这个执行资源有未确认操作，请查询原请求；独立节点仍可使用。'),{code:'DESKTOP_UNCONFIRMED',executionNotDispatched:true});
@@ -278,7 +279,8 @@ async function call(input) {
       return {ok:true,result:await graphJournal.save(input.method,params,graphDispatch)};
     }
     if (sshMethods.has(input.method)) return {ok: true, result: await ssh.call(input.method, input.params)};
-    if(input.method==='graphPending')return {ok:true,result:graphJournal.pending()};
+    if(input.method==='graphPending')return {ok:true,result:graphJournal.pending().map(row=>({...row,blockedNodeIds:connection().managementBlocks&&connection().network?.nodes?connection().network.nodes.filter(node=>connection().managementBlocks(row,{machineId:node.machineId,nodeId:node.nodeId})).map(node=>node.nodeId):undefined}))};
+    if(['dsh.status', 'dsh.configure'].includes(input.method)) return {ok:true,result:await connection().call(input.method,input.params)};
     if(['collaborationOperation','graphLayoutOperation','nodeOperation'].includes(input.method))return {ok:true,result:await graphJournal.lookup(input.method,input.params,graphDispatch)};
     if(input.method==='manageNode'){
       const prepared=await connection().prepare(input.method,input.params);input={...input,params:prepared.params};
@@ -299,7 +301,8 @@ async function call(input) {
     }
     const p = prepared.params,
       mutation = ["ipc","nodeRequest"].includes(input.method) && mutating.has(p.op);
-    if(mutation&&graphJournal.pending().some(r=>r.lane==='machine'&&r.params.machineId===p.machineId))throw Object.assign(Error('原机器维护尚未确认，请查询原操作。'),{code:'DESKTOP_UNCONFIRMED'});
+    if(mutation&&graphJournal.pending().some(row=>row.lane==='machine'&&row.params.machineId===p.machineId))throw Object.assign(Error('原机器维护尚未确认，请查询原操作。'),{code:'DESKTOP_UNCONFIRMED'});
+    if(mutation&&['submit','continue','verify'].includes(p.op)&&graphJournal.pending().some(row=>connection().managementBlocks?.(row,p)))throw Object.assign(Error('原管理操作影响这个执行资源，请查询原操作；独立节点仍可使用。'),{code:'DESKTOP_UNCONFIRMED'});
     const previousPending = mutation && read("pending.json", []).find(r =>
       r.id === journalKey(p) && r.machineId === p.machineId && ["pending", "unknown"].includes(r.state));
     if (previousPending && (previousPending.payloadFingerprint||payloadDigest(previousPending.params)) !== payloadDigest(p))

@@ -10,6 +10,7 @@ const { AgentNetwork } = require('../electron/agent-network.cjs');
 const { MachineHost } = require('../electron/machine-host.cjs');
 const { ClaudeHost } = require('../electron/claude-host.cjs');
 const { createCoordinatorService } = require('../electron/coordinator-service.cjs');
+const {renderDelegation}=require('../electron/delegation-context.cjs');
 
 const terminal = status => ['succeeded', 'failed', 'cancelled'].includes(status);
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -26,6 +27,7 @@ function writeCli(executable, adapter, log) {
   fs.writeFileSync(executable, `#!${process.execPath}
 const fs=require('node:fs'),path=require('node:path'),readline=require('node:readline');
 const args=process.argv.slice(2),adapter=${JSON.stringify(adapter)},log=${JSON.stringify(log)};
+const contextPrefix=${JSON.stringify(renderDelegation({contextVersion:1,message:''}))};
 const emit=value=>process.stdout.write(JSON.stringify(value)+'\\n');
 if(args.includes('--version')){console.log(adapter+' 1.0.0');process.exit(0);}
 if(args[0]==='auth'){emit({loggedIn:true});process.exit(0);}
@@ -52,14 +54,15 @@ if(adapter==='claude'){
    emit({type:'session',version:3,id,cwd:process.cwd()});
   }
   if(adapter==='dsh')emit({type:'session',sessionId:id,cwd:process.cwd()});
-  if(prompt==='hold'){
+  const requirement=prompt.startsWith(contextPrefix)?prompt.slice(contextPrefix.length):prompt;
+  if(requirement==='hold'){
    process.on('SIGTERM',()=>setTimeout(()=>process.exit(143),500));setInterval(()=>{},1000);return;
   }
-  const text=adapter+': '+prompt+' / '+config.selection;
+  const text=adapter+': '+requirement+' / '+config.selection;
   if(adapter==='hermes'){emit({type:'text',text});emit({type:'result',session_id:id,exit_code:0,text});}
   if(adapter==='pi'){emit({type:'message_end',message:{role:'assistant',content:[{type:'text',text}],stopReason:'stop'}});emit({type:'agent_end',willRetry:false});emit({type:'agent_settled',aborted:false});}
   if(adapter==='dsh'){emit({type:'text',text});emit({type:'status',phase:'turn_end',reason:{kind:'completed'}});emit({type:'final',text});}
-  if(prompt==='race'){process.on('SIGTERM',()=>process.exit(0));setTimeout(()=>process.exit(0),1500);}
+  if(requirement==='race'){process.on('SIGTERM',()=>process.exit(0));setTimeout(()=>process.exit(0),1500);}
  });
 }
 `, { mode: 0o755 });
@@ -144,6 +147,7 @@ for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary d
   await assert.rejects(f.mcp('delegate', args), { code: 'DESKTOP_TRANSPORT' });
   const uncertain = f.network.network.delegations.find(item => item.message === args.message);
   assert.equal(uncertain.state, 'unknown'); assert.equal(uncertain.taskId, undefined);
+  assert.equal(uncertain.contextVersion,1);
   assert.equal(f.network.network.requests.find(item => item.requestId === uncertain.requestId).dispatched, true);
   await f.reopen();
   const recovered = await f.call('ipc', { op: 'request', machineId: f.member.machineId, requestId: uncertain.requestId });
@@ -167,9 +171,10 @@ for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary d
   assert.equal(original.taskId, child.taskId); assert.equal(original.status, 'succeeded');
   assert.equal((await f.mcp('task_result', { taskId: child.taskId })).status, 'succeeded');
   assert.equal(invocations(f.calls).filter(item => item.adapter === adapter).length, 1, 'reopening/read/deduplication never starts the original prompt again');
+  assert.equal(invocations(f.calls).find(item=>item.adapter===adapter).prompt,renderDelegation({contextVersion:1,message:args.message}));
 
   const held = await f.mcp('delegate', { ...args, requestId: 'held-child', message: 'hold' });
-  await until(() => invocations(f.calls), values => values.some(item => item.adapter === adapter && item.prompt === 'hold'));
+  await until(() => invocations(f.calls), values => values.some(item => item.adapter === adapter && item.prompt === renderDelegation({contextVersion:1,message:'hold'})));
   const cancellation = await f.mcp('cancel_task', { taskId: held.taskId, operationId: 'original-cancel' });
   assert.equal(cancellation.state, 'unknown');
   assert.equal(terminal((await f.mcp('task_result', { taskId: held.taskId })).status), false, 'the control receipt does not make the process terminal');
@@ -183,7 +188,7 @@ for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary d
   assert.equal((await f.mcp('cancel_task', { taskId: held.taskId, operationId: 'original-cancel' })).state, 'confirmed');
 
   const raced = await f.mcp('delegate', { ...args, requestId: 'race-child', message: 'race' });
-  await until(() => invocations(f.calls), values => values.some(item => item.adapter === adapter && item.prompt === 'race'));
+  await until(() => invocations(f.calls), values => values.some(item => item.adapter === adapter && item.prompt === renderDelegation({contextVersion:1,message:'race'})));
   await f.mcp('cancel_task', { taskId: raced.taskId, operationId: 'natural-finish-race' });
   assert.equal((await until(() => f.mcp('task_result', { taskId: raced.taskId }), value => terminal(value.status))).status, 'succeeded', 'an actual successful exit wins the cancellation race');
   assert.equal((await f.call('ipc', { op: 'operation', machineId: f.member.machineId, taskId: raced.taskId, operationId: 'natural-finish-race' })).state, 'confirmed');

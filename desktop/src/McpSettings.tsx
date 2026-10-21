@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plug } from "lucide-react";
 import { call } from "./api";
-import type { AgentNode, Machine } from "./types";
+import type { AgentNode } from "./types";
 interface McpStatus {
   enabled: boolean;
   installed: boolean;
@@ -16,33 +16,23 @@ const labels = {
   absent: "未添加",
   conflict: "配置冲突",
 };
-export default function McpSettings({
-  nodes,
-  machines,
-}: {
-  nodes: AgentNode[];
-  machines: Machine[];
+export default function McpSettings({node, disabled = false, onBusyChange}: {
+  node: AgentNode;
+  disabled?: boolean;
+  onBusyChange?: (busy:boolean) => void;
 }) {
-  const eligible = nodes.filter(
-    (n) =>
-      ["claude", "codex", "opencode"].includes(n.adapter) &&
-      !n.removed &&
-      !n.supersededBy &&
-      !machines.find((m) => m.machineId === n.machineId)?.removed,
-  );
-  const [selected, setSelected] = useState("");
-  const nodeId = eligible.some((n) => n.nodeId === selected)
-    ? selected
-    : eligible[0]?.nodeId || "";
+  const supported = ['claude', 'codex', 'opencode'].includes(node.adapter);
+  const nodeId = node.nodeId;
   const [status, setStatus] = useState<McpStatus | null>(null);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [revision, setRevision] = useState(0);
+  useEffect(() => { onBusyChange?.(busy); }, [busy, onBusyChange]);
   useEffect(() => {
     let current = true;
     setStatus(null);
     setNotice("");
-    if (nodeId)
+    if (supported && nodeId)
       void call<McpStatus>("mcp.status", { nodeId })
         .then((result) => {
           if (current) setStatus(result);
@@ -53,8 +43,9 @@ export default function McpSettings({
     return () => {
       current = false;
     };
-  }, [nodeId, revision]);
+  }, [nodeId, supported, revision]);
   async function manage(action: "install" | "remove" | "export") {
+    if (busy || disabled) return;
     setBusy(true);
     setNotice("");
     try {
@@ -97,24 +88,8 @@ export default function McpSettings({
         后台需保持运行。原生列表可能异步刷新；必要时重开 Agent，OpenCode
         还需重启其原生后台。
       </p>
-      {eligible.length ? (
+      {supported ? (
         <>
-          <label className="settings-row">
-            选择 Agent
-            <select
-              aria-label="MCP 目标 Agent"
-              value={nodeId}
-              disabled={busy}
-              onChange={(e) => setSelected(e.target.value)}
-            >
-              {eligible.map((n) => (
-                <option key={n.nodeId} value={n.nodeId}>
-                  {machines.find((m) => m.machineId === n.machineId)?.name} ·{" "}
-                  {n.name}
-                </option>
-              ))}
-            </select>
-          </label>
           <p role="status">
             {status
               ? labels[status.state]
@@ -142,11 +117,11 @@ export default function McpSettings({
             <button
               className="btn primary"
               disabled={
-                busy ||
+                busy || disabled ||
                 !status ||
                 status.conflict ||
                 status.installed ||
-                !eligible.find((n) => n.nodeId === nodeId)?.connected
+                !node.connected
               }
               onClick={() => void manage("install")}
             >
@@ -154,7 +129,7 @@ export default function McpSettings({
             </button>
             <button
               className="btn"
-              disabled={busy || !status?.enabled}
+              disabled={busy || disabled || !status?.enabled}
               onClick={() => void manage("remove")}
             >
               移除 Bridge MCP
@@ -162,9 +137,9 @@ export default function McpSettings({
             <button
               className="btn"
               disabled={
-                busy ||
+                busy || disabled ||
                 !status ||
-                !eligible.find((n) => n.nodeId === nodeId)?.connected
+                !node.connected
               }
               onClick={() => void manage("export")}
             >
@@ -205,7 +180,7 @@ export default function McpSettings({
           )}
         </>
       ) : (
-        <p>请先在机器页面接入支持 MCP 的 Agent。</p>
+        <p>这个 Agent 当前不支持 Bridge MCP 配置。</p>
       )}
       {notice && (
         <p role="status" className="settings-footnote">

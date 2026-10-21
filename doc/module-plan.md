@@ -1,6 +1,6 @@
 # 模块目录与修改影响
 
-更新：2026-10-12。模块按长期职责划分，编号不随迭代重新编号。一次迭代可以修改多个模块，同一个模块的设计和报告持续维护。
+模块按长期职责划分，编号不随迭代重新编号。一次迭代可以修改多个模块，同一个模块的设计和报告持续维护。
 
 | 模块 | 主要代码 | 设计与报告 | 修改时通常需要联动 |
 | --- | --- | --- | --- |
@@ -23,14 +23,14 @@
 
 修改任何模块必须同步 [整体功能目录](product-design.md)、该模块设计/报告和当次 [迭代记录](iterations/README.md)。具体开发顺序与完成条件见 [维护规则](development-guide.md)。
 
-## I07B源码落点
+## 任务板与小队任务源码落点
 
-2026-10-16 / alpha.22：M01新增[任务板](../desktop/src/TeamTaskBoard.tsx)，M02/M07/M08共用[任务业务](../desktop/electron/team-work.cjs)和[事务/身份](../desktop/electron/team-space.cjs)，M06[成员工具](../desktop/electron/team-tools.cjs)扩展至15项。任务分配/报告/授权交接与原生执行分层，I07C自动激活尚未实现；[完整交付](iterations/I07/task-handoff.md)。
+M01新增[任务板](../desktop/src/TeamTaskBoard.tsx)，M02/M07/M08共用[任务业务](../desktop/electron/team-work.cjs)和[事务/身份](../desktop/electron/team-space.cjs)，M06[成员工具](../desktop/electron/team-tools.cjs)扩展至15项。任务分配/报告/授权交接与原生执行分层，I07C自动激活尚未实现；[完整交付](iterations/I07/task-handoff.md)。
 
-## I07C首批源码落点
+## 授权事件与自动续接源码落点
 
-alpha.23 / 2026-10-16：M01[持续协作界面](../desktop/src/TeamAutomationSettings.tsx)，M02/M07/M08[事件激活器](../desktop/electron/team-automation.cjs)，M03/M06原上下文与新scope续接，M05/M10能力/离线资源一致性。完整行为和实际证据见[I07C首批交付](iterations/I07/automation.md)，不把首批当完整I07C准出。
+M01[持续协作界面](../desktop/src/TeamAutomationSettings.tsx)，M02/M07/M08[事件激活器](../desktop/electron/team-automation.cjs)，M03/M06原上下文与新scope续接，M05/M10能力/离线资源一致性。完整行为和实际证据见[自动续接交付](iterations/I07/automation.md)，不把首批当完整I07C准出。
 
-## I07C停止协调源码落点
+## 停止与终态核对源码落点
 
-alpha.24本地候选 / 2026-10-16：M01[停止进度](../desktop/src/TeamStopStatus.tsx)，M02/M07/M08[停止协调](../desktop/electron/team-stop.cjs)与原控制台账，M10核对新资源和普通EXE；数据格式仍3、daemon帧仍2。功能ID M01-F13/M02-F11/M07-F11/M08-F10，原有ID保持。完整证据与边界见[停止专项](iterations/I07/native-stop.md)。
+M01[停止进度](../desktop/src/TeamStopStatus.tsx)，M02/M07/M08[停止协调](../desktop/electron/team-stop.cjs)与原控制台账，M10核对新资源和普通EXE；数据格式仍3、daemon帧仍2。功能ID M01-F13/M02-F11/M07-F11/M08-F10，原有ID保持。完整证据与边界见[停止专项](iterations/I07/native-stop.md)。

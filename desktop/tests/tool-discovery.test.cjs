@@ -6,7 +6,7 @@ test('prefixed native versions are recognized and a broken earlier installation 
   const broken=path.join(home,'broken.cjs'),working=path.join(home,'working.cjs');
   fs.writeFileSync(broken,'process.exit(1);',{mode:0o755});
   fs.writeFileSync(working,"process.stdout.write('opencode v2.0.24\\n');",{mode:0o755});
-  const items=await scanTools({home,candidates:{claude:[],codex:[],opencode:[broken,working]}});
+  const items=await scanTools({home,candidates:{claude:[],codex:[],hermes:[],pi:[],dsh:[],opencode:[broken,working]}});
   assert.equal(items.length,1);assert.equal(items[0].healthy,true);assert.equal(items[0].version,'2.0.24');assert.equal(items[0].executable,working);
 });
 
@@ -97,6 +97,28 @@ test('a broken new Agent launcher stays unhealthy and is never executed as a she
   fs.writeFileSync(path.join(home,'pi.cmd'),'exit 0');
   const items=await scanTools({home,platform:'win32',environment:{Path:home}});
   assert.equal(items.length,1);assert.equal(items[0].adapter,'pi');assert.equal(items[0].healthy,false);assert.match(items[0].error,/TOOL_LAUNCHER/);
+});
+
+test('Distributed Shell is never reported as DeepSeek Harness, including nonzero version probes and stderr output', async t => {
+  const f=managedFixture(t),file=path.join(f.home,'dsh.cjs');
+  for(const [stream,exitCode] of [['stdout',1],['stderr',0]]) {
+    fs.writeFileSync(file,`process.${stream}.write("Distributed Shell / Dancer's shell version 0.25.10\\n");process.exit(${exitCode});`,{mode:0o700});
+    const items=await scanTools({home:f.home,platform:'linux',environment:{PATH:''},candidates:{claude:[],codex:[],opencode:[],hermes:[],pi:[],dsh:[file]}});
+    assert.deepEqual(items,[]);
+  }
+});
+
+test('a foreign dsh on PATH does not hide Harness, while a broken actual Harness keeps PATH selection', async t => {
+  const f=managedFixture(t),selected=path.join(f.home,'selected'),fallback=path.join(f.home,'.local/bin');
+  for(const folder of [selected,fallback])fs.mkdirSync(folder,{recursive:true});
+  const foreign=path.join(selected,'dsh.cjs'),harness=path.join(fallback,'dsh.cjs');
+  fs.writeFileSync(foreign,'process.stderr.write("Distributed Shell version 0.25.10");process.exit(1);',{mode:0o700});
+  fs.writeFileSync(harness,'process.stdout.write("dsh 0.2.1-rc.2");',{mode:0o700});
+  fs.symlinkSync(foreign,path.join(selected,'dsh'));fs.symlinkSync(harness,path.join(fallback,'dsh'));
+  const options={home:f.home,platform:'linux',environment:{PATH:selected},candidates:{claude:[],codex:[],opencode:[],hermes:[],pi:[]}};
+  let items=await scanTools(options);assert.equal(items.length,1);assert.equal(items[0].executable,harness);assert.equal(items[0].healthy,true);
+  fs.writeFileSync(foreign,'process.exit(1);');
+  items=await scanTools(options);assert.equal(items.length,1);assert.equal(items[0].executable,foreign);assert.equal(items[0].healthy,false);
 });
 
 test('current PATH Claude wins over newer installed versions and a broken current command is reported',async t=>{

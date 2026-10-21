@@ -78,6 +78,7 @@ class NativeCliHost {
         if (event.kind === 'binding_error') { const conversation = this.state.conversations.find(item => item.conversationId === task.conversationId); conversation.bindingError = event.text; this.event(task, 'progress', { text: event.text }); }
         if (event.kind === 'output') { task.lastSummary = event.text; this.event(task, 'output', { text: event.text, ...(event.delta ? { delta: true } : {}) }); }
         if (event.kind === 'progress') this.event(task, 'progress', { text: event.text });
+        if (event.kind === 'unknown') { task.status = 'unknown'; task.lastSummary = event.text; this.event(task, 'progress', {text: event.text}); }
         if (event.kind === 'terminal') this.finish(task, event.status, event.text, event.code);
       }
       const heartbeat = read(path.join(directory, 'heartbeat.json'), null);
@@ -132,6 +133,13 @@ class NativeCliHost {
       const operationId = params.operationId === undefined ? randomUUID() : params.operationId;
       const old = this.existingOperation(task, operationId, 'reconcile');
       if (old) return clone(old);
+      if (['dsh-desktop', 'dsh-web'].includes(this.adapter) && task.status === 'unknown') {
+        const directory = path.join(this.directory, 'runs', task.taskId);
+        const heartbeat = read(path.join(directory, 'heartbeat.json'), null);
+        let alive = false;
+        if (heartbeat?.pid) try { process.kill(heartbeat.pid, 0); alive = true; } catch { /* No live observer. */ }
+        if (!alive && fs.existsSync(path.join(directory, 'binding.json'))) this.startWorker(task, directory, this.state.agents.find(a => a.agentId === task.targetAgent).workspace, true);
+      }
       const reason = terminal.has(task.status) ? '已读取原生执行终态，未重新提交。' : '原后台缺少可确认的终态事件，保留原请求与占用；请核对原生记录。';
       const receipt = { operationId, taskId: task.taskId, kind: 'reconcile', state: terminal.has(task.status) ? 'confirmed' : 'unknown', data: { status: task.status, message: reason } };
       task.reconciliation = { time: now(), state: task.status, reason }; this.state.operations.push(receipt); this.save(); return clone(receipt);
@@ -149,7 +157,7 @@ class NativeCliHost {
     if (params.op === 'continue' && (!validIdentity(conversation?.sessionId) || conversation.profile !== profiles[this.adapter] || conversation.bindingError)) throw fail('CONVERSATION_CONFIG', '原生会话或执行协议尚未绑定，未重新提交。');
     if (this.state.tasks.some(item => !terminal.has(item.status))) throw fail('AGENT_BUSY', '此上下文仍有未结束任务。');
     const fresh = { taskId: this.adapter + '-task-' + randomUUID(), executionId: randomUUID(), conversationId: conversation?.conversationId || this.adapter + '-conversation-' + randomUUID(), targetAgent: agent.agentId, requestId: params.requestId, message: safe(params.message), status: 'accepted', createdAt: now(), updatedAt: now(), turn: (conversation?.turns || 0) + 1, lastSeq: 0, lastSummary: '已接收，正在启动 ' + this.name, events: [], offset: 0 };
-    const directory = path.join(this.directory, 'runs', fresh.taskId), job = { adapter: this.adapter, profile: profiles[this.adapter], executable: this.executable, workspace: agent.workspace, message: params.message, sessionId: conversation?.sessionId, sessionDirectory: path.join(this.directory, 'native-sessions') };
+    const directory = path.join(this.directory, 'runs', fresh.taskId), job = { adapter: this.adapter, profile: profiles[this.adapter], executable: this.executable, workspace: agent.workspace, message: params.message, requestId: params.requestId, sessionId: conversation?.sessionId, sessionDirectory: path.join(this.directory, 'native-sessions'), ...(['dsh-desktop', 'dsh-web'].includes(this.adapter) ? {origin: require('./dsh-connection.cjs').read(this.executable).origin} : {}) };
     // Validate exact Pi persisted binding before any durable intent or spawn.
     argumentsFor(job);
     write(path.join(directory, 'job.json'), job);
@@ -157,21 +165,31 @@ class NativeCliHost {
     if (conversation) { conversation.turns++; conversation.lastTaskId = fresh.taskId; conversation.updatedAt = now(); }
     else this.state.conversations.push({ conversationId: fresh.conversationId, targetAgent: agent.agentId, profile: profiles[this.adapter], title: safe(params.message).slice(0, 100), turns: 1, lastTaskId: fresh.taskId, updatedAt: now() });
     this.event(fresh, 'accepted'); this.save();
+    return this.startWorker(fresh, directory, agent.workspace);
+  }
+  startWorker(fresh, directory, workspace, observe = false) {
     let child, fd;
+    const launchFailure = error => {
+      if (!observe) return this.failLaunch(fresh, error);
+      fresh.lastSummary = 'DSH 原执行仍待核对；只读观察未能启动，原需求没有重发。';
+      this.event(fresh, 'progress', {text: fresh.lastSummary}); this.save(); return this.publicTask(fresh);
+    };
     try {
       const runtime = require('./worker-runtime.cjs').workerRuntime(this.directory), workerDirectory = path.join(this.directory, 'runtime', 'native-' + randomUUID());
       fs.mkdirSync(workerDirectory, { recursive: true, mode: 0o700 });
-      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
+      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs', 'dsh-connection.cjs', 'dsh-worker.cjs', 'graph-layout.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
       fd = fs.openSync(path.join(directory, 'worker.log'), 'a', 0o600);
-      child = spawn(runtime, [path.join(workerDirectory, 'native-cli-host.cjs'), '--native-cli-worker', directory], { cwd: agent.workspace, env: { ...(this.environment || process.env), ELECTRON_RUN_AS_NODE: '1' }, detached: true, windowsHide: true, stdio: ['ignore', fd, fd] });
-      child.once('error', error => { this.chain = this.chain.then(() => this.failLaunch(fresh, error)).catch(() => {}); }); child.unref();
-    } catch (error) { if (child) throw error; return this.failLaunch(fresh, error); }
+      child = spawn(runtime, [path.join(workerDirectory, 'native-cli-host.cjs'), '--native-cli-worker', directory, ...(observe ? ['--observe'] : [])], { cwd: workspace, env: { ...(this.environment || process.env), ELECTRON_RUN_AS_NODE: '1' }, detached: true, windowsHide: true, stdio: ['ignore', fd, fd] });
+      child.once('error', error => { this.chain = this.chain.then(() => launchFailure(error)).catch(() => {}); }); child.unref();
+    } catch (error) { if (child) throw error; return launchFailure(error); }
     finally { if (fd !== undefined) try { fs.closeSync(fd); } catch { /* Not native execution evidence. */ } }
     return this.publicTask(fresh);
   }
   close() { clearInterval(this.timer); }
 }
 async function runWorker(directory) {
+  const original = read(path.join(directory, 'job.json'), null);
+  if (['dsh-desktop', 'dsh-web'].includes(original?.adapter)) return require('./dsh-worker.cjs').run(directory, {observe: process.argv.includes('--observe')});
   const job = read(path.join(directory, 'job.json'), null), emit = data => fs.appendFileSync(path.join(directory, 'events.jsonl'), JSON.stringify(data) + '\n', { mode: 0o600 });
   const beat = () => write(path.join(directory, 'heartbeat.json'), { time: now(), pid: process.pid }); beat(); const heartbeat = setInterval(beat, 1000);
   let child, cancelRequested = false, terminationSent = false, windowsKill, killDeadline = 0, ended = false, oversized = false, buffer = '', failure = '', diagnostics = '';

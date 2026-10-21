@@ -2,6 +2,11 @@ const { createAdapterRegistry } = require('./agent-adapter-contract.cjs');
 // Code-owned registration only. Deferred imports keep discovery metadata usable
 // without loading MachineHost, a native process, or a provider SDK.
 const adapters = createAdapterRegistry([
+  ...['dsh-desktop', 'dsh-web'].map(id => ({
+    id, name: id === 'dsh-desktop' ? 'DSH Desktop' : 'DSH Web', commands: [id], npmEntrypoints: [], driver: 'cli-http',
+    capabilities: {execution: true, delegation: true, bridgeMcp: false, resume: true, cancellation: true, permissions: false, forms: false, verification: false, teamCollaboration: false},
+    createHost: options => new (require('./native-cli-host.cjs').NativeCliHost)({...options, adapter: id}),
+  })),
   {
     id: 'claude', name: 'Claude Code', commands: ['claude'],
     npmEntrypoints: ['@anthropic-ai/claude-code/bin/claude.exe', '@anthropic-ai/claude-code/cli.js'],

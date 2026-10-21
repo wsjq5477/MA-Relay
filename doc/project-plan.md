@@ -1,94 +1,20 @@
 # 迭代路线与当前交付
 
-2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
-
-2026-10-20发布前准备记录 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](iterations/I07/alpha34-release.md)登记；当时仍在发布准备阶段，旧包/标签范围不变。
-
-2026-10-20 **0.6.0-alpha.33已预发布**：PR #11已合并，标签冻结`ecc47d5679dcc7a1de0a5d746c018f68e169cf4e`，EXE与校验附件已公开并完成匿名完整下载核验。本次为公开alpha.32上的issue #10独立补丁，不含主工作区CT-04/独立MCP/CT-05或后续OpenCode1.x未发布驱动。维护上传的进度错误不再中断SFTP，最终台账保存失败仍不发送原维护输入。 [交付、校验与升级边界](iterations/I07/maintenance-persistence.md)。
-
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
-
-本轮解决官方 1.x 被 2.x 门禁拒绝的实际接入缺口，当前工作源码已实现双协议和受控/官方 CLI 验证。公开 alpha.32、integrated.3 的旧包范围不变；Windows 原生/独立 SSH/真实模型验收及新包分发尚不属于本次已有证据，完整 I06C/I07C 继续未准出。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。
-
-## 2026-10-20：维护上传进度与持久化修复（issue #10）
-
-issue #10完成进度/最终保存边界修复，准备独立alpha.33补丁；不把CT-04/CT-05未提交增量纳入该公开包，不替代完整I06C/I07C准出。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
-
-2026-10-20后续源码完成[CT-05桌面选材与导出](iterations/I07/context-packet-ui.md)：明确目标成员及文档/任务/消息/历史产物版本，核对后文字预览、复制、MD/JSON本机下载。观察到任务修订/成员变化或切工作时旧包失效，不发送/授权/执行。桌面581/581、Windows生产前端9组通过，模型0；未打新包，公开alpha.32与本地integrated.3旧冻结范围不变。
-
-2026-10-20当前源码新增[CT-05明确选择的材料包](iterations/I07/context-packet.md)：同一工作有效成员、明确文档修订/任务轮次/消息/产物版本，只读JSON/Markdown；每类8项、总响应256 KiB，不派发/授权/已读/搬原生Session。WSL桌面576/576、Windows定向14/14，真实Claude2.1.303一个Task读取旧版并重开不重放。公开仍alpha.32，本地integrated.3冻结EXE不含本片，未打新包；以下按原日期保留历史范围。
-
-2026-10-19当前推进点：[源码整合与本地候选](iterations/I07/integrated-source.md)完成。alpha.30–32已发布修复现与CT-04/MCP在同一工作源码，核心51/51、桌面570/570、Windows前端26组通过；本地integrated.3包已校验，公开仍alpha.32。下一个功能为产物/显式交接与CT-05；发布仍需独立提交/版本与公开分发核验，不能重用alpha.32标签或把Git HEAD说成已更新。
-
-## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
-
-issues #8/#9隔离修复已实现，alpha.32已预发布，修复前失败与修复后回归均记录。OpenCode策略按本轮用户要求改为仅2.x；普通EXE和公开完整下载核验已完成；后续为用户现场复验，不推进CT-04或完整I06C/I07C准出。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
-
-alpha.32已完成普通EXE及公开完整下载核验，标签冻结`fcdad72fba454bf731cf66df54bc1caf2a06e0a2`，EXE与SHA-256附件公开可取；后续文档补录不移动标签。[发布与升级边界](iterations/I07/version-management-recovery.md)。
-
-## 2026-10-19：协作兼容修复（alpha.31已预发布）
-
-本次issue #7按alpha.30隔离修复，alpha.31已公开分发Windows EXE与校验附件；CT-04/MCP未提交工作不纳入，完整I06C/I07C未准出。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
-
-## alpha.30已预发布：历史详情读取恢复
-
-alpha.30已发布源码修复解决issue #6历史会话误走根OpenCode及全局同步污染；GitHub已预发布alpha.30，包/分发已验证，完整I06C/I07C未准出。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
-
-2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
-
-2026-10-19当前增量：[CT-04桌面阅读/复制/MD下载](iterations/I07/public-materials-ui.md)完成，桌面541/541与Windows前端八组通过，模型0。公开alpha.31来自独立修复分支，本工作区仍a872275/alpha.29派生；发布前须整合alpha.30/31安全路由/兼容修复，不能覆盖它们。下一功能为历史产物/显式交接及CT-05；新工具真实环境、EXE/独立SSH继续另验。
-
-## 独立 MCP 文件与原生配置管理（2026-10-19）
-
-I07-MCP01 / AB-F02/F12/F13：独立Bridge MCP配置文件、三种Agent原生用户配置增删、长期接入撤权与外部委派归属已实现。桌面537/537、核心45/45、类型/构建/lint通过；真实Claude2.1.303/Codex0.162.1/OpenCode2.0.24列表增删通过，Windows生产前端4组通过。均使用隔离配置，模型调用0；真实新EXE/独立SSH仍未验，公开alpha.29冻结范围不变。[需求、开发、验收和首次失败](iterations/I07/mcp-installation.md)。
-
-2026-10-19当前推进点：[CT-04首片](iterations/I07/public-materials.md)只读材料索引/Markdown和指定文档修订已完成源码、525项回归及一个真实Claude Task；未进入较早发布的alpha.29。下一增量为桌面阅读/复制及产物/交接入口，再明确CT-05选定版本上下文；有真实环境再补Hermes/Pi/DSH与独立SSH。CT-03仍为候选，自动续接/多用户不作为当前目标。
-
-2026-10-19较早：冻结源码23d256e已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
-
-2026-10-19：CT-02继续完成[CT-02真实MCP委派](iterations/I07/connection-delegation.md)，当前WSL三工具已覆盖全部六个普通委派方向，真实主/子/结果/汇总及完成后恢复通过。新增验收工具/保护回归，产品运行代码未改；不是六工具/所有运输环境全部准出。下一步在真实原生环境可用后补新三工具，并冻结当前源码本地Windows候选及验证包/真实IPC；CT-03/04/05继续保持各自候选状态。
-
-2026-10-19研究补充：[Claude Projects、Dots与Grok Bot](iterations/I07/projects-dots-bots-research.md)建议在既有CT-04/05中细化公共索引、产物目录、可见交接与按需读取上下文；Grok Build作为CT-03的另一ACP目标候选。仅研究，未启动实现或改变CT-01/02真实交付状态；不引入自动规划、多用户或云端平台目标。
-
-2026-10-19：CT-02首批已完成当前WSL Claude/OpenCode/Codex真实直接回答、同Session续聊、原任务取消和重开观察，9个原任务且未重放。[CT-02首批真实验证](iterations/I07/connection-native.md)。下一优先为当前生产路由上的真实发现/委派/读结果方向，以及有已安装原生环境后的Hermes/Pi/DSH生命周期；新EXE/独立SSH仍另验。CT-02没有整体准出，自动续接/多用户继续不作为当前目标。
-
-## 2026-10-18：当前后续目标以连接通路为准
-
-2026-10-19进展：CT-01能力口径/界面与后台准入/原关系拒绝恢复已实现并通过受控验收（桌面503/503、核心45/45、Windows5组）。[CT-01实际交付](iterations/I07/connection-capabilities.md)。下一优先CT-02逐工具真实执行/受委派/取消恢复；新三种当前未检出常规安装，需可用原生环境才计真实验收。CT-03/04/05仍为后续设计，不因本片成为已交付功能。
-
-用户明确核心是让Agent发现、调用、观察和控制其他Agent；自动续接、多用户不是本轮目标。下方历史I07C/自动协调安排保留原日期，不继续用其完整程度判断核心产品完成度。
-
-后续目标按[接入矩阵](agent-integration-matrix.md)的CT-01至CT-05推进：先统一可执行/可被委派/可调用Bridge的能力口径及六种原生实测；在既有公共文档/任务/消息上明确MD视图和可移植上下文；ACP以OpenCode为首个可选通用驱动试点，再用第二种目标Agent证明复用收益。不是本轮已经实现或运行的结果，完整研究见[ACP/Multica与通信上下文](iterations/I07/connectivity-research.md)。不新增模型API、业务编排或云平台目标，现有恢复与发布边界保留。
-
-2026-10-18已补[真实三原生成员公共文档链](iterations/I07/native-members.md)：五次自动Claude回合，开发/复核成员均真实，主协调同会话三轮，总验收在原生终态后生效；恢复观察没有新回合。当时后续候选为真实代码编译/返修、独立SSH/产物可达性和故障矩阵；现按页首连接目标推进，完整I07C/I06C仍未准出。
-
-2026-10-18继续推进原生扩展合并缺口：[小队准入与原核对收据](iterations/I07/native-integration-guards.md)。本片为 poll.4 冻结后的未发布源码；真实原生执行成员/独立 SSH 与完整 I07C/I06C 继续逐项验收。
-
-2026-10-18新增桌面空闲修复候选：消除状态轮询中的周期安装探测，稳定机器与Agent展示。独立版本 `0.6.0-alpha.28.poll.4`；公开alpha.28、既有ui.2及完整I06C/I07C边界保留。[需求、源码、验证与本地交付](iterations/I07/desktop-polling.md)。
-
-2026-10-18：当前Agent发现新增升级合流修复，纳入未发布源码验证；不改变ui.2冻结包或GitHub alpha.28公开范围。 [需求、开发与实际验证](iterations/I07/current-agent-discovery.md)。
-
-2026-10-18 I07 新增原生适配源码交付：Hermes/Pi/DSH 直接会话、六种本地图标、自定义 Agent 注册接口/示例/开发指南。当前不改变 alpha.28/ui.2 已有冻结包；后续准出仍需三种真实原生版本/模型与新 EXE/独立 SSH 验收。[交付范围与证据](iterations/I07/native-agent-expansion.md)。
-
-## 当前修复交付
-
-alpha.28：issue #5远端持久拒绝只读恢复；GitHub已预发布alpha.28，新包与普通EXE已验证分发，完整I06C/I07C未准出。[当次范围与证据](iterations/I06/daemon-rejection-recovery.md)。
-
-更新：2026-10-17。完整功能与模块设计见 [资料入口](README.md)；这里维护交付顺序，不另建一套架构。
+这里维护交付顺序与后续目标，不另建一套架构；完整功能与模块设计见 [资料入口](README.md)。逐轮历史与发布记录见 [迭代目录](iterations/README.md)。
 
 ## 1. 当前基线
 
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | 0.6.0-alpha.34，标签冻结1af4dab；[EXE、校验与实际边界](iterations/I07/alpha34-release.md)，匿名完整下载一致 |
-| 当前自动回归 | alpha.34冻结核心56/56、桌面592/592，构建/类型/lint/文档通过；Windows包内Core受控5组，普通整合/旧后台升级EXE各5组。真实模型/现场范围不扩大 |
-| 当前源码 | alpha.34全整合源码1af4dab已提交并推送，新Tag与EXE绑定；包含CT-04/CT-05/MCP、OpenCode双协议与alpha.33维护修复。后续仅发布材料更新，不移动冻结标签 |
-| 独立 Linux 验证 | 2026-10-12 实际 Windows 密钥安装/两轮同 native Session、密码/DPAPI、停止重开回读；既有断线存活证据保留 |
-| alpha.24历史自动回归 | 2026-10-16 / alpha.24：核心45/45、最终串行桌面233/233、Windows契约38/38与界面7组通过，lint/类型/构建通过；真实WSL Claude原生取消及后台观察重启3组通过。最终包33 CJS/78 core/1390 Linux资源匹配，普通EXE7组通过；证据层级见[停止专项](iterations/I07/native-stop.md)，本机手动Claude权限等待/允许/拒绝已补验，见[权限专项](iterations/I07/native-permission.md)；自动主角色首轮权限已[补验](iterations/I07/auto-native-permission.md)，原会话后续轮权限亦已[补验](iterations/I07/resume-native-permission.md)；执行成员交接/独立SSH及完整I07C未准出。 |
-| I06A 发布 | 候选 EXE 已生成并验收，正式 0.6.0 仍需 6B/C 准出；见 [6A 验收](iterations/I06/acceptance.md) |
-
-alpha.19 历史 win-unpacked/普通便携 EXE 的资源与实测保持原证据；2026-10-15 alpha.20候选已重建EXE并核对资源，普通Windows无调试EXE/合成配置拒绝恢复及关闭重开4组通过；不以历史包证明新修复。
+| 最新 Windows 预发布 | **0.6.0-alpha.35**，公开元数据指向 `b5de577`；本轮未重下EXE。alpha.35独立修复已整合至alpha.36本地源码；[当前核对边界](iterations/I07/delegation-list.md) |
+| 本地整合候选 | **0.6.0-alpha.36**，含公开alpha.35独立修复与当前全部增量；[文件、校验与实际验证](iterations/I07/alpha36-delivery.md)，未公开GitHub |
+| 当前自动回归 | 子任务上下文冻结源码桌面667/667、定向121/121、Windows受控36/36及Core构建通过；[来源与限制](iterations/I07/delegation-context.md)。核心57/57、普通EXE等仍是.config.2原冻结证据，本片未跑上游模型/EXE |
+| 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
+| 当前源码未发布增量 | [DSH Desktop/Web 服务入口](iterations/I07/dsh-desktop-web.md)（受控验证）；[CT-07只读委派列表](iterations/I07/delegation-list.md)与[当前连接视图](iterations/I07/agent-connections.md)（源码）；CT-06/08及CT-07余项仍按原规划 |
+| I06A/I06B | 6A 候选已验收（见 [6A 验收](iterations/I06/acceptance.md)）；6B alpha.6 主要范围已验收（见 [实施报告](iterations/I06/graph-implementation.md)） |
+| I06C | alpha.10 首批、alpha.13/15/16 维护收尾已交付（见 [I06C 收尾](iterations/I06/final-delivery.md)）；完整范围与正式 0.6.0 未准出 |
+| I07 | I07A/B 与 I07C 首批已实现（见 [I07A 交付](iterations/I07/delivery.md)、[I07B 任务交接](iterations/I07/task-handoff.md)、[I07C 首批](iterations/I07/automation.md)）；完整 I07C 未准出 |
 
 ## 2. 迭代和长期模块的关系
 
@@ -100,146 +26,31 @@ alpha.19 历史 win-unpacked/普通便携 EXE 的资源与实测保持原证据�
 | I03B | 原会话续聊、控制、恢复与补传 | 已实现；原生限制单列 | M06、M07、M09 |
 | I04 / I04B–G | Windows 看板、双环境、原生控制与稳定性修复 | 历史发布与限制见迭代报告 | M01、M03、M06、M07、M10 |
 | I05 | 工具节点与受限主从协作 | 0.5.0 已发布，四条 Windows/WSL 真实协作链 | M03、M06、M08 |
-| I06A | 独立 Coordinator、SSH、Linux daemon、直接会话 | 0.6.0-alpha.2 候选已交付，Windows/SSH 主要流程通过；专项覆盖限制见验收 | M01–M07、M10 |
-| I06B | 节点图、真实授权连线、跨物理设备双向协作与旧父权限修复 | alpha.6 主要范围已验收；alpha.8 拖动修复、alpha.9 合并页面与节点管理，专项见当次报告 | M01、M03、M08 |
-| I06C | 完整故障与指标、版本切换/回滚、最终候选包与准出 | 用户批准开发；alpha.10 首批通过，完整范围仍在开发 | M01、M02、M03、M04、M05、M07、M08、M10 |
-| I07 | 外部智能体登记、小队公共空间、授权交接与持续协调 | 用户批准开发，I07A/B已实现；I07C首批已实现，完整接入/故障/停止范围未准出，不替代I06C准出 | M01、M02、M03、M06、M07、M08 |
+| I06A | 独立 Coordinator、SSH、Linux daemon、直接会话 | 候选已交付，Windows/SSH 主要流程通过 | M01–M07、M10 |
+| I06B | 节点图、真实授权连线、跨物理设备双向协作与旧父权限修复 | 主要范围已验收 | M01、M03、M08 |
+| I06C | 完整故障与指标、版本切换/回滚、最终候选包与准出 | 首批与维护收尾已交付，完整范围未准出 | M01–M05、M07、M08、M10 |
+| I07 | 外部智能体登记、小队公共空间、授权交接与持续协调 | I07A/B 与 I07C 首批已实现；完整接入/故障/停止范围未准出，不替代 I06C 准出 | M01、M02、M03、M06、M07、M08 |
 
-## 3. I06A 收尾的可验收交付
+## 3. 后续目标与顺序
 
-| 顺序 | 要完成的功能/验证 | 准出证据 |
+alpha.36已按三方内容整合公开alpha.35独立修复与当前工作区；当前优先完成冻结包和Windows验证，不以源码测试替代真实模型或独立SSH准出。
+
+当前后续目标以"Agent 发现和操控其他 Agent 的通路"为核心；自动续接、多用户、模型管理、云平台不作为目标。连接类目标统一定义在 [接入矩阵](agent-integration-matrix.md) §4。
+
+| 顺序 | 目标 | 内容与前置 |
 | --- | --- | --- |
-| 1 | 当前源码的 Windows 接入流程与秘密保护 | 真实 SSH 登录，不以 mock 代替密码/加密私钥/ssh-agent/DPAPI |
-| 2 | 可从界面区分关闭窗口与停止中央 | 关闭窗口后台仍活；主动停止后台入口可操作，远端任务事实保留 |
-| 3 | 远端任务、续聊与原请求查询 | 两轮 Task、同 Conversation、两轮 native Session ID 对比、断线重连不重发 |
-| 4 | 新 Windows 候选 EXE | 包内最终代码与离线资源一致，普通启动/重开、来源与历史不丢；记录摘要 |
-| 5 | 统一资料与当次验收报告 | 模块报告与整体状态同步，I06A 未测项清楚，不能预先标整个 I06 完成 |
+| 1 | I07C 收尾 | 六工具真实覆盖（Hermes/Pi/DSH 真实直接执行与被委派验收）、DSH Desktop/Web 原实例验证、真实执行成员链与完整停止；[矩阵](agent-integration-matrix.md) §4 CT-02 行 |
+| 2 | CT-06 通用 MCP 调用方 | 先只读核对各工具原生 MCP 客户端与插件扩展点，再按独立MCP模式逐工具接入；静态 `bridgeMcp` 验收后翻真；[规划](iterations/I07/agent-centric-operations.md) |
+| 3 | CT-07 Agent 侧连接操作面 | [委派列表](iterations/I07/delegation-list.md)、[当前连接视图](iterations/I07/agent-connections.md)、[子会话最小上下文](iterations/I07/delegation-context.md)均已源码/受控覆盖；最新667/667/Windows36/36，整合包与真实原生消费仍待验 |
+| 4 | CT-08 多主关系与连接管理 | 单主关系泛化为按身份 relations、连接管理工具与 envelope 确认流；先重构后行为分片验收 |
+| 5 | CT-03 可选 ACP 试点 | OpenCode ACP Client 试点，保留现有驱动；第二种 Agent 复用同一 Client 后再决定扩大 |
+| ∥ | I06C 剩余 | 完整故障矩阵、指标、最终包与正式 0.6.0 准出；按 [I06 验收矩阵](iterations/I06/testing.md) 复验 |
 
-SSH 编辑/移除与事件过期补偿已在 alpha.10 的 6C 首批实现并按当次报告验收；无 Node 全新独立服务器安装、注销清理及完整升级/回滚仍待后续，不能扩大首批证据。
+CT-04 公共材料与 CT-05 选材包的源码已实现（见矩阵 §4 各行状态），实际发送/收件与跨工具消费待开发。
 
-## 4. 后续范围
+## 4. 阅读与变更入口
 
-节点图是协作关系的实际编辑界面，不是静态展示。B 交付需要真实鼠标连线、保存权限、刷新不吞草稿、重开布局与跨机器的真实委派闭环。
-
-C 交付需要按 [I06 验收矩阵](iterations/I06/testing.md)复验恢复、控制与发布指标。高延迟链路 77.8 秒安装是观测值，不代表已满足 20 样本状态同步 p95 指标。
-
-用户已批准[I07](iterations/I07/goals.md)；I07A登记、小队、公共文档/消息和手动原生执行已实现，Bridge不实现业务能力。I07B任务板/授权交接已实现，Claude持续协调/自动续接首批已实现，准确范围见[I07C首批交付](iterations/I07/automation.md)。Harmes 的具体接口、Webhook/IM、云端中央、多用户和项目同步仍为候选，未纳入本次 I06 的已交付能力。
-
-I07细化按三个切片建议推进：[I07A接入/公共空间 → I07B任务与直接交接 → I07C通知续接及主角色持续跟进](iterations/I07/development.md)。[需求R01–R12](iterations/I07/requirements.md)、[设计](iterations/I07/design.md)和[20项验收计划](iterations/I07/testing.md)已记录，I07A采用SQLite事务与现有MCP连接，分层实测见[交付](iterations/I07/delivery.md)；I07B已完成本片任务交接验证；I07C首批Claude主协调通过；完整I07C和真实自研/独立SSH场景仍待实现或验证。
-
-## 5. 阅读与变更入口
-
-- [迭代目录与报告](iterations/README.md)：保留历次约定与证据。
+- [迭代目录与报告](iterations/README.md)：历次约定与证据的唯一索引。
 - [模块目录](module-plan.md)：长期职责与联动范围。
 - [整体测试报告](testing.md)：当前验收基线。
 - [同步维护规则](development-guide.md)：修改模块时同时更新当前设计与迭代。
-
-## 当前 6A 候选验收结果
-
-6A 收尾清单中的主要流程现已执行，细分环境/未测项以 [候选报告](iterations/I06/acceptance.md)为准。下一阶段是 6B，不能据候选通过把 6B/C 标完成。
-
-## 最新修复候选
-
-0.6.0-alpha.3 包含 Codex 自然语言发现指引和 MCP 工具名展示。桌面 89/89、真实 Codex → Claude 发现/委派/结果/连接图及包资源比对通过，范围和加载新后台方式见 [修复交付](iterations/I06/codex-discovery-fix.md)。alpha.2 的历史主要 SSH 流程没有因新包构建被记为今天重新执行；独立跨设备协作仍归 I06B。
-
-## 最新兼容复用候选
-
-alpha.4 已收录可信 alpha.2/alpha.3 daemon 清单，新客户端可校验并复用原安装，客户端升级与远端后台版本分开。真实用户已有服务器的握手、重连和 OpenCode 发现通过，远端 PID/身份/current 保持、无模型需求；[交付](iterations/I06/ssh-compatible-reuse.md)。本次不是 daemon 自动升级或全故障准出。
-
-
-alpha.5 修复机器在线后仍保留旧版本报错的缓存合并问题，新增当前错误保留的反例，保留已交付 alpha.4 的可信远端复用。源码/包与本次验证见 [交付](iterations/I06/ssh-error-recovery.md)，节点图/跨设备完整验收仍归 6B/C。
-
-## 当前 I06B 交付候选
-
-用户已授权 alpha.6 / DEV-B01–B05；图、授权/布局事务、原父权限实现与当次实际验证见 [实施](iterations/I06/graph-implementation.md)。后续为 I06C 的完整故障、性能/游标恢复、连接维护、升级回滚及正式准出；未测项不能因图已可交互而抹去。
-
-
-6B 最终包原生正向通过，反向服务恢复后以原请求完成；桌面 110/110，图 10 组、普通 EXE、资源校验分别通过。现场失败与人工服务恢复限制保留在报告，6C 自动恢复与正式准出未算完成。
-
-## 当前 I06C 开发顺序
-
-2026-10-13 / alpha.10：机器 SSH 连接编辑、确认断开/移除、原身份恢复、已观察历史持久化/阅读及事件游标缺口分页补偿已实现；桌面 136/136、真实本机 TCP SSH/生产 daemon 隔离恢复和 Windows 界面分别通过。完整 I06C、升级回滚和正式 0.6.0 未准出。 详见 [I06C 首批](iterations/I06/machine-management.md)。
-
-| 顺序 | 模块 / 交付 | 状态与验收 |
-| --- | --- | --- |
-| 首批 | M01/M02/M03/M04/M05/M07/M08：连接维护、历史与事件恢复 | alpha.10 首批专项通过，真实 Agent/独立服务器未本次重跑 |
-| 下一批 | DEV-C01/C02：中央/daemon 重启、丢任务/控制回应、旧代次与取消竞态 | 原 ID/原生 Session 对账；重复执行为零；原生效果不能由 confirmed 推定 |
-| 随后 | DEV-C03：安全升级、健康验证、失败回滚与停止/卸载边界 | 源码已实现；真实 daemon/process 七项通过；独立服务器实际结果见当前验收 |
-| 最后 | DEV-C04/C05/C06：部署专项、指标、最终包/真实双向链与准出 | 全需求按证据逐项验收；正式 0.6.0 仍未完成 |
-
-## GitHub 候选程序交付
-
-2026-10-13：alpha.9 Windows x64 EXE 已作为 GitHub 预发布附件提供，[下载程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)、[发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.9)。用户无需自行编译或安装 WSL/Node.js 来运行 AgentBridge。稳定历史版本仍为 0.5.0；这次发布不代表完整 I06C 或正式 0.6.0 准出，也没有将本地 alpha.10 源码/程序同步到该标签。
-
-2026-10-14：当前源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 和 alpha.15 Windows x64 EXE 已推送至 [GitHub master](https://github.com/wsjq5477/MA-Relay/commit/15b7c9ea9c3d53802797b655e0cffaf365658574) 并作为 [alpha.15 预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.15)提供。EXE 129,851,710 字节，SHA-256 `d1052ed5cd7893a9842ee96b6bf87c40b2ec6a5389ac59ef28ad5eb528e0ac4f`。根 43/43、桌面 159/159、文档检查与包一致性校验通过；本次未重跑真实 Windows 用户流程。完整 I06C 与正式 0.6.0 尚未准出。
-
-本次完成已有 alpha.9 EXE、SHA256SUMS.txt 的公共下载，以及源码入口和分发证据同步。只交付下载通道，不改变当前迭代开发基线；升级/回滚与完整准出继续按原路线推进。见 [发布记录](iterations/I06/github-release.md)。
-
-## 当前 alpha.13 收尾状态
-
-alpha.13 已实现后台可信升级/回滚/停止/卸载、原维护恢复、控制收据校验与敏感表单脱敏。桌面 150/150、维护 7 项与源码/包一致性通过；独立 Linux 原生链和最终准出仍按 [I06C 收尾](iterations/I06/final-delivery.md) 的实际证据更新。 历史发布和各次原生证据保留原日期，候选包构建不等于正式发布。
-
-## 2026-10-14：SSH 上传失败诊断与安装入口恢复
-
-AB-F06/F17，M01/M04/M10：alpha.14 区分安全的 SFTP 失败类别、按实际 ACK 字节计进度并等待关闭确认；明确上传失败后可重新检测和批准原安装，unknown 不显示重装入口。桌面 155/155、上传专项 5/5（含本机真实 TCP SSH/SFTP）和 Windows 受控响应界面 2 组通过。用户另一台机器到原服务器未重测；本次不自动改变 GitHub alpha.9 附件或完整 I06C 准出。包与 EXE 的分层实际结果见 [alpha.14 上传诊断与恢复](iterations/I06/ssh-upload-recovery.md)。
-
-2026-10-14 alpha.13 实机补充：真实升级、两轮及两方向通过；L2 受控执行器故障、Windows 原生取消/普通窗口分别通过。Linux 原生文件/恢复仍待原终态核对，完整 I06C 不准出；不释放原 unknown。当前上传候选 alpha.14 保持自己的证据范围，见 [收尾](iterations/I06/final-delivery.md)。
-
-当前剩余项已收敛为原 alpha.13 Linux 文件/恢复终态：维护实机全链已在冻结 alpha.16 空闲 profile 通过，alpha.17 工程/程序通过；需为原服务提供足够内存再按原 ID 恢复，不能另建任务冒充准出。见 [本次最终记录](iterations/I06/maintenance-launch-recovery.md)。
-
-## alpha.18 Windows 运行缓存与原提交恢复
-
-I06-FIX-RUNTIME-01 / AB-F07/11/17：排除共享缓存清单自引用，兼容旧清单，保留损坏副本；核对原未派发意图恢复旧 unknown，不重发需求；查询显示结果和固定原因。桌面 176/176、根 43/43 及类型/构建/lint 已通过；Windows 与最终包的实际结果、命令和未测范围以 [专项交付](iterations/I06/runtime-recovery.md) 为准，完整 I06C 未准出。
-
-当前 alpha.18 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt)、[源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。源码标签绑定 `1f0d9ef`，独立分支未合入 master；分发只证明对应附件核验，不扩大为完整 I06C 准出。详见 [发布记录](iterations/I06/github-release.md)。
-
-## alpha.19 Linux CLI 发现修复
-
-I06-FIX-DISCOVERY-01 / AB-F02/07/17：补充非交互 Linux daemon 的常见用户态安装目录，PATH 优先/坏候选回退及 Windows npm 发现保留。发现回归 6/6；真实 Codex 0.162.1 经生产 daemon/本机隔离 TCP SSH 版本发现通过，模型 0；用户独立 Ubuntu 未更新或实测。完整工程、当前包、使用步骤和范围见 [专项](iterations/I06/linux-cli-discovery.md)。
-
-## alpha.19 OpenCode 二次发现与 Windows 配置写入
-
-I06-FIX-DISCOVERY-02 / AB-F02/07/17：共享扫描核验原安装，不替换已删除/损坏路径；Windows Core 配置使用可写句柄刷新/原子替换，Linux目录刷新保留。核心45/45、桌面181/181及Windows隔离PE/进程6组通过；模型0，用户另一台电脑未实测。与LinuxCLI修复统一候选/包校验，完整I06C未准出，最终发布事实见合并交付。详见 [需求/实现/验收](iterations/I06/opencode-discovery.md)。
-
-2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
-
-当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
-
-
-未发布源码修复（2026-10-15）：未确认请求按原节点/共享目录保护，独立节点可新建/续聊；准备拒绝持久化与旧NOT_CONFIGURED严格恢复。桌面188/188、定向40/40、桌面类型/构建、Windows Edge受控4组通过。完整范围与未测项见[专项](iterations/I06/pending-isolation.md)，GitHub alpha.19发布基线不变。
-
-alpha.20候选打包完成：核心45/45、桌面串行188/188、lint/类型/构建、包资源核对及Windows普通EXE4组/受控界面4组通过。首次并行维护测试失败与复验保留，GitHub已公开分发，附件和完整下载摘要核验通过。
-
-当前分发以alpha.23[I07发布记录](iterations/I07/github-release.md)为准；alpha.20及更早源码/分发阶段记录保留为历史。
-
-## I07当前推进点
-
-I07C首批已实现授权/预算、重要事件激活、Claude原主会话自动续接和后台恢复；[I07C首批交付](iterations/I07/automation.md)记录真实三轮主协调、受控外部执行成员及包状态。下一片补真实原生执行成员链、其他接入能力、权限等待与完整停止。沿用已批准范围继续推进，不把首批声明为完整I07C或I06C准出。
-
-## I07C当前停止切片
-
-alpha.24本地候选实现用户停止本项工作、撤销协作访问、原取消与原任务双重核对；包含已有未发布等待可见性。核心45/45、最终串行桌面233/233、Windows契约38项和受控界面7组通过，真实WSL Claude原生停止3组通过；最终包/普通EXE以[当片验收](iterations/I07/native-stop.md)为准。下一片真实执行成员自动交接、完整原生权限等待处理及独立环境故障专项，不将本片当完整I07C或发布。
-
-2026-10-17源码增量：[不完整任务回应保护](iterations/I07/incomplete-receipt.md)，受控专项45/45通过；原alpha.24 EXE及其包一致性证据仍对应此前冻结源码，未包含补丁。下一轮构建须重新核对源码/包，完整I07C/I06C仍未准出。
-
-## Windows原请求恢复增量
-
-2026-10-17：alpha.25本地候选修复MachineHost空Agent身份匹配；专项48/48、串行桌面243/243、Windows契约17/17通过。最终包与用户故障机边界见[专项](iterations/I06/windows-context-recovery.md)。不扩大完整I07C/I06C准出，GitHub保持alpha.24。
-
-2026-10-17当前源码增加[首次续接Conversation绑定保护](iterations/I07/intended-conversation.md)，受控专项48/48通过；未重建EXE或改写GitHub alpha.25附件，下次打包须重新核对源码。真实执行成员交接及完整I07C/I06C仍待验。
-
-2026-10-17当前源码增量：[空白原生Session保护](iterations/I07/blank-native-session.md)，受控专项51/51通过；未重建EXE，GitHub alpha.28附件保持原文件。真实执行成员交接、独立SSH与完整I07C/I06C仍待验证。
-
-## 2026-10-17：当前桌面体验专项
-
-I07并行桌面体验：先交付统一壳层/机器概览和图切换，再同步任务、会话、设置及小队展示；源码已实现，全桌面373/373及其中新增53项渲染门槛通过，视觉/EXE证据按[专项](iterations/I07/ui-redesign.md)分层记录。只改变M01展示与本机UI偏好，不扩展自动执行范围，不自动发布或替换GitHub alpha.28。
-
-2026-10-18源码增量：[当前会话异常的业务验收保护](iterations/I07/acceptance-native-binding.md)，受控相关53/53通过，未重建EXE。UI重构与真实执行成员/跨机器验收保持各自范围，完整I07C/I06C未准出。
-
-2026-10-18完成[当前工作区整体验证](iterations/I07/integration-baseline.md)：核心45/45、串行桌面375/375与工程检查通过。当前工作区仍未打包/发布；新UI交互、真实EXE、执行成员自动交接与独立SSH保持未验，不放行完整I07C/I06C。
-
-## 2026-10-18：UI继续开发与Windows验收
-
-用户批准后补齐菜单/焦点/长名、会话发送可见性、后台断连和迟到详情保护，以及会话异常可见提示。UI冻结源码桌面381/381、Windows页面5组/12图、状态10组/8图、小队状态3组/3图和原图鼠标键盘10组通过，模型0；本地Windows候选与普通EXE字节/边界以[交付专项](iterations/I07/ui-redesign.md)为准。旧alpha.28发布附件保持，未扩大完整I06C/I07C或独立SSH/真实模型验收。
-
-本片最终本地候选alpha.28.ui.2的包一致性及普通Windows EXE 4项通过，未发布GitHub。08:50冻结后的并行原生适配器/图标开发不包含在此候选和测试结论中，具体源码边界见上述交付专项。

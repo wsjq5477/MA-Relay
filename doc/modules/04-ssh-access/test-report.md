@@ -1,26 +1,30 @@
 # M04 SSH 接入测试报告
 
-## 2026-10-20：维护上传进度与持久化修复（issue #10）
+## alpha.36整合边界
+
+2026-10-21 / WSL Node22.23.1：本轮全量核心57/57、桌面676/676，类型/lint/前端构建通过。各模块共享计数不相加；包核验、Windows契约144/144、界面26组与普通EXE7组通过，具体以专项为准，真实模型/用户profile/独立SSH未验。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+
+## 维护上传进度与持久化修复（issue #10）
 
 M04-F04/F06：本轮WSL专项7/7、相关42/42与核心51/51，Windows最终7/7及SSR66/66通过；最终全量/真实TCP/普通EXE/公开下载逐层记录。用户profile及独立服务器未验，共享计数不跨模块叠加。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
 
-## 2026-10-19：整合源码与本地候选
+## 整合源码与本地候选
 
 T-M04-149 / M04-F04/F05/F08：核心51/51、桌面570/570零跳过（定向85/85及兼容15/15是相关子集），根类型/lint/构建与桌面构建通过。Windows前端26组/模型0，按历史/门禁/管理/材料/MCP分别记录；最终integrated.3普通Windows EXE五组通过：原历史/文档/MCP导出、窗口/后台重开、持久资源和原unknown保留，原生请求0；这是隔离合成profile，不是真实Agent模型或用户现场。包42 CJS/78核心/1446 Linux条目匹配，未部署用户SSH或跑真实模型。各模块共用计数不相加；首次夹具/原型失败与原历史证据保留。[版本、源码、所有原始结果和限制](../../iterations/I07/integrated-source.md)。
 
-## 2026-10-19：issues #8/#9受控验证
+## issues #8/#9受控验证
 
 M04-F03/F05：核心51/51、桌面543/543（含版本/管理/原路由回归）、最后定向7/7及工程检查通过；Windows95项原路由/9项管理CJS、前端专项4组/既有10组及普通EXE5组通过；分发另按专项逐项记录。无真实模型/用户profile/独立服务器升级，不跨模块累加共享计数。 [需求、实现、验证与边界](../../iterations/I07/version-management-recovery.md)。
 
-## 2026-10-19：issue #7 协作兼容修复
+## issue #7 协作兼容修复
 
 M04-F03/F05：本轮仅受控HTTP/CLI、生产后台无推理、TCP SSH及Windows交付验收；用户现场/独立SSH/真实模型未测。实际执行结果、首次失败与最终工程/包证据统一引用专项，共享计数不跨模块叠加。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
 
-## 2026-10-19：历史详情路由与局部错误
+## 历史详情路由与局部错误
 
 T-M04-150 / M04-F04/F05/F08：alpha.30隔离修复；合成路由6项、受控TCP SSH1项、Windows纯CJS91/91、Linux SSR63/63，新生产前端7组和既有10组通过，模型0。最终桌面529/529、核心45/45、lint/类型/构建通过；38 CJS/78 core/1401 Linux资源匹配145个冻结源文件。普通Windows无调试EXE合成原两轮/Session只读与关闭重开/后台重启4组通过。分发实际结果及首次失败统一见[当次专项](../../iterations/I07/history-detail-recovery.md)；共享计数不跨模块叠加，用户故障profile/独立服务器未复测。
 
-## 2026-10-18：UI 本地候选的旧 alpha.28 可信清单
+## UI 本地候选的旧 alpha.28 可信清单
 
 M04-F04/F05/F08：`0.6.0-alpha.28.ui.2` 本地候选在独立源码快照中收入原 alpha.28 Linux manifest，原清单 digest 为 `b06a14fe3716c2df46cb665e21f137d05aab6046a611cb0275c5cadbc365d00d`，来源对应[原 alpha.28 包报告](../../../artifacts/daemon-rejection-recovery/2026-10-17/package.json)。没有修改主工作区版本/lock或原发布包，也没有放宽未知版本信任。
 
@@ -35,20 +39,20 @@ M04-F04/F05/F08：`0.6.0-alpha.28.ui.2` 本地候选在独立源码快照中收�
 
 候选完整版本、字节摘要和失败保留见[当次交付](../../iterations/I07/ui-redesign.md)。GitHub仍为原alpha.28公开附件；本次清单收入不改变完整I06C/I07C未准出的状态。
 
-## 2026-10-17：SSH持久拒绝恢复
+## SSH持久拒绝恢复
 
 T-M04-128：alpha.28已预发布，WSL Node22.23.1/Windows Node24.19.0，合成台账和受控TCP SSH，模型0。最终桌面317/317、核心45/45、Windows契约93/93，lint/类型/构建通过；真实TCP SSH丢响应/daemon重启1项及普通Windows无调试EXE合成验证6组通过，34 CJS/78 core/1395 Linux资源匹配源码。发布以[当次实际记录](../../iterations/I06/daemon-rejection-recovery.md)为准，不推定用户现场恢复。历史记录不计为本次重测。
 
-## 2026-10-17：Windows恢复专项
+## Windows恢复专项
 
 T-M04-128：2026-10-17 / WSL Node22.23.1与Windows Node24.19.0 / alpha.27已预发布，模型0。Codex恢复10/10、共享原子写入10/10、网络最终50/50、Windows契约86/86；全桌面最终运行288/288、核心45/45及工程检查通过；新增alpha.26兼容文件另验10/10。共享计数不跨模块累加，Windows为受控目录/执行器，不是用户故障或真实模型。首轮限制/维护ENOENT与未测范围保留；普通EXE/包/发布结果以[当片报告](../../iterations/I06/windows-start-persistence.md)后续实际记录为准。
-## 2026-10-17：alpha.24 Linux 后台重连专项
+## Linux 后台重连专项
 
 实际冻结alpha.24→alpha.26的受控TCP SSH/SFTP链4组、Windows普通EXE5组通过；Linux独立资源归档1392条目一致，独立服务器/真实原生任务迁移未测。
 
 alpha.26 预发布：SSH 兼容/安全/维护/恢复 36/36 通过，WSL Linux / Node22.23.1，受控 TCP SSH 和真实隔离后台测试、模型0；原 alpha.25 确认缺少 alpha.24 信任清单，候选匹配原 alpha.24/alpha.25 digest。源码回归不等于用户独立服务器已恢复；实际包/Windows/端到端结果及失败证据统一见[专项报告](../../iterations/I06/ssh-alpha24-upgrade.md)。
 
-## alpha.19 Linux CLI 发现专项
+## Linux CLI 发现专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。
 
@@ -57,11 +61,11 @@ alpha.26 预发布：SSH 兼容/安全/维护/恢复 36/36 通过，WSL Linux / 
 
 
 
-## alpha.8 兼容资源边界
+## 兼容资源边界
 
 原 alpha.7 manifest 先与历史交付 digest 核对，再收入 alpha.8 资源。27 后台 CJS 与 1368 个 Linux 文件、既有受控回归见 [拖动修复](../../iterations/I06/graph-drag-fix.md)。本次没有原用户 SSH 重连、升级 daemon 或模型任务；历史原生与认证结果仍按原日期/版本保留。
 
-## alpha.7 历史兼容资源核对
+## 历史兼容资源核对
 
 T-M04-24 / M04-F04：2026-10-13，alpha.6 Linux manifest 与历史交付 digest 核对后加入 alpha.7 可信兼容清单。完整桌面 116/116 包含既有 SSH/SFTP 受控回归；新包资源与摘要见 [图优化](../../iterations/I06/graph-usability.md)。本次没有对用户原 SSH 服务器重连、安装、升级或提交模型需求；真实 SSH/认证结果继续按原日期/版本保留。
 
@@ -128,7 +132,7 @@ node desktop/tests/windows-i06a-ssh-ui.cjs http://127.0.0.1:4206
 
 修改 SSH/安装时同步 [设计](design.md)、本报告、原始证据和当期迭代。新增通过项必须注明使用哪个系统、认证方式、发布包以及是否实际调用模型，不能把受控加密或 mock 回答改写成真实验收。
 
-## 2026-10-12：6A 收尾
+## 6A 收尾
 
 | 用例 ID | 功能 | 本次运行 | 结果 |
 | --- | --- | --- | --- |
@@ -137,7 +141,7 @@ node desktop/tests/windows-i06a-ssh-ui.cjs http://127.0.0.1:4206
 
 窗口安装、节点接入与真实两轮回复按 [Windows 报告](../../../artifacts/I06A-real/report.json) 当前 status 判定。此前“Windows/DPAPI 未实测”的结论仅适用于整理前历史基线；本节与 T-M04-13/14 是当前结果。
 
-## alpha.4 兼容已安装后台
+## 兼容已安装后台
 
 T-M04-20 / M04-F04/F05/F06：2026-10-12，alpha.4，新增 `ssh-compatibility.test.cjs` 四项受控场景，桌面 93/93 通过。[TAP](../../../artifacts/ssh-compatibility/2026-10-12/desktop-tests.tap)核验旧发布只读复用、未知版本/摘要/别名拒绝、探测后变化/归属/符号链接拒绝及清单/远端文件核验失败拒绝。
 
@@ -150,7 +154,7 @@ T-M04-22 / M04-F05/F06：真实原 SSH 连接经 alpha.4 完成协议/身份/版
 
 T-M04-23 / M04-F05/F06：2026-10-12 / alpha.5，新增 2 项受控状态回归、全桌面 95/95，通过。旧版本报错在恢复成功后撤销并持久化，旧目录成功快照不继承错误，新的 RPC/主机密钥错误仍显示；原连接/接入节点/任务历史保持。Windows 当前前端的受控快照卡片渲染 2 项通过。原用户状态只读核验，不是新包实际远端重连或模型验收。[本次测试与范围](../../iterations/I06/ssh-error-recovery.md)、[TAP](../../../artifacts/ssh-error-clear/2026-10-12/desktop-tests.tap)、[UI](../../../artifacts/ssh-error-clear/2026-10-12/ui.json)。
 
-## alpha.9 当前节点管理专项
+## 当前节点管理专项
 
 T-M04-25 / M04-F04/F05：2026-10-13 / 0.6.0-alpha.9。范围：alpha.9 包中已核对摘要的 alpha.8 信任清单；未触发用户远端自动升级。逐项实际结果、环境、脚本、原始证据与未测范围见 [节点管理完整验收](../../iterations/I06/node-management.md)。工程证据为本次 [桌面 TAP](../../../artifacts/node-management/2026-10-13/desktop-tests.tap)；窗口/程序/包状态以该报告实际结果为准，历史表不充当本次重测。原生 SSH/模型链保留 alpha.6 历史结果，本次未重跑、不改用户 profile、不提交 Prompt。
 
@@ -158,34 +162,34 @@ T-M04-25 / M04-F04/F05：2026-10-13 / 0.6.0-alpha.9。范围：alpha.9 包中已
 
 T-M04-26 / M04-F02/F03/F05/F06/F07/F08：2026-10-13。范围：machine.updateSsh/remove/restore/disconnect/reconnect 接收 operationId、connectionId、expectedRevision 和可选原 machineId；operation 查询原收据。updateSsh config 为白名单 name/host/port/username/authKind/keyPath，修订冲突拒绝。绑定 SSH 用户不可变；改认证来源解除旧引用并删除密文，remove 清除保存凭据，known_hosts 与远端安装保留。原主机公钥、daemonId 与 UID 核对跨地址继续有效。配置与 lifecycleOperations 同文件原子提交；状态 removed 不自动重连。cursorGap 后全量快照且 drain 全部分页，无任务重放。 本次实际工程、隔离 TCP SSH、Windows 界面/包与未测项见 [6C 首批验收](../../iterations/I06/machine-management.md)；[桌面 TAP](../../../artifacts/I06C/2026-10-13/desktop-tests.tap)和当次报告是当前证据，alpha.6 双向真实 Agent 链保留原日期/版本。未改用户 profile、未升级用户 daemon、无真实模型任务，不将首批标为完整 I06C。
 
-## alpha.13 当前验证
+## 维护预览与控制收据验证
 
-T-M04-19 / M04-F08：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受控回归 **150/150** 通过（全工程总数，模块之间不重复相加）。场景：machine.daemonPreview 返回可信当前、目标、previous 版本及 previewId；machine.maintainDaemon 校验 expectedRevision、摘要和动作，先完整暂存并验证目标，再持久化原意图、暂停自动重连，发送一次远端维护启动。控制器复制到私有 state/maintenance-runtime/<digest>，使卸载后仍可查询原收据。远端回应丢失仅 machine.operation 查询；中央重开仍保留同一 remoteInput 与操作。凭据失效显示 needs_credentials，输入后继续查询原维护，不能另起升级。暂存/认证明确未发送失败为 DAEMON_STAGE_REJECTED。
+T-M04-19 / M04-F08：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受控回归 **150/150** 通过（全工程总数，模块之间不重复相加）。场景：machine.daemonPreview 返回可信当前、目标、previous 版本及 previewId；machine.maintainDaemon 校验 expectedRevision、摘要和动作，先完整暂存并验证目标，再持久化原意图、暂停自动重连，发送一次远端维护启动。控制器复制到私有 `state/maintenance-runtime/<digest>`，使卸载后仍可查询原收据。远端回应丢失仅 machine.operation 查询；中央重开仍保留同一 remoteInput 与操作。凭据失效显示 needs_credentials，输入后继续查询原维护，不能另起升级。暂存/认证明确未发送失败为 DAEMON_STAGE_REJECTED。
 
 证据：[完整桌面 TAP](../../../artifacts/I06C-final/2026-10-14/desktop-alpha13.tap)、[维护实际 daemon/process 7 项](../../../artifacts/I06C-final/2026-10-13/maintenance-tests.tap)、[包内容核验](../../../artifacts/I06C-final/2026-10-14/package-alpha13.json)。维护测试使用真实生产 daemon、Unix socket、独立进程和磁盘，原生 host 受控、无模型调用；不能替代独立服务器或真实原生控制。Windows 窗口、原生 Session 与双向链、使用/卸载、命令和限制统一见 [逐项验收](../../iterations/I06/final-delivery.md)，未实际执行项不得计为通过。
 
-## alpha.14 上传修复验证
+## 上传修复验证
 
 T-M04-20 / M04-F04/F06：2026-10-14 / alpha.14。桌面受控 155/155，上传专项 5/5（含真实本机 TCP SSH/SFTP，使用隔离服务器和数据），Windows Edge 受控响应界面 2 组通过；原生提交 0，未连接用户 Linux。打开/写入/关闭失败、权限/空间/通道关闭/超时、分片/乱序 ACK、原 ID 重新检测和批准、unknown 不提供重装分别有证据。当前包、普通 EXE、原始材料与限制见 [完整增量验收](../../iterations/I06/ssh-upload-recovery.md)。155 包含 5，不重复相加。
 
-## alpha.13 本次独立实机补充
+## 本次独立实机补充
 
 2026-10-14：冻结 alpha.13 Windows 包与独立 Linux，真实升级、同原生 Session 两轮及两方向协作通过；真实 Windows 取消和普通无调试窗口原生标记分别通过。独立 SSH/生产 daemon 的精确响应丢失、10 同 ID 与重启为受控执行器证据，不充当真实模型。Linux 文件任务受原生 OOM 退出影响，原 ID/Session 与 unknown 占位保留，未准出、未重发；后续 alpha.14 上传专项不冒充此模型矩阵复测。逐场景原始证据、版本、实际失败、临时自有资源调度及剩余项见 [I06C 当前实机记录](../../iterations/I06/final-delivery.md)。
 
-## alpha.15 维护入口会话拒绝恢复验证
+## 维护入口会话拒绝恢复验证
 
 T-M04-27 / M04-F08：2026-10-14 / alpha.15，WSL Ubuntu / Node 22.23.1。范围：预检单 SFTP 会话；只读预检同连接+新连接各一次受控重试、语义拒绝不重试、凭据缺口 needs_credentials；维护启动"可证明未发出"重试一次、再次未发出记 rejected、其余保持 unknown；查询通道拒绝新连接重试一次；错误消息携带原因码/退出码。发布提交时桌面回归 159/159；随后新增四个传输边界用例与产品修复属于 alpha.16，当前 163/163 与实机状态见下一节。根 43/43、lint、typecheck 通过。受控服务器不等于独立服务器根因确认；独立空闲维护专项需以 alpha.15 重验，结果另计。
 
 
-## alpha.16 维护未发送状态跨重试与查询验证
+## 维护未发送状态跨重试与查询验证
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：根测试 43/43、桌面全量 163/163、SSH 恢复 TCP 集成 7/7 通过。新增/更新场景覆盖 open 前明确未发送、重试登录缺少凭据、重启后同 operationId 查询、operation 冲突保留语义错误，以及 stream/timeout 响应不明时原 unknown 收据不被替代。Windows portable 包一致性校验通过，实际 Windows 用户流程与独立服务器维护重验未执行；无用户服务器操作和模型调用。具体行为见 [I06C 收尾 alpha.16](../../iterations/I06/final-delivery.md)。
 
-## alpha.16 当前验证
+## 维护发送边界验证
 
 T-M04-28 / M04-F08：2026-10-14 / WSL Ubuntu / Node 22.23.1，桌面 163/163，SSH 恢复 7/7 已包含其中。覆盖认证前未发送证明、实际原子快照重开查询/占位恢复、第二次打开拒绝、发送后流中断/超时仍 unknown、原操作去重与新 ID 拒绝。真实 TCP SSH，受控服务/合成凭据，模型 0。alpha.15 发布仍为原 159/159；当前独立服务器与包结果见 [当次交付](../../iterations/I06/maintenance-launch-recovery.md)。
 
-## alpha.17 当前性能与信任验证
+## 当前性能与信任验证
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1，桌面 164/164 通过。新增已校验快照后兼容清单篡改仍拒绝的受控检查；Windows Node / WSL UNC 的冻结 alpha.16 资源完整校验 11,821ms，14 份固定清单核对 289ms。不是全链时延，不是 alpha.17 模型实测。[完整分层验收](../../iterations/I06/maintenance-launch-recovery.md)。
 

@@ -1,50 +1,78 @@
 # M10 构建与发布测试报告
 
-2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+## alpha.36整合边界
 
-2026-10-20发布前准备记录 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](../../iterations/I07/alpha34-release.md)登记；当时仍在发布准备阶段，旧包/标签范围不变。
+2026-10-21 / WSL Node22.23.1：本轮全量核心57/57、桌面676/676，类型/lint/前端构建通过。各模块共享计数不相加；包核验、Windows契约144/144、界面26组与普通EXE7组通过，具体以专项为准，真实模型/用户profile/独立SSH未验。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+
+## 子任务上下文源码交付边界
+
+T-M10-155 / M10-F01/F02：2026-10-21，冻结桌面667/667、定向121/121、Windows受控36/36及Core构建通过；现有CJS收集方式可包含新helper，无新依赖。未构建/验证新EXE或Linux发布包；已交付.config.2冻结清单无delegation-context.cjs，不将其算作本片包证据。原v1文本与中央渲染/严格准备证明须在未来冻结包保持一致。[来源与未测范围](../../iterations/I07/delegation-context.md)。
+
+## OpenCode 包内宿主复核
+
+2026-10-21 / WSL Node22.23.1：现有本地alpha.35.config.2冻结包生产stdio/daemon入口2/2通过，完整EXE摘要及包一致性重核通过。公开alpha.35冻结b5de577仍为缺close旧工厂；本轮未重下公开EXE、重跑普通Windows EXE或验证用户profile/真实模型。[本轮证据与切换步骤](../../iterations/I07/opencode-host-lifecycle.md)。
+
+## Agent 行配置构建与验证
+
+M10-F01/F02/F03/F05；2026-10-21。当前最终源码核心57/57、桌面649/649、生产SSR82/82、Windows配置界面8组、生产MCP文件4组及既有DSH界面3组通过。config.2普通无调试EXE6组通过；47后台/81核心/1455Linux资源及ASAR/前端一致，133项生产源码未变。原profile/真实模型/独立SSH未验。最终冻结清单、包一致性、普通EXE和摘要见[专项实际记录](../../iterations/I07/agent-row-configuration.md)，共享计数不相加。
+
+## CT-07连接视图源码边界
+
+T-M10-154 / M10-F01/F02：2026-10-21，冻结桌面643/643、定向103/103、Windows受控18/18及Core构建通过；agent-connections随现有electron CJS收集，无新依赖。未打新EXE/Linux发布包或切换后台；recovery.1和公开alpha.35不计为本片包验收。未来打包前仍须整合公开独立修复并核对运行副本。[日志与未测范围](../../iterations/I07/agent-connections.md)。
+
+## 扫描恢复候选验证
+
+M10-F01/F02/F03/F05；2026-10-20，alpha.34派生工作源码。完整桌面632/632、核心56/56、Windows前端6组、最后定位改动SSR76/76通过。最后冻结131项生产源码未变、前端构建一致；最终EXE/包/普通运行的实际结果统一见[交付核对](../../iterations/I07/agent-management-recovery.md)，不跨模块累加共享计数，不冒充用户原profile/真实模型/独立SSH验收。
+
+## 委派列表包范围（2026-10-20）
+
+T-M10-153 / M10-F01/F02：615项冻结源码回归、110项定向和Windows8项均为受控源码证据，未构建或验收新EXE/Linux发布包；原公开alpha.35及DSH候选不因本片源码变化自动含新工具。现有CJS收集方式核对无新依赖，未来候选须校验helper/MCP/宿主一致并先整合公开独立修复。[最终来源与未测范围](../../iterations/I07/delegation-list.md)。
+
+## DSH Desktop/Web 当前包边界
+
+本地候选`0.6.0-alpha.35.dsh.3`已冻结并构建，包内45个CJS/81个核心文件/1453个Linux资源与窗口ASAR、前端一致。核心56/56、桌面607/607、Windows DSH11/11、Edge生产前端3组通过；真实Windows/WSL认证与Session列表通过，Desktop两轮同Session及去重已观察，模型均RATE_LIMIT。普通EXE和最终摘要见[本地交付](../../iterations/I07/dsh-exe-delivery.md)，不计GitHub分发或真实模型成功，公开alpha.34保持原字节。
 
 2026-10-20 / M10-F01/F03/F05：alpha.33 EXE129965530字节及SHA-256附件公开完整下载核验一致；普通EXE5组通过，发布不代替用户现场或独立SSH验收。 [交付、校验与升级边界](../../iterations/I07/maintenance-persistence.md)。
 
-## 2026-10-20：维护上传进度与持久化修复（issue #10）
+## 维护上传进度与持久化修复（issue #10）
 
 M10-F01/F03/F05：本轮WSL专项7/7、相关42/42与核心51/51，Windows最终7/7及SSR66/66通过；最终全量/真实TCP/普通EXE/公开下载逐层记录。用户profile及独立服务器未验，共享计数不跨模块叠加。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
 
-## 2026-10-20：CT-05桌面构建边界
+## CT-05桌面构建边界
 
 T-M10-152 / M10-F01/F02：桌面TypeScript/Vite生产构建通过，保留大于500KB单包提示；实际Windows前端9组验证相应生产资源，未构建新EXE/Linux包。公开alpha.32与integrated.3原候选文件/摘要保持，581项源码回归及浏览器下载不扩大旧包证据；真实Agent/独立SSH未测。[构建、资源摘要与交付范围](../../iterations/I07/context-packet-ui.md)。
 
-## 2026-10-20：CT-05包范围核对
+## CT-05包范围核对
 
 T-M10-151 / M10-F01/F02：仅核对新electron CJS模块沿原打包收集路径，无版本/依赖变化；本轮未构建或验收新EXE/Linux包。576/576桌面、Windows定向14项及真实Claude一次消费是源码证据，不能扩大先前integrated.3普通EXE五组的冻结范围，旧文件/摘要保留。公开仍alpha.32，工作源码晚于integrated.3。[本片未测与后续发布条件](../../iterations/I07/context-packet.md)。
 
-## 2026-10-19：整合源码与本地候选
+## 整合源码与本地候选
 
 T-M10-149 / M10-F01/F02/F03/F05/F06：核心51/51、桌面570/570零跳过（定向85/85及兼容15/15是相关子集），根类型/lint/构建与桌面构建通过。Windows前端26组/模型0，按历史/门禁/管理/材料/MCP分别记录；最终integrated.3普通Windows EXE五组通过：原历史/文档/MCP导出、窗口/后台重开、持久资源和原unknown保留，原生请求0；这是隔离合成profile，不是真实Agent模型或用户现场。包42 CJS/78核心/1446 Linux条目匹配，未部署用户SSH或跑真实模型。各模块共用计数不相加；首次夹具/原型失败与原历史证据保留。[版本、源码、所有原始结果和限制](../../iterations/I07/integrated-source.md)。
 
-## 2026-10-19：issues #8/#9受控验证
+## issues #8/#9受控验证
 
 M10-F01/F03/F05：核心51/51、桌面543/543（含版本/管理/原路由回归）、最后定向7/7及工程检查通过；Windows95项原路由/9项管理CJS、前端专项4组/既有10组及普通EXE5组通过；分发另按专项逐项记录。无真实模型/用户profile/独立服务器升级，不跨模块累加共享计数。 [需求、实现、验证与边界](../../iterations/I07/version-management-recovery.md)。
 
-## 2026-10-19：issue #7 协作兼容修复
+## issue #7 协作兼容修复
 
 M10-F01/F03/F05：本轮仅受控HTTP/CLI、生产后台无推理、TCP SSH及Windows交付验收；用户现场/独立SSH/真实模型未测。实际执行结果、首次失败与最终工程/包证据统一引用专项，共享计数不跨模块叠加。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
 
-## 2026-10-19：历史详情路由与局部错误
+## 历史详情路由与局部错误
 
 T-M10-150 / M10-F01/F03/F05：alpha.30隔离修复；合成路由6项、受控TCP SSH1项、Windows纯CJS91/91、Linux SSR63/63，新生产前端7组和既有10组通过，模型0。最终桌面529/529、核心45/45、lint/类型/构建通过；38 CJS/78 core/1401 Linux资源匹配145个冻结源文件。普通Windows无调试EXE合成原两轮/Session只读与关闭重开/后台重启4组通过。分发实际结果及首次失败统一见[当次专项](../../iterations/I07/history-detail-recovery.md)；共享计数不跨模块叠加，用户故障profile/独立服务器未复测。
 
 2026-10-19：当前完整源码已发布为 **alpha.29 GitHub预发布**，新Tag、EXE与SHA-256校验附件均已上传；版本、包资源与实际发布状态统一见[alpha.29 交付](../../iterations/I07/alpha29-release.md)。历史专项保留原日期/冻结范围，完整 I06C/I07C 未准出。
 
-## 2026-10-19：桌面材料入口与公开版本核对
+## 桌面材料入口与公开版本核对
 
 本次桌面类型/Vite构建、541项受控回归和Windows前端八组通过，模型0；没有新包、普通EXE或verify-package，不登记新包通过。只读GitHub API确认alpha.31/标签002107da、两附件uploaded、EXE大小与服务器digest；未重新完整下载或执行该包。本地a872275/alpha.29派生尚未合入alpha.30/31修复，材料/MCP增量也不能视作alpha.31内容。[原始元数据/构建/源码与限制](../../iterations/I07/public-materials-ui.md)。
 
-## 独立 MCP 文件与配置增删（2026-10-19）
+## 独立 MCP 文件与配置增删
 
 M10-F01/F02；日期2026-10-19，alpha.29后未发布工作区。WSL Node22.23.1受控全桌面537/537、核心45/45；真实原生列表三工具增删通过，Claude/OpenCode连接、Codex仅列表；Windows Edge155生产界面4组通过但机器/原生执行受控。计数为共享结果不跨模块相加，模型调用0。新EXE、真实Windows原生Agent、独立SSH与独立接入真实模型委派未测。源码/命令、首次失败、原始日志和逐层边界见[专项验收](../../iterations/I07/mcp-installation.md)。 本次没有运行打包，不将源码构建当作包内验收。
 
-## 2026-10-19：CT-04尚未打包
+## CT-04尚未打包
 
 M10-F02/F03/F06边界核对：本次只改源码/测试和文档，桌面525/525及一个真实WSL Claude Task通过；没有执行新包构建、verify-package、新普通EXE或公开上传，不登记包通过用例。较早alpha.29冻结23d256e的38 CJS/1400 Linux条目、Windows EXE四项及公开摘要结果保留[原发布记录](../../iterations/I07/alpha29-release.md)，不覆盖新增team-materials模块。[本片源码与未测范围](../../iterations/I07/public-materials.md)。
 
@@ -54,11 +82,11 @@ poll.4最终候选：129,933,135字节，SHA-256与[校验文件](../../../artif
 
 2026-10-18 / T-M10-141：桌面空闲修复源码，WSL Node22.23.1 / Windows Node24.19.0及Edge155。核心45/45、桌面424/424、定向20/20、Windows受控界面3组通过，模型0；属于共享工程计数，不跨模块相加。普通EXE与黑窗观察、冻结包、首次环境失败及用户现场未测边界按[本次完整报告](../../iterations/I07/desktop-polling.md)记录，历史包不冒充本次修复。
 
-## 2026-10-18：原生扩展工程与打包检查边界
+## 原生扩展工程与打包检查边界
 
 T-M10-140 / M10-F01/F03/F05/F06：alpha.28 后新增适配器源码，根类型/lint/核心构建和桌面生产构建通过，[前端构建日志](../../../artifacts/native-agent-expansion/2026-10-18/desktop-build.txt)；原 `.cjs`/assets 打包规则纳入新增模块与图标，Codex/new native worker 副本的注册依赖已由实际受控子进程验证。Windows生产前端六图标均加载，无开发机file路径或外部资源请求。[实际检查与边界](../../iterations/I07/native-agent-expansion.md)。未为本次适配器构建新EXE、未核对新发行包摘要、未升级独立SSH；现有ui.2/GitHubalpha.28证据保持原冻结范围。
 
-## 2026-10-18：UI 本地候选 alpha.28.ui.2
+## UI 本地候选 alpha.28.ui.2
 
 T-M10-129 / M10-F01/F02/F03/F05/F06：独立快照构建 `0.6.0-alpha.28.ui.2`，主工作区 package/lock 和旧 alpha.28 EXE 保持原版本与字节；没有 GitHub 发布。候选包含 UI 重构、原生空白 Session 与会话异常业务验收保护，不能把它描述成只换皮的原 alpha.28。[需求、设计与交付](../../iterations/I07/ui-redesign.md)、[视觉与交互验收](../../iterations/I07/ui-visual-acceptance.md)。
 
@@ -75,67 +103,63 @@ T-M10-129 / M10-F01/F02/F03/F05/F06：独立快照构建 `0.6.0-alpha.28.ui.2`�
 
 首个 ui.1 中间包在菜单时序反例出现后停止交付；普通 EXE 初次脚本将“无新增执行”错误假定为“历史为空”，已改为原请求指纹和观察基线核对，失败记录保留于当次专项。最终结果只绑定 ui.2，不把中间包、原 alpha.28 或历史真实 Agent 结果当本候选新验收。未使用用户profile、未连接用户SSH、未发模型需求；完整I06C/I07C仍未准出。
 
-## 2026-10-17：SSH持久拒绝恢复
+## SSH持久拒绝恢复
 
 T-M10-128：alpha.28已预发布，WSL Node22.23.1/Windows Node24.19.0，合成台账和受控TCP SSH，模型0。最终桌面317/317、核心45/45、Windows契约93/93，lint/类型/构建通过；真实TCP SSH丢响应/daemon重启1项及普通Windows无调试EXE合成验证6组通过，34 CJS/78 core/1395 Linux资源匹配源码。发布以[当次实际记录](../../iterations/I06/daemon-rejection-recovery.md)为准，不推定用户现场恢复。历史记录不计为本次重测。
 
-## 2026-10-17：Windows恢复专项
+## Windows恢复专项
 
 T-M10-128：2026-10-17 / WSL Node22.23.1与Windows Node24.19.0 / alpha.27已预发布，模型0。Codex恢复10/10、共享原子写入10/10、网络最终50/50、Windows契约86/86；全桌面最终运行288/288、核心45/45及工程检查通过；新增alpha.26兼容文件另验10/10。共享计数不跨模块累加，Windows为受控目录/执行器，不是用户故障或真实模型。首轮限制/维护ENOENT与未测范围保留；最终普通Windows EXE对合成记录恢复/重开/重启/冻结源码共5组通过，包内33 CJS/78 core/1393 Linux条目一致；发布结果以[当片报告](../../iterations/I06/windows-start-persistence.md)后续实际记录为准。
-## 2026-10-17：alpha.26 可信清单预发布
+## 可信清单预发布
 
 实际冻结alpha.24→alpha.26的受控TCP SSH/SFTP链4组、Windows普通EXE5组通过；Linux独立资源归档1392条目一致，独立服务器/真实原生任务迁移未测。
 
 新增 alpha.24/alpha.25 可信清单已匹配原交付 manifest digest；兼容/安全/升级/恢复36/36、核心/前端构建及候选包资源一致性通过，WSL Linux / Node22.23.1，模型0。候选独立冻结，未混入工作区 I07 增量；原发布附件没有覆盖。实际EXE、摘要、Windows和真实受控SSH结果及失败/未测边界见[专项交付](../../iterations/I06/ssh-alpha24-upgrade.md)。
 
-## 2026-10-17：Windows原请求上下文恢复
+## Windows原请求上下文恢复
 
 T-M10-126 / M10-F01/F03/F05：alpha.25已预发布，WSL Node22.23.1/Windows Node24.19.0，受控记录，模型0。4个反例修复前全部失败，修复后专项48/48、串行桌面243/243、Windows契约17/17通过，原回执可恢复且缺回执仍unknown。共享计数不跨模块累加，包内33 CJS/78 core/1390 Linux资源一致；alpha.24普通EXE对照3组、alpha.25候选4组通过，原记录均为合成。发布前再验相关72/72、lint/类型/前端构建、合成unknown生产恢复链及包一致性通过；EXE和校验文件均uploaded且大小/digest匹配，公开完整下载HTTP200、摘要及校验文本一致。分发证据、候选包/普通EXE与失败日志见[专项](../../iterations/I06/windows-context-recovery.md)。未实测用户另一台电脑或真实原生模型，不改变GitHub alpha.24已发布冻结包。
 
-## alpha.24本地候选验证
+## 停止协调候选验证
 
 T-M10-121 / M10-F01/F02/F03/F05/F06：2026-10-16，源码/本地候选alpha.24，GitHub仍alpha.23。核心45/45、最终串行桌面233/233、Windows契约38/38、受控界面7组、普通无debug Windows EXE7组通过；33 CJS/78 core/1390 Linux条目、app.asar与前端匹配最终源码。普通程序完整重启后停止归档、原收据与撤权保留，运行文件摘要和包报告一致，模型0。WSL真实Claude取消及首次失败单列于[停止专项](../../iterations/I07/native-stop.md)，不能以普通包证明Windows真实原生取消或完整I07C/I06C。
 
-## alpha.23 / I07C首批实际验证
+## I07C首批实际验证
 
 T-M10-110 / M10-F01/F02/F03/F05：2026-10-16，WSL Node22.23.1、Windows Node24.18.0/Edge155。核心45/45、最终串行桌面222/222、Windows契约29/29；这些是全工程计数，跨模块不相加。Windows前端/真实Coordinator受控目录和成员10组，真实Claude2.1.299自动主角色3轮同Conversation/原Session、新scope、后台重启后实际X失败/Y通过及终态后总验收；执行成员为受控外部MCP、Node检查实际运行。最终包/普通EXE、首次连接恢复竞态和并行维护ENOENT分别保留证据，完整结果见[I07C首批报告](../../iterations/I07/automation.md)。未证明真实多原生角色、其他接入自动续接、用户自研/独立SSH或完整停止。
 
 2026-10-16分发复核 / M10-F06：源码标签绑定`e8cc95a2abb474571a8d133b99c18e6df6fd61df`，GitHub两附件uploaded、大小/digest匹配，完整公开EXE与校验文件HTTP200、下载摘要匹配；源码/包一致性复核通过。该结果只证明分发，不扩大原生验收范围。[发布记录及证据](../../iterations/I07/github-release.md)。
 
-## alpha.22 / I07B候选
+## I07B候选
 
 T-M10-101 / M10-F01/F02/F03/F05：2026-10-16，工程核心45/45、最终桌面208/208、Windows契约18/18，lint/类型/构建通过；最终资源31 CJS/78 core/1388 Linux条目、app.asar及前端与源码一致。普通无debug Windows EXE 5组通过，实际窗口/IPC/SQLite/MCP、模型0，关闭和全后台重启后原任务/授权/收据保留并继续Y。摘要、本地分发、首次失败保留和未测范围见[I07B完整报告](../../iterations/I07/task-handoff.md)。GitHub保持alpha.20；不计作独立SSH或用户自研实例验收。
 
-## alpha.21 / I07A候选
+## I07A候选
 
 T-M10-100 / M10-F01：2026-10-15，新候选工程检查、包/普通EXE的实际结果、摘要与未测项统一见[I07A交付](../../iterations/I07/delivery.md)。GitHub预发布保持alpha.20，源码与本地候选alpha.21，不以构建或受控UI替代真实原生/普通EXE；I07B/C与I06C未准出。
 
-## alpha.19 OpenCode 二次发现与 Windows 配置专项
+## OpenCode 二次发现与 Windows 配置专项
 
 WSL Ubuntu / Node 22.23.1：discovery 3/3（含于核心 45/45），桌面 181/181；受控回归、模型 0。[核心 TAP](../../../artifacts/opencode-discovery/2026-10-14/root-tests.tap)、[桌面 TAP](../../../artifacts/opencode-discovery/2026-10-14/desktop-tests.tap)。Windows 原始报告 UTC 2026-10-14T17:35:28.789Z / Electron Node 24.21.0：真实 PE 版本/解析、旧二次发现失败、修复后原路径核验、配置完整写入与旧revision拒绝、serve受控退出保留NATIVE_EXITED、删除原安装，共6组通过，[实际报告](../../../artifacts/opencode-discovery/2026-10-14/windows.json)。这是隔离PE/进程夹具，无真实OpenCode模型或用户另一台电脑验收。原生Windows完整生命周期和断电持久性未验证。根因、失败原证据、最终包与边界见 [专项](../../iterations/I06/opencode-discovery.md)。
 
-## alpha.19 Linux CLI 发现专项
+## Linux CLI 发现专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。
 
-## alpha.18 历史专项
+## 历史专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1 / 源码 0.6.0-alpha.18：共享缓存自引用/旧清单/损坏旁路重建、Windows OpenCode 原意图恢复与并发保护、查询结果和脱敏原因；定向 55/55（计入桌面全量 176/176），根 43/43，lint/类型/构建通过。受控文件/宿主测试，无模型调用。原始证据：[定向](../../../artifacts/runtime-recovery/2026-10-14/targeted.tap)、[全桌面](../../../artifacts/runtime-recovery/2026-10-14/desktop-tests.tap)。Windows 真实 Electron 资源 4 组、Edge 受控 UI 3 组、普通无调试 EXE/合成原意图与关闭重开 4 组均通过；包校验 28 CJS / 1383 Linux 文件与当前源码匹配。详细过程及边界按 [完整专项](../../iterations/I06/runtime-recovery.md) 的实际结果判定，不将历史原生证据提升为本次重测。
-
 
 历史 alpha.15 基线：2026-10-14 / 0.6.0-alpha.15。工程和包一致性验证通过；独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 更新：2026-10-13。当前 0.6.0-alpha.8 拖动修复候选，最新包与普通窗口验证见当前专项；alpha.2/alpha.3 证据保留原版本。真实窗口/普通便携流程分别记录；0.5.0 保留为历史稳定发布，不把新包生成等同于整个 I06 准出。
 
-
-
-## alpha.8 当前包验证
+## 当前包验证
 
 T-M10-22 / M10-F01/F02/F03/F06：2026-10-13，桌面 116/116，根及前端 TypeScript/Vite 构建，27 CJS 与 1368 个 Linux 文件版本/摘要/前端比对。旧 alpha.7 manifest 先按历史 digest 核对再收入可信兼容；普通 EXE 与实际 Electron 拖动按 [当次交付](../../iterations/I06/graph-drag-fix.md)分别记录。不重启用户原后台，不自动升级旧远端，不把本机布局缓存称为后台保存成功。最终 alpha.8 portable 包完整性与普通 EXE 启动/关闭/重开 3 项通过，原始报告见当次交付。
 
-## alpha.7 历史包验证
+## 历史包验证
 
 T-M10-21 / M10-F01/F02/F03/F06：2026-10-13，当前桌面 116/116、前端构建与全部后台/版本/离线资源比对通过；普通 Windows EXE 启动/关闭/重开 3 项通过。版本、摘要及原始报告按 [专项交付](../../iterations/I06/graph-usability.md) 记录。可信兼容增加原已交付 alpha.6 manifest，先按历史 digest 核对；当前候选 27 个后台 CJS、1367 个 Linux 文件。SSH/原生账号不重跑，用户 profile 和远端 daemon 不变。
-
 
 ## 1. 历史材料快照核对
 
@@ -196,7 +220,7 @@ npm run desktop:dist
 
 变更发布材料后更新 [设计](design.md)、本报告、整体发布状态和当期迭代报告。新版本应留存构建日志、清单、包摘要和包内实际资源比对；失败/跳过/未测项必须原样报告，不通过改版本号或仅重跑源码测试消除缺口。
 
-## 2026-10-12：6A 收尾
+## 6A 收尾
 
 本次真实 Windows 预检发现依赖漏打包，已增加独立资源规则；先前版本常量与新清单不一致也已修复。最终 package 校验包含 25 个后台模块、1360 个 Linux 文件、窗口 app.asar、前端与 EXE 摘要：[报告](../../../artifacts/I06A-final/package.json)。
 
@@ -206,21 +230,19 @@ npm run desktop:dist
 
 2026-10-12 / 0.6.0-alpha.2：[真实 Windows 窗口](../../../artifacts/I06A-real/report.json)与[普通便携程序](../../../artifacts/I06A-final/portable.json)均通过。两轮保持同一 Conversation/native Session，关闭窗口保留同一后台，明确停止后新 PID 保留身份/机器/历史，恢复只查询原任务；普通程序请求数不增加。专项覆盖边界见 [6A 候选验收](../../iterations/I06/acceptance.md)。
 
-## alpha.3 修复候选
+## 修复候选
 
 T-M10-16 / M10-F02/F06：2026-10-12 / 0.6.0-alpha.3，Windows x64 portable 构建及完整资源比对通过；25 个后台 CJS、1360 个 Linux manifest 文件、app.asar、前端及版本一致。EXE 大小 129,293,929 字节，SHA-256 `e89a5a6c0e931d8da1f2e9b8a7fb6258ea43203a8c2cf32007244f65c0fbd130`。证据：[构建日志](../../../artifacts/codex-discovery/2026-10-12/package-build.log)、[包校验](../../../artifacts/codex-discovery/2026-10-12/package.json)、[交付及限制](../../iterations/I06/codex-discovery-fix.md)。alpha.2 的完整 SSH/权限流程没有因本条构建被记为新版本重跑。
 
 T-M10-17 / M10-F02/F05/F06：2026-10-12 / alpha.3 普通 Windows portable EXE，隔离 Windows/WSL 状态，未开启 inspector/debug，未提交模型需求。真实窗口与 alpha.3 Coordinator 启动、冻结 Codex 后台与修复源码摘要一致、普通关闭保留后台、重开复用同一 Coordinator 且 requests/delegations=0；通过。[报告](../../../artifacts/codex-discovery/2026-10-12/portable.json)、[脚本](../../../desktop/tests/windows-codex-discovery-portable.cjs)。未切换用户生产后台，生产 profile 升级和全部 SSH 专项未重新验证。
 
-## alpha.4 兼容复用候选
+## 兼容复用候选
 
 T-M10-18 / M10-F03/F06：2026-10-12 / alpha.4，Windows portable 构建、25 个后台模块、1362 个 Linux 文件（含两份可信旧清单）、app.asar、前端和版本一致；通过。[构建日志](../../../artifacts/ssh-compatibility/2026-10-12/package-build.log)、[包校验](../../../artifacts/ssh-compatibility/2026-10-12/package.json)。新包大小/SHA-256 与实际兼容范围见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。不是远端 daemon 升级验收；先前 alpha.3/alpha.2 包报告保留。
 
 alpha.4 普通 EXE 在隔离 Windows/WSL profile 中实际启动、关闭、重开，后台版本正确、冻结 Codex 代码与源码一致、复用同一 Coordinator、请求数保持 0；通过，[报告](../../../artifacts/ssh-compatibility/2026-10-12/portable.json)。最终源文件如再改动，需要重建及核对新包；此前普通启动记录的行为适用范围保留。
 
-
 T-M10-19 / M10-F01/F02/F03/F06：2026-10-12 / alpha.5，桌面 95/95，类型/前端构建/lint、25 个后台模块、1363 个 Linux 文件及 EXE 完整性通过。第三份可信 manifest 为已交付 alpha.4，复制前按历史包摘要核对。Windows 受控前端快照检查单列，真实 SSH 原生流程未重跑。[包报告](../../../artifacts/ssh-error-clear/2026-10-12/package.json)、[本次交付](../../iterations/I06/ssh-error-recovery.md)。
-
 
 当前 alpha.5 普通便携 EXE 在 Windows 隔离 profile 实际运行：无 debug 参数启动、普通关闭保留后台、重开同后台 3 项通过，native prompts/delegations=0。[报告](../../../artifacts/ssh-error-clear/2026-10-12/portable.json)。不扩大为真实原服务器 SSH 回归。
 
@@ -228,8 +250,7 @@ T-M10-19 / M10-F01/F02/F03/F06：2026-10-12 / alpha.5，桌面 95/95，类型/�
 
 2026-10-12 / 0.6.0-alpha.6：T-M10-20 / M10-F01/F02/F06：alpha.6 新锁定图依赖与所有后台模块离线打包；校验报告默认按版本隔离，避免覆盖 alpha.2 历史。本次代码、命令、逐项结果与限制汇总于 [I06B 实施](../../iterations/I06/graph-implementation.md)。受控工程结果见 [桌面 TAP](../../../artifacts/I06B/2026-10-12/desktop-tests.tap)、[核心 TAP](../../../artifacts/I06B/2026-10-12/root-tests.tap)，界面见 [UI](../../../artifacts/I06B/2026-10-12/ui.json)、[性能](../../../artifacts/I06B/2026-10-12/performance.json)，本次核心 43/43、桌面 110/110、Windows 图 10 组通过；性能 p95 30.0ms。独立 SSH 双向原生链、普通无 debug EXE 及源/包完整性分别通过，原始证据与范围见当次报告。历史表保留原日期/版本，不计为本次重新运行。
 
-
-## alpha.9 当前节点管理专项
+## 当前节点管理专项
 
 T-M10-23 / M10-F01/F02/F03/F06：2026-10-13 / 0.6.0-alpha.9。范围：alpha.9 最终前端、中央与 Linux 包一致性，可信 alpha.8 清单，实际窗口和普通 EXE 分开验证。逐项实际结果、环境、脚本、原始证据与未测范围见 [节点管理完整验收](../../iterations/I06/node-management.md)。工程证据为本次 [桌面 TAP](../../../artifacts/node-management/2026-10-13/desktop-tests.tap)；窗口/程序/包状态以该报告实际结果为准，历史表不充当本次重测。原生 SSH/模型链保留 alpha.6 历史结果，本次未重跑、不改用户 profile、不提交 Prompt。
 
@@ -241,23 +262,23 @@ T-M10-24 / M10-F01/F02/F03/F06：2026-10-13。范围：alpha.10 包含机器管�
 
 T-M10-25 / M10-F06：2026-10-13 / alpha.9，真实 GitHub API 上传与公开发布查询通过。EXE 为 129,583,670 字节，服务器 state=uploaded，digest=`sha256:80c8a39036ba93466de96955e707280f436b6da258d5e047c7590822e2c0d688`，与本地已有包一致；SHA256SUMS.txt 108 字节，两附件核验后 draft=false/prerelease=true。这是分发核验，没有重新执行 EXE/模型/SSH 验收。已有本地包验收保留原日期与版本；本次源码同步的沙箱回归失败仍保留。原始脱敏元数据与分层结果见 [发布记录](../../iterations/I06/github-release.md)。
 
-## alpha.13 当前验证
+## 当前验证
 
 T-M10-25 / M10-F01/F03/F04/F07：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受控回归 **150/150** 通过（全工程总数，模块之间不重复相加）。场景：alpha.11 包含 28 个后台 CJS 和 1376 个 Linux 文件，收录已交付 alpha.10 可信清单。Linux 增加静态 owned-stop、glibc 许可与重链接说明；从 C 源码编译并纳入逐文件摘要。旧 daemon 的安全停机需要支持 pidfd 的 Linux 内核（5.3+）；不支持时明确拒绝，不退回仅 PID 停机。新 daemon 使用认证停机 RPC。verify-package 逐项比对窗口、冻结后台、前端及离线资源；新候选生成并不自动发布或修改原用户后台。
 
 证据：[完整桌面 TAP](../../../artifacts/I06C-final/2026-10-14/desktop-alpha13.tap)、[维护实际 daemon/process 7 项](../../../artifacts/I06C-final/2026-10-13/maintenance-tests.tap)、[包内容核验](../../../artifacts/I06C-final/2026-10-14/package-alpha13.json)。维护测试使用真实生产 daemon、Unix socket、独立进程和磁盘，原生 host 受控、无模型调用；不能替代独立服务器或真实原生控制。Windows 窗口、原生 Session 与双向链、使用/卸载、命令和限制统一见 [逐项验收](../../iterations/I06/final-delivery.md)，未实际执行项不得计为通过。
 
-## alpha.14 上传修复验证
+## 上传修复验证
 
 T-M10-26 / M10-F02/F03：2026-10-14 / alpha.14。桌面受控 155/155，上传专项 5/5（含真实本机 TCP SSH/SFTP，使用隔离服务器和数据），Windows Edge 受控响应界面 2 组通过；原生提交 0，未连接用户 Linux。打开/写入/关闭失败、权限/空间/通道关闭/超时、分片/乱序 ACK、原 ID 重新检测和批准、unknown 不提供重装分别有证据。当前包、普通 EXE、原始材料与限制见 [完整增量验收](../../iterations/I06/ssh-upload-recovery.md)。155 包含 5，不重复相加。
 
 alpha.14 包内容比对通过：28 CJS / 1379 Linux 文件，[包报告](../../../artifacts/ssh-upload/2026-10-14/package.json)含版本、大小与 SHA-256；普通 portable Windows 隔离启动/关闭/重开 3 项通过，原生提交和委派为 0，[报告](../../../artifacts/ssh-upload/2026-10-14/portable.json)。未上传新 GitHub Release，未连接用户服务器。
 
-## alpha.13 本次独立实机补充
+## 本次独立实机补充
 
 2026-10-14：冻结 alpha.13 Windows 包与独立 Linux，真实升级、同原生 Session 两轮及两方向协作通过；真实 Windows 取消和普通无调试窗口原生标记分别通过。独立 SSH/生产 daemon 的精确响应丢失、10 同 ID 与重启为受控执行器证据，不充当真实模型。Linux 文件任务受原生 OOM 退出影响，原 ID/Session 与 unknown 占位保留，未准出、未重发；后续 alpha.14 上传专项不冒充此模型矩阵复测。逐场景原始证据、版本、实际失败、临时自有资源调度及剩余项见 [I06C 当前实机记录](../../iterations/I06/final-delivery.md)。
 
-## alpha.15 当前源码包重建
+## alpha.15 源码包重建
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：从当前 `0.6.0-alpha.15` 源码执行 `npm run dist:win`，Windows x64 portable EXE 构建与 `verify-package.cjs --portable` 均通过。后端 28 个模块、Linux 离线资源 1380 个文件；`app.asar` 源码和前端与当前源码一致。EXE 为 129,851,710 字节，SHA-256 `d1052ed5cd7893a9842ee96b6bf87c40b2ec6a5389ac59ef28ad5eb528e0ac4f`。本次构建没有重新执行真实 Windows 用户流程；alpha.13 普通 EXE 的实机证据与 alpha.15 包构建分开记录，完整 I06C 仍未准出。
 
@@ -265,15 +286,15 @@ alpha.15 发布复核：源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 
 
 发布后测试补充：新增四项仅测试代码的维护传输边界回归，桌面全量当前 163/163。新增测试不改变 alpha.15 EXE 中的产品源码；具体边界见 [M04 SSH 测试报告](../04-ssh-access/test-report.md)。
 
-## alpha.16 当前源码包重建
+## alpha.16 源码包重建
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：`npm run dist:win` 首次因 electron-builder 临时打包错误退出，28 MB 临时文件未使用；清理临时 EXE 后重跑成功，`verify-package.cjs --portable` 通过。最终包版本 `0.6.0-alpha.16`，28 个后台模块、1381 个 Linux 文件，app.asar/前端匹配源码；EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`。根 43/43、桌面 163/163、SSH 定向集成 7/7 通过。真实 Windows 用户流程未重跑；完整 I06C 未准出。
 
-## alpha.16 最终候选验证
+## 最终候选验证
 
 2026-10-14：Windows x64 EXE 129,851,194 字节，SHA-256 `d1e35450e57967767fc5031ba4bdc8dfb5f5552dc374079a4a3005fc5f3223ba`；28 后台模块/1381 Linux 文件与源码一致：[最终包报告](../../../artifacts/I06C-final/2026-10-14/package-alpha16-final.json)。普通无调试 EXE 真实启动/关闭/重开 3 项通过，独立 profile、原生需求 0：[报告](../../../artifacts/I06C-final/2026-10-14/portable-alpha16.json)。实际 Linux 维护、原文件任务与完整准出限制见 [当前交付](../../iterations/I06/maintenance-launch-recovery.md)。历史 alpha.15 分发摘要不被本版本覆盖。
 
-## alpha.17 独立最终候选检查
+## 独立最终候选检查
 
 2026-10-14：源码快照独立构建后与主工作区逐项校验通过，28 CJS / 1382 Linux 文件；EXE 129,849,380 字节，SHA-256 `aa97a2b2adbd3bff8837fee10d16433b929225d384dc5e5b1966d315873905d5`。[包报告](../../../artifacts/I06C-final/2026-10-14/package-alpha17-final.json)。普通 Windows EXE 启动/关闭/重开 3 项通过，无调试参数，独立 profile，原生需求 0：[窗口报告](../../../artifacts/I06C-final/2026-10-14/portable-alpha17.json)。冻结 alpha.16 服务器维护结果分别计，alpha.17 未冒充原生模型重测。
 
@@ -285,8 +306,7 @@ alpha.15 发布复核：源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 
 
 当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
 
-
-## alpha.20 候选打包与普通EXE
+## 候选打包与普通EXE
 
 T-M10-27 / M10-F01/F02/F03/F05/F06：2026-10-15，WSL Node22.23.1构建Windows x64 portable，28个CJS/78个核心文件/1385个Linux清单项与源码匹配。EXE 129,856,325字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。核心45/45、桌面串行188/188、lint/类型/构建/包校验通过；初轮并行维护测试ENOENT及专项8/8复验均保留。Windows普通无调试EXE/合成NOT_CONFIGURED恢复及关闭重开4组、Edge生产前端/受控API4组通过，模型0。发布/下载证据与未测项见[专项](../../iterations/I06/pending-isolation.md)。不宣称用户故障已复现或完整I06C准出。
 

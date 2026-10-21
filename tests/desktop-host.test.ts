@@ -136,6 +136,13 @@ test("desktop: UI host and CLI share conversations, request dedupe, permission c
       await delay(25);
     }
     assert(active?.waiting);
+    host.close();
+    host.close();
+    const afterClose = await request<Task>('task', {taskId: waiting.taskId});
+    assert.equal(afterClose.taskId, waiting.taskId);
+    assert.equal(afterClose.status, active.status);
+    assert.equal(afterClose.native?.sessionId, active.native?.sessionId);
+    assert.equal(native.counters().prompts, 3, 'Closing the facade never resubmits or cancels native work');
     await assert.rejects(() => host.handle({ id: randomUUID(), method: "setInstanceModel", params: {
       agentId: agent.agentId, expectedRevision: store.read().revision, model: { providerID: "test", id: "other" },
     } }), /运行、等待或 unknown/);

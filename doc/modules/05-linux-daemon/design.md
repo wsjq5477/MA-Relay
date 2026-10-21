@@ -1,16 +1,26 @@
 # M05 Linux 机器后台设计
 
-2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+## alpha.36整合边界
 
-2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+M05-F02：当前本地alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
 
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+## OpenCode 宿主生命周期
 
-M05-F02/F04：源码内的 MachineHost/Core 共用新的 V1/V2 适配与 MCP 格式，主协议和认证不变。本次在 WSL 直接验证，不冒充独立 SSH；旧已安装 daemon 需获取含本修复的新包后在原机器维护升级。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
+M05-F02：生产 daemon 直接以 DesktopHost 作为 OpenCode 后台门面，提供 call/close；关闭门面不停止独立 Controller 或原生任务。源码与本地 config.2 已包含，公开 alpha.35 的冻结源码未包含；[实现与验证](../../iterations/I07/opencode-host-lifecycle.md)。
+
+## DSH Desktop / Web 当前行为
+
+M05-F01/F02：Linux/WSL/SSH MachineHost可配置dsh-web连接本机运行的Web服务，使用同样受认证HTTP生命周期；不从Windows迁移凭据或把Windows端口解释为远端端口。daemon新增dsh.status/configure白名单，维护期间拒绝配置写入；旧daemon必须另行升级。 [完整契约与证据](../../iterations/I07/dsh-desktop-web.md)。公开alpha.34不包含该能力；本地.dsh.3候选已构建并验证真实连接，Desktop模型两轮均RATE_LIMIT，独立SSH未验，见[本地交付](../../iterations/I07/dsh-exe-delivery.md)。
+
+中央hello公布`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力；新前台遇到仍在运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+
+## OpenCode 1.x / 2.x 兼容修复
+
+M05-F02/F04：源码内的 MachineHost/Core 共用新的 V1/V2 适配与 MCP 格式，主协议和认证不变。该验证在 WSL 直接执行，不冒充独立 SSH；旧已安装 daemon 需获取含本修复的新包后在原机器维护升级。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
 
 ## 当前维护进度与持久化边界
 
-M05-F04/F06：本片不改变daemon原请求或维护协议；完整上传/解包/逐文件校验后仍待中央最终保存，再发送原维护输入，安全失败保留旧版本/身份。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+M05-F04/F06：该实现不改变daemon原请求或维护协议；完整上传/解包/逐文件校验后仍待中央最终保存，再发送原维护输入，安全失败保留旧版本/身份。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
 
 ## 当前版本准入与管理作用域
 
@@ -20,41 +30,41 @@ M05-F02/F04：Linux包包含MachineHost/Core的原OpenCode版本复验与快速A
 
 ## 当前历史详情读取与错误作用域
 
-M05-F04/F06：生产MachineHost的task/conversation按实际backend快照路由；根legacy只有自身含原对象才接收详情读，多来源冲突或ID不符拒绝，未知来源明确未找到，真实探测/配置失败保留。协议2、原请求去重及控制语义不变。 2026-10-19源码/GitHub预发布alpha.30，GitHub已预发布alpha.30；[设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
+M05-F04/F06：生产MachineHost的task/conversation按实际backend快照路由；根legacy只有自身含原对象才接收详情读，多来源冲突或ID不符拒绝，未知来源明确未找到，真实探测/配置失败保留。协议2、原请求去重及控制语义不变。 [设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
 
-## 独立 MCP 配置与运行契约（2026-10-19）
+## 独立 MCP 配置与运行契约
 
 M05-F04：认证主连接新增四个mcp.*方法，沿原MachineHost处理目标Linux用户的配置。install/export/remove参与维护admissions计数，quiesce后拒绝配置写入，status仍只读。旧包无此方法，客户端不得当作已安装；需要升级原远端后台。独立stdio服务只连同机回环broker，再经原主连接回中央验关系。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
 
-2026-10-18 未发布源码：daemon 的 MachineHost 静态注册增加 Hermes/Pi/DSH，仍在目标用户环境执行；任务属于同机宿主与持久 worker，relay 断开或观察器 close 不取消原任务。协议版本和认证不变；旧已安装 daemon 不因客户端更新自动获得新适配器，需要发布含新增模块的后台再在原机器升级。[扩展范围与证据](../../iterations/I07/native-agent-expansion.md)。
+daemon 的 MachineHost 静态注册包含 Hermes/Pi/DSH，仍在目标用户环境执行；任务属于同机宿主与持久 worker，relay 断开或观察器 close 不取消原任务。协议版本和认证不变；旧已安装 daemon 不因客户端更新自动获得新适配器，需要发布含新增模块的后台再在原机器升级。[扩展范围与证据](../../iterations/I07/native-agent-expansion.md)。
 
-## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
+## SSH持久拒绝恢复
 
-M05-F05/F06：daemon业务/协议不变，既有daemon.receiptRead返回原持久method/op/key/target/fingerprint/state/error。新客户端读取匹配rejected/NOT_CONFIGURED作为恢复证据；confirmed仍返回原任务，unknown缺证明仍保守。无需为本修复升级支持该endpoint的可信旧daemon。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+M05-F05/F06：daemon业务/协议不变，既有daemon.receiptRead返回原持久method/op/key/target/fingerprint/state/error。新客户端读取匹配rejected/NOT_CONFIGURED作为恢复证据；confirmed仍返回原任务，unknown缺证明仍保守。无需为本修复升级支持该endpoint的可信旧daemon。 [完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
 
-## alpha.23 / I07A-C首批兼容边界
+## 小队工具兼容边界
 
-小队工具及teamContinuation身份续接能力随alpha.23离线资源更新；任务业务由中央负责，daemon帧协议和身份未改变。共享MachineHost提供teamCollaboration能力标志和小队scope回调。旧后台仍可用于旧模式；新小队原生需求要求能力标志，不支持时明确在本轮派发前拒绝，不自动换节点。现有SSH帧协议2、daemon认证/原请求收据不变。新的源码与离线资源包含小队工具；中央自动主协调在WSL真实Claude已实测；用户独立SSH自动小队链尚未实测，不能用本机Linux实测替代。[实际交付](../../iterations/I07/delivery.md)。
+小队工具及teamContinuation身份续接能力随alpha.23离线资源更新；任务业务由中央负责，daemon帧协议和身份未改变。共享MachineHost提供teamCollaboration能力标志和小队scope回调。旧后台仍可用于旧模式；新小队原生需求要求能力标志，不支持时明确在派发前拒绝，不自动换节点。现有SSH帧协议2、daemon认证/原请求收据不变。新的源码与离线资源包含小队工具；中央自动主协调在WSL真实Claude已实测；用户独立SSH自动小队链尚未实测，不能用本机Linux实测替代。[实际交付](../../iterations/I07/delivery.md)。
 
-原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。代码基线：新安装 daemon `0.6.0-alpha.19`；可复用可信清单内的 alpha.2–alpha.11，实际运行版本由握手确认、远端协议 `2`。独立进程、私有 socket、收据去重、relay 分离已实现；已有独立服务器断线期间任务继续记录。事件过期补偿已在 alpha.10 实现；完整故障矩阵尚未完成，详见 [测试报告](test-report.md)。
+新安装 daemon 版本由当前发布包决定；可信清单内已收录的旧版本可继续复用（当前覆盖 alpha.2–alpha.33，见 [M04 可信清单](../04-ssh-access/design.md)），实际运行版本由握手确认、远端协议 `2`。独立进程、私有 socket、收据去重、relay 分离已实现；已有独立服务器断线期间任务继续记录。事件过期补偿已实现；完整故障矩阵尚未完成，详见 [测试报告](test-report.md)。
 
 ## 1. 用途与功能
 
-**当前整合实现（2026-10-19，M05-F02/F04/F05/F08）**：owned-object-controls-v1随daemon hello公布；对象读控回原MachineHost，独立mcp.*仍经认证原主连接与机器归属，旧daemon不能按同协议号冒充新方法。客户端scoped-management/opencode-v2能力不变成所有旧SSH方法的额外通用门槛。新候选Windows与Linux包同源，未实际部署独立服务器。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
+M05-F02/F04/F05/F08：owned-object-controls-v1随daemon hello公布；对象读控回原MachineHost，独立mcp.*仍经认证原主连接与机器归属，旧daemon不能按同协议号冒充新方法。客户端scoped-management/opencode-v2能力不变成所有旧SSH方法的额外通用门槛。Windows与Linux包同源，未实际部署独立服务器。 [实现与实际证据](../../iterations/I07/integrated-source.md)。
 
 Linux daemon 是目标 Linux 上由 AgentBridge 安装的机器管理进程。它发现本用户可用的原生 Agent、建立执行上下文、接收需求并保存操作收据。SSH 会话内的 relay 只负责数据转发，远端已接收任务的生命周期由 daemon/原生 worker 负责，SSH 断开不等于取消任务。
 
 | 功能 ID | 可验收行为 | 当前状态 |
 | --- | --- | --- |
-| M05-F01 | 每用户、每 Bridge profile 一个后台；重连复用原身份和进程 | 本模块有真实 detached 集成覆盖，独立服务器已复用 |
-| M05-F02 | 只有正确中央/profile/daemon/协议握手后才能访问业务 | 受控测试通过；SSH 层还另行验证主机与用户 |
-| M05-F03 | 中文/emoji 消息完整，畸形/过大/拥塞请求明确拒绝 | 分帧、UTF-8、限制与背压测试通过 |
-| M05-F04 | 发现 Agent、独立上下文、执行需求、读取任务/会话 | 生产 host 集成与真实远端 OpenCode 新会话通过 |
-| M05-F05 | 同 ID 重试不重复原生执行，参数变化拒绝；未知结果只查询原记录 | 10 次并发 = 1 次受控原生调用；重启/取消恢复测试通过 |
-| M05-F06 | relay/SSH 消失任务保留，重连读取原结果和续聊 | 受控及真实服务器记录通过；alpha.2 真实两轮 native Session ID 比较通过，完整恢复矩阵仍有限 |
-| M05-F07 | 状态事件有持久递增游标，可回读；新通道替代旧通道 | 代次/事件受控通过；alpha.10 生产 SSH/daemon 隔离补偿已验证，独立服务器专项待验 |
-| M05-F08 | 原生 Agent 协作工具经当前通道回调中央 | 通道归属/旧回调 fencing 受控通过；I06B 双向核心链已有真实通过，最终包复验与完整故障边界见当次报告 |
-| M05-F09 | 安全升级、停机、卸载以及服务器重启后的自启动 | alpha.11 升级/回滚/停止/卸载已实现；服务器重启自启动不在当前支持范围 |
+| M05-F01 | 每用户、每 Bridge profile 一个后台；重连复用原身份和进程 | 源码已实现；本模块有真实 detached 集成覆盖，独立服务器已复用 |
+| M05-F02 | 只有正确中央/profile/daemon/协议握手后才能访问业务 | 源码已实现；受控测试通过；SSH 层还另行验证主机与用户 |
+| M05-F03 | 中文/emoji 消息完整，畸形/过大/拥塞请求明确拒绝 | 源码已实现；分帧、UTF-8、限制与背压测试通过 |
+| M05-F04 | 发现 Agent、独立上下文、执行需求、读取任务/会话 | 源码已实现；生产 host 集成与真实远端 OpenCode 新会话通过 |
+| M05-F05 | 同 ID 重试不重复原生执行，参数变化拒绝；未知结果只查询原记录 | 源码已实现；10 次并发 = 1 次受控原生调用；重启/取消恢复测试通过 |
+| M05-F06 | relay/SSH 消失任务保留，重连读取原结果和续聊 | 源码已实现；受控及真实服务器记录通过；真实两轮 native Session ID 比较通过，完整恢复矩阵仍有限（部分验证） |
+| M05-F07 | 状态事件有持久递增游标，可回读；新通道替代旧通道 | 源码已实现；代次/事件受控通过；生产 SSH/daemon 隔离补偿已验证，独立服务器专项待验（部分验证） |
+| M05-F08 | 原生 Agent 协作工具经当前通道回调中央 | 源码已实现；通道归属/旧回调 fencing 受控通过；双向核心链已有真实通过，最终包复验与完整故障边界见本模块报告 |
+| M05-F09 | 安全升级、停机、卸载以及服务器重启后的自启动 | 源码已实现；升级/回滚/停止/卸载；服务器重启自启动不在当前支持范围 |
 
 ## 2. 对象与相邻模块
 
@@ -206,19 +216,19 @@ alpha.11 已实现空闲安全升级、健康失败回滚和产品停止/卸载�
 
 修改协议/身份/收据/事件时同步本设计、[测试报告](test-report.md)、M04/M07/M08 的对应契约和迭代记录。变更来源：[I06 SSH/daemon 初始方案](../../iterations/I06/ssh-design.md)、[开发项 A03–A06/C01–C03](../../iterations/I06/development.md)、[进度](../../iterations/I06/progress.md)。
 
-## 2026-10-12：6A 收尾
+## 收尾行为
 
 daemon 握手版本读取其所在发布包的 package.json；源码开发时读取 desktop/package.json。不能在代码中写死旧版本，否则新包的 SSH 握手会拒绝。
 
 实际 Linux 无可发现系统/用户 Node 的隔离 HOME 已验证：生产探测返回空 Node 路径，发布包私有 ELF Node 启动真实 daemon，第二次启动复用同一 PID 和 daemonId。这个验证没有 SSH 安装或模型调用，独立服务器正常安装另有 Windows 实测证据。
 
-alpha.9 收录的 alpha.8 Linux manifest 与原 alpha.8 包报告 manifestDigest 逐字节规范 JSON 摘要核对后保存；允许可信旧 daemon 复用，不自动升级远端。当前候选资源和实际验证见 [节点管理交付](../../iterations/I06/node-management.md)，SSH/原生任务沿用原版本证据，本次未重跑独立服务器。
+alpha.9 收录的 alpha.8 Linux manifest 与原 alpha.8 包报告 manifestDigest 逐字节规范 JSON 摘要核对后保存；允许可信旧 daemon 复用，不自动升级远端。当前候选资源和实际验证见 [节点管理交付](../../iterations/I06/node-management.md)，SSH/原生任务沿用原版本证据，未重跑独立服务器。
 
-## I06C 当前机器管理与观察恢复
+## 当前机器管理与观察恢复
 
-daemon.eventRead 的 cursorGap/earliestCursor、items/nextCursor/hasMore 由当前 SSH 客户端完整处理：缺事件先补 snapshot，再读完保留页；客户端不猜 latestCursor，事件处理失败不提前推进。连接代次与原 daemon 身份不变，无 Prompt 补发。新候选仍可信复用旧协议 2 发布；alpha.11 维护流程见下节。 完整接口、事务、当次实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
+daemon.eventRead 的 cursorGap/earliestCursor、items/nextCursor/hasMore 由当前 SSH 客户端完整处理：缺事件先补 snapshot，再读完保留页；客户端不猜 latestCursor，事件处理失败不提前推进。连接代次与原 daemon 身份不变，无 Prompt 补发。新候选仍可信复用旧协议 2 发布；alpha.11 维护流程见下节。 完整接口、事务、实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
 
-## 当前维护与原操作恢复（alpha.13）
+## 当前维护与原操作恢复
 
 daemon.quiesce 先建立内存准入门再读取任务与收据；非终态、忙节点、在途创建或未确认原控制均拒绝切换。维护租约持久化到 maintenance.json，daemon.shutdown 仅接受同一操作且无在途任务。独立维护 worker 校验 owner/profile/UID、版本及每文件摘要后切换 current.json，目标健康核对失败回到原版本。旧 daemon 不支持停机 RPC 时使用已经校验的 owned-stop：先取得 pidfd，再核对 UID 与原启动标识，只经内核句柄发送 SIGTERM，拒绝 PID-only 降级。未知 native 控制收据不能被包装为 confirmed；只确认原 operationId 与原目标的有效状态，取消接收与实际终态分开。
 

@@ -105,7 +105,10 @@ test('v1 incomplete or tool-only output and missing inputs never release the ori
   const h=await harness();try{
     const task=await h.active(await h.submit('wait')),config=h.ec.agents[0]!;assert(config.adapter==='opencode');
     const reader=new OpenCodeDriver(config,()=>assert.fail(),()=>assert.fail()),session=h.native.sessions.get(task.native!.sessionId)!;
-    session.done=true;const assistant=session.messages.at(-1)!;assistant.info.time.completed=Date.now();assistant.info.finish='tool-calls';
+    // The native binding is persisted before prompt dispatch. Wait for the
+    // fixture's assistant message before simulating its incomplete output.
+    const assistant=await until(async()=>session.messages.find(message=>message.info.role==='assistant')||false);
+    session.done=true;assistant.info.time.completed=Date.now();assistant.info.finish='tool-calls';
     assert.equal((await reader.inspect(task.native!)).outcome,undefined);
     assistant.info.finish='stop';assistant.parts.push({type:'tool',state:{status:'running'}});
     assert.equal((await reader.inspect(task.native!)).outcome,undefined);

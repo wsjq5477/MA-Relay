@@ -1,6 +1,14 @@
 # M02 中央协调后台设计
 
-2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+## alpha.36整合边界
+
+M02-F01：当前本地alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+
+## 原宿主准入失败的管理结算
+
+M02-F04：原 node/attach 管理调用在宿主工厂契约校验处明确失败时，保存 rejected。历史 unknown 只在原台账完整method/lane/action/机器/节点/operationId/params摘要与ADAPTER_HOST固定错误均匹配，且原nodeOperation返回同ID not_found时结算rejected；已有同ID终态收据优先。查询时才出现的错误、超时、外来ID或缺摘要均保持unknown。不重派attach或任务，原时间、参数与历史保留。[完整规则与分层验证](../../iterations/I07/agent-management-recovery.md)。
+
+中央hello公布`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力；新前台遇到仍在运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
 
 ## 当前维护进度与持久化边界
 
@@ -10,32 +18,28 @@ M02-F04：进度通知仅内存合并；正确性通知同步保存，失败恢�
 
 M02-F04：中央要求三项能力owned-object-controls-v1/scoped-management-v1/opencode-v2-admission-v1；旧中央仍允许设置/运行信息/显式停止。GraphOperationJournal的node/machine按machineId或connectionId冲突，缺来源和relation保守互锁。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
-## 独立 MCP 配置与运行契约（2026-10-19）
+## 独立 MCP 配置与运行契约
 
 M02-F03/F05：白名单加入mcp.status/install/export/remove。先由原节点归属派生机器和adapter，忽略客户端路径或可执行项，错误机器拒绝。长期MCP的配置状态独立于原执行pending；状态刷新不提交模型任务。四方法沿原MachineHost/RPC路由，不能扩大连接关系或重放原请求。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
-
-2026-10-18能力补验：已验证同WSL三个独立Claude宿主的真实公共文档交付/独立复核/原主会话协调；开发与复核成员各一轮，主协调三轮，成员原生成功后才逐项验收，主原生成功后才总完成。原既有权限/事件/预算与接口不变；代码编译返修/独立SSH仍待验证。[范围与真实证据](../../iterations/I07/native-members.md)。
 
 业务验收除原生成功终态外，还须当前有效执行没有continuationError：工作项按当前业务轮次最后一次尝试，独立协调按每成员最后一次尝试。旧轮次/已被后续执行取代的异常保留历史但不永久阻塞。任务验收、直接总验收及延后提议生效前均核对，不改写Core原生终态。此为alpha.28后未发布源码增量，[规则与验证](../../iterations/I07/acceptance-native-binding.md)。
 
 原生Session字段只在非空白字符串且满足既有长度约束时作为绑定/变化证据；空值不建立绑定，也不清除已观察的有效Session。真实非空Session变化仍拒绝协作/后续激活，缺绑定仍不能自动续接。此alpha.28后源码增量未入EXE，[实际规则与验证](../../iterations/I07/blank-native-session.md)。
 
-## 2026-10-17：SSH持久拒绝恢复（alpha.28已预发布）
+## SSH持久拒绝恢复
 
-M02-F04：捕获认证SSH提供的持久拒绝证明，经原意图核对并先落盘后结算；恢复CAS再检查证明。普通request返回state=rejected且无taskId，同ID提交仍错误返回；原时间/参数保留，不重放。 当前源码/GitHub预发布alpha.28；[完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
+M02-F04：捕获认证SSH提供的持久拒绝证明，经原意图核对并先落盘后结算；恢复CAS再检查证明。普通request返回state=rejected且无taskId，同ID提交仍错误返回；原时间/参数保留，不重放。 [完整需求、状态与验证](../../iterations/I06/daemon-rejection-recovery.md)。
 
-## 2026-10-17：Windows未派发与持久化恢复
+## Windows未派发与持久化恢复
 
-M02-F04：NETWORK_PERSIST只有严格原意图同源/双指纹、dispatched=false、无task/Conversation绑定且无在途node job才可判原操作rejected；recoverPending结算前再核对。当前查询NOT_FOUND或任意远端EPERM不构成未执行证明。 alpha.27当次源码与预发布；[需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
+M02-F04：NETWORK_PERSIST只有严格原意图同源/双指纹、dispatched=false、无task/Conversation绑定且无在途node job才可判原操作rejected；recoverPending结算前再核对。当前查询NOT_FOUND或任意远端EPERM不构成未执行证明。 [需求、状态图、验证与交付](../../iterations/I06/windows-start-persistence.md)。
 自动续接的首次任务回应必须匹配持久意图resumeConversationId，不能等待接收外来Conversation后才建立校验；已有conversationId绑定继续严格匹配。错误回应保持待核对，只查原请求恢复。该补强已随alpha.27预发布交付，[实测与边界](../../iterations/I07/intended-conversation.md)。
 
-## 2026-10-17：Windows原请求上下文恢复
+## Windows原请求上下文恢复
 
 M02-F04：原请求查询经MachineHost只读定位已配置原上下文；缺少Agent身份不能匹配未完成上下文。原收据匹配后才结算pending，缺收据仍unknown。[完整修复与证据](../../iterations/I06/windows-context-recovery.md)。
 
 原生任务回应须有非空白字符串taskId/conversationId且匹配原request及已有绑定，才可更新小队执行事实；首次不完整回应保持unknown，后续仅查原请求，不能凭succeeded字段撤权、解除占用或验收。该完整身份校验已随alpha.25发布。[完整规则与验证](../../iterations/I07/incomplete-receipt.md)。
-
-本机真实Claude自动主角色首轮与原会话续接后的独立权限等待/允许、观察后台重启已补验；仅user_start/attention两个事件，等待通知/阅读回执不新增激活。不是执行成员或独立SSH完整链。见[权限证据](../../iterations/I07/resume-native-permission.md)。
 
 ## 当前停止工作行为
 
@@ -43,41 +47,38 @@ M02-F04：原请求查询经MachineHost只读定位已配置原上下文；缺�
 
 停止工作状态为stopping → closed，不向Core Task.status增加stopping；等待字段继续仅公开类别/数量，所有新行为和原请求规则见[停止专项](../../iterations/I07/native-stop.md)。
 
-## alpha.24本地候选 / I07C停止协调
+## 停止协调
 
-2026-10-16：源码/本地候选alpha.24，GitHub预发布仍alpha.23；I07A/B基础继续适用，完整I07C与I06C未准出。
+I07A/B基础继续适用，完整I07C与I06C未准出；当前发布状态见[迭代发布记录](../../iterations/release-ledger.md)。
 
 | 功能 ID | 功能 | 当前状态 |
 | --- | --- | --- |
-| M02-F08 | 小队公共记录与原操作事务 | I07A基础继续适用 |
-| M02-F09 | 任务与授权交接原子事务 | I07B源码已实现，实际分层证据见报告 |
-| M02-F10 | 持久事件激活与后台就绪恢复 | I07C首批源码实现，证据层级见本模块报告 |
-| M02-F11 | 停止意图与原控制台账恢复 | alpha.24源码实现，实际证据与边界见[停止专项](../../iterations/I07/native-stop.md) |
+| M02-F08 | 小队公共记录与原操作事务 | 已发布；小队基础行为继续适用 |
+| M02-F09 | 任务与授权交接原子事务 | 源码已实现；实际分层证据见本模块报告 |
+| M02-F10 | 持久事件激活与后台就绪恢复 | 源码已实现；证据层级见本模块报告 |
+| M02-F11 | 停止意图与原控制台账恢复 | 源码已实现；实际证据与边界见[停止专项](../../iterations/I07/native-stop.md) |
 
 TeamSpace状态格式3原子迁移，新增持久事件及激活关联，原操作收据/任务/身份不变。事件/激活意图/次数消耗同事务，2秒定时器只查原请求并在有新事件、权限/能力/预算有效时激活，不使用模型规划。启动先等待原MCP端点恢复再向公共调用/激活器返回就绪；重启不补发未知或未完成派发标记的原激活。关闭窗口不停止后台调度，主动停止后台保留原请求待恢复。
 
-本次源码在小队原执行记录中展示原生权限/输入等待类别和数量，并追加去重系统通知。通知不触发自动激活、不批准权限，也不复制原生问题、工具参数或权限ID。unknown保留上次观察到的等待；只有已核对的非unknown状态才能清除。相同等待跨重启不重复通知，原任务终态清除等待。详见[等待可见性专项](../../iterations/I07/native-waiting.md)。
+小队原执行记录展示原生权限/输入等待类别和数量，并追加去重系统通知。通知不触发自动激活、不批准权限，也不复制原生问题、工具参数或权限ID。unknown保留上次观察到的等待；只有已核对的非unknown状态才能清除。相同等待跨重启不重复通知，原任务终态清除等待。详见[等待可见性专项](../../iterations/I07/native-waiting.md)。
 
 I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交接继续按[I07B完整行为](../../iterations/I07/task-handoff.md)执行；新流程、异常、预算、接口和源码见[I07C首批交付](../../iterations/I07/automation.md)。以下原功能继续适用。
 
-原功能基线说明（保留原日期/版本，以下原模式继续适用）：更新日期：2026-10-14。代码基线：桌面源码 `0.6.0-alpha.18`，根 CLI 包 `0.1.0`；Windows 已发布便携版仍为 `0.5.0`。本模块已实现独立后台和本地 IPC，Windows 候选生命周期与普通 EXE 已验收。测试结论见 [本模块测试报告](test-report.md)。
+根 CLI 包 `0.1.0`；稳定历史 Windows 便携版为 `0.5.0`，当前发布状态见[资料入口](../../README.md)与[历史发布登记](../../iterations/release-ledger.md)。本模块已实现独立后台和本地 IPC，Windows 候选生命周期与普通 EXE 已验收。测试结论见 [本模块测试报告](test-report.md)。
 
 ## 1. 用途与交付功能
-
-**当前整合实现（2026-10-19，M02-F01/F03/F04/F05/F08）**：中央/客户端三项能力门禁和按机器持久管理台账已与mcp.status/install/export/remove、team.materials/精确revision读取共存；写操作原幂等收据保持，长期MCP无父Task不影响中央原任务恢复。 [源码/候选/实际证据](../../iterations/I07/integrated-source.md)。
-
 
 中央协调后台（Coordinator）是这份 AgentBridge 配置的管理进程。它保存机器、Agent 节点、协作关系和待核对操作，连接 Windows、WSL、SSH 机器，并把用户需求转发到指定节点。它自身没有模型，不负责推理；主 Agent 由用户从已接入的原生 Agent 节点中指定。
 
 | 功能 ID | 用户可看到的行为 | 当前状态 |
 | --- | --- | --- |
-| M02-F01 | 打开看板自动连接或启动后台；相同配置复用一个后台 | 已实现，受控测试通过 |
-| M02-F02 | 关闭窗口后后台保持运行；重开后继续读取原机器和任务 | 已实现；Linux 开发环境有真实记录，Windows 候选主要流程已实测 |
-| M02-F03 | Windows、WSL、SSH 节点由同一后台管理，离线机器不替代成其他机器 | 已实现，路由回归通过 |
-| M02-F04 | 提交前保存原请求，响应中断后显示待核对操作，通过原 ID 恢复 | 已实现，台账回归通过 |
-| M02-F05 | 只允许持有本用户、本配置后台身份的本地客户端调用 | 已实现，错误身份拒绝测试通过；Windows ACL 实测未完成 |
-| M02-F06 | 便携程序临时目录被清理后，后台仍有完整代码、依赖和运行资源 | 已实现资源冻结；当前 Windows 候选主要流程已验收 |
-| M02-F07 | 主动“停止后台并退出”与关闭窗口区分 | 设置页入口与确认已实现；IPC 停止和界面模拟通过，真实包结果单列 |
+| M02-F01 | 打开看板自动连接或启动后台；相同配置复用一个后台 | 源码已实现；受控测试通过 |
+| M02-F02 | 关闭窗口后后台保持运行；重开后继续读取原机器和任务 | 源码已实现；Linux 开发环境有真实记录，Windows 候选主要流程已实测 |
+| M02-F03 | Windows、WSL、SSH 节点由同一后台管理，离线机器不替代成其他机器 | 源码已实现；路由回归通过 |
+| M02-F04 | 提交前保存原请求，响应中断后显示待核对操作，通过原 ID 恢复 | 源码已实现；台账回归通过 |
+| M02-F05 | 只允许持有本用户、本配置后台身份的本地客户端调用 | 源码已实现；错误身份拒绝测试通过；Windows ACL 实测未完成（部分验证） |
+| M02-F06 | 便携程序临时目录被清理后，后台仍有完整代码、依赖和运行资源 | 源码已实现；资源冻结；当前 Windows 候选主要流程已验收 |
+| M02-F07 | 主动“停止后台并退出”与关闭窗口区分 | 源码已实现；设置页入口与确认；IPC 停止和界面模拟通过，真实包结果单列 |
 
 这里的“相同配置”指同一个 `userData` 目录。不同测试配置目录拥有不同后台身份和 IPC 地址，不能混用任务。
 
@@ -169,9 +170,9 @@ sequenceDiagram
 
 当前另支持 `team.contextPacket({runId,targetAgentId,selections})`：同一次状态读取先授权view，再补本工作的全消息供明确ID/seq选择，交由纯team-context-packet模块校验精确引用/目标/限额。成功和失败均不写receipt、不派发或确认消息；256 KiB含完整JSON/Markdown，超限拒绝。成员工具沿原scope，不授予目标访问或发送给目标。接口/数据/错误/源码与当前证据见[CT-05](../../iterations/I07/context-packet.md)。
 
-alpha.29之后源码：service.dispatch的team方法集合增加 `team.materials`，用户参数runId、可选limit/documentAfter；获准成员MCP调用 `team_materials` 沿原scope路由。TeamSpace先授权，再将同一次read所得view交给纯投影 `team-materials.cjs`，返回schema1 JSON及Markdown。没有新写操作/幂等收据、通知确认、网络可达性探测或任务派发。
+service.dispatch 的 team 方法集合包含 `team.materials`，用户参数runId、可选limit/documentAfter；获准成员MCP调用 `team_materials` 沿原scope路由。TeamSpace先授权，再将同一次read所得view交给纯投影 `team-materials.cjs`，返回schema1 JSON及Markdown。没有新写操作/幂等收据、通知确认、网络可达性探测或任务派发。
 
-`team.document` 可选revision严格读既有不可变history；缺失修订返回TEAM_DOCUMENT_REVISION，无参数保留原完整当前文档结构。跨工作/撤权/原生终态scope继续拒绝，所有者可读历史。索引摘要是返回页内容摘要，不是全局工作修订或权限。限额/白名单与[完整合约](../../iterations/I07/public-materials.md)一致；IPC/daemon协议版本不变。本片尚未进入alpha.29包。
+`team.document` 可选revision严格读既有不可变history；缺失修订返回TEAM_DOCUMENT_REVISION，无参数保留原完整当前文档结构。跨工作/撤权/原生终态scope继续拒绝，所有者可读历史。索引摘要是返回页内容摘要，不是全局工作修订或权限。限额/白名单与[完整合约](../../iterations/I07/public-materials.md)一致；IPC/daemon协议版本不变。该实现尚未进入公开发布包。
 
 本地 IPC 使用 UTF-8 JSON 行，协议版本为 `2`，不同于远端 daemon 的四字节长度帧。`StringDecoder` 保留跨 chunk 的完整中文和 emoji。未经握手不能调用业务；握手限时 5 秒。单条请求最大 1 MiB、每客户端最多 64 项在途请求，输出缓冲达到 8 MiB 时关闭通道。
 
@@ -221,15 +222,13 @@ Windows OpenCode 的共享运行资源 INVALID/MISSING 可发生在上下文创�
 
 ## 7. 已知限制与后续设计
 
-已实现但已通过候选主要流程：便携包后台冻结、关闭/重开窗口、明确停止及真实 SSH 原任务恢复。Windows 跨用户管道 ACL 等专项边界未测。2026-10-10 的已有真实记录来自 Linux 开发端，不能替代 Windows 新包。
+已实现但已通过候选主要流程：便携包后台冻结、关闭/重开窗口、明确停止及真实 SSH 原任务恢复。Windows 跨用户管道 ACL 等专项边界未测。早期的已有真实记录来自 Linux 开发端，不能替代 Windows 新包。
 
 尚未完成：后台版本升级/兼容迁移、完整连接故障指标验收。设置页已提供“仅关闭窗口”和“停止后台并退出”；后者展示连接/协作暂停与远端任务保留的确认，确认时暂停界面轮询，避免退出过程中再次拉起后台。新客户端仅在协议及显式语义能力齐备时使用已有后台；握手不要求源码版本字符串一致，发布验收应检查实际后台版本，不能仅看窗口版本。
 
 资源缓存摘要包含后台 CJS、根 `dist` 和 `package.json`，没有逐一纳入依赖目录与 Linux 包内容。发布时仍需核对冻结资源和离线包，不将缓存命中视为完整发布校验。
 
 ## 8. 代码定位与维护
-
-原请求/原Session/控制规则在2026-10-19经当前WSL三工具[直接生命周期](../../iterations/I07/connection-native.md)及[MCP六方向委派](../../iterations/I07/connection-delegation.md)补验。新增的是可恢复验收脚本与证据，本模块生产代码/数据/协议未改变；不会用新脚本重放已有未知动作。
 
 | 职责 | 代码 |
 | --- | --- |
@@ -242,7 +241,7 @@ Windows OpenCode 的共享运行资源 INVALID/MISSING 可发生在上下文创�
 
 修改身份、IPC、生命周期或台账行为时，需同步本设计、[测试报告](test-report.md)、相关模块接口与当期迭代记录。变更来源：[I06 开发项 A01/A05/A06](../../iterations/I06/development.md)、[当前进度](../../iterations/I06/progress.md)；这些来源不是阅读本模块的前提。
 
-## I06B 图元数据事务
+## 图元数据事务
 
 窗口沿用 call(method,params) 的认证 IPC，不新增 HTTP 控制入口。中央接受 collaborationOperation、graphLayout、saveGraphLayout、graphLayoutOperation、graphPending。关系与 relationOperations 同存在 agent-network.json；布局与自己的收据存在 graph-layout.json。两者写临时文件、flush 后 rename，成功后才替换内存状态。损坏布局保留 corrupt 副本并用默认位置，不覆盖关系/历史。
 
@@ -253,22 +252,22 @@ Windows OpenCode 的共享运行资源 INVALID/MISSING 可发生在上下文创�
 
 原任务 recoverPending 只查询原 machineId/requestId；原 daemon 的持久记录返回明确执行前 AGENT_UNHEALTHY 时，中央核对为 rejected，不调用 submit。缺收据、网络未知与其他模糊失败保持 unknown。与图收据、控制 confirmed 及任务终态分开。
 
-## alpha.9 节点管理入口与意图
+## 节点管理入口与意图
 
 受限方法新增 manageNode/nodeOperation；旧 attachNode 入口转成相同的受控节点事务。操作前核对 machineId 和来源机器 pending.json，未知原生提交/回复/取消阻止节点变更。GraphOperationJournal 的 node lane 与 relation 互锁，layout 独立；意图先落盘，确认后按原节点收据完成，未知仅查询原 ID。确定拒绝也可按原 ID 查回；落盘故障仍保留未知。snapshot.nodeManagement 是新增能力标志，旧中央无此字段时新界面不写节点事务。原认证与 IPC 协议不变，详见 [节点管理](../../iterations/I06/node-management.md)。
 
-## I06C 当前机器管理与观察恢复
+## 当前机器管理与观察恢复
 
-中央服务为 SSH 管理加入稳定原 ID、修订、来源准入锁和秘密字段白名单。危险动作核对来源全部非终态任务、实例/节点/上下文/目录锁及原 native pending；重连仅恢复观察，不因任务 unknown 禁用。machine、node、relation 未知共享屏障，layout 独立；查询原 SSH 收据可按原 ID 补齐网络本地撤权，跨文件中断不重发远端任务。 完整接口、事务、当次实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
+中央服务为 SSH 管理加入稳定原 ID、修订、来源准入锁和秘密字段白名单。危险动作核对来源全部非终态任务、实例/节点/上下文/目录锁及原 native pending；重连仅恢复观察，不因任务 unknown 禁用。machine、node、relation 未知共享屏障，layout 独立；查询原 SSH 收据可按原 ID 补齐网络本地撤权，跨文件中断不重发远端任务。 完整接口、事务、实际证据与未完成范围见 [6C 首批](../../iterations/I06/machine-management.md)。
 
-## 当前维护与原操作恢复（alpha.13）
+## 当前维护与原操作恢复
 
 machine.maintainDaemon 经过稳定操作意图、来源机器准入和配置白名单，再交给 SSH 管理执行；machine.operation 只核对原维护。机器/node/relation 的 unknown 共用元数据屏障，layout 独立；直接 MCP 原生准入也检查该来源机器。pending.json 损坏或无法持久化时拒绝执行，不能当作空表。表单答案仅保留摘要与 [redacted]，恢复依赖原目标/ID，不持久化敏感答案或任意原生返回正文。
 
 实现入口：[coordinator-service.cjs](../../../desktop/electron/coordinator-service.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
 
-## 未确认操作的执行资源范围（alpha.20 已预发布）
+## 未确认操作的执行资源范围
 
 Coordinator 以原台账、AgentNetwork 请求意图和持久实例归属解析节点及目录。来源明确时，同节点继续阻塞，其他节点仅在共享目录时冲突；缺少来源/节点/原目录依据时保留整机或全局保护。原请求不被解除或迁移，独立节点可以新建及续聊。初步准入之后，在上下文完成真实目录解析、即将调用原生任务前再次检查，覆盖 Windows/WSL 路径别名和新建上下文。相同 ID 的例外同时核对来源机器和内容，不能靠跨机器同名 ID 绕过保护。机器维护、移除和节点管理仍按原整机策略。
 
-上下文准备及续聊读取/协作 scope 准备失败，在发送原生调用之前保存 preparationRejection。原 requestId、输入指纹、最终有效指纹、来源和未派发状态匹配，且无任务/会话绑定和在途节点 job 时，可把原 unknown 对账为 rejected；落盘前重查证据。已拒绝请求的同 ID 重试返回原拒绝，修好配置后由用户新建请求。仅本次查询报错不产生拒绝证明。[需求与验证](../../iterations/I06/pending-isolation.md)。
+上下文准备及续聊读取/协作 scope 准备失败，在发送原生调用之前保存 preparationRejection。原 requestId、输入指纹、最终有效指纹、来源和未派发状态匹配，且无任务/会话绑定和在途节点 job 时，可把原 unknown 对账为 rejected；落盘前重查证据。已拒绝请求的同 ID 重试返回原拒绝，修好配置后由用户新建请求。仅该次查询报错不产生拒绝证明。[需求与验证](../../iterations/I06/pending-isolation.md)。

@@ -1,40 +1,32 @@
 # AgentBridge
 
-2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](doc/iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH 等）呈现为可观察的节点：在一个客户端里发需求、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
 
-2026-10-20发布前准备记录 **0.6.0-alpha.34**：用户授权提交当前完整源码并发布Windows EXE，含OpenCode1.x/2.x、独立MCP、CT-04/CT-05与既有alpha.30–33整合，补alpha.33精确daemon清单。固定源码构建、普通EXE及公开完整下载结果完成后在[本轮交付](doc/iterations/I07/alpha34-release.md)登记；当时仍在发布准备阶段，旧包/标签范围不变。
+## 当前状态与下载
 
-当前预发布 **0.6.0-alpha.33**（2026-10-20），修复issue #10的SSH维护上传与本地持久化。[下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/AgentBridge-0.6.0-alpha.33-Windows-x64.exe) · [SHA-256校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.33/SHA256SUMS.txt)。先在设置“停止后台并退出”后重开；SSH原机器需空闲时单独确认维护升级。旧unknown只查原ID，不重发。 [交付、校验与升级边界](doc/iterations/I07/maintenance-persistence.md)。
+| 项目 | 状态 |
+| --- | --- |
+| 稳定历史版本 | 0.5.0 |
+| 当前公开预发布 | **0.6.0-alpha.35**（冻结 `b5de577`，本轮未重新下载） |
+| 本地整合候选 | **0.6.0-alpha.36**，含公开alpha.35独立修复与当前全部增量；[文件、校验与实际验证](doc/iterations/I07/alpha36-delivery.md)，未公开GitHub |
+| 当前源码未发布增量 | [DSH Desktop/Web 服务入口](doc/iterations/I07/dsh-desktop-web.md)、[CT-07委派列表](doc/iterations/I07/delegation-list.md)与[当前调用方连接视图](doc/iterations/I07/agent-connections.md)与[子任务最小上下文](doc/iterations/I07/delegation-context.md)、[CT-06/08规划](doc/iterations/I07/agent-centric-operations.md) |
+| 未准出 | 完整 I06C/I07C；Hermes/Pi/DSH 真实工具执行验收；独立 SSH |
 
-2026-10-19整合完成：工作源码已结合公开alpha.30–32修复与既有CT-04/独立MCP，保留原任务/收据与全部原未提交增量。当前本地候选0.6.0-alpha.32.integrated.3；公开仍alpha.32，Git HEAD仍a872275，仅工作文件整合，未commit/push/tag。当前功能/包/未测以整合专项为准，下方是原日期历史范围。[本地候选与源码证据](doc/iterations/I07/integrated-source.md)。
+本地alpha.36：[Windows EXE](desktop/release/AgentBridge-0.6.0-alpha.36-Windows-x64.exe) · [SHA-256](artifacts/alpha36/2026-10-21/SHA256SUMS.txt)。
 
-历史预发布 **0.6.0-alpha.32**（2026-10-19）：修复issues #8/#9，OpenCode仅2.x准入、旧配置快速版本拒绝，管理unknown按机器隔离，另一空闲SSH可进入维护。[Windows EXE及校验附件](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.32)；[验证范围与升级步骤](doc/iterations/I07/version-management-recovery.md)。旧中央需在设置中停止后台并退出后重开；SSH原机器需空闲时单独确认后台维护升级。原请求/历史保留，不重发。
+[下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.35/AgentBridge-0.6.0-alpha.35-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.35/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.35)。用户无需自行编译或安装 WSL/Node.js。
 
-## Windows EXE 下载
+升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；SSH 原机器需在空闲时“后台维护 → 升级后台 → 确认升级”后重新扫描。原机器、节点、请求和历史保留；旧 unknown 只查原 ID，不重发。
 
-历史预发布 **alpha.30 / 历史详情归属与错误隔离**，修复issue #6。保留alpha.29已发布UI/原生接入能力，CT-04未提交公共材料开发不在此包。
+历史版本下载与标签/EXE/SHA 对照见 [GitHub Releases](https://github.com/wsjq5477/MA-Relay/releases) 和 [发布登记](doc/iterations/release-ledger.md)；逐轮交付记录见 [迭代目录](doc/iterations/README.md)。
 
-[直接下载Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/AgentBridge-0.6.0-alpha.30-Windows-x64.exe) · [SHA-256校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.30/SHA256SUMS.txt) · [预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.30)。先在“设置 → 后台运行 → 停止后台并退出”后打开新版；SSH机器还需空闲时“后台维护 → 升级后台 → 确认升级”至alpha.30，再重新读取原会话。仅新客户端先隔离详情错误，远端不会自动升级，忙/unknown仍受保护。
+## Windows 桌面
 
-只读原记录，不重发Prompt或控制，不重绑ID/Agent/Session。实际工程、普通EXE与分发核验及未测边界见[完整交付](doc/iterations/I07/history-detail-recovery.md)。用户故障现场/生产服务器和真实模型未复测，完整I06C/I07C及正式0.6.0未准出。源码ZIP不包含EXE。
+桌面程序按“机器 → Agent 节点”显示实际安装的工具（Windows 与 WSL 分开，SSH 接入 Linux）；接入节点不绑定项目，也不选择模型或供应商。会话中发送需求、看进度与结果；在协作关系中选择主 Agent 与获准子 Agent 后，主 Agent 通过 MCP 发现、委派并读取真实子结果。
 
-## Windows 桌面看板
+使用与构建见 [桌面说明](desktop/README.md)，完整功能边界见 [整体功能设计](doc/product-design.md)。真实协作证据（Claude↔OpenCode/Codex 双向委派等）按迭代记录；Windows Codex 原生模型被账号拒绝、WSL Codex 原生续聊接口不支持为已知环境限制，Bridge 不替换模型。
 
-以下保留 **0.5.0** 历史操作说明，新版入口和行为以[当前整体设计](doc/product-design.md)为准。首屏按“机器 → Agent 节点”显示实际安装的工具。Windows 与 WSL 分开显示，WSL 标明宿主；接入节点不绑定项目，也不选择模型或供应商。
-
-关闭旧版窗口后，双击 `desktop/release/AgentBridge-0.5.0-Windows-x64.exe`。在机器卡片中按空格勾选节点，点击“接入所选 Agent”；在“协作关系”选择主 Agent 和允许连接的子 Agent，保存关系。之后进入“会话”发送需求。目录可选，留空创建独立会话目录。只读扫描不调用模型。
-
-已真实验证 Windows Claude ↔ WSL OpenCode 和 Windows Claude ↔ WSL Codex 双向委派、子原生回复及主会话汇总。OpenCode 读取原生 CLI 最近模型偏好，本机实际沿用 DeepSeek-V4.1-Flash；不修改原生配置文件。旧任务、会话和验证历史保留，未确认请求只查询原收据。
-
-Windows Codex 当前原生模型被账号拒绝；WSL Codex 原生续聊接口返回 `list_turns is not supported yet`，这两项不能算通过。独立 SSH Linux 接入和双向核心协作的当前证据见 I06B；以上 Codex 原生限制继续保留。
-
-[桌面使用与构建说明](desktop/README.md)、[I05 提案](doc/iterations/I05/proposal.md)、[节点模块](doc/iterations/I05/node-design.md)、[协作模块](doc/iterations/I05/collaboration-design.md)、[验收报告](doc/iterations/I05/acceptance.md)。
-
-当前开发候选 **0.6.0-alpha.16 / I06C** 已发布为 GitHub 预发布，包含机器管理、SSH 上传诊断及维护入口恢复。根测试 43/43、当前桌面测试 163/163、文档检查和 Windows 包一致性校验通过；完整 I06C 仍未准出，未通过和未测项见 [I06C 收尾](doc/iterations/I06/final-delivery.md)。历史功能与原生证据按各自版本记录，不能用 alpha.13 的 Windows 实机证据替代 alpha.15 包验收。旧后台仍运行时，打开新 EXE，在“设置 → 后台运行”选择“停止后台并退出”，再打开新 EXE 加载新版后台；不需要保留旧程序或删除机器、节点和历史。
-
-完整项目材料统一在 [doc/README.md](doc/README.md)：[整体功能设计](doc/product-design.md)、[架构](doc/architecture.md)、[模块设计与测试报告](doc/module-plan.md)、[整体验证](doc/testing.md)、[迭代路线](doc/project-plan.md)。开发与维护按 [同步规则](doc/development-guide.md)同时更新整体设计、模块材料和当次迭代。
-
-以下 CLI 文档是兼容保留的 OpenCode 项目执行入口；I05 的机器节点与协作关系使用 Windows 客户端配置。
+以下 CLI 文档是兼容保留的 OpenCode 项目执行入口。
 
 ## 一个终端开始使用
 
@@ -117,11 +109,7 @@ npm run acceptance:cli -- --model PROVIDER/MODEL
 npm run acceptance:continuous -- --model PROVIDER/MODEL
 ```
 
-npm test 包含离线服务合约、存储/访问/故障和真实 TTY 测试；真实模型验收另运行 acceptance:cli 和 acceptance:continuous。两者需要 Python 3（仅作 PTY 验收驱动，产品运行只需 Node），只操作 /tmp 中复制的人工计算器示例，测试首次向导、两个真实目录的随机回复、分析/修复/实际 npm test、允许/拒绝、原生文本表单、5 次重复、退出重返、故障保护和 20 次终端刷新。使用自己已配置可用的模型，不自动选替代提供方。
-
-I03A 初始报告在 artifacts/I03A-acceptance.json；本轮真实回归在 artifacts/I03A-I03B-regression-acceptance.json 及对应 terminal.txt，原生禁止工具契约在 artifacts/I03A-native-contract.json。表单由真实原生 API 创建，只证明终端填答合约；模型自主提问单列未验证。逐项结果及剩余验证见 doc/iterations/I03A/report.md。
-
-连续会话验收报告见 [I03B 报告](doc/iterations/I03B/report.md)：真实三轮、运行/权限等待取消、后台 SIGKILL 重返、确认死亡的服务重启、20 样本延迟；Hub 重启、丢 ACK、控制响应丢失等确定性故障另由受控服务测试覆盖。原生模型自主表单仍未核验。
+npm test 包含离线服务合约、存储/访问/故障和真实 TTY 测试；真实模型验收另运行 acceptance:cli 和 acceptance:continuous。两者需要 Python 3（仅作 PTY 验收驱动，产品运行只需 Node），只操作 /tmp 中复制的人工计算器示例，测试首次向导、两个真实目录的随机回复、分析/修复/实际 npm test、允许/拒绝、原生文本表单、5 次重复、退出重返、故障保护和 20 次终端刷新。使用自己已配置可用的模型，不自动选替代提供方。逐项结果及剩余验证见 [I03A 报告](doc/iterations/I03A/report.md)与 [I03B 报告](doc/iterations/I03B/report.md)。
 
 ## 旧前台与显式配置命令
 
@@ -135,7 +123,7 @@ agentbridge native TASK_ID --permission REQUEST_ID --decision once --config .age
 
 ## Mock 演示与 I01 回归
 
-需要 Node.js 22.13+ 和 npm。本次验证版本为 Node 22.23.1 / npm 10.9.8。使用 Node 内置 node:sqlite；注册的 `agentbridge` 命令隐藏 Node 实验性 API 提示，直接 `node dist/cli.js` 或工程测试仍可看到它。JSON 结果仍只输出到 stdout。
+需要 Node.js 22.13+ 和 npm。使用 Node 内置 node:sqlite；注册的 `agentbridge` 命令隐藏 Node 实验性 API 提示，直接 `node dist/cli.js` 或工程测试仍可看到它。JSON 结果仍只输出到 stdout。
 
 ```bash
 npm ci
@@ -160,7 +148,7 @@ node dist/cli.js task TASK_ID --watch --json
 node dist/cli.js tasks
 ```
 
-run 返回 Task ID、Conversation ID、requestId 和提交状态。复制 Task ID 查询结果。也可用 npm run dev -- COMMAND 运行源码，或 npm link 后使用 agentbridge；无需全局安装也能验收。
+run 返回 Task ID、Conversation ID、requestId 和提交状态。复制 Task ID 查询结果。也可使用 npm run dev -- COMMAND 运行源码，或 npm link 后使用 agentbridge；无需全局安装也能验收。
 
 长消息与显式幂等请求：
 
@@ -199,7 +187,7 @@ npm test 会先构建，再运行单元、故障注入及真实跨进程验收�
 npm run acceptance
 ```
 
-该命令先运行领域/存储与写入故障检查，再运行同一跨进程验收。报告写入 artifacts/I01-acceptance.json，不包含凭据；其中 checks 记录跨进程验证的 29 条 AC，AC-F06-04 的存储故障/截断由 tests/core.test.ts 和 tests/hub-fault.test.ts 验证。逐项证据见 [I01 测试说明](doc/iterations/I01/testing.md)。
+该命令先运行领域/存储与写入故障检查，再运行同一跨进程验收。报告写入 artifacts/I01-acceptance.json，不包含凭据；逐项证据见 [I01 测试说明](doc/iterations/I01/testing.md)。
 
 ## 文档与源码
 
@@ -211,24 +199,8 @@ npm run acceptance
 
 文档本地链接和材料完整性检查：`node scripts/check-docs.mjs`。原 `docs/` 仅保留迁移入口；原始 `doc.md` 与旧综合计划作为历史来源。
 
-MIT License。Bridge 不直接推理、不保存模型 Key；真实执行使用 Claude Code 与 OpenCode 已有的模型与工具配置。
+MIT License。Bridge 不直接推理、不保存模型 Key；真实执行使用各原生 Agent 已有的模型与工具配置。
 
 ## 网页文档入口
 
-在仓库根运行 `npm run docs:dev`，打开 `http://localhost:4188`。支持分组目录、全文搜索、章节导航、深浅主题与图表；内容直接读取 `doc/`。使用与构建见 [网页说明](doc/web-reading.md)。
-
-## 当前 6A 候选验收结果
-
-Windows 6A 候选程序位于 `desktop/release/AgentBridge-0.6.0-alpha.2-Windows-x64.exe`；主要 SSH/会话/后台生命周期已验收。[候选报告](doc/iterations/I06/acceptance.md)、[完整资料](doc/README.md)。节点图和整个 I06 最终准出尚待 6B/6C。
-
-## I06C 当前候选
-
-2026-10-14 / alpha.15：当前候选增加 SSH 维护入口通道拒绝恢复，Windows x64 包由当前源码重建并已核对摘要后上传至 GitHub。完整 I06C、独立服务器原生文件恢复和正式 0.6.0 未准出。实现/证据见 [I06C 收尾](doc/iterations/I06/final-delivery.md)，用户下载 [alpha.15 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.16/AgentBridge-0.6.0-alpha.16-Windows-x64.exe)。
-
-## alpha.18 Windows 修复预发布
-
-[下载 Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/AgentBridge-0.6.0-alpha.18-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.18/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.18) · [源码 PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。
-
-修复 Windows OpenCode 提交时的共享运行缓存错误、严格核对旧未派发请求，并显示查询结果。先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；节点和历史保留，旧命令不自动重发。无需为 AgentBridge 安装 Node.js 或 WSL。此为 prerelease，源码独立分支尚未合入 master，完整 I06C 仍未准出。
-
-当前 alpha.19 已以 GitHub prerelease 分发：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/AgentBridge-0.6.0-alpha.19-Windows-x64.exe)、[校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.19/SHA256SUMS.txt)、[源码PR #1](https://github.com/wsjq5477/MA-Relay/pull/1)。包含 Linux Codex 发现与 OpenCode 二次检查/Windows配置保存修复；源码标签绑定 `fce41be`，尚未合入master。远端需“后台维护→升级后台”后重扫。核心45/45、桌面181/181，包内Linux真实版本探测、Windows受控6组/普通EXE4组通过；未实测用户服务器/Windows原生推理，完整I06C未准出。
+在仓库根运行 `npm run docs:dev`，打开 `http://localhost:4188`。支持分组目录、全文搜索、章节导航、深浅主题与图表；只发布 `doc/user/` 的当前功能、系统设计与使用说明；原生Agent目录含DSH三入口，首页提供六方式总结，内部报告与过程材料不公开。构建静态站点用 `npm run docs:build`。使用与构建见 [网页说明](doc/web-reading.md)。

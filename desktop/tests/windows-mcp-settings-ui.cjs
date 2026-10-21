@@ -101,7 +101,7 @@ async function main() {
       };
     });
     await page.goto("http://127.0.0.1:" + server.address().port);
-    await page.getByRole("button", { name: "设置", exact: true }).click();
+    await page.getByRole("button", { name: "配置 Windows 测试机 / Claude Code", exact: true }).click();
     const card = page.locator(".settings-mcp");
     await expect(
       card.getByRole("button", { name: "添加 Bridge MCP" }),

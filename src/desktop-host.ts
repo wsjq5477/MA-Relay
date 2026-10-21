@@ -69,6 +69,9 @@ export class DesktopHost {
     this.store = new SettingsStore(this.directory);
   }
   call(method:string,params:Record<string,unknown>={}) { return this.handle({id:'host',method,params}); }
+  // This facade owns no process or observer. Controllers and native tasks live
+  // independently; releasing a MachineHost must not stop or cancel their work.
+  close(): void {}
   async handle(input: unknown): Promise<unknown> {
     const request = schema.parse(input);
     const params = request.params;
@@ -219,9 +222,7 @@ if (
     const timer=setTimeout(()=>{bridgeCalls.delete(id);reject(new BridgeError('COLLABORATION_TIMEOUT','协作回应未知，请核对原请求。'));},60000);
     bridgeCalls.set(id,{resolve,reject,timer});process.stdout.write(JSON.stringify({id,bridgeTool:true,scope,name,args,callId})+'\n');
   });
-  const host = process.argv.includes('--opencode-only') ? legacy : new MachineHost({directory:legacy.directory,legacy,collaboration,openCode:(directory:string)=>{
-    const leaf=new DesktopHost(directory);return {call:(method:string,params:Record<string,unknown>)=>leaf.handle({id:'context',method,params})};
-  }});
+  const host = process.argv.includes('--opencode-only') ? legacy : new MachineHost({directory:legacy.directory,legacy,collaboration,openCode:(directory:string)=>new DesktopHost(directory)});
   const lines = createInterface({ input: process.stdin, crlfDelay: Infinity });
   lines.on("line", (line) => {
     void (async () => {

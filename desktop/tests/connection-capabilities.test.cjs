@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {AgentNetwork}=require('../electron/agent-network.cjs');
 const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
 const {adapters,connectionCapabilities}=require('../electron/builtin-adapters.cjs');
-const tools=['claude','opencode','codex','hermes','pi','dsh'];
+const tools=['claude','opencode','codex','hermes','pi','dsh','dsh-desktop','dsh-web'];
 const callers=['claude','opencode','codex'];
 function fixture(t){
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-connection-capabilities-'));
@@ -34,7 +34,7 @@ function fixture(t){
  t.after(()=>{service.close();fs.rmSync(directory,{recursive:true,force:true});});
  return {directory,host,network,service,async ready(){const s=await network.snapshot();for(const n of s.nodes)await network.call('attachNode',{nodeId:n.nodeId});return (await network.snapshot()).nodes;}};
 }
-test('six static descriptors explicitly separate execution, delegation, MCP caller and controls',()=>{
+test('eight static descriptors explicitly separate execution, delegation, MCP caller and controls',()=>{
  for(const adapter of tools){
   const d=adapters.get(adapter),n=connectionCapabilities({adapter,executionSupported:true});
   assert.equal(d.capabilities.execution,true);assert.equal(d.capabilities.delegation,true);
@@ -42,7 +42,7 @@ test('six static descriptors explicitly separate execution, delegation, MCP call
   assert.equal(n.connectionCapabilities.execution,true);assert.equal(n.connectionCapabilities.delegation,true);
   assert.equal(n.connectionCapabilities.bridgeMcp,callers.includes(adapter));
   for(const key of ['resume','cancellation','permissions','forms','verification'])assert.equal(typeof n.connectionCapabilities[key],'boolean');
-  assert.deepEqual(n.capabilitySource,{kind:'static-adapter',adapterId:adapter,driver:adapter==='opencode'?'cli-http':'native-cli'});
+  assert.deepEqual(n.capabilitySource,{kind:'static-adapter',adapterId:adapter,driver:['opencode','dsh-desktop','dsh-web'].includes(adapter)?'cli-http':'native-cli'});
  }
 });
 test('unknown or explicitly absent capabilities cannot be enabled by RPC metadata',()=>{
@@ -75,14 +75,14 @@ test('new classic callers reject before business intent while direct-only agents
  const saved=await f.service.call({method:'saveCollaboration',params:{operationId:'valid',leaderId:leader.nodeId,memberIds:members.map(n=>n.nodeId),expectedRevision:0}});assert.equal(saved.ok,true,JSON.stringify(saved.error));
  const parent=await f.network.call('nodeRequest',{op:'submit',nodeId:leader.nodeId,requestId:'parent',message:'controlled',collaboration:true});
  const scope={nodeId:leader.nodeId,parentRequestId:'parent'},listed=await f.network.collaborationTool(scope,'list_agents',{},'list',leader.machineId);
- assert.equal(listed.items.length,3);
+ assert.equal(listed.items.length,tools.length-callers.length);
  for(const target of listed.items){
   assert.equal(target.connectionCapabilities.bridgeMcp,false);assert.equal(target.connectionCapabilities.delegation,true);assert.equal(target.capabilitySource.kind,'static-adapter');
   assert.equal(Object.hasOwn(target,'executable'),false);assert.equal(Object.hasOwn(target,'model'),false);
   const task=await f.network.collaborationTool(scope,'delegate',{nodeId:target.nodeId,requestId:'child-'+target.adapter,message:'controlled'},'delegate-'+target.adapter,leader.machineId);assert.equal(task.status,'running');
   const childCall=f.host.calls.filter(c=>c.method==='context'&&c.p.nodeId===target.nodeId).at(-1);assert.equal(Object.hasOwn(childCall.p,'scope'),false);
  }
- assert.equal(f.host.executions,4);assert.equal(parent.status,'running');
+ assert.equal(f.host.executions,1+tools.length-callers.length);assert.equal(parent.status,'running');
 });
 test('old relation and dispatched request receipts recover before current caller capability checks',async t=>{
  const f=fixture(t),nodes=await f.ready(),leader=nodes.find(n=>n.adapter==='claude'),params={operationId:'original-relation',leaderId:leader.nodeId,memberIds:[],expectedRevision:0};

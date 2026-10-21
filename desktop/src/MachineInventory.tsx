@@ -8,6 +8,7 @@ import {
   MoreHorizontal,
   Plus,
   Plug,
+  Pencil,
   RefreshCw,
   Search,
   Server,
@@ -41,6 +42,7 @@ interface Props {
   executionLocked?: boolean;
   metadataBusy: boolean;
   managementReason?: (machineId:string)=>string;
+  executionReason?: (machineId?:string,nodeId?:string)=>string;
   managementSupported: boolean;
   machineManagementSupported: boolean;
   daemonManagementSupported: boolean;
@@ -50,6 +52,8 @@ interface Props {
   nodeAction: (node: AgentNode, action: NodeAction) => void;
   addAgent: (machine: Machine) => void;
   machineAction: (machine: Machine, action: MachineAction) => void;
+  openSettings?: () => void;
+  configure?: (node: AgentNode) => void;
 }
 
 const machineKind = (machine: Machine) =>
@@ -66,6 +70,7 @@ function nodeState(node: AgentNode): { label: string; tone: Tone } {
   if (node.status === "upgrade_required") return {label:"后台需要升级",tone:"warning"};
   if (node.status === "version_incompatible") return {label:"版本不兼容，需要 OpenCode 2.x",tone:"danger"};
   if (node.status === "needs_check") return {label:"需要检查原生 API",tone:"warning"};
+  if (node.status === "configuration_required") return {label:"待配置服务连接",tone:"warning"};
   if (node.status === "tool_error")
     return { label: "工具检查异常", tone: "danger" };
   if (!canExecuteNode(node))
@@ -258,8 +263,8 @@ export default function MachineInventory(props: Props) {
               <div className="inventory-machine-actions">
                 <button
                   className="btn small"
-                  title={metadataReason}
-                  disabled={props.busy || !!metadataReason || !machine.online}
+                  title="只检查已安装工具，不重发原请求"
+                  disabled={props.busy || !machine.online}
                   onClick={() => props.machineAction(machine, "scan")}
                   aria-label={`重新扫描 · ${machine.name}`}
                 >
@@ -268,8 +273,8 @@ export default function MachineInventory(props: Props) {
                 </button>
                 <button
                   className="btn small"
-                  title={metadataReason}
-                  disabled={props.busy || !!metadataReason}
+                  title="查看可添加的工具；待核对操作仍限制实际接入"
+                  disabled={props.busy}
                   onClick={() => props.addAgent(machine)}
                   aria-label={`添加 Agent · ${machine.name}`}
                 >
@@ -433,12 +438,13 @@ export default function MachineInventory(props: Props) {
                       <span className="ui-status" data-tone={state.tone}>
                         {state.label}
                       </span>
-                      {resourceBlocked && <small title={metadataReason}>原操作待核对</small>}
+                      {resourceBlocked && <button className="text-btn" title={props.executionReason?.(node.machineId,node.nodeId) || metadataReason || '查看原操作与查询结果'} onClick={props.openSettings}>原操作待核对 · 查看</button>}
                     </div>
                     <div className="inventory-node-actions">
                       {(node.connected && node.status !== "needs_check") ? (
                         <button
                           className="btn small inventory-start"
+                          title={props.executionReason?.(node.machineId,node.nodeId)}
                           disabled={!canStart}
                           onClick={() => props.start(node)}
                         >
@@ -459,6 +465,7 @@ export default function MachineInventory(props: Props) {
                           接入
                         </button>
                       )}
+                      <button className="btn small inventory-configure" aria-label={`配置 ${machine.name} / ${node.name}`} title="配置此 Agent" disabled={!props.configure} onClick={()=>props.configure?.(node)}><Pencil size={14}/>配置</button>
                       <details className="inventory-menu">
                         <summary
                           aria-label={`${machine.name} / ${node.name} 的更多操作`}

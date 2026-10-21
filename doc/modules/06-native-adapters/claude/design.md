@@ -1,24 +1,28 @@
 # Claude Code 适配器设计
 
-2026-10-20当前M06-CC-F01：原Claude成员scope现可发现并调用team_context_packet，明确选择同工作文档/任务/消息/产物版本；只是读取，不发送给目标或改变权限。真实WSL Claude2.1.303一个Task实际消费第1版（当前第2版）、最终正文一致及观察器重开不重放通过；未改驱动、原生配置或Session。[当前API及限定证据](../../../iterations/I07/context-packet.md)。
+## 普通子任务的最小上下文
 
-## 独立 MCP 接入（2026-10-19）
+M06-CC-F01：作为普通委派目标时，中央v1固定说明+原始需求作为既有message传入，不新增MCP/TeamScope或更改原生账号、模型、权限、Session。Task.message显示收到的完整输入；历史无版本委派保持原文，主会话/直接请求不包装。统一宿主受控检查证明中央传参，不等于当前原生模型实际消费。[持久版本、大小与未测边界](../../../iterations/I07/delegation-context.md)。
+
+## 经典只读委派发现（M06-CC-F01）
+
+经典MCP的--allowedTools增加mcp__agentbridge__list_delegations，系统追加指引明确只读找原ID、台账非实时；原reply_task不进入自动允许，小队工具集不变。受控CLI参数/原生命周期已验证，不代表当前真实Claude模型或WindowsEXE验收。[完整边界](../../../iterations/I07/delegation-list.md)。
+
+M06-CC-F01：Claude成员scope可发现并调用team_context_packet，明确选择同工作文档/任务/消息/产物版本；只是读取，不发送给目标或改变权限。真实WSL Claude2.1.303一个Task实际消费第1版（当前第2版）、最终正文一致及观察器重开不重放通过；未改驱动、原生配置或Session。[当前API及限定证据](../../../iterations/I07/context-packet.md)。
+
+## 独立 MCP 接入
 
 默认编辑用户.claude.json中的mcpServers.agentbridge，尊重CLAUDE_CONFIG_DIR；独立导出为agentbridge.mcp.json。真实2.1.303在隔离配置中添加、stdio连接和删除通过。托管任务原--mcp-config仍保持原任务授权范围。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
 
-2026-10-18能力补验：Claude2.1.302已在同WSL三个独立MachineHost/profile/目录承担真实主协调、公共文档开发与独立复核；主协调同Session三轮、执行成员各一轮，终态后验收与完成重开观察无新回合。共享原生账号配置、受控机器路由，非独立SSH/代码编译返修；原生工具deny且无权限回复，不覆盖模型。[真实成员证据](../../../iterations/I07/native-members.md)。
-
 安装与认证CLI检查在首次缺少check、显式check以及提交前执行；实时snapshot读取既有check和原任务事件，不按30秒定期重新运行版本/auth子进程。check.time仍是原观察时间，发现更新不代表模型可用。[空闲专项](../../../iterations/I07/desktop-polling.md)。
 
-2026-10-17能力补验：本机WSL Claude2.1.299自动主角色首轮及原Conversation/原生Session续接后的独立权限等待、观察后台重启、精确隔离Write允许和真实终态已验证；首轮拒绝证据保留于上一专项。不扩大为真实执行成员交接、Windows或独立SSH。见[最新权限证据](../../../iterations/I07/resume-native-permission.md)。
-
-更新日期：2026-10-12。功能 **M06-CC-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
+功能 **M06-CC-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)。
 
 ## 1. 用途与能力
 
-M06-CC-F01 / CT-04：alpha.29之后源码的新小队scope提供team_materials与team_document.revision，沿原Claude MCP注入读取已授权公共材料，不改变Claude驱动/原Session/权限模型。2026-10-19真实WSL Claude2.1.303一个Task已读索引并准确取得旧第1版文档（当前第2版）；完整重开只观察原Task，未重派。新接口尚未进入EXE，其他环境不由此验收。[限定证据](../../../iterations/I07/public-materials.md)。
+M06-CC-F01 / CT-04：小队 scope 提供 team_materials 与 team_document.revision，沿原Claude MCP注入读取已授权公共材料，不改变Claude驱动/原Session/权限模型。真实WSL Claude2.1.303一个Task已读索引并准确取得旧第1版文档（当前第2版）；完整重开只观察原Task，未重派。该接口尚未进入公开发布包，其他环境不由此验收。[限定证据](../../../iterations/I07/public-materials.md)。
 
-2026-10-19当前WSL版本2.1.302经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
+当前WSL版本2.1.302经生产MachineHost真实直接回答、原Session续聊回忆及取消通过；完整观察器重开保留原任务和答案，重复观察不增加执行。此为限定版本/环境的[CT-02证据](../../../iterations/I07/connection-native.md)，不改变协议或继承的原生配置，当前WSL另已通过本工具作为MCP调用方及普通被委派方的[真实六方向链](../../../iterations/I07/connection-delegation.md)，不覆盖当前Windows或独立SSH。
 
 Bridge 调用机器上已有的 Claude Code CLI，让它使用自己的账号和原生配置执行需求。每轮由独立 worker 保持原生 stdin/stdout 和控制通道；窗口或宿主停止观察时，worker 继续执行，重新连接后宿主读取原事件文件。
 
@@ -66,7 +70,7 @@ claude --print --input-format stream-json --output-format stream-json
        --session-id=<新 Session> 或 --resume=<原 Session>
 ```
 
-用户需求通过 stdin 的结构化 `user` 消息发送，不经 Shell 拼接。worker 先发送 `initialize` 控制请求，收到支持的初始化回应后才发送本轮需求；初始化超时/错误会结束执行并保存诊断。
+用户需求通过 stdin 的结构化 `user` 消息发送，不经 Shell 拼接。worker 先发送 `initialize` 控制请求，收到支持的初始化回应后才发送该轮需求；初始化超时/错误会结束执行并保存诊断。
 
 | 原生消息 | 适配行为 |
 | --- | --- |
@@ -96,7 +100,7 @@ Windows 的 `.cmd/.bat` npm 启动脚本不送给 `cmd.exe` 执行。适配器�
 | 记录 | 内容与用途 |
 | --- | --- |
 | `claude-state.json` | 安装连接、私有实例、tasks、conversations、稳定请求指纹和操作收据 |
-| `runs/<taskId>/job.json` | 本轮原目录、CLI 路径、原/新 Session、需求和协作启动信息 |
+| `runs/<taskId>/job.json` | 该轮原目录、CLI 路径、原/新 Session、需求和协作启动信息 |
 | `events.jsonl` | worker 真实事件；宿主保存读取 offset，避免重复应用 |
 | `commands.jsonl` | 许可/取消命令，带 operationId；worker 去重消费 |
 | `heartbeat.json` | 观察 worker 是否继续运行，不等价于原生终态 |
@@ -106,7 +110,7 @@ Windows 的 `.cmd/.bat` npm 启动脚本不送给 `cmd.exe` 执行。适配器�
 
 同 requestId、同指纹返回原 taskId；同 ID 不同内容拒绝。续聊找到原 conversation 所属上下文并传原 `sessionId`。缺原生 Session 的启动失败不能直接续聊，必须新建或重新验证。
 
-宿主重开仅重读原状态和 worker 日志，不再次发送本轮需求。worker 心跳超过等待窗口不更新时，任务变 unknown 并保留目录占用；心跳恢复可接回观察，只有结束记录确认后才释放执行。文件原子替换对 Windows 分享锁做有界重试；写诊断失败不能凭空生成原生终态。
+宿主重开仅重读原状态和 worker 日志，不再次发送该轮需求。worker 心跳超过等待窗口不更新时，任务变 unknown 并保留目录占用；心跳恢复可接回观察，只有结束记录确认后才释放执行。文件原子替换对 Windows 分享锁做有界重试；写诊断失败不能凭空生成原生终态。
 
 ## 6. 许可、取消与成功判定
 
@@ -127,7 +131,7 @@ sequenceDiagram
     W->>H: completion nativeExited
 ```
 
-许可 confirmed 表示回应已写入原控制通道，不意味着整个需求已经成功。原等待已消失时拒绝迟到回应。任何工具拒绝会让本轮需求不能算完整成功；AskUserQuestion 未适配也按明确拒绝处理。
+许可 confirmed 表示回应已写入原控制通道，不意味着整个需求已经成功。原等待已消失时拒绝迟到回应。任何工具拒绝会让该轮需求不能算完整成功；AskUserQuestion 未适配也按明确拒绝处理。
 
 取消先持久记录 operationId，worker 向原 stdin 发送 `interrupt`，关闭输入，必要时结束它拥有的进程。任务只有在原进程退出后才变 cancelled，取消收据再补为 confirmed。
 

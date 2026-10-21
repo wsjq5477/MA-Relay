@@ -1,43 +1,64 @@
 # OpenCode 适配器测试报告
 
-2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+## alpha.36当前包验证
 
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+M06-OC-F01：本地alpha.36包含完整call/close工厂与公开alpha.35管理恢复；2026-10-21包内WSL stdio/daemon两入口2/2，普通EXE7组含原宿主拒绝恢复与真实MCP stdio通过。原Session/请求不迁移，用户实际模型/故障profile未验。[完整交付与文件](../../../iterations/I07/alpha36-delivery.md)。
+
+## 普通子任务上下文输入
+
+T-M06-OC-155 / M06-OC-F01：2026-10-21，WSL Node22.23.1，未发布源码。统一生产AgentNetwork加受控宿主覆盖该目标入口的说明+原文与无scope/MCP/TeamScope传参；本轮667/667完整桌面/121项定向、Windows36项、Core构建为共用工程证据，不跨模块相加。没有以当前实际opencode CLI/模型、Windows EXE或独立SSH消费新上下文，模型0。[实际范围与来源](../../../iterations/I07/delegation-context.md)。
+
+## OpenCode 包内宿主复核
+
+2026-10-21 / WSL Node22.23.1：现有本地alpha.35.config.2冻结包生产stdio/daemon入口2/2通过，完整EXE摘要及包一致性重核通过。公开alpha.35冻结b5de577仍为缺close旧工厂；本轮未重下公开EXE、重跑普通Windows EXE或验证用户profile/真实模型。[本轮证据与切换步骤](../../../iterations/I07/opencode-host-lifecycle.md)。
+
+## DSH服务健康时的发现隔离
+
+M06-OC-F01；2026-10-21，WSL Node22.23.1。核心验证发现通用扫描的DSH健康条目污染OpenCode专用发现；新增隔离HOME/受控HTTP回归，修复前失败，修复后及最终全工程结果见[本轮记录](../../../iterations/I07/agent-row-configuration.md)。未更改原安装选择、版本要求或Task/Session，真实模型/独立SSH未验。
+
+## 原接入拒绝与管理入口恢复
+
+M06-OC-F01；2026-10-20，alpha.34派生源码。原管理工厂拒绝、反例和生产前端只读核对的实际结果见[恢复专项](../../../iterations/I07/agent-management-recovery.md)。现场只读确认ADAPTER_HOST为原attach失败；未修改用户profile、未重派原请求，真实OpenCode模型/独立SSH未验。
+
+## 后台宿主生命周期回归
+
+M06-OC-F01：2026-10-20，WSL Node22.23.1，alpha.34 后源码。stdio/daemon 两入口旧工厂均重现 ADAPTER_HOST，修复后相关桌面 28/28、核心会话 2/2 通过；受控 HTTP 无真实模型。源码构建、类型和定向 lint 通过；未打包/发布新 EXE、未部署独立 SSH。[命令、首次失败与原始证据](../../../iterations/I07/opencode-host-lifecycle.md)。
+
+## OpenCode 1.x / 2.x 兼容修复
 
 T-M06-OC-150–154：V1 新任务/续聊、原绑定恢复、取消收据与终态、权限/问题及双格式 MCP 受控验证；官方 1.19.3 CLI 加本机受控模型传输完成生命周期与生产 broker 连接。最终原始日志和首次失败在专项，不把它写成真实账号/Windows/独立 SSH 验收。 [需求、实现、验证与未测边界](../../../iterations/I07/opencode-v1-compatibility.md)。
 
 2026-10-19整合核对：核心51/51包含新旧配置版本/只读API/恢复受控检查，共用桌面570/570；Windows前端与普通EXE均无模型。本轮未重跑真实OpenCode或独立SSH，原真实2.0.24结果保留原日期。[具体日志/源码边界](../../../iterations/I07/integrated-source.md)。
 
-## 2026-10-19：issues #8/#9受控验证
+## issues #8/#9受控验证
 
 M06-OC-F01：核心51/51、桌面543/543（含版本/管理/原路由回归）、最后定向7/7及工程检查通过；Windows95项原路由/9项管理CJS、前端专项4组/既有10组及普通EXE5组通过；分发另按专项逐项记录。无真实模型/用户profile/独立服务器升级，不跨模块累加共享计数。 [需求、实现、验证与边界](../../../iterations/I07/version-management-recovery.md)。
 
-## 2026-10-19：issue #7 协作兼容修复
+## issue #7 协作兼容修复
 
 M06-OC-F01：本轮仅受控HTTP/CLI、生产后台无推理、TCP SSH及Windows交付验收；用户现场/独立SSH/真实模型未测。实际执行结果、首次失败与最终工程/包证据统一引用专项，共享计数不跨模块叠加。 [完整需求、验证与交付](../../../iterations/I07/collaboration-compatibility.md)。
 
-## 独立 MCP 接入（2026-10-19）
+## 独立 MCP 接入
 
 仅支持V2的mcp.servers.agentbridge、local command数组/environment/codemode=false；尊重OPENCODE_CONFIG_DIR/XDG目录，保留既有JSONC。独立导出agentbridge.opencode.jsonc。真实2.0.24添加、stdio连接、删除通过；原生常驻服务异步加载/删除，列表可能延后，必要时重启其后台。V1布局或双配置同名冲突拒绝。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
 
-## 2026-10-19：CT-02真实MCP调用方与被调用方
+## CT-02真实MCP调用方与被调用方
 
 T-M06-OC-146 / M06-OC-F01：当前WSL原生2.0.24，本工具真实作主发现/委派另外两种工具并读取成功结果，另在两条链中作为普通子任务被实际启动。各回答/原生Session/父子归属与精确消息通过，完整重开不重放；三工具共享9Task/6方向/16次MCP调用，不跨模块重复累加。保护7/7计入全桌面517/517，均为无模型回归，与真实Task分别计数。产品运行代码未改；Windows、新三工具、独立SSH/权限/表单/执行中断点未补验。[实际脚本、原始报告及边界](../../../iterations/I07/connection-delegation.md)。
 
-## 2026-10-19：CT-02真实直接生命周期
+## CT-02真实直接生命周期
 
 T-M06-OC-145 / M06-OC-F01：当前WSL、Node22.23.1、真实原生2.0.24。首轮与原Session回忆均succeeded，取消收据与原Task cancelled分别核验，完整观察重开保留同Session/回答；3个原任务，重复只读观察前后3→3。沿用原生配置，未批准权限或重发原请求。新增验收保护7/7及最终桌面510/510为共享受控计数，不是该工具模型测试数。源码无产品行为变化；本轮未验真实委派/MCP调用方、新EXE或独立SSH。[原始结果、脚本、首次环境/契约失败及边界](../../../iterations/I07/connection-native.md)。
 
 2026-10-18 / T-M06-OC-140：桌面空闲修复源码，WSL Node22.23.1 / Windows Node24.19.0及Edge155。核心45/45、桌面424/424、定向20/20、Windows受控界面3组通过，模型0；属于共享工程计数，不跨模块相加。普通EXE与黑窗观察、冻结包、首次环境失败及用户现场未测边界按[本次完整报告](../../../iterations/I07/desktop-polling.md)记录，历史包不冒充本次修复。
 
-## alpha.19 OpenCode 二次发现与 Windows 配置专项
+## OpenCode 二次发现与 Windows 配置专项
 
 WSL Ubuntu / Node 22.23.1：discovery 3/3（含于核心 45/45），桌面 181/181；受控回归、模型 0。[核心 TAP](../../../../artifacts/opencode-discovery/2026-10-14/root-tests.tap)、[桌面 TAP](../../../../artifacts/opencode-discovery/2026-10-14/desktop-tests.tap)。Windows 原始报告 UTC 2026-10-14T17:35:28.789Z / Electron Node 24.21.0：真实 PE 版本/解析、旧二次发现失败、修复后原路径核验、配置完整写入与旧revision拒绝、serve受控退出保留NATIVE_EXITED、删除原安装，共6组通过，[实际报告](../../../../artifacts/opencode-discovery/2026-10-14/windows.json)。这是隔离PE/进程夹具，无真实OpenCode模型或用户另一台电脑验收。原生Windows完整生命周期和断电持久性未验证。根因、失败原证据、最终包与边界见 [专项](../../../iterations/I06/opencode-discovery.md)。
 
-## alpha.18 当前专项
+## 当前专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1 / 源码 0.6.0-alpha.18：共享缓存自引用/旧清单/损坏旁路重建、Windows OpenCode 原意图恢复与并发保护、查询结果和脱敏原因；定向 55/55（计入桌面全量 176/176），根 43/43，lint/类型/构建通过。受控文件/宿主测试，无模型调用。原始证据：[定向](../../../../artifacts/runtime-recovery/2026-10-14/targeted.tap)、[全桌面](../../../../artifacts/runtime-recovery/2026-10-14/desktop-tests.tap)。Windows 真实 Electron 资源 4 组、Edge 受控 UI 3 组、普通无调试 EXE/合成原意图与关闭重开 4 组均通过；包校验 28 CJS / 1383 Linux 文件与当前源码匹配。详细过程及边界按 [完整专项](../../../iterations/I06/runtime-recovery.md) 的实际结果判定，不将历史原生证据提升为本次重测。
-
 
 更新日期：2026-10-12。功能 **M06-OC-F01**；对应[设计](design.md)。当前源码 `0.6.0-alpha.1`，本文不把现有 Windows `0.5.0` 包当作 SSH 新功能发布证据。
 

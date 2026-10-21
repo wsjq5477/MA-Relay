@@ -1,44 +1,74 @@
 # M03 机器与 Agent 网络测试报告
 
-2026-10-20 **0.6.0-alpha.34已预发布**：当前整合源码和新Tag已推送，标签冻结`1af4dab`，EXE与SHA-256附件已上传并通过匿名完整下载核验。包含OpenCode1.x/2.x、独立MCP、CT-04/CT-05及既有alpha.30–33修复；Windows旧后台门禁、包/普通EXE与未测边界分别见[交付记录](../../iterations/I07/alpha34-release.md)。完整I06C/I07C仍未准出。
+## alpha.36整合边界
 
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+2026-10-21 / WSL Node22.23.1：本轮全量核心57/57、桌面676/676，类型/lint/前端构建通过。各模块共享计数不相加；包核验、Windows契约144/144、界面26组与普通EXE7组通过，具体以专项为准，真实模型/用户profile/独立SSH未验。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+
+## OpenCode 包内宿主复核
+
+2026-10-21 / WSL Node22.23.1：现有本地alpha.35.config.2冻结包生产stdio/daemon入口2/2通过，完整EXE摘要及包一致性重核通过。公开alpha.35冻结b5de577仍为缺close旧工厂；本轮未重下公开EXE、重跑普通Windows EXE或验证用户profile/真实模型。[本轮证据与切换步骤](../../iterations/I07/opencode-host-lifecycle.md)。
+
+## Agent 行配置入口验证
+
+M03-F02/F05；2026-10-21，alpha.34派生工作源码。生产SSR82/82（含新增6项）及Windows Edge生产界面受控IPC8组通过；覆盖目标固定、迟到响应隔离、DSH精确安装/入口、secret清空、写入在途/离线限制和窄窗口。完整桌面649/649、核心57/57通过，生产MCP临时文件4组、既有DSH前端3组保持；普通EXE与候选证据统一见[专项](../../iterations/I07/agent-row-configuration.md)，共享计数不跨模块相加。未在用户profile修改原生配置、未调用真实模型或升级独立SSH。
+
+## CT-07当前调用方连接视图
+
+T-M03-154 / M03-F02：2026-10-21，alpha.34派生未发布源码；WSL Node22.23.1冻结桌面643/643零跳过/退出0，定向103/103为其子集，新增11项含原父查询/快照等待期间4个并发子场景；Windows Node24.19.0同视图与原列表18/18。覆盖角色/授权原因、空参数、来源机器/父终态/unknown、独立MCP身份/立即撤权、原请求身份与执行次数保留；Core构建通过。共用计数不相加，模型0；原生模型/新EXE/独立SSH未验，首次错误断言与真实snapshot观察写回分开保留。[完整契约、日志与范围](../../iterations/I07/agent-connections.md)。
+
+## 扫描与原管理操作恢复专项
+
+M03-F02/F05；2026-10-20，alpha.34派生工作源码。Windows Edge生产前端受控IPC6组通过、页面错误0、模型0；覆盖扫描/查看可用、执行仍受锁、原管理来源/错误/ID可见、查询失败保留及匹配原收据后解除。当前全工程、普通EXE与包验证结果统一见[完整规则与分层验证](../../iterations/I07/agent-management-recovery.md)，计数共享不跨模块相加。当前用户profile只读诊断不是升级实测；真实模型、原profile切换与独立SSH未验。
+
+## OpenCode 宿主生命周期回归
+
+M03-F02：2026-10-20 / alpha.34 后工作源码 / WSL Node22.23.1。两条生产入口旧工厂回放均失败，修复后桌面相关 28/28、核心会话 2/2 通过，含等待任务关闭门面后原 Task/Session 和 Prompt 计数保持。均为受控测试，共享计数不跨模块累加；未验证用户 profile、真实模型、Windows EXE 或独立 SSH。[原始日志、命令与限制](../../iterations/I07/opencode-host-lifecycle.md)。
+
+## DSH Desktop / Web 专项
+
+当前本地.dsh.3候选：核心56/56、完整桌面607/607、Windows DSH11/11、生产前端3组及普通EXE6组通过；真实Windows/WSL认证与接口通过，Desktop同Session两轮及去重已观察，但模型均RATE_LIMIT，WSL模型/独立SSH未测。[当前源码、包与分层证据](../../iterations/I07/dsh-exe-delivery.md)。以下保留各先前冻结范围。
+
+M03-F02：本轮WSL Node22.23.1发现/服务/能力34/34、全桌面606/606零跳过；真实系统dsh排除、原生Web profile提示和Windows安装文件只读核对符合预期。Windows新补验未取得有效输出，不计通过；没有原实例认证/模型/新EXE/独立SSH。[本轮日期、失败、最终日志与边界](../../iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)，下段是前片共享证据。
+
+M03-F02/F05：本次WSL受控HTTP/独立worker与方向能力、Windows Node契约、Edge生产前端及失败记录统一见[本轮完整契约与证据](../../iterations/I07/dsh-desktop-web.md)，工程总数不跨模块相加。Windows当前安装2.0.18/认证屏障和WSL Web profile是环境核对；未在原实例调用模型，不作为真实原生、发布包或独立SSH验收。
+
+## OpenCode 1.x / 2.x 兼容修复
 
 M03-F01/F02/F03：原 PATH 与原安装核验不变；OpenCode 可识别 1.x/2.x 都可进入实际服务契约检查，未知主版本继续明确拒绝。只读原对象/收据和按机器占位规则不变。 本次共用专项的全套日志，不跨模块累加；受控测试、官方 CLI 加受控传输与未测 Windows/SSH/真实模型分列。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。
 
-## 2026-10-20：维护上传进度与持久化修复（issue #10）
+## 维护上传进度与持久化修复（issue #10）
 
 M03-F04：本轮WSL专项7/7、相关42/42与核心51/51，Windows最终7/7及SSR66/66通过；最终全量/真实TCP/普通EXE/公开下载逐层记录。用户profile及独立服务器未验，共享计数不跨模块叠加。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
 
-## 2026-10-19：整合源码与本地候选
+## 整合源码与本地候选
 
 T-M03-149 / M03-F02/F04/F05/F06：核心51/51、桌面570/570零跳过（定向85/85及兼容15/15是相关子集），根类型/lint/构建与桌面构建通过。Windows前端26组/模型0，按历史/门禁/管理/材料/MCP分别记录；最终integrated.3普通Windows EXE五组通过：原历史/文档/MCP导出、窗口/后台重开、持久资源和原unknown保留，原生请求0；这是隔离合成profile，不是真实Agent模型或用户现场。包42 CJS/78核心/1446 Linux条目匹配，未部署用户SSH或跑真实模型。各模块共用计数不相加；首次夹具/原型失败与原历史证据保留。[版本、源码、所有原始结果和限制](../../iterations/I07/integrated-source.md)。
 
-## 2026-10-19：issues #8/#9受控验证
+## issues #8/#9受控验证
 
 M03-F01/F02/F03：核心51/51、桌面543/543（含版本/管理/原路由回归）、最后定向7/7及工程检查通过；Windows95项原路由/9项管理CJS、前端专项4组/既有10组及普通EXE5组通过；分发另按专项逐项记录。无真实模型/用户profile/独立服务器升级，不跨模块累加共享计数。 [需求、实现、验证与边界](../../iterations/I07/version-management-recovery.md)。
 
-## 2026-10-19：issue #7 协作兼容修复
+## issue #7 协作兼容修复
 
 M03-F01/F02/F03：本轮仅受控HTTP/CLI、生产后台无推理、TCP SSH及Windows交付验收；用户现场/独立SSH/真实模型未测。实际执行结果、首次失败与最终工程/包证据统一引用专项，共享计数不跨模块叠加。 [完整需求、验证与交付](../../iterations/I07/collaboration-compatibility.md)。
 
-## 2026-10-19：历史详情路由与局部错误
+## 历史详情路由与局部错误
 
 T-M03-150 / M03-F04/F05/F06：alpha.30隔离修复；合成路由6项、受控TCP SSH1项、Windows纯CJS91/91、Linux SSR63/63，新生产前端7组和既有10组通过，模型0。最终桌面529/529、核心45/45、lint/类型/构建通过；38 CJS/78 core/1401 Linux资源匹配145个冻结源文件。普通Windows无调试EXE合成原两轮/Session只读与关闭重开/后台重启4组通过。分发实际结果及首次失败统一见[当次专项](../../iterations/I07/history-detail-recovery.md)；共享计数不跨模块叠加，用户故障profile/独立服务器未复测。
 
-## 2026-10-19：CT-02真实MCP六方向
+## CT-02真实MCP六方向
 
 T-M03-146 / M03-F04/F05：WSL Node22.23.1，真实Claude2.1.302/Codex0.163.0-alpha.10.2/OpenCode2.0.24轮流作主并各委派给另两种工具；生产Coordinator/AgentNetwork/MachineHost/stdioMCP/broker/原生CLI或HTTP，非假dispatcher。共9个成功原生Task、6个委派方向、16次实际MCP调用；原父/目标/机器/派生ID/消息与真实结果核对，重开每链Task3→3/委派2。保护7/7计入全桌面517/517（模型0），不与真实或跨模块计数叠加。生产行为无变更；新三工具、新EXE、独立SSH、权限/表单及执行中断点未测。[完整脚本、逐次报告与边界](../../iterations/I07/connection-delegation.md)。
 
-## 2026-10-19：CT-02首批真实直接生命周期
+## CT-02首批真实直接生命周期
 
 T-M03-145 / M03-F04/F05：WSL Node22.23.1，真实Claude2.1.302、OpenCode2.0.24、Codex0.163.0-alpha.10.2沿生产Coordinator/AgentNetwork/MachineHost分别通过直接回答、原Session续聊、原任务取消及完整观察重开。共9个原任务，6成功回答/3取消；每工具观察任务3→3，无新增执行。恢复保护7/7和桌面510/510为受控共享计数，不与真实任务或跨模块相加；根45/45保留CT-01日期。本模块产品行为无变更，新三工具/真实委派方向/新EXE/独立SSH未验。[脚本、逐次原始报告、首次失败与完整限制](../../iterations/I07/connection-native.md)。
 
-## 2026-10-19：CT-01连接能力与原拒绝恢复
+## CT-01连接能力与原拒绝恢复
 
 T-M03-144 / M03-F02/F04/F05：alpha.28后未发布工作区，WSL Node22.23.1 / Windows Edge155。六工具投影、伪造true/未知adapter/来源不匹配、原请求与父作用域/机器归属控制通过；未验证远端现场能力。共享定向32/32（全桌面503/503子集）、核心45/45及工程检查通过，无跳过；跨模块不相加。首次夹具失败及修正保留，真实新三工具/当前EXE/独立SSH未验。本轮模型0，先前真实Claude结果不计本轮。[脚本、命令、失败与最终原始证据](../../iterations/I07/connection-capabilities.md)。
 
-## 2026-10-18：小队节点接入资格与原请求恢复
+## 小队节点接入资格与原请求恢复
 
 T-M03-142 / M03-F08/F09：alpha.28 后未发布工作区、WSL Ubuntu / Node22.23.1，受控节点、SQLite、stdio 与 React SSR，模型调用0。生产 Coordinator 现有 `snapshot.nodes` 的 `teamCollaboration` 是本地静态注册资格投影，不是新增远端能力通告；没有在 AgentNetwork 贯通远端该字段的采集或持久化。原三种工具缺字段兼容手动小队，实际远端 `context` / `scope` 能力确认继续执行。
 
@@ -55,34 +85,34 @@ T-M03-142 / M03-F08/F09：alpha.28 后未发布工作区、WSL Ubuntu / Node22.2
 
 2026-10-18 / T-M03-141：桌面空闲修复源码，WSL Node22.23.1 / Windows Node24.19.0及Edge155。核心45/45、桌面424/424、定向20/20、Windows受控界面3组通过，模型0；属于共享工程计数，不跨模块相加。普通EXE与黑窗观察、冻结包、首次环境失败及用户现场未测边界按[本次完整报告](../../iterations/I07/desktop-polling.md)记录，历史包不冒充本次修复。
 
-## 2026-10-18：当前 Agent 版本与历史安装合流
+## 当前 Agent 版本与历史安装合流
 
 T-M03-141 / M03-F02/F03/F04/F05/F06：alpha.28后未发布工作区、WSL Ubuntu/Node22.23.1。当前节点沿用角色/接入身份，历史unknown与在途锁汇总，新安装不绕过占用。 桌面424/424、核心45/45通过，计数为共享工程结果不跨模块相加；真实Claude版本2.1.302与受控历史节点合流明确分层。类型/lint/前端构建通过；当前EXE、用户运行中profile、真实模型和独立SSH未验证。[完整场景、原始日志与首次失败](../../iterations/I07/current-agent-discovery.md)。
 
-## 2026-10-18：Hermes / Pi / DSH 发现与来源路由
+## Hermes / Pi / DSH 发现与来源路由
 
 T-M03-140 / M03-F02/F05：alpha.28 后源码、WSL Node22.23.1，受控进程/磁盘。发现专项9项通过，覆盖六种稳定 ID、仅版本探测、Windows Pi 新旧 npm 入口与 DSH 入口、损坏启动器拒绝和原 Linux 发现回归；新路由用例核对三种 Agent 的实际名称、adapter 与原来源。已纳入[全桌面结果](../../iterations/I07/native-agent-expansion.md)，不跨模块相加。代码：[发现用例](../../../desktop/tests/tool-discovery.test.cjs)、[机器路由](../../../desktop/tests/machine-router.test.cjs)。未验证真实原生安装、模型或独立 SSH，已发布 EXE/daemon 不变。
 
-## 2026-10-17：SSH持久拒绝恢复
+## SSH持久拒绝恢复
 
 T-M03-128：alpha.28已预发布，WSL Node22.23.1/Windows Node24.19.0，合成台账和受控TCP SSH，模型0。最终桌面317/317、核心45/45、Windows契约93/93，lint/类型/构建通过；真实TCP SSH丢响应/daemon重启1项及普通Windows无调试EXE合成验证6组通过，34 CJS/78 core/1395 Linux资源匹配源码。发布以[当次实际记录](../../iterations/I06/daemon-rejection-recovery.md)为准，不推定用户现场恢复。历史记录不计为本次重测。
 
-## 2026-10-17：Windows恢复专项
+## Windows恢复专项
 
 T-M03-128：2026-10-17 / WSL Node22.23.1与Windows Node24.19.0 / alpha.27已预发布，模型0。Codex恢复10/10、共享原子写入10/10、网络最终50/50、Windows契约86/86；全桌面最终运行288/288、核心45/45及工程检查通过；新增alpha.26兼容文件另验10/10。共享计数不跨模块累加，Windows为受控目录/执行器，不是用户故障或真实模型。首轮限制/维护ENOENT与未测范围保留；最终普通Windows EXE对合成记录恢复/重开/重启/冻结源码共5组通过，包内33 CJS/78 core/1393 Linux条目一致；发布结果以[当片报告](../../iterations/I06/windows-start-persistence.md)后续实际记录为准。
-## 2026-10-17：Windows原请求上下文恢复
+## Windows原请求上下文恢复
 
 T-M03-126 / M03-F04/F05：alpha.25本地候选，WSL Node22.23.1/Windows Node24.19.0，受控记录，模型0。4个反例修复前全部失败，修复后专项48/48、串行桌面243/243、Windows契约17/17通过，原回执可恢复且缺回执仍unknown。共享计数不跨模块累加，包内33 CJS/78 core/1390 Linux资源一致；alpha.24普通EXE对照3组、alpha.25候选4组通过，原记录均为合成。候选包/普通EXE与失败日志见[专项](../../iterations/I06/windows-context-recovery.md)。未实测用户另一台电脑或真实原生模型，不改变GitHub alpha.24已发布冻结包。
 
-## alpha.23 / I07C首批实际验证
+## I07C首批实际验证
 
 T-M03-110 / M03-F09：2026-10-16，WSL Node22.23.1、Windows Node24.18.0/Edge155。核心45/45、最终串行桌面222/222、Windows契约29/29；这些是全工程计数，跨模块不相加。Windows前端/真实Coordinator受控目录和成员10组，真实Claude2.1.299自动主角色3轮同Conversation/原Session、新scope、后台重启后实际X失败/Y通过及终态后总验收；执行成员为受控外部MCP、Node检查实际运行。最终包/普通EXE、首次连接恢复竞态和并行维护ENOENT分别保留证据，完整结果见[I07C首批报告](../../iterations/I07/automation.md)。未证明真实多原生角色、其他接入自动续接、用户自研/独立SSH或完整停止。
 
-## alpha.22 / I07B继承与回归
+## I07B继承与回归
 
 T-M03-101 / M03-F08：2026-10-16，最终桌面208/208通过，旧原请求/来源/准入范围继续受测；未改变原身份或SSH帧契约，未连接用户独立服务器。本轮真实Claude与受控编译MCP、首次原有daemon启动失败及8/8重查、包内容分别见[I07B交付](../../iterations/I07/task-handoff.md)，不以同机测试证明独立SSH链。工程数只计一次。
 
-## alpha.21 / I07A 实际验证
+## I07A 实际验证
 
 2026-10-15 / WSL Node22.23.1、Windows Node24.18.0 / 源码alpha.21，GitHub预发布alpha.20。
 
@@ -92,19 +122,17 @@ T-M03-101 / M03-F08：2026-10-16，最终桌面208/208通过，旧原请求/来�
 
 原始证据、工程总数及真实工具/界面/普通EXE分别见[I07A交付](../../iterations/I07/delivery.md)。[核心45/45](../../../artifacts/I07A/2026-10-15/root-tests.tap)、[桌面197/197](../../../artifacts/I07A/2026-10-15/desktop-tests.tap)为全工程计数，不在本模块重复相加；I07B/C能力不计为已通过。
 
-
-## alpha.19 OpenCode 二次发现与 Windows 配置专项
+## OpenCode 二次发现与 Windows 配置专项
 
 WSL Ubuntu / Node 22.23.1：discovery 3/3（含于核心 45/45），桌面 181/181；受控回归、模型 0。[核心 TAP](../../../artifacts/opencode-discovery/2026-10-14/root-tests.tap)、[桌面 TAP](../../../artifacts/opencode-discovery/2026-10-14/desktop-tests.tap)。Windows 原始报告 UTC 2026-10-14T17:35:28.789Z / Electron Node 24.21.0：真实 PE 版本/解析、旧二次发现失败、修复后原路径核验、配置完整写入与旧revision拒绝、serve受控退出保留NATIVE_EXITED、删除原安装，共6组通过，[实际报告](../../../artifacts/opencode-discovery/2026-10-14/windows.json)。这是隔离PE/进程夹具，无真实OpenCode模型或用户另一台电脑验收。原生Windows完整生命周期和断电持久性未验证。根因、失败原证据、最终包与边界见 [专项](../../iterations/I06/opencode-discovery.md)。
 
-## alpha.19 Linux CLI 发现专项
+## Linux CLI 发现专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1：发现回归 6/6；精简 PATH 下真实 Codex CLI 0.162.1 经生产 daemon/relay、本机隔离 TCP SSH 发现通过，重复规范路径不变，模型 0。受控 SSH 端点与真实 CLI 版本探测分别标明，不计作用户独立服务器升级验收。[发现 TAP](../../../artifacts/linux-cli-discovery/2026-10-14/discovery.tap)、[实际 CLI/SSH 报告](../../../artifacts/linux-cli-discovery/2026-10-14/real-cli-ssh.json)。全工程/包/Windows 实际结果与未测范围见 [专项](../../iterations/I06/linux-cli-discovery.md)，原模型/权限/续聊限制保留。
 
-## alpha.18 历史专项
+## 历史专项
 
 2026-10-14 / WSL Ubuntu / Node 22.23.1 / 源码 0.6.0-alpha.18：共享缓存自引用/旧清单/损坏旁路重建、Windows OpenCode 原意图恢复与并发保护、查询结果和脱敏原因；定向 55/55（计入桌面全量 176/176），根 43/43，lint/类型/构建通过。受控文件/宿主测试，无模型调用。原始证据：[定向](../../../artifacts/runtime-recovery/2026-10-14/targeted.tap)、[全桌面](../../../artifacts/runtime-recovery/2026-10-14/desktop-tests.tap)。Windows 真实 Electron 资源 4 组、Edge 受控 UI 3 组、普通无调试 EXE/合成原意图与关闭重开 4 组均通过；包校验 28 CJS / 1383 Linux 文件与当前源码匹配。详细过程及边界按 [完整专项](../../iterations/I06/runtime-recovery.md) 的实际结果判定，不将历史原生证据提升为本次重测。
-
 
 历史基线：2026-10-14 / 0.6.0-alpha.13。工程与受控维护验证通过，独立服务器/最终程序专项按 [I06C 收尾](../../iterations/I06/final-delivery.md) 实际状态记录；旧版本段落保持原日期。
 核对日期：2026-10-12。对应 [功能设计](design.md)。结论：本机/WSL 的目录、节点、路由、占用已验证；SSH 远端目录纳入源码及开发环境真实验证，alpha.2 主要 Windows/SSH 验收保留；当前 alpha.5 的受控状态回归及包验证单列。
@@ -178,7 +206,6 @@ I05 的真实节点与推理结果来自 2026-10-10 的报告；本次未重新�
 
 2026-10-12 / alpha.4：使用用户原 SSH 连接与 owner/profile，实际握手及 OpenCode 重新发现、原 daemon 身份和 PID 核对通过，[报告](../../../artifacts/ssh-compatibility/2026-10-12/remote-connect.json)。沿用原机器，不另建 profile 或节点，不提交模型需求。仅是原服务器样本，不扩大为所有版本迁移或跨设备协作验收。
 
-
 ## 当前 alpha.5 恢复错误清理验证
 
 T-M03-14 / M03-F01/F07：2026-10-12 / alpha.5，新增 2 项受控状态回归、全桌面 95/95，通过。旧版本报错在恢复成功后撤销并持久化，旧目录成功快照不继承错误，新的 RPC/主机密钥错误仍显示；原连接/接入节点/任务历史保持。Windows 当前前端的受控快照卡片渲染 2 项通过。原用户状态只读核验，不是新包实际远端重连或模型验收。[本次测试与范围](../../iterations/I06/ssh-error-recovery.md)、[TAP](../../../artifacts/ssh-error-clear/2026-10-12/desktop-tests.tap)、[UI](../../../artifacts/ssh-error-clear/2026-10-12/ui.json)。
@@ -187,10 +214,9 @@ T-M03-14 / M03-F01/F07：2026-10-12 / alpha.5，新增 2 项受控状态回归�
 
 2026-10-12 / 0.6.0-alpha.6：T-M03-15 / M03-F01/F02：图坐标不改机器/node 身份；成功同步时刻、unknown/等待/失败分层；原 unknown 仍不可执行。本次代码、命令、逐项结果与限制汇总于 [I06B 实施](../../iterations/I06/graph-implementation.md)。受控工程结果见 [桌面 TAP](../../../artifacts/I06B/2026-10-12/desktop-tests.tap)、[核心 TAP](../../../artifacts/I06B/2026-10-12/root-tests.tap)，界面见 [UI](../../../artifacts/I06B/2026-10-12/ui.json)、[性能](../../../artifacts/I06B/2026-10-12/performance.json)，本次核心 43/43、桌面 110/110、Windows 图 10 组通过；性能 p95 30.0ms。独立 SSH 双向原生链、普通无 debug EXE 及源/包完整性分别通过，原始证据与范围见当次报告。历史表保留原日期/版本，不计为本次重新运行。
 
-
 T-M03-16 / M03-F04：2026-10-12 / alpha.6，受控 OpenCode 后台首次快照不健康、下一次健康，context 只执行 connect/snapshot/snapshot，期间原生 Prompt=0；通过。[测试](../../../desktop/tests/machine-host-readiness.test.cjs)、[本次 TAP](../../../artifacts/I06B/2026-10-12/desktop-tests.tap)。10 秒等待上限是实现合约，完整慢启动/账号不可用真实环境覆盖见 I06B/后续 I06C。
 
-## alpha.9 当前节点管理专项
+## 当前节点管理专项
 
 T-M03-17 / M03-F02/F03/F05/F06/F07：2026-10-13 / 0.6.0-alpha.9。范围：显式断开/移除不被原生连接或扫描反转，身份/历史保留、全实例 busy、unknown、并发与落盘失败、原 IPC 提交二次归属检查。逐项实际结果、环境、脚本、原始证据与未测范围见 [节点管理完整验收](../../iterations/I06/node-management.md)。工程证据为本次 [桌面 TAP](../../../artifacts/node-management/2026-10-13/desktop-tests.tap)；窗口/程序/包状态以该报告实际结果为准，历史表不充当本次重测。原生 SSH/模型链保留 alpha.6 历史结果，本次未重跑、不改用户 profile、不提交 Prompt。
 
@@ -198,20 +224,19 @@ T-M03-17 / M03-F02/F03/F05/F06/F07：2026-10-13 / 0.6.0-alpha.9。范围：显�
 
 T-M03-18 / M03-F03/F05/F06/F07：2026-10-13。范围：机器移除是 removedMachines 中央可见性状态，不删除机器、节点、实例或布局；原节点新增准入检查机器移除/变更锁。移除同时撤销相关主/子授权，恢复原 machineId/nodeId 但不恢复授权。machine-history.json 私有保存已观察历史，合并后续分页；离线/移除/重开可读 historical 任务/会话，原任务/控制收据仍回原来源，历史非终态保持 unknown。 本次实际工程、隔离 TCP SSH、Windows 界面/包与未测项见 [6C 首批验收](../../iterations/I06/machine-management.md)；[桌面 TAP](../../../artifacts/I06C/2026-10-13/desktop-tests.tap)和当次报告是当前证据，alpha.6 双向真实 Agent 链保留原日期/版本。未改用户 profile、未升级用户 daemon、无真实模型任务，不将首批标为完整 I06C。
 
-## alpha.13 当前验证
+## 当前验证
 
 T-M03-19 / M03-F03/F05/F06/F07：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受控回归 **150/150** 通过（全工程总数，模块之间不重复相加）。场景：维护未知期间，所属机器的新执行和节点编辑被中央与原生准入双重阻断；其他机器原有会话可继续。卸载的原远端收据 confirmed 后按原 machineId 完成中央移除、撤销新协作权限及隐藏图节点，保留机器/节点/会话/任务历史。断开、停止、卸载不等于取消原任务，不以名字或地址别名释放未知占位。
 
 证据：[完整桌面 TAP](../../../artifacts/I06C-final/2026-10-14/desktop-alpha13.tap)、[维护实际 daemon/process 7 项](../../../artifacts/I06C-final/2026-10-13/maintenance-tests.tap)、[包内容核验](../../../artifacts/I06C-final/2026-10-14/package-alpha13.json)。维护测试使用真实生产 daemon、Unix socket、独立进程和磁盘，原生 host 受控、无模型调用；不能替代独立服务器或真实原生控制。Windows 窗口、原生 Session 与双向链、使用/卸载、命令和限制统一见 [逐项验收](../../iterations/I06/final-delivery.md)，未实际执行项不得计为通过。
 
-## alpha.13 本次独立实机补充
+## 本次独立实机补充
 
 2026-10-14：冻结 alpha.13 Windows 包与独立 Linux，真实升级、同原生 Session 两轮及两方向协作通过；真实 Windows 取消和普通无调试窗口原生标记分别通过。独立 SSH/生产 daemon 的精确响应丢失、10 同 ID 与重启为受控执行器证据，不充当真实模型。Linux 文件任务受原生 OOM 退出影响，原 ID/Session 与 unknown 占位保留，未准出、未重发；后续 alpha.14 上传专项不冒充此模型矩阵复测。逐场景原始证据、版本、实际失败、临时自有资源调度及剩余项见 [I06C 当前实机记录](../../iterations/I06/final-delivery.md)。
 
 本专项工程补验：桌面 181/181、核心基线 43/43、lint/类型/构建通过；包内私有 Linux Node 的真实 CLI 版本探测复验通过，Windows EXE 已构建并核对资源，详见上述专项“实际验证”。不计为用户服务器升级或模型任务验收。
 
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](../../iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
-
 
 ## 未确认操作资源范围专项（源码修复，未发布）
 

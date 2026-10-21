@@ -27,8 +27,9 @@
     "desktop:dist": "npm run desktop:build && npm run dist:win --prefix desktop",
     "acceptance:desktop": "node --import tsx scripts/i04-desktop-acceptance.ts",
     "docs:check": "node scripts/check-docs.mjs",
+    "docs:test": "node scripts/prepare-doc-site.mjs && node tests/doc-site.test.mjs",
     "docs:dev": "node scripts/prepare-doc-site.mjs && vitepress dev doc --host 127.0.0.1 --port 4188",
-    "docs:build": "node scripts/prepare-doc-site.mjs && vitepress build doc",
+    "docs:build": "node scripts/prepare-doc-site.mjs && vitepress build doc && node scripts/check-doc-site.mjs",
     "docs:preview": "vitepress preview doc --host 127.0.0.1 --port 4188"
   },
   "dependencies": {
@@ -48,7 +49,7 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.1",
-    "vitepress": "2.0.0-alpha.20",
+    "vitepress": "^2.0.0-alpha.20",
     "vue": "3.5.43"
   },
   "overrides": {

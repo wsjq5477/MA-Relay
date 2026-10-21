@@ -1237,9 +1237,9 @@ async function runWorker(jobDirectory) {
     const config=path.join(jobDirectory,'bridge-mcp.json');
     writeJSON(config,{mcpServers:{agentbridge:{command:job.mcp.command,args:job.mcp.args,env:job.mcp.env}}});
     args.push('--mcp-config',config);
-    args.push('--append-system-prompt',job.mcp.mode==='team'?job.mcp.instructions:'你是用户选定的主 Agent。需要协作时使用 agentbridge 的 list_agents 发现已允许的子节点，delegate 委派，task_result 等待实际结果并在当前会话汇总。对每项委派使用稳定 requestId，回应不明时查询原任务，不重复发送。不要用终端命令绕过协作接口。子节点不能扩大连接关系或继续委派。');
+    args.push('--append-system-prompt',job.mcp.mode==='team'?job.mcp.instructions:'你是用户选定的主 Agent。需要协作时使用 agentbridge 的 list_agents 发现已允许的子节点，delegate 委派，task_result 等待实际结果并在当前会话汇总。可用 list_delegations 只读查找本次父执行的原委派ID；列表台账状态不是实时任务结果。对每项委派使用稳定 requestId，回应不明时查询原任务，不重复发送。不要用终端命令绕过协作接口。子节点不能扩大连接关系或继续委派。');
     // Only Bridge's scoped collaboration tools are pre-authorized.
-    args.push('--allowedTools',...(job.mcp.mode==='team'?job.mcp.toolNames.map(name=>'mcp__agentbridge__'+name):['mcp__agentbridge__list_agents','mcp__agentbridge__delegate','mcp__agentbridge__task_result','mcp__agentbridge__cancel_task','mcp__agentbridge__task_pending']));
+    args.push('--allowedTools',...(job.mcp.mode==='team'?job.mcp.toolNames.map(name=>'mcp__agentbridge__'+name):['mcp__agentbridge__list_delegations','mcp__agentbridge__list_agents','mcp__agentbridge__delegate','mcp__agentbridge__task_result','mcp__agentbridge__cancel_task','mcp__agentbridge__task_pending']));
   }
   if (job.verification) args.push("--tools", "");
   const environment = {

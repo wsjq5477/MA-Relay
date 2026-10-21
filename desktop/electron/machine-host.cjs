@@ -96,6 +96,8 @@ class MachineHost {
     })().finally(()=>this.connecting.delete(key));this.connecting.set(key,job);return job;
   }
   async call(method,params={}){
+    if (method === 'dsh.status') return require('./dsh-connection.cjs').status(this.options);
+    if (method === 'dsh.configure') return require('./dsh-connection.cjs').configure(this.options, params);
     if(['mcp.status','mcp.install','mcp.remove','mcp.export'].includes(method)){
       if(method==='mcp.remove')await this.mcpReady.catch(()=>{});else await this.mcpReady;
       return this.mcp.call(method,params);

@@ -1,48 +1,80 @@
 # 通信协议与接口
 
-2026-10-20 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+## alpha.36当前整合
 
-## 2026-10-20：OpenCode 1.x / 2.x 兼容修复
+公开alpha.35的managementBlocks与前端executionRecoveryReason按原节点/安装/共享目录限制执行，管理写入保持同机保护；graphPending只读投影可选blockedNodeIds。原收据须匹配已提供来源与内容指纹，原ADAPTER_HOST严格持久拒绝恢复保留。scoped-management-execution-v1与dsh-web-desktop-v1共同要求中央升级；Task/Session身份、未知不重放及线协议版本不变。[整合与实际验证](iterations/I07/alpha36-delivery.md)。
+
+## 普通delegate输入说明
+
+经典delegate外部参数/派生requestId不变，调用方不能指定上下文版本。仅新普通委派按持久v1给原message附固定子任务说明，下游仍使用原message字符串；无新daemon字段/能力或MCP工具。说明+需求总大小≤65536 UTF-8字节，超限INVALID_INPUT且不截断/不建新委派；未知版本DELEGATION_CONTEXT_UNSUPPORTED保留原记录。历史无版本同ID继续原文，准备拒绝须严格匹配同版本渲染后的原输入，不能用裸错误清未知。[完整契约](iterations/I07/delegation-context.md)。
+
+## 配置入口移动的兼容性
+
+本轮仅将MCP/DSH接入表单移至Agent行的绑定目标弹窗。继续使用mcp.status/install/remove/export({nodeId})、dsh.status({machineId})、dsh.configure({machineId,adapter,url,token?,enabled?})；不新增RPC/字段/daemon能力或迁移。旧EXE保留原设置入口，新界面需新客户端；仅此呈现调整不要求独立SSH升级，但远端仍须具备原方法。DSH诊断文字改指向对应Agent配置，不改变错误码。[流程与验证](iterations/I07/agent-row-configuration.md)。
+
+## list_agents调用方连接视图
+
+经典MCP list_agents仅接受空对象或缺省arguments；AgentNetwork路由收到身份/筛选参数、null/数组/非对象返回INVALID_INPUT；既有stdio/broker把缺省或falsy arguments归一为{}的行为保持。成功响应保留items并增加schema/readOnly/view、relationRevision和caller的安全角色/委派授权说明。原父请求查询返回后新委派使用当前关系，当前主snapshot完成后再按当前关系筛选，非主items为空；失败/缺工具不能解释为空关系，旧后台缺新字段不可推定已部署。原父终态/独立连接撤权仍拒绝，新委派再核对当前授权。MCP工具数量及daemon/JSON/SQLite版本不变。[字段、错误与例外](iterations/I07/agent-connections.md)。
+
+## 服务配置提示与原管理拒绝
+
+discover的DSH安装提示可携带errorCode=DSH_CONNECTION_REQUIRED，节点snapshot对应status=configuration_required。仅为可选错误分类/投影状态，不更改daemon协议号或工具执行方法。原nodeOperation查询可依据中央持久且完整匹配的attach/ADAPTER_HOST拒绝证明返回原operationId的rejected；需原method/lane/action/机器/节点/参数摘要匹配，并优先核对原业务收据。裸查询ADAPTER_HOST、not_found、外来ID或超时均不能单独结算。原任务/会话/权限/取消状态不受影响。见[条件与反例](iterations/I07/agent-management-recovery.md)。
+
+## CT-07只读委派列表
+
+未发布源码经典MCP由六项扩为七项，新增list_delegations({limit?,after?})，readOnlyHint=true；小队18项不变，已公开alpha.34/35仍六项。limit安全整数1–50/默认20，after为本作用域原delegationId（非空≤128）；只接受两个参数，额外身份参数/外来游标报INVALID_INPUT。响应schema1/readOnly/source=delegation-ledger/liveTaskStatus=false及items/total/hasMore/next，每项仅原委派/请求/目标/已有任务会话ID、ledgerState、创建时间/规范错误码和taskQueryable。
+
+身份来自原broker与来源机器校验。原生须同时匹配leader和原parentRequest/Task/Conversation，父终态拒绝、unknown仅只读；独立接入须enabled及原connectionId，parentTaskId必须明确null，缺/空身份不匹配。台账状态不是实时任务结果，已有taskId再调task_result；无taskId保留原requestId，不重发或换ID。无新中央/daemon帧、无迁移/连接管理或权限扩张，旧工具表缺工具时明确不可用。[完整字段、失败与验证](iterations/I07/delegation-list.md)。
+
+## DSH Desktop/Web RPC
+
+原生认证接受附Cookie的302/303，始终不跟随跳转；HTTP RPC外层payload.args遵循Typert命名参数，session/list使用`{_request:{}}`，其余已支持Session方法使用`{request:原请求对象}`。中央/daemon RPC格式不变。真实服务验证与打包交付见[本地DSH候选](iterations/I07/dsh-exe-delivery.md)。
+
+新增机器方法dsh.status({machineId})、dsh.configure({machineId,adapter,url,token?,enabled?})，adapter限定dsh-desktop/dsh-web。status返回脱敏items，保存回应也不带token；配置方法不进入通用执行台账，未知保存读原状态核对，daemon维护期间拒绝配置。运行能力新增dsh-web-desktop-v1。原生侧使用根token换内存Cookie，同源session/list/create/prompt/projections/page/cancel RPC严格关联rpcId；page解析event封装并按原requestId和turn结算，回应丢失不重发。完整schema/限制/身份语义见[DSH Desktop/Web 接入](iterations/I07/dsh-desktop-web.md)。
+
+alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
+
+## OpenCode 1.x / 2.x 兼容修复
 
 机器主协议仍为 2；Core 原生引用的 snapshot.nativeProtocol 为可选字段，旧数据缺省 v2。新增 V1 /global/health、/session、prompt_async、permission/question 与 abort 映射，不与 /api/* 混用。204 或 abort=true 只是原生接收/控制响应；终态仍核对原输入、助手 parentID/完成时间与会话状态。 [需求、实现、验证与未测边界](iterations/I07/opencode-v1-compatibility.md)。
 
-## 2026-10-20：维护上传进度与持久化修复（issue #10）
+## 维护上传进度与持久化修复（issue #10）
 
 协议仍2；中央capabilities新增maintenance-persistence-v1，新前台需要原三项加此项，缺失只保留设置/运行信息/显式停止。SSH旧路由要求不变。DAEMON_PERSIST_FAILED明确本地发送前失败；SSH_UPLOAD_FAILED及安全details不再泛化为暂存错误。 [完整设计、实测与边界](iterations/I07/maintenance-persistence.md)。
 
-## CT-05桌面消费约定（2026-10-20后续源码）
+## CT-05桌面消费约定
 
 不新增RPC/参数/schema；桌面用户复用team.contextPacket与team.messages。除原服务授权外，M01检查原工作/目标、精确引用与原材料、报告来源/状态、白名单及规范packetId，重算文档正文摘要；旧后台/损坏/过期响应拒绝且移除旧导出，不回退最新文档或旧包。Markdown不在packetId覆盖内，因此本机副本从核对后的结构化字段重新生成，JSON同存该本地视图。无自动投递/执行/收件合约，协议2及18项小队工具保持。[现行消费者规则](iterations/I07/context-packet-ui.md)。
 
-## CT-05明确选择接口（2026-10-20源码，未打包）
+## CT-05明确选择接口
 
 用户 `team.contextPacket({runId,targetAgentId,selections})`；成员MCP `team_context_packet({targetAgentId,selections})`，工作只取原scope。selections的documents为documentId/revision，tasks为workItemId/revision/round，messages为messageId/seq，artifacts为artifactId/version；每类最多8项，至少1项。数字为正安全整数，字符串非空/≤150；嵌套额外字段及重复ID拒绝。输出schema1结构化包、确定摘要和Markdown，整个UTF-8 JSON≤256 KiB；具体白名单见[字段与失败表](iterations/I07/context-packet.md)。
 
-先授权，再核对目标及本工作原引用：TEAM_CONTEXT_TARGET/REFERENCE/STALE/CAPACITY分别表示无效目标、无效引用、任务过期、包超限；非法选择TEAM_INPUT，缺文档修订TEAM_DOCUMENT_REVISION，scope失效TEAM_FORBIDDEN。不回退最新版，不发送、不执行、不确认已读或授予权限。小队tools/list现18项，经典6项不变；旧工具表/后台不支持时明确失败，没有替代包或自动降级。原daemon帧/IPC版本2与TeamSpace格式3不变，integrated.3冻结包不含本片。
+先授权，再核对目标及本工作原引用：TEAM_CONTEXT_TARGET/REFERENCE/STALE/CAPACITY分别表示无效目标、无效引用、任务过期、包超限；非法选择TEAM_INPUT，缺文档修订TEAM_DOCUMENT_REVISION，scope失效TEAM_FORBIDDEN。不回退最新版，不发送、不执行、不确认已读或授予权限。小队tools/list现18项，经典6项不变；旧工具表/后台不支持时明确失败，没有替代包或自动降级。原daemon帧/IPC版本2与TeamSpace格式3不变。
 
-2026-10-19当前整合保留alpha.32三项中央能力和SSH原对象路由能力；Classic六工具、小队17工具、独立MCP四方法及精确修订读取共存。没有新wire版本或跨厂家Session协议；旧后台不支持新方法时返回实际错误，不因版本名或manifest信任就扩大业务授权。[最终合约与实际边界](iterations/I07/integrated-source.md)。
+当前整合保留alpha.32三项中央能力和SSH原对象路由能力；Classic MCP工具、小队18工具、独立MCP四方法及精确修订读取共存。没有新wire版本或跨厂家Session协议；旧后台不支持新方法时返回实际错误，不因版本名或manifest信任就扩大业务授权。[最终合约与实际边界](iterations/I07/integrated-source.md)。
 
-## 2026-10-19：OpenCode 2.x与按机器管理（alpha.32已预发布）
+## 按机器管理与版本准入
 
-协议仍2；hello.capabilities新增scoped-management-v1与opencode-v2-admission-v1，新前台要求中央与owned-object-controls-v1同时具备，缺项COORDINATOR_UPGRADE_REQUIRED。NATIVE_VERSION表示仅支持OpenCode 2.x；401/403与API契约错误快速独立返回，裸远端错误不作未发送证明。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
+协议仍2；hello.capabilities新增scoped-management-v1与opencode-v2-admission-v1，新前台要求中央与owned-object-controls-v1同时具备，缺项COORDINATOR_UPGRADE_REQUIRED。NATIVE_VERSION表示原生主版本不可识别或不在支持范围（当前接受可识别的OpenCode 1.x与2.x，其他主版本启动前拒绝）；401/403与API契约错误快速独立返回，裸远端错误不作未发送证明。 [需求、实现、验证与边界](iterations/I07/version-management-recovery.md)。
 
-## 2026-10-19：协作兼容修复（alpha.31已预发布）
+## 协作兼容修复
 
 wire protocol仍2；中央及daemon hello新增capabilities中的owned-object-controls-v1。旧中央仅保留preferences/runtimes/shutdown；旧SSH仍可snapshot/discover/request和daemon原收据/维护，对context/scope及task/conversation/pending/reply/cancel/operation/continue/reconcile/submit/verify返回DAEMON_UPGRADE_REQUIRED。新增OPENCODE_API_UNSUPPORTED、COORDINATOR_UPGRADE_REQUIRED；既有NOT_FOUND与OBJECT_SOURCE_CONFLICT继续适用。 [需求、实现、实测与边界](iterations/I07/collaboration-compatibility.md)。
 
-## alpha.30已预发布：历史详情读取恢复
+## 历史详情读取恢复
 
 协议2和ipc请求形状不变。task/conversation按实际backend读取，明确NOT_FOUND/TASK_NOT_FOUND/CONVERSATION_NOT_FOUND可回原机器保留历史；historical=true/canContinue=false。OBJECT_SOURCE_CONFLICT表示多后台同ID，RECEIPT_MISMATCH表示响应ID不符；两者及真实NOT_CONFIGURED不假装历史成功。request/operation/submit/continue/reply/cancel不受此回退影响。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
 
-2026-10-19 CT-04桌面消费者不新增RPC/参数/daemon帧。team.document返回须匹配请求的runId/documentId/revision，并有有效currentRevision/contentSha256；浏览器重新计算正文摘要，索引指定修订还核对索引摘要。旧后台忽略revision/不支持索引时明确报错，不能把最新正文冒充旧版；clipboard/浏览器MD下载没有网络同步合约。[实际流程与测试](iterations/I07/public-materials-ui.md)。
+CT-04桌面消费者不新增RPC/参数/daemon帧。team.document返回须匹配请求的runId/documentId/revision，并有有效currentRevision/contentSha256；浏览器重新计算正文摘要，索引指定修订还核对索引摘要。旧后台忽略revision/不支持索引时明确报错，不能把最新正文冒充旧版；clipboard/浏览器MD下载没有网络同步合约。[实际流程与测试](iterations/I07/public-materials-ui.md)。
 
-## 独立 MCP 配置管理（2026-10-19，新增源码方法）
+## 独立 MCP 配置管理
 
 用户入口mcp.status / mcp.install / mcp.export / mcp.remove均传nodeId，Coordinator检查机器归属，AgentNetwork从节点派生adapter/机器；客户端不能指定文件或可执行命令。目标MachineHost内部方法接收nodeId/adapter。status只读返回state=absent/exported/installed/conflict、enabled/installed/conflict、configPath、可选connectionId/files；安装/导出另含不带Token的configuration。导出激活接入但不写原生配置。删除先撤权，再删除原样归属条目。回应丢失刷新status核对，配置操作不会执行模型任务。
 
 旧daemon未声明四方法时返回原方法错误；新daemon维护期间拒绝安装/导出/移除，允许只读状态。配置错误包括MCP_UNSUPPORTED、MCP_CONFIG_INVALID、MCP_CONFIG_CONFLICT、MCP_REVOKED；普通MCP的工具名和stdio协议不变。外部scope增加externalConnectionId，身份由broker登记提供，工具参数不可修改。Token/endpoint内容不在用户API响应内。[完整接口与验收](iterations/I07/mcp-installation.md)。
 
-## CT-04只读材料API（2026-10-19源码，未发布）
+## CT-04只读材料API
 
 | 入口 | 参数与响应 |
 | --- | --- |
@@ -52,34 +84,34 @@ wire protocol仍2；中央及daemon hello新增capabilities中的owned-object-co
 
 非法limit/游标格式/revision报TEAM_INPUT；当前工作无该文档游标报TEAM_DOCUMENT；不存在的文档修订报TEAM_DOCUMENT_REVISION，不能回退最新版。所有读取先经原成员/工作/有效原生尝试权限检查，外来ID不扩权。索引snapshotId仅校验返回页内容；状态/消息/收据无副作用，产物引用不证明可达。
 
-CT-04当次冻结范围为17项小队MCP工具，经典主从六工具不变；当前工具数以上方CT-05为准。新服务schema可发现；旧后台可能没有新工具或忽略revision，调用方须核对响应revision/摘要，不能仅据版本名宣称精确历史读取；可回原context/tasks/document通路并明确只读当前版本。原IPC/daemon帧版本保持2，没有MD同步/上下文包协议。本片在alpha.29标签之外，[完整契约与证据](iterations/I07/public-materials.md)。
+CT-04 冻结范围为17项小队MCP工具，经典主从六工具不变；当前工具数以上方CT-05为准。新服务schema可发现；旧后台可能没有新工具或忽略revision，调用方须核对响应revision/摘要，不能仅据版本名宣称精确历史读取；可回原context/tasks/document通路并明确只读当前版本。原IPC/daemon帧版本保持2，没有MD同步/上下文包协议。[完整契约与证据](iterations/I07/public-materials.md)。
 
-2026-10-18通信内容与ACP研究见[连接研究](iterations/I07/connectivity-research.md)及[接入矩阵](agent-integration-matrix.md)。当前仍使用六工具主从MCP/已有小队工具和原IPC/SSH帧；没有ACP RPC、新上下文包接口或MD同步协议。后续建议不构成本轮已实现合约。
+通信内容与ACP研究见[连接研究](iterations/I07/connectivity-research.md)及[接入矩阵](agent-integration-matrix.md)。当前源码使用七工具主从MCP/已有小队工具和原IPC/SSH帧；没有ACP RPC、新上下文包接口或MD同步协议。后续建议不构成当前已实现合约。
 
-2026-10-18原生接入补强：snapshot 节点可选 teamCollaboration；team.registerAgent/team.execute 新操作对不支持小队的原生节点返回 TEAM_CAPABILITY，拒绝发生在工作项认领/意图/派发前。原收据重放仍可查询。Codex/NativeCliHost 的 ipc reconcile/operation 保留原方法和 operationId/state/data，收据新增 kind/taskId 并持久保存；跨控制种类/任务复用同 ID 为 REQUEST_CONFLICT，历史无 kind 取消兼容。无新 RPC 或 daemon 帧版本。[专项](iterations/I07/native-integration-guards.md)。
+原生接入补强：snapshot 节点可选 teamCollaboration；team.registerAgent/team.execute 新操作对不支持小队的原生节点返回 TEAM_CAPABILITY，拒绝发生在工作项认领/意图/派发前。原收据重放仍可查询。Codex/NativeCliHost 的 ipc reconcile/operation 保留原方法和 operationId/state/data，收据新增 kind/taskId 并持久保存；跨控制种类/任务复用同 ID 为 REQUEST_CONFLICT，历史无 kind 取消兼容。无新 RPC 或 daemon 帧版本。[专项](iterations/I07/native-integration-guards.md)。
 
 discover 的原方法/参数/返回结构不变，明确扫描同时重新枚举执行环境；snapshot 保留实时状态读取，不再按15/30秒触发安装发现。lastSyncedAt、请求/操作身份和 unknown 语义保持。[触发时机与兼容边界](iterations/I07/desktop-polling.md)。
 
 当前未发布源码：snapshot.connections 可选 current，snapshot.nodes 可选 supersededBy；前端仅展示当前节点，历史对象仍返回供原身份查询。历史节点的新 submit/attach 返回 NODE_SUPERSEDED，原 request 查询、continue 及收据语义保留；当前/历史安装共享占用。daemon 仍为协议2，未新增模型或远程命令接口。[发现修复](iterations/I07/current-agent-discovery.md)。
 
-## 2026-10-18 原生适配扩展（未发布源码）
+## 原生适配扩展（未发布源码）
 
 不增加远程任意命令、模块加载 RPC 或新的模型接口，daemon 线格式仍为协议 2。discover/context/snapshot 沿用原方法，adapter 新增 `hermes`、`pi`、`dsh`，发现的安装可调用性与执行/协作能力分开。MachineHost 用静态注册工厂创建宿主，未知类型返回 ADAPTER_UNSUPPORTED；新增三种不支持 Bridge MCP scope/权限/表单/连接验证时明确拒绝。宿主通过原 ipc submit/continue/request/task/conversation/cancel/operation/reconcile 接口返回原任务与独立收据。原生内部协议分别为 Hermes stream-json、Pi json print、DSH headless json，不混用帧格式。[原生设计](modules/06-native-adapters/design.md)、[开发接口](custom-agent-development.md)。
 
-## alpha.28已预发布：SSH持久拒绝恢复
+## SSH持久拒绝恢复
 
 SSH协议2和daemon.receiptRead线格式不变。客户端ipc/request裸NOT_CONFIGURED后只读同ID收据；同认证代次匹配持久rejected产生内部DAEMON_REQUEST_REJECTED能力，公开同码JSON/错误没有该能力。中央普通request可返回{state:rejected,requestId,machineId,error:{code:NOT_CONFIGURED,message},reconciliation}，没有taskId，禁止当成功任务；mutation仍报错。verify/控制语义不变。 [设计、需求、开发、验收与边界](iterations/I06/daemon-rejection-recovery.md)。
 
-## alpha.27：本地恢复语义
+## 本地恢复语义
 
 不改变RPC方法、daemon帧版本或数据版本。Codex ipc reconcile沿用operationId/state/data收据，并持久task.reconciliation；终态或严格未派发证明可confirmed，任务为failed，其他查询返回unknown并保留占用。新增内部NETWORK_PERSIST仅表示本地AgentNetwork原子保存失败，保留原OS错误；不进入全局拒绝白名单，只有原未派发意图证据允许中央拒绝结算，NOT_FOUND/远端EPERM不允许。见[专项](iterations/I06/windows-start-persistence.md)。
-## alpha.24停止接口与兼容
+## 停止接口与兼容
 
 team.context/team.refresh新增stopSupported=true和可选stop汇总（requestedAt/completedAt/total/unresolved/externalCount），attempt新增stop.state；停止中仍只能查询原请求和原取消操作，收到匹配原执行终态才归档。成员MCP工具集合保持16项，没有停止权限。旧后台缺stopSupported时新版界面禁用整项停止，提示升级中央后台。底层cancel/operation与daemon帧版本不变，原生终态不能由取消回执替代。Coordinator对原请求/机器、控制operationId及返回的可选task身份严格校验，NOT_FOUND/unknown/身份不符不结算原台账。[详细设计](iterations/I07/native-stop.md)。
 
-## I07A/B与I07C首批通信契约
+## 小队协作通信契约
 
-alpha.23 / 2026-10-16当前本地Coordinator方法；底层IPC/SSH协议仍为2，旧模式原父scope规则不变。公共方法不接受外部自报teamScope，原生小队身份仅后台内部派生。操作写前需稳定operationId，回应不明查询team.operation；返回confirmed不代表原生业务成功。[实现](../desktop/electron/coordinator-service.cjs)、[细节](iterations/I07/task-handoff.md)。
+当前本地Coordinator方法；底层IPC/SSH协议仍为2，旧模式原父scope规则不变。公共方法不接受外部自报teamScope，原生小队身份仅后台内部派生。操作写前需稳定operationId，回应不明查询team.operation；返回confirmed不代表原生业务成功。[实现](../desktop/electron/coordinator-service.cjs)、[细节](iterations/I07/task-handoff.md)。
 
 | 方法 | 输入/输出与边界 |
 | --- | --- |
@@ -117,13 +149,11 @@ I07C首批用户方法：`team.configureAutomation`输入runId/expectedRevision/
 
 MachineHost.scope返回teamContinuation=true表示能重绑小队身份；原节点续接在能力缺失时派发前拒绝。原Conversation的最新小队轮不能被普通未带新teamScope的接口接管；teamScope仍仅由中央私有调用派生。新轮使用独立scope和原请求，原生Session私有校验失败后停止新激活，不回退到新会话。[实际流程](iterations/I07/automation.md)。
 
-更新：2026-10-12。这里解释整个系统的对象关系；具体读写接口见 [协议](protocol.md)，状态与恢复责任见 [M07](modules/07-task-session/design.md)。
-
 ## 当前本地原请求核对结果
 
-本地 Coordinator 的 recoverPending 保留 resolved，增加 remaining 和 items；每项只含原 id、machineId、op、固定 code/reason，不返回 Prompt 或任意远端错误正文。旧窗口可忽略新字段，新窗口兼容只有 resolved 的旧后台并明确提示。内部 undispatchedRejection 不新增远端 RPC，只核对严格匹配的原 Windows OpenCode submit、明确资源错误与 dispatched===false 意图；落盘前复核无在途 job。原生任务/控制及 SSH daemon 协议 2 不变。[alpha.18](iterations/I06/runtime-recovery.md)。
+本地 Coordinator 的 recoverPending 保留 resolved，增加 remaining 和 items；每项只含原 id、machineId、op、固定 code/reason，不返回 Prompt 或任意远端错误正文。旧窗口可忽略新字段，新窗口兼容只有 resolved 的旧后台并明确提示。内部 undispatchedRejection 不新增远端 RPC，只核对严格匹配的原 Windows OpenCode submit、明确资源错误与 dispatched===false 意图；落盘前复核无在途 job。原生任务/控制及 SSH daemon 协议 2 不变。[运行缓存与未派发恢复](iterations/I06/runtime-recovery.md)。
 
-## alpha.19 Linux CLI 发现边界
+## Linux CLI 发现边界
 
 discover 的输入和 items 响应、SSH 协议 2、原请求/任务/控制接口均不变；只有新版 daemon 的本地扫描目录变化。旧 daemon 可信复用继续按实际握手版本，不因客户端版本变化就声明具备新扫描能力。 见 [专项](iterations/I06/linux-cli-discovery.md)。
 
@@ -229,23 +259,23 @@ SSH 的 `/mnt/c/project` 属于远端独立文件系统，不能与本机 Window
 
 ## 7. 修订、迁移与备份
 
-关系 revision 防止两个界面覆盖授权。alpha.6 图布局 layoutRevision 与授权 revision 分开；graph-layout.json 和 graph-pending.json 的实际格式见下方。
+关系 revision 防止两个界面覆盖授权。图布局 layoutRevision 与授权 revision 分开；graph-layout.json 和 graph-pending.json 的实际格式见下方。
 
 机器目录、网络、安装清单、协议和 SQLite 各有独立版本；不能用桌面 app 版本替代它们。读取未知格式或归属不明时停止接管，保留数据。旧模型覆盖只能作为历史实例绑定，不能迁移为新节点的模型设置。
 
 停机备份整份所属状态与安装记录，并保护凭据；活动 SQLite 不能只复制主文件而忽略 WAL。复制 daemon 状态到另一服务器不会自动授予新机器同一身份；主机密钥/身份冲突必须核对。
 
-## 当前 6A 候选验收结果
+## 当前会话续接字段验收结果
 
 OpenCode/Core 会话响应额外携带 canContinue/kind，均从持久原生绑定、上一轮状态、验证标志及配置/资源归属计算，不新增持久列。Conversation/native Session 的真实两轮与重开保留见 [6A 验收](iterations/I06/acceptance.md)。
 
 ## Linux 发布兼容数据
 
-alpha.4 的离线 manifest 新增可选 `compatibleDaemons: [{version,manifestPath,manifestDigest}]`。路径仅能是清单内 `compatible-daemons/<version>.json`，其文件 SHA-256 和内容 manifestDigest 均校验，版本不能重复。旧协议 2 manifest 不要求有该字段。当前 alpha.11 明确收录 alpha.2–alpha.10；未知或未来版本不按协议相同自动接受。
+离线 manifest 可选 `compatibleDaemons: [{version,manifestPath,manifestDigest}]`。路径仅能是清单内 `compatible-daemons/<version>.json`，其文件 SHA-256 和内容 manifestDigest 均校验，版本不能重复。旧协议 2 manifest 不要求有该字段。当前 alpha.11 明确收录 alpha.2–alpha.10；未知或未来版本不按协议相同自动接受。
 
 SSH probe 的 `daemonVersion` 是实际选中后台版本，`clientDaemonVersion` 是客户端新安装包版本，`reuseCompatible` 是展示信息，`installNeeded=false` 表示旧安装可复用。执行分支按实际可信清单选择结果判定，不能凭缓存展示标志绕过校验。旧 current.json、daemon 身份和任务数据无需迁移。
 
-## I06B 关系、布局与图操作
+## 关系、布局与图操作
 
 agent-network.json 增加 relationOperations，每项含 operationId、state=confirmed、内容 fingerprint 和 data（提交时的 collaboration）。现有 version=1、节点、请求、委派与 ID 不迁移或重建。图权威边仍来自 leaderId/memberIds；成员顺序不改变权限。
 
@@ -258,15 +288,15 @@ graph-pending.json 保存 operationId、lane=relation/layout/node/machine、完�
 
 AGENT_UNHEALTHY 的原执行前拒绝使用现有 daemon-receipts 的 rejected/error 与中央 pending 的 rejected/result，不新增版本或字段。旧 unknown 记录只在原查询依据其保存的确定拒绝核对，其他 unknown 原样保留；Task 状态未因此改变。
 
-alpha.8 的布局读取可用状态是前端临时状态，不改变 GraphLayout 或收据格式。本机模式保留浏览器 State 中坐标、视口、layoutDirty 与所有原 pending ID，不创建后台确认记录。仅在图接口恢复支持且对应 lane 无 pending、修订可校验时同步。
+布局读取可用状态是前端临时状态，不改变 GraphLayout 或收据格式。本机模式保留浏览器 State 中坐标、视口、layoutDirty 与所有原 pending ID，不创建后台确认记录。仅在图接口恢复支持且对应 lane 无 pending、修订可校验时同步。
 
-## alpha.9 节点管理事务
+## 节点管理事务
 
 AgentNode 新增可选 managed/removed，缺省兼容旧目录；显式管理后 connected 不被扫描或原生上下文报告覆盖。移除为可恢复标记，快照保留历史身份，UI 隐藏卡片，新需求受中央接入状态约束。agent-network.json 新增 nodeOperations，原子提交节点、授权和收据；版本仍为 1。GraphOperationJournal 新增 node lane，与 relation 未确认意图互锁，布局独立。旧版本不会理解显式移除语义，含此状态的配置不支持直接回退旧中央；保留数据/备份，不靠清空节点或原请求恢复。
 
-`manageNode` 参数 `{operationId,nodeId,machineId?,action}`，action 为 attach/disconnect/remove；返回 `{operationId,state:"confirmed",fingerprint,data:{node,collaboration}}`。`nodeOperation` 以原 operationId 返回 confirmed、确定拒绝的 rejected 或 not_found；not_found 不证明未执行。断开/移除撤销相关权限，有变更才增关系修订。来源校验、离线/忙碌/原生 pending、节点/授权 pending 拦截，接入锁避免并发新任务。snapshot.nodeManagement=true 声明中央能力；新界面在旧中央禁写，原本机布局模式保留。完整语义、错误与验证见 [alpha.9 节点管理](iterations/I06/node-management.md)。
+`manageNode` 参数 `{operationId,nodeId,machineId?,action}`，action 为 attach/disconnect/remove；返回 `{operationId,state:"confirmed",fingerprint,data:{node,collaboration}}`。`nodeOperation` 以原 operationId 返回 confirmed、确定拒绝的 rejected 或 not_found；not_found 不证明未执行。断开/移除撤销相关权限，有变更才增关系修订。来源校验、离线/忙碌/原生 pending、节点/授权 pending 拦截，接入锁避免并发新任务。snapshot.nodeManagement=true 声明中央能力；新界面在旧中央禁写，原本机布局模式保留。完整语义、错误与验证见 [节点管理](iterations/I06/node-management.md)。
 
-## I06C 当前机器管理接口
+## 当前机器管理接口
 
 以下为受保护本地 Coordinator 调用；不向 Agent 授予机器管理权限。operationId 持久后发送；回应未知只查原 machine.operation。
 
@@ -283,7 +313,7 @@ AgentNode 新增可选 managed/removed，缺省兼容旧目录；显式管理后
 
 SSH 客户端接收 daemon.eventRead 的 items,nextCursor,hasMore,cursorGap,earliestCursor；cursorGap/cursorExpired 后完整 snapshot 再 drain 页，不猜 latestCursor，不重复 Prompt。配置/网络两阶段提交的原收据恢复边界见 [6C 首批](iterations/I06/machine-management.md)。
 
-## alpha.11 后台维护与控制确认
+## 后台维护与控制确认
 
 snapshot.daemonManagement=true 表示中央支持 SSH 后台维护；旧中央缺失时 UI 禁写。
 
@@ -300,15 +330,15 @@ snapshot.daemonManagement=true 表示中央支持 SSH 后台维护；旧中央�
 
 native reply/cancel 返回须对应原 operationId、Task/execution 目标和明确 state；unknown 或外来 ID 不确认。confirmed 只说明接收，Task cancelled/succeeded 仍需原生事实。旧 confirmed 外壳内的 native unknown 在恢复时保留 unknown，明确拒绝可按原操作读取。维护失去回应仅查原 ID；无证据不换 ID/别名释放占位。见 [I06C 收尾](iterations/I06/final-delivery.md)。
 
-## alpha.14 安装上传失败的明确边界
+## 安装上传失败的明确边界
 
 `ssh-connections.json.operations[operationId]` 的安装 status 保留 pending/confirmed/unknown，并以 rejected 标记上传器明确 `SSH_UPLOAD_FAILED`：该错误只从打开/写入/关闭归档阶段产生，尚未进入解包/激活。safe error 含类别、阶段及 ACK 字节数，不含服务器原始文字或秘密；SFTP 数值状态可保留。此错误暂停自动重连。界面补录凭据、重新 testSsh、查看摘要并批准 connectSsh，未变化摘要沿原 connectionId/operationId。其他已发送步骤失败仍是 unknown，不显示新安装入口，也不从该安装状态推定原生任务或控制结果。没有新增 RPC 或 daemon 协议版本。见 [迭代证据](iterations/I06/ssh-upload-recovery.md)。
 
-## alpha.16 维护原查询语义
+## 维护原查询语义
 
 公开方法/参数和 daemon 协议号不变。原 machine.operation 可用持久的 remoteLaunched=false 确认未启动并同步对应机器维护占位；认证失败显示 needs_credentials，忙碌/冲突语义原样返回。输入可能已发送的流中断/超时仍 unknown，只查原 ID。见 [增量](iterations/I06/maintenance-launch-recovery.md)。
 
-## 本地未确认操作投影（alpha.20 已预发布）
+## 本地未确认操作投影
 
 CoordinatorClient 的 pending 响应行新增可选 blockedNodeIds: string[]，用于图卡片、提交、续聊及任务控制的可用性投影；缺该字段时客户端沿用原机器限制。机器/节点管理仍用整机限制。该字段不证明原请求已完成，不新增远端 RPC，不改变 daemon 协议 2。
 

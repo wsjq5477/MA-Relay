@@ -10,7 +10,7 @@ const validIdentity=value=>typeof value==='string'&&value.trim().length>0&&value
 const operationKind=operation=>operation.kind??'cancel';
 // Applied only to native turns with a scoped Bridge MCP connection. Keep the
 // original message/receipt unchanged and inherit the user's native CLI policies.
-const collaborationInstructions='[AgentBridge 协作上下文]\n你是用户选定的 AgentBridge 主 Agent。用户所说的连接子 Agent 是用户在 AgentBridge 中允许连接的工具节点，可以位于其他机器。询问连接关系或需要协作时，必须先调用 agentbridge MCP 服务器的 list_agents（通常显示为 mcp__agentbridge__list_agents，按客户端实际命名调用）。Codex 原生 collaboration.list_agents / list_agents 只列出本次 CLI 内部的临时协作 Agent；它返回只有 /root 不能证明 AgentBridge 没有连接子节点。若 Bridge MCP 工具缺失或调用失败，报告协作通道故障，不能把故障解释为子节点列表为空，也不能通过终端绕过协作接口。通过同一 agentbridge 服务器的 delegate 向允许的子节点发任务，task_result 查询或等待真实结果，最后在当前会话汇总。每项委派使用稳定 requestId，回应未知时查询原请求或原任务，不换 ID 重复提交。子节点不能扩大连接关系。用户要求子节点报告模型时，实际委派询问并核对返回结果；无法确认的模型标明未知，不猜测。\n[/AgentBridge 协作上下文]\n\n';
+const collaborationInstructions='[AgentBridge 协作上下文]\n你是用户选定的 AgentBridge 主 Agent。用户所说的连接子 Agent 是用户在 AgentBridge 中允许连接的工具节点，可以位于其他机器。询问连接关系或需要协作时，必须先调用 agentbridge MCP 服务器的 list_agents（通常显示为 mcp__agentbridge__list_agents，按客户端实际命名调用）。Codex 原生 collaboration.list_agents / list_agents 只列出本次 CLI 内部的临时协作 Agent；它返回只有 /root 不能证明 AgentBridge 没有连接子节点。若 Bridge MCP 工具缺失或调用失败，报告协作通道故障，不能把故障解释为子节点列表为空，也不能通过终端绕过协作接口。通过同一 agentbridge 服务器的 delegate 向允许的子节点发任务，task_result 查询或等待真实结果，最后在当前会话汇总。可用同一服务器的 list_delegations 只读找回本父执行或独立接入的原委派ID；台账状态不是实时任务结果。每项委派使用稳定 requestId，回应未知时查询原请求或原任务，不换 ID 重复提交。子节点不能扩大连接关系。用户要求子节点报告模型时，实际委派询问并核对返回结果；无法确认的模型标明未知，不猜测。\n[/AgentBridge 协作上下文]\n\n';
 function safe(value){let s=String(value||'').replace(/\x1b\[[0-9;]*[A-Za-z]/g,'');for(const [key,v]of Object.entries(process.env))if(/TOKEN|SECRET|PASSWORD|API_KEY/.test(key)&&v?.length>6)s=s.split(v).join('[已隐藏]');return s.slice(0,200000);}
 function read(file,fallback){try{return JSON.parse(fs.readFileSync(file,'utf8'));}catch(e){if(e.code==='ENOENT')return fallback;throw fail('CODEX_STATE','Codex 记录无法读取，请保留原目录。');}}
 function write(file,data){fs.mkdirSync(path.dirname(file),{recursive:true});const tmp=file+'.'+randomUUID()+'.tmp';fs.writeFileSync(tmp,JSON.stringify(data,null,2),{mode:0o600});fs.renameSync(tmp,file);}
@@ -144,7 +144,7 @@ async function runWorker(directory){
   if(job.mcp){
     args.push('-c','mcp_servers.agentbridge.command='+JSON.stringify(job.mcp.command),'-c','mcp_servers.agentbridge.args='+JSON.stringify(job.mcp.args),'-c','mcp_servers.agentbridge.default_tools_approval_mode="prompt"');
     // User-configured relations authorize these bounded bridge operations only.
-    for(const tool of (job.mcp.mode==='team'?job.mcp.toolNames:['list_agents','delegate','task_result','cancel_task','task_pending']))args.push('-c','mcp_servers.agentbridge.tools.'+tool+'.approval_mode="auto"');
+    for(const tool of (job.mcp.mode==='team'?job.mcp.toolNames:['list_delegations','list_agents','delegate','task_result','cancel_task','task_pending']))args.push('-c','mcp_servers.agentbridge.tools.'+tool+'.approval_mode="auto"');
     if(job.mcp.env)for(const [k,v] of Object.entries(job.mcp.env))args.push('-c','mcp_servers.agentbridge.env.'+k+'='+JSON.stringify(v));
   }
   args.push('-');const launch=require('./tool-discovery.cjs').command(job.executable,args);

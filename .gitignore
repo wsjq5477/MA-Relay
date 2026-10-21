@@ -20,3 +20,5 @@ desktop/.linux-package/
 doc/.vitepress/dist/
 doc/.vitepress/cache/
 doc/public/references/
+doc/user/_generated/
+doc/user/public/

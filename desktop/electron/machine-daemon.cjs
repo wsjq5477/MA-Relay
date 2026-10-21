@@ -18,7 +18,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const now = () => new Date().toISOString();
 const own = value => value && Object.getPrototypeOf(value) === Object.prototype;
 const validId = value => typeof value === 'string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
-const methods = new Set(['mcp.status', 'mcp.install', 'mcp.remove', 'mcp.export', 'snapshot', 'discover', 'context', 'scope', 'ipc', 'environment', 'connect']);
+const methods = new Set(['dsh.status', 'dsh.configure', 'mcp.status', 'mcp.install', 'mcp.remove', 'mcp.export', 'snapshot', 'discover', 'context', 'scope', 'ipc', 'environment', 'connect']);
 const mutations = new Set(['submit', 'continue', 'verify', 'reply', 'cancel']);
 const knownRejections = new Set(['INVALID_INPUT', 'REQUEST_CONFLICT', 'AGENT_BUSY', 'AGENT_UNHEALTHY', 'TASK_NOT_FOUND', 'CONVERSATION_NOT_FOUND', 'CONVERSATION_CONFIG', 'CONVERSATION_BUSY', 'EXECUTION_MISMATCH', 'REQUEST_NOT_FOUND', 'STALE_OPERATION', 'PERMISSION_NOT_FOUND', 'PERMISSION_REPLIED', 'NODE_NOT_FOUND', 'WORKSPACE_UNAVAILABLE', 'DISCOVERY_CHANGED', 'NOT_CONFIGURED', 'ADAPTER_UNSUPPORTED']);
 
@@ -145,10 +145,7 @@ async function inspectDaemon(options, timeout = 1500) {
 async function productionHost(directory, collaboration) {
   const { DesktopHost } = await import(pathToFileURL(path.resolve(__dirname, '../../dist/desktop-host.js')).href);
   const { MachineHost } = require('./machine-host.cjs');
-  const backend = context => {
-    const leaf = new DesktopHost(context);
-    return { directory: leaf.directory, call: (method, params = {}) => leaf.handle({ id: 'machine-daemon', method, params }) };
-  };
+  const backend = context => new DesktopHost(context);
   return new MachineHost({ directory, legacy: backend(directory), collaboration, openCode: backend });
 }
 
@@ -270,7 +267,7 @@ async function startDaemon(options) {
       if (row && row.state !== 'confirmed') return queryRecord(row);
     }
     if (method !== 'ipc' || !mutations.has(params.op)){
-      if(['context','connect','mcp.install','mcp.remove','mcp.export'].includes(method)){if(maintenance)throw fail('DAEMON_MAINTENANCE','后台正在维护，不接受配置变更或新执行上下文。');admissions++;try{return await host.call(method,params);}finally{admissions--;}}
+      if(['dsh.configure','context','connect','mcp.install','mcp.remove','mcp.export'].includes(method)){if(maintenance)throw fail('DAEMON_MAINTENANCE','后台正在维护，不接受配置变更或新执行上下文。');admissions++;try{return await host.call(method,params);}finally{admissions--;}}
       return host.call(method,params);
     }
     const key = receiptKey(params);

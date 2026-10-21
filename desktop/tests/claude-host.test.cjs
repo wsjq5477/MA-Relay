@@ -774,3 +774,12 @@ test("instance model updates require the current revision, preserve old conversa
     operationId: "model-busy-cancel",
   });
 });
+
+
+test('classic MCP permits the read-only delegation lookup without preauthorizing human permission replies',async t=>{
+ const f=fixture(t),host=f.host(),a=await connect(host,f);
+ const task=await host.call('ipc',{op:'submit',agentId:a.agentId,requestId:'delegation-list-permission',message:'hello',mcp:{command:process.execPath,args:['unused-controlled-client.cjs']}});
+ const result=await until(host,task.taskId,t=>t.status==='succeeded');assert.equal(result.status,'succeeded');
+ const {args}=JSON.parse(fs.readFileSync(path.join(f.directory,'invocations.jsonl'),'utf8').trim());
+ assert(args.includes('mcp__agentbridge__list_delegations'));assert(!args.includes('mcp__agentbridge__reply_task'));assert(args.some(x=>x.includes('list_delegations 只读查找')));
+});

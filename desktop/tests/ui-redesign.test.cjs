@@ -22,6 +22,21 @@ const { ConversationsPage, SettingsPage, TasksPage } = requireTsx(
 );
 
 const noop = () => {};
+test('an unresolved management intent permits scanning and browsing tools while actual attach and execution stay blocked',()=>{
+ const html=render(MachineInventory,inventoryProps({nodes:[node({connected:false,status:'discovered'})],metadataBusy:true,managementReason:()=> '原接入操作待核对',blocked:()=>true}));
+ assert.equal(buttonNamed(html,'扫描').disabled,false);assert.equal(buttonNamed(html,'添加 Agent').disabled,false);
+ assert.equal(buttonNamed(html,'接入').disabled,true);assert.match(html,/原操作待核对 · 查看/);
+});
+test('settings shows management originals even with an empty execution journal, including query failures and source',()=>{
+ const html=render(SettingsPage,settingsProps({journal:[],managementJournal:[{operationId:'original-host',lane:'node',machineId:'machine-a',nodeId:'node-a',action:'attach',reason:'原操作查询失败：来源离线'}]}));
+ assert.match(html,/Agent 接入/);assert.match(html,/original-host/);assert.match(html,/原操作查询失败/);assert.doesNotMatch(html,/当前没有未确认操作/);
+ assert.equal(buttonNamed(html,'查询原请求').disabled,false);
+});
+test('unconfigured DSH service exposes configuration guidance rather than a tool failure or execution button',()=>{
+ const html=render(MachineInventory,inventoryProps({nodes:[node({name:'DSH Web',adapter:'dsh-web',connected:false,healthy:false,available:false,status:'configuration_required'})]}));
+ assert.match(html,/待配置服务连接/);assert.doesNotMatch(html,/工具检查异常/);assert.equal(buttonNamed(html,'配置').disabled,false);
+ assert.equal(buttonNamed(html,'接入').disabled,true);assert(!buttons(html).some(button=>button.text==='开始会话'));
+});
 const timestamp = "2026-10-17T08:00:00.000Z";
 const render = (Component, props) =>
   renderToStaticMarkup(React.createElement(Component, props));
@@ -155,6 +170,7 @@ function inventoryProps(overrides = {}) {
     daemonManagementSupported: true,
     blocked: () => false,
     start: noop,
+    configure: noop,
     attach: noop,
     nodeAction: noop,
     addAgent: noop,
@@ -794,4 +810,11 @@ test('incompatible OpenCode never appears connected or executable; safe history 
  test('local progress warning remains visible without claiming daemon activation',()=>{
   const m=machine({progressWarning:{code:'SSH_PROGRESS_WARNING',causeCode:'EPERM',message:'进度显示更新失败（EPERM），上传继续；发送维护前仍须保存本地台账。'}});
   const html=render(MachineInventory,inventoryProps({machines:[m]}));assert.match(html,/进度显示更新失败（EPERM）/);assert.doesNotMatch(html,/后台已升级/);
+ });
+
+ test('settings projects all management lanes with task totals and safe original identity',()=>{
+ const lanes=['node','machine','relation','layout'],rows=lanes.map(lane=>({lane,operationId:'sensitive-original-'+lane,method:'manageNode',params:{nodeId:'node-a',machineId:'machine-a',action:'attach'},state:'unknown',time:timestamp,error:{code:'NATIVE_START_TIMEOUT',message:'PRIVATE_REMOTE_ERROR'}}));
+ const html=render(SettingsPage,settingsProps({managementRows:rows}));assert.match(plainText(html),/任务 0 项 · 节点 1 项 · 机器 1 项 · 授权 1 项 · 布局 1 项/);assert(!html.includes('当前没有未确认操作'));assert(!html.includes('sensitive-original'));assert(!html.includes('PRIVATE_REMOTE_ERROR'));assert(html.includes('NATIVE_START_TIMEOUT'));assert(html.includes('操作 #'));
+ for(const name of ['节点','机器','授权','布局'])assert(!buttonNamed(html,'查询原'+name+'操作').disabled);
+ const loading=render(SettingsPage,settingsProps({managementRows:rows,managementQuerying:true}));assert.equal(buttons(loading).filter(b=>b.text==='正在查询原管理操作…'&&b.disabled).length,4);
  });

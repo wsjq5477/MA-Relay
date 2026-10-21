@@ -11,7 +11,7 @@
 | R03 证据不足继续保护 | run缺失、任何worker.log/心跳/事件文件（含空或null）、原任务有启动/native进度，全部保留unknown与占用；正在运行但尚无心跳的worker不能被当作未启动 |
 | R04 本地替换有界恢复 | graph-layout.atomicWrite与AgentNetwork.saveNetwork统一wx临时文件、fsync、原子替换和失败清理；EPERM/EACCES/EBUSY最多6次、累计等待300ms，ENOSPC等其他错误不重试 |
 | R05 持久化失败不伪装派发 | 保存失败包装为NETWORK_PERSIST并保留原码/原因；派发前dispatched=true保存失败只回滚内存dispatched=false，派发后的结果保存失败不回滚；仅严格原身份/双指纹/未派发/无任务会话绑定/无在途node job证据允许rejected |
-| R06 历史EPERM兼容 | 仅原本机profile的agent-network.json.<UUID>.tmp到agent-network.json的精确Node rename消息，连同R05原意图证据，才结算历史unknown；路径按本机Windows大小写等价或Linux大小写敏感比较，其他EPERM/NOT_FOUND/缺收据不构成未执行证明 |
+| R06 历史EPERM兼容 | 仅原本机profile的`agent-network.json.<UUID>.tmp`到agent-network.json的精确Node rename消息，连同R05原意图证据，才结算历史unknown；路径按本机Windows大小写等价或Linux大小写敏感比较，其他EPERM/NOT_FOUND/缺收据不构成未执行证明 |
 | R07 可用交付 | 构建独立alpha.27 Windows EXE及校验文件；保留原alpha.26包；补收原alpha.26冻结Linux清单，避免新客户端拒绝上一版本后台 |
 
 ## 实现与状态边界

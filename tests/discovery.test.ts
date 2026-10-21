@@ -6,6 +6,27 @@ import { createRequire } from 'node:module';
 const { scanTools } = createRequire(import.meta.url)('../desktop/electron/tool-discovery.cjs');
 import { tmpdir } from 'node:os';
 import { discoverOpenCode } from '../src/discovery.js';
+import { createServer } from 'node:http';
+
+test('OpenCode discovery cannot select a healthy DSH service even when both are installed', async t => {
+  const home=mkdtempSync(resolve(tmpdir(),'ab-discovery-dsh-coexist-'));
+  const server=createServer(async (request,response)=>{
+    if(request.method==='GET') {response.writeHead(303,{'set-cookie':'fixture=allowed; HttpOnly',location:'/'});response.end();return;}
+    let body='';for await(const part of request)body+=part;
+    const input=JSON.parse(body) as {rpcId:string};
+    response.setHeader('content-type','application/json');response.end(JSON.stringify({type:'server-response',rpcId:input.rpcId,result:{ok:true,value:{items:[]}}}));
+  });
+  await new Promise<void>(done=>server.listen(0,'127.0.0.1',done));
+  t.after(async()=>{server.closeAllConnections();await new Promise<void>(done=>server.close(()=>done()));rmSync(home,{recursive:true,force:true});});
+  const {configure}=createRequire(import.meta.url)('../desktop/electron/dsh-connection.cjs');
+  configure({home},{adapter:'dsh-web',url:'http://127.0.0.1:'+(server.address() as {port:number}).port+'/',token:'synthetic-token'});
+  const selected=resolve(home,'opencode.cjs');writeFileSync(selected,"process.stdout.write('opencode v2.0.24\\n');",{mode:0o700});
+  const options={home,path:'',executable:selected};
+  const scanned=await scanTools({home,platform:'linux',environment:{PATH:''},candidates:{claude:[],codex:[],hermes:[],pi:[],dsh:[],opencode:[selected]}});
+  assert(scanned.some((item:{adapter:string;healthy:boolean})=>item.adapter==='dsh-web'&&item.healthy),'the coexisting service must actually be healthy');
+  assert.deepEqual(await discoverOpenCode(options),[{name:'OpenCode',executable:selected,version:'2.0.24'}]);
+  rmSync(selected);assert.deepEqual(await discoverOpenCode(options),[],'DSH must not substitute a missing original OpenCode installation');
+});
 
 test('discovery honors the current PATH command, reports its failure, and uses native fallback only when absent', async () => {
   const home = mkdtempSync(resolve(tmpdir(), 'ab-discover-'));
