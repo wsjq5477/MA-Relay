@@ -62,6 +62,8 @@
 
 | 版本 | 交付与边界 |
 | --- | --- |
+| **0.6.0-alpha.36** | 本地整合交付：[全部修复整合与本地EXE](I07/alpha36-delivery.md)；含公开alpha.35修复与当前增量，未公开GitHub、未打标签 |
+| **0.6.0-alpha.35** | issue #12：[同机独立执行与完整管理恢复](I07/scoped-execution-recovery.md)；PR #13合并，标签冻结`b5de577`，EXE与SHA-256公开核验 |
 | **0.6.0-alpha.34** | [交付记录](I07/alpha34-release.md)：OpenCode 1.x/2.x、独立MCP、CT-04/CT-05及alpha.30–33整合；标签冻结`1af4dab`，EXE与SHA-256公开核验 |
 | **0.6.0-alpha.29** | [alpha.29交付](I07/alpha29-release.md)：UI重构/原生接入/连接能力整合发布 |
 | **0.6.0-alpha.23** | [发布记录](I07/github-release.md)：I07A/B及I07C首批持续协调分发 |

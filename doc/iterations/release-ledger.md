@@ -2,6 +2,10 @@
 
 逐版本发布对照与当时边界集中在本页，供追溯使用；主文档[远端源码范围](../repository-sync.md)只保留当前材料范围与边界。登记以公开预发布为主（alpha.9 起，未列入的中间版本见对应迭代专项）。每条记录的验收事实、证据级别和未测项以对应迭代专项为准，本页不改写历史结论，也不用后续结果覆盖原日期版本。
 
+## 2026-10-20 alpha.35 预发布
+
+issue #12 修复经 [PR #13](https://github.com/wsjq5477/MA-Relay/pull/13) 合并（合并提交 `24d81aa799ab5f221908e38de8e4a9cc44201045`）并随 issue 关闭；标签 **v0.6.0-alpha.35** 固定构建源码 `b5de577980e140150352518c19bb6e9709a2bd20`，后续仅补文档，不移动冻结标签。本版把管理写入与执行准入分开：同机独立节点不再被原管理 unknown 误锁，原操作查询按原 operationId 结算并有逐项反馈，中央新增 `scoped-management-execution-v1` 门禁（复用旧 alpha.34 中央须显式停止重开）。[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.35/AgentBridge-0.6.0-alpha.35-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.35/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.35)。EXE **130,024,572 字节**，SHA-256 `759e36efe2f4ad41cbd273ee17cfe54e6512758574f7bc424458db15f26d8aa1`；两资产 size/digest 与本地一致，匿名分段完整下载按连续字节校验与本地摘要一致，校验附件 HTTP 200 字节一致。冻结源码独立 git archive 构建并逐文件核验，冻结包 43 个后台 CJS、81 个 Core 文件、1452 个 Linux 文件与源码一致，alpha.35 Linux manifest digest 为 `e4db314070688509489ba1a8a2bf3720575d76dd481502884181031e2fae1189`；普通无调试 Windows EXE 五组通过，模型 0。用户现场故障 profile 与完整 I06C/I07C 未验，发布不替代现场验收。[交付、逐项证据与未测边界](I07/scoped-execution-recovery.md)。
+
 ## 2026-10-20 alpha.34 预发布
 
 完整源码提交 `1af4dab415d63072be59c103a606df0952ab2ff8` 已推送并固定为标签 **v0.6.0-alpha.34**；旧标签与旧 EXE 不移动。本版整合 OpenCode 1.x/2.x 双协议、独立 MCP、CT-04 公共材料、CT-05 选材包及 alpha.30–33 既有修复。[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.34/AgentBridge-0.6.0-alpha.34-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.34/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.34)。EXE **130,025,537 字节**，SHA-256 `12252dc8627c31f0d7a010c14e8080e3e2673a22586f535e1cc7013662094180`；资产 size/digest 与本地一致，匿名完整下载核验通过。冻结提交下 570 个 tracked 文件逐一匹配独立构建副本，核心 56/56、桌面 592/592，构建/类型/lint/文档检查通过。完整 I06C/I07C 与正式 0.6.0 未准出。[交付记录](I07/alpha34-release.md)。
