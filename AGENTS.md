@@ -1,6 +1,6 @@
 # AgentBridge 开发与文档协作
 
-当前基线：稳定历史Windows版本0.5.0；公开预发布alpha.35冻结b5de577。本地0.6.0-alpha.36已生成完整整合EXE，含alpha.35独立修复及全部当前工作区增量（OpenCode宿主、DSH、CT-07、恢复与Agent行配置）；核心57/57、桌面676/676、Windows契约144/144、界面26组、普通EXE7组与包核验通过；未公开GitHub，具体证据见doc/iterations/I07/alpha36-delivery.md。完整I06C/I07C未准出；历史统一在doc/iterations/README.md。
+当前基线：稳定历史Windows版本0.5.0；公开预发布**0.6.0-alpha.36**，标签冻结`1fef25f`（合并提交，含公开alpha.35历史），Windows EXE 130032973字节、SHA-256 `43e09dd34e1a86998a446048dd39279a91356189d132c1eae9facebec1472798`，EXE与校验附件已公开并通过匿名完整下载核验；上一公开预发布alpha.35冻结b5de577。alpha.36含alpha.35独立修复及全部工作区增量（OpenCode宿主、DSH、CT-07、恢复与Agent行配置）；核心57/57、桌面676/676、Windows契约144/144、界面26组、普通EXE7组与包核验通过，具体证据见doc/iterations/I07/alpha36-delivery.md。完整I06C/I07C未准出；历史统一在doc/iterations/README.md。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

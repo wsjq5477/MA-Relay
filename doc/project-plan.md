@@ -7,8 +7,8 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | **0.6.0-alpha.35**，公开元数据指向 `b5de577`；本轮未重下EXE。alpha.35独立修复已整合至alpha.36本地源码；[当前核对边界](iterations/I07/delegation-list.md) |
-| 本地整合候选 | **0.6.0-alpha.36**，含公开alpha.35独立修复与当前全部增量；[文件、校验与实际验证](iterations/I07/alpha36-delivery.md)，未公开GitHub |
+| 最新 Windows 预发布 | **0.6.0-alpha.36**，标签冻结 `1fef25f`（含公开 alpha.35 历史）；EXE 与校验附件已公开并通过匿名完整下载核验；[交付与边界](iterations/I07/alpha36-delivery.md) |
+| 上一公开预发布 | **0.6.0-alpha.35**，冻结 `b5de577`；issue #12 独立修复已含在 alpha.36；[发布登记](iterations/release-ledger.md) |
 | 当前自动回归 | 子任务上下文冻结源码桌面667/667、定向121/121、Windows受控36/36及Core构建通过；[来源与限制](iterations/I07/delegation-context.md)。核心57/57、普通EXE等仍是.config.2原冻结证据，本片未跑上游模型/EXE |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
 | 当前源码未发布增量 | [DSH Desktop/Web 服务入口](iterations/I07/dsh-desktop-web.md)（受控验证）；[CT-07只读委派列表](iterations/I07/delegation-list.md)与[当前连接视图](iterations/I07/agent-connections.md)（源码）；CT-06/08及CT-07余项仍按原规划 |
@@ -33,7 +33,7 @@
 
 ## 3. 后续目标与顺序
 
-alpha.36已按三方内容整合公开alpha.35独立修复与当前工作区；当前优先完成冻结包和Windows验证，不以源码测试替代真实模型或独立SSH准出。
+alpha.36已按三方内容整合公开alpha.35独立修复与当前工作区，并已公开发布（标签`1fef25f`，EXE与校验附件通过匿名完整下载核验）；发布不替代真实模型、用户profile或独立SSH准出，完整I06C/I07C仍未准出。
 
 当前后续目标以"Agent 发现和操控其他 Agent 的通路"为核心；自动续接、多用户、模型管理、云平台不作为目标。连接类目标统一定义在 [接入矩阵](agent-integration-matrix.md) §4。
 

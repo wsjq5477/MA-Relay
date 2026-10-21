@@ -14,7 +14,7 @@ DSH新增的Desktop/Web仍为alpha.34之后未发布源码，支持直接执行�
 
 后续规划见[Agent侧自主操作与通用调用方规划](iterations/I07/agent-centric-operations.md)：CT-06逐工具核对Hermes/Pi/DSH（含DSH服务入口）原生MCP客户端与插件扩展点后接入通用调用方、CT-07补Agent侧连接操作面、CT-08将单主关系泛化为按身份多关系并加受确认流保护的连接管理；均登记在本页§4后续目标，CT-07已补只读委派列表和[当前调用方连接视图](iterations/I07/agent-connections.md)及[子任务最小上下文](iterations/I07/delegation-context.md)（源码7工具、受控验证），CT-06/08规划尚无实现；静态bridgeMcp维持false至逐工具验收，插件仅作无MCP客户端时的薄传输缺口填补。
 
-当前发布：公开预发布 **0.6.0-alpha.35**（元数据指向 `b5de577`，本轮未重下EXE；独立修复已按内容整合至本地alpha.36，[核对边界](iterations/I07/delegation-list.md#5-源码公开版本和后续)）。alpha.34包含OpenCode 1.x/2.x双协议与MCP双布局（官方1.19.3 CLI受控验证；真实模型、Windows 1.x、独立SSH未测，[专项](iterations/I07/opencode-v1-compatibility.md)）。独立MCP配置管理与CT-04/CT-05当前状态见本页§2/§4；逐轮记录统一见[迭代目录](iterations/README.md)。
+当前发布：公开预发布 **0.6.0-alpha.36**（标签冻结`1fef25f`，含公开alpha.35历史；EXE与校验附件已公开并通过匿名完整下载核验，[交付与边界](iterations/I07/alpha36-delivery.md)）；上一公开预发布alpha.35冻结`b5de577`，其issue #12独立修复已含在alpha.36内。alpha.34包含OpenCode 1.x/2.x双协议与MCP双布局（官方1.19.3 CLI受控验证；真实模型、Windows 1.x、独立SSH未测，[专项](iterations/I07/opencode-v1-compatibility.md)）。独立MCP配置管理与CT-04/CT-05当前状态见本页§2/§4；逐轮记录统一见[迭代目录](iterations/README.md)。
 
 ## 1. 目标与统计口径
 

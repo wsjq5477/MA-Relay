@@ -1,8 +1,8 @@
 # AgentBridge 整体功能设计
 
-适用：稳定历史0.5.0与公开预发布alpha.35；当前本地alpha.36整合公开alpha.35独立修复及全部工作区增量：OpenCode宿主与双协议、DSH服务入口、原管理恢复、Agent行配置、CT-04/05与CT-07列表/连接视图/子任务最小上下文。CT-06/08仅规划。当前实际包/测试和未测边界见[alpha.36交付](iterations/I07/alpha36-delivery.md)，未公开GitHub；完整I06C/I07C未准出。
+适用：稳定历史0.5.0与公开预发布alpha.36；alpha.36整合公开alpha.35独立修复及全部工作区增量：OpenCode宿主与双协议、DSH服务入口、原管理恢复、Agent行配置、CT-04/05与CT-07列表/连接视图/子任务最小上下文。CT-06/08仅规划。当前实际包/测试和未测边界见[alpha.36交付](iterations/I07/alpha36-delivery.md)，发布登记见[历史发布登记](iterations/release-ledger.md)；完整I06C/I07C未准出。
 
-当前alpha.36源码修复 OpenCode 在 WSL/Linux 与 SSH daemon 中创建后台对象时的 `ADAPTER_HOST` 错误；原会话与任务继续保留，公开 alpha.35 的冻结源码仍未包含此修复；本地 config.2 已包含并核对包内入口。见[宿主生命周期修复](iterations/I07/opencode-host-lifecycle.md)。
+alpha.36包含 OpenCode 在 WSL/Linux 与 SSH daemon 中创建后台对象时的 `ADAPTER_HOST` 修复；原会话与任务继续保留，公开 alpha.35 的冻结源码未包含此修复，alpha.36 已含并核对包内入口。见[宿主生命周期修复](iterations/I07/opencode-host-lifecycle.md)。
 
 当前源码补齐扫描/添加查看入口、设置中的原管理操作与查询失败展示，以及DSH“待配置服务连接”；严格核对原宿主接入拒绝后才解除管理锁。原执行unknown与历史保留。见[本轮修复与验证](iterations/I07/agent-management-recovery.md)。
 

@@ -67,3 +67,20 @@
 在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开alpha.36 EXE。确认版本后观察原WSL节点；若有原接入管理unknown，先在设置核对原operationId，仅按确定收据/严格持久拒绝结算，不清台账或重放任务。SSH daemon须在原机器空闲后单独维护升级，新Windows EXE不自动替换远端。
 
 这是本地生成的完整整合包，未上传GitHub、未创建/推送标签或提交；公开alpha.35附件保持。EXE未签名，打包器按现有signExecutable=false构建。真实OpenCode/DSH模型、用户故障profile与独立SSH未实测，完整I06C/I07C未准出；此前DSH RATE_LIMIT不能因本轮打包改为模型成功。
+
+## 公开发布（2026-10-21 后续动作）
+
+用户明确要求推送源码并公开发布本版 EXE。以上"未上传GitHub"等表述记录的是本轮本地交付当时的事实，本节记录其后的公开发布，不改写上文。
+
+推送前发现本地`master`停在`d9bf2a5`，而远端`master`已有alpha.35那条线的6个提交（`b5de577`及发布记录、PR #13/#14、tag `v0.6.0-alpha.35`）——alpha.35在隔离工作树分支开发并合入远端，本地工作线从未merge回来。逐行核对确认本地已包含alpha.35在分叉点之后新增的全部生产代码行（`agent-network.cjs` 13/13、`management-recovery.ts` 75/75、`NetworkApp.tsx` 41/41等），唯一差异是`windows-scoped-execution-recovery.cjs`中已记录的扫描断言由禁用改为可用；文档差异来自本轮"主文档只留当前状态"重组，alpha.35的发布事实保留在[专项](scoped-execution-recovery.md)与索引。
+
+按用户选择将远端合并进本地：30个冲突全部按本地alpha.36内容解决，合并结果树与合并前`7c4aaa1`逐字节一致（内容零变化，只补历史）。随后推送`7c4aaa1`、`1fef25f`、`7ac9dcd`三笔到`master`。
+
+标签`v0.6.0-alpha.36`冻结合并提交`1fef25ffa951e219601732e237f675058e6925d8`；对该提交树逐文件核对打包源632项，612项一致，差异20项全部为冻结后补充的文档与测试，运行/打包源差异0（测试文件不在electron-builder的`files`清单内）。GitHub 预发布[releases/tag/v0.6.0-alpha.36](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.36)（prerelease，非draft），上传EXE与SHA256SUMS.txt两个附件。
+
+| 检查 | 实际结果 | 证据 |
+| --- | --- | --- |
+| 上传返回 digest | EXE 130032973字节、`sha256:43e09dd3…`，与本地一致 | 上传响应（201） |
+| 匿名完整下载 | 不带凭据下载全部130032973字节，SHA-256与本地一致；SHA256SUMS.txt字节一致 | 本地校验输出 |
+
+未改标签内容、未移动公开alpha.35及更早的标签与附件；EXE未签名，沿用signExecutable=false。未调用真实模型、未修改用户profile、未做独立SSH升级，完整I06C/I07C仍未准出。

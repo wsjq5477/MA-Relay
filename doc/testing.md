@@ -4,7 +4,7 @@
 
 ## 1. 总结论
 
-当前本地整合版本 **0.6.0-alpha.36**：完整核心57/57、桌面676/676、失败/跳过0，类型/lint/前端构建通过。已整合公开alpha.35执行资源级保护与原查询反馈，以及当前OpenCode/DSH/CT-07/配置/恢复全部增量。包48CJS/81Core/1458Linux、Windows契约144/144、界面26组、普通EXE7组通过，完整结果见[alpha.36交付](iterations/I07/alpha36-delivery.md)；未公开，不把受控测试作为用户profile、真实模型或独立SSH验收，完整I06C/I07C未准出。
+当前公开版本 **0.6.0-alpha.36**（标签`1fef25f`）：完整核心57/57、桌面676/676、失败/跳过0，类型/lint/前端构建通过。已整合公开alpha.35执行资源级保护与原查询反馈，以及当前OpenCode/DSH/CT-07/配置/恢复全部增量。包48CJS/81Core/1458Linux、Windows契约144/144、界面26组、普通EXE7组通过，完整结果见[alpha.36交付](iterations/I07/alpha36-delivery.md)；发布后匿名完整下载核验一致，但不把受控测试作为用户profile、真实模型或独立SSH验收，完整I06C/I07C未准出。
 
 真实DSH认证/接口、原Session两轮/去重与Desktop模型RATE_LIMIT的证据保留在[DSH专项](iterations/I07/dsh-exe-delivery.md)，本轮没有重测真实模型。CT-07连接视图的18项受控协议验证、此前列表与恢复候选的专项记录保留在[迭代目录](iterations/README.md)，不能将原计数相加成当前新测试数。
 

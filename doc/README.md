@@ -9,10 +9,10 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前 GitHub 预发布 | **0.6.0-alpha.35**，公开元数据指向 `b5de577`，EXE/校验附件uploaded；本轮仅只读元数据核对，未重下EXE。alpha.35独立修复已整合至alpha.36本地源码；[核对与范围](iterations/I07/delegation-list.md#5-源码公开版本和后续) |
+| 当前 GitHub 预发布 | **0.6.0-alpha.36**，标签冻结 `1fef25f`（合并提交，含公开 alpha.35 历史），EXE/校验附件已上传并通过匿名完整下载核验；[交付与边界](iterations/I07/alpha36-delivery.md) |
 | alpha.34 包含 | OpenCode 1.x/2.x 双协议、独立MCP配置管理、CT-04公共材料、CT-05选材包、alpha.30–33修复、I07A/B与I07C首批 |
-| 本地整合候选 | **0.6.0-alpha.36**，含公开alpha.35独立修复与当前全部增量；[文件、校验与实际验证](iterations/I07/alpha36-delivery.md)，未公开GitHub |
-| 当前源码未发布增量 | [DSH Desktop/Web 两个服务入口](iterations/I07/dsh-desktop-web.md)（受控验证与本地候选EXE/真实认证已验，Desktop模型限流；独立SSH未验，[候选边界](iterations/I07/dsh-exe-delivery.md)）；[CT-07只读委派列表](iterations/I07/delegation-list.md)与[当前调用方连接视图](iterations/I07/agent-connections.md)及[子任务最小上下文](iterations/I07/delegation-context.md)（源码/受控验证）；[CT-06/08规划及CT-07验收安排](iterations/I07/agent-centric-operations.md) |
+| 公开 alpha.35 | issue #12 同机独立执行与原查询反馈，标签冻结 `b5de577`；[发布登记](iterations/release-ledger.md) |
+| 当前源码未发布增量 | 已随 alpha.36 公开：[DSH Desktop/Web 两个服务入口](iterations/I07/dsh-desktop-web.md)（受控验证与本地候选EXE/真实认证已验，Desktop模型限流；独立SSH未验，[候选边界](iterations/I07/dsh-exe-delivery.md)）；[CT-07只读委派列表](iterations/I07/delegation-list.md)与[当前调用方连接视图](iterations/I07/agent-connections.md)及[子任务最小上下文](iterations/I07/delegation-context.md)（源码/受控验证）；[CT-06/08规划及CT-07验收安排](iterations/I07/agent-centric-operations.md) |
 | 未准出 | 完整 I06C/I07C；Hermes/Pi/DSH 真实工具执行验收；DSH 原实例推理；独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

@@ -7,12 +7,12 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0 |
-| 当前公开预发布 | **0.6.0-alpha.35**（冻结 `b5de577`，本轮未重新下载） |
-| 本地整合候选 | **0.6.0-alpha.36**，含公开alpha.35独立修复与当前全部增量；[文件、校验与实际验证](doc/iterations/I07/alpha36-delivery.md)，未公开GitHub |
+| 当前公开预发布 | **0.6.0-alpha.36**（标签冻结 `1fef25f`；EXE 130032973 字节，SHA-256 `43e09dd3…`，附件已公开并通过匿名完整下载核验） |
+| alpha.35 公开预发布 | **0.6.0-alpha.35**（冻结 `b5de577`，issue #12 同机独立执行与恢复反馈） |
 | 当前源码未发布增量 | [DSH Desktop/Web 服务入口](doc/iterations/I07/dsh-desktop-web.md)、[CT-07委派列表](doc/iterations/I07/delegation-list.md)与[当前调用方连接视图](doc/iterations/I07/agent-connections.md)与[子任务最小上下文](doc/iterations/I07/delegation-context.md)、[CT-06/08规划](doc/iterations/I07/agent-centric-operations.md) |
 | 未准出 | 完整 I06C/I07C；Hermes/Pi/DSH 真实工具执行验收；独立 SSH |
 
-本地alpha.36：[Windows EXE](desktop/release/AgentBridge-0.6.0-alpha.36-Windows-x64.exe) · [SHA-256](artifacts/alpha36/2026-10-21/SHA256SUMS.txt)。
+公开 alpha.36（2026-10-21 预发布）：[Windows EXE](desktop/release/AgentBridge-0.6.0-alpha.36-Windows-x64.exe) · [SHA-256](artifacts/alpha36/2026-10-21/SHA256SUMS.txt)。
 
 [下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.35/AgentBridge-0.6.0-alpha.35-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.35/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.35)。用户无需自行编译或安装 WSL/Node.js。
 

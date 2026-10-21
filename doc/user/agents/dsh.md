@@ -2,7 +2,7 @@
 
 DeepSeek Harness（DSH）有 CLI、Windows Desktop 和 Linux / WSL Web 三个执行入口。Desktop / Web 连接已有原生服务，CLI 使用独立的 headless 程序；它们分别发现和配置。
 
-Desktop / Web 服务入口及本页Agent行配置流程已包含在本地候选 `0.6.0-alpha.35.config.2`，该候选尚未公开；最新公开版未在本轮重新下载核对。切换程序前先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新程序并重新检测对应机器。
+Desktop / Web 服务入口及本页Agent行配置流程已包含在公开预发布 `0.6.0-alpha.36`。切换程序前先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新程序并重新检测对应机器。
 
 ## 三个入口的区别
 

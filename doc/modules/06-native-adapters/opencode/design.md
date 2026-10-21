@@ -2,7 +2,7 @@
 
 ## alpha.36当前包验证
 
-M06-OC-F01：本地alpha.36包含完整call/close工厂与公开alpha.35管理恢复；2026-10-21包内WSL stdio/daemon两入口2/2，普通EXE7组含原宿主拒绝恢复与真实MCP stdio通过。原Session/请求不迁移，用户实际模型/故障profile未验。[完整交付与文件](../../../iterations/I07/alpha36-delivery.md)。
+M06-OC-F01：公开alpha.36包含完整call/close工厂与公开alpha.35管理恢复；2026-10-21包内WSL stdio/daemon两入口2/2，普通EXE7组含原宿主拒绝恢复与真实MCP stdio通过。原Session/请求不迁移，用户实际模型/故障profile未验。[完整交付与文件](../../../iterations/I07/alpha36-delivery.md)。
 
 ## 普通子任务的最小上下文
 

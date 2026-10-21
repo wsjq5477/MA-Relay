@@ -1,8 +1,8 @@
 # 迭代资料目录
 
-## 2026-10-21：alpha.36全部修复整合
+## 2026-10-21：alpha.36全部修复整合（已公开发布）
 
-[本地EXE交付](I07/alpha36-delivery.md)：公开alpha.35独立修复与当前全部增量整合，核心57/57、桌面676/676；包/Windows验证与最终文件按实际记录，未公开GitHub。
+[全部修复整合与公开发布](I07/alpha36-delivery.md)：公开alpha.35独立修复与当前全部增量整合，核心57/57、桌面676/676；标签`1fef25f`，EXE 130032973字节、SHA-256 `43e09dd3…`，EXE与校验附件已公开并通过匿名完整下载核验。
 
 ## 2026-10-21：CT-07子任务最小上下文
 
@@ -10,7 +10,7 @@
 
 ## 2026-10-21：Agent 行配置入口
 
-[配置移至所属机器与Agent](I07/agent-row-configuration.md)：开始会话右侧增加编辑图标/配置按钮，固定原节点打开MCP或DSH服务弹窗，全局设置移除接入卡片；修复健康DSH被误作OpenCode安装。桌面649/649、核心57/57、Windows前端8组/MCP文件4组/DSH前端3组与普通EXE6组通过；本地config.2文件与校验见专项，未公开，不扩张原生模型/独立SSH准出。
+[配置移至所属机器与Agent](I07/agent-row-configuration.md)：开始会话右侧增加编辑图标/配置按钮，固定原节点打开MCP或DSH服务弹窗，全局设置移除接入卡片；修复健康DSH被误作OpenCode安装。桌面649/649、核心57/57、Windows前端8组/MCP文件4组/DSH前端3组与普通EXE6组通过；本地config.2文件与校验见专项（该增量已随alpha.36公开），不扩张原生模型/独立SSH准出。
 
 ## 2026-10-21：CT-07当前调用方连接视图
 
@@ -62,7 +62,7 @@
 
 | 版本 | 交付与边界 |
 | --- | --- |
-| **0.6.0-alpha.36** | 本地整合交付：[全部修复整合与本地EXE](I07/alpha36-delivery.md)；含公开alpha.35修复与当前增量，未公开GitHub、未打标签 |
+| **0.6.0-alpha.36** | 公开发布：[全部修复整合与本地EXE](I07/alpha36-delivery.md)；含公开alpha.35修复与当前增量，标签冻结`1fef25f`，EXE与SHA-256公开核验 |
 | **0.6.0-alpha.35** | issue #12：[同机独立执行与完整管理恢复](I07/scoped-execution-recovery.md)；PR #13合并，标签冻结`b5de577`，EXE与SHA-256公开核验 |
 | **0.6.0-alpha.34** | [交付记录](I07/alpha34-release.md)：OpenCode 1.x/2.x、独立MCP、CT-04/CT-05及alpha.30–33整合；标签冻结`1af4dab`，EXE与SHA-256公开核验 |
 | **0.6.0-alpha.29** | [alpha.29交付](I07/alpha29-release.md)：UI重构/原生接入/连接能力整合发布 |
@@ -96,7 +96,7 @@
 | [Hermes/Pi/DSH与自定义适配接口](I07/native-agent-expansion.md) | 三种新工具直接会话、六种图标与源码注册接口 |
 | [DSH Desktop/Web接入](I07/dsh-desktop-web.md) | alpha.34之后源码：两个认证HTTP服务入口、原轮次恢复、同名Distributed Shell排除与Web安装提示 |
 | [DSH本地EXE与真实连接验证](I07/dsh-exe-delivery.md) | .dsh.3候选；真实303/命名参数修复、两服务认证与Desktop模型限流分列 |
-| [OpenCode宿主生命周期修复](I07/opencode-host-lifecycle.md) | 公开alpha.35冻结源码仍缺close；本地config.2已含修复，包内两入口复核通过，未公开 |
+| [OpenCode宿主生命周期修复](I07/opencode-host-lifecycle.md) | 公开alpha.35冻结源码仍缺close；本地config.2已含修复，包内两入口复核通过，已随alpha.36公开 |
 | [OpenCode 1.x/2.x兼容修复](I07/opencode-v1-compatibility.md) | 官方1.x独立HTTP路径与MCP双布局，保留2.x |
 | [当前Agent版本发现修复](I07/current-agent-discovery.md) | 多版本节点按当前命令入口报告，旧安装保留历史 |
 
