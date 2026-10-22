@@ -11,12 +11,12 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前 GitHub 预发布 | **0.6.0-alpha.36**，标签冻结 `1fef25f`（合并提交，含公开 alpha.35 历史），EXE/校验附件已上传并通过匿名完整下载核验；[交付与边界](iterations/I07/alpha36-delivery.md) |
+| 当前 GitHub 预发布 | **0.6.0-alpha.46**，标签冻结 `9766eb4`；EXE 130180760 字节，SHA-256 `57f1af73…`；源码/附件已公开并通过匿名完整下载核验；[交付与边界](iterations/I08/alpha46-release.md) |
 | alpha.34 包含 | OpenCode 1.x/2.x 双协议、独立MCP配置管理、CT-04公共材料、CT-05选材包、alpha.30–33修复、I07A/B与I07C首批 |
 | 公开 alpha.35 | issue #12 同机独立执行与原查询反馈，标签冻结 `b5de577`；[发布登记](iterations/release-ledger.md) |
-| 当前本地候选 | **alpha.46**：MCP启动器/数组探测、配置绑定与60秒观测有效期、Linux端点恢复、非GUI首次接入；EXE130180760字节，SHA-256 `57f1af73…`，未签名、未公开、未部署；[当前交付与证据](iterations/I08/mcp-open-recovery.md) |
-| 当前源码未发布增量 | OpenDesk已有接口与当前维护恢复修复；实现、实际证据与限制统一见当前候选记录 |
-| 当前源码已实现并打包为本地候选（未公开） | [I08-MCP02](iterations/I08/mcp-open-integration.md)与[恢复修复](iterations/I08/mcp-open-recovery.md)：三维能力、六项事实、双向增删/撤权、DSH显式profile、非GUI接入；共享桌面758/758、根68/68，最终JSON修复后CLI11/11。OpenDesk CLI0.3.8无MCP管理面、DSH Desktop/Hermes/Pi原生配置及逐入口真实主调用仍为缺口 |
+| 当前发布包 | **alpha.46**：MCP启动器/数组探测、配置绑定与60秒观测有效期、Linux端点恢复、非GUI首次接入；未签名、未部署远端；[发布与证据](iterations/I08/alpha46-release.md) |
+| 当前公开源码范围 | OpenDesk已有接口、当前维护恢复与MCP02源码均已随alpha.46公开；能力与未测项按专项保留 |
+| 当前已发布实现与验收边界 | [I08-MCP02](iterations/I08/mcp-open-integration.md)与[恢复修复](iterations/I08/mcp-open-recovery.md)：三维能力、六项事实、双向增删/撤权、DSH显式profile、非GUI接入；桌面758/758、根68/68。OpenDesk CLI0.3.8无MCP管理面、DSH Desktop/Hermes/Pi原生配置及逐入口真实主调用仍为缺口 |
 | 未准出 | 完整 I06C/I07C；Hermes/Pi/DSH 真实工具执行验收；DSH 原实例推理；独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

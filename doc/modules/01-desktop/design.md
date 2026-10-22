@@ -14,7 +14,7 @@ M01-F03/F06：用户已批准的契约变更。[DaemonDialog](../../../desktop/s
 
 ## alpha.36整合边界
 
-M01-F01/F06：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+M01-F01/F06：alpha.36整合基线含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
 
 ## Agent 行配置入口
 

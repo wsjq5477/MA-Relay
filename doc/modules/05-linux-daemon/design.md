@@ -10,7 +10,7 @@ M05-F04/F09：用户已批准的契约变更。[remote-maintenance.cjs](../../..
 
 ## alpha.36整合边界
 
-M05-F02：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+M05-F02：alpha.36整合基线含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
 
 ## OpenCode 宿主生命周期
 

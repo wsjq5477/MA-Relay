@@ -1,6 +1,6 @@
 # 自定义原生 Agent 适配开发指南
 
-关联 AB-F02/F07/F08/F10/F11/F17、M03/M06/M07/M10。本文说明源码级扩展接口；自定义适配器随 Bridge 源码审核、构建和部署。当前公开 alpha.34 与其后未发布 DSH Desktop/Web 源码的范围分别见[发布交付记录](iterations/I07/alpha34-release.md)和[DSH交付](iterations/I07/dsh-desktop-web.md)。方向能力契约见[CT-01](iterations/I07/connection-capabilities.md)；具体工具的实现与验收状态见[接入矩阵](agent-integration-matrix.md)、[M06设计](modules/06-native-adapters/design.md)和[测试报告](modules/06-native-adapters/test-report.md)。
+关联 AB-F02/F07/F08/F10/F11/F17、M03/M06/M07/M10。本文说明源码级扩展接口；自定义适配器随 Bridge 源码审核、构建和部署。当前公开 alpha.46 的源码与包范围见[发布交付记录](iterations/I08/alpha46-release.md)，DSH Desktop/Web 的接口与限制见[DSH交付](iterations/I07/dsh-desktop-web.md)。方向能力契约见[CT-01](iterations/I07/connection-capabilities.md)；具体工具的实现与验收状态见[接入矩阵](agent-integration-matrix.md)、[M06设计](modules/06-native-adapters/design.md)和[测试报告](modules/06-native-adapters/test-report.md)。
 
 用户先在目标机器安装、登录并配置自己的 Agent。Bridge 适配器负责发现程序或已配置服务、调用既有任务接口、读取输出和核对原请求。模型、供应商、账号、Skill 与工具业务由原 Agent 管理。原生 CLI、API、MCP、ACP、插件、SDK 的功能与优缺点见[接入方式与选型指南](agent-integration-guide.md)。本文给出如何把选定路径接到现有源码的具体步骤。
 

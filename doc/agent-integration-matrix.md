@@ -1,6 +1,6 @@
 # Agent 接入现状与后续目标
 
-当前本地候选alpha.46包含开放MCP双向管理、恢复与非GUI首次接入，具体支持入口与未测项以本页矩阵为准。[当前交付与验证](iterations/I08/mcp-open-recovery.md)；公开基线仍alpha.36。
+当前公开alpha.46包含开放MCP双向管理、恢复与非GUI首次接入，具体支持入口与未测项以本页矩阵为准。[当前交付与验证](iterations/I08/mcp-open-recovery.md)；[当前公开分发](iterations/I08/alpha46-release.md)。
 
 原生组件验收已补：OpenDesk0.3.9协议5组、DSH0.1.3-alpha.1协议6组；组件独立主调用到真实Claude子任务两条链各成功1次。DSH组件代表Web/CLI共享客户端，不推定Desktop配置或完整ACP会话通过。[验收层级](iterations/I08/mcp-native-acceptance.md)。
 

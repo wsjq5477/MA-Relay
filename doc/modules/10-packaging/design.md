@@ -1,10 +1,12 @@
 # M10 构建、发布与持久运行资源设计
 
+当前公开预发布 alpha.46，标签冻结 `9766eb4`；源码、EXE 与校验文件已公开，匿名完整下载130180760字节与SHA-256一致。包源码一致，未签名、未部署SSH；[当前完整交付](../../iterations/I08/alpha46-release.md)。
+
 ## MCP02恢复与观测（2026-10-22）
 
-本地候选版本alpha.46；最终包冻结、SHA-256及Windows隔离验收见本轮交付记录。未签名、未公开、未部署SSH。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+alpha.46最终包冻结、SHA-256及Windows隔离验收见本轮交付记录。已公开、未签名、未部署SSH。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
 
-当前本地候选 **alpha.45**（OpenDesk 原生 MCP 可见性修复：stdio 服务补 `server/discover` 响应、OpenDesk 条目优先真实 Node 启动器并报告 `launcher`、界面提示必须完全重开）：产物 130177443 字节、SHA-256 `35674f6c…`，包核验 `status: passed`（50 后台模块/84 核心/1698 Linux 文件、四类源码一致性 true、linuxManifestDigest `195081305a…`），构建方式与 alpha.44 相同（WSL/Linux 交叉构建、`signExecutable:false` 未签名），未公开、未部署、未在真实 Windows 启动。证据 `artifacts/mcp-open-integration/evidence/package-verify-alpha45.json`。见[本轮§14](../../iterations/I08/mcp-open-integration.md#14-opendesk-原生-mcp-可见性修复2026-10-22alpha45)。
+此前本地候选 **alpha.45**（OpenDesk 原生 MCP 可见性修复：stdio 服务补 `server/discover` 响应、OpenDesk 条目优先真实 Node 启动器并报告 `launcher`、界面提示必须完全重开）：产物 130177443 字节、SHA-256 `35674f6c…`，包核验 `status: passed`（50 后台模块/84 核心/1698 Linux 文件、四类源码一致性 true、linuxManifestDigest `195081305a…`），构建方式与 alpha.44 相同（WSL/Linux 交叉构建、`signExecutable:false` 未签名），未公开、未部署、未在真实 Windows 启动。证据 `artifacts/mcp-open-integration/evidence/package-verify-alpha45.json`。见[本轮§14](../../iterations/I08/mcp-open-integration.md#14-opendesk-原生-mcp-可见性修复2026-10-22alpha45)。
 
 前一候选 **alpha.44**（I08-MCP02 第一片 + 真实原生探测后的收敛）：`desktop` 版本位由 alpha.43 递增，源码与依赖未变；构建改为在 **WSL/Linux** 上交叉构建 Windows x64 便携包（`npm run desktop:dist`：根 `tsc` → 桌面 `tsc --noEmit`+`vite build` → `stage-bridge`（`npm ci` 到 `.bridge-runtime`、`stage-linux-package`）→ `electron-builder --win portable --x64` → `verify-package --portable`；node v22.23.1、electron-builder 26.15.3、Electron 44.7.0）。构建缓存放在工作区 `.cache-electron*`/`.npm-cache-build` 并已 gitignore。产物 130186782 字节、SHA-256 `b78a2bcf…`，包核验 `status: passed`（后台50模块、核心84文件、Linux离线包1698文件，`coreBuildMatches`/`appAsarSourceMatches`/`frontendMatches`/`linuxBackendMatches` 均 true，linuxManifestDigest `8e47ae3b…`）；按 `win.signExecutable:false` **跳过签名**，未公开、未部署、未打标签，**未在真实 Windows 启动**（会与日常 alpha.43 后台共用 `%APPDATA%/AgentBridge`）。见[本轮打包记录](../../iterations/I08/mcp-open-integration.md#13-打包与候选交付记录2026-10-22)。
 
@@ -12,7 +14,7 @@
 
 OpenDesk连接、worker和注册随Bridge Windows/后台/Linux离线包交付，worker复制新增依赖。使用用户正常安装的OpenDesk原有接口，不构建、打包、要求安装定制原生CLI或桌面程序；包核验、普通EXE运行与原生模型分别验收。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
 
-当前本地候选 **alpha.40**：包含原上下文服务恢复与接入拒绝持久收据修复，48 CJS/81 Core/1460 Linux 资源与源码一致；普通便携 EXE 130035302 字节，SHA-256 `fd24294c…`，包校验与EXE载荷解包对比通过。原alpha.36–39 EXE保留，未签名、未公开，现场仍运行alpha.37后台，未部署新daemon。[完整证据与限制](../../iterations/I08/opencode-oom-recovery.md)。
+此前本地候选 **alpha.40**：包含原上下文服务恢复与接入拒绝持久收据修复，48 CJS/81 Core/1460 Linux 资源与源码一致；普通便携 EXE 130035302 字节，SHA-256 `fd24294c…`，包校验与EXE载荷解包对比通过。原alpha.36–39 EXE保留，未签名、未公开，现场仍运行alpha.37后台，未部署新daemon。[完整证据与限制](../../iterations/I08/opencode-oom-recovery.md)。
 
 ## alpha.38 本地候选包
 
@@ -20,7 +22,7 @@ M10-F01/F03/F06：`0.6.0-alpha.38` 整合用户已批准的“显式确认后越
 
 ## alpha.36整合边界
 
-M10-F01/F03：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+M10-F01/F03：alpha.36整合基线含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
 
 ## alpha.37 本地候选包
 

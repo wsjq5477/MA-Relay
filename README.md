@@ -7,15 +7,15 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0 |
-| 当前公开预发布 | **0.6.0-alpha.36**（标签冻结 `1fef25f`；EXE 130032973 字节，SHA-256 `43e09dd3…`，附件已公开并通过匿名完整下载核验） |
+| 当前公开预发布 | **0.6.0-alpha.46**（标签冻结 `9766eb4`；EXE 130180760 字节，SHA-256 `57f1af73…`，附件已公开并通过匿名完整下载核验） |
 | alpha.35 公开预发布 | **0.6.0-alpha.35**（冻结 `b5de577`，issue #12 同机独立执行与恢复反馈） |
-| 当前本地候选（未公开） | [0.6.0-alpha.46 Windows EXE](desktop/release/AgentBridge-0.6.0-alpha.46-Windows-x64.exe)，130180760字节，SHA-256 `57f1af73…`；MCP恢复、状态观测与非GUI接入修复，未签名、未公开；[交付与验证边界](doc/iterations/I08/mcp-open-recovery.md) |
-| 当前源码未发布增量 | [开放MCP接入与双向管理](doc/iterations/I08/mcp-open-integration.md)、[恢复与观测修复](doc/iterations/I08/mcp-open-recovery.md)；[OpenDesk已有接口接入](doc/iterations/I08/opendesk-existing-interfaces.md)及[真实执行范围](doc/iterations/I08/opendesk-desktop-live.md)。[原生组件正式授权及两条真实子任务链已验](doc/iterations/I08/mcp-native-acceptance.md)；十入口原生父模型自主调用与托管归属仍未全部验收 |
+| 当前发布包 | [0.6.0-alpha.46 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/AgentBridge-0.6.0-alpha.46-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/SHA256SUMS.txt)；未签名；[交付与验证边界](doc/iterations/I08/alpha46-release.md) |
+| 当前公开源码范围 | [开放MCP接入与双向管理](doc/iterations/I08/mcp-open-integration.md)、[恢复与观测修复](doc/iterations/I08/mcp-open-recovery.md)、OpenDesk已有接口与维护恢复；已随alpha.46发布，十入口原生父模型自主调用与托管归属仍未全部验收 |
 | 未准出 | 完整 I06C/I07C/MCP02；原生父模型自主MCP委派、原生页面增删；Hermes/Pi及DSH其他执行入口、独立 SSH |
 
-公开 alpha.36（2026-10-21 预发布）：[Windows EXE](desktop/release/AgentBridge-0.6.0-alpha.36-Windows-x64.exe) · [SHA-256](artifacts/alpha36/2026-10-21/SHA256SUMS.txt)。
+当前公开 alpha.46（2026-10-22 预发布）：[源码、包与公开核验](doc/iterations/I08/alpha46-release.md)。
 
-[下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.35/AgentBridge-0.6.0-alpha.35-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.35/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.35)。用户无需自行编译或安装 WSL/Node.js。
+[下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/AgentBridge-0.6.0-alpha.46-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.46)。用户无需自行编译或安装 WSL/Node.js。
 
 升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；SSH 原机器需在空闲时“后台维护 → 升级后台 → 确认升级”后重新扫描。原机器、节点、请求和历史保留；旧 unknown 只查原 ID，不重发。
 

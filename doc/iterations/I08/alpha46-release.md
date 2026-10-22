@@ -18,11 +18,15 @@
 | 本轮包复核 | 50 后台模块、84 Core 文件、1698 Linux 文件，Windows/Linux 后台、Core、ASAR 和前端与当前源码一致；[package.json](../../../artifacts/github-alpha46/2026-10-22/package.json) |
 | Windows 普通 EXE | 同日最终包已通过 4 组隔离生命周期检查，模型 0；[原始结果](../../../artifacts/mcp-open-recovery/2026-10-22/windows-portable.json)，本轮不重跑已完成且产品未变的相同环境检查 |
 | 真实原生 | OpenDesk/DSH 组件各有正式授权与真实 Claude 子任务证据；日常 OpenDesk 父模型已实际只读调用一次 list_agents，返回 7 个获准节点；这不证明父模型自主委派或日常页面验收 |
-| 本轮工程检查 | 本轮核心 68/68、桌面 758/758、类型/lint、用户站 6/6 与构建通过；当前完整文档检查在提交前刷新。日志见 [核心](../../../artifacts/github-alpha46/2026-10-22/core.log)、[桌面](../../../artifacts/github-alpha46/2026-10-22/desktop.log)及同目录工程日志 |
+| 本轮工程检查 | 本轮核心 68/68、桌面 758/758、类型/lint、用户站 6/6 与构建通过；提交前完整文档检查232份Markdown、15对模块设计/报告通过；发布状态同步后再刷新。日志见 [核心](../../../artifacts/github-alpha46/2026-10-22/core.log)、[桌面](../../../artifacts/github-alpha46/2026-10-22/desktop.log)及同目录工程日志 |
 
 ## 发布步骤与边界
 
-当前处于提交/发布准备阶段，尚未将本轮声明为公开完成。计划将冻结源码推送 `master`、创建 `v0.6.0-alpha.46` 标签、建立草稿预发布并上传 EXE 与 `SHA256SUMS.txt`，发布后匿名完整下载核验全部字节与 SHA-256。最终提交、附件与公开核验结果在同一记录补齐，不移动旧标签、不覆盖旧 EXE。
+源码提交 `9766eb4e6b9d5faa7a764fa2fe998c452b128cbb` 已推送 `master`，标签 `v0.6.0-alpha.46` 固定同一提交；[GitHub预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.46) 已公开，[EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/AgentBridge-0.6.0-alpha.46-Windows-x64.exe) 与 [SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/SHA256SUMS.txt) 均已上传。上传附件大小和服务端digest与本地一致，随后匿名无凭据完整下载返回HTTP 200，全部130180760字节的SHA-256与本地及校验附件相同。旧标签和旧EXE未改动。后续仅发布状态文档提交位于冻结标签之后，不改变产品包。
+
+首次使用原有发布凭据得到HTTP 401，本地提交及标签准备先完成；用户更新凭据后认证和仓库写入通过，再执行源码/标签原子推送、草稿上传、公开发布和匿名下载。凭据仅通过非回显输入与进程内存使用，不写入Git、文档、日志、校验文件或本轮发布报告。
+
+公开核验见[public-download.json](../../../artifacts/github-alpha46/2026-10-22/public-download.json)，附件元数据见[github-release.json](../../../artifacts/github-alpha46/2026-10-22/github-release.json)。
 
 程序未签名，Windows 可能提示未知发布者。升级前在旧 Bridge 的“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；只关窗口不会替换后台。Windows EXE 更新不自动升级 SSH daemon。OpenDesk 由 Bridge 写入 MCP 配置前须先从托盘完全退出，写入后再打开，避免旧内存配置覆盖。
 

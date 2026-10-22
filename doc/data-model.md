@@ -1,5 +1,7 @@
 # 对象、身份与持久数据
 
+当前源码已随公开 alpha.46 分发，冻结提交 `9766eb4`；本轮仅更新发布状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha46-release.md)。
+
 MCP登记增加可选launcherPath，后台恢复保持原启动命令。probe增加binding（配置路径、原文、connectionId与configuration的SHA-256）；旧probe无binding按未知处理。status.evidence.observation={observedAt?,freshness:current|stale|unknown,reason?:unbound|configuration_changed|expired}，不落盘；连接/工具观测最长60秒，配置/profile变化立即失效。此摘要仅为一致性校验，不是授权凭据。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
 
 当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。
@@ -12,7 +14,7 @@ NodeOperations 沿既有版本1结构保存 OpenCode attach 准备失败的 reje
 
 用户已批准的契约变更：维护终态 `data` 新增 `overridden:true` 与 `unresolved:[{key,op,state,updatedAt}]`，精确记录被用户显式确认跳过的未确认收据；门禁失败时错误旁挂 `details={gate,tasks,agents,receipts}`（`gate∈{tasks,receipts}`），`tasks` 门禁的 details 恒为“不可越过”。越过路径的停机只使用本地 `maintenance.json` 占位（记录本次 operationId，原格式不变）与控制器 `runtime/owned-stop`（`pid`+`pidStart`），新 daemon 接管后在 release 阶段解除。**没有新增协议字段或线协议版本变更，也没有 Task/Session/身份迁移**：`unresolved` 是既有维护收据 `data` 内可选追加，旧读取方忽略未知键；任务/Agent 门禁的持久语义不变。[契约、现场与未测边界](iterations/I08/alpha38-delivery.md)。
 
-## alpha.36当前整合
+## alpha.36整合基线
 
 公开alpha.35的managementBlocks与前端executionRecoveryReason按原节点/安装/共享目录限制执行，管理写入保持同机保护；graphPending只读投影可选blockedNodeIds。原收据须匹配已提供来源与内容指纹，原ADAPTER_HOST严格持久拒绝恢复保留。scoped-management-execution-v1与dsh-web-desktop-v1共同要求中央升级；Task/Session身份、未知不重放及线协议版本不变。[整合与实际验证](iterations/I07/alpha36-delivery.md)。
 
@@ -110,7 +112,7 @@ I08-MCP02在行内新增/明确以下字段（旧行缺字段按“未知/外部
 
 原生收据：Codex/NativeCliHost 的 operations 条目增加 kind=cancel/reconcile，与原 taskId/operationId 绑定。历史缺 kind 按 cancel 兼容，无状态文件版本迁移；新增核对收据可从 unknown 随原任务终态推进 confirmed，仍保留真实 status/message。节点快照可选 teamCollaboration，显式 false 优先、缺字段只按受校验原三种注册能力兼容；不改变节点身份或小队 SQLite 格式。[完整约束](iterations/I07/native-integration-guards.md)。
 
-## 原生适配扩展（未发布源码）
+## 原生适配扩展（alpha.46）
 
 Machine/Node/Connection 的 adapter 增加稳定值 `hermes`、`pi`、`dsh`；不迁移旧 ID 或把模型/provider 绑定到节点。注册元数据包括稳定 id、name、commands、npmEntrypoints 与逐项 capabilities，运行时不含可加载模块路径。新增 NativeCliHost 在原私有上下文保存 `<adapter>-state.json`（agents/tasks/conversations/requests/operations），run 保存 job、events、heartbeat、取消意图与 worker 日志；Pi 原生会话文件位于该上下文 native-sessions。Conversation 私有保存原 Session 与 profile，公开 canContinue 需核对原绑定/终态，不能以缺文件创建替代 Session。原 requestId/operationId 和 unknown 占用规则保持不变。[生命周期与验证](iterations/I07/native-agent-expansion.md)。
 

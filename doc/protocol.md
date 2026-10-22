@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+当前源码已随公开 alpha.46 分发，冻结提交 `9766eb4`；本轮仅更新发布状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha46-release.md)。
+
 非GUI新增mcp nodes（无node参数）、mcp attach/operation --node ID --operation-id ID。分别复用snapshot、manageNode(action=attach)、nodeOperation；不新增RPC或模型提交。管理收据confirmed退出0、rejected退出4、unknown/not_found/不匹配退出3，查询失败不视为结束，不重放attach。status增加evidence.observation时间/有效性；配置变化或超过60秒的连接/工具观测不再用于当前事实。JSON保留authorization状态枚举，其他凭据类字段仍脱敏。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
 
 当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。
@@ -8,7 +10,7 @@ OpenDesk执行复用既有接口：CLI的`POST /session`、`POST /session/:id/me
 
 OpenCode显式context准备可以复用既有ipc.start恢复已退出的原服务；snapshot/原请求读取不进入本次新增恢复路径。nodeOperation按原operationId返回持久attach拒绝收据；该拒绝仅表示本地接入授权未提交，不表示原任务成功/取消，也不保证远端未生成上下文。RPC与协议版本不变。详见[OpenCode OOM 恢复与接入拒绝收据](iterations/I08/opencode-oom-recovery.md)。
 
-## alpha.36当前整合
+## alpha.36整合基线
 
 公开alpha.35的managementBlocks与前端executionRecoveryReason按原节点/安装/共享目录限制执行，管理写入保持同机保护；graphPending只读投影可选blockedNodeIds。原收据须匹配已提供来源与内容指纹，原ADAPTER_HOST严格持久拒绝恢复保留。scoped-management-execution-v1与dsh-web-desktop-v1共同要求中央升级；Task/Session身份、未知不重放及线协议版本不变。[整合与实际验证](iterations/I07/alpha36-delivery.md)。
 
@@ -123,9 +125,9 @@ CT-04 冻结范围为17项小队MCP工具，经典主从六工具不变；当前
 
 discover 的原方法/参数/返回结构不变，明确扫描同时重新枚举执行环境；snapshot 保留实时状态读取，不再按15/30秒触发安装发现。lastSyncedAt、请求/操作身份和 unknown 语义保持。[触发时机与兼容边界](iterations/I07/desktop-polling.md)。
 
-当前未发布源码：snapshot.connections 可选 current，snapshot.nodes 可选 supersededBy；前端仅展示当前节点，历史对象仍返回供原身份查询。历史节点的新 submit/attach 返回 NODE_SUPERSEDED，原 request 查询、continue 及收据语义保留；当前/历史安装共享占用。daemon 仍为协议2，未新增模型或远程命令接口。[发现修复](iterations/I07/current-agent-discovery.md)。
+当前alpha.46源码：snapshot.connections 可选 current，snapshot.nodes 可选 supersededBy；前端仅展示当前节点，历史对象仍返回供原身份查询。历史节点的新 submit/attach 返回 NODE_SUPERSEDED，原 request 查询、continue 及收据语义保留；当前/历史安装共享占用。daemon 仍为协议2，未新增模型或远程命令接口。[发现修复](iterations/I07/current-agent-discovery.md)。
 
-## 原生适配扩展（未发布源码）
+## 原生适配扩展（alpha.46）
 
 不增加远程任意命令、模块加载 RPC 或新的模型接口，daemon 线格式仍为协议 2。discover/context/snapshot 沿用原方法，adapter 新增 `hermes`、`pi`、`dsh`，发现的安装可调用性与执行/协作能力分开。MachineHost 用静态注册工厂创建宿主，未知类型返回 ADAPTER_UNSUPPORTED；新增三种不支持 Bridge MCP scope/权限/表单/连接验证时明确拒绝。宿主通过原 ipc submit/continue/request/task/conversation/cancel/operation/reconcile 接口返回原任务与独立收据。原生内部协议分别为 Hermes stream-json、Pi json print、DSH headless json，不混用帧格式。[原生设计](modules/06-native-adapters/design.md)、[开发接口](custom-agent-development.md)。
 

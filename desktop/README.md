@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-当前公开预发布为 **0.6.0-alpha.35**，冻结b5de577；[历史发布记录](../doc/iterations/I07/scoped-execution-recovery.md)。本轮完整本地 **0.6.0-alpha.36** 已生成：[Windows EXE](release/AgentBridge-0.6.0-alpha.36-Windows-x64.exe) · [SHA-256](../artifacts/alpha36/2026-10-21/SHA256SUMS.txt) · [整合与实际验证](../doc/iterations/I07/alpha36-delivery.md)。alpha.36未公开GitHub；含全部当前修复，用户profile/真实模型/独立SSH未验。
+当前公开预发布为 **0.6.0-alpha.46**，标签冻结9766eb4：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/AgentBridge-0.6.0-alpha.46-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/SHA256SUMS.txt) · [发布记录](../doc/iterations/I08/alpha46-release.md)。源码和附件已公开，130180760字节，SHA-256 `57f1af73…`，匿名完整下载核验通过；未签名，完整I06C/I07C/MCP02与独立SSH未准出。
 
 升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；SSH 远端需在原机器空闲时确认升级，不自动重发原维护。
 

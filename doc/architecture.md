@@ -1,12 +1,14 @@
 # AgentBridge 整体架构
 
+当前源码已随公开 alpha.46 分发，冻结提交 `9766eb4`；本轮仅更新发布状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha46-release.md)。
+
 非GUI首次接入复用Coordinator的manageNode/nodeOperation，显式操作ID持久化；nodes只读发现，attach确认后才能配置MCP。CLI和窗口共用同一profile。Linux本机MCP主机启动时先恢复私有端点，保持原生文件不变。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
 
 当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。
 
 OpenDesk的连接持有进程属于Bridge后台：CLI侧持有自己启动的现有serve服务，桌面侧持有原网关WebSocket。它与窗口/Host观察器分离，因此关闭窗口或重开Host不重发输入；Desktop会话仍受原连接寿命限制，断线后旧会话仅可读。空闲30分钟退出，仅清理自己启动的CLI服务，不关闭用户桌面。模型推理始终在OpenDesk原生运行时。
 
-## alpha.36当前整合
+## alpha.36整合基线
 
 公开alpha.35的managementBlocks与前端executionRecoveryReason按原节点/安装/共享目录限制执行，管理写入保持同机保护；graphPending只读投影可选blockedNodeIds。原收据须匹配已提供来源与内容指纹，原ADAPTER_HOST严格持久拒绝恢复保留。scoped-management-execution-v1与dsh-web-desktop-v1共同要求中央升级；Task/Session身份、未知不重放及线协议版本不变。[整合与实际验证](iterations/I07/alpha36-delivery.md)。
 
@@ -28,7 +30,7 @@ OpenDesk的连接持有进程属于Bridge后台：CLI侧持有自己启动的现
 
 ## Agent侧原委派发现
 
-未发布源码链路：既有MCP/broker → 原来源机器与父scope或独立enabled连接校验 → AgentNetwork作用域分支 → delegation-list纯投影。新list_delegations不调用snapshot、子Agent或台账恢复/保存，仅找回原ID；实时结果继续task_result。经典源码7工具/已发布6工具，小队18工具；Claude/Codex仅补该只读允许项，reply_task和原生账号/文件权限不变。关系模型、daemon协议2、JSON/SQLite版本不变。[实现、字段与冻结验证](iterations/I07/delegation-list.md)。
+alpha.46源码链路：既有MCP/broker → 原来源机器与父scope或独立enabled连接校验 → AgentNetwork作用域分支 → delegation-list纯投影。新list_delegations不调用snapshot、子Agent或台账恢复/保存，仅找回原ID；实时结果继续task_result。经典7工具，小队18工具；Claude/Codex仅补该只读允许项，reply_task和原生账号/文件权限不变。关系模型、daemon协议2、JSON/SQLite版本不变。[实现、字段与冻结验证](iterations/I07/delegation-list.md)。
 
 ## OpenCode 后台门面
 
@@ -96,9 +98,9 @@ CT-04桌面路径：M01按需调用既有team.materials/team.document.revision�
 
 安装目录发现与实时状态读取分开：后台首次使用及显式 discover 才枚举环境/探测工具版本；snapshot 继续读取原机器与任务，不按时间重跑外部安装探测。前端对相同JSON分支复用对象，并保持所有真实状态字段。原身份、进程分层及收据语义不变。[桌面空闲专项](iterations/I07/desktop-polling.md)。
 
-未发布源码：发现器负责目标用户当前命令入口；MachineRouter 区分当前发现与旧连接，AgentNetwork 汇总为每机器/adapter一个当前展示节点，历史安装保留原身份及共享占用。MachineHost 在当前安装变化后为新工作创建独立上下文；原任务查询/续聊仍回原上下文。层级、daemon协议与原生配置归属不变。[设计与证据](iterations/I07/current-agent-discovery.md)。
+alpha.46源码：发现器负责目标用户当前命令入口；MachineRouter 区分当前发现与旧连接，AgentNetwork 汇总为每机器/adapter一个当前展示节点，历史安装保留原身份及共享占用。MachineHost 在当前安装变化后为新工作创建独立上下文；原任务查询/续聊仍回原上下文。层级、daemon协议与原生配置归属不变。[设计与证据](iterations/I07/current-agent-discovery.md)。
 
-## 原生适配扩展（未发布源码）
+## 原生适配扩展（alpha.46）
 
 各机器的发现器与 MachineHost 共享受校验静态注册表，接入六种原生工具。新增 Hermes/Pi/DSH 使用同机 NativeCliHost、独立持久 worker 和分别实现的原生协议解析；Coordinator、SSH 线格式及旧 Core AgentDriver 不变。新增三种仅声明直接会话能力；无 MCP 注入时在 scope 配置前拒绝协作，不能静默丢弃授权。自定义宿主通过源码注册和构建部署，不加载 RPC 指定代码。[完整范围](iterations/I07/native-agent-expansion.md)、[开发接口](custom-agent-development.md)。
 
@@ -226,7 +228,7 @@ sequenceDiagram
 
 ### 连接能力的方向与来源
 
-当前未发布CT-01：静态适配器注册提供执行、普通委派接收、Bridge MCP调用及五项控制能力上限；节点元数据只能收窄。Coordinator/AgentNetwork在原请求查询之后、新关系/执行/委派意图之前检查对应方向；UI展示同一口径，远端scope仍做实际确认。新三工具可接普通委派但不能注入MCP，小队准入继续独立检查。
+当前已发布CT-01：静态适配器注册提供执行、普通委派接收、Bridge MCP调用及五项控制能力上限；节点元数据只能收窄。Coordinator/AgentNetwork在原请求查询之后、新关系/执行/委派意图之前检查对应方向；UI展示同一口径，远端scope仍做实际确认。新三工具可接普通委派但不能注入MCP，小队准入继续独立检查。
 
 本进程WeakSet只标记本机确定的能力拒绝；GraphOperationJournal仅对关系保存持久化该拒绝，网络同码错误不可信任。恢复收据必须匹配原ID；不重发原动作，不扩大原身份/Session/资源权限。驱动仍是CLI或CLI+HTTP，无ACP/厂家SDK新增。[完整契约与证据](iterations/I07/connection-capabilities.md)。
 
