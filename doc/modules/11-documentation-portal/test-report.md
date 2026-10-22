@@ -1,5 +1,15 @@
 # M11 文档网页测试报告
 
+## 后续原生组件验收（2026-10-22，alpha.46）
+
+已安装OpenDesk/DSH原生MCP组件协议分别5组/6组通过；两条生产协作链各完成1个真实Claude子任务，并分别只读重开原任务/Session/结果，无重放。原生父模型自主决策与日常原生页面未验；产品运行代码与EXE未变，不把新增验收与原全量计数叠加。[脚本、初次失败、准确层级和未测项](../../iterations/I08/mcp-native-acceptance.md)。
+
+## MCP02当前使用说明同步（2026-10-22）
+
+补齐非GUI首次接入/原操作查询、同profile、60秒观测有效期和OpenDesk同名诊断条目冲突处理；更新当前alpha.46候选与真实验证边界。用户站测试6/6、构建/边界审计通过；内部专项与证据不发布。[本轮交付](../../iterations/I08/mcp-open-recovery.md)。
+
+OpenDesk相关验证统一见[专项报告](../../iterations/I08/opendesk-existing-interfaces.md)，明确受控协议、真实原生启动、模型和Windows包的独立范围；共享计数不跨模块累加，未执行项保持未测。
+
 ## alpha.36整合边界
 
 2026-10-21 / WSL Node22.23.1：本轮全量核心57/57、桌面676/676，类型/lint/前端构建通过。各模块共享计数不相加；包核验、Windows契约144/144、界面26组与普通EXE7组通过，具体以专项为准，真实模型/用户profile/独立SSH未验。[完整交付](../../iterations/I07/alpha36-delivery.md)。

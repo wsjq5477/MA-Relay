@@ -6,6 +6,8 @@ export const agentTools: Record<
   ToolKind,
   { name: string; fullName: string; icon: string; background: string }
 > = {
+  opendesk: { name: "OpenDesk", fullName: "OpenDesk", icon: new URL("../assets/agents/opendesk.png", import.meta.url).href, background: "#ffffff" },
+  "opendesk-desktop": { name: "OpenDesk Desktop", fullName: "OpenDesk Desktop", icon: new URL("../assets/agents/opendesk.png", import.meta.url).href, background: "#ffffff" },
   claude: {
     name: "Claude Code",
     fullName: "Claude Code",

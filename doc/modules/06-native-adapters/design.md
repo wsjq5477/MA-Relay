@@ -1,5 +1,15 @@
 # M06 原生 Agent 适配器设计
 
+## MCP02恢复与观测（2026-10-22）
+
+OpenDesk选择Node后再渲染所有导出格式，恢复保存的launcherPath；OpenCode数组command正确拆成程序/参数。配置绑定和60秒有效期限制观测复用。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+
+I08-MCP02统一开放MCP与双向配置已冻结契约并完成源码第一片：能力三维拆分、状态事实、`mcp.revoke`/`mcp.probe`与DSH Web原生适配，见本页[开放MCP接入：能力、状态事实与原生配置](#开放mcp接入能力状态事实与原生配置)；逐入口真实原生验收（添加/删除/列表/工具/主调用/托管归属）仍待执行，实现与受控测试不改变各入口的真实能力结论。[本轮开发与验收记录](../../iterations/I08/mcp-open-integration.md)。
+
+静态注册opendesk与opendesk-desktop，复用NativeCliHost与Bridge连接持有worker。CLI调用已有HTTP会话接口，Desktop调用已有设备网关；不修改OpenDesk，不复用OpenCode产品身份，未接入ACP。断线/取消无充分终态证据时unknown；完整设计见[OpenDesk](opendesk/design.md)。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
+
+M06-F01：OpenCode 显式接入遇原服务已退出时，仅启动原 context 内的原生服务，再核验原 Agent；本次新增恢复不放在快照或原请求读取分支。接入准备失败原子记录本地 attach 拒绝收据，原图意图只按匹配证据收敛；不改变原任务、Session 或 unknown 门禁。恢复不改协议或原生模型配置。详见[恢复契约与边界](../../iterations/I08/opencode-oom-recovery.md)。
+
 ## alpha.36整合边界
 
 M06-F01：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
@@ -55,6 +65,57 @@ M06-F01/F02：原生adapter不新建模型/API层；历史task/conversation由Ma
 ## 独立 MCP 配置与运行契约
 
 M06-F01/F04：Claude/Codex/OpenCode 2支持独立MCP接入的配置格式适配。Claude改mcpServers.agentbridge，Codex改mcp_servers.agentbridge标记块，OpenCode 2改mcp.servers.agentbridge；尊重各自配置目录变量，仅修改自己拥有的条目。生成JSON/TOML/JSONC独立文件，模型/登录配置保持；Hermes/Pi/DSH无兼容声明。Bridge托管任务仍用任务scope覆盖同名MCP，长期入口面向外部会话。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
+
+## 开放MCP接入：能力、状态事实与原生配置
+
+### 能力三维（已冻结）
+
+每个入口分别回答“能否管理其原生MCP条目”“是否实现MCP客户端”“能否注入单次托管任务scope”，三者不互相推断；缺省`null`表示未确认，`false`表示已核对不可用。旧投影名`bridgeMcp`（=`mcpClient`）与`teamCollaboration`（=`hostManagedTask`）保留给旧快照与旧planner，只能收窄不能启用。旧的“三产品白名单”和“`teamCollaboration=false` 即不能调用MCP”的折算已删除。
+
+| 入口 | `nativeMcpConfig` | `mcpClient` | `hostManagedTask` |
+| --- | --- | --- | --- |
+| claude / codex / opencode | true | true | true |
+| opendesk（CLI） | false（0.3.8 无 MCP 管理面，只可导出片段） | true | false |
+| opendesk-desktop | true（原生可读取；需 Node 启动器且必须完全重开） | true | false |
+| dsh-web | true | true | false |
+| dsh-desktop | false | true | false |
+| dsh | true（需显式 `profile`） | true | false |
+| hermes / pi | false | 未确认（null） | false |
+
+实现落点：[静态注册表](../../../desktop/electron/builtin-adapters.cjs#L71)（`connectionCapabilities`投影、`supportsTeamCollaboration`只看托管维度、`supportsIndependentMcp`只看调用维度）、[契约校验器](../../../desktop/electron/agent-adapter-contract.cjs#L45)。远端daemon能力只能收窄，不能启用；未知适配器全部为未知。
+
+### 状态事实与所有权
+
+`mcp.status` 返回 `state`（`absent`/`exported`/`installed`/`conflict`/`revoked_config_pending`/`unsupported`）+ 六项独立事实 `config`/`nativeLoad`/`connection`/`tools`/`authorization`/`ownership` + `evidence`（`configPath`/`nativeProbe`/`toolsProbe`/`configError`）+ `nativeSupport`（不可管理时的代码与原因）。
+
+- 归属按“原生条目是否等于Bridge写入内容”逐字段比较，**不按显示名**；外部手写同名条目为 `config:conflict`+`ownership:external`，Bridge保留原条目、不静默接管。
+- 已撤权但条目仍是Bridge写入的那份读作“配置存在+授权已撤销”，不是冲突。
+- 探测失败返回“未知/具体失败”，不写配置、不重新启用、不重新注册、不启动模型。
+- `mcp.probe` 的原生列表侧只对 `claude`/`codex`/`opencode` 可用（各自有 `mcp list`；Claude 做健康检查，Codex 只列配置）。可执行文件按“调用方候选→本机发现→`PATH`命令名”解析，不下载、不启动UI；探测子进程沿用目标环境变量。其余入口显示“无法核验”，不因此否定其MCP能力。
+
+### DSH 原生补丁层适配（Web 固定 profile，CLI 显式 profile）
+
+Bridge 管理 `$DSH_HOME/profiles/web/cordis.patch.yml` 中**一行** `- insert:` 行，插件为已安装的 `@deepseek-ai/dsh-mcp-client`（`serverName: agentbridge`，stdio）。编辑通过 YAML 文档进行，保留用户注释、锚点与其他补丁行；profile目录 `$DSH_HOME/profiles/web` 不存在时安装以 `MCP_PROFILE_MISSING` 拒绝并提示先启动一次DSH Web，不创建任何文件；该文件不存在视为“无该层”，仅含注释/空文档则报 `MCP_CONFIG_INVALID` 并保留原文件；重复的 `agentbridge-mcp` 行报 `MCP_CONFIG_CONFLICT`。安装后Bridge只报 `nativeLoad:'reload_required'`（DSH自己应用补丁层，HMR开启时即时），不宣称已加载或已连接。实现落点：[mcp-config.cjs](../../../desktop/electron/mcp-config.cjs#L109)（`dshPatchFile`/`dshDocument`/`dshRows`/`dshInspect`）。
+
+**DSH CLI**：原生配置跟着启动时选择的 profile 走，Bridge 不猜默认值，由用户显式指定 `profile`（六个 `mcp.*` 方法都接受该参数，仅 `dsh` 使用；DSH Web 固定 `web` 且不暴露参数）。原生目标是 `$DSH_HOME/profiles/<profile>/cordis.patch.yml`，写入形状与 DSH Web 相同；名称必须匹配 `^[a-z0-9][a-z0-9-]{0,63}$`（`../escape`、`a/b`、空串、大写、前导 `-` 拒绝，不拼接逃逸路径）。未指定时 `mcp.status` 返回 `nativeSupport:false`+`MCP_DSH_PROFILE_REQUIRED`+`profile:null`，`install`/`remove` 同码拒绝，`mcp.export` 仍出片段；连接行落 `profile`，省略参数时用登记值，`remove` 只清理登记的那个 profile，其他 profile 逐字节不变；安装后只报 `nativeLoad:'reload_required'`。桌面 `dsh` 行提供“DSH 原生 profile”输入框，CLI 提供 `--profile NAME`（`MCP_DSH_PROFILE_REQUIRED` 映射退出码2）。
+
+DSH Desktop 使用应用保留 profile，Bridge 没有已核对的落点，因此 `nativeMcpConfig:false`，只可导出片段。真实原生证据：DSH Web 在真实 `dsh --profile web` 启动中完成 `server/discover`回退→`initialize`→`tools/list`（7工具）；DSH CLI 家族在 shipped `acp` profile 的真实 `dsh --profile acp` 启动中同样观测到加载与握手（模型0，受控 scratch profile）。仍未观测 TUI 启动、用户自建 profile 与真实用户 profile，也未做真实 ACP 客户端会话或模型委派。见[本轮§12](../../iterations/I08/mcp-open-integration.md#12-真实原生探测补充2026-10-22-晚)。
+
+### stdio 服务握手与原生启动器（M06-F02）
+
+**握手**：Bridge 作为 MCP 服务端对协议修订 2026-07-28 的 `server/discover` 探测返回 `{supportedVersions:['2024-11-05','2025-03-26','2025-06-18','2025-11-25'], capabilities:{tools:{}}}`，不再返回 JSON-RPC 错误。此前只有宽松客户端（DSH）会回退到 `initialize` 继续，严格客户端（OpenDesk 0.3.9）会直接判定连接失败——这就是“原生列表看不到 AgentBridge”的根因之一。`initialize`/`tools/list`/`tools/call` 与工具集合不变。实现落点：[mcp-client.cjs](../../../desktop/electron/mcp-client.cjs#L11)。
+
+**启动器**：原生客户端用条目里的 `command` 启动 stdio 服务。Bridge 默认写自身 Electron 运行时，但 OpenDesk 的 mcpmgr 启动不了它（`命令未找到`／`MCP error -32000: Connection closed`），而系统 `node` 可以。因此 `mcp.install`/`export` 对 OpenDesk 两个入口**优先使用 PATH 中真实存在的 Node**（`nodeLauncher()`，不下载、不猜安装目录），连接行与 `mcp.status` 增加 `launcher:'node'|'electron'`：`node` 表示原生能启动，`electron` 表示需要先安装 Node（界面显示对应提示）。这是启动器选择，不改变工具授权或任务归属。见[本轮§14](../../iterations/I08/mcp-open-integration.md#14-opendesk-原生-mcp-可见性修复2026-10-22alpha45)。
+
+### 方法与持久字段
+
+`mcp.status`（只读）、`mcp.export`（只生成片段与登记身份）、`mcp.install`（写自己拥有的条目）、`mcp.revoke`（只持久撤权，绝不改原生条目）、`mcp.probe`（只读探测）、`mcp.remove`（先撤权再删自己的条目；清理失败返回 `revoked_config_pending`+`cleanupError`，绝不恢复授权）。重启恢复只重建私有endpoint描述文件，不写原生配置；外部删除永不补回；重新添加轮换 `connectionId`。
+
+`mcp-connections/connections.json` 行字段：`nodeId`/`adapter`/`connectionId`/`enabled`/`nativeProtocol`/`configuration`（Bridge写入条目快照，用于归属比较）/`probe`（最近只读探测，不参与授权）/`profile`（仅 DSH CLI 的原生 profile 名称）。实现落点：[mcp-integration.cjs](../../../desktop/electron/mcp-integration.cjs#L14)、[machine-host.cjs](../../../desktop/electron/machine-host.cjs#L110)。
+
+### 未适配入口与本轮边界
+
+OpenDesk **CLI** 在 0.3.8 上**没有 MCP 管理面**：`opendesk plugins list` 的 11 个 builtin 插件无 MCP 管理插件、`opendesk plugins tools` 无插件工具、`opendesk tools list` 无 MCP 分区，且启动会重写 `setting.json` 的 `applications` 丢弃未识别 app 段；因此 `nativeMcpConfig=false`，`mcp.install` 以 `MCP_NATIVE_CONFIG_UNSUPPORTED` 拒绝，只可 `mcp.export` 出片段。**Desktop** 的原生条目已可用：写入 `%APPDATA%\opendesk\setting.json` 的 `applications.mcpmgr.servers`，用真实 Node 启动器，**必须完全退出并重开 OpenDesk** 才会读取；在用户真实 Desktop 0.3.9 上已观察到原生连接并 `discovered 7 tools`，但真实授权后的工具调用未验。CLI 的 MCP 调用方状态为“未确认”；Hermes/Pi 未核对到原生MCP配置格式，MCP客户端能力保持“未确认”。所有入口的真实添加/删除/工具调用/主调用链/托管归属仍待按验收表逐项执行。[本轮开发与验收记录](../../iterations/I08/mcp-open-integration.md)、[模块报告](test-report.md)。
 
 [Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)核对产品入口与公开驱动区别：Grok Build的headless/ACP列为CT-03候选，尚未注册；Claude Projects协调器、Dots和Grok Bot也没有因已有CLI适配而成为可直接操控入口。未增加原生协议或产品代码。
 

@@ -4,7 +4,7 @@ const {MachineRouter,qualified,project,folderPath,workspaceKey}=require('./machi
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');
 const {rejectionProof,marker:daemonRejectionMarker}=require('./daemon-rejection.cjs');
 const {openCodeCompatibility,openCodeVersionError}=require('./tool-discovery.cjs');
-const {connectionCapabilities,collaborationCapabilityError}=require('./builtin-adapters.cjs');
+const {supportsTeamCollaboration,connectionCapabilities,collaborationCapabilityError}=require('./builtin-adapters.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const requestFingerprint=(nodeId,params)=>hash(JSON.stringify({nodeId,op:params.op,message:params.message,workspace:params.workspace||'',conversationId:params.conversationId||'',collaboration:!!params.collaboration}));
@@ -107,7 +107,7 @@ class AgentNetwork extends MachineRouter {
   }
   async prepare(method,params={}){
     if(['saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','nodeOperation'].includes(method))return {machineId:null,params};
-    if(['attachNode','manageNode','nodeRequest','mcp.status','mcp.install','mcp.remove','mcp.export'].includes(method)){
+    if(['attachNode','manageNode','nodeRequest','mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe'].includes(method)){
       const node=params.nodeId?this.node(params.nodeId):this.node(this.network.collaboration.leaderId);
       if(params.machineId&&params.machineId!==node.machineId)throw fail('WRONG_MACHINE','节点属于另一台机器。');
       return {machineId:node.machineId,params:{...params,nodeId:node.nodeId,machineId:node.machineId}};
@@ -222,6 +222,7 @@ class AgentNetwork extends MachineRouter {
     // change. New native execution intent is admitted from the static contract.
     const capabilities=connectionCapabilities(node).connectionCapabilities;
     if(capabilities.execution!==true)throw fail('ADAPTER_UNSUPPORTED','这个节点没有已声明的原生执行接入，需求未派发。');
+    if(params.collaboration&&capabilities.bridgeMcp===true&&!supportsTeamCollaboration(node))throw collaborationCapabilityError('当前节点只提供独立原生 MCP 接入，尚不支持托管会话注入；需求未派发。');
     if(params.collaboration&&capabilities.bridgeMcp!==true)throw collaborationCapabilityError('这个节点尚不支持调用 Bridge MCP，不能作为协作主 Agent；需求未派发。');
     if(node.supersededBy&&params.op!=='continue')throw fail('NODE_SUPERSEDED','这个历史安装已由当前版本替代，请使用当前 Agent 节点新建会话。');
     const state=await this.snapshot();
@@ -384,6 +385,7 @@ class AgentNetwork extends MachineRouter {
     if(this.network.nodes.some(n=>n.machineId===node.machineId&&n.adapter===node.adapter&&(this.nodeLocks.has(n.nodeId)||this.nodeJobs.has(n.nodeId))))throw fail('AGENT_BUSY','节点正在处理请求，请先核对原执行。');
     this.nodeLocks.add(node.nodeId);
     try{
+      if((this.network.nodeOperations||[]).length>=4096)throw fail('OPERATION_LIMIT','节点操作收据达到上限，请保留记录并联系维护者。');
       const state=await this.snapshot(),current=state.nodes.find(n=>n.nodeId===node.nodeId);
       if(!current.online)throw fail('MACHINE_OFFLINE','请先恢复来源机器，核对原执行后再变更节点。');
       const instances=this.catalog.instances.filter(i=>i.nodeId===node.nodeId);
@@ -398,7 +400,17 @@ class AgentNetwork extends MachineRouter {
         if(machine.objectRoutingSupported===false)throw fail('DAEMON_UPGRADE_REQUIRED','请先通过原机器后台维护升级后台，再接入执行节点。');
         if(node.adapter==='opencode'){
           try{await this.host(machine).call('context',{nodeId:node.nodeId,adapter:node.adapter,executable:node.executable});node.apiCompatibility={executable:node.executable,version:node.version,compatible:true};}
-          catch(error){node.apiCompatibility={executable:node.executable,version:node.version,compatible:false,error:{code:error.code,message:error.message}};this.saveNetwork();throw error;}
+          catch(error){
+            const operations=this.network.nodeOperations||[];
+            if(operations.length>=4096)throw fail('OPERATION_LIMIT','节点操作收据达到上限，请保留记录并联系维护者。');
+            const refusal={code:error.code,message:error.message};
+            const nextNode={...node,apiCompatibility:{executable:node.executable,version:node.version,compatible:false,error:refusal}};
+            // This rejects only the local attach authorization. A remote
+            // context may exist; never infer task completion or replay it.
+            const receipt={operationId:params.operationId,state:'rejected',fingerprint,error:refusal,data:{nodeId:node.nodeId,machineId:node.machineId,action:params.action}};
+            const next={...this.network,nodes:this.network.nodes.map(n=>n.nodeId===node.nodeId?nextNode:n),nodeOperations:[...operations,receipt]};
+            atomicWrite(this.networkFile,next);this.network=next;throw error;
+          }
         }
       }
       const operations=this.network.nodeOperations||[];
@@ -421,11 +433,15 @@ class AgentNetwork extends MachineRouter {
       return this.host(machine).call(method, params);
     }
     if(method==='snapshot')return this.snapshot();
-    if(['mcp.status','mcp.install','mcp.remove','mcp.export'].includes(method)){
+    if(['mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe'].includes(method)){
       const node=this.node(params.nodeId),machine=this.machine(node.machineId);
-      if(['mcp.install','mcp.export'].includes(method)&&(!node.connected||node.removed))throw fail('NODE_DISCONNECTED','请先接入此 Agent。');
+      // Revoking authorization and probing native state both need a live, attached
+      // node; a removed node never owns an MCP connection any more.
+      if(['mcp.install','mcp.export','mcp.revoke','mcp.probe'].includes(method)&&(!node.connected||node.removed))throw fail('NODE_DISCONNECTED','请先接入此 Agent。');
       this.assertMachineAdmission(machine);
-      return this.host(machine).call(method,{nodeId:node.nodeId,adapter:node.adapter});
+      // `profile` only applies to the DSH CLI surface (its native config is per
+      // launch profile); every other adapter ignores it.
+      return this.host(machine).call(method,{nodeId:node.nodeId,adapter:node.adapter,...(typeof params.profile==='string'?{profile:params.profile}:{})});
     }
     if(method==='collaboration')return {...this.network.collaboration};
     if(method==='collaborationOperation'){

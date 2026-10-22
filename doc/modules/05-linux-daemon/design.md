@@ -1,5 +1,13 @@
 # M05 Linux 机器后台设计
 
+OpenDesk已有接口连接与worker随Linux离线包收录。目标后台启动正常安装的CLI serve，经随机Basic认证连接现有HTTP接口；去重和恢复记录保存在Bridge，恢复不启动原生替代服务。旧daemon须单独升级，不要求安装定制OpenDesk。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
+
+M05-F02：OpenCode 显式接入遇原服务已退出时，仅启动原 context 内的原生服务，再核验原 Agent；本次新增恢复不放在快照或原请求读取分支。接入准备失败原子记录本地 attach 拒绝收据，原图意图只按匹配证据收敛；不改变原任务、Session 或 unknown 门禁。恢复不改协议或原生模型配置。详见[恢复契约与边界](../../iterations/I08/opencode-oom-recovery.md)。
+
+## alpha.38 显式确认后越过未确认收据
+
+M05-F04/F09：用户已批准的契约变更。[remote-maintenance.cjs](../../../desktop/electron/remote-maintenance.cjs) 的 `idle(p,options)` 固定门禁顺序：**任务/Agent 门禁永远先执行且永不可越过**；收据门禁仅在 `options.allowUnresolvedReceipts===true` 时跳过，并收集被跳过的 `{key,op,state,updatedAt}`，`run()` 终态 `data` 记 `overridden:true` 与 `unresolved:[...]`，门禁错误保留远端原话并落盘 `error.details={gate,tasks,agents,receipts}`。越过路径下若 `daemon.quiesce` 因**同一份收据台账**抛 `DAEMON_BUSY`，允许以本地 `maintenance.json` 占位 + 控制器 `runtime/owned-stop`（`pid`+`pidStart` 内核校验）停机；新 daemon 启动后接管占位并在 release 阶段解除。**非越过路径行为不变**（只有 `DESKTOP_METHOD` 回退）。风险必须写清：越过会跳过 daemon 自己的 `admissions||jobs.size`（在途 job）检查，此时只由 worker 的 snapshot 门禁保护，**任务是唯一的硬线**。[契约、现场与未测边界](../../iterations/I08/alpha38-delivery.md)。
+
 ## alpha.36整合边界
 
 M05-F02：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
@@ -21,6 +29,20 @@ M05-F02/F04：源码内的 MachineHost/Core 共用新的 V1/V2 适配与 MCP 格
 ## 当前维护进度与持久化边界
 
 M05-F04/F06：该实现不改变daemon原请求或维护协议；完整上传/解包/逐文件校验后仍待中央最终保存，再发送原维护输入，安全失败保留旧版本/身份。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
+
+## 维护收据字段与旧后台空闲兼容
+
+M05-F04/F09：维护收据 `maintenance-operations.json` 的 `data` 增加可选 `stopped` 与 `phase`，成功路径同样写 `rolledBack`（此前只在失败分支写）。`stopped=true` 表示本次确实停过后台；`rolledBack=true` 只在已切换过版本且回滚三步全部成功（原版本已重启）时成立；`phase` 记录最后阶段（validated/stopped/activated/healthy/uninstalling/uninstalled）。升级/回滚若已停止后台但切换或回滚未确认，收据保持 `state='unknown'` + `DAEMON_ROLLBACK_UNCONFIRMED`，由原 operationId 查询/[recover](../../../desktop/electron/remote-maintenance.cjs)恢复，不写终态 rejected；`recover()` 的收据同样补 `stopped/rolledBack`。
+
+`idle()` 对早于持久收据端点的旧后台（`daemon.receiptRead` 返回 `DESKTOP_METHOD`，即该版本没有台账可查）降级为“无可查台账”，保留前面的 `snapshot` 空闲门禁继续维护；其它读失败仍阻断维护，不把任意错误当成无台账。旧后台不支持 `daemon.quiesce/shutdown` 时停机继续走本地 `maintenance.json` + 控制器 `runtime/owned-stop`。协议版本（仍为 2）、daemon 身份、任务/收据 ID 与线格式不变，没有格式迁移。[本轮需求、证据与未测边界](../../iterations/I08/maintenance-offline/maintenance-offline.md)。
+
+## 遗留维护屏障自愈
+
+M05-F04：独立验证的证伪用例发现，修复前构建可能留下“收据已终态、远端 `maintenance.json` 仍属原 operationId”的状态；此后任何新 operationId 的 `quiesce` 都会被 daemon 以 `DAEMON_MAINTENANCE` 拒绝，新维护与它自己的 `recover()` 都会停在 `unknown`。[remote-maintenance.cjs](../../../desktop/electron/remote-maintenance.cjs) 的 `stop()` 在 `idle()` 之后、`quiesce` 之前调用 `clearStaleBarrier()`：仅当屏障属于另一个 operationId 且 `maintenance-operations.json` 中该 operationId 的收据已是 `confirmed`/`rejected` 终态时，才尝试 `daemon.releaseMaintenance`；只有 release 成功或返回 `DESKTOP_METHOD`（该版本无此方法）才删除文件，`DAEMON_MAINTENANCE`/`DAEMON_OFFLINE`/`ENOENT` 一律不删（不删除未经证明的屏障），其它错误照旧抛出。unknown 或缺失的收据、以及属于本次 operationId 的屏障都不处理，因此不会绕过真正的未决维护。受控夹具见 [daemon-maintenance.test.cjs](../../../desktop/tests/daemon-maintenance.test.cjs) 12/12。
+
+## 未决维护行的原 ID 回收
+
+M05-F04：原 operationId 查询是未知维护唯一的收敛路径，过去只在“已记录 `workerPid` 且该进程已消失”时才派生恢复进程。[remote-maintenance.cjs](../../../desktop/electron/remote-maintenance.cjs) 的 `abandoned(row)` 补上“从未记录 worker”的情形：`workerPid` 缺失时，`phase!=='intent'`（worker 至少写过一个检查点）或行创建超过 60 秒才视为废弃；宽限期避免与 `launch()` 的“先提交持久行、再记录并派生 worker”两步竞争。判定与派生仍在同一把 `mutateRows` 文件锁内，且只有输入文件存在时才派生。恢复本身的证明边界不变：`phase==='intent'` → `rejected`+`DAEMON_NOT_STARTED`（原后台未被触碰）；已激活/已停止阶段按原收据切回并重启；活跃 worker 持有租约时 `recover()` 直接返回。[切片说明与实测](../../iterations/I08/maintenance-offline/maintenance-visibility.md)。
 
 ## 当前版本准入与管理作用域
 

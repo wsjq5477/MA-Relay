@@ -1,5 +1,9 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
+## MCP02恢复与观测（2026-10-22）
+
+非GUI新增nodes、attach和原操作查询operation；稳定operationId与桌面profile共享；打包manifest取真实版本、离线包随后台暂存。JSON保留授权状态枚举，隐藏凭据。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+
 ## OpenCode 1.x / 2.x 兼容修复
 
 M09-F01：Core 接受可识别 1.x/2.x 并只读握手选择原生协议；Edge 使用统一 reply/interrupt 客户端分派，operationId 仍先持久且控制不重试。V1 permission/question 映射复用原表单校验；禁工具验证入口仍仅核验过 2.0.24。 [需求、实现、验证与未测边界](../../iterations/I07/opencode-v1-compatibility.md)。

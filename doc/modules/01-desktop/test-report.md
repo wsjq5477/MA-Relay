@@ -1,5 +1,28 @@
 # M01 桌面交互测试报告
 
+## MCP02恢复与观测（2026-10-22）
+
+M01-F02/F05：MCP卡片展示探测时间与有效性，过期后连接/工具为未知；区分服务端目录与原生连接/委派授权。 WSL Node22.23.1共享桌面758/758、根68/68通过，最终JSON修复后CLI11/11及类型/lint/核心构建通过；模型0，真实原生模型委派未测，Windows结果按专项登记。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+
+## MCP状态事实与主角色准入（I08-MCP02第一片）
+
+T-M01-MCP02F / M01-F01/F02/F06：2026-10-22，alpha.43派生工作源码（同日已冻结为本地候选 **alpha.44**，仅版本位变更），WSL Node22.23.1。本轮同机定稿全量 `cd desktop && node --test tests/*.test.cjs` 为 tests **750** / pass **750** / fail 0，根 `npm test` 66/66（当日首轮 747/747（58.4s），加入 DSH profile/OpenDesk 用例后定稿 750/750），根 `typecheck`/`lint`/`build` 与桌面 `tsc --noEmit` 通过；计数为全工程共享，不跨模块相加。与本模块相关：`mcp-status-facts-ui.test.cjs` 4/4（六项事实逐项渲染、旧摘要只显示一行升级说明、`revoked_config_pending` 同时显示撤权与待清理、不可管理原因原文）、`connection-ui.test.cjs` 11/11、`agent-configuration-ui.test.cjs` 8/8、`connection-capabilities.test.cjs` 11/11（十入口能力三维与主角色准入）。同日补 DSH CLI 显式 profile 与 OpenDesk 用例后，界面组为 **24/24**，桌面全量定稿 **750/750**；DSH 行新增“DSH 原生 profile”输入框，`dsh-desktop` 仍只有导出片段。均为受控渲染/契约测试，**模型0、未打开真实窗口、未连真实原生Agent**。
+
+未测：真实Electron窗口下的MCP卡片交互、真实后台返回的六项事实、真实原生列表刷新、Windows真机界面；逐入口真实原生可见性与主调用链见[本轮记录](../../iterations/I08/mcp-open-integration.md#114-逐入口完成度)。证据与失败修复见[I08-MCP02开发记录](../../iterations/I08/mcp-open-integration.md)。
+
+2026-10-22 / alpha.43：OpenDesk CLI/Desktop前端执行门禁修复；生产注册表遍历回归8/8，桌面全套722/722，生产界面10组与包源码核验通过，新增Prompt0。Windows实际包内窗口4组、普通无调试便携EXE4组均通过；日常alpha.43窗口已正常打开，ASAR匹配并复用原alpha.42后台，原记录只读核对保留。首次失败和未测边界见[本轮专项](../../iterations/I08/opendesk-ui-admission.md)。
+
+2026-10-22 / OpenDesk Desktop 0.3.9：已安装原网关的真实执行、续聊与普通EXE窗口重开通过；无运行代码变更，不将历史自动测试计为今日重跑。分层计数与未测项见[现场专项](../../iterations/I08/opendesk-desktop-live.md)。
+OpenDesk相关验证统一见[专项报告](../../iterations/I08/opendesk-existing-interfaces.md)，明确受控协议、真实原生启动、模型和Windows包的独立范围；共享计数不跨模块累加，未执行项保持未测。
+
+## alpha.38 维护前置门禁与越过未确认收据
+
+T-M01-153 / M01-F03/F06：2026-10-21，工作区 0.6.0-alpha.38，Linux 本机 Node v22.23.1 + 工作区内 Playwright chromium headless shell 156.0.8078.4（本机无 Edge）。新增 [ui-maintenance-blockers.cjs](../../../desktop/tests/ui-maintenance-blockers.cjs) **实跑通过**（`{"status":"passed","checks":5}`，页面错误 0、模型 0）：① 任务与 Agent 工作被列出且**永不出现越过控件**、不下发维护；② 仅未确认收据被列出、按原 key 只查询一次，**只有勾选后**才以新的 maintenance operationId 下发 `allowUnresolved:true`（报告实录 `expectedRevision:1`、`allowUnresolved:true`）；③ 门禁被拒时显示远端原话与阻塞明细而不是笼统阶段失败，常规动作仍可用；④ 持久历史以中性记录（非 alert）与实时阻塞项分开标注，已是最新版本的 daemon 不提供可点击升级；⑤ 无收据端点的 daemon inline 说明，不把对话框判为整体失败。既有 [ui-maintenance-progress.cjs](../../../desktop/tests/ui-maintenance-progress.cjs) 仍 **3 checks passed**。`npx tsc --noEmit` 0 错、`npx vite build` 成功、全量桌面 **689/689（0 失败）**。**真实 Windows GUI 未测**（本机无 msedge，`windows-*.cjs` Edge 套件未跑）；越过路径未在真实远端执行，现场切换是带外作业。[契约、风险与未测边界](../../iterations/I08/alpha38-delivery.md)。
+
+## 维护阶段可见与有界自动核对
+
+M01-F03/F06；2026-10-21，工作区 0.6.0-alpha.36，Linux 本机 Node v22.23.1 + 工作区内 Playwright chromium headless shell 156.0.8078.4（本机无 Edge）。新增 [ui-maintenance-progress.cjs](../../../desktop/tests/ui-maintenance-progress.cjs) **实跑通过**（`{"status":"passed","checks":3}`，页面错误 0、模型 0）：上传阶段在卡片与对话框同时显示“正在上传 512 KiB / 2.0 MiB”且 `progressbar` 有 `aria-valuenow`、`progressWarning` 为提示（alert 数 0）；快照切到 verifying 后对话框显示“正在校验 2.0 MiB / 2.0 MiB”（反向对照：撤掉实时快照解析后该断言失败）；确认升级后未决文案出现、按钮禁用、自动查询在原 operationId 上按 1s/2s 退避（实测 1004ms/3004ms）且终态后停止；`rejected` 以 `role=alert` 显示远端原因。`npx tsc --noEmit`、`npx vite build` 通过；全量桌面构建后 684/684（构建前 682 项 679 通过中的 3 项失败经独立验证定位为测试未隔离 `DSH_HOME`，同日由测试侧修复，见 [alpha.37 交付记录](../../iterations/I08/alpha37-delivery.md)）。**既有 `windows-*.cjs` Edge 界面套件本机未执行**（硬编码 msedge，本机无该浏览器），仅静态核对按钮文案/aria 保留，需在 Windows 端补跑确认轮询不破坏调用计数断言；模态框遮挡、多意图并存未做 UI 断言。[切片说明与未测边界](../../iterations/I08/maintenance-offline/maintenance-visibility.md)。
+
 ## alpha.36整合边界
 
 2026-10-21 / WSL Node22.23.1：本轮全量核心57/57、桌面676/676，类型/lint/前端构建通过。各模块共享计数不相加；包核验、Windows契约144/144、界面26组与普通EXE7组通过，具体以专项为准，真实模型/用户profile/独立SSH未验。[完整交付](../../iterations/I07/alpha36-delivery.md)。

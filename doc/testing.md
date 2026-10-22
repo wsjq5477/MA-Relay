@@ -1,10 +1,10 @@
 # 整体测试与验收报告
 
-当前验收基线与证据层级；逐轮测试记录、首次失败与历史计数见 [迭代目录](iterations/README.md) 各专项。
+最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
-## 1. 总结论
+当前验证（2026-10-22，alpha.46）：WSL Node22.23.1根全量68/68、桌面758/758；最终JSON脱敏修复后CLI相关11/11、类型/lint/核心构建通过。候选EXE130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`；包核验50后台模块/84核心文件/1698 Linux文件及四项一致性通过。Windows普通EXE、非GUI与生产前端的实际结果单列于[本轮专项](iterations/I08/mcp-open-recovery.md)，不将模拟、端点工具调用或历史原生模型混记为真实主Agent委派。未签名、未公开、未部署SSH。
 
-当前公开版本 **0.6.0-alpha.36**（标签`1fef25f`）：完整核心57/57、桌面676/676、失败/跳过0，类型/lint/前端构建通过。已整合公开alpha.35执行资源级保护与原查询反馈，以及当前OpenCode/DSH/CT-07/配置/恢复全部增量。包48CJS/81Core/1458Linux、Windows契约144/144、界面26组、普通EXE7组通过，完整结果见[alpha.36交付](iterations/I07/alpha36-delivery.md)；发布后匿名完整下载核验一致，但不把受控测试作为用户profile、真实模型或独立SSH验收，完整I06C/I07C未准出。
+OpenDesk Desktop0.3.9已有真实执行/续聊与诊断MCP列表可见记录；DSH Web/CLI显式profile已有受控原生握手/7工具记录。正式原生授权调用、十入口人工增删与主调用/托管归属仍未全部完成。历史候选与各次计数保留于[迭代目录](iterations/README.md)。
 
 真实DSH认证/接口、原Session两轮/去重与Desktop模型RATE_LIMIT的证据保留在[DSH专项](iterations/I07/dsh-exe-delivery.md)，本轮没有重测真实模型。CT-07连接视图的18项受控协议验证、此前列表与恢复候选的专项记录保留在[迭代目录](iterations/README.md)，不能将原计数相加成当前新测试数。
 

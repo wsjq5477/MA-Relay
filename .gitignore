@@ -11,6 +11,9 @@ dist/
 .env
 coverage/
 desktop/release/
+.cache-electron/
+.cache-electron-builder/
+.npm-cache-build/
 desktop/dist/
 artifacts/
 artifacts/acceptance-private/

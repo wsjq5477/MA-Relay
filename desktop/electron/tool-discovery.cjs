@@ -44,6 +44,15 @@ function windowsCodex(executable,args,environment,platform) {
 }
 function command(executable, args, environment=process.env, platform=process.platform) {
   const native=windowsCodex(executable,args,environment,platform);if(native)return native;
+  // OpenDesk's npm entry is extensionless JavaScript. Use the same selected
+  // installation with the bundled Node, including noninteractive daemon PATHs.
+  if (path.basename(executable) === 'opendesk') {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(path.join(path.dirname(executable), 'package.json'), 'utf8'));
+      if (pkg.name === '@bitclub.ai/opendesk-cli' && (pkg.bin === './opendesk' || pkg.bin?.opendesk === './opendesk' || pkg.bin?.opendesk === 'opendesk'))
+        return {executable:process.execPath,args:[executable,...args],env:{...environment,ELECTRON_RUN_AS_NODE:'1'}};
+    } catch { /* A different native layout keeps its original launcher. */ }
+  }
   if (/\.[cm]?js$/i.test(executable)) return {executable:process.execPath,args:[executable,...args],env:{...environment,ELECTRON_RUN_AS_NODE:'1'}};
   if (!/\.(cmd|bat)$/i.test(executable)) return {executable,args,env:{...environment,ELECTRON_RUN_AS_NODE:undefined}};
   const folder=path.dirname(executable);
@@ -80,7 +89,7 @@ async function scanTools(options={}) {
   if(windows)folders.push(path.join(env.APPDATA||path.join(home,'AppData/Roaming'),'npm'),path.join(home,'scoop/shims'));
   else if(platform==='linux')folders.push(...managedLinuxFolders(home,env),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'hermes-agent/.hermes/bin'),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'hermes-agent/venv/bin'),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'venv/bin'));
   const result=[];
-  await Promise.all(descriptors.filter(d => !['dsh-desktop', 'dsh-web'].includes(d.id)).map(async({id:adapter,name,commands})=>{
+  await Promise.all(descriptors.filter(d => !['dsh-desktop', 'dsh-web', 'opendesk-desktop'].includes(d.id)).map(async({id:adapter,name,commands})=>{
     const candidates=options.candidates?.[adapter]||[...new Set(folders)].flatMap(dir=>commands.flatMap(commandName=>(windows?[commandName+'.exe',commandName+'.cmd']:[commandName]).map(file=>path.resolve(dir,file))));
     const seen=new Set();
     let broken;
@@ -112,6 +121,7 @@ async function scanTools(options={}) {
   // command() is also frozen into legacy CLI workers; discovery-only
   // dependencies are loaded exclusively by scanTools().
   result.push(...await require('./dsh-connection.cjs').discover(options));
+  result.push(...await require('./opendesk-connection.cjs').discover(options));
   return result.sort((a,b)=>a.adapter.localeCompare(b.adapter));
 }
 module.exports={scanTools,command,tools,openCodeCompatibility,openCodeVersionError,isOpenCodeVersionRejection};

@@ -1,5 +1,11 @@
 # M02 中央协调后台设计
 
+## MCP02恢复与观测（2026-10-22）
+
+Linux本机MCP主机在处理方法前等待私有端点恢复；remove在恢复失败时仍可撤权。不写原生配置、不借用执行主机处理MCP。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+
+M02：OpenCode 显式接入遇原服务已退出时，仅启动原 context 内的原生服务，再核验原 Agent；本次新增恢复不放在快照或原请求读取分支。接入准备失败原子记录本地 attach 拒绝收据，原图意图只按匹配证据收敛；不改变原任务、Session 或 unknown 门禁。恢复不改协议或原生模型配置。详见[恢复契约与边界](../../iterations/I08/opencode-oom-recovery.md)。
+
 ## alpha.36整合边界
 
 M02-F01：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。

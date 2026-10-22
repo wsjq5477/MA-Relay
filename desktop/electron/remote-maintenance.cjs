@@ -3,12 +3,13 @@ const {spawn,execFileSync}=require('node:child_process'),{createHash,randomUUID}
 const {identity,inspectDaemon,inspectFile,privateDirectory,socketPathFor}=require('./machine-daemon.cjs');
 const {FramedStream}=require('./machine-protocol.cjs');
 const fail=(code,message)=>Object.assign(Error(message),{code}),terminal=new Set(['succeeded','failed','cancelled']);
+const safeCode=error=>typeof error?.code==='string'&&/^[A-Z][A-Z0-9_]{0,63}$/.test(error.code)?error.code:'DAEMON_MAINTENANCE_FAILED';
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
 const digest=v=>createHash('sha256').update(JSON.stringify(canonical(v))).digest('hex');
 function atomic(file,value){const temp=file+'.'+randomUUID()+'.tmp';const fd=fs.openSync(temp,'wx',0o600);try{fs.writeFileSync(fd,JSON.stringify(value));fs.fsyncSync(fd);}finally{fs.closeSync(fd);}fs.renameSync(temp,file);}
 function mutateRows(file,change){
  const lock=file+'.lock',deadline=Date.now()+2000;let acquired=false;
- while(!acquired){try{fs.writeFileSync(lock,JSON.stringify({pid:process.pid,pidStart:processStart(process.pid)}),{flag:'wx',mode:0o600});acquired=true;}catch(e){if(e.code!=='EEXIST')throw e;const owner=read(lock);if(owner.pidStart&&processStart(owner.pid)!==owner.pidStart){fs.unlinkSync(lock);continue;}if(Date.now()>=deadline)throw fail('DAEMON_MAINTENANCE','原维护记录正在提交，请查询原操作。');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,5);}}
+ while(!acquired){try{fs.writeFileSync(lock,JSON.stringify({pid:process.pid,pidStart:processStart(process.pid)}),{flag:'wx',mode:0o600});acquired=true;}catch(e){if(e.code!=='EEXIST')throw e;let owner;try{owner=read(lock);}catch(error){if(error.code==='ENOENT')continue;throw error;}if(owner.pidStart&&processStart(owner.pid)!==owner.pidStart){fs.unlinkSync(lock);continue;}if(Date.now()>=deadline)throw fail('DAEMON_MAINTENANCE','原维护记录正在提交，请查询原操作。');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,5);}}
  try{const rows=fs.existsSync(file)?read(file):[],result=change(rows);atomic(file,rows);return result;}finally{if(read(lock).pid===process.pid)fs.unlinkSync(lock);}
 }
 function commitRow(file,row){return mutateRows(file,rows=>{const current=rows.find(r=>r.operationId===row.operationId);if(!current)throw fail('OPERATION_NOT_FOUND','原维护记录缺失。');for(const key of ['state','phase','updatedAt','data','error','quarantine'])if(row[key]!==undefined)current[key]=row[key];return current;});}
@@ -38,15 +39,74 @@ async function peer(input){const info=await inspectDaemon({stateDirectory:input.
  const call=(method,params={})=>new Promise((resolve,reject)=>{const id=randomUUID(),timer=setTimeout(()=>{pending.delete(id);reject(fail('DESKTOP_TIMEOUT','维护观察超时。'));},15000);pending.set(id,{resolve,reject,timer});channel.send({id,method,params});});
  await new Promise((r,j)=>{socket.once('connect',r);socket.once('error',j);});await call('hello',{protocolVersion:2,nonce:randomUUID(),sessionId:randomUUID(),coordinatorId:input.ownerCoordinatorId,profileId:input.profileId,expectedDaemonId:input.daemonId});return {info,call,close:()=>channel.close()};
 }
-async function idle(p){const s=await p.call('snapshot');if((s.tasks||[]).some(t=>!terminal.has(t.status))||(s.agents?.items||[]).some(a=>a.busy||a.currentTask&&!terminal.has(a.currentTask.status)))throw fail('DAEMON_BUSY','后台仍有运行、等待或未知任务。');let after=0;
- do{const page=await p.call('daemon.receiptRead',{afterCursor:after,limit:128});if(page.items.some(r=>!['confirmed','rejected'].includes(r.state)||['reply','cancel'].includes(r.op)&&r.result?.state==='unknown'))throw fail('DAEMON_BUSY','后台仍有未确认的原任务/控制收据。');after=page.nextCursor;if(!page.hasMore)break;}while(true);
+const describeTask=t=>({...(typeof t.taskId==='string'?{taskId:t.taskId}:{}),...(typeof t.requestId==='string'?{requestId:t.requestId}:{}),...(typeof t.executionId==='string'?{executionId:t.executionId}:{}),...(typeof t.conversationId==='string'?{conversationId:t.conversationId}:{}),status:t.status,...(typeof t.adapter==='string'?{adapter:t.adapter}:{})});
+const describeAgent=a=>({...(typeof a.agentId==='string'?{agentId:a.agentId}:{}),...(typeof a.nodeId==='string'?{nodeId:a.nodeId}:{}),...(typeof a.adapter==='string'?{adapter:a.adapter}:{}),busy:!!a.busy,...(a.currentTask?{currentTask:describeTask(a.currentTask)}:{})});
+const blocksReceipt=r=>!['confirmed','rejected'].includes(r.state)||['reply','cancel'].includes(r.op)&&r.result?.state==='unknown';
+const describeReceipt=r=>({key:typeof r.key==='string'?r.key:'',op:typeof r.op==='string'?r.op:'',state:typeof r.state!=='string'?'unknown':blocksReceipt(r)&&['confirmed','rejected'].includes(r.state)?'unknown':r.state,...(typeof r.updatedAt==='string'?{updatedAt:r.updatedAt}:{})});
+/** Pre-maintenance gate. Tasks and Agent work are never overridable. An unconfirmed
+ * receipt is overridable only when the caller explicitly confirmed it
+ * (`options.allowUnresolvedReceipts===true`); the skipped receipts are returned so
+ * the terminal receipt can record exactly what was overridden. */
+async function idle(p,options={}){
+ const s=await p.call('snapshot');
+ const tasks=(s.tasks||[]).filter(t=>!terminal.has(t.status)).map(describeTask);
+ const agents=(s.agents?.items||[]).filter(a=>a.busy||a.currentTask&&!terminal.has(a.currentTask.status)).map(describeAgent);
+ if(tasks.length||agents.length)throw Object.assign(fail('DAEMON_BUSY','后台仍有运行、等待或未知任务。'),{details:{gate:'tasks',tasks,agents,receipts:[]}});
+ let after=0;const receipts=[];
+ try{do{const page=await p.call('daemon.receiptRead',{afterCursor:after,limit:128});for(const r of page.items||[])if(blocksReceipt(r))receipts.push(describeReceipt(r));after=page.nextCursor;if(!page.hasMore)break;}while(true);}
+ catch(error){
+  // A daemon released before durable receipts exposes no receipt ledger at all,
+  // so there is nothing that version could report; the idle snapshot above stays
+  // the only barrier it can express. Every other read failure still stops the
+  // maintenance and leaves the original daemon running.
+  if(error.code!=='DESKTOP_METHOD')throw error;
+ }
+ const overridden=receipts.length>0;
+ if(overridden&&options.allowUnresolvedReceipts!==true)throw Object.assign(fail('DAEMON_BUSY','后台仍有未确认的原任务/控制收据。'),{details:{gate:'receipts',tasks:[],agents:[],receipts}});
+ return {tasks:[],agents:[],receipts,overridden};
 }
-async function stop(input,p,helper){
+/** A maintenance barrier left behind by an operation that already has a terminal
+ * receipt must not wedge a later, unrelated operation: the daemon would reject
+ * every quiesce/shutdown attempt and even the original-ID query could never
+ * reach the switch phase. Only a durable terminal receipt for the barrier's own
+ * operation clears it; an unknown or missing row keeps the barrier. */
+async function clearStaleBarrier(input,p){
+ const file=path.join(input.stateDirectory,'maintenance.json');if(!fs.existsSync(file))return false;
+ const barrier=read(file);if(!barrier||barrier.operationId===input.operationId)return false;
+ const ledger=path.join(input.stateDirectory,'maintenance-operations.json');
+ const stale=(fs.existsSync(ledger)?read(ledger):[]).find(r=>r.operationId===barrier.operationId);
+ if(!stale||!['confirmed','rejected'].includes(stale.state))return false;
+ let released=false;
+ try{await p.call('daemon.releaseMaintenance',{operationId:barrier.operationId});released=true;}
+ catch(error){
+  if(error.code==='DESKTOP_METHOD')released=true;
+  // A live daemon that does not hold this barrier keeps it out of memory; the
+  // following quiesce then owns the file. Never delete an unproven barrier.
+  else if(!['DAEMON_MAINTENANCE','DAEMON_OFFLINE','ENOENT'].includes(error.code))throw error;
+ }
+ if(released&&fs.existsSync(file))fs.unlinkSync(file);
+ return released;
+}
+async function stop(input,p,helper,options={}){
  const original=read(path.join(input.stateDirectory,'daemon.lock'));
  if(original.daemonId!==input.daemonId||original.ownerCoordinatorId!==input.ownerCoordinatorId||original.profileId!==input.profileId||original.pid!==p.info.pid||!original.pidStart)throw fail('DAEMON_OWNERSHIP','后台锁与已核对进程不匹配。');
- await idle(p);try{await p.call('daemon.quiesce',{operationId:input.operationId});}catch(e){if(e.code!=='DESKTOP_METHOD')throw e;atomic(path.join(input.stateDirectory,'maintenance.json'),{operationId:input.operationId});}
- try{await p.call('daemon.shutdown',{operationId:input.operationId});}catch(e){if(e.code!=='DESKTOP_METHOD')throw e;const lock=read(path.join(input.stateDirectory,'daemon.lock'));if(lock.daemonId!==input.daemonId||lock.ownerCoordinatorId!==input.ownerCoordinatorId||lock.profileId!==input.profileId||lock.pid!==p.info.pid)throw fail('DAEMON_OWNERSHIP','后台锁与已核对进程不匹配。');try{execFileSync(helper,[String(lock.pid),String(lock.pidStart),String(input.uid)],{timeout:5000,stdio:'ignore'});}catch(error){throw error.status===3?fail('DAEMON_STOP_UNSUPPORTED','系统不支持安全 pidfd 停止，原后台保留。'):fail('DAEMON_STOP_FAILED','安全停机资源或进程核验失败，原后台保留。');}}
+ const gate=await idle(p,options);await clearStaleBarrier(input,p);
+ const barrier=()=>atomic(path.join(input.stateDirectory,'maintenance.json'),{operationId:input.operationId});
+ let quiesced=false;
+ try{await p.call('daemon.quiesce',{operationId:input.operationId});quiesced=true;}
+ catch(e){
+  if(e.code==='DESKTOP_METHOD')barrier();
+  // The user explicitly confirmed the skipped receipts will never run, but the live
+  // daemon enforces its own ledger check and refuses to quiesce. The verified
+  // controller-owned stop then carries the switch, and the local barrier is written
+  // so the next daemon adopts and later releases it.
+  else if(gate.overridden&&options.allowUnresolvedReceipts===true&&e.code==='DAEMON_BUSY')barrier();
+  else throw e;
+ }
+ const overrodeQuiesce=!quiesced&&gate.overridden;
+ try{await p.call('daemon.shutdown',{operationId:input.operationId});}catch(e){if(e.code!=='DESKTOP_METHOD'&&!(overrodeQuiesce&&['DAEMON_BUSY','DAEMON_MAINTENANCE'].includes(e.code)))throw e;const lock=read(path.join(input.stateDirectory,'daemon.lock'));if(lock.daemonId!==input.daemonId||lock.ownerCoordinatorId!==input.ownerCoordinatorId||lock.profileId!==input.profileId||lock.pid!==p.info.pid)throw fail('DAEMON_OWNERSHIP','后台锁与已核对进程不匹配。');try{execFileSync(helper,[String(lock.pid),String(lock.pidStart),String(input.uid)],{timeout:5000,stdio:'ignore'});}catch(error){throw error.status===3?fail('DAEMON_STOP_UNSUPPORTED','系统不支持安全 pidfd 停止，原后台保留。'):fail('DAEMON_STOP_FAILED','安全停机资源或进程核验失败，原后台保留。');}}
  p.close();await waitStopped(input,original);
+ return gate;
 }
 async function waitStopped(input,original,options={}){
  const inspect=options.inspect||inspectDaemon,start=options.processStart||processStart,deadline=Date.now()+(options.timeoutMs||15000);
@@ -62,6 +122,10 @@ async function release(input){const file=path.join(input.stateDirectory,'mainten
 async function run(input,options={}){
  const o=opts(input),rows=fs.existsSync(o.file)?read(o.file):[],row=rows.find(r=>r.operationId===input.operationId);if(!row)throw fail('OPERATION_NOT_FOUND','没有原维护意图。');if(row.state!=='unknown')return row;
  const write=()=>commitRow(o.file,row),checkpoint=phase=>{row.phase=phase;row.updatedAt=new Date().toISOString();write();};let switched=false,stopped=false,from,acquired=false;
+ // Only the strict boolean from the original input (or a controlled test option)
+ // enables the receipt override; anything else keeps the gate.
+ const allowUnresolvedReceipts=input.allowUnresolvedReceipts===true||options.allowUnresolvedReceipts===true,overridden=()=>gate.overridden?{overridden:true,unresolved:gate.receipts}:{};
+ let gate={tasks:[],agents:[],receipts:[],overridden:false};
  try{
   if(fs.existsSync(o.lease))throw fail('DAEMON_MAINTENANCE','另一条维护尚在运行，原意图保留。');fs.writeFileSync(o.lease,JSON.stringify({operationId:input.operationId,pid:process.pid,pidStart:processStart(process.pid)}),{flag:'wx',mode:0o600});acquired=true;
   from=version(input,input.from);const current=read(path.join(input.installPath,'current.json'));if(digest(current)!==digest(from))throw fail('INSTALL_PREVIEW_CHANGED','原版本在批准后发生变化。');
@@ -69,17 +133,27 @@ async function run(input,options={}){
   const helper=path.join(version(input,input.controller).versionPath,'runtime/owned-stop');
   // All installed directories must be trusted before removing any installation.
   if(input.action==='uninstall'){for(const name of fs.readdirSync(input.installPath))if(!['install.json','current.json','previous.json','versions'].includes(name))throw fail('REMOTE_DIRECTORY_UNSAFE','安装含未核对文件，保留目录。');for(const v of fs.readdirSync(path.join(input.installPath,'versions'))){const descriptor=input.releases.find(r=>r.version===v);if(!descriptor)throw fail('SSH_PACKAGE_CHECKSUM','安装含未知版本，保留目录。');version(input,descriptor);}}
-  checkpoint('validated');const p=await peer(input);try{await stop(input,p,helper);}finally{p.close();}stopped=true;checkpoint('stopped');
+  checkpoint('validated');const p=await peer(input);try{gate=await stop(input,p,helper,{allowUnresolvedReceipts});}finally{p.close();}stopped=true;checkpoint('stopped');
   if(input.action==='uninstall'){row.quarantine=path.join(path.dirname(input.installPath),'.uninstalled-'+digest(input.operationId));if(fs.existsSync(row.quarantine))throw fail('REMOTE_DIRECTORY_UNSAFE','隔离回收路径已存在。');checkpoint('uninstalling');fs.renameSync(input.installPath,row.quarantine);checkpoint('uninstalled');}
   if(target){atomic(path.join(input.installPath,'previous.json'),from);atomic(path.join(input.installPath,'current.json'),target);switched=true;checkpoint('activated');if(options.failHealth)throw fail('TEST_HEALTH','受控健康失败。');await start(input,target);await release(input);checkpoint('healthy');}
   else await release(input);
-  row.state='confirmed';row.data={action:input.action,version:target?.version||from.version,historyPreserved:true};write();if(row.quarantine)try{fs.rmSync(row.quarantine,{recursive:true});}catch{/* Inert verified quarantine can be reclaimed by the original receipt query. */}
+  row.state='confirmed';row.data={action:input.action,version:target?.version||from.version,stopped,rolledBack:false,phase:row.phase,historyPreserved:true,...overridden()};write();if(row.quarantine)try{fs.rmSync(row.quarantine,{recursive:true});}catch{/* Inert verified quarantine can be reclaimed by the original receipt query. */}
  }catch(error){
   if(!acquired&&error.code==='DAEMON_MAINTENANCE')return read(o.file).find(r=>r.operationId===input.operationId);
   let rolledBack=false;
-  if(switched&&from){try{try{const p=await peer(input);try{await stop(input,p,path.join(input.installPath,'versions',input.controller.version,'runtime/owned-stop'));}finally{p.close();}}catch(e){if(!['DAEMON_OFFLINE','ECONNREFUSED','ENOENT'].includes(e.code))throw e;}atomic(path.join(input.installPath,'current.json'),from);await start(input,from);await release(input);rolledBack=true;}catch{row.state='unknown';row.error={code:'DAEMON_ROLLBACK_UNCONFIRMED',message:'原维护及回滚尚未确认，请查询原操作。'};write();return row;}}
+  if(switched&&from){try{try{const p=await peer(input);try{await stop(input,p,path.join(input.installPath,'versions',input.controller.version,'runtime/owned-stop'));}finally{p.close();}}catch(e){if(!['DAEMON_OFFLINE','ECONNREFUSED','ENOENT'].includes(e.code))throw e;}atomic(path.join(input.installPath,'current.json'),from);await start(input,from);await release(input);rolledBack=true;}catch{row.state='unknown';row.error={code:'DAEMON_ROLLBACK_UNCONFIRMED',message:'原维护及回滚尚未确认，请查询原操作。'};row.data={action:input.action,rolledBack:false,stopped:true,phase:row.phase,version:from.version,historyPreserved:true};write();return row;}}
   else if(!stopped&&acquired){try{await release(input);}catch{}}
-  row.state=['DAEMON_MAINTENANCE','DAEMON_STOP_TIMEOUT'].includes(error.code)?'unknown':'rejected';row.error={code:error.code||'DAEMON_MAINTENANCE_FAILED',message:error.code?'后台维护失败；原数据保留。':'后台维护失败，请查询原操作。'};row.data={action:input.action,rolledBack,version:from?.version,historyPreserved:true};write();
+  // A terminal rejection may only be written when the original daemon is still
+  // running or was restored. Once it was stopped without a confirmed switch or
+  // rollback the receipt stays unknown, so the original-ID query can restore it
+  // instead of the desktop treating the machine as finished and leaving it down.
+  const restorePending=stopped&&!rolledBack&&['upgrade','rollback'].includes(input.action);
+  row.state=restorePending||['DAEMON_MAINTENANCE','DAEMON_STOP_TIMEOUT'].includes(error.code)?'unknown':'rejected';
+  // A named gate keeps its own wording and blocker detail; the generic wrapper only
+  // replaces failures that carry no user-facing explanation of their own.
+  const details=error?.details&&['tasks','receipts'].includes(error.details.gate)?error.details:undefined;
+  row.error=restorePending?{code:'DAEMON_ROLLBACK_UNCONFIRMED',message:'后台已停止但原版本未确认恢复（'+safeCode(error)+'）；请查询原操作。'}:{code:error.code||'DAEMON_MAINTENANCE_FAILED',message:details&&error.message?error.message:error.code?'后台维护未执行或未完成（'+safeCode(error)+'）；原版本与历史保留。':'后台维护失败，请查询原操作。',...(details?{details}:{})};
+  row.data={action:input.action,rolledBack,stopped,phase:row.phase,version:from?.version,historyPreserved:true,...overridden()};write();
  }finally{if(acquired&&fs.existsSync(o.lease)&&read(o.lease).operationId===input.operationId)fs.unlinkSync(o.lease);}
  return row;
 }
@@ -92,22 +166,36 @@ async function recover(input){
  try{fs.writeFileSync(o.lease,JSON.stringify({operationId:input.operationId,pid:process.pid,pidStart:processStart(process.pid)}),{flag:'wx',mode:0o600});}catch{return row;}
  try{
   const exists=fs.existsSync(input.installPath);
-  if(['uninstalled','uninstalling'].includes(row.phase)&&!exists){row.state='confirmed';row.data={action:'uninstall',historyPreserved:true};}
-  else if(row.action==='stop'&&row.phase==='stopped'){await release(input);row.state='confirmed';row.data={action:'stop',version:input.from.version,historyPreserved:true};}
+  if(['uninstalled','uninstalling'].includes(row.phase)&&!exists){row.state='confirmed';row.data={action:'uninstall',stopped:true,historyPreserved:true};}
+  else if(row.action==='stop'&&row.phase==='stopped'){await release(input);row.state='confirmed';row.data={action:'stop',version:input.from.version,stopped:true,historyPreserved:true};}
   else if(row.phase==='healthy'){
-   const current=read(path.join(input.installPath,'current.json')),live=await inspectDaemon(o.value);if(live.version!==input.target.version||current.version!==input.target.version)throw fail('DAEMON_VERSION_CONFLICT','实际版本未确认。');row.state='confirmed';row.data={action:row.action,version:live.version,historyPreserved:true};
+   const current=read(path.join(input.installPath,'current.json')),live=await inspectDaemon(o.value);if(live.version!==input.target.version||current.version!==input.target.version)throw fail('DAEMON_VERSION_CONFLICT','实际版本未确认。');row.state='confirmed';row.data={action:row.action,version:live.version,stopped:true,rolledBack:false,historyPreserved:true};
   }else if(row.phase==='intent'){row.state='rejected';row.error={code:'DAEMON_NOT_STARTED',message:'原维护未到版本或进程变更阶段。'};}
   else{
    const from=version(input,input.from),current=read(path.join(input.installPath,'current.json'));
    if(![input.from.version,input.target?.version].includes(current.version))throw fail('INSTALL_PREVIEW_CHANGED','版本来源已变化，保留原维护。');
    try{const p=await peer(input);try{await stop(input,p,path.join(input.installPath,'versions',input.controller.version,'runtime/owned-stop'));}finally{p.close();}}catch(e){if(!['DAEMON_OFFLINE','ECONNREFUSED','ENOENT'].includes(e.code))throw e;}
-   atomic(path.join(input.installPath,'current.json'),from);await start(input,from);await release(input);row.state='rejected';row.error={code:'DAEMON_RECOVERED_ROLLBACK',message:'原维护中断，已按原收据恢复原版本。'};row.data={action:row.action,rolledBack:true,version:from.version,historyPreserved:true};
+   atomic(path.join(input.installPath,'current.json'),from);await start(input,from);await release(input);row.state='rejected';row.error={code:'DAEMON_RECOVERED_ROLLBACK',message:'原维护中断，已按原收据恢复原版本。'};row.data={action:row.action,rolledBack:true,stopped:true,version:from.version,historyPreserved:true};
   }
   commitRow(o.file,row);
  }catch{/* Incomplete proof preserves unknown and the original task barrier. */}finally{if(fs.existsSync(o.lease)&&read(o.lease).pid===process.pid)fs.unlinkSync(o.lease);}
  return row;
 }
-function query(input){const o=opts(input);return mutateRows(o.file,rows=>{const row=rows.find(r=>r.operationId===input.operationId);if(row?.state==='unknown'&&row.workerPid&&(!row.workerStart||processStart(row.workerPid)!==row.workerStart)){
+/** The recorded maintenance worker is gone, so the durable row can be reconciled
+ * by the detached recovery worker. A row that never recorded a worker is only
+ * treated as abandoned after a grace period: launch() commits the durable row
+ * before spawning the worker, and a query may arrive between the two commits.
+ * Without this, a row whose workerPid was never written (controller killed
+ * between the commits) could never reconcile and the desktop would keep the
+ * maintenance barrier forever. */
+function abandoned(row){
+ if(!row)return false;
+ if(row.workerPid)return !(row.workerStart&&processStart(row.workerPid)===row.workerStart);
+ if(row.phase&&row.phase!=='intent')return true;
+ const stamp=Date.parse(row.createdAt||row.updatedAt||'');
+ return Number.isFinite(stamp)&&Date.now()-stamp>60000;
+}
+function query(input){const o=opts(input);return mutateRows(o.file,rows=>{const row=rows.find(r=>r.operationId===input.operationId);if(row?.state==='unknown'&&abandoned(row)){
  const source=path.join(o.info.stateDirectory,'maintenance-input-'+digest(input.operationId)+'.json');
  if(fs.existsSync(source)){const child=spawn(process.execPath,[__filename,'--recover',source],{detached:true,stdio:'ignore'});child.unref();row.workerPid=child.pid;row.workerStart=processStart(child.pid);}
  }return row||{operationId:input.operationId,state:'not_found'};});}

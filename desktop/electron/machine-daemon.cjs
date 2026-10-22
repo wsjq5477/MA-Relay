@@ -18,7 +18,10 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const now = () => new Date().toISOString();
 const own = value => value && Object.getPrototypeOf(value) === Object.prototype;
 const validId = value => typeof value === 'string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
-const methods = new Set(['dsh.status', 'dsh.configure', 'mcp.status', 'mcp.install', 'mcp.remove', 'mcp.export', 'snapshot', 'discover', 'context', 'scope', 'ipc', 'environment', 'connect']);
+const methods = new Set(['dsh.status', 'dsh.configure', 'mcp.status', 'mcp.install', 'mcp.remove', 'mcp.export', 'mcp.revoke', 'mcp.probe', 'snapshot', 'discover', 'context', 'scope', 'ipc', 'environment', 'connect']);
+// mcp.revoke persists the revocation, so it is a configuration mutation. mcp.probe
+// is read-only and deliberately stays outside this gate.
+const configurationMutations = ['dsh.configure','context','connect','mcp.install','mcp.remove','mcp.revoke','mcp.export'];
 const mutations = new Set(['submit', 'continue', 'verify', 'reply', 'cancel']);
 const knownRejections = new Set(['INVALID_INPUT', 'REQUEST_CONFLICT', 'AGENT_BUSY', 'AGENT_UNHEALTHY', 'TASK_NOT_FOUND', 'CONVERSATION_NOT_FOUND', 'CONVERSATION_CONFIG', 'CONVERSATION_BUSY', 'EXECUTION_MISMATCH', 'REQUEST_NOT_FOUND', 'STALE_OPERATION', 'PERMISSION_NOT_FOUND', 'PERMISSION_REPLIED', 'NODE_NOT_FOUND', 'WORKSPACE_UNAVAILABLE', 'DISCOVERY_CHANGED', 'NOT_CONFIGURED', 'ADAPTER_UNSUPPORTED']);
 
@@ -267,7 +270,7 @@ async function startDaemon(options) {
       if (row && row.state !== 'confirmed') return queryRecord(row);
     }
     if (method !== 'ipc' || !mutations.has(params.op)){
-      if(['dsh.configure','context','connect','mcp.install','mcp.remove','mcp.export'].includes(method)){if(maintenance)throw fail('DAEMON_MAINTENANCE','后台正在维护，不接受配置变更或新执行上下文。');admissions++;try{return await host.call(method,params);}finally{admissions--;}}
+      if(configurationMutations.includes(method)){if(maintenance)throw fail('DAEMON_MAINTENANCE','后台正在维护，不接受配置变更或新执行上下文。');admissions++;try{return await host.call(method,params);}finally{admissions--;}}
       return host.call(method,params);
     }
     const key = receiptKey(params);

@@ -1,5 +1,54 @@
 # M06 原生 Agent 适配器测试报告
 
+2026-10-22 日常 OpenDesk 原生父模型只读发现已补验：离线修复诊断条目后，真实父模型调用 list_agents 1 次成功，返回 7 个获准节点；Prompt 1、子任务 0。自主委派与日常原生页面仍未验，不并入历史回归计数。[现场证据](../../iterations/I08/opendesk-mcp-diagnostic-repair.md)。
+
+## 后续原生组件验收（2026-10-22，alpha.46）
+
+已安装OpenDesk/DSH原生MCP组件协议分别5组/6组通过；两条生产协作链各完成1个真实Claude子任务，并分别只读重开原任务/Session/结果，无重放。原生父模型自主决策与日常原生页面未验；产品运行代码与EXE未变，不把新增验收与原全量计数叠加。[脚本、初次失败、准确层级和未测项](../../iterations/I08/mcp-native-acceptance.md)。
+
+## MCP02恢复与观测（2026-10-22）
+
+OpenDesk选择Node后再渲染所有导出格式，恢复保存的launcherPath；OpenCode数组command正确拆成程序/参数。配置绑定和60秒有效期限制观测复用。 WSL Node22.23.1共享桌面758/758、根68/68通过，最终JSON修复后CLI11/11及类型/lint/核心构建通过；模型0，真实原生模型委派未测，Windows结果按专项登记。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+
+2026-10-22 / OpenDesk Desktop 0.3.9：已安装原网关的真实执行、续聊与普通EXE窗口重开通过；无运行代码变更，不将历史自动测试计为今日重跑。分层计数与未测项见[现场专项](../../iterations/I08/opendesk-desktop-live.md)。
+OpenDesk相关验证统一见[专项报告](../../iterations/I08/opendesk-existing-interfaces.md)，明确受控协议、真实原生启动、模型和Windows包的独立范围；共享计数不跨模块累加，未执行项保持未测。
+
+## OpenDesk 原生可见性修复（2026-10-22，alpha.45）
+
+T-M06-MCP02OD / M06-F02：在**用户真实 OpenDesk Desktop 0.3.9** 上定位并修复“原生 MCP 列表看不到 AgentBridge”。两个根因：
+
+1. **stdio 服务未响应 `server/discover`**（Bridge 侧真 bug）：OpenDesk 使用 2026-07-28 协议修订，会在 `initialize` 前探测 `server/discover`；Bridge 原先返回 JSON-RPC 错误，严格客户端因此判定连接失败。修复为返回 `supportedVersions`+`capabilities:{tools:{}}`（[mcp-client.cjs](../../../desktop/electron/mcp-client.cjs#L11)）；受控 `desktop/tests/mcp-client-protocol.test.cjs` **2 例**（discover 不回错误并声明版本、discover 之后 `initialize`/`tools/list` 仍可用）。
+2. **OpenDesk 无法启动 Bridge 的 Electron 运行时**：`%APPDATA%\agentbridge-desktop\windows\runtime\electron-44.7.0-x64\AgentBridge.exe` → `命令未找到`；整目录复制到 D 盘 → `MCP error -32000: Connection closed`；系统 `node.exe` 启动同一 `mcp-client.cjs` → 正常。修复为 OpenDesk 两个入口**优先使用 PATH 中真实 Node 启动器**（`nodeLauncher()`），状态新增 `launcher:'node'|'electron'`，Electron 回退时界面提示先安装 Node；受控 `mcp-integration.test.cjs` 新增“OpenDesk native entries prefer a real Node launcher over the Electron runtime”。
+
+真实原生结果（模型0，用户真实配置）：写入稳定条目并**完全重启 OpenDesk** 后，原生日志 `[mcpmgr] Initialized with 1 server configs` → `Connecting to "AgentBridge" (stdio)...` → `Connected to "AgentBridge", discovered 7 tools`；用户可在 OpenDesk “MCP 管理 → 已安装 MCP”看到 AgentBridge/STDIO/已连接/7 工具。对照实验（最小自写 MCP 服务）可连接并 `discovered 1 tools`，证明配置位置与格式正确。证据：`artifacts/mcp-open-integration/evidence/opendesk-native-mcp-verified.txt`（含失败与成功两阶段原始日志）。
+
+**边界（不得写成调用已通过）**：该条目是用于原生可见性验证的**诊断条目**，descriptor token 不是真实授权，因此不能据此声称工具调用通过；真实授权需用 alpha.45 在 Bridge 对 OpenDesk Desktop 点“添加 Bridge MCP”（覆盖同一 `id=agentbridge`）后再重启验证调用；工具实际调用、授权与结果归属未验。回归：桌面 **753/753**（新增 3 例含本项 launcher 与 protocol 用例）；根测试直接运行 **66/66**（`npm test` 外壳曾超时，改直接运行并按此记录）；根 typecheck/eslint src/build 与桌面 tsc 通过。alpha.45 候选 EXE 130177443 字节、SHA-256 `35674f6c…`、`verify-package --portable` passed（digest `195081305a…`），未签名、未公开、未在真实 Windows 启动（T16 待执行）。[§14](../../iterations/I08/mcp-open-integration.md#14-opendesk-原生-mcp-可见性修复2026-10-22alpha45)
+
+## DSH CLI 显式 profile 适配（2026-10-22 晚补）
+
+同日补齐 DSH CLI 的原生配置管理：`mcp.status|export|install|remove|revoke|probe` 接受可选 `profile`（仅 `dsh`；DSH Web 固定 `web` 且不暴露该参数），原生目标为 `$DSH_HOME/profiles/<profile>/cordis.patch.yml`，写入仍是单一 `insert:` 行 + `@deepseek-ai/dsh-mcp-client`。名称按单段目录校验 `^[a-z0-9][a-z0-9-]{0,63}$`，`../escape`/`a/b`/空串/大写/前导 `-` 拒绝且不产生逃逸文件；未指定时 `mcp.status` 返回 `nativeSupport:false`+`MCP_DSH_PROFILE_REQUIRED`+`profile:null`，`mcp.install`/`mcp.remove` 同码拒绝，`mcp.export` 仍出片段；连接行落 `profile`，`status` 回显、省略参数用登记值，`mcp.remove` 只清理登记的那个 profile（其他 profile 逐字节不变）；安装后 `facts.nativeLoad:'reload_required'`，不宣布已连接。`dsh` 的 `nativeMcpConfig` 由 false 改为 **true**（产品级适配存在但需显式 profile），`dsh-desktop` 仍 false；桌面 `dsh` 行新增 profile 输入框，CLI 新增 `--profile NAME`（`MCP_DSH_PROFILE_REQUIRED` → 退出码2）。
+
+测试（Lead 实跑，定稿全量基线）：桌面全量 **tests 750 / pass 750 / fail 0**；根 `npm test` **66/66**；`mcp-integration.test.cjs` **22/22**（新增五项 DSH profile 用例：无 profile 拒绝、写入仅落在指定 profile、`status` 回显登记 profile、`remove` 只清理该 profile、非法 profile 拒绝且不产生逃逸文件）；`connection-capabilities` 11/11、`mcp-local-machine` 2/2、界面组（connection-ui + mcp-status-facts-ui + agent-configuration-ui）**24/24**、`tests/mcp-cli.test.ts` 9/9；根 `typecheck`/`eslint`/`build` 与桌面 `tsc --noEmit` 通过。计数为全工程共享，不跨模块相加。
+
+真实原生（模型0，受控 scratch `DSH_HOME`）：用产品代码 `localMcpHost().call('mcp.install',{adapter:'dsh',profile:'acp'})` 写入 `$DSH_HOME/profiles/acp/cordis.patch.yml` 后，真实 `dsh --profile acp` 启动中捕获到 `server/discover`→`-32603` 回退→`initialize`→`notifications/initialized`→`tools/list`→**7 个工具**，即显式 profile 下 CLI 家族确实加载该条目并完成握手（`dsh-acp-handshake.txt`；`dsh-acp-boot.txt` 为空输出）。限制：未观测 TUI 启动、用户自建 profile 与真实用户 profile；名称合法但写错 profile 仍会静默写入不被加载的目录；原生 UI 人工可见/删除/禁用/编辑待执行；无真实 ACP 客户端会话，只验证到协议握手与工具目录，不含模型委派；采集用的透传 wrapper 不是产品路径；安装后 Bridge 仍只报 `nativeLoad:'reload_required'`（不代用户宣称已连接）；原生 UI 人工可见/删除/禁用/编辑与真实用户 profile 未验；profile 名称由用户提供，Bridge 只能校验其为安全单段目录名，不能证明它就是当前启动所用的 profile（写错不会报错，只会写到不被加载的目录）。契约见[本轮§12.5](../../iterations/I08/mcp-open-integration.md#125-dsh-cli-显式-profile-原生配置2026-10-22-晚补)。
+
+## 真实原生探测补充（2026-10-22 晚）
+
+同日补充两组真实原生探测，模型0、隔离 profile、不改用户真实配置、输出脱敏；不改动上一节的计数。
+
+- **DSH Web 真实握手通过（受控 profile）**：在 scratch `DSH_HOME`（`profiles/web` 复制自真实 profile，`node_modules` 软链真实 `~/.dsh/profiles/node_modules`）用产品代码 `localMcpHost().call('mcp.install')` 写入真实 `cordis.patch.yml`，再启动真实 `dsh --profile web --host 127.0.0.1 --port 0 --no-open`。记录的 JSON-RPC：原生先探 `server/discover`（服务返回`-32603`未知方法后回退）→ `initialize` → `notifications/initialized` → `tools/list`，Bridge 返回 **7 个工具**。由此 DSH Web 四项真实原生事实成立：配置存在、原生已加载、连接握手、工具目录可用（`ownership:bridge`、`authorization:valid` 由登记决定）。证据：`artifacts/mcp-open-integration/evidence/dsh-live-mcp-handshake.txt`、`dsh-live-boot.txt`。**未验证**：把 `command` 改成 `/nonexistent` 的对照在 launcher 输出里看不到错误（DSH 插件日志不进 stdout），所以“失败会显式暴露”不得写成已验证；原生 UI 人工可见/删除/禁用/编辑与真实用户 profile 未验。
+- **OpenDesk CLI 0.3.8 负面证据（第一优先级缺口，结论已升级为“无 MCP 管理面”）**：`opendesk plugins list` 的 11 个 builtin 插件无 MCP 管理插件、`opendesk plugins tools` 无插件工具；`OPENDESK_CONFIG_DIRECTORY=<临时目录> opendesk tools list` 只有 `filemgr`/`search`/`terminal`/`todomgr`/`devicemgr`/`memory`/`planning`，**没有** `mcpmgr`/MCP 分区，也没有原生 MCP 列表命令；按 Bridge 当前写法写入 `applications.mcpmgr.servers` 后启动 OpenDesk，启动完成时 `applications` 被重写为 `{}`，连 `applications.devicemgr` 与未知 app 段一并丢弃；真实 `~/.opendesk` 没有 `setting.json`，只有 `~/.opendesk/apps/<app>/...`。结论：**OpenDesk CLI 0.3.8 不存在可供 Bridge 写入并被原生读取的 MCP 管理面**。代码已收敛：CLI `nativeMcpConfig=false`，`mcp.install` 以 `MCP_NATIVE_CONFIG_UNSUPPORTED` 拒绝、`mcp.export` 仍出片段；Desktop 的原生读取随后在 alpha.45 修复并验证（见上节）。受控 `mcp-integration` 现为 **22/22**（新增 CLI 不支持/导出可用与 Desktop 写入候选条目）；定稿全量桌面 **750/750**、根 `npm test` **66/66**，根 typecheck/eslint/build 与桌面 tsc 通过。本模块`T-M06-OD-03` 的 MCP 数组保留/冲突受控结论仅说明“Bridge 侧写入行为”，不代表原生读取。证据：`artifacts/mcp-open-integration/evidence/opendesk-tools-list.txt`。仍需在**安装 `mcpmgr` 的真实 profile**上复核；本轮未改代码，[静态注册表](../../../desktop/electron/builtin-adapters.cjs#L19) 仍声明 OpenDesk `mcpClient:true`，与上述未知状态的差异已登记在[本轮§12](../../iterations/I08/mcp-open-integration.md#12-真实原生探测补充2026-10-22-晚)。
+
+## 开放MCP接入第一片（M06-F02/F04）
+
+2026-10-22 / alpha.43派生工作源码 / WSL Node22.23.1：本轮同机定稿全量 `cd desktop && node --test tests/*.test.cjs` 为 tests **750** / pass **750** / fail 0（当日首轮 747/747（58.4s），加入 DSH profile 与 OpenDesk 用例后定稿 750/750，见下两节），根 `npm test` 66/66，根 `typecheck`/`lint`/`build` 与桌面 `tsc --noEmit` 通过；这些是全工程共享计数，不跨模块相加。MCP专项受控结果：`mcp-integration.test.cjs` 19/19（新增“宿主不传调用方候选时经发现/PATH解析原生可执行文件”的生产形状用例；含DSH Web单`insert:`行与注释保留、原生列表与Bridge stdio工具目录分列、撤权保留条目、外部删除后重启不补回、重装轮换身份）、`connection-capabilities.test.cjs` 11/11（十入口能力三维、独立调用方准入、托管scope单独拒绝）、`mcp-local-machine.test.cjs` 2/2（Linux本机仅路由`mcp.*`、重启不重写用户删除的条目）。
+
+真实原生但受控profile、模型0：Claude `mcp.install`后`mcp.probe`六项事实全部已知，`claude mcp list` 报 `✔ Connected`，Bridge工具目录7项；Codex `codex mcp list` 列出 agentbridge（`Status enabled`），`connection`保持“未知”（codex list 不做健康检查）；DSH Web 写入后 `--profile web --dump-config` 组合输出含该行。原始文件见[本轮证据](../../iterations/I08/mcp-open-integration.md#115-证据位置)；这些是“写入→原生列表→工具目录”的证据，**不是**真实删除、真实禁用/编辑、获准只读调用或真实主调用链验收。
+
+限制：未运行模型、未写用户真实原生配置；同日稍后已构建并核验本地候选 alpha.44（包一致性 passed），但**未在真实 Windows 启动该 EXE**；OpenDesk两个入口的原生MCP列表仍未核对到；Hermes/Pi的MCP客户端能力保持未确认；DSH Desktop无Bridge可管理的原生配置路径（DSH CLI 已补显式 profile，见下节）；WSL本机机器的`mcp.*`路由仍为缺口（Linux本机与Windows本机已实现）。逐入口完成度与MCP02-T01..T18状态见[本轮记录](../../iterations/I08/mcp-open-integration.md#114-逐入口完成度)。
+
+2026-10-21 / M06-F01 / alpha.40 源码：WSL Node22.23.1 定向97/97、全桌面705/705，计数共享不相加。真实阿里云 alpha.37/OpenCode2.0.26 只读确认原进程 OOM；用户批准临时Swap后原服务健康、原Task/Conversation各1→1、设置与Agent归属保留，原接入拒绝收敛，随后一次管理核验confirmed，Prompt新增0。此次为带外恢复，非新EXE/GUI/模型推理验收。[原始证据、失败与限制](../../iterations/I08/opencode-oom-recovery.md)。
+
 ## alpha.36整合边界
 
 2026-10-21 / WSL Node22.23.1：本轮全量核心57/57、桌面676/676，类型/lint/前端构建通过。各模块共享计数不相加；包核验、Windows契约144/144、界面26组与普通EXE7组通过，具体以专项为准，真实模型/用户profile/独立SSH未验。[完整交付](../../iterations/I07/alpha36-delivery.md)。

@@ -53,7 +53,37 @@ API 让 Bridge 直接操作正在运行的 Desktop / Web 会话服务，沿用�
 | 输出与结果 | 按原生轮次读取输出及状态 |
 | 取消与恢复查询 | 操作和查询原请求，结果未知时不重发 |
 | 普通被委派 | 可作为获准目标接收其他 Agent 的任务 |
-| 主动调用 Bridge MCP / 小队成员 | 当前未接入 |
+| 主动调用 Bridge MCP | 已声明具备 MCP 客户端能力；**DSH Web** 的原生 MCP 配置可由 Bridge 管理并在真实启动中被读取（`$DSH_HOME/profiles/web/cordis.patch.yml` 的一行补丁）；**DSH CLI** 也可管理，但要你指定启动时使用的 profile（`$DSH_HOME/profiles/<profile>/cordis.patch.yml`）；**DSH Desktop** 只能导出标准片段，需按原生文档自行添加。三者都使用已安装的 `@deepseek-ai/dsh-mcp-client` |
+| 小队成员 / 托管会话注入 | 当前未接入；这不影响独立 MCP 调用 |
 | 权限与原生提问 | 在 DSH 原生界面处理，Bridge 内暂不提供回复 |
+
+## 原生 MCP 配置（DSH Web）
+
+在 DSH Web 节点行点击“配置”的 MCP 接入区，可以添加、移除、撤销授权或重新探测原生列表。Bridge 只写自己那一行补丁，保留你在 `cordis.patch.yml` 里的注释和其他条目；如果该文件已存在但为空或只有注释，Bridge 会报错并保留原文件，不会覆盖成空数组。`$DSH_HOME/profiles/web` 目录还不存在时，Bridge 会提示“先启动一次 DSH Web”，不会替你创建 profile。
+
+添加后 Bridge 只显示“需要原生重新加载”，由 DSH 自己应用配置补丁（开启热更新时即时生效）；Bridge 不会替你宣称已连接或工具已可用，请在 DSH 自己的 MCP 列表核对。你在 DSH 里删除这一行后，Bridge 只刷新识别，不会自动补回。
+
+在一次隔离 profile 的真实启动里，DSH Web 主动读取了这条配置、完成 MCP 握手并列出了 Bridge 的 7 个工具，说明这条补丁行确实会被原生加载。但如果把启动命令写成不存在的路径，启动输出里不会报错（DSH 的连接错误不打印到终端），所以“配置写错会看到明显报错”并不成立，请以 DSH 界面为准。
+
+## 原生 MCP 配置（DSH CLI，需要指定 profile）
+
+DSH CLI 的配置文件跟着你启动 `dsh` 时选择的 profile 走，所以 Bridge 不猜默认值，需要你告诉它：
+
+1. 在 DSH CLI 节点行的“配置”里填写“DSH 原生 profile”（与启动 dsh 时使用的名称一致），或使用命令行 `--profile`。
+2. 点击“添加 Bridge MCP”，Bridge 只写这一个 profile 的补丁层：`$DSH_HOME/profiles/<profile>/cordis.patch.yml` 的一行条目。
+3. 重新启动该 profile 的 dsh，在 DSH 自己的 MCP 列表里核对。
+
+命令行示例（不开窗口，经运行中的后台执行，不启动模型）：
+
+```text
+agentbridge mcp install --node <DSH节点ID> --profile <启动 dsh 时使用的 profile>
+agentbridge mcp status  --node <DSH节点ID> --profile <同上>
+```
+
+不指定 `--profile` 时，添加与移除会被拒绝（提示需要 profile），只能生成配置片段；profile 名称只能是小写字母、数字和连字符，Bridge 会校验并拒绝带路径分隔符或 `..` 的名称。删除时只清理你登记的那个 profile，其他 profile 的配置文件不会被改动。
+
+注意：Bridge 只能校验名称是否安全，不能确认它就是你现在启动的那个 profile。写错名称不会报错，只会写到一个不会被加载的目录。我们已经在 DSH 自带的 `acp` profile 上真实启动核对过：Bridge 写入的条目会被加载，DSH 会主动连接并列出 7 个工具；但你自己的 profile 和交互式终端使用方式没有逐个核对，添加后仍请在 DSH 界面确认。
+
+DSH Desktop 使用应用保留配置，Bridge 没有已核对的落点，只提供 `agentbridge mcp export --node 节点ID` 生成片段。
 
 CLI 与服务入口的连接方式不同，不能用 CLI 的可用性代替 Desktop / Web 的连接结果。更多比较见[接入方式与功能总览](index.md)和[六种方式比较](../integration-methods.md)。

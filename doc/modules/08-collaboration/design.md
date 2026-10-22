@@ -1,5 +1,13 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+## MCP02恢复与观测（2026-10-22）
+
+MCP连接和工具目录观测不授予主角色，不证明原生调用或委派。撤权后已连接stdio客户端立即被拒绝，外部配置删除只改变配置事实。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+
+I08-MCP02统一开放MCP与双向配置已完成源码第一片：主角色准入与托管任务scope注入分开判定，独立MCP调用方可以作主而托管绑定单独显示为未适配，见本页[主角色准入与托管scope](#主角色准入与托管scope注入的分离)；逐入口真实原生验收仍待执行。[本轮开发与验收记录](../../iterations/I08/mcp-open-integration.md)。
+
+OpenDesk可以接收普通委派。独立原生MCP连接以单独connectionId按已保存的关系委派和读取结果，撤权先于配置删除；托管会话scope与小队未适配，在业务意图落盘和原生派发前拒绝。独立MCP能力不推导临时scope能力。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
+
 ## alpha.36整合边界
 
 M08-F01：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
@@ -38,7 +46,7 @@ M08-F02/F05：McpIntegration登记长期外部接入并导出独立三格式文�
 
 连接核心、各Agent方向能力与后续目标见[接入矩阵](../../agent-integration-matrix.md)，通信负载、可选ACP、Multica及公共MD/上下文方案见[研究](../../iterations/I07/connectivity-research.md)。未新增协议、原生执行或公开能力。
 
-Hermes/Pi/DSH 直接会话尚未实现 Bridge MCP 注入，`teamCollaboration=false`，MachineHost 在配置协作 scope 前明确拒绝，因此不能作为Bridge MCP调用方或原生小队成员。经典delegate以`collaboration:false`提交普通子任务，其被调用源码路径可达，但未进行三种真实Agent委派/最终包验收；不能把不能注入MCP等同于不能被委派。CT-01已按调用方/被调用方分别统一关系、任务与界面门禁，受控完整普通委派链通过；真实工具与最终包仍未验。自定义原生适配器要另行实现作用域注入并验收后才声明调用方能力。[扩展范围](../../iterations/I07/native-agent-expansion.md)、[开发指南](../../custom-agent-development.md)。
+Hermes/Pi/DSH 直接会话尚未实现 Bridge MCP 注入（`hostManagedTask=false`），MachineHost 在配置协作 scope 前明确拒绝；其中 DSH 已声明具有MCP客户端（可独立配置调用），Hermes/Pi 的MCP客户端能力保持未确认。托管scope能力与独立MCP调用能力分开判定：能独立调用不等于能接收Bridge注入的托管scope，反之亦然。经典delegate以`collaboration:false`提交普通子任务，其被调用源码路径可达，但未进行三种真实Agent委派/最终包验收；不能把不能注入MCP等同于不能被委派。CT-01已按调用方/被调用方分别统一关系、任务与界面门禁，受控完整普通委派链通过；真实工具与最终包仍未验。自定义原生适配器要另行实现作用域注入并验收后才声明调用方能力。[扩展范围](../../iterations/I07/native-agent-expansion.md)、[开发指南](../../custom-agent-development.md)。
 
 业务验收除原生成功终态外，还须当前有效执行没有continuationError：工作项按当前业务轮次最后一次尝试，独立协调按每成员最后一次尝试。旧轮次/已被后续执行取代的异常保留历史但不永久阻塞。任务验收、直接总验收及延后提议生效前均核对，不改写Core原生终态。该规则尚未进入公开 EXE，[规则与验证](../../iterations/I07/acceptance-native-binding.md)。
 
@@ -143,9 +151,25 @@ flowchart LR
 
 ## 4. 保存关系
 
+## 主角色准入与托管scope注入的分离
+
+M08-F01/F02/F05：本轮把“能否调用Bridge MCP”和“能否把一次托管任务绑定到单次scope”拆成两个独立答案，二者不再互相代替：
+
+| 判定 | 依据 | 用途 |
+| --- | --- | --- |
+| 可作主Agent | `execution=true` 且 `mcpClient=true`（旧投影`bridgeMcp`） | 设为主、发现获准子节点、发起新委派 |
+| 可接收普通委派 | 目标 `delegation=true` | 经典`delegate`（`collaboration:false`） |
+| 可注入托管scope | `hostManagedTask=true` 且节点未显式声明不支持 | 由Bridge托管的单次任务注入 |
+
+因此OpenDesk/DSH Web这类“有MCP客户端但托管注入未适配”的入口可以作主并保存子节点授权，只是不能走Bridge托管的scope注入；被拒绝的只是该执行场景，返回明确的“独立MCP接入可用、托管注入未适配”，不回退成“不能调用MCP”。Hermes/Pi 仍为普通被委派目标，`mcpClient`未确认时不会被推断为可作主。
+
+任务归属规则不变：托管任务保留原`parentRequestId`/Task/Conversation作用域；独立会话以`connectionId`归属，不伪造父Task、不降级到无任务绑定的全局身份。删除/禁用MCP后主角色历史保留，但新委派被阻止并说明真实原因，不自动清空原关系、旧任务或unknown占位。前端、中央、MachineHost与daemon使用同一套语义。
+
+实现落点：[builtin-adapters.cjs](../../../desktop/electron/builtin-adapters.cjs#L119)（`supportsTeamCollaboration`/`supportsIndependentMcp`/`connectionCapabilities`）、[agent-network.cjs](../../../desktop/electron/agent-network.cjs#L225)（协作派遣前的能力准入）、[machine-host.cjs](../../../desktop/electron/machine-host.cjs#L117)（`scope` 只按托管维度拒绝）、[connection-capabilities.ts](../../../desktop/src/connection-capabilities.ts#L1)（界面同一口径与理由文案）。受控用例见[本模块报告](test-report.md)；真实独立主调用链与托管委派仍未验收。
+
 ### 当前连接能力与恢复
 
-M08-F01/F02/F03/F05/F06：保存新关系要求主节点execution=true且bridgeMcp=true，子节点delegation=true；本机静态注册与明确元数据收窄共同决定。经典delegate子任务使用collaboration:false，Hermes/Pi/DSH可被普通委派，不能作为MCP调用方或原生小队成员。已有原操作/委派先查询，不让新能力检查阻断恢复；历史关系展示保留但不能据历史主身份新发协作任务。MCP list_agents追加能力/来源，不泄漏执行/模型/认证配置。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
+M08-F01/F02/F03/F05/F06：保存新关系要求主节点execution=true且具备MCP调用能力（`mcpClient`；旧快照的`bridgeMcp`为同一投影），子节点delegation=true；本机静态注册与明确元数据收窄共同决定。托管任务scope注入是独立维度（`hostManagedTask`），不再是作主的前提，见[主角色准入与托管scope注入的分离](#主角色准入与托管scope注入的分离)。经典delegate子任务使用collaboration:false，Hermes/Pi/DSH可被普通委派，不能作为MCP调用方或原生小队成员。已有原操作/委派先查询，不让新能力检查阻断恢复；历史关系展示保留但不能据历史主身份新发协作任务。MCP list_agents追加能力/来源，不泄漏执行/模型/认证配置。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
 
 用户提交 operationId、expectedRevision 和完整主/成员集合。后台先查原收据，同 ID 同内容返回原结果；改变内容返回 OPERATION_CONFLICT。新保存校验所有节点存在、已接入并支持执行、唯一主、无重复/自连与期望修订，随后在 agent-network.json 同一次原子替换中提交关系 revision+1 和 relationOperations 收据。坐标/状态不能成为授权。过期修订返回 REVISION_CONFLICT，前端保留草稿；收据最多 4096 项，到限明确拒绝，不删除未确认历史来释放占位。兼容旧内部调用不带 operationId 时返回原 collaboration 形状；新图入口总使用稳定 ID 和中央图意图台账。
 

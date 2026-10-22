@@ -43,7 +43,7 @@
  */
 
 const capabilityNames = new Set([
-  'execution', 'delegation', 'bridgeMcp',
+  'execution', 'delegation', 'bridgeMcp', 'mcpClient', 'nativeMcpConfig', 'hostManagedTask',
   'resume', 'cancellation', 'permissions', 'forms', 'verification', 'teamCollaboration',
 ]);
 const definitionKeys = new Set(['id', 'name', 'commands', 'npmEntrypoints', 'capabilities', 'driver', 'createHost']);

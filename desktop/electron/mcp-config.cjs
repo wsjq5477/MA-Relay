@@ -3,9 +3,13 @@ const path = require("node:path");
 const { randomUUID } = require("node:crypto");
 const jsonc = require("jsonc-parser");
 const toml = require("smol-toml");
+const YAML = require("yaml");
 const fail = (code, message) => Object.assign(new Error(message), { code });
 const begin = "# BEGIN AgentBridge managed MCP";
 const end = "# END AgentBridge managed MCP";
+// One native AgentBridge entry per product family. DSH keeps its row id stable so
+// a user can find, edit or delete exactly this entry in the native patch file.
+const dshRowId = "agentbridge-mcp";
 function read(file) {
   try {
     return fs.readFileSync(file, "utf8");
@@ -34,7 +38,29 @@ function parse(text, adapter) {
     );
   }
 }
-function location(adapter, home, env) {
+function dshHome(home, env) {
+  return env.DSH_HOME || path.join(home, ".dsh");
+}
+// DSH Web is the one DSH surface with an unambiguous on-disk profile. The CLI
+// profile is a launch argument and Desktop owns an application profile, so
+// neither is guessed here.
+// A DSH profile name is a directory under `$DSH_HOME/profiles`. It is chosen by
+// the user (Web ships `web`; the CLI picks whichever profile it was launched
+// with), so it is validated as a single safe path segment and never guessed.
+const dshProfilePattern = /^[a-z0-9][a-z0-9-]{0,63}$/;
+function dshProfile(value) {
+  if (typeof value !== 'string' || !dshProfilePattern.test(value))
+    throw fail("MCP_DSH_PROFILE_REQUIRED", "请提供 DSH 的原生 profile 名称（例如 web 或启动 dsh 时使用的 profile），它决定 Bridge 写入哪个原生配置。");
+  return value;
+}
+function dshPatchFile(home, env, profile) {
+  const name = dshProfile(profile);
+  return path.join(dshHome(home, env), "profiles", name, "cordis.patch.yml");
+}
+function location(adapter, home, env, profile) {
+  if (adapter === "dsh-web") return dshPatchFile(home, env, "web");
+  if (adapter === "dsh") return dshPatchFile(home, env, profile);
+  if (['opendesk', 'opendesk-desktop'].includes(adapter)) return path.join(require('./opendesk-connection.cjs').nativeHome({home,environment:env}), 'setting.json');
   if (adapter === "codex")
     return path.join(
       env.CODEX_HOME || path.join(home, ".codex"),
@@ -53,9 +79,20 @@ function location(adapter, home, env) {
         ),
       "opencode.jsonc",
     );
+  if (adapter === 'dsh-desktop')
+    throw fail(
+      "MCP_NATIVE_CONFIG_UNSUPPORTED",
+      "DSH Desktop 使用应用保留 profile，尚未核对到可管理的原生配置路径；请在 DSH Desktop 原生设置中添加 AgentBridge MCP。",
+    );
   throw fail("MCP_UNSUPPORTED", "这个 Agent 尚未提供可验证的 MCP 配置格式。");
 }
 function nativeEntry(adapter, config, protocol = 'v2') {
+  if (['dsh-web', 'dsh'].includes(adapter)) return {
+    id: dshRowId,
+    name: "@deepseek-ai/dsh-mcp-client",
+    config: {serverName: "agentbridge", transport: "stdio", command: config.command, args: config.args, env: config.env},
+  };
+  if (['opendesk', 'opendesk-desktop'].includes(adapter)) return {id:'agentbridge',name:'AgentBridge',transport:'stdio',enabled:true,command:config.command,args:config.args,env:config.env};
   if (adapter === "opencode")
     return {
       type: "local",
@@ -78,11 +115,62 @@ function equal(a, b) {
       : value;
   return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
 }
+// ---------------------------------------------------------------- DSH patches
+// A DSH user patch layer is a top-level YAML array of loader patch rows. A new
+// entity is added with `- insert: [row]`; an id-only patch replaces an existing
+// row's config. Bridge therefore owns exactly one insert row, edited through the
+// YAML document so user comments, anchors and unrelated entries survive.
+function dshDocument(text, file) {
+  let doc;
+  // A missing patch file is "no layer" for DSH and may be created for the user;
+  // an existing empty or comments-only file is a broken native layer that Bridge
+  // must report instead of silently replacing.
+  if (!text.trim() && fs.existsSync(file))
+    throw fail("MCP_CONFIG_INVALID", "DSH 补丁配置为空；请先在 DSH 原生配置中写入 [] 或原有条目，Bridge 不覆盖空文件。");
+  try {
+    doc = YAML.parseDocument(text.trim() ? text : "[]");
+  } catch {
+    throw fail("MCP_CONFIG_INVALID", "DSH 原生补丁配置无法解析，已保留原文件，请先修复配置。");
+  }
+  if (doc.errors.length)
+    throw fail("MCP_CONFIG_INVALID", "DSH 原生补丁配置无法解析，已保留原文件，请先修复配置。");
+  const root = doc.contents;
+  if (root === null || root === undefined) {
+    throw fail("MCP_CONFIG_INVALID", "DSH 补丁配置为空；请先在 DSH 原生配置中写入 [] 或原有条目，Bridge 不覆盖空文件。");
+  }
+  if (!YAML.isSeq(root))
+    throw fail("MCP_CONFIG_INVALID", "DSH 补丁配置需要顶层条目数组，已保留原文件。");
+  return doc;
+}
+function dshRows(doc) {
+  const found = [];
+  doc.contents.items.forEach((row, patchIndex) => {
+    if (!YAML.isMap(row)) return;
+    const insert = row.get("insert");
+    if (!YAML.isSeq(insert)) return;
+    insert.items.forEach((item, rowIndex) => {
+      if (!YAML.isMap(item) || item.get("id") !== dshRowId) return;
+      found.push({patchIndex, rowIndex, value: item.toJS(doc)});
+    });
+  });
+  return found;
+}
+function dshInspect(text, file) {
+  if (!text.trim()) return {text, entry: undefined, present: 0};
+  const doc = dshDocument(text, file);
+  const rows = dshRows(doc);
+  if (rows.length > 1)
+    throw fail("MCP_CONFIG_CONFLICT", "DSH 配置中有多个 AgentBridge MCP 条目，已保留原文件，请先处理重复配置。");
+  return {text, entry: rows[0]?.value, present: rows.length, doc};
+}
 class McpConfig {
-  constructor(adapter, home, env = process.env, protocol = 'v2') {
+  constructor(adapter, home, env = process.env, protocol = 'v2', profile) {
     this.adapter = adapter;
     this.protocol = protocol;
-    this.file = location(adapter, home, env);
+    // Both DSH surfaces edit a native patch layer; only the profile differs.
+    this.dshWeb = ['dsh-web', 'dsh'].includes(adapter);
+    this.profile = adapter === 'dsh-web' ? 'web' : profile === undefined ? undefined : dshProfile(profile);
+    this.file = location(adapter, home, env, this.profile);
     // OpenCode merges json/jsonc. Edit the existing file, and reject ambiguous dual entries.
     if (
       adapter === "opencode" &&
@@ -96,14 +184,22 @@ class McpConfig {
         : adapter === "claude"
           ? "mcpServers"
           : "mcp";
-    this.keys =
+    this.openDesk = ['opendesk', 'opendesk-desktop'].includes(adapter);
+    this.keys = this.openDesk ? ['applications','mcpmgr','servers'] :
       adapter === "opencode"
         ? protocol === 'v1' ? ["mcp", "agentbridge"] : ["mcp", "servers", "agentbridge"]
         : [this.key, "agentbridge"];
   }
   inspect() {
-    const text = read(this.file),
-      data = parse(text, this.adapter);
+    const text = read(this.file);
+    if (this.dshWeb) return dshInspect(text, this.file);
+    const data = parse(text, this.adapter);
+    if (this.openDesk) {
+      for (const value of [data.applications, data.applications?.mcpmgr]) if (value !== undefined && (!value || typeof value !== 'object' || Array.isArray(value))) throw fail('MCP_CONFIG_INVALID','OpenDesk 原 MCP 配置结构不合法，已保留原文件。');
+      const servers = data.applications?.mcpmgr?.servers ?? [];
+      if (!Array.isArray(servers) || servers.some(item => !item || typeof item !== 'object' || typeof item.id !== 'string') || new Set(servers.map(item => item.id)).size !== servers.length) throw fail('MCP_CONFIG_INVALID','OpenDesk MCP 列表包含无效或重复身份，已保留原文件。');
+      return {text, entry:servers.find(item => item.id === 'agentbridge'), servers};
+    }
     if (
       data[this.key] !== undefined &&
       (!data[this.key] ||
@@ -138,6 +234,8 @@ class McpConfig {
     }
     return { text, entry: this.keys.reduce((v, key) => v?.[key], data) };
   }
+  // True when the native file exists at the expected place for this product.
+  get exists() { return fs.existsSync(this.file); }
   update(entry, owned) {
     const { text, entry: current } = this.inspect();
     if (
@@ -151,7 +249,24 @@ class McpConfig {
       );
     if (equal(current, entry)) return;
     let next;
-    if (this.adapter === "codex") {
+    if (this.dshWeb) {
+      if (entry && !fs.existsSync(path.dirname(this.file)))
+        throw fail("MCP_PROFILE_MISSING", "未找到 DSH Web 的原生 profile 目录；请先启动一次 DSH Web 再添加 AgentBridge MCP。");
+      const doc = dshDocument(text, this.file);
+      const rows = dshRows(doc);
+      for (const row of rows.sort((a, b) => b.patchIndex - a.patchIndex)) {
+        const patch = doc.contents.items[row.patchIndex];
+        const insert = patch.get('insert');
+        insert.items.splice(row.rowIndex, 1);
+        if (!insert.items.length) doc.contents.items.splice(row.patchIndex, 1);
+      }
+      if (entry) {
+        const patch = new YAML.YAMLMap();
+        patch.set('insert', doc.createNode([entry]));
+        doc.contents.items.push(patch);
+      }
+      next = doc.toString();
+    } else if (this.adapter === "codex") {
       const start = text.indexOf(begin),
         stop = text.indexOf(end);
       if (start < 0 !== stop < 0 || (start >= 0 && stop <= start))
@@ -191,15 +306,15 @@ class McpConfig {
     } else
       next = jsonc.applyEdits(
         text || "{}\n",
-        jsonc.modify(text || "{}\n", this.keys, entry, {
+        jsonc.modify(text || "{}\n", this.keys, this.openDesk ? [...this.inspect().servers.filter(item=>item.id!=="agentbridge"), ...(entry ? [entry] : [])] : entry, {
           formattingOptions: { insertSpaces: true, tabSize: 2 },
         }),
       );
-    parse(next, this.adapter);
-    const updated = this.keys.reduce(
-      (v, key) => v?.[key],
-      parse(next, this.adapter),
-    );
+    if (!this.dshWeb) parse(next, this.adapter);
+    let updated = this.dshWeb
+      ? dshInspect(next, this.file).entry
+      : this.keys.reduce((v, key) => v?.[key], parse(next, this.adapter));
+    if (this.openDesk) updated = updated?.find(item => item.id === "agentbridge");
     if (!equal(updated, entry))
       throw fail(
         "MCP_CONFIG_CONFLICT",
@@ -230,4 +345,4 @@ class McpConfig {
     }
   }
 }
-module.exports = { McpConfig, nativeEntry, equal };
+module.exports = { McpConfig, nativeEntry, equal, dshPatchFile, dshRowId, dshProfile };

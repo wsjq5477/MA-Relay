@@ -1,8 +1,22 @@
 # M05 Linux daemon 测试报告
 
+OpenDesk相关验证统一见[专项报告](../../iterations/I08/opendesk-existing-interfaces.md)，明确受控协议、真实原生启动、模型和Windows包的独立范围；共享计数不跨模块累加，未执行项保持未测。
+
+2026-10-21 / M05-F02 / alpha.40 源码：WSL Node22.23.1 定向97/97、全桌面705/705，计数共享不相加。真实阿里云 alpha.37/OpenCode2.0.26 只读确认原进程 OOM；用户批准临时Swap后原服务健康、原Task/Conversation各1→1、设置与Agent归属保留，原接入拒绝收敛，随后一次管理核验confirmed，Prompt新增0。此次为带外恢复，非新EXE/GUI/模型推理验收。[原始证据、失败与限制](../../iterations/I08/opencode-oom-recovery.md)。
+
+## alpha.38 越过未确认收据契约验证
+
+T-M05-153 / M05-F04/F09：2026-10-21，工作区 0.6.0-alpha.38 / Linux 本机 Node v22.23.1。受控：真实生产 [remote-maintenance.cjs](../../../desktop/electron/remote-maintenance.cjs) + 真实本机 daemon 进程/Unix socket/磁盘，原生 host 为合成 host，模型 0。[daemon-maintenance.test.cjs](../../../desktop/tests/daemon-maintenance.test.cjs) 与 [ssh-recovery-integration.test.cjs](../../../desktop/tests/ssh-recovery-integration.test.cjs) 合计 **26/26**（失败/跳过 0）：任务/Agent 门禁在显式确认下仍拒绝且不可越过；收据门禁仅在 `allowUnresolvedReceipts:true` 时放行并记录 `overridden`/`unresolved`；未显式确认时仍 `DAEMON_BUSY` 且原后台未被触碰；越过路径 `daemon.quiesce` 因同台账 `DAEMON_BUSY` 时以 `maintenance.json` 占位 + `runtime/owned-stop` 停机、新 daemon 接管后 release 解除；非越过路径只走 `DESKTOP_METHOD` 回退不变。`npx tsc --noEmit` 0 错、`npx vite build` 成功、全量桌面 689/689（0 失败）。**真实用户远端与真实 EXE/GUI 未测**；alpha.2/.3 daemon 源码不在仓库历史中，其是否支持 `receiptRead` 未知，本轮只覆盖“返回 `DESKTOP_METHOD`”路径。[契约、风险与未测边界](../../iterations/I08/alpha38-delivery.md)。
+
 ## alpha.36整合边界
 
 2026-10-21 / WSL Node22.23.1：本轮全量核心57/57、桌面676/676，类型/lint/前端构建通过。各模块共享计数不相加；包核验、Windows契约144/144、界面26组与普通EXE7组通过，具体以专项为准，真实模型/用户profile/独立SSH未验。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+
+## 维护终态收据与旧后台空闲兼容
+
+T-M05-151 / M05-F04/F09：2026-10-21 / 工作区 0.6.0-alpha.36 / Linux 本机 Node v22.23.1。受控：真实生产 [remote-maintenance.cjs](../../../desktop/electron/remote-maintenance.cjs) + 真实本机 daemon 进程/Unix socket/磁盘，原生 host 为合成 host，模型 0。[daemon-maintenance.test.cjs](../../../desktop/tests/daemon-maintenance.test.cjs) 12/12（新增 4）：(a) 夹具版本按大括号删除 `daemon.quiesce/releaseMaintenance/shutdown/receiptRead` 分发块以模拟早于持久收据端点的旧后台 → 升级 `confirmed`、`data.stopped=true`、daemonId/版本入口/历史保留、原 ID 查询仍 `confirmed`；(b) 旧后台已停后激活写入失败 → 收据 `unknown` + `DAEMON_ROLLBACK_UNCONFIRMED`、`stopped=true/rolledBack=false`，原 daemon 离线，`recover()` 后 `rejected` + `DAEMON_RECOVERED_ROLLBACK` 且原版本/身份恢复；(c) 磁盘上遗留终态操作的 `maintenance.json`（daemon 内存不持有）→ 新维护仍 `confirmed`，屏障由本次 quiesce 接管；(d) daemon 重启后同时持有该遗留屏障（独立验证 `falsify-e` 场景）→ `daemon.releaseMaintenance` 成功、文件清理、升级 `confirmed`。本文件与 [ssh-recovery-integration.test.cjs](../../../desktop/tests/ssh-recovery-integration.test.cjs) 合计 20/20，相关 SSH 专项集合 38/38。受控夹具不是真实用户远端或真实 EXE/GUI；alpha.2/.3 daemon 源码不在仓库历史中，其是否支持 `receiptRead` 未知，本轮只覆盖“返回 `DESKTOP_METHOD`”这条路径。[本轮说明与未测边界](../../iterations/I08/maintenance-offline/maintenance-offline.md)。
+
+T-M05-152 / M05-F04：2026-10-21 / 同一工作区与夹具。`daemon-maintenance.test.cjs` 13/13（本片新增 1）：`unknown` 行在 `createdAt` 很新且无 `workerPid` 时查询**不**回收（宽限期）；超期、`phase=intent`、无 `workerPid` 时查询派生恢复 → `rejected`+`DAEMON_NOT_STARTED`，原 daemon 版本/daemonId 不变；`workerPid` 已死 + `phase=activated` → `rejected`+`DAEMON_RECOVERED_ROLLBACK` 且原版本重新在线。维护/SSH 专项五文件合计 39/39；全量桌面构建后 684/684（构建前 682 项 679 通过中的 3 项失败经独立验证定位为测试未隔离 `DSH_HOME`，同日由测试侧修复，只改测试文件不进包）。`npx tsc --noEmit` 与 `npx vite build` 通过。未做真实用户远端与打包 EXE 验证。[切片说明与未测边界](../../iterations/I08/maintenance-offline/maintenance-visibility.md)。
 
 ## OpenCode 包内宿主复核
 

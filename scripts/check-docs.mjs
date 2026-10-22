@@ -7,7 +7,7 @@ const modules = [
   '01-desktop', '02-coordinator', '03-machine-network', '04-ssh-access',
   '05-linux-daemon', '06-native-adapters', '07-task-session',
   '08-collaboration', '09-cli-hub-edge', '10-packaging', '11-documentation-portal',
-  '06-native-adapters/opencode', '06-native-adapters/claude', '06-native-adapters/codex',
+  '06-native-adapters/opencode', '06-native-adapters/claude', '06-native-adapters/codex', '06-native-adapters/opendesk',
 ];
 const required = ['README.md', 'product-design.md', 'architecture.md', 'data-model.md',
   'protocol.md', 'module-plan.md', 'testing.md', 'project-plan.md', 'development-guide.md', 'iterations/README.md'];
@@ -46,8 +46,8 @@ for (const file of markdown) {
   }
 }
 
-const featurePattern = /\bM\d{2}(?:-(?:OC|CC|CX))?-F\d{2}\b/g;
-const casePattern = /\bT-M\d{2}(?:-(?:OC|CC|CX))?-\d{2,3}\b/g;
+const featurePattern = /\bM\d{2}(?:-(?:OC|CC|CX|OD))?-F\d{2}\b/g;
+const casePattern = /\bT-M\d{2}(?:-(?:OC|CC|CX|OD))?-\d{2,3}\b/g;
 const features=new Set(),cases=new Map();
 const caseReferences=[];
 for (const module of modules) {
@@ -60,7 +60,7 @@ for (const module of modules) {
   const file=resolve(root,'doc/modules',module,'test-report.md'),text=texts.get(file)||'';
   const ids=new Set([...text.matchAll(casePattern)].map(match=>match[0]));
   const child=module.split('/')[1];
-  const suffix={opencode:'OC',claude:'CC',codex:'CX'}[child];
+  const suffix={opencode:'OC',claude:'CC',codex:'CX',opendesk:'OD'}[child];
   const owner='T-M'+module.slice(0,2)+(suffix?'-'+suffix:'')+'-';
   const owned=[...ids].filter(id=>id.startsWith(owner)&&/^\d/.test(id.slice(owner.length)));
   if(!owned.length) errors.push(`${relative(root,file)} 缺少本模块测试场景编号`);

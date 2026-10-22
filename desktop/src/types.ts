@@ -1,4 +1,4 @@
-export type ToolKind = "claude" | "opencode" | "codex" | "hermes" | "pi" | "dsh" | "dsh-desktop" | "dsh-web";
+export type ToolKind = "opendesk" | "opendesk-desktop" | "claude" | "opencode" | "codex" | "hermes" | "pi" | "dsh" | "dsh-desktop" | "dsh-web";
 export type Status =
   | "queued"
   | "accepted"
@@ -146,11 +146,50 @@ export interface ConnectionCapabilities {
   execution:boolean|null;
   delegation:boolean|null;
   bridgeMcp:boolean|null;
+  mcpClient:boolean|null;
+  nativeMcpConfig:boolean|null;
+  hostManagedTask:boolean|null;
   resume:boolean|null;
   cancellation:boolean|null;
   permissions:boolean|null;
   forms:boolean|null;
   verification:boolean|null;
+}
+export type McpState = "absent" | "exported" | "installed" | "conflict" | "revoked_config_pending" | "unsupported";
+export interface McpFacts {
+  config: "absent" | "present" | "disabled" | "conflict" | "unsupported" | "unknown";
+  nativeLoad: "loaded" | "not_loaded" | "reload_required" | "unsupported" | "unknown";
+  connection: "connected" | "disconnected" | "revoked" | "unknown";
+  tools: "available" | "unauthorized" | "unavailable" | "unknown";
+  authorization: "valid" | "revoked" | "unknown";
+  ownership: "bridge" | "external" | "unconfirmed";
+}
+export interface McpEvidence {
+  configPath: string;
+  nativeProbe?: {kind:"cli-list"|"native-list"|"none";command?:string;outcome?:string;detail?:string};
+  observation?: {observedAt?:string;freshness:"current"|"stale"|"unknown";reason?:string};
+  toolsProbe?: {kind:"bridge-stdio";outcome:string;toolCount?:number};
+}
+export interface McpStatus {
+  /** DSH native profile this registration targets (DSH CLI only). */
+  profile?: string | null;
+  /** Native stdio launcher chosen for OpenDesk: a real Node (`node`) or the
+   * Electron runtime (`electron`). OpenDesk 0.3.9 cannot start the latter. */
+  launcher?: string | null;
+  nodeId: string;
+  adapter: string;
+  configPath: string;
+  connectionId?: string;
+  enabled: boolean;
+  installed: boolean;
+  conflict: boolean;
+  state: McpState;
+  facts?: McpFacts;
+  evidence?: McpEvidence;
+  files?: Record<string, string>;
+  nativeSupport?: boolean;
+  nativeSupportCode?: string;
+  nativeSupportReason?: string;
 }
 export interface Collaboration {leaderId:string|null;memberIds:string[];revision:number;}
 export interface GraphLayout {
@@ -164,7 +203,7 @@ export interface GraphReceipt<T> {operationId:string;state:'confirmed'|'not_foun
 export interface Delegation {delegationId:string;leaderId:string;memberId:string;parentRequestId:string;parentTaskId?:string;taskId?:string;conversationId?:string;state:string;message:string;createdAt:string;}
 export interface Machine {
   busy?:boolean;
-  daemonMaintenance?:{operationId:string;state:string;action:string};
+  daemonMaintenance?:{operationId:string;state:string;action:string;error?:{code?:string;message?:string;details?:{gate?:'tasks'|'receipts';tasks?:unknown[];agents?:unknown[];receipts?:unknown[]}}};
   removed?:boolean;
   revision?:number;
   machineId: string;

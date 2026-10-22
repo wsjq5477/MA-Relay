@@ -7,14 +7,15 @@ const machineMethods=new Set(['machine.updateSsh','machine.remove','machine.rest
 const lane=method=>machineMethods.has(method)?'machine':['manageNode','nodeOperation'].includes(method)?'node':method==='saveCollaboration'||method==='collaborationOperation'?'relation':'layout';
 const query=kind=>kind==='machine'?'machine.operation':kind==='node'?'nodeOperation':kind==='relation'?'collaborationOperation':'graphLayoutOperation';
 const rejected=new Set(['INVALID_INPUT','NODE_NOT_FOUND','NODE_DISCONNECTED','REVISION_CONFLICT','LAYOUT_REVISION_CONFLICT','OPERATION_CONFLICT','OPERATION_LIMIT','AGENT_BUSY','MACHINE_OFFLINE','WRONG_MACHINE','AGENT_UNAVAILABLE','DISCOVERY_CHANGED','MACHINE_BUSY','MACHINE_REMOVED','MACHINE_NOT_FOUND','SSH_CONNECTION_NOT_FOUND','SSH_USER_CHANGE','SSH_ENDPOINT_CONFLICT','DESKTOP_UNCONFIRMED','INSTALL_PREVIEW_CHANGED','DAEMON_BUSY','DAEMON_STAGE_REJECTED','SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED','SSH_PACKAGE_CHECKSUM','SSH_PACKAGE_EXTRACT']);
-// This factory failure precedes context.call(), native API checks and the
-// atomic node-management commit. Only the ORIGINAL durable dispatch error is
-// evidence; a later query error or missing receipt alone proves nothing.
-function rejectedHostAdmission(row){
+// These exact original factory/readiness refusals precede the local attach
+// authorization commit. Only the ORIGINAL durable dispatch error is evidence;
+// a later query error or missing receipt alone proves nothing about execution.
+function rejectedAttachAdmission(row){
  return row?.lane==='node'&&row.method==='manageNode'&&row.params?.action==='attach'
   &&row.params.operationId===row.operationId&&typeof row.params.machineId==='string'&&!!row.params.machineId
   &&typeof row.params.nodeId==='string'&&!!row.params.nodeId&&row.fingerprint===digest(row.params)
-  &&row.error?.code==='ADAPTER_HOST'&&/^[a-z][a-z0-9-]* must synchronously create a host with call\(\) and close\(\)\.$/.test(row.error.message);
+  &&(row.error?.code==='ADAPTER_HOST'&&/^[a-z][a-z0-9-]* must synchronously create a host with call\(\) and close\(\)\.$/.test(row.error.message)
+    ||row.error?.code==='AGENT_UNHEALTHY'&&row.error.message==='原生工具尚未就绪，未提交需求；请检查原生账号或等待服务就绪。');
 }
 function conflicts(kind,params,row){
  if(kind==='layout'||row.lane==='layout')return kind===row.lane;
@@ -37,7 +38,7 @@ class GraphOperationJournal{
       const expected=row.lane==='node'?digest({nodeId:p.nodeId,machineId:p.machineId,action:p.action}):row.lane==='relation'?digest({leaderId:p.leaderId,memberIds:p.memberIds,expectedRevision:p.expectedRevision}):row.lane==='layout'?digest({expectedLayoutRevision:p.expectedLayoutRevision,layout:p.layout}):digest(row.method==='machine.maintainDaemon'?p:{method:row.method,...p});
       if(receipt.fingerprint&&receipt.fingerprint!==expected)throw fail('RECEIPT_MISMATCH','原收据内容不匹配，原操作继续保留。');
       row.state=receipt.state;if(receipt.error)row.error=receipt.error;this.update(row);}
-    else if(method==='nodeOperation'&&receipt?.operationId===params.operationId&&receipt.state==='not_found'&&rejectedHostAdmission(row)){
+    else if(method==='nodeOperation'&&receipt?.operationId===params.operationId&&receipt.state==='not_found'&&['pending','unknown'].includes(row?.state)&&rejectedAttachAdmission(row)){
       row.state='rejected';this.update(row);
     }
     const savedRejection=['nodeOperation','machine.operation'].includes(method)||method==='collaborationOperation'&&row?.error?.code==='COLLABORATION_CAPABILITY';
@@ -58,7 +59,11 @@ class GraphOperationJournal{
     const row={operationId:params.operationId,lane:kind,method,params,fingerprint,state:'pending',time:new Date().toISOString()};
     try{this.update(row);}catch{throw fail('GRAPH_INTENT_FAILED','保存未发送：图操作意图无法落盘，请检查磁盘。');}
     try{const receipt=await dispatch(method,params);row.state=receipt?.operationId===params.operationId&&['confirmed','rejected'].includes(receipt.state)?receipt.state:'unknown';if(receipt?.error)row.error=receipt.error;this.update(row);return receipt;}
-    catch(error){row.error={code:error.code,message:error.message,...(['SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED'].includes(error.code)&&error.details?{details:error.details}:{})};row.state=isOpenCodeVersionRejection(error)||rejected.has(error.code)||rejectedHostAdmission(row)||method==='saveCollaboration'&&isCollaborationCapabilityRejection(error)?'rejected':'unknown';try{this.update(row);}catch{/* Original pending intent stays durable. */}throw error;}
+    catch(error){row.error={code:error.code,message:error.message,...(['SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED'].includes(error.code)&&error.details?{details:error.details}:{})};row.state=isOpenCodeVersionRejection(error)||rejected.has(error.code)||rejectedAttachAdmission(row)||method==='saveCollaboration'&&isCollaborationCapabilityRejection(error)?'rejected':'unknown';try{this.update(row);}catch{/* Original pending intent stays durable. */}
+      // A failed context preparation can have a durable local attach refusal.
+      // Read that exact receipt; transport/query failures retain uncertainty.
+      if(method==='manageNode'&&params.action==='attach'&&row.state==='unknown')try{await this.lookup('nodeOperation',{operationId:row.operationId},dispatch);}catch{/* Keep original intent. */}
+      throw error;}
   }
 }
 module.exports={GraphOperationJournal};

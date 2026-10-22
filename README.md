@@ -1,6 +1,6 @@
 # AgentBridge
 
-AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH 等）呈现为可观察的节点：在一个客户端里发需求、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
+AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：在一个客户端里发需求、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
 
 ## 当前状态与下载
 
@@ -9,8 +9,9 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 稳定历史版本 | 0.5.0 |
 | 当前公开预发布 | **0.6.0-alpha.36**（标签冻结 `1fef25f`；EXE 130032973 字节，SHA-256 `43e09dd3…`，附件已公开并通过匿名完整下载核验） |
 | alpha.35 公开预发布 | **0.6.0-alpha.35**（冻结 `b5de577`，issue #12 同机独立执行与恢复反馈） |
-| 当前源码未发布增量 | [DSH Desktop/Web 服务入口](doc/iterations/I07/dsh-desktop-web.md)、[CT-07委派列表](doc/iterations/I07/delegation-list.md)与[当前调用方连接视图](doc/iterations/I07/agent-connections.md)与[子任务最小上下文](doc/iterations/I07/delegation-context.md)、[CT-06/08规划](doc/iterations/I07/agent-centric-operations.md) |
-| 未准出 | 完整 I06C/I07C；Hermes/Pi/DSH 真实工具执行验收；独立 SSH |
+| 当前本地候选（未公开） | [0.6.0-alpha.46 Windows EXE](desktop/release/AgentBridge-0.6.0-alpha.46-Windows-x64.exe)，130180760字节，SHA-256 `57f1af73…`；MCP恢复、状态观测与非GUI接入修复，未签名、未公开；[交付与验证边界](doc/iterations/I08/mcp-open-recovery.md) |
+| 当前源码未发布增量 | [开放MCP接入与双向管理](doc/iterations/I08/mcp-open-integration.md)、[恢复与观测修复](doc/iterations/I08/mcp-open-recovery.md)；[OpenDesk已有接口接入](doc/iterations/I08/opendesk-existing-interfaces.md)及[真实执行范围](doc/iterations/I08/opendesk-desktop-live.md)。[原生组件正式授权及两条真实子任务链已验](doc/iterations/I08/mcp-native-acceptance.md)；十入口原生父模型自主调用与托管归属仍未全部验收 |
+| 未准出 | 完整 I06C/I07C/MCP02；原生父模型自主MCP委派、原生页面增删；Hermes/Pi及DSH其他执行入口、独立 SSH |
 
 公开 alpha.36（2026-10-21 预发布）：[Windows EXE](desktop/release/AgentBridge-0.6.0-alpha.36-Windows-x64.exe) · [SHA-256](artifacts/alpha36/2026-10-21/SHA256SUMS.txt)。
 

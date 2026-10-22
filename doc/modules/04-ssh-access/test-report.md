@@ -1,8 +1,16 @@
 # M04 SSH 接入测试报告
 
+## alpha.38 只读门禁 RPC 与越过确认
+
+T-M04-152 / M04-F04/F06/F08：2026-10-21，工作区 0.6.0-alpha.38，受控 TCP SSH + 假 client/installer，模型 0。[daemon-maintenance.test.cjs](../../../desktop/tests/daemon-maintenance.test.cjs) 与 [ssh-recovery-integration.test.cjs](../../../desktop/tests/ssh-recovery-integration.test.cjs) 合计 **26/26**（失败/跳过 0），覆盖显式确认后的门禁收集与 `overridden`/`unresolved` 落盘、非越过路径行为不变；新界面用例 [ui-maintenance-blockers.cjs](../../../desktop/tests/ui-maintenance-blockers.cjs) 5 checks 通过，其中第②③⑤项覆盖“按原 ID 单次查询”“门禁原话显示”与“无收据端点不判整体失败”。**真实 SSH 远端与真实 EXE/GUI 未测**：越过路径的远端停机与占位接管只在受控夹具验证；真实阿里云机器的切换是运维侧带外作业，不作为产品 UI 验收（见[交付记录第 5 节](../../iterations/I08/alpha38-delivery.md)）。[契约、风险与未测边界](../../iterations/I08/alpha38-delivery.md)。
+
 ## alpha.36整合边界
 
 2026-10-21 / WSL Node22.23.1：本轮全量核心57/57、桌面676/676，类型/lint/前端构建通过。各模块共享计数不相加；包核验、Windows契约144/144、界面26组与普通EXE7组通过，具体以专项为准，真实模型/用户profile/独立SSH未验。[完整交付](../../iterations/I07/alpha36-delivery.md)。
+
+## 维护终态重连恢复
+
+T-M04-151 / M04-F06/F08：2026-10-21 / 工作区 0.6.0-alpha.36 / Linux 本机 Node v22.23.1，受控 TCP SSH + 假 client/installer，模型 0。[ssh-recovery-integration.test.cjs](../../../desktop/tests/ssh-recovery-integration.test.cjs) 8/8（新增 1）：终态 rejected 收据 `stopped:false` → 维护暂停解除（`autoReconnect=true`、不再 `disconnected_manual`），可读到拒绝原因；`stopped:true/rolledBack:false` → 保持 `disconnected_manual` 且不自动重连。该文件与 [daemon-maintenance.test.cjs](../../../desktop/tests/daemon-maintenance.test.cjs) 12/12 合计 20/20（相关 SSH 专项集合 38/38）；受控夹具不是真实用户远端或真实 EXE/GUI，未在用户现场复现。[本轮说明与未测边界](../../iterations/I08/maintenance-offline/maintenance-offline.md)。
 
 ## 维护上传进度与持久化修复（issue #10）
 

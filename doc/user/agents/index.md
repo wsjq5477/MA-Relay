@@ -1,6 +1,6 @@
 # 原生 Agent 适配
 
-AgentBridge 支持六种产品，DSH 分为 CLI、Windows Desktop 和 Linux / WSL Web 三个入口。各入口沿用原生配置；下面分别列出连接方式与可用功能。
+AgentBridge 支持七种产品，OpenDesk分为CLI和Windows桌面两个入口，DSH 分为 CLI、Windows Desktop 和 Linux / WSL Web 三个入口。各入口沿用原生配置；下面分别列出连接方式与可用功能。
 
 ## 接入方式总览
 
@@ -16,7 +16,7 @@ Desktop / Web 服务入口需要包含该功能的 AgentBridge 版本，公开 a
 
 <!--@include: ../_generated/capability-table.md-->
 
-“被委派”指接收普通子任务；“调用 Bridge MCP”指主动发现目标、委派和查询。Hermes、Pi 和 DSH 支持前者，目前不支持后者。权限回复仅覆盖已适配的原生交互类型，Claude Code 的结构化提问尚不支持 Bridge 内表单回复。
+“被委派”指接收普通子任务；“调用 Bridge MCP”指主动发现目标、委派和查询。Hermes、Pi 和 DSH 都支持前者；其中 DSH 已声明具备 MCP 客户端能力，DSH Web 与 DSH CLI（需指定启动 profile）的原生配置能由 Bridge 管理，DSH Desktop 只能导出片段；Hermes、Pi 的 MCP 客户端能力尚未确认。权限回复仅覆盖已适配的原生交互类型，Claude Code 的结构化提问尚不支持 Bridge 内表单回复。
 
 ## 按 Agent 阅读
 
@@ -28,5 +28,6 @@ Desktop / Web 服务入口需要包含该功能的 AgentBridge 版本，公开 a
 | [Hermes](hermes.md) | CLI 直接会话与普通被委派 |
 | [Pi](pi.md) | CLI 会话文件、续聊与普通被委派 |
 | [DSH](dsh.md) | CLI、Windows Desktop、Linux / WSL Web |
+| [OpenDesk](opendesk.md) | CLI原生HTTP、Windows桌面WebSocket与独立MCP |
 
 比较[六种接入方式](../integration-methods.md)，或按[快速开始](../quickstart.md)配置现有入口。

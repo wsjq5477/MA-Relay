@@ -6,9 +6,9 @@ import {resolve} from 'node:path';
 import {publishedFiles, repositoryRoot, validatePublicPage, validateUserDocs, connectionTable, capabilityTable} from '../scripts/doc-site-content.mjs';
 import {checkDocSite} from '../scripts/check-doc-site.mjs';
 
-test('公开页面只包含用户文档，六种产品均有独立章节', () => {
-  assert.equal(validateUserDocs().pages, 17);
-  for (const name of ['claude', 'codex', 'opencode', 'hermes', 'pi', 'dsh']) assert.ok(publishedFiles.has(`agents/${name}.md`));
+test('公开页面只包含用户文档，七种产品均有独立章节', () => {
+  assert.equal(validateUserDocs().pages, 18);
+  for (const name of ['claude', 'codex', 'opencode', 'hermes', 'pi', 'dsh', 'opendesk']) assert.ok(publishedFiles.has(`agents/${name}.md`));
   for (const file of publishedFiles) assert.doesNotMatch(file, /test-report|iterations|archive|modules/);
 });
 test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
@@ -17,10 +17,15 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   assert.match(methods, /\| OpenCode \| 启动服务 \| HTTP \| ✓ \|/);
   for (const name of ['DSH Desktop', 'DSH Web']) {
     assert.ok(methods.includes(`| ${name} | — | HTTP | — | — | — | — |`));
-    assert.ok(capabilities.includes(`| ${name} | ✓ | ✓ | ✓ | ✓ | — | — |`));
+    // DSH ships an MCP client, so it can call the AgentBridge MCP even though the
+    // product is reached through its HTTP service and no hosted binding exists.
+    assert.ok(capabilities.includes(`| ${name} | ✓ | ✓ | ✓ | ✓ | ✓ | — |`));
   }
-  assert.equal(methods.trim().split('\n').length, 10);
-  assert.equal(capabilities.trim().split('\n').length, 10);
+  // A product whose MCP client support is unreviewed stays unknown, not "yes".
+  assert.ok(capabilities.includes('| Hermes | ✓ | ✓ | ✓ | ✓ | — | — |'));
+  assert.ok(capabilities.includes('| Pi | ✓ | ✓ | ✓ | ✓ | — | — |'));
+  assert.equal(methods.trim().split('\n').length, 12);
+  assert.equal(capabilities.trim().split('\n').length, 12);
 });
 test('正文拒绝内部编号、过程、仓库链接及未许可 include', () => {
   for (const text of ['# M06-F01', '# CT-06', '查看测试报告', '[材料](../iterations/README.md)', '[源码](../../desktop/electron/dsh-worker.cjs)', '<!--@include: ../modules/06-native-adapters/design.md-->']) {
@@ -40,11 +45,19 @@ test('发布审计对生成目录执行独立白名单与内容检查', () => {
       writeFileSync(target, file === 'index.html' ? '原生 CLI 原生 API MCP ACP 插件 SDK' : file === 'agents/dsh.html' ? 'DSH CLI DSH Windows Desktop DSH Linux / WSL Web 为什么采用原生 API' : '用户说明');
     }
     writeFileSync(resolve(folder, 'agentbridge.png'), 'fixture');
-    assert.equal(checkDocSite(folder).htmlPages, 18);
+    assert.equal(checkDocSite(folder).htmlPages, 19);
+    mkdirSync(resolve(folder, 'assets'), {recursive: true});
+    writeFileSync(resolve(folder, 'assets/index.C2f-I31F.js'), 'export {};');
+    writeFileSync(resolve(folder, 'assets/importer.js'), 'import "./index.C2f-I31F.js";');
+    assert.equal(checkDocSite(folder).htmlPages, 19);
+    writeFileSync(resolve(folder, 'assets/index.C2f-I31F.js'), 'M06-F01');
+    assert.throws(() => checkDocSite(folder), /内部材料/);
+    rmSync(resolve(folder, 'assets/index.C2f-I31F.js')); rmSync(resolve(folder, 'assets/importer.js'));
+
     writeFileSync(resolve(folder, 'test-report.html'), '内部');
     assert.throws(() => checkDocSite(folder), /未登记页面/);
     rmSync(resolve(folder, 'test-report.html'));
-    mkdirSync(resolve(folder, 'assets'));
+    mkdirSync(resolve(folder, 'assets'), {recursive: true});
     writeFileSync(resolve(folder, 'assets/search.js'), 'M06-F01');
     assert.throws(() => checkDocSite(folder), /搜索资源混入内部材料/);
     rmSync(resolve(folder, 'assets/search.js'));

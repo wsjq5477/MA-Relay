@@ -1,5 +1,11 @@
 # AgentBridge 整体功能设计
 
+当前源码已落地（AB-F02/F07/F08/F11/F12/F13）：[I08-MCP02](iterations/I08/mcp-open-integration.md)支持从Bridge或原生Agent管理同一MCP，能力分为MCP调用/原生配置/托管scope，六项事实独立展示。当前本地alpha.46进一步修复导出启动器、OpenCode数组探测、过期观测、Linux端点恢复及非GUI首次接入；共享根68/68、桌面758/758，最终JSON修复后CLI11/11；[当前包与Windows验证](iterations/I08/mcp-open-recovery.md)。直接配置支持Claude/Codex/OpenCode两代、DSH Web/显式profile CLI、OpenDesk Desktop；DSH两入口已有受控原生加载/握手/7工具证据，OpenDesk Desktop0.3.9已有诊断条目列表可见证据，已安装OpenDesk/DSH原生MCP组件已通过正式授权调用，并分别经生产协作链委派1个真实Claude子任务成功；OpenDesk 日常原生父模型只读 list_agents 已返回 7 个获准节点，见[现场恢复与发现](iterations/I08/opendesk-mcp-diagnostic-repair.md)；原生父模型自主委派、日常原生页面仍未验，见[原生组件验收](iterations/I08/mcp-native-acceptance.md)。OpenDesk CLI0.3.8无MCP管理面，仅可导出；DSH Desktop/Hermes/Pi原生配置尚未适配。候选未签名、未公开、未部署，完整MCP02未准出。
+
+当前候选前端已补齐OpenDesk CLI/Desktop能力识别，健康且能力明确的节点可接入并开始会话；[修复与包验证](iterations/I08/opendesk-ui-admission.md)。当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。 当前Windows Desktop 0.3.9原实例真实执行、续聊和窗口重开通过，日常alpha.42后台已发现健康桌面节点；[现场验证范围](iterations/I08/opendesk-desktop-live.md)。
+
+当前源码：OpenCode 原生服务退出后，显式接入在原上下文恢复服务；接入准备失败原子保留 rejected 收据，历史精确健康拒绝按原操作核对收敛，原请求读取不进入本次新增启动路径，也不重放。现场 OOM 原服务已恢复、未发模型需求；详见[OpenCode OOM 恢复与接入拒绝收据](iterations/I08/opencode-oom-recovery.md)。
+
 适用：稳定历史0.5.0与公开预发布alpha.36；alpha.36整合公开alpha.35独立修复及全部工作区增量：OpenCode宿主与双协议、DSH服务入口、原管理恢复、Agent行配置、CT-04/05与CT-07列表/连接视图/子任务最小上下文。CT-06/08仅规划。当前实际包/测试和未测边界见[alpha.36交付](iterations/I07/alpha36-delivery.md)，发布登记见[历史发布登记](iterations/release-ledger.md)；完整I06C/I07C未准出。
 
 alpha.36包含 OpenCode 在 WSL/Linux 与 SSH daemon 中创建后台对象时的 `ADAPTER_HOST` 修复；原会话与任务继续保留，公开 alpha.35 的冻结源码未包含此修复，alpha.36 已含并核对包内入口。见[宿主生命周期修复](iterations/I07/opencode-host-lifecycle.md)。
@@ -8,9 +14,13 @@ alpha.36包含 OpenCode 在 WSL/Linux 与 SSH daemon 中创建后台对象时的
 
 当前源码将Bridge MCP与DSH服务配置移至机器页各Agent行，在开始会话右侧打开固定目标的配置弹窗；全局设置保留应用级选项与原操作核对。[当前交互与验证](iterations/I07/agent-row-configuration.md)。
 
+当前源码修复后台维护终态：升级/回滚被拒但原后台仍在运行或已恢复（含早于持久收据端点的旧后台）时不再把机器留置为已断开；维护收据新增`stopped/phase`，并在“已停止但未确认切换/回滚”时保持`unknown`由原ID查询/恢复；维护拒绝原因经机器卡片与未确认操作可见。[本轮说明、实测与未测边界](iterations/I08/maintenance-offline/maintenance-offline.md)。
+
+当前源码补齐维护可观测性与未决回收：对话框与机器卡片显示“正在上传/解包/校验”进度，未决期间按1s/2s/4s/8s有界自动核对**原operationId**（不重做、不换ID），终态显示成功或失败原因；远端维护行在记录的执行进程已消失或从未记录（超过宽限期）时，原ID查询会收敛为终态，不再永久卡住维护准入。[切片说明、UI实测与未测边界](iterations/I08/maintenance-offline/maintenance-visibility.md)。
+
 ## 1. 产品解决什么问题
 
-用户已经在不同机器上安装并配置了自己的 Agent。当前源码接入六种产品、八个执行入口：Claude Code、OpenCode、Codex、Hermes、Pi、DSH CLI（原生 CLI），以及 DSH Windows Desktop 与 Linux/WSL Web（认证 HTTP 服务入口，未发布）。Hermes/Pi/DSH 为源码已实现，真实工具执行验收以[接入矩阵](agent-integration-matrix.md)为准。AgentBridge 把这些工具呈现为可观察的 Agent 节点，用户在一个客户端中发需求、看进度和读取结果；权限与协作能力按工具分别声明。
+用户已经在不同机器上安装并配置了自己的 Agent。当前源码接入七种产品、十个执行入口：Claude Code、OpenCode、Codex、Hermes、Pi、DSH CLI（原生 CLI），以及DSH Windows Desktop与Linux/WSL Web、OpenDesk CLI HTTP与Windows Desktop设备网关。Hermes/Pi/DSH 为源码已实现，真实工具执行验收以[接入矩阵](agent-integration-matrix.md)为准。AgentBridge 把这些工具呈现为可观察的 Agent 节点，用户在一个客户端中发需求、看进度和读取结果；权限与协作能力按工具分别声明。
 
 中央后台管理连接与消息，不作为主 Agent 推理。主 Agent 是用户从已接入工具节点中指定的真实 Claude Code、OpenCode 或 Codex；它只能通过受限协作接口发现、委派和查询获准的子 Agent。
 
@@ -37,23 +47,23 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 
 | 功能 | 用户得到什么 | 当前状态 | 模块与验收 |
 | --- | --- | --- | --- |
-| AB-F01 机器概览 | 首先看到机器，再看到机器上的工具；没有项目也能查看 | 本机 Windows/WSL 已发布；SSH 编辑/断开/移除/恢复专项通过，历史和身份保留 | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
-| AB-F02 自动发现工具 | 扫描受支持安装位置，显示名称、版本、健康与安装位置 | 当前源码注册六种工具八个入口；排除同名 Distributed Shell，DSH Desktop 安装与 Linux Web profile 未配置时显示服务连接提示；扫描不调用模型，SSH 须更新实际远端 daemon | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
+| AB-F01 机器概览 | 首先看到机器，再看到机器上的工具；没有项目也能查看 | 本机 Windows/WSL 已发布；SSH 编辑/断开/移除/恢复专项通过，历史和身份保留；维护被拒的离线机器直接显示远端原因与重连入口 | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
+| AB-F02 自动发现工具 | 扫描受支持安装位置，显示名称、版本、健康与安装位置 | 当前源码注册七种产品十个入口；排除同名 Distributed Shell，DSH Desktop 安装与 Linux Web profile 未配置时显示服务连接提示；扫描不调用模型，SSH 须更新实际远端 daemon；每个入口分别声明“可执行/可被委派/可调用MCP/可管理原生MCP配置/可注入托管scope”，不再用单一`teamCollaboration`代替 | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
 | AB-F03 接入节点 | 图节点动作接入；不要求项目、模型和供应商 | 0.5.0 多选已发布；支持按机器添加、断开、移除及原身份恢复 | [M01](modules/01-desktop/design.md) / [报告](modules/01-desktop/test-report.md) |
 | AB-F04 SSH 添加 Linux | 输入地址、端口、用户名和已有 SSH 登录方式 | 源码已实现；Windows 密码与真实 Linux 接入通过；其他认证专项范围见 M04 报告 | [M04](modules/04-ssh-access/design.md) / [报告](modules/04-ssh-access/test-report.md) |
 | AB-F05 主机信任与凭据 | 首次确认指纹；默认不保存秘密；可选 Windows 系统加密保存 | 源码与受控测试存在；Windows 密码/DPAPI 及加密私钥/隔离 agent 有实际证据；系统服务兼容专项保留 | [M04](modules/04-ssh-access/design.md) / [报告](modules/04-ssh-access/test-report.md) |
-| AB-F06 远端后台部署 | 用户确认安装摘要后自动部署用户态 daemon；无需第二终端 | 历史真实 Linux 验收保留；上传阶段/错误类别和明确失败后的重新检测入口已实现，保持原安装 ID | [M04](modules/04-ssh-access/design.md)、[M05](modules/05-linux-daemon/design.md) |
-| AB-F07 原生工具执行 | 沿用工具原有账号与配置，执行真实需求 | OpenCode/Claude 有历史真实证据，Codex 有环境限制；Hermes/Pi/DSH 及 DSH Desktop/Web 源码已实现，验证层级见矩阵 | [M06](modules/06-native-adapters/design.md) / [报告](modules/06-native-adapters/test-report.md) |
+| AB-F06 远端后台部署 | 用户确认安装摘要后自动部署用户态 daemon；无需第二终端 | 历史真实 Linux 验收保留；上传阶段/错误类别和明确失败后的重新检测入口已实现，保持原安装 ID；维护被拒但原后台仍在运行/已恢复时不再留置离线；新增**显式确认后越过未确认收据**（任务/Agent 门禁永不可越过，越过记录写入终态收据） | [M04](modules/04-ssh-access/design.md)、[M05](modules/05-linux-daemon/design.md) |
+| AB-F07 原生工具执行 | 沿用工具原有账号与配置，执行真实需求 | OpenCode/Claude 有历史真实证据，Codex 有环境限制；Hermes/Pi/DSH 及 DSH Desktop/Web 源码已实现，验证层级见矩阵；MCP配置可由Bridge管理的入口见AB-F02，配置写入不等于原生已加载 | [M06](modules/06-native-adapters/design.md) / [报告](modules/06-native-adapters/test-report.md) |
 | AB-F08 新会话与续聊 | 发起需求，原会话追问，每轮独立记录 | 已发布；能力取决于原生适配；SSH 同会话两轮已记录 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
 | AB-F09 进度、回答与看板 | 看来源、状态、本轮回答、工具过程与最终结果 | 已发布；窗口通过轮询刷新，不是直接订阅原生 token | [M01](modules/01-desktop/design.md)、[M06](modules/06-native-adapters/design.md) |
 | AB-F10 权限、输入与取消 | 通过原任务处理原生等待；取消结果以原生确认判断 | 严格核对原控制收据、表单遮罩及恢复台账脱敏；原生支持范围分别记录 | [M06](modules/06-native-adapters/design.md)、[M07](modules/07-task-session/design.md) |
-| AB-F11 未确认请求与恢复 | 原 ID 查询，不重发 Prompt；保留历史和占位 | 历史功能已发布；Windows OpenCode 原记录恢复已修复；已观察历史跨重开保留，cursorGap 补偿通过验证 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
-| AB-F12 指定主从关系 | 用户指定主 Agent 及允许的子节点 | 一个默认组已发布；图编辑及稳定保存已实现，换主后活跃原父权限已修复 | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md) |
-| AB-F13 原生 Agent 协作 | 主 Agent 实际调用工具委派，读取子结果并汇总；源码可列原父/独立连接的委派ID | WSL三工具六个委派方向保留原真实证据；list_delegations、当前调用方list_agents及普通子任务最小上下文为源码/受控验证；当前角色与目标状态分开，查询等待中的撤权不返回旧目标，非实时委派台账不扩权；子任务附简短角色/结果交回说明，历史原输入保持，不授新工具/权限；不能等同新EXE模型或独立SSH验收 | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md)、[CT-02](iterations/I07/connection-delegation.md) |
+| AB-F11 未确认请求与恢复 | 原 ID 查询，不重发 Prompt；保留历史和占位 | 历史功能已发布；Windows OpenCode 原记录恢复已修复；已观察历史跨重开保留，cursorGap 补偿通过验证；MCP配置操作丢失回应时同样先查原状态，配置重启恢复只重建私有端点、不写原生配置、不恢复已撤销授权 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
+| AB-F12 指定主从关系 | 用户指定主 Agent 及允许的子节点 | 一个默认组已发布；图编辑及稳定保存已实现，换主后活跃原父权限已修复；主角色准入只看MCP调用能力（`mcpClient`），托管scope注入`hostManagedTask`是独立维度，有MCP客户端但未适配托管注入的入口可以作主并单独注明“托管任务绑定未适配” | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md) |
+| AB-F13 原生 Agent 协作 | 主 Agent 实际调用工具委派，读取子结果并汇总；源码可列原父/独立连接的委派ID | 独立MCP接入与Bridge托管scope分开：托管任务保留原父作用域，独立会话以connectionId归属、不伪造父Task。WSL三工具六个委派方向保留原真实证据；list_delegations、当前调用方list_agents及普通子任务最小上下文为源码/受控验证；当前角色与目标状态分开，查询等待中的撤权不返回旧目标，非实时委派台账不扩权；子任务附简短角色/结果交回说明，历史原输入保持，不授新工具/权限；不能等同新EXE模型或独立SSH验收 | [M08](modules/08-collaboration/design.md) / [报告](modules/08-collaboration/test-report.md)、[CT-02](iterations/I07/connection-delegation.md) |
 | AB-F14 常驻中央后台 | 关闭窗口继续协调，重开复用历史与连接 | I06A 源码已实现；候选 Windows 关闭/停止/重开已验收 | [M02](modules/02-coordinator/design.md) / [报告](modules/02-coordinator/test-report.md) |
 | AB-F15 CLI 兼容入口 | 单终端自动发现、提交、续聊、查看和控制 OpenCode | 已实现；不等同于桌面节点网络的全部入口 | [M09](modules/09-cli-hub-edge/design.md) / [报告](modules/09-cli-hub-edge/test-report.md) |
 | AB-F16 节点图 | 机器分组、拖动节点、拖拽端点授权连线 | 支持旧后台下本机拖动、整组背景拖动及主居左；主角色/方向/避让保留；机器维护并入图页 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md) |
-| AB-F17 发布与安装维护 | 源码、离线包、Windows EXE 一致，版本可验证 | 0.5.0 历史稳定；可信升级/回滚/停止/卸载源码与受控验证通过；正式 0.6.0 准出见当前报告 | [M10](modules/10-packaging/design.md) / [报告](modules/10-packaging/test-report.md) |
+| AB-F17 发布与安装维护 | 源码、离线包、Windows EXE 一致，版本可验证 | 0.5.0 历史稳定；可信升级/回滚/停止/卸载源码与受控验证通过；维护收据新增 stopped/phase，停机未确认恢复保持 unknown 由原 ID 恢复；alpha.38 本地候选含越过未确认收据契约与两个只读门禁 RPC（未公开，指纹见[交付记录](iterations/I08/alpha38-delivery.md)）；正式 0.6.0 准出见当前报告 | [M10](modules/10-packaging/design.md) / [报告](modules/10-packaging/test-report.md) |
 | AB-F18 网页资料入口 | 当前用户功能/设计/使用页、六Agent章节与六方式/能力对照；搜索、主题和图表 | 源码已实现；仅发布doc/user许可页面，排除内部编号、测试、问题、过程与历史；独立于Agent控制 | [M11 设计](modules/11-documentation-portal/design.md) / [报告](modules/11-documentation-portal/test-report.md) |
 | AB-F19 智能体登记与小队 | 登记外部已有功能的智能体、说明职责/边界，组成小队和独立工作 | 已发布；不实现Skill/模型/目录或业务能力 | [M03](modules/03-machine-network/design.md)、[M08](modules/08-collaboration/design.md) |
 | AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | CT-04 索引/旧修订/桌面MD、CT-05 选材包与桌面选材/导出已实现；实际投递/收件证明及同步待开发，完整 I07C 未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[CT-04](iterations/I07/public-materials.md)、[CT-05](iterations/I07/context-packet.md)、[桌面选材](iterations/I07/context-packet-ui.md) |
@@ -124,6 +134,7 @@ flowchart TD
 - “机器离线”：当前无法通信，历史结果不删除。
 - “正在工作”：原任务尚未结束；等待原生权限也可能显示此状态。
 - “执行待核对”：调用或结果不明，只查原 ID，不换 ID 重做。
+- “维护前置门禁”：维护前的实时只读阻塞项（任务、Agent 或未确认收据）。任务/Agent **永不可越过**；未确认收据只有在用户显式确认“这些操作不会再运行”后才可越过，且越过内容会记入维护结果，收据本身不删除。
 - “不支持”：本适配器或原生版本没有该能力，不假成功。
 
 一次请求的回答和执行过程分别显示。Claude 的文本 delta 在呈现层合并，不能把一个 token 一条过程记录作为面向用户的默认阅读体验。

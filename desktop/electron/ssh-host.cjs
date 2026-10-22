@@ -8,16 +8,38 @@ const { CredentialStore } = require('./ssh-credentials.cjs');
 const { SshInstaller, quote, remoteExec, progressFailure } = require('./ssh-install.cjs');
 const { FramedStream } = require('./machine-protocol.cjs');
 const {rejectedError}=require('./daemon-rejection.cjs');
-const {supportsRecovery}=require('./runtime-capabilities.cjs');
+const {supportsRecovery,supportsMcpOpenAccess}=require('./runtime-capabilities.cjs');
 
-const SSH_METHODS = new Set(['machine.createSshDraft', 'credential.provide', 'machine.testSsh', 'machine.trustHost', 'machine.connectSsh', 'machine.reconnect', 'machine.disconnect']);
+const SSH_METHODS = new Set(['machine.createSshDraft', 'credential.provide', 'machine.testSsh', 'machine.trustHost', 'machine.connectSsh', 'machine.reconnect', 'machine.disconnect', 'machine.maintenanceBlockers', 'machine.queryBlockedOperation']);
 const {digest,operationId,atomicWrite}=require('./graph-layout.cjs');
 const lifecycleMethods=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.maintainDaemon']);
 const fatal = new Set(['SSH_HOST_KEY_CHANGED', 'SSH_HOST_KEY_REVOKED', 'SSH_HOST_CA_UNSUPPORTED', 'SSH_KNOWN_HOSTS_INVALID', 'DAEMON_IDENTITY_CHANGED', 'MACHINE_IDENTITY_CHANGED', 'PROTOCOL_MISMATCH', 'DAEMON_OWNER_CONFLICT', 'DAEMON_PROTOCOL', 'REMOTE_DIRECTORY_UNSAFE', 'SSH_PACKAGE_CHECKSUM', 'SSH_PLATFORM_UNSUPPORTED', 'SSH_LIBC_UNSUPPORTED']);
+/** A terminal maintenance receipt proves the original daemon is still running,
+ * or that a previous version was restored and started, unless it reports that
+ * the daemon was stopped without a confirmed switch or rollback. Receipts written
+ * before `stopped` existed cannot report it, so they resume too; that reconnect
+ * only observes or starts the version `current.json` names and never resends a
+ * task or control action. */
+function daemonAvailable(result, action) {
+  if (!result || ['stop', 'uninstall'].includes(action)) return false;
+  const data = result.data || {};
+  return !(data.stopped === true && data.rolledBack !== true && result.state !== 'confirmed');
+}
 function safeFailure(error) {
   if (error?.code && typeof error.message === 'string' && (error.code.startsWith('SSH_') || error.code.startsWith('DAEMON_') || error.code.startsWith('DESKTOP_') || error.code.startsWith('CREDENTIAL_') || ['INVALID_INPUT', 'MACHINE_IDENTITY_CHANGED', 'PROTOCOL_MISMATCH', 'REMOTE_DIRECTORY_UNSAFE', 'INSTALL_PREVIEW_CHANGED', 'REQUEST_CONFLICT'].includes(error.code))) return error;
   return problem('SSH_CONNECTION_FAILED', 'SSH 连接失败，请检查地址、端口、用户认证及服务器网络。');
 }
+// The read-only blocker projection uses the same rules as the remote maintenance
+// worker: non-terminal tasks/Agent work always block, an unconfirmed task or
+// control receipt blocks until the user explicitly overrides it.
+const terminalTask = new Set(['succeeded', 'failed', 'cancelled']);
+const blockerTask = task => ({ ...(typeof task.taskId === 'string' ? { taskId: task.taskId } : {}), ...(typeof task.requestId === 'string' ? { requestId: task.requestId } : {}), ...(typeof task.executionId === 'string' ? { executionId: task.executionId } : {}), ...(typeof task.conversationId === 'string' ? { conversationId: task.conversationId } : {}), status: task.status, ...(typeof task.adapter === 'string' ? { adapter: task.adapter } : {}) });
+const blockerAgent = agent => ({ ...(typeof agent.agentId === 'string' ? { agentId: agent.agentId } : {}), ...(typeof agent.nodeId === 'string' ? { nodeId: agent.nodeId } : {}), ...(typeof agent.adapter === 'string' ? { adapter: agent.adapter } : {}), busy: !!agent.busy, ...(agent.currentTask ? { currentTask: blockerTask(agent.currentTask) } : {}) });
+const receiptBlocks = record => !['confirmed', 'rejected'].includes(record.state) || ['reply', 'cancel'].includes(record.op) && record.result?.state === 'unknown';
+// A control receipt whose own result is unknown still blocks, and the daemon's ledger
+// normalizes exactly that to `unknown`; report the same effective state.
+const receiptState = record => receiptBlocks(record) && ['confirmed', 'rejected'].includes(record.state) ? 'unknown' : record.state;
+const blockerReceipt = record => ({ key: typeof record.key === 'string' ? record.key : '', op: typeof record.op === 'string' ? record.op : '', state: typeof record.state === 'string' ? receiptState(record) : 'unknown', ...(typeof record.updatedAt === 'string' ? { updatedAt: record.updatedAt } : {}) });
 function validateDraft(input) {
   let host = typeof input.host === 'string' ? input.host.trim().toLowerCase() : '';
   if (host.startsWith('[') && host.endsWith(']')) host = host.slice(1, -1);
@@ -81,6 +103,11 @@ class SshHost {
   }
   async call(method, params = {}) {
     if (this.connection.stage !== 'online') throw problem('MACHINE_OFFLINE', this.connection.stage === 'needs_credentials' ? '远端机器需要重新输入 SSH 凭据。' : '远端机器当前离线，已接收任务仍由远端后台保留。');
+    // A daemon that never advertised the MCP capability cannot report the richer
+    // MCP state or persist a revocation. Refuse before any frame is sent and ask
+    // for a daemon upgrade instead of returning old/default facts.
+    if(this.connection.mcpOpenAccess===false&&['mcp.status','mcp.revoke','mcp.probe'].includes(method))
+      throw problem('MCP_BACKEND_UPGRADE_REQUIRED','来源机器后台缺少MCP开放接入能力，请在该机器的后台维护中升级后台，再查看或撤销MCP接入；原配置与授权未改动。');
     if(this.connection.objectRoutingSupported===false&&(method==='context'||method==='scope'||method==='ipc'&&['task','conversation','pending','reply','cancel','operation','continue','reconcile','submit','verify'].includes(params.op)))
       throw problem('DAEMON_UPGRADE_REQUIRED','来源机器后台缺少原对象安全读取能力；请在该机器的后台维护中升级后台，再查询原任务。已接受任务不会重发。');
     const generation=this.generation;
@@ -155,9 +182,59 @@ class SshManager {
   }
   touch(connection) { connection.lastSeenAt = new Date().toISOString(); }
   publicState(connection) {
-    return { connectionId: connection.connectionId, ...(connection.machineId ? { machineId: connection.machineId } : {}), revision:connection.revision, removed:!!connection.removed, name: connection.name, host: connection.host, port: connection.port, username: connection.username, authKind: connection.authKind === 'privateKey' ? 'key' : connection.authKind, ...(connection.keyPath ? { keyPath: connection.keyPath } : {}), kind: 'ssh', platform: 'linux', stage: connection.stage, status: connection.stage, connectionState: connection.stage, online: connection.online, daemonVersion:connection.daemonVersion||connection.identity?.daemonVersion,objectRoutingSupported:connection.objectRoutingSupported,daemonMaintenance:connection.maintenance?{operationId:connection.maintenance.operationId,state:connection.maintenance.state,action:connection.maintenance.action}:undefined,credentialAvailable: this.credentials.available(connection), credentialSaveSupported: this.credentials.saveSupported, ...(connection.lastSeenAt ? { lastSeenAt: connection.lastSeenAt } : {}), ...(connection.lastSyncedAt ? { lastSyncedAt: connection.lastSyncedAt } : {}), ...(connection.error ? { error: connection.error.message, connectionError: connection.error } : {}), ...(connection.probe ? { probe: connection.probe } : {}), ...(connection.progress ? { installProgress: connection.progress } : {}),...(connection.progressWarning?{progressWarning:connection.progressWarning}:{}) };
+    return { connectionId: connection.connectionId, ...(connection.machineId ? { machineId: connection.machineId } : {}), revision:connection.revision, removed:!!connection.removed, name: connection.name, host: connection.host, port: connection.port, username: connection.username, authKind: connection.authKind === 'privateKey' ? 'key' : connection.authKind, ...(connection.keyPath ? { keyPath: connection.keyPath } : {}), kind: 'ssh', platform: 'linux', stage: connection.stage, status: connection.stage, connectionState: connection.stage, online: connection.online, daemonVersion:connection.daemonVersion||connection.identity?.daemonVersion,objectRoutingSupported:connection.objectRoutingSupported,mcpOpenAccess:connection.mcpOpenAccess,daemonMaintenance:connection.maintenance?{operationId:connection.maintenance.operationId,state:connection.maintenance.state,action:connection.maintenance.action,...(connection.maintenance.error?{error:connection.maintenance.error}:{})}:undefined,credentialAvailable: this.credentials.available(connection), credentialSaveSupported: this.credentials.saveSupported, ...(connection.lastSeenAt ? { lastSeenAt: connection.lastSeenAt } : {}), ...(connection.lastSyncedAt ? { lastSyncedAt: connection.lastSyncedAt } : {}), ...(connection.error ? { error: connection.error.message, connectionError: connection.error } : {}), ...(connection.probe ? { probe: connection.probe } : {}), ...(connection.progress ? { installProgress: connection.progress } : {}),...(connection.progressWarning?{progressWarning:connection.progressWarning}:{}) };
   }
   states() { return this.connections.map(connection => this.publicState(connection)); }
+  /** Read-only pre-maintenance gate. It observes the live daemon over the existing
+   * relay channel and never writes local or remote state. An unavailable channel is
+   * reported instead of thrown so the dialog can still show why nothing is listed. */
+  async maintenanceBlockers(connection) {
+    const host = this.hosts.get(connection.connectionId);
+    if (connection.stage !== 'online' || !host) {
+      const maintaining = connection.stage === 'maintaining' || connection.maintenance?.state === 'unknown';
+      return { available: false, reason: maintaining ? '远端后台正在维护，消息通道已暂停，暂不能读取前置门禁。' : connection.stage === 'needs_credentials' ? '远端机器需要重新输入 SSH 凭据。' : '远端机器当前离线，无法读取维护前置门禁。' };
+    }
+    try {
+      const snapshot = await host.call('snapshot', {});
+      const tasks = (snapshot.tasks || []).filter(task => !terminalTask.has(task.status)).map(blockerTask);
+      const agents = ((snapshot.agents || {}).items || []).filter(agent => agent.busy || agent.currentTask && !terminalTask.has(agent.currentTask.status)).map(blockerAgent);
+      let receipts = [], receiptsSupported = true;
+      try { receipts = await this.readReceiptBlockers(host); }
+      catch (error) { if (error.code !== 'DESKTOP_METHOD') throw error; receiptsSupported = false; }
+      return { available: true, tasks, agents, receipts, receiptsSupported };
+    } catch (error) { return { available: false, reason: error.message || '无法读取维护前置门禁。', code: error.code }; }
+  }
+  async readReceiptBlockers(host) {
+    let after = 0, pages = 0; const receipts = [];
+    do {
+      const page = await host.call('daemon.receiptRead', { afterCursor: after, limit: 128 });
+      if (!page || !Array.isArray(page.items)) throw problem('DAEMON_PROTOCOL', '后台收据分页无法读取。');
+      for (const record of page.items) if (receiptBlocks(record)) receipts.push(blockerReceipt(record));
+      after = page.nextCursor;
+      if (!page.hasMore) break;
+      if (++pages > 32) throw problem('DAEMON_PROTOCOL', '后台收据页数异常。');
+    } while (true);
+    return receipts;
+  }
+  /** One read-only query for the recorded original ID. `submit`-style receipts are
+   * read as the original request, control receipts as the original operation; the
+   * call never re-sends the task and never mints a new ID, and a failure keeps its
+   * original code instead of being reported as success. */
+  async queryBlockedOperation(connection, params) {
+    const key = typeof params.key === 'string' ? params.key : '';
+    if (!/^[a-zA-Z0-9_.:-]{1,128}$/.test(key)) throw problem('INVALID_INPUT', '按原 ID 查询需要合法的原操作标识。');
+    const op = params.op;
+    if (!['submit', 'continue', 'verify', 'reply', 'cancel'].includes(op)) throw problem('INVALID_INPUT', '只能按原 ID 查询已记录的任务或控制操作。');
+    const host = this.hosts.get(connection.connectionId);
+    if (connection.stage !== 'online' || !host) throw problem('MACHINE_OFFLINE', '远端机器当前离线，无法按原 ID 查询原操作。');
+    const control = ['reply', 'cancel'].includes(op);
+    const result = control ? await host.call('ipc', { op: 'operation', operationId: key }) : await host.call('ipc', { op: 'request', requestId: key });
+    const state = result && ['confirmed', 'rejected', 'unknown'].includes(result.state) ? result.state : !control && result && typeof result.taskId === 'string' ? 'confirmed' : 'unknown';
+    const detail = control
+      ? { operationId: key, state: result?.state || state, ...(typeof result?.taskId === 'string' ? { taskId: result.taskId } : {}) }
+      : { requestId: key, ...(typeof result?.taskId === 'string' ? { taskId: result.taskId } : {}), ...(typeof result?.status === 'string' ? { status: result.status } : {}) };
+    return { state, detail };
+  }
   find(params) {
     const connection = this.connections.find(row => params.connectionId ? row.connectionId === params.connectionId : params.machineId && row.machineId === params.machineId);
     if (!connection) throw problem('SSH_CONNECTION_NOT_FOUND', '这条 SSH 连接不存在，请刷新机器列表。'); return connection;
@@ -179,6 +256,8 @@ class SshManager {
       this.connections.push(connection); this.hosts.set(connection.connectionId, new SshHost(this, connection)); this.save(); this.options.onChange?.(this.publicState(connection)); return this.publicState(connection);
     }
     const connection = this.find(params);
+    if(method==='machine.maintenanceBlockers')return this.maintenanceBlockers(connection);
+    if(method==='machine.queryBlockedOperation')return this.queryBlockedOperation(connection,params);
     if(method==='machine.connectSsh'&&connection.maintenance?.state==='unknown')throw problem('DAEMON_MAINTENANCE','原维护尚未确认，请查询原操作；凭据可重新输入。');
     if(connection.removed)throw problem('MACHINE_REMOVED','机器已移除，请先恢复原机器。');
     if (method === 'credential.provide') { const result = await this.credentials.provide(connection, params); this.save(); this.options.onChange?.(this.publicState(connection)); return result; }
@@ -198,7 +277,7 @@ class SshManager {
   async lifecycle(method,params){
     operationId(params.operationId);
     if(method==='machine.maintainDaemon')return this.maintainDaemon(params).catch(error=>{
-      if(this.lifecycleOperations.some(r=>r.operationId===params.operationId)||['MACHINE_BUSY','REVISION_CONFLICT','OPERATION_CONFLICT','INSTALL_PREVIEW_CHANGED','INVALID_INPUT','SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED','SSH_PACKAGE_CHECKSUM','SSH_PACKAGE_EXTRACT'].includes(error.code))throw error;
+      if(this.lifecycleOperations.some(r=>r.operationId===params.operationId)||['MACHINE_BUSY','DAEMON_BUSY','REVISION_CONFLICT','OPERATION_CONFLICT','INSTALL_PREVIEW_CHANGED','INVALID_INPUT','SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED','SSH_PACKAGE_CHECKSUM','SSH_PACKAGE_EXTRACT'].includes(error.code))throw error;
       const c=this.connections.find(row=>row.connectionId===params.connectionId);
       if(c&&['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(error.code)){this.state(c,'needs_credentials',error);throw error;}
       throw problem('DAEMON_STAGE_REJECTED','原维护未发送；登录、暂存或校验失败，原后台与历史保留。');
@@ -269,7 +348,9 @@ class SshManager {
     if(prior){if(prior.fingerprint!==fingerprint)throw problem('OPERATION_CONFLICT','原维护 ID 内容变化。');return this.publicOperation(prior);}
     const c=this.find(params);if(c.revision!==params.expectedRevision)throw problem('REVISION_CONFLICT','机器连接修订已变化。');
     if(this.jobs.has(c.connectionId)||c.maintenance?.state==='unknown')throw problem('MACHINE_BUSY','原机器维护/连接尚未完成。');
-    const config=params.config;if(!config||!['upgrade','rollback','stop','uninstall'].includes(config.action)||Object.keys(config).some(k=>!['action','previewId','expectedVersion','targetVersion'].includes(k)))throw problem('INVALID_INPUT','后台维护动作不合法。');
+    const config=params.config;if(!config||!['upgrade','rollback','stop','uninstall'].includes(config.action)||Object.keys(config).some(k=>!['action','previewId','expectedVersion','targetVersion','allowUnresolved'].includes(k)))throw problem('INVALID_INPUT','后台维护动作不合法。');
+    // Strict boolean only: the unresolved-receipt override can never be implied.
+    const allowUnresolvedReceipts=config.allowUnresolved===true;
     return this.serial(c,'maintenance',async()=>{
       const probe=await this.maintenanceEntry(c);
       if(config.previewId!==probe.previewId||config.expectedVersion!==probe.daemonVersion)throw problem('INSTALL_PREVIEW_CHANGED','维护摘要已变化，请重新检查。');
@@ -282,7 +363,7 @@ class SshManager {
       // Verify the current file tree once for this input; compatibility release()
       // still reads and authenticates each pinned manifest against that tree.
       const bundle=this.installer.bundle(),from=this.installer.release(probe.daemonVersion,bundle),target=targetVersion?this.installer.release(targetVersion,bundle):null;
-      const input={action:config.action,operationId:params.operationId,home:probe.home,installPath:probe.installPath,stateDirectory:probe.stateDirectory,ownerCoordinatorId:this.options.coordinatorId,profileId:probe.profileId,daemonId:c.daemonId,uid:probe.uid,from:{version:from.manifest.version,digest:from.digest,manifest:from.manifest},target:target?{version:target.manifest.version,digest:target.digest,manifest:target.manifest}:null,controller:staged.release,releases:[staged.release,...(bundle.manifest.compatibleDaemons||[]).map(pin=>{const r=this.installer.release(pin.version,bundle);return {version:r.manifest.version,digest:r.digest,manifest:r.manifest};})]};
+      const input={action:config.action,operationId:params.operationId,home:probe.home,installPath:probe.installPath,stateDirectory:probe.stateDirectory,ownerCoordinatorId:this.options.coordinatorId,profileId:probe.profileId,daemonId:c.daemonId,uid:probe.uid,allowUnresolvedReceipts,from:{version:from.manifest.version,digest:from.digest,manifest:from.manifest},target:target?{version:target.manifest.version,digest:target.digest,manifest:target.manifest}:null,controller:staged.release,releases:[staged.release,...(bundle.manifest.compatibleDaemons||[]).map(pin=>{const r=this.installer.release(pin.version,bundle);return {version:r.manifest.version,digest:r.digest,manifest:r.manifest};})]};
       const row={operationId:params.operationId,state:'unknown',remoteLaunched:false,fingerprint,remoteInput:input,controller:staged.directory,data:{action:'maintainDaemon',remoteAction:config.action,machineId:c.machineId,connectionId:c.connectionId,revision:c.revision+1}};
       // Progress is optional, but both catalogs and the original intent must be
       // durable before any maintenance input can reach the remote controller.
@@ -295,7 +376,7 @@ class SshManager {
         const failure=this.persistenceFailure(error,c,'before-maintenance-input',true);
         row.remoteLaunched=false;row.state='rejected';row.error={code:failure.code,message:failure.message,details:failure.details};
         if(!this.lifecycleOperations.includes(row))this.lifecycleOperations.push(row);
-        c.maintenance={operationId:row.operationId,state:'rejected',action:config.action};c.error=row.error;c.stage='disconnected_manual';c.online=false;
+        c.maintenance={operationId:row.operationId,state:'rejected',action:config.action,error:row.error};c.error=row.error;c.stage='disconnected_manual';c.online=false;
         try{this.save();}catch{/* The central original intent remains durable if this store is unavailable. */}
         throw failure;
       }
@@ -320,7 +401,7 @@ class SshManager {
             if(retry?.code==='SSH_EXEC_FAILED'&&retry.details?.stage==='open')row.remoteLaunched=false;
             if(row.remoteLaunched===false){
               row.state='rejected';row.error={code:'DAEMON_NOT_STARTED',message:'原维护输入未能发送到服务器，未切换后台；请重新检查后再操作。'};
-              c.maintenance.state='rejected';
+              c.maintenance={...c.maintenance,state:'rejected',error:row.error};
               const failure=safeFailure(retry);
               this.state(c,['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(failure.code)?'needs_credentials':fatal.has(failure.code)?'blocked':'disconnected_manual',failure);
             }
@@ -346,7 +427,7 @@ class SshManager {
     if(row.remoteLaunched===false){
       row.state='rejected';row.error={code:'DAEMON_NOT_STARTED',message:'原维护未到远端发送阶段，未切换后台。'};
       if(c.maintenance?.operationId===row.operationId){
-        c.maintenance.state='rejected';c.autoReconnect=false;
+        c.maintenance={...c.maintenance,state:'rejected',error:row.error};c.autoReconnect=false;
         const preserveFailure=['needs_credentials','blocked'].includes(c.stage);
         this.state(c,preserveFailure?c.stage:'disconnected_manual',preserveFailure?c.error:undefined);
       }else this.save();
@@ -356,9 +437,15 @@ class SshManager {
       const result=await this.queryWithRecovery(c,row);
       if(result.operationId!==row.operationId||!['confirmed','rejected'].includes(result.state))return this.publicOperation(row);
       row.state=result.state;row.error=result.error;row.data={...row.data,...result.data,action:'maintainDaemon',remoteAction:row.remoteInput.action};
-      c.maintenance.state=result.state;c.daemonVersion=result.data?.version;this.save();
-      const removed=result.state==='confirmed'&&row.remoteInput.action==='uninstall';c.removed=removed;c.autoReconnect=false;if(removed||['stop','uninstall'].includes(row.remoteInput.action))this.dropTransport(c);this.state(c,removed?'removed':'disconnected_manual');
-      if(!removed&&!['stop','uninstall'].includes(row.remoteInput.action)&&(result.state==='confirmed'||result.data?.rolledBack))await this.resumeConnection(c.connectionId,c.revision);
+      c.maintenance={...c.maintenance,state:result.state,...(result.error?{error:{code:result.error.code,message:result.error.message,...(result.error.details?{details:result.error.details}:{})}}:{error:undefined})};c.daemonVersion=result.data?.version;this.save();
+      const removed=result.state==='confirmed'&&row.remoteInput.action==='uninstall';c.removed=removed;
+      // A rejected upgrade that never stopped the remote daemon used to leave the
+      // machine permanently "已断开" (autoReconnect=false) even though the daemon
+      // was still running. A terminal receipt that does not report a stopped,
+      // unrestored daemon releases the maintenance hold and observation resumes;
+      // this also covers a receipt resolved after a desktop restart.
+      if(removed||!daemonAvailable(result,row.remoteInput.action)){c.autoReconnect=false;if(removed||['stop','uninstall'].includes(row.remoteInput.action))this.dropTransport(c);this.state(c,removed?'removed':'disconnected_manual');}
+      else{c.autoReconnect=true;this.save();this.state(c,'reconnecting');this.scheduleReconnect(c,true);}
     }catch(error){const failure=safeFailure(error);this.state(c,['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(failure.code)?'needs_credentials':fatal.has(failure.code)?'blocked':'maintaining',failure);}
     return this.publicOperation(row);
   }
@@ -496,7 +583,8 @@ class SshManager {
       connection.machineId = machineId; connection.daemonId = identity.daemonId;
       connection.daemonVersion=hello.version;
       connection.objectRoutingSupported=supportsRecovery(hello.capabilities);
-      connection.identity = { machineId, name: connection.name, kind: 'ssh', platform: 'linux', connectionId: connection.connectionId, daemonId: identity.daemonId, hostname: hello.hostname, username: connection.username, uid: probe.uid, arch: probe.arch, daemonVersion: hello.version, objectRoutingSupported:connection.objectRoutingSupported, protocolVersion: 2, profileId: install.profileId, installDirectory: probe.installPath, stateDirectory: install.stateDirectory, host: connection.host, port: connection.port };
+      connection.mcpOpenAccess=supportsMcpOpenAccess(hello.capabilities);
+      connection.identity = { machineId, name: connection.name, kind: 'ssh', platform: 'linux', connectionId: connection.connectionId, daemonId: identity.daemonId, hostname: hello.hostname, username: connection.username, uid: probe.uid, arch: probe.arch, daemonVersion: hello.version, objectRoutingSupported:connection.objectRoutingSupported, mcpOpenAccess:connection.mcpOpenAccess, protocolVersion: 2, profileId: install.profileId, installDirectory: probe.installPath, stateDirectory: install.stateDirectory, host: connection.host, port: connection.port };
       // Resume observation only; this path never submits an Agent Prompt.
       this.options.onMachine?.(connection.identity);
       await this.restoreObservation(host,connection,machineId);

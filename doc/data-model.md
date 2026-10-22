@@ -1,5 +1,17 @@
 # 对象、身份与持久数据
 
+MCP登记增加可选launcherPath，后台恢复保持原启动命令。probe增加binding（配置路径、原文、connectionId与configuration的SHA-256）；旧probe无binding按未知处理。status.evidence.observation={observedAt?,freshness:current|stale|unknown,reason?:unbound|configuration_changed|expired}，不落盘；连接/工具观测最长60秒，配置/profile变化立即失效。此摘要仅为一致性校验，不是授权凭据。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
+
+当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。
+
+OpenDesk的Bridge执行profile为`opendesk-http-v2`和`opendesk-gateway-v2`。私有控制目录保存controller锁/PID/心跳、CLI服务连接和随机密码、任务领取与派发围栏。CLI binding保存原Session、消息ID基线与原输入；Desktop binding保存原connId与sessionKey。原生完整回应另存后才能恢复终态，读取历史产生的时间戳不能替代它。密码不进入节点快照、公开文档或报告。旧执行profile记录只读保留，不自动迁移为新执行。
+
+NodeOperations 沿既有版本1结构保存 OpenCode attach 准备失败的 rejected 收据（原operationId/fingerprint，data 含nodeId/machineId/action），与 apiCompatibility=false 原子提交，节点 connected/授权和Task/Conversation不变。历史准确健康拒绝只在原图意图、输入指纹与原收据读取匹配时收敛，不迁移原身份。详见[OpenCode OOM 恢复与接入拒绝收据](iterations/I08/opencode-oom-recovery.md)。
+
+## alpha.38 越过收据的落盘记录
+
+用户已批准的契约变更：维护终态 `data` 新增 `overridden:true` 与 `unresolved:[{key,op,state,updatedAt}]`，精确记录被用户显式确认跳过的未确认收据；门禁失败时错误旁挂 `details={gate,tasks,agents,receipts}`（`gate∈{tasks,receipts}`），`tasks` 门禁的 details 恒为“不可越过”。越过路径的停机只使用本地 `maintenance.json` 占位（记录本次 operationId，原格式不变）与控制器 `runtime/owned-stop`（`pid`+`pidStart`），新 daemon 接管后在 release 阶段解除。**没有新增协议字段或线协议版本变更，也没有 Task/Session/身份迁移**：`unresolved` 是既有维护收据 `data` 内可选追加，旧读取方忽略未知键；任务/Agent 门禁的持久语义不变。[契约、现场与未测边界](iterations/I08/alpha38-delivery.md)。
+
 ## alpha.36当前整合
 
 公开alpha.35的managementBlocks与前端executionRecoveryReason按原节点/安装/共享目录限制执行，管理写入保持同机保护；graphPending只读投影可选blockedNodeIds。原收据须匹配已提供来源与内容指纹，原ADAPTER_HOST严格持久拒绝恢复保留。scoped-management-execution-v1与dsh-web-desktop-v1共同要求中央升级；Task/Session身份、未知不重放及线协议版本不变。[整合与实际验证](iterations/I07/alpha36-delivery.md)。
@@ -71,6 +83,18 @@ CT-04桌面：复用schema1索引与指定修订响应，无SQLite/后端格式�
 ## 独立 MCP 接入登记与委派归属
 
 每机器Bridge目录新增mcp-connections/connections.json数组：connectionId（随机UUID）、nodeId、adapter、enabled、configuration（自身管理的非密启动条目）。独立文件位于`mcp-connections/<connectionId>/`，描述/Token继续由原broker私有文件保存；配置文件只引用描述路径。重新添加生成新connectionId，旧授权永不复用；删除不抹原委派台账。
+
+I08-MCP02在行内新增/明确以下字段（旧行缺字段按“未知/外部管理”处理，不自动接管、不自动补装）：
+
+| 字段 | 语义 |
+| --- | --- |
+| `enabled` | 持久授权开关；`mcp.revoke` 只改它，不触碰原生条目 |
+| `nativeProtocol` | OpenCode v1/v2 布局，缺省按历史 v2 核对 |
+| `configuration` | Bridge自己写入的原生条目原样快照；**所有权比较**与“只删自己的条目”都以它为准，不按显示名 |
+| `probe` | 最近一次只读探测（`kind`/`outcome`/`command`/`nativeLoad`/`connection`/`tools`/`toolCount`/`at`）；不参与授权，也不因探测失败改写授权 |
+| `profile` | 仅 DSH CLI：本次写入/识别所用的原生 profile 名称（单段目录名，`^[a-z0-9][a-z0-9-]{0,63}$`）。`mcp.status` 回显，省略参数时使用该值；`mcp.remove` 只清理这个 profile，其他 profile 的原生文件逐字节不变。DSH Web 固定 `web`、不落该字段；其他适配器不写该字段 |
+
+`configuration`与`probe`是观测/归属证据，不是执行凭据：`configuration`不含Token，`probe`不证明已获准委派。`mcp.status`的返回结构（`state`/`facts`/`evidence`/`nativeSupport`）为瞬时投影，不落盘；重启只重建私有endpoint描述文件，不写原生配置，也不恢复已撤销的授权。原生条目被外部删除或修改时保留原文件、不自动补回。[完整契约与证据](iterations/I08/mcp-open-integration.md)。
 
 外部委派在原delegations中增加可选externalConnectionId；parentRequestId等于接入ID，parentTaskId=null，parentConversationId带mcp:前缀代表接入范围而非原生Session。派生requestId及结果/取消归属沿用原去重规则。同一长期接入内的外部会话共享范围，未实现外部原生Session自动隔离。无TeamSpace数据库迁移。[详细契约](iterations/I07/mcp-installation.md)。
 
@@ -297,6 +321,14 @@ AgentNode 新增可选 managed/removed，缺省兼容旧目录；显式管理后
 | maintenance-operations.json | 原 ID/内容摘要、worker PID 与启动标识、阶段、状态及安全结果；元数据锁防查询覆盖完成收据 |
 | maintenance-input-*.json | 本 profile 私有原维护输入，不含 SSH 凭据或原生账号配置 |
 | `maintenance-runtime/<digest>` | 可信控制器/私有 Node/helper；不随安装卸载删除 |
+
+## 维护终态收据与重连判定
+
+`maintenance-operations.json` 每行的 `data` 为既有 JSON 的可选增量：`action`、`stopped`、`rolledBack`、`phase`、`version`、`historyPreserved`。`stopped=true` 表示本次操作确实停过原后台；`rolledBack=true` 只在已切换版本且回滚三步全部成功（原版本已重启）时成立；成功路径同样写 `rolledBack:false`；`phase` 为最后阶段（validated/stopped/activated/healthy/uninstalling/uninstalled）。安全 `error.code` 可为 `DAEMON_ROLLBACK_UNCONFIRMED`（已停但切换/回滚未确认，行保持 `unknown`，由原 operationId 查询/恢复）、`DAEMON_NOT_STARTED`、`DAEMON_RECOVERED_ROLLBACK`（原 ID 恢复已切回并重启原版本）等；行状态仍是 confirmed/rejected/unknown/not_found，不新增状态。
+
+client 侧 `connection.maintenance` 为 `{operationId,state,action,error?}`；`error` 记录拒绝原因（含未发送与本地持久化失败分支），经快照 `daemonMaintenance.error` 暴露给界面。桌面只在终态收据证明原后台仍在运行或已恢复（`stopped!==true`、或 `rolledBack===true`、或 `state==='confirmed'`）时恢复 `autoReconnect`；`stop`/`uninstall` 与“已停且未恢复”保持断开。
+
+状态目录里的 `maintenance.json` 是维护准入屏障，只属于一个 operationId。维护开始时若发现它的 operationId 属另一次操作、且 `maintenance-operations.json` 中该操作已是终态，则视为遗留屏障：先按该 ID 调用 `daemon.releaseMaintenance`，仅在成功或对方返回 `DESKTOP_METHOD`（该版本无此方法）时删除文件；`unknown`/缺失收据与本次 operationId 的屏障一律保留，不会绕过未决维护。以上都是 daemon/连接本地 JSON 的可选字段，协议版本仍为 2、线格式与身份不变，无 SQLite/JSON 迁移，也不改变 Task/Conversation/收据 ID。[本轮语义与实测](iterations/I08/maintenance-offline/maintenance-offline.md)。
 
 ## 维护收据发送前失败边界
 

@@ -4,6 +4,18 @@ const {digest}=require('../electron/graph-layout.cjs');
 function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ab-graph-journal-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));return {dir,journal:new GraphOperationJournal(dir)};}
 const hostError={code:'ADAPTER_HOST',message:'opencode must synchronously create a host with call() and close().'};
 function failedHostIntent(){const params={operationId:'original-host',nodeId:'opencode',machineId:'wsl',action:'attach'};return {operationId:params.operationId,lane:'node',method:'manageNode',params,fingerprint:digest(params),state:'unknown',time:'original-time',error:{...hostError}};}
+test('original exact health admission refusal can settle its attach; query errors or generic health codes retain unknown',async t=>{
+ for(const mode of ['original','generic-message','query-only','changed-input','foreign-receipt'])await t.test(mode,async t=>{
+  const {journal}=fixture(t),row=failedHostIntent();row.error={code:'AGENT_UNHEALTHY',message:'原生工具尚未就绪，未提交需求；请检查原生账号或等待服务就绪。'};
+  if(mode==='generic-message')row.error.message='Agent is unhealthy';
+  if(mode==='query-only')delete row.error;
+  if(mode==='changed-input')row.params.machineId='foreign';
+  journal.update(row);let reads=0;
+  const dispatch=async(method,p)=>{assert.equal(method,'nodeOperation');reads++;if(mode==='query-only')throw Object.assign(Error('query health error'),{code:'AGENT_UNHEALTHY'});return {operationId:mode==='foreign-receipt'?'foreign':p.operationId,state:'not_found'};};
+  if(mode==='query-only')await assert.rejects(journal.lookup('nodeOperation',{operationId:row.operationId},dispatch));else await journal.lookup('nodeOperation',{operationId:row.operationId},dispatch);
+  assert.equal(journal.read()[0].state,mode==='original'?'rejected':'unknown');assert.equal(reads,1);assert.deepEqual(journal.read()[0].params,row.params);
+ });
+});
 test('persisted original host factory refusal settles only its attach intent after an original receipt read, with no replay',async t=>{
  const {journal,dir}=fixture(t),row=failedHostIntent();journal.update(row);const calls=[];
  const restored=new GraphOperationJournal(dir),receipt=await restored.lookup('nodeOperation',{operationId:row.operationId},async(method,p)=>{calls.push({method,p});return {operationId:p.operationId,state:'not_found'};});
@@ -29,6 +41,7 @@ test('an actual original confirmed receipt takes priority over the historical ho
  const {journal}=fixture(t),row=failedHostIntent();journal.update(row);
  const receipt={operationId:row.operationId,state:'confirmed',data:{node:{connected:true}}};
  assert.deepEqual(await journal.lookup('nodeOperation',{operationId:row.operationId},async()=>receipt),receipt);assert.equal(journal.read()[0].state,'confirmed');
+ await journal.lookup('nodeOperation',{operationId:row.operationId},async()=>({operationId:row.operationId,state:'not_found'}));assert.equal(journal.read()[0].state,'confirmed','a later missing receipt never downgrades confirmed history');
 });
 test('new attach host factory refusal is recorded as rejected without admitting any task or replaying attach',async t=>{
  const {journal}=fixture(t),row=failedHostIntent();let writes=0;

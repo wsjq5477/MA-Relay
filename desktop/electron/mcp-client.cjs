@@ -20,6 +20,11 @@ if(require.main===module){
     let input;try{if(Buffer.byteLength(line)>131072)throw new Error('MCP 请求超过限制');input=JSON.parse(line);if(input.id===undefined)return;
       let result;
       if(input.method==='initialize')result={protocolVersion:['2024-11-05','2025-03-26','2025-06-18','2025-11-25'].includes(input.params?.protocolVersion)?input.params.protocolVersion:'2024-11-05',capabilities:{tools:{}},serverInfo:{name:'agentbridge',version:'0.5.0'}};
+      // Protocol revision 2026-07-28 asks servers to advertise their supported
+      // versions through `server/discover` before the legacy initialize
+      // handshake. Answering with a JSON-RPC error makes strict clients treat the
+      // connection as broken; this server still speaks the legacy revisions.
+      else if(input.method==='server/discover')result={supportedVersions:['2024-11-05','2025-03-26','2025-06-18','2025-11-25'],capabilities:{tools:{}}};
       else if(input.method==='ping')result={};
       else if(input.method==='tools/list'){const descriptor=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));result={tools:descriptor.mode==='team'?teamTools:tools};}
       else if(input.method==='tools/call'){

@@ -34,3 +34,5 @@ M01[持续协作界面](../desktop/src/TeamAutomationSettings.tsx)，M02/M07/M08
 ## 停止与终态核对源码落点
 
 M01[停止进度](../desktop/src/TeamStopStatus.tsx)，M02/M07/M08[停止协调](../desktop/electron/team-stop.cjs)与原控制台账，M10核对新资源和普通EXE；数据格式仍3、daemon帧仍2。功能ID M01-F13/M02-F11/M07-F11/M08-F10，原有ID保持。完整证据与边界见[停止专项](iterations/I07/native-stop.md)。
+
+OpenDesk作为M06-F05原生扩展，具体设计与验证见[OpenDesk适配](modules/06-native-adapters/opendesk/design.md)及[报告](modules/06-native-adapters/opendesk/test-report.md)；不引入新的模型管理模块。

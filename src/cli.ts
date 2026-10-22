@@ -17,6 +17,7 @@ import { type NativePermission, type NativeForm } from './drivers/opencode-clien
 import { type Interaction } from './protocol.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { terminalCommand, safeTerminal } from './terminal.js';
+import { runMcpCommand } from './mcp-command.js';
 
 const help = [
   'AgentBridge — CLI / Hub / Edge / OpenCode', '',
@@ -46,6 +47,16 @@ const help = [
   'agentbridge native TASK_ID --config CLIENT [--edge-config EDGE] [--json]',
   'agentbridge native TASK_ID --config CLIENT --permission ID --decision once|reject',
   'agentbridge native TASK_ID --config CLIENT --form ID --answer-file JSON_FILE',
+  '', 'MCP for one Agent node (no desktop window required; uses the running background):',
+  'agentbridge mcp nodes [--json] [--profile-dir DIR]',
+  'agentbridge mcp attach --node NODE_ID --operation-id ID [--json] [--profile-dir DIR]',
+  'agentbridge mcp operation --node NODE_ID --operation-id ID [--json] [--profile-dir DIR]',
+  'agentbridge mcp status --node NODE_ID [--adapter ADAPTER] [--profile NAME] [--json] [--profile-dir DIR]',
+  'agentbridge mcp export --node NODE_ID [--adapter ADAPTER] [--profile NAME] [--json] [--profile-dir DIR]',
+  'agentbridge mcp install --node NODE_ID [--adapter ADAPTER] [--profile NAME] [--json] [--profile-dir DIR]',
+  'agentbridge mcp remove --node NODE_ID [--adapter ADAPTER] [--profile NAME] [--json] [--profile-dir DIR]',
+  'agentbridge mcp revoke --node NODE_ID [--adapter ADAPTER] [--profile NAME] [--json] [--profile-dir DIR]',
+  'agentbridge mcp probe --node NODE_ID [--adapter ADAPTER] [--profile NAME] [--json] [--profile-dir DIR]',
   '', 'Scope: AgentBridge-created tasks; unknown tasks retain Agent occupancy. Native helpers are local operator tools.',
   'Exit: 0 success, 1 observed task failure, 2 input/config/auth, 3 unknown/watch timeout,',
   '      4 business refusal, 5 network/service/not found, 130 observation interrupted.',
@@ -67,6 +78,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
         model: { type: 'string' },
         'edge-config': { type: 'string' }, permission: { type: 'string' }, decision: { type: 'string' },
         form: { type: 'string' }, 'answer-file': { type: 'string' },
+        node: { type: 'string' }, 'profile-dir': { type: 'string' }, profile: { type: 'string' }, 'operation-id': { type: 'string' },
       },
     });
     if (v.help || p.length === 0) { console.log(help); return 0; }
@@ -75,12 +87,16 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       init: ['dir', 'port', 'json', 'adapter', 'workspace', 'executable', 'model'], hub: ['config'], connect: ['config'],
       doctor: ['dir', 'json'], up: ['dir'],
       native: ['config', 'edge-config', 'json', 'permission', 'decision', 'form', 'answer-file'],
+      mcp: ['node', 'adapter', 'json', 'profile-dir', 'profile', 'operation-id'],
       agents: ['config', 'json'], run: ['config', 'json', 'stdin', 'file', 'request-id', 'watch', 'timeout-ms'],
       tasks: ['config', 'json', 'watch', 'timeout-ms'], task: ['config', 'json', 'watch', 'timeout-ms', 'diagnostics'],
     };
     if (!command || !allowed[command]) throw new BridgeError('INVALID_COMMAND', 'Unknown command; use --help');
     for (const [name, value] of Object.entries(v)) if (value !== undefined && name !== 'help' && !allowed[command]!.includes(name)) throw new BridgeError('INVALID_ARGUMENT', 'Option is not supported by this command: --' + name);
     const print = (data: unknown, text?: string) => console.log(safeTerminal(safe(v.json ? JSON.stringify(data) : text ?? JSON.stringify(data, null, 2))));
+    // MCP management talks to the local desktop coordinator directly; it needs
+    // no Hub/Edge config file, model turn, task or hosted session.
+    if (command === 'mcp') return await runMcpCommand({ node: v.node, adapter: v.adapter, profileDir: v['profile-dir'], profile: v.profile, operationId:v['operation-id'], json: !!v.json }, p);
     if (command === 'init') {
       if (p.length !== 1) throw new BridgeError('INVALID_ARGUMENT', 'init accepts no positional arguments');
       if (v.adapter !== undefined && !['mock', 'opencode'].includes(v.adapter)) throw new BridgeError('INVALID_ARGUMENT', 'Adapter must be mock or opencode');

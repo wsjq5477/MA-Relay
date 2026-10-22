@@ -20,7 +20,7 @@ const noop = () => {};
 const kinds = ["claude", "codex", "opencode", "hermes", "pi", "dsh"];
 
 test("six official agent icons retain their exact source bytes and bundled provenance", () => {
-  assert.deepEqual(Object.keys(agentTools).filter(k => !['dsh-desktop', 'dsh-web'].includes(k)), kinds);
+  assert.deepEqual(Object.keys(agentTools).filter(k => !['dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop'].includes(k)), kinds);
   assert.equal(agentTools['dsh-desktop'].icon, agentTools.dsh.icon);
   assert.equal(agentTools['dsh-web'].icon, agentTools.dsh.icon);
   const directory = path.resolve(__dirname, "../assets/agents");
@@ -120,4 +120,11 @@ test("task and conversation marks follow the bound source node", () => {
   });
   assert.equal((reader.match(/data-agent-kind="pi"/g) || []).length, 2);
   assert.doesNotMatch(reader, /data-agent-kind="opencode"/);
+});
+
+test("OpenDesk CLI and desktop use the same bundled first-party identity", () => {
+  assert.equal(agentTools.opendesk.icon, agentTools['opendesk-desktop'].icon);
+  const bytes = fs.readFileSync(fileURLToPath(agentTools.opendesk.icon));
+  assert.equal(bytes.subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
+  assert.match(fs.readFileSync(path.resolve(__dirname,"../assets/agents/opendesk-LICENSE"),"utf8"), /Mulan|木兰/);
 });

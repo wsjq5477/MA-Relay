@@ -1,5 +1,57 @@
 # 迭代资料目录
 
+[alpha.46 源码与 Windows EXE 发布](I08/alpha46-release.md)：整合当前全部本地源码、测试与文档，沿用已核对一致的最终 EXE；本轮提交、工程检查与 GitHub 公开分发核验见专项。
+
+[OpenDesk 日常 MCP 诊断条目恢复](I08/opendesk-mcp-diagnostic-repair.md)：2026-10-22 日常后台已为 alpha.46；用户确认后备份并替换指向本机端口 1 的旧诊断条目。首次改盘被退出写回覆盖；改为进程 0 时离线替换并启动，日常原生父模型实际 list_agents 调用 1 次成功、返回 7 个获准节点，Prompt 1、子任务 0；自主委派与原生页面未验，无产品代码或 EXE 变化。
+
+[I08-MCP02原生组件与真实子任务验收](I08/mcp-native-acceptance.md)：已安装OpenDesk0.3.9和DSH原生MCP组件的正式授权、撤权与重开；两条生产协作链各完成1个真实Claude子任务，原生父模型自主委派和原生页面仍未验。
+
+[I08-MCP02 alpha.46恢复与观测修复](I08/mcp-open-recovery.md)：统一OpenDesk导出启动器、修复OpenCode数组探测、观测配置绑定/60秒有效期、Linux端点恢复与非GUI首次接入；真实委派仍未准出。
+
+## 2026-10-22：alpha.45 本地候选（OpenDesk 原生 MCP 可见性修复）
+
+[I08-MCP02 §14](I08/mcp-open-integration.md#14-opendesk-原生-mcp-可见性修复2026-10-22alpha45)：在**用户真实 OpenDesk Desktop 0.3.9** 上定位到两个根因并修复——(1) Bridge 的 stdio MCP 服务未响应 2026-07-28 协议的 `server/discover`，严格客户端在 `tools/list` 阶段判定失败；现返回 `supportedVersions`+`capabilities`。(2) OpenDesk 的 mcpmgr 无法启动 Bridge 的 Electron 运行时（`命令未找到`／`Connection closed`）；现为 OpenDesk 条目**优先使用真实 Node 启动器**，状态新增 `launcher` 并在回退 Electron 时明确提示，桌面文案改为必须完全退出并重开。真实原生（模型0）：重启后原生日志 `[mcpmgr] Connected to "AgentBridge", discovered 7 tools`，MCP 管理→已安装 MCP 可见 AgentBridge/STDIO/已连接/7 工具。**该条目是可见性诊断条目（token 非真实授权）**，真实授权调用需用 alpha.45 在 Bridge 点“添加 Bridge MCP”后再验。候选 EXE 130177443 字节、SHA-256 `35674f6c…`，`verify-package --portable` passed（50/84/1698、四类一致性 true、digest `195081305a…`），未签名、未公开、未在真实 Windows 启动（T16 待执行）。回归：桌面 753/753（新增 3 例），根测试直接运行 66/66（`npm test` 外壳曾超时）。
+
+## 2026-10-22：alpha.44 本地候选（I08-MCP02 打包）
+
+[I08-MCP02打包与候选交付](I08/mcp-open-integration.md#13-打包与候选交付记录2026-10-22)：`desktop` 版本位由 alpha.43 → **alpha.44**（源码/依赖未变），在 **WSL/Linux** 上完成冻结与交叉构建（node v22.23.1、electron-builder 26.15.3、Electron 44.7.0，构建缓存置于工作区并 gitignore）。Windows x64 便携EXE **130186782 字节**、SHA-256 `b78a2bcf7d45d67f95044186747e557881d461911077a01bda47addb549d6c63`，`verify-package --portable` 通过（后台50模块、核心84文件、Linux离线包1698文件、ASAR/前端/后台源码一致性均 true，linuxManifestDigest `8e47ae3b…`）；按 `win.signExecutable:false` 跳过签名。版本变更后桌面全量仍 750/750。**未签名、未公开、未部署**，且**未在真实 Windows 启动该 EXE**（会与日常 alpha.43 后台共用 `%APPDATA%/AgentBridge`），故 MCP02-T16 仍待执行，日常后台仍为 alpha.42/alpha.43。
+
+## 2026-10-22：开放MCP接入与双向配置（源码实现第一片）
+
+[I08-MCP02开发与验收记录](I08/mcp-open-integration.md)：一个AgentBridge MCP，Bridge与原生Agent均可添加/移除；能力拆为原生配置管理/MCP调用/托管任务注入三维，状态拆为配置/原生加载/连接/工具/授权/归属六项事实；新增`mcp.revoke`（只撤权）与`mcp.probe`（只读），`mcp.remove`在清理失败时返回`revoked_config_pending`；新增DSH Web原生`insert:`行适配（保留用户注释、空层拒绝）；Linux本机在协调器进程内路由`mcp.*`。受控测试（当日首次运行，其后加入新用例的最终数字见本条目末）：mcp-integration 18/18、connection-capabilities 11/11、mcp-local-machine 2/2、路由73/73；真实原生（受控profile、零模型）：Claude写入后`claude mcp list`报Connected且七项工具目录可见、Codex `codex mcp list`列出条目、DSH `--dump-config`含Bridge写入行。未运行模型、未写用户真实原生配置、未公开（当时未构建EXE；同日稍后已打包本地候选 alpha.44，见上条）。逐入口真实原生增删/工具调用/主调用链/托管归属（MCP02-T01..T18）仍待执行；WSL本机路由、DSH Desktop原生配置路径为明确缺口。当日晚补充两组真实原生探测（[§12](I08/mcp-open-integration.md#12-真实原生探测补充2026-10-22-晚)，不改§11数字）：DSH Web 在隔离 profile 上真实启动后完成原生握手并取到7个工具（模型0）；**OpenDesk 0.3.8 为负面证据**——`opendesk tools list` 无 MCP 分区、原生启动会把 `setting.json` 的 `applications` 重写为空并丢弃未识别 app 段，因此 Bridge 写入的条目没有原生读取证据，其原生加载/连接/工具一律 unknown，`mcp.install` 只能视为“已写入候选配置”，登记为本轮第一优先级缺口。同日晚补 **DSH CLI 显式 `profile` 原生配置**：六个MCP方法接受可选 `profile`（仅dsh使用，名称按单段目录校验、不拼接逃逸路径），写入 `$DSH_HOME/profiles/<profile>/cordis.patch.yml`；未指定时status报`MCP_DSH_PROFILE_REQUIRED`、install/remove拒绝、export只出片段；`dsh` 的 `nativeMCPConfig` 改为true，桌面新增“DSH 原生 profile”输入框，CLI新增`--profile NAME`。定稿桌面全量750/750、根66/66、mcp-integration 22/22。随后又在 shipped `acp` profile 上用真实 `dsh --profile acp` 启动观测到原生加载、`initialize` 握手与 `tools/list`（7工具，模型0），与DSH Web一致；仍未观测TUI/用户自建profile、真实用户profile与原生UI人工增删，也未做真实ACP客户端会话或模型委派。**OpenDesk 结论升级**：`opendesk plugins list` 11个builtin插件无MCP管理插件、`plugins tools` 无插件工具，结合§12.2的启动重写丢弃，判定 **OpenDesk CLI 0.3.8 不存在可供Bridge写入并被原生读取的MCP管理面**；代码收敛为 CLI `nativeMcpConfig=false`、`mcp.install` 以 `MCP_NATIVE_CONFIG_UNSUPPORTED` 拒绝、只可导出片段（Desktop 的原生读取随后在 alpha.45 修复并验证，见上条）。
+
+## 2026-10-22：OpenDesk前端执行门禁修复
+
+[alpha.43本地候选](I08/opendesk-ui-admission.md)：补齐CLI/Desktop前端能力识别，注册表遍历回归、桌面722/722、生产界面10组与包核验通过；本轮不发送模型需求。
+
+## 2026-10-22：OpenDesk Windows桌面原实例调试
+
+[alpha.42普通EXE与原生Desktop 0.3.9](I08/opendesk-desktop-live.md)：原实例只读3组、真实Host/worker5组、普通EXE完整链路5组通过；两条独立原生会话共4轮真实输入，宿主/窗口重开后上下文均保留。日常后台已等待原任务成功后由alpha.37正常切换到alpha.42，原Windows机器已发现健康桌面节点；原任务结果与授权保留，新增Prompt0。无运行代码或原生改动，未覆盖真实取消、MCP及SSH。
+
+## 2026-10-21：OpenDesk仅适配已有接口
+
+[CLI HTTP与桌面设备网关](I08/opendesk-existing-interfaces.md)：只修改Bridge；Bridge侧去重、派发围栏和原回应保存，桌面持有原连接，断线不可伪续聊；取消ACK与执行终态分开。alpha.42本地EXE已生成并通过包校验，核心57/57、桌面721/721、Windows协议13/13、普通EXE隔离5组、生产界面9组；原生CLI 0.3.8零Prompt探测5组，真实原生桌面与模型未验，普通EXE运行结果见专项。
+
+## 2026-10-21：OpenDesk双入口接入（已撤回方案）
+
+[OpenDesk CLI、Windows Desktop与独立MCP](I08/opendesk-integration.md)：共享原生持久收据与原实例绑定；Bridge静态注册、传输、发现、原请求恢复和配置增删；alpha.41本地EXE与原生CLI tgz已生成，核心57/57、桌面715/715、生产前端9组、Windows普通EXE隔离5组与包核验通过，模型/原生Desktop/SSH范围按专项登记。
+
+## 2026-10-21：OpenCode OOM 后原上下文恢复
+
+[需求、开发、现场恢复与验收](I08/opencode-oom-recovery.md)：原生服务 OOM 根因、用户批准的临时Swap与原服务恢复、attach拒绝持久收据、原ID核对和只读不启动保护；alpha.40 本地候选已构建并通过包校验，未公开。
+
+## 2026-10-21：I08 维护被拒后的离线恢复
+
+[维护被拒后的离线恢复与旧后台维护兼容](I08/maintenance-offline/maintenance-offline.md)：升级/回滚被拒但原后台仍在运行或已恢复（含早于持久收据端点的旧后台）时不再把机器留置为已断开；维护收据新增`stopped/phase`，停机未确认恢复保持`unknown`由原ID查询恢复；遗留维护屏障在下一次维护前自愈；拒绝原因经机器卡片与未确认操作可见。受控实测20/20、相关SSH专项38/38，独立验证见[verify-report.md](../../artifacts/maintenance-offline/verify/verify-report.md)；本机全量桌面当时679项676通过、3项失败（后经独立验证定位为测试未隔离`DSH_HOME`，同日修复，构建后684/684）；无真实用户远端与真实EXE/GUI验证，本轮未打包发布。恢复步骤见[用户恢复说明](I08/maintenance-offline/recovery.md)，旧版本能力事实见[旧后台能力清单](I08/maintenance-offline/old-daemon-capabilities.md)。
+
+[维护未决行回收与维护进度可见](I08/maintenance-offline/maintenance-visibility.md)：未决维护行在记录的执行进程已消失或从未记录（超过60秒宽限期）时，原operationId查询会派生恢复并收敛为终态，不再永久卡住准入；“后台维护”对话框显示上传/解包/校验进度与未决/终态文案，未决期间按1s/2s/4s/8s有界自动核对原操作，机器卡片同步显示进度。维护/SSH专项39/39、新增真实chromium界面用例3/3通过（实测退避1004ms/3004ms）；全量桌面当时682项679通过、3项失败，后经独立验证定位为测试未隔离`DSH_HOME`并同日由测试侧修复（构建后684/684，详见alpha.37交付记录）；既有Windows Edge界面套件本机未执行（无msedge）。[未测边界](I08/maintenance-offline/maintenance-visibility.md)。
+
+[alpha.37 本地候选交付（维护离线恢复 + 切片 A）](I08/alpha37-delivery.md)：把上述两批修复整合进 `0.6.0-alpha.37` 并构建本轮 Windows x64 便携 EXE，130034719 字节、SHA-256 `76e30b1e…`；新增从已公开 alpha.36 EXE 原样提取的兼容 pin（1458 文件逐项校验，manifestDigest `4f14b5f5…`），使运行 alpha.36 后台的机器可被识别。维护/SSH专项39/39、切片A真实chromium界面3/3、构建后全量桌面684/684、包校验 passed、check-docs errors 0、docs:test 6/6；未在Windows真机运行、未签名、无真实用户远端、windows-*.cjs Edge套件未跑、未公开GitHub，完整I06C/I07C准出不变，公开基线仍为 alpha.36。
+
+[alpha.38 本地候选交付：显式确认后越过未确认收据（契约变更）](I08/alpha38-delivery.md)：把用户已批准的契约变更（`idle()` 固定门禁顺序——任务/Agent 门禁永远先执行且永不可越过，收据门禁仅在显式 `allowUnresolvedReceipts:true` 时跳过并记录 `overridden/unresolved`）、两个只读门禁 RPC（`machine.maintenanceBlockers`/`machine.queryBlockedOperation`）与维护对话框三区块整合进 `0.6.0-alpha.38`，EXE 130038728 字节、SHA-256 `296260f2…`，新增 alpha.36/alpha.37 兼容 pin（包内共 32 条）；真实阿里云现场从 alpha.2 带外切到 alpha.37（**非产品 UI 完成**）已如实记录。测试：契约/SSH 26/26、新界面 5 checks、既有进度界面 3 checks、全量桌面 689/689（0 失败）、check-docs errors 0、docs:test 6/6；未在 Windows 真机运行、未签名、无真实用户远端、windows-*.cjs Edge 套件未跑、未公开 GitHub，完整 I06C/I07C 准出不变，公开基线仍为 alpha.36。**后续修正见 alpha.39：独立验证发现该契约在协调层不可达。**
+
+[alpha.39 本地候选交付：契约可达性修复、门禁结果中性显示、兼容 pin 调整](I08/alpha39-delivery.md)：修正 alpha.38 的阻断性反例——[coordinator-service.cjs](../../desktop/electron/coordinator-service.cjs) 的 `sshMethods` 加入两个只读门禁 RPC、`maintainDaemon` 的 config 白名单加入 `allowUnresolved`，使已批准的越过能力在打包产物中真正可达，并新增走真实协调层的回归 `maintenance-access.test.cjs`；维护对话框把门禁类结果（`DAEMON_BUSY`，判定发生在停机之前）按“上一次维护留下的结果”中性显示，只有真正停过机/校验失败的切换错误才保持红色告警；为容纳 alpha.38 pin（32 条硬上限）移除 alpha.3 pin（原件留档），仍在 alpha.3 的后台将以 `SSH_DAEMON_UPGRADE_REQUIRED` 明确拒绝而不是静默降级。EXE 130042811 字节、SHA-256 `bde7bc78…`；EXE 载荷与 win-unpacked 逐字节相同、1460 文件 `sha256sum -c` 全通过、32 条 pin 摘要重算全一致、真实协调层可达性 6 项断言通过、`tsc` 0 错、全量桌面 693/693（0 失败）、界面 6 checks + 3 checks；未在 Windows 真机运行、未签名、无真实远端端到端、windows-*.cjs 未跑、原计划的两名独立验证者均在产出前失败故本轮无第二方独立报告（证据全部由 Lead 亲跑，原始输出见 artifacts/alpha39/lead-verify/）。
+
 ## 2026-10-21：alpha.36全部修复整合（已公开发布）
 
 [全部修复整合与公开发布](I07/alpha36-delivery.md)：公开alpha.35独立修复与当前全部增量整合，核心57/57、桌面676/676；标签`1fef25f`，EXE 130032973字节、SHA-256 `43e09dd3…`，EXE与校验附件已公开并通过匿名完整下载核验。
@@ -42,6 +94,7 @@
 | I05 | [提案](I05/proposal.md)、[节点](I05/node-design.md)、[协作](I05/collaboration-design.md) | [0.5.0 验收](I05/acceptance.md) |
 | I06 | [提案](I06/proposal.md)、[需求](I06/requirements.md)、[设计基线](I06/ssh-design.md)/[图设计](I06/graph-design.md)、[开发](I06/development.md)、[进度](I06/progress.md)、[验收计划](I06/testing.md) | 6A/6B 主要范围已验收；I06C 完整范围未准出，专项索引见下 |
 | I07 | [目标](I07/goals.md)、[需求](I07/requirements.md)、[设计](I07/design.md)、[开发切片](I07/development.md) | [验收计划](I07/testing.md)；I07A/B 与 I07C 首批已实现，完整 I07C 未准出，专项索引见下 |
+| I08 | [需求、根因与实现](I08/maintenance-offline/maintenance-offline.md)、[旧后台能力清单](I08/maintenance-offline/old-daemon-capabilities.md) | [用户恢复步骤](I08/maintenance-offline/recovery.md)、[切片 A 未决回收与进度可见](I08/maintenance-offline/maintenance-visibility.md)；受控验证通过，[alpha.37 本地候选](I08/alpha37-delivery.md)与[alpha.38 越过未确认收据契约](I08/alpha38-delivery.md)已打包，未公开发布 |
 
 ## I07 专项索引：外部智能体、小队与协作
 

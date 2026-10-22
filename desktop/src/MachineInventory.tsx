@@ -14,7 +14,7 @@ import {
   Server,
   Terminal,
 } from "lucide-react";
-import { sshStageLabel } from "./AddMachineDialog";
+import { sshStageLabel, sshTransferSize } from "./AddMachineDialog";
 import { time } from "./api";
 import AgentIcon from "./AgentIcon";
 import { toolLabel } from "./agent-tools";
@@ -31,6 +31,11 @@ type MachineAction =
   | "remove"
   | "daemon";
 type Tone = "success" | "neutral" | "warning" | "danger";
+const transferPhaseNames: Record<string, string> = {
+  uploading: "正在上传",
+  extracting: "正在解包",
+  verifying: "正在校验",
+};
 
 interface Props {
   machines: Machine[];
@@ -356,10 +361,24 @@ export default function MachineInventory(props: Props) {
                 </details>
               </div>
             </header>
+            {machine.installProgress && (
+              <p className="ui-status" data-tone="info" role="status">
+                {transferPhaseNames[machine.installProgress.phase] || "正在上传"}{" "}
+                {sshTransferSize(machine.installProgress.completedBytes)} /{" "}
+                {sshTransferSize(machine.installProgress.totalBytes)}
+              </p>
+            )}
             {machine.progressWarning && <p className="inventory-machine-error" role="status">{machine.progressWarning.message}</p>}
             {machine.error && (
               <p className="inventory-machine-error" role="status">
                 {machine.error}
+              </p>
+            )}
+            {!machine.online && machine.daemonMaintenance?.state === "rejected" && (
+              <p className="inventory-machine-error" role="status">
+                {machine.daemonMaintenance.error?.message ||
+                  "后台维护未执行；原版本与历史保留。"}
+                可重新连接核对远端后台版本。
               </p>
             )}
             <div className="inventory-nodes">

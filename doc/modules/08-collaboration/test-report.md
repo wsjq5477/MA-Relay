@@ -1,5 +1,21 @@
 # M08 主从协作测试报告
 
+## 后续原生组件验收（2026-10-22，alpha.46）
+
+已安装OpenDesk/DSH原生MCP组件协议分别5组/6组通过；两条生产协作链各完成1个真实Claude子任务，并分别只读重开原任务/Session/结果，无重放。原生父模型自主决策与日常原生页面未验；产品运行代码与EXE未变，不把新增验收与原全量计数叠加。[脚本、初次失败、准确层级和未测项](../../iterations/I08/mcp-native-acceptance.md)。
+
+## MCP02恢复与观测（2026-10-22）
+
+MCP连接和工具目录观测不授予主角色，不证明原生调用或委派。撤权后已连接stdio客户端立即被拒绝，外部配置删除只改变配置事实。 WSL Node22.23.1共享桌面758/758、根68/68通过，最终JSON修复后CLI11/11及类型/lint/核心构建通过；模型0，真实原生模型委派未测，Windows结果按专项登记。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+
+## 主角色准入与托管scope分离（I08-MCP02第一片）
+
+T-M08-MCP02A / M08-F01/F02/F05：2026-10-22，alpha.43派生工作源码，WSL Node22.23.1。本轮同机定稿全量桌面 tests **750** / pass **750** / fail 0（当日首轮 747/747，58.4s；加入 DSH profile/OpenDesk 用例后定稿），根 `npm test` 66/66，工程检查通过；计数共享不跨模块相加。与本模块相关：`connection-capabilities.test.cjs` 11/11（`test('independent callers are admitted while MCP-unknown agents stay delegation-only targets')`、`OpenDesk external MCP can own ordinary delegation while hosted scope rejects before intent`、旧关系/原收据先于新能力检查恢复）、`agent-network.test.cjs` 与 `mcp-remote-routing.test.cjs` 73/73（含新方法转发、旧daemon显式升级）。均为受控测试，**模型0、无真实原生主从调用链**。
+
+未测：真实独立MCP主Agent发现/委派/读回原结果、真实托管scope注入、真实撤权后新委派拒绝、真实原生缓存会话。逐项状态见[本轮记录](../../iterations/I08/mcp-open-integration.md#114-逐入口完成度)。
+
+OpenDesk相关验证统一见[专项报告](../../iterations/I08/opendesk-existing-interfaces.md)，明确受控协议、真实原生启动、模型和Windows包的独立范围；共享计数不跨模块累加，未执行项保持未测。
+
 ## alpha.36整合边界
 
 2026-10-21 / WSL Node22.23.1：本轮全量核心57/57、桌面676/676，类型/lint/前端构建通过。各模块共享计数不相加；包核验、Windows契约144/144、界面26组与普通EXE7组通过，具体以专项为准，真实模型/用户profile/独立SSH未验。[完整交付](../../iterations/I07/alpha36-delivery.md)。

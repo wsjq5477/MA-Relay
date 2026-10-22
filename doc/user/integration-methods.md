@@ -29,8 +29,9 @@
 | --- | --- | --- |
 | 已安装的 Claude Code / Codex | 使用现有 CLI 执行；需要主动协作时加 Bridge MCP | 沿用原生配置，执行与协作能力分别建立 |
 | 已安装的 OpenCode | 使用现有 CLI 启动 + HTTP 执行，协作使用 MCP | 保留已支持的原生交互，不必为连接改换工具 |
-| 已安装的 Hermes / Pi / DSH CLI | 先使用现有 CLI 直接执行或普通被委派 | 当前尚未提供 Bridge MCP 调用方能力 |
+| 已安装的 Hermes / Pi / DSH CLI | 先使用现有 CLI 直接执行或普通被委派 | DSH 已声明有 MCP 客户端，CLI 需你指定启动时使用的 profile 才能写入（不指定只导出片段）；Hermes/Pi 的 MCP 客户端能力尚未确认 |
 | 已运行的 DSH Desktop / Web | 使用对应服务入口的认证 API | 复用正在运行的实例，避免误用 headless 配置 |
+| OpenDesk CLI / Windows Desktop | CLI使用原生HTTP，桌面连接原实例WebSocket；独立会话按需配置MCP | 两个环境保持原生身份与配置，托管scope和小队未开放 |
 | 自研 Agent 已有 MCP 客户端，只需调用 Bridge 工具 | 配置获准的 Bridge MCP 连接 | 快速获得协作通路，但不自动获得被 Bridge 启动的能力 |
 | 新增可被 Bridge 驱动的 Agent | 优先选择产品已有的稳定结构化 CLI 或 API | 需要新增并验证执行适配，不能填写任意命令或 URL 即自动支持 |
 | 新 Agent 提供 ACP，或已有成熟 SDK / 插件扩展点 | 比较现有原生路径，再按接口能力适配 | 当前没有通用 ACP / SDK / 插件入口，不能当作现成配置项 |
@@ -41,6 +42,6 @@
 
 **使用现有工具**：安装并配置原生 Agent → 在对应机器检测 → 选节点与会话目录 → 发起第一条任务 → 核对续聊与取消。DSH 服务版按[DSH 设置步骤](agents/dsh.md)填写根地址和凭据。
 
-**让 Agent 主动调用 Bridge**：使用已适配的 Claude Code / Codex / OpenCode，在[MCP 管理](connections.md)里建立连接与授权；其他外部 Agent 需要自身 MCP 客户端并显式配置。只建立 MCP 连接不会自动注册新的可执行节点。
+**让 Agent 主动调用 Bridge**：使用已适配的 Claude Code / Codex / OpenCode / OpenDesk / DSH Web，在[MCP 管理](connections.md)里建立连接与授权；DSH Desktop 与 Hermes / Pi 可用 `agentbridge mcp export` 取得片段后按原生文档添加，DSH CLI 则用 `agentbridge mcp install --node … --profile <启动 profile>` 直接写入。只建立 MCP 连接不会自动注册新的可执行节点。
 
 **接入新产品**：现有安装检测与设置不能替代执行适配。需确定原生入口及会话/取消/查询语义，增加静态适配并核对能力，再提供用户入口和说明；不能把找到图标或读取版本当作完整接入。

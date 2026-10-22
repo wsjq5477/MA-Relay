@@ -1,5 +1,13 @@
 # 通信协议与接口
 
+非GUI新增mcp nodes（无node参数）、mcp attach/operation --node ID --operation-id ID。分别复用snapshot、manageNode(action=attach)、nodeOperation；不新增RPC或模型提交。管理收据confirmed退出0、rejected退出4、unknown/not_found/不匹配退出3，查询失败不视为结束，不重放attach。status增加evidence.observation时间/有效性；配置变化或超过60秒的连接/工具观测不再用于当前事实。JSON保留authorization状态枚举，其他凭据类字段仍脱敏。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
+
+当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。
+
+OpenDesk执行复用既有接口：CLI的`POST /session`、`POST /session/:id/message`、`GET /session/:id/message`与`POST /session/:id/abort`；Desktop的`connect`、`gateway.identity.get`、`chat.send/history/abort`。CLI随机Basic密码仅保存在目标Bridge私有目录，通过环境变量传入原CLI。桌面核对已有网关身份，不宣称新增了原生认证协议。Bridge的requestId在本地去重；桌面idempotencyKey仅关联runId，不能推定原生去重。原会话恢复、取消及终态规则见[OpenDesk完整契约](modules/06-native-adapters/opendesk/design.md)。
+
+OpenCode显式context准备可以复用既有ipc.start恢复已退出的原服务；snapshot/原请求读取不进入本次新增恢复路径。nodeOperation按原operationId返回持久attach拒绝收据；该拒绝仅表示本地接入授权未提交，不表示原任务成功/取消，也不保证远端未生成上下文。RPC与协议版本不变。详见[OpenCode OOM 恢复与接入拒绝收据](iterations/I08/opencode-oom-recovery.md)。
+
 ## alpha.36当前整合
 
 公开alpha.35的managementBlocks与前端executionRecoveryReason按原节点/安装/共享目录限制执行，管理写入保持同机保护；graphPending只读投影可选blockedNodeIds。原收据须匹配已提供来源与内容指纹，原ADAPTER_HOST严格持久拒绝恢复保留。scoped-management-execution-v1与dsh-web-desktop-v1共同要求中央升级；Task/Session身份、未知不重放及线协议版本不变。[整合与实际验证](iterations/I07/alpha36-delivery.md)。
@@ -67,6 +75,29 @@ wire protocol仍2；中央及daemon hello新增capabilities中的owned-object-co
 协议2和ipc请求形状不变。task/conversation按实际backend读取，明确NOT_FOUND/TASK_NOT_FOUND/CONVERSATION_NOT_FOUND可回原机器保留历史；historical=true/canContinue=false。OBJECT_SOURCE_CONFLICT表示多后台同ID，RECEIPT_MISMATCH表示响应ID不符；两者及真实NOT_CONFIGURED不假装历史成功。request/operation/submit/continue/reply/cancel不受此回退影响。 [需求、实现、逐项证据与边界](iterations/I07/history-detail-recovery.md)。
 
 CT-04桌面消费者不新增RPC/参数/daemon帧。team.document返回须匹配请求的runId/documentId/revision，并有有效currentRevision/contentSha256；浏览器重新计算正文摘要，索引指定修订还核对索引摘要。旧后台忽略revision/不支持索引时明确报错，不能把最新正文冒充旧版；clipboard/浏览器MD下载没有网络同步合约。[实际流程与测试](iterations/I07/public-materials-ui.md)。
+
+## 开放MCP接入：方法、状态事实与能力标记
+
+用户入口仍以nodeId为准、由后台派生adapter与机器，客户端不能指定文件或可执行命令；本轮在此之上新增两个方法并扩展status的观测面：
+
+| 方法 | 参数 | 语义 |
+| --- | --- | --- |
+| `mcp.status` | `{nodeId}` | 只读；返回`state`（`absent`/`exported`/`installed`/`conflict`/`revoked_config_pending`/`unsupported`）、`facts`（`config`/`nativeLoad`/`connection`/`tools`/`authorization`/`ownership`）、`evidence`（`configPath`/`nativeProbe`/`toolsProbe`/`configError`）、`nativeSupport`/`nativeSupportCode`/`nativeSupportReason`，并保留`enabled`/`installed`/`conflict`/`configPath`/可选`connectionId`/`files` |
+| `mcp.install` | `{nodeId}` | 写Bridge自己拥有的原生条目；已存在外部条目返回`MCP_CONFIG_CONFLICT`并保留 |
+| `mcp.export` | `{nodeId}` | 只登记身份并生成标准片段（JSON/TOML/JSONC/OpenDesk JSON/DSH补丁YAML），不写原生配置 |
+| `mcp.remove` | `{nodeId}` | 先撤权再删原样归属条目；清理失败返回`state:'revoked_config_pending'`与`cleanupError`，不恢复授权 |
+| `mcp.revoke` | `{nodeId}` | **只**持久撤销授权，绝不修改原生条目 |
+| `mcp.probe` | `{nodeId}` | 只读探测：该产品自身的MCP列表（仅`claude`/`codex`/`opencode`有）+ Bridge stdio工具目录；不写配置、不重装、不启动模型 |
+
+机器路由：Windows本机与SSH机器经`MachineHost`；**Linux本机**在协调器进程内由本地MCP宿主处理上述六个方法（其他方法仍走原执行宿主，MCP失败不回落到执行）；WSL本机仍走远端路径，当前方法集合无`mcp.*`。
+
+新增能力标记`mcp-open-access-v1`（中央与daemon hello同时公布）。缺该标记时：`mcp.status`/`mcp.revoke`/`mcp.probe`返回`MCP_BACKEND_UPGRADE_REQUIRED`（不静默降级），`mcp.install`/`mcp.export`/`mcp.remove`在旧“当前版本”后台仍可用。维护期间：撤权与安装/导出/移除同属配置变更被拒，只读探测与状态允许。错误码新增`MCP_PROFILE_MISSING`（DSH Web profile目录不存在，安装前拒绝，不创建文件）与`MCP_DSH_PROFILE_REQUIRED`（DSH CLI 未指定或非法的原生 profile 名称）。
+
+**DSH 的 `profile` 参数**：`mcp.status|export|install|remove|revoke|probe` 均接受可选 `profile`，仅 `dsh` 适配器使用，其余适配器忽略；DSH Web 固定 `web` 且不暴露该参数。原生目标是 `$DSH_HOME/profiles/<profile>/cordis.patch.yml`（`DSH_HOME` 缺省 `~/.dsh`），写入仍是单一 `insert:` 行 + `@deepseek-ai/dsh-mcp-client`。名称必须匹配 `^[a-z0-9][a-z0-9-]{0,63}$`（`../escape`、`a/b`、空串、大写、前导 `-` 一律拒绝，不拼接逃逸路径）。未指定时 `mcp.status` 返回 `nativeSupport:false`+`MCP_DSH_PROFILE_REQUIRED`+`profile:null`，`mcp.install`/`mcp.remove` 同码拒绝，`mcp.export` 仍出片段；`status` 回显 `profile`，省略参数时使用登记值，`mcp.remove` 只清理登记的那个 profile。安装后事实为 `nativeLoad:'reload_required'`，不宣布已连接。[接口与未测项](iterations/I08/mcp-open-integration.md#125-dsh-cli-显式-profile-原生配置2026-10-22-晚补)。
+
+Bridge 作为 stdio MCP 服务端的握手：对协议修订 2026-07-28 的 `server/discover` 探测返回 `{supportedVersions:['2024-11-05','2025-03-26','2025-06-18','2025-11-25'], capabilities:{tools:{}}}`，不再返回 JSON-RPC 错误（严格客户端此前会因此判定连接失败）；`initialize`/`tools/list`/`tools/call` 与工具集合不变。`mcp.status` 对 OpenDesk 两个入口额外返回 `launcher:'node'|'electron'`，表示写入的原生条目用哪个启动器：OpenDesk 的 mcpmgr 无法启动 Bridge 的 Electron 运行时，因此优先使用 PATH 中真实存在的 Node，未找到时回退 Electron 并在界面明确提示。
+
+非GUI入口：`agentbridge mcp status|export|install|remove|revoke|probe --node NODE_ID [--adapter ADAPTER] [--json] [--profile-dir DIR]`，经运行中协调器的私有socket调用同一批方法，解`{ok,result}`信封；`--adapter`省略时从`snapshot`的`nodes`解析（0/>1匹配退出码2，不猜），`--json`对`token/secret/bearer/authorization/password/privatekey/apikey/credential/configuration`类键与疑似令牌脱敏。响应仍不含Token或endpoint内容。[完整契约、证据与未测项](iterations/I08/mcp-open-integration.md)。
 
 ## 独立 MCP 配置管理
 

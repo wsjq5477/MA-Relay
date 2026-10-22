@@ -1,5 +1,6 @@
 const { readFileSync, writeFileSync, renameSync, mkdirSync, existsSync } = require('node:fs');
 const { resolve } = require('node:path');
+const os = require('node:os');
 const { HostConnection, distributions } = require('./rpc.cjs');
 const { ClaudeHost } = require('./claude-host.cjs');
 const { AgentNetwork } = require('./agent-network.cjs');
@@ -11,8 +12,8 @@ const { GraphOperationJournal } = require('./graph-operations.cjs');
 const { supportsTeamCollaboration, connectionCapabilities, isCollaborationCapabilityRejection } = require('./builtin-adapters.cjs');
 const teamMethods=new Set(['team.contextPacket','team.materials','team.stopRun','team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
-const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview']);
-const methods = new Set(['dsh.status','dsh.configure','mcp.status','mcp.install','mcp.remove','mcp.export','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
+const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview','machine.maintenanceBlockers','machine.queryBlockedOperation']);
+const methods = new Set(['dsh.status','dsh.configure','mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
 // SSH state is a complete observation: absent errors revoke cached failures.
 // A live transport must not hide a failed business snapshot (e.g. RPC timeout).
 function mergeSshState(machine, state, snapshot = false) {
@@ -29,6 +30,36 @@ function mergeSshState(machine, state, snapshot = false) {
   if (state.connectionError) machine.connectionError = state.connectionError;
   if (snapshot) machine.online = state.online && snapshotOnline;
   return machine;
+}
+// On a Linux desktop the coordinator process itself runs beside the native
+// products, so the local machine can manage MCP configuration directly. The core
+// Bridge host (dist/desktop-host.js) owns execution and has no mcp.* methods, so
+// only MCP calls are routed to a local MachineHost; everything else keeps the
+// existing host. A WSL machine stays on the remote path because its filesystem is
+// not this process's filesystem.
+const localMcpMethods = new Set(['mcp.status','mcp.install','mcp.export','mcp.remove','mcp.revoke','mcp.probe']);
+function localMcpHost(options) {
+  const { McpIntegration } = require('./mcp-integration.cjs');
+  const { CollaborationBroker } = require('./collaboration-broker.cjs');
+  const directory = resolve(options.directory, 'local');
+  const broker = new CollaborationBroker(directory, (...args) => {
+    if (args[0].externalConnectionId) mcp.authorize(args[0]);
+    if (!options.collaboration) throw Object.assign(new Error('主 Agent 协作通道未连接。'), {code: 'COLLABORATION_OFFLINE'});
+    return options.collaboration(...args);
+  });
+  const mcp = new McpIntegration({...options, directory, home: options.home || os.homedir()}, broker);
+  const ready = mcp.restore();
+  ready.catch(() => {});
+  return {
+    async call(method, params) {
+      if (!localMcpMethods.has(method)) throw Object.assign(new Error('本地 MCP 主机不处理该请求。'), {code: 'DESKTOP_METHOD'});
+      if (method === 'mcp.remove') await ready.catch(() => {});
+      else await ready;
+      return mcp.call(method, params);
+    },
+    setCollaboration(handler) { options.collaboration = handler; },
+    close() { broker.close(); },
+  };
 }
 function createCoordinatorService(options) {
   const platform = options.platform || process.platform;
@@ -135,9 +166,20 @@ function connection() {
       : machine.kind === 'windows' ? new MachineHost({directory: resolve(options.directory,'windows'),
         legacy: new ClaudeHost({directory: resolve(options.directory,'windows')}),
         openCode: directory => new HostConnection(hostPath(), {directory,native:true,leaf:true,runtime:workerRuntime(resolve(options.directory,'windows'))})})
-      : new HostConnection(hostPath(), {native: platform !== 'win32',distribution: machine.distribution,
-        bootstrapPath: existsSync(resolve(__dirname,'../../bootstrap.sh')) ? resolve(__dirname,'../../bootstrap.sh') : resolve(__dirname,'bootstrap.sh'),
-        directory: (!settings().distribution || settings().distribution === machine.distribution) ? settings().directory : ''})
+      : (() => {
+        const exec = new HostConnection(hostPath(), {native: platform !== 'win32',distribution: machine.distribution,
+          bootstrapPath: existsSync(resolve(__dirname,'../../bootstrap.sh')) ? resolve(__dirname,'../../bootstrap.sh') : resolve(__dirname,'bootstrap.sh'),
+          directory: (!settings().distribution || settings().distribution === machine.distribution) ? settings().directory : ''});
+        if (machine.kind === 'wsl' || machine.distribution) return exec;
+        // The local Linux machine: MCP management runs in this process, execution
+        // keeps the existing core host. MCP failures never fall back to execution.
+        const local = localMcpHost(options);
+        return {
+          async call(method, params) { return localMcpMethods.has(method) ? local.call(method, params) : exec.call(method, params); },
+          setCollaboration(handler) { local.setCollaboration(handler); exec.setCollaboration?.(handler); },
+          close() { local.close(); exec.close?.(); },
+        };
+      })()
   });
   void ssh.start();
   return host;
@@ -274,7 +316,7 @@ async function call(input) {
         if(!config||typeof config!=='object'||Object.keys(config).some(k=>!['name','host','port','username','authKind','keyPath'].includes(k)))throw Object.assign(Error('连接配置只接受地址、用户和认证方式；凭据请使用专用入口。'),{code:'INVALID_INPUT'});
         input={...input,params:{...input.params,config:require('./ssh-host.cjs').validateDraft(config)}};
       }
-      if(input.method==='machine.maintainDaemon'){const config=input.params.config;if(!config||Object.keys(config).some(k=>!['action','previewId','expectedVersion','targetVersion'].includes(k)))throw Object.assign(Error('后台维护只接受动作与可信版本摘要。'),{code:'INVALID_INPUT'});}else if(input.method!=='machine.updateSsh'&&input.params.config)throw Object.assign(Error('该机器操作不接受配置字段。'),{code:'INVALID_INPUT'});
+      if(input.method==='machine.maintainDaemon'){const config=input.params.config;if(!config||Object.keys(config).some(k=>!['action','previewId','expectedVersion','targetVersion','allowUnresolved'].includes(k)))throw Object.assign(Error('后台维护只接受动作与可信版本摘要。'),{code:'INVALID_INPUT'});}else if(input.method!=='machine.updateSsh'&&input.params.config)throw Object.assign(Error('该机器操作不接受配置字段。'),{code:'INVALID_INPUT'});
       const params={...input.params,connectionId:c.connectionId,...(c.machineId?{machineId:c.machineId}:{}),operationId:input.params.operationId||require('node:crypto').randomUUID(),expectedRevision:input.params.expectedRevision??c.revision};
       return {ok:true,result:await graphJournal.save(input.method,params,graphDispatch)};
     }
@@ -495,4 +537,4 @@ return { call, pending: () => read('pending.json', []).filter(r => ['pending','u
   }, close() { clearInterval(teamTimer);teamEngine?.close();teamBroker?.close();teams?.close();ssh?.close(); host?.close(); }
 };
 }
-module.exports = {createCoordinatorService, mergeSshState};
+module.exports = {createCoordinatorService, mergeSshState, localMcpHost, localMcpMethods};

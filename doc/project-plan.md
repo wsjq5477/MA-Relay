@@ -1,5 +1,13 @@
 # 迭代路线与当前交付
 
+最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
+
+当前本地候选alpha.46已承接[I08-MCP02](iterations/I08/mcp-open-integration.md)，完成[恢复与观测修复、非GUI首次接入](iterations/I08/mcp-open-recovery.md)。六项事实按配置绑定与60秒观测有效期核对，Linux重启恢复端点且不补装原生条目；根68/68、桌面758/758，最终JSON修复后CLI11/11与工程检查通过。未签名、未公开、未部署远端；逐入口真实原生增删、主Agent委派与托管归属仍未准出，公开基线alpha.36不变。
+
+当前候选已补齐OpenDesk前端能力门禁；[本轮交付](iterations/I08/opendesk-ui-admission.md)。当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。 当前Windows Desktop 0.3.9原实例真实执行、续聊和窗口重开通过；[现场验证范围](iterations/I08/opendesk-desktop-live.md)。
+
+当前修复：OpenCode OOM 后原上下文恢复与本地接入拒绝收据已实现并完成受控与限定现场验证；已纳入当前本地候选源码，公开基线仍 alpha.36，完整I06C/I07C未准出。详见[OpenCode OOM 恢复与接入拒绝收据](iterations/I08/opencode-oom-recovery.md)。
+
 这里维护交付顺序与后续目标，不另建一套架构；完整功能与模块设计见 [资料入口](README.md)。逐轮历史与发布记录见 [迭代目录](iterations/README.md)。
 
 ## 1. 当前基线
@@ -40,7 +48,7 @@ alpha.36已按三方内容整合公开alpha.35独立修复与当前工作区，�
 | 顺序 | 目标 | 内容与前置 |
 | --- | --- | --- |
 | 1 | I07C 收尾 | 六工具真实覆盖（Hermes/Pi/DSH 真实直接执行与被委派验收）、DSH Desktop/Web 原实例验证、真实执行成员链与完整停止；[矩阵](agent-integration-matrix.md) §4 CT-02 行 |
-| 2 | CT-06 通用 MCP 调用方 | 先只读核对各工具原生 MCP 客户端与插件扩展点，再按独立MCP模式逐工具接入；静态 `bridgeMcp` 验收后翻真；[规划](iterations/I07/agent-centric-operations.md) |
+| 2 | CT-06 通用 MCP 调用方 / I08-MCP02 | **源码第一片完成**（能力三维、六项状态事实、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI CLI、Linux本机路由、`mcp-open-access-v1`升级错误）；下一步逐入口真实原生增删/列表/工具/主调用与托管归属验收，再打包。优先OpenDesk/DSH；不强制等待完整I07C完成，不将未实现能力批量翻真；旧[总体规划](iterations/I07/agent-centric-operations.md)保留历史 |
 | 3 | CT-07 Agent 侧连接操作面 | [委派列表](iterations/I07/delegation-list.md)、[当前连接视图](iterations/I07/agent-connections.md)、[子会话最小上下文](iterations/I07/delegation-context.md)均已源码/受控覆盖；最新667/667/Windows36/36，整合包与真实原生消费仍待验 |
 | 4 | CT-08 多主关系与连接管理 | 单主关系泛化为按身份 relations、连接管理工具与 envelope 确认流；先重构后行为分片验收 |
 | 5 | CT-03 可选 ACP 试点 | OpenCode ACP Client 试点，保留现有驱动；第二种 Agent 复用同一 Client 后再决定扩大 |

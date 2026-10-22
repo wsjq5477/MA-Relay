@@ -1,5 +1,7 @@
 # M07 任务、会话、交互控制与恢复设计
 
+OpenDesk请求摘要、派发围栏和原生回应全部由Bridge持久保存，不依赖原生request lookup。CLI绑定原HTTP会话/消息父子关系，Desktop绑定connId与sessionKey；原连接丢失不可续聊。只读核对不重发，历史completed与cancel ACK不推定当前轮终态，unknown不释放占用。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
+
 ## alpha.36整合边界
 
 M07-F01：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。

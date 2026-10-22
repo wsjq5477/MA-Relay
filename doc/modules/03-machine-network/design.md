@@ -1,5 +1,9 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+OpenDesk CLI按目标环境当前PATH发现；已知扩展名为空的npm入口使用原安装和后台Node。Windows Desktop只读原生setting中的网关地址与本用户网关身份，调用已有接口核对，不启动桌面程序或写原生配置；网关不可用时显示原因。CLI/Desktop节点独立，桌面默认目录沿用原生设置。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
+
+M03-F02：OpenCode 显式接入遇原服务已退出时，仅启动原 context 内的原生服务，再核验原 Agent；本次新增恢复不放在快照或原请求读取分支。接入准备失败原子记录本地 attach 拒绝收据，原图意图只按匹配证据收敛；不改变原任务、Session 或 unknown 门禁。恢复不改协议或原生模型配置。详见[恢复契约与边界](../../iterations/I08/opencode-oom-recovery.md)。
+
 ## alpha.36整合边界
 
 M03-F02：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。

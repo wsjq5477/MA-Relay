@@ -1,4 +1,13 @@
 // Production renderer + real Coordinator/MCP config manager; native tools and machines are controlled.
+// I08-MCP02 flow notes for the next Windows operator:
+// - The old single status line is now six separate facts (配置/原生加载/连接/工具/授权/归属).
+//   Native load/connection/tool evidence only appears after clicking 重新探测原生列表
+//   (mcp.probe); this script keeps model calls at 0 and does not run native probes.
+// - 撤销连接授权 (mcp.revoke, window.confirm) revokes only the persisted authorization;
+//   "移除 Bridge MCP" revokes first and then cleans up an owned native entry. When the
+//   native entry was edited/deleted externally the card must show
+//   "已撤销授权，原生配置待清理" with separate 授权=已撤销 and 配置=存在 facts, never a
+//   single "已移除" claim.
 const fs = require("node:fs"),
   path = require("node:path"),
   http = require("node:http"),
@@ -111,14 +120,20 @@ async function main() {
     await expect(
       card.getByRole("button", { name: "移除 Bridge MCP" }),
     ).toBeEnabled();
+    await expect(
+      card.getByRole("button", { name: "重新探测原生列表" }),
+    ).toBeVisible();
+    await expect(
+      card.getByRole("button", { name: "撤销连接授权" }),
+    ).toBeEnabled();
     report.checks.push(
-      "add writes an isolated native configuration and updates status",
+      "add writes an isolated native configuration and updates the six-fact status card",
     );
     await card.getByRole("button", { name: "生成独立 MCP 文件" }).click();
     await card.getByText("独立配置文件", { exact: true }).click();
     await expect(card).toContainText("agentbridge.codex.toml");
     await expect(card).toContainText("agentbridge.opencode.jsonc");
-    report.checks.push("all three independent configuration paths are visible");
+    report.checks.push("the independent configuration paths are visible");
     await page.screenshot({
       path: path.join(out, "installed.png"),
       fullPage: true,
@@ -127,6 +142,15 @@ async function main() {
       row = manager.rows[0],
       target = manager.config(row.adapter),
       original = row.configuration;
+    row.probe={kind:'controlled-observation',at:'2026-10-21T01:00:00.000Z',
+      binding:manager.probeBinding({nodeId:row.nodeId,adapter:row.adapter},row),
+      nativeLoad:'loaded',connection:'connected',tools:{outcome:'available',toolCount:7}};
+    await card.getByRole('button',{name:'刷新配置状态'}).click();
+    await expect(card).toContainText('2026-10-21T01:00:00.000Z');
+    await expect(card.locator('.mcp-fact-connection')).toContainText('未知');
+    await expect(card.locator('.mcp-fact-tools')).toContainText('未知');
+    await expect(card).toContainText('服务端工具目录可用不代表原生Agent已连接或已获准委派');
+    report.checks.push('expired controlled observations display their timestamp and no longer claim a live connection or available tools');
     target.update({ ...original, command: "user-modified-command" }, original);
     await card.getByRole("button", { name: "刷新配置状态" }).click();
     await expect(card).toContainText("配置冲突");
@@ -134,11 +158,21 @@ async function main() {
       card.getByRole("button", { name: "添加 Bridge MCP" }),
     ).toBeDisabled();
     await card.getByRole("button", { name: "移除 Bridge MCP" }).click();
-    await expect(card).toContainText("接入授权已关闭");
+    // The external edit is preserved, so authorization and native cleanup are
+    // reported as two separate facts instead of a single "removed" claim.
+    await expect(card).toContainText("已撤销授权，原生配置待清理");
+    await expect(card).toContainText("已撤销连接授权，原生配置仍存在，待清理");
+    await expect(card.locator(".mcp-fact-authorization")).toContainText("已撤销");
+    // The edited external entry stays visible as a config conflict while the
+    // authorization is already revoked; the alert states the native entry remains.
+    await expect(card.locator(".mcp-fact-config")).toContainText("冲突");
+    await expect(card).not.toContainText("接入授权已关闭");
     assert.equal(target.inspect().entry.command, "user-modified-command");
     report.checks.push(
-      "conflict preserves the native entry while removal revokes the connection",
+      "conflict preserves the native entry; removal revokes authorization and reports pending native cleanup separately",
     );
+    // Simulate the user clearing the leftover native entry; the next status read
+    // must show absent config with the already-revoked authorization retained.
     target.update(undefined, { ...original, command: "user-modified-command" });
     await card.getByRole("button", { name: "刷新配置状态" }).click();
     await expect(

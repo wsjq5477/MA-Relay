@@ -1,5 +1,58 @@
 # M10 构建与发布测试报告
 
+## 后续原生组件验收（2026-10-22，alpha.46）
+
+已安装OpenDesk/DSH原生MCP组件协议分别5组/6组通过；两条生产协作链各完成1个真实Claude子任务，并分别只读重开原任务/Session/结果，无重放。原生父模型自主决策与日常原生页面未验；产品运行代码与EXE未变，不把新增验收与原全量计数叠加。[脚本、初次失败、准确层级和未测项](../../iterations/I08/mcp-native-acceptance.md)。
+
+## MCP02恢复与观测（2026-10-22）
+
+本地候选版本alpha.46；最终包冻结、SHA-256及Windows隔离验收见本轮交付记录。未签名、未公开、未部署SSH。 WSL Node22.23.1共享桌面758/758、根68/68通过，最终JSON修复后CLI11/11及类型/lint/核心构建通过；模型0，真实原生模型委派未测，Windows结果按专项登记。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+
+## alpha.45 本地候选（OpenDesk 原生 MCP 可见性修复，2026-10-22）
+
+T-M10-MCP02Q / M10-F01/F02/F03/F06：版本位 `0.6.0-alpha.44` → **`0.6.0-alpha.45`**（`desktop/package.json` 与 lock 同步，含本轮 stdio 协议与启动器修复；根 `package.json` 仍 0.1.0）。构建方式同 alpha.44：WSL/Linux 交叉构建 `npm run desktop:dist`（node v22.23.1、electron-builder 26.15.3、Electron 44.7.0），`win.signExecutable:false` → **未签名**。
+
+| 项 | 结果 |
+| --- | --- |
+| 产物 | `desktop/release/AgentBridge-0.6.0-alpha.45-Windows-x64.exe`（`desktop/release/` gitignore，不入库） |
+| 大小 / 摘要 | **130177443 字节** / SHA-256 **`35674f6c29187524e5e51dbbe983447478508d21d68971b6ec956fd14371b3a6`** |
+| 包核验 | `verify-package --portable` → `status: passed`，version `0.6.0-alpha.45`，backendModules 50、coreFiles 84、`coreBuildMatches`/`appAsarSourceMatches`/`frontendMatches`/`linuxBackendMatches` 均 true，linuxFiles 1698，linuxManifestDigest `195081305a67fd70a505989241ae82bccceb9df5d7a6515b2f0de4230fed1a9b` |
+| 分发 | 已复制到 Windows `C:\Users\jiqi\Downloads\` |
+| 回归 | 桌面 **753/753**（新增 `mcp-client-protocol` 2 例 + OpenDesk launcher 偏好 1 例）；根测试直接运行 66/66（`npm test` 外壳曾超时）；根 typecheck/eslint src/build 与桌面 tsc 通过 |
+
+证据：`artifacts/mcp-open-integration/evidence/package-verify-alpha45.json`、`portable-sha256-alpha45.txt`。**未测**：未在真实 Windows 启动该 EXE（与日常后台共用 `%APPDATA%`），普通 EXE 启动/重开/后台重启/临时解包目录变化（MCP02-T16）仍待执行；未签名、未公开、未打标签、未部署远端。包核验只证明包内容与源码一致，不等于真实 EXE 或原生调用验收。[§14](../../iterations/I08/mcp-open-integration.md#14-opendesk-原生-mcp-可见性修复2026-10-22alpha45)
+
+## alpha.44 本地候选（WSL/Linux 交叉构建，2026-10-22）
+
+T-M10-MCP02P / M10-F01/F02/F03/F06：本次是**在 WSL/Linux 上交叉构建 Windows x64 便携包**，不再是 Windows 原生构建。版本位由 `0.6.0-alpha.43` → `0.6.0-alpha.44`（`desktop/package.json` 与 lock 同步，源码/依赖未变；根 `package.json` 仍 0.1.0）。命令 `npm run desktop:dist`，环境 node v22.23.1 / electron-builder 26.15.3 / Electron 44.7.0，构建缓存置于工作区 `.cache-electron*`、`.npm-cache-build` 并已 gitignore。签名沿用 `win.signExecutable:false`，构建日志记录 “file signing skipped via signExecutable configuration”，产物**未签名**。
+
+| 项 | 结果 |
+| --- | --- |
+| 产物 | `desktop/release/AgentBridge-0.6.0-alpha.44-Windows-x64.exe`（`desktop/release/` 已 gitignore，不入库） |
+| 大小 / 摘要 | **130186782 字节** / SHA-256 **`b78a2bcf7d45d67f95044186747e557881d461911077a01bda47addb549d6c63`**；`file` 识别为 PE32 GUI/NSIS 自解压便携包 |
+| 包核验 | `verify-package --portable` → `status: passed`，version `0.6.0-alpha.44`，backendModules 50、coreFiles 84、`coreBuildMatches`/`appAsarSourceMatches`/`frontendMatches`/`linuxBackendMatches` 均 true，linuxFiles **1698**，linuxManifestDigest `8e47ae3b3ae245fc8338ff6bebcdc5dcc0d575bf7b8efe7f93427959096018c7` |
+| 分发副本 | 已复制到 Windows `C:\Users\jiqi\Downloads\AgentBridge-0.6.0-alpha.44-Windows-x64.exe`，复制后哈希一致 |
+| 回归 | 版本变更后桌面全量仍 **750/750**（0 失败）；根套件随本轮文档复跑 |
+
+证据：`artifacts/mcp-open-integration/evidence/package-verify.json`、`portable-sha256.txt`。
+
+**未测/边界**：未在真实 Windows 启动该 EXE（会与日常 alpha.43 后台共用 `%APPDATA%/AgentBridge`，需用户决定后再受控运行），因此普通 EXE 启动、重开、后台重启、临时解包目录变化（MCP02-T16）**仍待执行**；未签名、未公开、未打标签、未部署远端、未做公开下载核验；日常后台与窗口仍为 alpha.42/alpha.43，未切换。包核验只证明“源码可冻结、可交叉构建、包内容与源码一致”，不等于真实 EXE 或原生 Agent 验收。
+
+2026-10-22 / alpha.43：OpenDesk CLI/Desktop前端执行门禁修复；生产注册表遍历回归8/8，桌面全套722/722，生产界面10组与包源码核验通过，新增Prompt0。Windows实际包内窗口4组、普通无调试便携EXE4组均通过。首次失败和未测边界见[本轮专项](../../iterations/I08/opendesk-ui-admission.md)。
+
+2026-10-22 / OpenDesk Desktop 0.3.9：已安装原网关的真实执行、续聊与普通EXE窗口重开通过；无运行代码变更，不将历史自动测试计为今日重跑。分层计数与未测项见[现场专项](../../iterations/I08/opendesk-desktop-live.md)。
+当前候选alpha.43仅在alpha.42已有接口适配基础上修复前端门禁；alpha.42原构建/普通EXE证据见[历史专项](../../iterations/I08/opendesk-existing-interfaces.md)。仅打包Bridge，不构建OpenDesk；本轮未重跑真实模型或独立SSH，不能把历史结果计入当前通过数。
+
+2026-10-21 / M10-F01/F03：alpha.42核心57/57、桌面721/721、Windows协议13/13、普通EXE隔离5组与生产前端9组通过；包核验50 CJS/81 Core/1462 Linux，ASAR、前端与后台源码匹配。候选130084772字节、SHA-256 `9b822ee1…`，未签名、未公开。普通EXE运行结果与原生实例限制另见[本轮专项](../../iterations/I08/opendesk-existing-interfaces.md)。
+
+## alpha.38 本地候选包核验
+
+T-M10-172 / M10-F01/F03/F06：2026-10-21，本地构建 `0.6.0-alpha.38` Windows x64 便携 EXE 并核验。包报告 `status: passed`：48 个后台 CJS、81 个核心文件、**1460** 个 Linux 资源（1459 + 新增 alpha.37 pin 文件），`coreBuildMatches`/`appAsarSourceMatches`/`frontendMatches`/`linuxBackendMatches` 均为 true，`linuxManifestDigest` = `451aba34…`；产物 **130038728** 字节、SHA-256 `296260f2…`，与包报告一致并已独立 `sha256sum` 复核。包内 `compatibleDaemons` 共 **32** 条，含新增 `0.6.0-alpha.36`（digest `4f14b5f5…`，1458 文件）与 `0.6.0-alpha.37`（digest `3fff4ab3…`，1459 文件）。回归：`daemon-maintenance`+`ssh-recovery-integration` **26/26**、新界面用例 **5 checks**、既有进度界面用例 **3 checks**、全量桌面 **689/689（0 失败）**、`npx tsc --noEmit` 0 错、`npx vite build` 成功；`check-docs` errors 0、`docs:test` 6/6。未在 Windows 真机运行该 EXE、未签名、无真实用户远端、`windows-*.cjs` Edge 套件本机未跑、未公开 GitHub；公开 alpha.36 与本地 alpha.37 候选未被覆盖，完整 I06C/I07C 准出不变。[交付、指纹与未测边界](../../iterations/I08/alpha38-delivery.md)。
+
+## alpha.37 本地候选包核验
+
+T-M10-171 / M10-F01/F03/F06：2026-10-21，本地构建`0.6.0-alpha.37` Windows x64便携EXE并核验。包报告`status: passed`：48个后台CJS、81个核心文件、1459个Linux资源，`coreBuildMatches`/`appAsarSourceMatches`/`frontendMatches`/`linuxBackendMatches`均为true；产物130034719字节、SHA-256`76e30b1e…`，与包报告一致并已独立`sha256sum`复核。新增alpha.36兼容pin从已公开alpha.36 EXE（130032973字节、`43e09dd3…`）内`linux-package/manifest.json`原样提取，1458个文件逐项sha256匹配，`manifestDigest`=`4f14b5f5…`（`sha256(JSON.stringify(manifest))`口径）；包内`compatibleDaemons`索引31条含该pin，不安装旧清单、不自动升级远端。回归：维护/SSH专项39/39、切片A真实chromium界面3/3、构建后全量桌面684/684（构建前682项679通过中的3项失败经独立验证定位为测试未隔离`DSH_HOME`，同日由测试侧修复、只改测试文件不进包，见[回归日志](../../../artifacts/alpha37/regression-full-suite.log)与[测试文件指纹](../../../artifacts/alpha37/regression-test-fingerprints.txt)）；`check-docs` errors 0、`docs:test` 6/6。未在Windows真机运行该EXE、未签名、无真实用户远端、`windows-*.cjs` Edge套件本机未跑、未公开GitHub；公开alpha.36 EXE/标签/附件未改动，完整I06C/I07C准出不变。[交付、指纹与未测边界](../../iterations/I08/alpha37-delivery.md)。
+
 ## alpha.36 公开发布核验
 
 T-M10-170 / M10-F01/F03/F06：2026-10-21，用户明确要求推送源码并公开发布。推送前把远端alpha.35历史合并进本地（30个冲突按本地内容解决，合并结果树与合并前提交逐字节一致），推送`7c4aaa1`/`1fef25f`/`7ac9dcd`三笔；标签`v0.6.0-alpha.36`冻结合并提交`1fef25f`。标签树对打包源632项逐文件核对：612项一致，差异20项全部为冻结后补充的文档与测试，运行/打包源差异0（测试不在electron-builder的`files`清单内）。GitHub预发布上传EXE与SHA256SUMS.txt，上传返回digest与本地一致；匿名不带凭据完整下载130032973字节后计算SHA-256与本地一致，校验附件字节一致。未改旧标签/附件，未签名（`signExecutable=false`），未验证用户profile、真实模型或独立SSH。[交付与边界](../../iterations/I07/alpha36-delivery.md)。

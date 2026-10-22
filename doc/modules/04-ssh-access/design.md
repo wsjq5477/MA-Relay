@@ -1,5 +1,9 @@
 # M04 SSH 机器接入设计
 
+## alpha.38 维护前置门禁只读 RPC
+
+M04-F04/F06/F08：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs) 新增两个**只读** RPC，不进 lifecycle、不写本地或远端状态：`machine.maintenanceBlockers`（在线时经既有 relay 读 `snapshot`，再分页 `daemon.receiptRead`（128/页、最多 32 页）收集收据阻塞项，判定规则与 worker 一致；无收据端点 → `receiptsSupported:false`；离线/维护中/需凭据 → `available:false` + 原因，不抛异常）与 `machine.queryBlockedOperation`（单次、原 ID；`submit`/`continue`/`verify` → `ipc request`，`reply`/`cancel` → `ipc operation`；不重发任务、不新铸 ID、失败保留原错误码）。两者只服务对话框展示与用户主动核对，不构成新的授权或执行通道。[契约与未测边界](../../iterations/I08/alpha38-delivery.md)。
+
 ## alpha.36整合边界
 
 M04-F01：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
@@ -50,7 +54,7 @@ M04-F04/F05/F08：可信兼容索引按公开预发布逐版本收录原Linux清
 | M04-F05 | 连接后出现独立机器及该机 Agent，机器身份在重连后不变 | 源码已实现；真实 Linux 已通过；不依赖项目文件夹或模型选择 |
 | M04-F06 | 断线显示离线/重连/需凭据；重连读取原结果，不重发需求 | 源码已实现；代码、daemon 受控及真实断线记录；完整退避指标未测（部分验证） |
 | M04-F07 | 主动断开只关闭连接，远端已接收任务继续；手动连接恢复观察 | 源码已实现；真实断线记录与 mock 界面通过 |
-| M04-F08 | 修改/移除 SSH 机器、升级/停止/卸载 daemon | 源码已实现；连接维护、可信升级/回滚、停止/卸载；分层验收见当前报告 |
+| M04-F08 | 修改/移除 SSH 机器、升级/停止/卸载 daemon | 源码已实现；连接维护、可信升级/回滚、停止/卸载；维护被拒但原后台仍在运行/已恢复时不再留置离线；分层验收见当前报告 |
 
 基本操作：添加 Linux 机器 → 测试连接 → 首次指纹确认（已有可信记录可跳过）→ 查看环境及安装摘要 → 安装并连接/连接机器 → 从节点“接入”按钮接入发现的 Agent → 新建会话时指定远端工作目录。连接节点时不配置模型、供应商或文件夹。
 
@@ -236,6 +240,10 @@ machine.updateSsh/remove/restore/disconnect/reconnect 接收 operationId、conne
 machine.daemonPreview 返回可信当前、目标、previous 版本及 previewId；machine.maintainDaemon 校验 expectedRevision、摘要和动作，先完整暂存并验证目标，再持久化原意图、暂停自动重连，发送一次远端维护启动。控制器复制到私有 `state/maintenance-runtime/<digest>`，使卸载后仍可查询原收据。远端回应丢失仅 machine.operation 查询；中央重开仍保留同一 remoteInput 与操作。凭据失效显示 needs_credentials，输入后继续查询原维护，不能另起升级。暂存/认证明确未发送失败为 DAEMON_STAGE_REJECTED。
 
 实现入口：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## 维护终态收据与重连恢复
+
+M04-F06/F08：终态维护收据不再一律按“维护完成”结算。[daemonAvailable(result,action)](../../../desktop/electron/ssh-host.cjs) 判断原后台是否仍在运行或已恢复：`stop`/`uninstall` 永远不重连；其余动作下仅当 `data.stopped===true && data.rolledBack!==true && state!=='confirmed'` 视为“后台被留置停止”，此时保持断开。`queryMaintenance()` 在可证明可达时解除维护暂停（`autoReconnect=true` 并立即排一次只读重连），停机未恢复保持 `disconnected_manual`；重启桌面后按 `ssh-connections.json` 落盘收据走同一判定。重连只恢复观察与原结果，不重发任务或维护。旧形状收据（缺 `stopped`）作为兼容回退同样恢复：旧版本多数终态拒绝发生在停机之前，也可能来自“已停但未确认切换”的旧路径，此时重连只按 `current.json` 恢复观察或启动该版本（`installIfNeeded:false`，需要安装时要求重新确认），不重发任务或控制操作，也不伪装成功；该遗留路径可能在远端留下属于原 operationId 的维护屏障，由 daemon 侧 `clearStaleBarrier()` 在下一次维护时清理。`connection.maintenance.error` 保存拒绝原因并经快照 `daemonMaintenance.error` 暴露，未发送/持久化失败分支同样带 error；离线且维护终态为 rejected 的机器卡片直接显示原因与重连提示。[本轮说明、实测与未测边界](../../iterations/I08/maintenance-offline/maintenance-offline.md)。
 
 ## 维护入口会话拒绝恢复边界补强
 

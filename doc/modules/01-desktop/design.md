@@ -1,5 +1,17 @@
 # M01 桌面界面与交互设计
 
+## MCP02恢复与观测（2026-10-22）
+
+M01-F02/F05：MCP卡片展示探测时间与有效性，过期后连接/工具为未知；区分服务端目录与原生连接/委派授权。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
+
+I08-MCP02统一开放MCP与双向配置已完成源码第一片：MCP卡片改为六项状态事实逐项显示、能力门禁改按“能否管理原生MCP配置”判断、主角色按钮区分独立MCP与托管绑定，见本页[Agent行MCP状态与控制](#agent行mcp状态与控制)；逐入口真实原生验收仍待执行。[本轮开发与验收记录](../../iterations/I08/mcp-open-integration.md)。
+
+机器页、关系图及任务来源使用OpenDesk本地品牌图，CLI与Desktop分别显示。前端认可两个已注册入口的原生执行能力；健康且执行能力明确为true时允许接入，接入后按原占用门禁开始会话。未知入口、来源不匹配或能力false/null不能因健康状态而开放执行。两个入口的行配置打开原生MCP管理，可添加/移除/导出；OpenDesk托管会话的协作选项禁用，独立MCP调用与主从关系配置保留。界面不添加模型/供应商字段。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
+
+## alpha.38 维护前置门禁与越过未确认收据
+
+M01-F03/F06：用户已批准的契约变更。[DaemonDialog](../../../desktop/src/DaemonDialog.tsx)把维护对话框拆成三个语义独立的区块：**上次维护结果**（持久历史）、**维护前置门禁**（实时只读阻塞项，每条带“按原 ID 查询”）、**越过未确认收据**。当实际版本==本程序版本时，历史区块降级为中性 `status`：“无需升级；以上只是历史记录，不代表当前失败”，不再当作 alert。越过的勾选与“确认升级（保留未确认收据）”按钮**仅在“有收据阻塞 且 无任何任务/Agent 阻塞 且 有升级目标”时出现**；任务/Agent 阻塞时只显示“维护前置门禁不可越过”，**永不提供越过入口**。门禁读取失败或无收据端点只 inline 说明，不把整个对话框判为失败。[NetworkApp](../../../desktop/src/NetworkApp.tsx) 经新增只读 RPC `machine.maintenanceBlockers`/`machine.queryBlockedOperation` 接线。[契约、RPC、现场与未测边界](../../iterations/I08/alpha38-delivery.md)。
+
 ## alpha.36整合边界
 
 M01-F01/F06：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。
@@ -22,6 +34,10 @@ M01-F01/F06/F15：DSH Desktop/Web节点的配置弹窗固定所属机器与入�
 
 M01-F03：机器显示安全进度告警，上传继续不等同升级成功；最终保存拒绝保留具体原因。 [完整设计、实测与边界](../../iterations/I07/maintenance-persistence.md)。
 
+## 维护阶段可见与有界自动核对
+
+M01-F03/F06：[DaemonDialog](../../../desktop/src/DaemonDialog.tsx) 按快照 `machine.installProgress.phase`（uploading/extracting/verifying）显示“正在上传/解包/校验 <已完成> / <总量>”与 `role=progressbar`，`progressWarning` 作为提示而非失败；未决时显示“已发送维护指令，等待远端切换（原操作已保留，不会重做）”，终态显示成功或 `rejected` 的原因（`role=alert`）。未决期间新增可选 `poll`：1s→2s→4s→8s 封顶退避、同一时刻一次在途、卸载或 `pending` 变 false 立即停止，且**只查询本地保留的原 operationId**。`NetworkApp` 改为按 machineId 从当前快照解析对话框的 `machine`（否则进度不会流入），[MachineInventory](../../../desktop/src/MachineInventory.tsx) 在卡片上显示同一进度行。未决收据下按钮仍按原设计禁用，不提供换 ID 重做入口。[切片说明、UI 用例与未测边界](../../iterations/I08/maintenance-offline/maintenance-visibility.md)。
+
 ## 当前版本准入与管理作用域
 
 M01-F04/F05/F07：概览、关系图和设置按目标机器展示管理阻断原因；异机unknown不禁空闲机器维护。同机、来源不足、原授权pending和全局同步错误继续保护；OpenCode接受可识别的1.x与2.x，其他主版本在启动前拒绝，版本不兼容时仍投影不可用并保留原历史。 [版本准入沿革](../../iterations/I07/version-management-recovery.md)、[1.x/2.x 兼容修复](../../iterations/I07/opencode-v1-compatibility.md)。
@@ -33,6 +49,18 @@ M01-F04/F05/F07：顶层快照/pending错误保持全局同步锁；单条会话
 ## 独立 MCP 配置与运行契约
 
 M01-F01/F06：原生Agent行的“配置”打开绑定原节点的MCP卡片，显示原生文件路径、授权/安装/冲突状态和三份独立文件路径。添加/移除/导出独立操作；配置变化只手动刷新，不加入运行快照轮询。失败后读取状态核对结果，同名冲突保留条目，撤权与是否删掉文件分别显示。原生客户端需重新加载配置；旧后台的原错误可见。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
+
+## Agent行MCP状态与控制
+
+M01-F01/F02/F06：MCP卡片把单一“已安装”拆成**六项独立状态事实**逐项显示——配置、原生加载、连接、工具、授权、归属——每项各有一句“这一项说明了什么、不能据此推断什么”的说明；后台只返回旧摘要时，只显示一行“需要升级后台才能核对原生证据”，不逐项编造。状态标签覆盖`未添加`/`已生成独立配置`/`已添加`/`配置冲突`/`已撤销授权，原生配置待清理`/`当前产品不支持此操作`。
+
+- 能力门禁按 `nativeMcpConfig`（能否管理该产品原生MCP条目）判断，与 `mcpClient`（该产品能否调用Bridge MCP）分开显示；该产品有MCP客户端但Bridge无原生配置适配时，明确写出“仍可在原生工具中手动添加，但本页无法核对原生加载/连接/工具”。
+- 不可管理时直接显示后台给出的 `nativeSupportCode`/`nativeSupportReason` 原文，不用笼统失败代替。
+- 操作：添加、移除、生成独立MCP文件、撤销连接授权、重新探测原生列表、刷新状态。移除与撤权分开确认；`revoked_config_pending` 单独告警“授权已撤销、原生配置仍存在、新调用会被拒绝、不会自动恢复授权”。只读探测不会新增/恢复/启用原生配置。
+- DSH服务连接仍在原位置单独配置，不呈现为第二种MCP安装方式；DSH Web的原生MCP条目由同一张MCP卡片管理。DSH CLI 行额外提供“DSH 原生 profile”输入框（说明“Bridge 不会猜测目标 profile”，切换 profile 会重读该 profile 的条目）；不填时只能生成片段，添加/移除会被后台以 `MCP_DSH_PROFILE_REQUIRED` 拒绝。DSH Desktop 仍只有导出片段。
+- 主角色按钮的禁用理由改按MCP调用能力给出；能独立调用但托管绑定未适配时，按钮可用并附注“以独立MCP会话作为主Agent，托管任务绑定未适配”，不把托管缺失说成MCP不可用。
+
+实现落点：[McpSettings.tsx](../../../desktop/src/McpSettings.tsx#L19)（状态标签/事实行/说明/动作与禁用条件）、[connection-capabilities.ts](../../../desktop/src/connection-capabilities.ts#L1)（`canCallBridge`/`canConfigureMcp`/`canHostManagedTask` 与未知理由）、[CollaborationChoice.tsx](../../../desktop/src/CollaborationChoice.tsx#L4)。受控界面用例见[本模块报告](test-report.md)；逐入口真实原生可见性仍待验。
 
 ## SSH持久拒绝恢复
 

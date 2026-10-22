@@ -1,5 +1,11 @@
 # AgentBridge 整体架构
 
+非GUI首次接入复用Coordinator的manageNode/nodeOperation，显式操作ID持久化；nodes只读发现，attach确认后才能配置MCP。CLI和窗口共用同一profile。Linux本机MCP主机启动时先恢复私有端点，保持原生文件不变。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
+
+当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。
+
+OpenDesk的连接持有进程属于Bridge后台：CLI侧持有自己启动的现有serve服务，桌面侧持有原网关WebSocket。它与窗口/Host观察器分离，因此关闭窗口或重开Host不重发输入；Desktop会话仍受原连接寿命限制，断线后旧会话仅可读。空闲30分钟退出，仅清理自己启动的CLI服务，不关闭用户桌面。模型推理始终在OpenDesk原生运行时。
+
 ## alpha.36当前整合
 
 公开alpha.35的managementBlocks与前端executionRecoveryReason按原节点/安装/共享目录限制执行，管理写入保持同机保护；graphPending只读投影可选blockedNodeIds。原收据须匹配已提供来源与内容指纹，原ADAPTER_HOST严格持久拒绝恢复保留。scoped-management-execution-v1与dsh-web-desktop-v1共同要求中央升级；Task/Session身份、未知不重放及线协议版本不变。[整合与实际验证](iterations/I07/alpha36-delivery.md)。
@@ -72,7 +78,11 @@ CT-04桌面路径：M01按需调用既有team.materials/team.document.revision�
 
 ## 独立 MCP 与任务 scope 两条接入
 
-设置页经Coordinator→AgentNetwork从nodeId派生原机器/adapter，再交MachineHost的McpIntegration在目标用户环境读写原生配置。独立stdio子进程仍经本机回环broker→原认证RPC→中央检查关系；长期connectionId与临时原Task scope分开。后台恢复重写原描述文件动态地址，移除先持久撤权。Bridge启动的原生协作任务仍使用其原任务scope，不继承长期入口授权。配置写入与daemon维护互斥；安装不执行模型。[文件、错误与边界](iterations/I07/mcp-installation.md)。
+设置页与非GUI `agentbridge mcp` 均经Coordinator→AgentNetwork从nodeId派生原机器/adapter，再交目标机器的MCP宿主在目标用户环境读写原生配置。独立stdio子进程仍经本机回环broker→原认证RPC→中央检查关系；长期connectionId与临时原Task scope分开。后台恢复只重写原描述文件动态地址、不写原生配置，移除先持久撤权；新增“只撤权”与“只读探测”两条独立路径。Bridge启动的原生协作任务仍使用其原任务scope，不继承长期入口授权。配置写入与daemon维护互斥；安装与探测都不执行模型。[文件、错误与边界](iterations/I07/mcp-installation.md)、[本轮实现与证据](iterations/I08/mcp-open-integration.md)。
+
+能力判定与执行路径分层：静态适配器注册表分别声明 `mcpClient`（产品有MCP客户端）、`nativeMcpConfig`（Bridge可管理其原生条目）、`hostManagedTask`（可注入单次托管scope），旧投影名 `bridgeMcp`/`teamCollaboration` 保留；主角色准入只看调用能力，托管scope注入是独立准入，二者都不再依赖旧的三种产品白名单。状态侧把“配置存在/原生加载/连接/工具/授权/归属”作为独立事实，任何一项都不能代替其他项。
+
+宿主归属按机器类型：Windows本机与SSH机器使用 `MachineHost`+`McpIntegration`；**Linux本机**的协调器进程与原生产品同机，因此在协调器内增加本地MCP宿主只处理六个 `mcp.*` 方法，执行仍走原核心宿主，MCP失败不回落到执行；WSL本机的文件系统不属于该进程，仍走远端路径，其方法集合当前无 `mcp.*`。DSH Web的原生适配写入 `$DSH_HOME/profiles/web/cordis.patch.yml` 的一行 `insert:` 补丁（保留用户注释与其他行），安装后只报“需重新加载”，不宣称已加载或已连接。
 
 ## CT-04公共材料只读路径
 

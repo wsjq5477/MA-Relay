@@ -145,6 +145,37 @@ test('pre-transmission maintenance rejection with missing retry credentials stay
  assert.equal(remoteCalls,1);assert.equal(harness.connections(),logins);
 });
 
+test('a terminal maintenance receipt releases the reconnect hold unless the remote daemon was left stopped',async t=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-c-maint-hold-')),harness=maintenanceServer(t,{limit:Infinity});
+ await harness.listen();
+ let receipt={operationId:'hold-original',state:'rejected',error:{code:'DESKTOP_METHOD',message:'后台维护未执行或未完成（DESKTOP_METHOD）；原版本与历史保留。'},data:{action:'upgrade',stopped:false,rolledBack:false,version:controlledProbe.daemonVersion}};
+ const installer={
+  async maintenancePreview(){return {...controlledProbe};},
+  async stageMaintenance(){return {directory:'/controlled-runtime',release:{version:controlledProbe.targetVersion,digest:'d'.repeat(64),manifest:{version:controlledProbe.targetVersion}}};},
+  release(version){return {manifest:{version},digest:version===controlledProbe.daemonVersion?'o'.repeat(64):'d'.repeat(64)};},
+  bundle(){return {manifest:{version:controlledProbe.targetVersion,compatibleDaemons:[]}};},
+  async remoteMaintenance(client,input){return input.action==='query'?{...receipt,operationId:input.operationId}:{operationId:input.operationId,state:'unknown'};}
+ };
+ const manager=maintenanceManager(directory,installer);
+ t.after(async()=>{manager.close();await new Promise(r=>harness.server.close(r));fs.rmSync(directory,{recursive:true,force:true});});
+ const draft=await manager.call('machine.createSshDraft',{host:'127.0.0.1',port:harness.server.address().port,username:'fixture',authKind:'password'}),c=manager.find(draft);
+ await manager.call('credential.provide',{connectionId:c.connectionId,secret:'synthetic',save:false});
+ const params={connectionId:c.connectionId,operationId:'hold-original',expectedRevision:c.revision,config:{action:'upgrade',previewId:controlledProbe.previewId,expectedVersion:controlledProbe.daemonVersion,targetVersion:controlledProbe.targetVersion}};
+ assert.equal((await manager.call('machine.maintainDaemon',params)).state,'unknown');
+ assert.equal(c.stage,'maintaining');assert.equal(c.autoReconnect,false);
+ // The remote rejected before it stopped anything: the daemon still runs, so the
+ // machine must not stay offline with automatic reconnects switched off.
+ const rejected=await manager.call('machine.operation',{operationId:params.operationId});
+ assert.equal(rejected.state,'rejected');assert.equal(rejected.error.code,'DESKTOP_METHOD');
+ assert.equal(c.maintenance.state,'rejected');assert.equal(c.autoReconnect,true);assert.notEqual(c.stage,'disconnected_manual');
+ // A receipt that names a stopped, unrestored daemon keeps the barrier instead.
+ manager.manualDisconnect(c);await manager.call('credential.provide',{connectionId:c.connectionId,secret:'synthetic',save:false});c.maintenance={operationId:'hold-second',state:'unknown',action:'upgrade'};
+ manager.lifecycleOperations.push({operationId:'hold-second',state:'unknown',remoteLaunched:true,fingerprint:'controlled',remoteInput:{action:'upgrade',operationId:'hold-second'},controller:'/controlled-runtime',data:{action:'maintainDaemon',remoteAction:'upgrade',machineId:c.machineId,connectionId:c.connectionId,revision:c.revision}});
+ receipt={operationId:'hold-second',state:'rejected',error:{code:'DAEMON_ROLLBACK_UNCONFIRMED',message:'后台已停止但原版本未确认恢复；请查询原操作。'},data:{action:'upgrade',stopped:true,rolledBack:false,version:controlledProbe.daemonVersion}};
+ const held=await manager.call('machine.operation',{operationId:'hold-second'});
+ assert.equal(held.state,'rejected');assert.equal(c.autoReconnect,false);assert.equal(c.stage,'disconnected_manual');
+});
+
 for(const retryFailure of ['open','stream','timeout'])test('maintenance retry '+retryFailure+' preserves the original transmission boundary and receipt',async t=>{
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-c-maint-boundary-send-')),harness=maintenanceServer(t,{limit:retryFailure==='open'?0:Infinity,rejectOnce:true});
  await harness.listen();let launches=0,queries=0,manager,c;
@@ -174,4 +205,86 @@ for(const retryFailure of ['open','stream','timeout'])test('maintenance retry '+
  else {await manager.call('credential.provide',{connectionId:c.connectionId,secret:'synthetic',save:false});await assert.rejects(manager.call('machine.maintainDaemon',{...params,operationId:'must-not-replace-unknown',expectedRevision:c.revision}),{code:'MACHINE_BUSY'});}
  assert.equal((await manager.call('machine.maintainDaemon',params)).state,expected);assert.equal(launches,2);
  const query=await manager.call('machine.operation',{operationId:params.operationId});assert.equal(query.state,expected);assert.equal(queries,expected==='unknown'?1:0);assert.equal(launches,2);
+});
+
+// Read-only pre-maintenance projection over the existing relay channel. The host is
+// a controlled stand-in for the real relay because this case is about the manager's
+// projection/paging rules and the single original-ID query, not the transport.
+test('maintenance blockers project tasks/agents/receipts read-only and original-ID queries never resend or mint an ID',async t=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-c-blockers-'));
+ const manager=maintenanceManager(directory,{});
+ t.after(()=>{manager.close();fs.rmSync(directory,{recursive:true,force:true});});
+ const draft=await manager.call('machine.createSshDraft',{host:'127.0.0.1',port:22,username:'fixture',authKind:'agent'}),c=manager.find(draft);
+ let saves=0;const save=manager.save.bind(manager);manager.save=()=>{saves++;save();};
+ const calls=[];
+ const records=[{key:'blocked-submit',method:'ipc',op:'submit',state:'unknown',createdAt:'2026-10-21T00:00:00.000Z',updatedAt:'2026-10-21T00:00:00.000Z'},{key:'settled-submit',method:'ipc',op:'submit',state:'confirmed',updatedAt:'2026-10-21T00:00:00.000Z'},{key:'control-unknown',method:'ipc',op:'cancel',state:'confirmed',result:{operationId:'control-unknown',state:'unknown'},updatedAt:'2026-10-21T00:00:00.000Z'}];
+ const snapshot={tasks:[{taskId:'running-task',requestId:'running-request',status:'running',adapter:'opencode'},{taskId:'done-task',status:'succeeded'}],agents:{items:[{nodeId:'agent-a',adapter:'claude',busy:true,currentTask:{taskId:'agent-task',status:'accepted'}},{nodeId:'agent-b',busy:false}]}};
+ const stub=call=>{manager.hosts.set(c.connectionId,{detach(){},close(){},call:async(method,params={})=>{calls.push({method,params});return call(method,params);}});};
+ stub((method,params)=>{if(method==='snapshot')return structuredClone(snapshot);if(method==='daemon.receiptRead')return {items:params.afterCursor?[]:structuredClone(records),nextCursor:params.afterCursor||records.length,hasMore:false};throw Object.assign(new Error('controlled method'),{code:'DESKTOP_METHOD'});});
+ c.stage='online';c.online=true;saves=0;
+ const blockers=await manager.call('machine.maintenanceBlockers',{connectionId:c.connectionId});
+ assert.equal(blockers.available,true);assert.equal(blockers.receiptsSupported,true);
+ assert.deepEqual(blockers.tasks,[{taskId:'running-task',requestId:'running-request',status:'running',adapter:'opencode'}]);
+ assert.deepEqual(blockers.agents,[{nodeId:'agent-a',adapter:'claude',busy:true,currentTask:{taskId:'agent-task',status:'accepted'}}]);
+ assert.deepEqual(blockers.receipts,[{key:'blocked-submit',op:'submit',state:'unknown',updatedAt:'2026-10-21T00:00:00.000Z'},{key:'control-unknown',op:'cancel',state:'unknown',updatedAt:'2026-10-21T00:00:00.000Z'}]);
+ assert.deepEqual(calls.map(entry=>entry.method),['snapshot','daemon.receiptRead']);
+ assert.equal(saves,0,'the blockers projection must not write any local state');
+ assert.equal(c.stage,'online');
+ // Offline machines report unavailability instead of throwing, and never touch the channel.
+ c.stage='disconnected';c.online=false;saves=0;
+ const offline=await manager.call('machine.maintenanceBlockers',{connectionId:c.connectionId});
+ assert.equal(offline.available,false);assert.match(offline.reason,/当前离线/);
+ assert.deepEqual(calls.map(entry=>entry.method),['snapshot','daemon.receiptRead']);assert.equal(saves,0);
+ c.stage='online';c.online=true;
+ // A daemon released before the receipt endpoint reports the missing ledger instead of failing.
+ calls.length=0;
+ stub(method=>{if(method==='snapshot')return structuredClone(snapshot);throw Object.assign(new Error('controlled legacy daemon'),{code:'DESKTOP_METHOD'});});
+ const legacy=await manager.call('machine.maintenanceBlockers',{connectionId:c.connectionId});
+ assert.equal(legacy.available,true);assert.equal(legacy.receiptsSupported,false);
+ assert.deepEqual(legacy.receipts,[]);assert.equal(legacy.tasks.length,1);assert.equal(legacy.agents.length,1);
+ assert.deepEqual(calls.map(entry=>entry.method),['snapshot','daemon.receiptRead']);
+ assert.equal(saves,0);
+ // A submit receipt is queried as the original request; one call, same ID, nothing resent.
+ calls.length=0;
+ stub((method,params)=>{if(method==='ipc'&&params.op==='request')return {taskId:'blocked-task',requestId:'blocked-submit',status:'running'};throw Object.assign(new Error('controlled method'),{code:'DESKTOP_METHOD'});});
+ const queried=await manager.call('machine.queryBlockedOperation',{connectionId:c.connectionId,key:'blocked-submit',op:'submit'});
+ assert.equal(queried.state,'confirmed');assert.equal(queried.detail.taskId,'blocked-task');
+ assert.deepEqual(calls,[{method:'ipc',params:{op:'request',requestId:'blocked-submit'}}]);
+ // A control receipt is queried as the original operation.
+ calls.length=0;
+ stub((method,params)=>{if(method==='ipc'&&params.op==='operation')return {operationId:'control-original',state:'rejected'};throw Object.assign(new Error('controlled method'),{code:'DESKTOP_METHOD'});});
+ assert.equal((await manager.call('machine.queryBlockedOperation',{connectionId:c.connectionId,key:'control-original',op:'cancel'})).state,'rejected');
+ assert.deepEqual(calls,[{method:'ipc',params:{op:'operation',operationId:'control-original'}}]);
+ // A query failure keeps its original code instead of pretending success.
+ calls.length=0;
+ stub(()=>{throw Object.assign(new Error('原请求已发往原生后台但尚无可核对收据，请查询原请求，不重复执行。'),{code:'DESKTOP_UNCONFIRMED'});});
+ await assert.rejects(manager.call('machine.queryBlockedOperation',{connectionId:c.connectionId,key:'blocked-submit',op:'submit'}),{code:'DESKTOP_UNCONFIRMED'});
+ assert.equal(calls.length,1);assert.equal(saves,0);
+ // Only a recorded original task/control ID can be queried this way.
+ await assert.rejects(manager.call('machine.queryBlockedOperation',{connectionId:c.connectionId,key:'../escape',op:'submit'}),{code:'INVALID_INPUT'});
+ await assert.rejects(manager.call('machine.queryBlockedOperation',{connectionId:c.connectionId,key:'blocked-submit',op:'submit-many'}),{code:'INVALID_INPUT'});
+});
+test('maintenance input carries the strict unresolved-receipt override and never a truthy lookalike',async t=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-c-override-')),harness=maintenanceServer(t,{limit:Infinity});
+ await harness.listen();const inputs=[];
+ const installer={
+  async maintenancePreview(){return {...controlledProbe};},
+  async stageMaintenance(){return {directory:'/controlled-runtime',release:{version:controlledProbe.targetVersion,digest:'d'.repeat(64),manifest:{version:controlledProbe.targetVersion}}};},
+  release(version){return {manifest:{version},digest:version===controlledProbe.daemonVersion?'o'.repeat(64):'d'.repeat(64)};},
+  bundle(){return {manifest:{version:controlledProbe.targetVersion,compatibleDaemons:[]}};},
+  async remoteMaintenance(client,input){inputs.push(structuredClone(input));return {operationId:input.operationId,state:'unknown'};}
+ };
+ const manager=maintenanceManager(directory,installer);
+ t.after(async()=>{manager.close();await new Promise(r=>harness.server.close(r));fs.rmSync(directory,{recursive:true,force:true});});
+ const draft=async username=>{const d=await manager.call('machine.createSshDraft',{host:'127.0.0.1',port:harness.server.address().port,username,authKind:'password'});await manager.call('credential.provide',{connectionId:d.connectionId,secret:'synthetic',save:false});return manager.find(d);};
+ const config=extra=>({action:'upgrade',previewId:controlledProbe.previewId,expectedVersion:controlledProbe.daemonVersion,targetVersion:controlledProbe.targetVersion,...extra});
+ const confirmed=await draft('override-confirmed');
+ await manager.call('machine.maintainDaemon',{connectionId:confirmed.connectionId,operationId:'override-original',expectedRevision:confirmed.revision,config:config({allowUnresolved:true})});
+ assert.equal(inputs.length,1);assert.equal(inputs[0].allowUnresolvedReceipts,true);
+ const lookalike=await draft('override-lookalike');
+ await manager.call('machine.maintainDaemon',{connectionId:lookalike.connectionId,operationId:'override-lookalike-original',expectedRevision:lookalike.revision,config:config({allowUnresolved:'yes'})});
+ assert.equal(inputs.length,2);assert.equal(inputs[1].allowUnresolvedReceipts,false,'only the strict boolean enables the override');
+ const absent=await draft('override-absent');
+ await manager.call('machine.maintainDaemon',{connectionId:absent.connectionId,operationId:'override-absent-original',expectedRevision:absent.revision,config:config({})});
+ assert.equal(inputs.length,3);assert.equal(inputs[2].allowUnresolvedReceipts,false);
 });

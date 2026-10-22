@@ -45,7 +45,7 @@ function hostFixture() {
     },
   };
 }
-async function client(t, options, hello = {}) {
+async function client(t, options, hello = {}, timeoutMs = 3000) {
   const socket = net.createConnection(socketPathFor(options.stateDirectory)), channel = new FramedStream(socket), pending = new Map(), events = [], callbacks = [];
   let counter = 0;
   channel.on('error', error => { for (const job of pending.values()) job.reject(error); pending.clear(); });
@@ -58,7 +58,7 @@ async function client(t, options, hello = {}) {
     frame.error ? job.reject(Object.assign(new Error(frame.error.message), { code: frame.error.code })) : job.resolve(frame.result);
   });
   const call = (method, params = {}) => new Promise((resolve, reject) => {
-    const id = 'test-' + ++counter, timer = setTimeout(() => { pending.delete(id); reject(failure('TEST_TIMEOUT')); }, 3000);
+    const id = 'test-' + ++counter, timer = setTimeout(() => { pending.delete(id); reject(failure('TEST_TIMEOUT')); }, timeoutMs);
     pending.set(id, { resolve, reject, timer });
     try { channel.send({ id, method, params }); } catch (error) { clearTimeout(timer); pending.delete(id); reject(error); }
   });
@@ -194,7 +194,7 @@ test('inspect never fences a live coordinator; new hello fences stale callbacks 
 
 test('production daemon loads built DesktopHost and real MachineHost without creating native tasks', { skip: !fs.existsSync(path.join(__dirname, '../../dist/desktop-host.js')) }, async t => {
   const opts = setup(t), daemon = await startDaemon(opts); t.after(() => daemon.close());
-  const connection = await client(t, opts), environment = await connection.call('environment');
+  const connection = await client(t, opts, {}, 15000), environment = await connection.call('environment');
   assert.equal(environment.platform, 'linux'); assert.equal(environment.directory, opts.stateDirectory);
   const detected = await connection.call('discover'); assert(Array.isArray(detected.items));
   const snapshot = await connection.call('snapshot'); assert.equal(snapshot.tasks.length, 0);

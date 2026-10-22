@@ -1,6 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前基线：稳定历史Windows版本0.5.0；公开预发布**0.6.0-alpha.36**，标签冻结`1fef25f`（合并提交，含公开alpha.35历史），Windows EXE 130032973字节、SHA-256 `43e09dd34e1a86998a446048dd39279a91356189d132c1eae9facebec1472798`，EXE与校验附件已公开并通过匿名完整下载核验；上一公开预发布alpha.35冻结b5de577。alpha.36含alpha.35独立修复及全部工作区增量（OpenCode宿主、DSH、CT-07、恢复与Agent行配置）；核心57/57、桌面676/676、Windows契约144/144、界面26组、普通EXE7组与包核验通过，具体证据见doc/iterations/I07/alpha36-delivery.md。完整I06C/I07C未准出；历史统一在doc/iterations/README.md。
+当前公开预发布**0.6.0-alpha.36**，标签冻结`1fef25f`，Windows EXE 130032973字节、SHA-256 `43e09dd34e1a86998a446048dd39279a91356189d132c1eae9facebec1472798`，附件已公开并通过匿名完整下载核验；稳定历史Windows版本0.5.0。完整I06C/I07C未准出，历史见doc/iterations/README.md。
+
+当前本地候选**0.6.0-alpha.46**（未签名、未公开、未部署远端）：承接I08-MCP02，修复OpenDesk导出启动器、OpenCode数组命令探测、配置变化/过期观测、Linux本机MCP端点恢复，并补齐非GUI首次接入和原操作查询。EXE130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`；核心68/68、桌面758/758，最终JSON修复后CLI11/11、类型/lint/构建通过。Windows真实隔离非GUI5组、生产前端5组、普通EXE4组通过（模型0），包源码一致性通过；详情见doc/iterations/I08/mcp-open-recovery.md。只修改Bridge，不修改或构建OpenDesk；OpenDesk Desktop已有真实执行/续聊与诊断MCP列表证据，但正式原生主Agent委派仍未验。OpenDesk CLI0.3.8只能导出MCP片段，DSH Desktop/Hermes/Pi原生配置仍未适配；完整MCP02未准出。同日后续原生组件验收：OpenDesk协议5组、DSH6组，两条生产协作链各1个真实Claude子任务succeeded，原观察器重开无重放；未修改产品代码/EXE。OpenDesk日常原生父模型只读list_agents已验，实际返回7个获准节点；退出前先改盘会被旧内存配置写回，须完全退出后再写。现场见doc/iterations/I08/opendesk-mcp-diagnostic-repair.md；原生父模型自主委派及日常原生页面仍未验，见doc/iterations/I08/mcp-native-acceptance.md。历史候选与真实验证见doc/iterations/I08/。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

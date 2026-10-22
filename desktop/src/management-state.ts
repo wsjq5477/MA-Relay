@@ -14,7 +14,7 @@ export function useManagementLane<T extends ManagementIntent>(directory:string,p
  const settle=async(intent:T,receipt:RecoveryReceipt,fromDispatch=false)=>{
   if(!matchingReceipt(asRow(intent),receipt)||!['confirmed','rejected'].includes(receipt.state))return false;
   const rows=read(),saved=rows.find(row=>row.operationId===intent.operationId);if(!saved||JSON.stringify(saved)!==JSON.stringify(intent))return false;
-  write(rows.filter(row=>row.operationId!==intent.operationId));if(currentKey.current===key){notify(receipt.state==='rejected'?(fromDispatch?receipt.error?.message:undefined)||'原'+(actionNames[intent.action]||'管理')+'操作已收到确定拒绝。':(actionNames[intent.action]||'管理操作')+'已完成，原任务与历史保留。');await refresh();}return true;
+  write(rows.filter(row=>row.operationId!==intent.operationId));if(currentKey.current===key){notify(receipt.state==='rejected'?(receipt.error?.message||'原'+(actionNames[intent.action]||'管理')+'操作已收到确定拒绝'+(fromDispatch?'。':'，未提供远端原因。')):(actionNames[intent.action]||'管理操作')+'已完成，原任务与历史保留。');await refresh();}return true;
  };
  const query=async(intent?:T,manual=true)=>{let rows:T[];try{rows=intent?[intent]:read();}catch{setStorageError(true);notify('本机管理台账无法读取，请保留原记录排查。');return;}const targets=manual?mergeRecoveryRows(recovery.rows.filter(row=>row.lane===lane),rows.map(asRow)):rows.map(asRow);return recovery.query(targets,manual,(row,receipt)=>{const saved=rows.find(i=>i.operationId===row.operationId);return saved?settle(saved,receipt):Promise.resolve(matchingReceipt(row,receipt));});};
  useEffect(()=>{

@@ -32,7 +32,7 @@
 | `registry.createHost(id, options)` | 仅调用已注册工厂，并验证返回实例具有 `call`、`close`；未知 ID 返回 `ADAPTER_UNSUPPORTED` |
 | `assertAdapterHost(host, id)` | 验证宿主生命周期边界；不代替原生协议与恢复测试 |
 
-[builtin-adapters.cjs](../desktop/electron/builtin-adapters.cjs)导出内置 `adapters` 注册表，当前源码八个稳定入口 ID 为 `codex`、`claude`、`opencode`、`hermes`、`pi`、`dsh`、`dsh-desktop`、`dsh-web`。后三个同属DSH品牌但连接不同执行入口，不能互相替换已有Session。名字、版本或图标变化不能更改已有 ID；新增自己的工具使用独立 ID，例如 `example-agent`。禁止复用旧 ID 将原任务路由到不同实现。
+[builtin-adapters.cjs](../desktop/electron/builtin-adapters.cjs)导出内置 `adapters` 注册表，当前源码十个稳定入口 ID 为 `codex`、`claude`、`opencode`、`hermes`、`pi`、`dsh`、`dsh-desktop`、`dsh-web`、`opendesk`、`opendesk-desktop`。DSH的三个入口同属DSH品牌但连接不同执行入口，不能互相替换已有Session。名字、版本或图标变化不能更改已有 ID；新增自己的工具使用独立 ID，例如 `example-agent`。禁止复用旧 ID 将原任务路由到不同实现。
 
 ```js
 const { defineAdapter, createAdapterRegistry } = require(
@@ -194,3 +194,7 @@ node scripts/check-docs.mjs
 更新 Windows EXE 不会更新已运行的 Linux daemon。远端需通过原机器维护通道升级对应后台，再重扫安装；旧上下文、原请求/任务 ID 与原 Session 保留。发布应绑定源码、包清单和校验摘要，独立说明已执行与未执行的实机范围。
 
 在项目支持的Windows构建环境中，仓库已有的`npm run desktop:dist`会先构建核心/前端，再暂存后台、构建便携EXE并执行`verify-package.cjs --portable`；这是构建步骤，不会自动完成真实EXE或公开下载验收。使用新源码前先停止旧本地后台再重开，WSL/SSH另升级其原daemon。实际发布按[发布交付记录](iterations/I07/alpha34-release.md)保留冻结源码、普通EXE运行、附件摘要与匿名完整下载核验；当前文档更新不生成新包，也不改变alpha.34已发布字节。
+
+## OpenDesk 参考适配
+
+OpenDesk CLI使用已有HTTP会话接口，Desktop使用已有设备网关。Bridge持久Host与连接持有worker保存去重、派发围栏及原回应；不要求原生Agent增加接口。Desktop原连接断开后旧sessionKey不可续聊；CLI历史completed不能代替原同步回应。独立MCP与托管scope分开。[当前设计](modules/06-native-adapters/opendesk/design.md)、[实施和验证边界](iterations/I08/opendesk-existing-interfaces.md)。

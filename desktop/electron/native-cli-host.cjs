@@ -29,7 +29,7 @@ class NativeCliHost {
   constructor(options) {
     if (!profiles[options.adapter]) throw fail('ADAPTER_UNSUPPORTED', '原生 Agent 适配器未注册。');
     this.directory = options.directory; this.adapter = options.adapter; this.executable = options.executable;
-    this.environment = options.environment; this.name = names[this.adapter];
+    this.home = options.home; this.environment = options.environment; this.name = names[this.adapter];
     this.file = path.join(this.directory, this.adapter + '-state.json');
     this.state = read(this.file, { revision: 1, agents: [], tasks: [], conversations: [], requests: [], operations: [] });
     this.chain = Promise.resolve();
@@ -73,13 +73,15 @@ class NativeCliHost {
         if (event.kind === 'native' && validIdentity(event.sessionId)) {
           const conversation = this.state.conversations.find(item => item.conversationId === task.conversationId);
           if (conversation.sessionId && conversation.sessionId !== event.sessionId) continue;
-          task.native = { sessionId: event.sessionId, messageId: task.requestId }; conversation.sessionId = event.sessionId; this.event(task, 'native');
+          task.native = { sessionId: event.sessionId, messageId: validIdentity(event.messageId) ? event.messageId : task.requestId }; conversation.sessionId = event.sessionId;
+          if (event.instanceId) { if (conversation.instanceId && conversation.instanceId !== event.instanceId) { conversation.bindingError = '原生实例身份发生变化'; task.status = 'unknown'; } else conversation.instanceId = event.instanceId; }
+          this.event(task, 'native');
         }
         if (event.kind === 'binding_error') { const conversation = this.state.conversations.find(item => item.conversationId === task.conversationId); conversation.bindingError = event.text; this.event(task, 'progress', { text: event.text }); }
         if (event.kind === 'output') { task.lastSummary = event.text; this.event(task, 'output', { text: event.text, ...(event.delta ? { delta: true } : {}) }); }
         if (event.kind === 'progress') this.event(task, 'progress', { text: event.text });
         if (event.kind === 'unknown') { task.status = 'unknown'; task.lastSummary = event.text; this.event(task, 'progress', {text: event.text}); }
-        if (event.kind === 'terminal') this.finish(task, event.status, event.text, event.code);
+        if (event.kind === 'terminal') this.finish(task, event.status, event.text, event.code, event.nativeExited !== false);
       }
       const heartbeat = read(path.join(directory, 'heartbeat.json'), null);
       if (!terminal.has(task.status) && task.status !== 'unknown' && Date.now() - Date.parse(heartbeat?.time || task.createdAt) > 15000) {
@@ -93,7 +95,11 @@ class NativeCliHost {
   conversationView(conversation) {
     const result = clone(conversation); delete result.sessionId;
     const last = this.state.tasks.find(item => item.taskId === conversation.lastTaskId);
-    let bound = validIdentity(conversation.sessionId) && conversation.profile === profiles[this.adapter] && !conversation.bindingError;
+    let bound = validIdentity(conversation.sessionId) && (!this.adapter.startsWith('opendesk') || validIdentity(conversation.instanceId)) && conversation.profile === profiles[this.adapter] && !conversation.bindingError;
+    if (bound && this.adapter.startsWith('opendesk')) {
+      const owner = require('./opendesk-connection.cjs').controller(path.join(this.directory, 'opendesk-existing-v2'));
+      bound = owner?.instanceId === conversation.instanceId && owner?.connected === true && owner?.executable === this.executable;
+    }
     if (bound && this.adapter === 'pi') {
       try { piSessionFile(path.join(this.directory, 'native-sessions'), conversation.sessionId); }
       catch (error) { if (error.code !== 'CONVERSATION_CONFIG') throw error; bound = false; }
@@ -105,6 +111,10 @@ class NativeCliHost {
     if (method === 'connect') {
       if (params.model || params.providerID) throw fail('INVALID_INPUT', '节点沿用原生模型与供应商配置。');
       const workspace = fs.realpathSync(params.workspace); if (!fs.statSync(workspace).isDirectory()) throw fail('WORKSPACE_UNAVAILABLE', '执行目录不可用。');
+      if (this.adapter === 'opendesk-desktop') {
+        const config = require('./opendesk-connection.cjs').desktopConfig(this.executable, {home:this.home,environment:this.environment});
+        if (fs.realpathSync(config.workspace) !== workspace) throw fail('OPENDESK_WORKSPACE', 'OpenDesk 桌面网关沿用原生工作目录，请选择该目录或在原生设置修改后重启网关。');
+      }
       let agent = this.state.agents.find(item => item.workspace === workspace);
       if (!agent) { agent = { agentId: this.adapter + '-' + randomUUID(), adapter: this.adapter, executable: this.executable, name: this.name, workspace, enabled: true }; this.state.agents.push(agent); this.save(); }
       return { agentId: agent.agentId };
@@ -133,7 +143,7 @@ class NativeCliHost {
       const operationId = params.operationId === undefined ? randomUUID() : params.operationId;
       const old = this.existingOperation(task, operationId, 'reconcile');
       if (old) return clone(old);
-      if (['dsh-desktop', 'dsh-web'].includes(this.adapter) && task.status === 'unknown') {
+      if (['dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop'].includes(this.adapter) && task.status === 'unknown') {
         const directory = path.join(this.directory, 'runs', task.taskId);
         const heartbeat = read(path.join(directory, 'heartbeat.json'), null);
         let alive = false;
@@ -155,9 +165,10 @@ class NativeCliHost {
     const old = this.state.requests.find(item => item.requestId === params.requestId);
     if (old) { if (old.fingerprint !== fingerprint) throw fail('REQUEST_CONFLICT', '请求内容冲突。'); return this.publicTask(this.state.tasks.find(item => item.taskId === old.taskId)); }
     if (params.op === 'continue' && (!validIdentity(conversation?.sessionId) || conversation.profile !== profiles[this.adapter] || conversation.bindingError)) throw fail('CONVERSATION_CONFIG', '原生会话或执行协议尚未绑定，未重新提交。');
+    if (params.op === 'continue' && this.adapter.startsWith('opendesk') && !this.conversationView(conversation).canContinue) throw fail('CONVERSATION_CONFIG', '原 OpenDesk 连接或会话不可用，请保留原历史；未重新提交。');
     if (this.state.tasks.some(item => !terminal.has(item.status))) throw fail('AGENT_BUSY', '此上下文仍有未结束任务。');
     const fresh = { taskId: this.adapter + '-task-' + randomUUID(), executionId: randomUUID(), conversationId: conversation?.conversationId || this.adapter + '-conversation-' + randomUUID(), targetAgent: agent.agentId, requestId: params.requestId, message: safe(params.message), status: 'accepted', createdAt: now(), updatedAt: now(), turn: (conversation?.turns || 0) + 1, lastSeq: 0, lastSummary: '已接收，正在启动 ' + this.name, events: [], offset: 0 };
-    const directory = path.join(this.directory, 'runs', fresh.taskId), job = { adapter: this.adapter, profile: profiles[this.adapter], executable: this.executable, workspace: agent.workspace, message: params.message, requestId: params.requestId, sessionId: conversation?.sessionId, sessionDirectory: path.join(this.directory, 'native-sessions'), ...(['dsh-desktop', 'dsh-web'].includes(this.adapter) ? {origin: require('./dsh-connection.cjs').read(this.executable).origin} : {}) };
+    const directory = path.join(this.directory, 'runs', fresh.taskId), job = { adapter: this.adapter, profile: profiles[this.adapter], executable: this.executable, workspace: agent.workspace, message: params.message, requestId: params.requestId, conversationId: fresh.conversationId, sessionId: conversation?.sessionId, ...(conversation?.instanceId ? {instanceId:conversation.instanceId} : {}), sessionDirectory: path.join(this.directory, 'native-sessions'), ...(this.adapter.startsWith('opendesk') ? {controlRoot:path.join(this.directory,'opendesk-existing-v2')} : {}), ...(['dsh-desktop', 'dsh-web'].includes(this.adapter) ? {origin: require('./dsh-connection.cjs').read(this.executable).origin} : {}) };
     // Validate exact Pi persisted binding before any durable intent or spawn.
     argumentsFor(job);
     write(path.join(directory, 'job.json'), job);
@@ -171,13 +182,13 @@ class NativeCliHost {
     let child, fd;
     const launchFailure = error => {
       if (!observe) return this.failLaunch(fresh, error);
-      fresh.lastSummary = 'DSH 原执行仍待核对；只读观察未能启动，原需求没有重发。';
+      fresh.lastSummary = this.name + ' 原执行仍待核对；只读观察未能启动，原需求没有重发。';
       this.event(fresh, 'progress', {text: fresh.lastSummary}); this.save(); return this.publicTask(fresh);
     };
     try {
       const runtime = require('./worker-runtime.cjs').workerRuntime(this.directory), workerDirectory = path.join(this.directory, 'runtime', 'native-' + randomUUID());
       fs.mkdirSync(workerDirectory, { recursive: true, mode: 0o700 });
-      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs', 'dsh-connection.cjs', 'dsh-worker.cjs', 'graph-layout.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
+      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs', 'dsh-connection.cjs', 'dsh-worker.cjs', 'opendesk-connection.cjs', 'opendesk-worker.cjs', 'graph-layout.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
       fd = fs.openSync(path.join(directory, 'worker.log'), 'a', 0o600);
       child = spawn(runtime, [path.join(workerDirectory, 'native-cli-host.cjs'), '--native-cli-worker', directory, ...(observe ? ['--observe'] : [])], { cwd: workspace, env: { ...(this.environment || process.env), ELECTRON_RUN_AS_NODE: '1' }, detached: true, windowsHide: true, stdio: ['ignore', fd, fd] });
       child.once('error', error => { this.chain = this.chain.then(() => launchFailure(error)).catch(() => {}); }); child.unref();
@@ -189,6 +200,7 @@ class NativeCliHost {
 }
 async function runWorker(directory) {
   const original = read(path.join(directory, 'job.json'), null);
+  if (['opendesk', 'opendesk-desktop'].includes(original?.adapter)) return require('./opendesk-worker.cjs').run(directory, {observe: process.argv.includes('--observe')});
   if (['dsh-desktop', 'dsh-web'].includes(original?.adapter)) return require('./dsh-worker.cjs').run(directory, {observe: process.argv.includes('--observe')});
   const job = read(path.join(directory, 'job.json'), null), emit = data => fs.appendFileSync(path.join(directory, 'events.jsonl'), JSON.stringify(data) + '\n', { mode: 0o600 });
   const beat = () => write(path.join(directory, 'heartbeat.json'), { time: now(), pid: process.pid }); beat(); const heartbeat = setInterval(beat, 1000);

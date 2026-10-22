@@ -1,5 +1,11 @@
 # M11 文档网页入口设计
 
+## MCP02当前使用说明同步（2026-10-22）
+
+补齐非GUI首次接入/原操作查询、同profile、60秒观测有效期和OpenDesk同名诊断条目冲突处理；更新当前alpha.46候选与真实验证边界。用户站测试6/6、构建/边界审计通过；内部专项与证据不发布。[本轮交付](../../iterations/I08/mcp-open-recovery.md)。
+
+用户页新增OpenDesk独立章节与导航，接入/能力表由十个静态入口和当前矩阵共同生成，区分CLI HTTP、Desktop WebSocket和独立MCP。网页继续只发布doc/user，不含内部实现、编号或验证记录。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
+
 ## alpha.36整合边界
 
 M11-F01：当前公开alpha.36含公开alpha.35执行资源级保护/原查询反馈与所有工作区增量；OpenCode宿主和原管理拒绝恢复并存，原身份/Session/unknown不迁移。精确收录alpha.34/35 daemon清单，客户端升级不自动替换远端。[完整交付](../../iterations/I07/alpha36-delivery.md)。

@@ -18,3 +18,5 @@ Codex 与 Claude Code 标识是各权利人的品牌素材，不因本仓库的 
 前端通过 `new URL(..., import.meta.url)` 在构建时打包，运行时不从官网加载图像。现有桌面打包规则 `assets/**/*` 同时携带本目录的原图、来源与许可通知。新增 Agent 时，更新 `desktop/src/agent-tools.ts` 和类型，将审阅过的本地图片及来源/许可加入此目录；未知自定义类型显示通用 Agent 图标，不借用其他产品标识。
 
 `dsh-desktop` / `dsh-web` 服务入口共用已有 `dsh.svg` 与来源/许可，不新增下载或改变图标字节；图标不证明服务已认证或模型可用。当前 Windows 检测到的社区 DSH Desktop 2.0.18 与官方 DSH 项目身份/实测层级区分见[接入专项](../../../doc/iterations/I07/dsh-desktop-web.md)。
+
+OpenDesk CLI/Desktop 共用本机 OpenDesk 源码 `resources/package/installer/opendesk-icon.png`，随包提供；品牌识别图沿用 OpenDesk 项目的 Mulan PSL v2 许可，许可证见本目录 `opendesk-LICENSE`。图标不表示接口已认证或任务成功。

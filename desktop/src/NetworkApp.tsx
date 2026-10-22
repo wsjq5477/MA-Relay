@@ -15,7 +15,10 @@ import {
 } from "lucide-react";
 import { bridge, call, invoke, isTerminal, labels } from "./api";
 import { TaskDetail } from "./App";
-import DaemonDialog from "./DaemonDialog";
+import DaemonDialog, {
+  type BlockedOperationResult,
+  type MaintenanceBlockers,
+} from "./DaemonDialog";
 import AddMachineDialog from "./AddMachineDialog";
 import { useMachineManagement, type MachineAction } from "./machine-management";
 import AgentGraph from "./AgentGraph";
@@ -1437,9 +1440,32 @@ export default function NetworkApp() {
       )}
       {daemonDialog && (
         <DaemonDialog
-          machine={daemonDialog}
+          machine={
+            allMachines.find((m) => m.machineId === daemonDialog.machineId) ??
+            daemonDialog
+          }
           pending={!!managementReason(daemonDialog.machineId)}
           onClose={() => setDaemonDialog(null)}
+          poll={() => {
+            const intent = machineManagement.pendingItems.find(
+              (i) => i.connectionId === daemonDialog.connectionId,
+            );
+            if (intent) return machineManagement.query(intent, false);
+          }}
+          blockers={() =>
+            call<MaintenanceBlockers>("machine.maintenanceBlockers", {
+              connectionId: daemonDialog.connectionId,
+              machineId: daemonDialog.machineId,
+            })
+          }
+          queryBlocked={(key, op) =>
+            call<BlockedOperationResult>("machine.queryBlockedOperation", {
+              connectionId: daemonDialog.connectionId,
+              machineId: daemonDialog.machineId,
+              key,
+              op,
+            })
+          }
           run={(config) =>
             machineManagement.run(
               daemonDialog.connectionId!,

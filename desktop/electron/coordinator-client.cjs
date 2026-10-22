@@ -5,7 +5,7 @@ const { spawn } = require('node:child_process');
 const { randomUUID } = require('node:crypto');
 const { identity,endpoint,readLines,PROTOCOL } = require('./coordinator.cjs');
 const { coordinatorRuntime } = require('./coordinator-runtime.cjs');
-const {supportsCurrentCoordinator}=require('./runtime-capabilities.cjs');
+const {supportsCurrentCoordinator,supportsMcpOpenAccess}=require('./runtime-capabilities.cjs');
 class CoordinatorClient {
   constructor(options) {this.options=options;this.pending=new Map();this.socket=null;this.connecting=null;}
   async open() {
@@ -59,6 +59,11 @@ class CoordinatorClient {
     await this.open();
     if(!supportsCurrentCoordinator(this.info?.capabilities)&&!['preferences','runtimes','shutdown'].includes(method))
       throw Object.assign(new Error('当前中央后台缺少本版本的安全读取、版本检查或分机器管理能力。请在设置 → 后台运行中停止后台并退出，再打开新版 EXE；原任务和历史保留。'),{code:'COORDINATOR_UPGRADE_REQUIRED'});
+    // The richer MCP facts and the persisted revocation are separate new backend
+    // capabilities. Old current-version coordinators already pass the generic
+    // check above, so name this upgrade instead of dispatching into an old Set.
+    if(method==='call'&&['mcp.status','mcp.revoke','mcp.probe'].includes(params?.method)&&!supportsMcpOpenAccess(this.info?.capabilities))
+      throw Object.assign(new Error('当前中央后台缺少MCP开放接入能力。请在设置 → 后台运行中停止后台并退出，再打开新版 EXE；原任务、MCP配置与授权记录保留。'),{code:'MCP_BACKEND_UPGRADE_REQUIRED'});
     const id=randomUUID(),socket=this.socket;
     return new Promise((resolve,reject)=>{
       if(this.pending.size>=64) return reject(Object.assign(new Error('后台正在处理较多请求，请稍后重试。'),{code:'COORDINATOR_BUSY'}));

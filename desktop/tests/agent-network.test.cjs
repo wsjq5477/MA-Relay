@@ -581,6 +581,19 @@ test('API compatibility and old-daemon capability constrain node availability be
  machine.objectRoutingSupported=false;observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.status,'upgrade_required');assert.equal(observed.available,false);assert.equal(observed.connectionCapabilities.delegation,false);
 });
 
+test('attach preparation failure persists an original rejected node receipt and never repeats remote context admission',async t=>{
+ const f=await setup(t),node=f.nodes.find(n=>n.adapter==='opencode'),h=f.hosts.get(node.machineId),call=h.call.bind(h);let preparations=0;
+ h.call=async(method,p)=>{if(method==='context'){preparations++;throw Object.assign(Error('service exited'),{code:'NATIVE_EXITED'});}return call(method,p);};
+ const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());
+ const params={operationId:'original-attach-refusal',nodeId:node.nodeId,machineId:node.machineId,action:'attach'},before=structuredClone(f.router.node(node.nodeId));
+ const result=await service.call({method:'manageNode',params});assert.equal(result.ok,false);assert.equal(result.error.code,'NATIVE_EXITED');
+ assert.deepEqual((await service.call({method:'graphPending',params:{}})).result,[]);
+ const receipt=await f.router.call('nodeOperation',{operationId:params.operationId});assert.equal(receipt.state,'rejected');assert.equal(receipt.error.code,'NATIVE_EXITED');assert.equal(receipt.data.machineId,node.machineId);
+ assert.equal(f.router.node(node.nodeId).connected,before.connected);assert.deepEqual(f.router.network.collaboration,{leaderId:null,memberIds:[],revision:0});
+ const repeat=await f.router.call('manageNode',params);assert.deepEqual(repeat,receipt);assert.equal(preparations,1);assert.equal(h.executions,0);
+ const restored=new AgentNetwork(f.options);t.after(()=>restored.close());assert.deepEqual(await restored.call('nodeOperation',{operationId:params.operationId}),receipt);
+});
+
 test('delegated result exposes each backend native failure and preserves original task IDs',async t=>{
  const f=await setup(t),leader=f.nodes.find(n=>n.adapter==='claude'),member=f.nodes.find(n=>n.adapter==='opencode');await f.router.call('attachNode',{nodeId:member.nodeId});
  await f.router.call('saveCollaboration',{leaderId:leader.nodeId,memberIds:[member.nodeId],expectedRevision:0});await f.router.call('nodeRequest',{nodeId:leader.nodeId,requestId:'error-parent',message:'read errors',collaboration:true});

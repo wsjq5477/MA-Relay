@@ -1,6 +1,6 @@
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const {createHash,randomUUID}=require('node:crypto');
-const {adapters}=require('./builtin-adapters.cjs');
+const {adapters,supportsTeamCollaboration}=require('./builtin-adapters.cjs');
 const {scanTools,openCodeVersionError}=require('./tool-discovery.cjs');
 const {CollaborationBroker}=require('./collaboration-broker.cjs');
 const terminal=new Set(['succeeded','failed','cancelled']);
@@ -63,8 +63,8 @@ class MachineHost {
     if(!detected?.healthy)throw fail('DISCOVERY_CHANGED','这个工具当前不可调用，请重新扫描。');
     if(detected.compatibility?.supported===false)throw openCodeVersionError(detected.version);
     if(!detected.executionSupported)throw fail('ADAPTER_UNSUPPORTED','这个工具已发现，执行适配尚未完成。');
-    const defaultPath=path.join(this.directory,'sessions',params.nodeId.replace(/[^\w-]/g,'_'));
-    if(!params.workspace)fs.mkdirSync(defaultPath,{recursive:true});
+    const defaultPath=params.adapter==='opendesk-desktop' ? require('./opendesk-connection.cjs').desktopConfig(params.executable,this.options).workspace : path.join(this.directory,'sessions',params.nodeId.replace(/[^\w-]/g,'_'));
+    if(!params.workspace&&params.adapter!=='opendesk-desktop')fs.mkdirSync(defaultPath,{recursive:true});
     let workspace;try{workspace=fs.realpathSync(params.workspace||defaultPath);if(!fs.statSync(workspace).isDirectory())throw new Error();}catch{throw fail('WORKSPACE_UNAVAILABLE','执行目录不存在，请选择目标机器上的目录。');}
     const base=params.nodeId+':'+workspace+':'+(params.collaborationId||'direct')+(params.adapter==='opencode'?':cli-defaults-v1':'');
     let key=createHash('sha256').update(base).digest('hex').slice(0,24);
@@ -82,23 +82,32 @@ class MachineHost {
       const host=this.backend(row);
       if(!row.agentId){const result=await host.call('connect',{executable:row.executable,workspace:row.workspace,name:detected.name,...(row.adapter==='opencode'?{inheritNativeCli:true}:{})});row.agentId=result.agentId;this.save();}
       let snapshot=await host.call('snapshot',{}),agent=snapshot.agents.items.find(a=>a.agentId===row.agentId);
+      // Explicit context preparation may restore an exited owned service. Reuse
+      // its existing settings/agent/session; connect would create a new agent.
+      // Snapshot and original-request reads never enter this recovery path.
+      if(row.adapter==='opencode'&&agent?.startupError?.code==='NATIVE_UNAVAILABLE'){
+        await host.call('ipc',{op:'start'});
+        snapshot=await host.call('snapshot',{});agent=snapshot.agents.items.find(a=>a.agentId===row.agentId);
+      }
       // OpenCode can listen before its native catalogue and next health
       // heartbeat are ready. Observe metadata before sending any user prompt.
       const readyBy=Date.now()+10000;
       while(row.adapter==='opencode'&&agent?.healthy===false&&Date.now()<readyBy){
+        if(agent.startupError)throw fail(agent.startupError.code,agent.startupError.message);
         await new Promise(resolve=>setTimeout(resolve,250));
         snapshot=await host.call('snapshot',{});agent=snapshot.agents.items.find(a=>a.agentId===row.agentId);
       }
       if(agent?.model)throw fail('CONVERSATION_CONFIG','旧执行上下文有模型覆盖，请保留原记录并新建原生配置会话。');
-      if(row.adapter==='opencode'&&agent?.startupError?.code==='OPENCODE_API_UNSUPPORTED')throw fail(agent.startupError.code,agent.startupError.message);
+      if(row.adapter==='opencode'&&!agent)throw fail('CONTEXT_STATE','原执行上下文的 Agent 归属缺失，请保留原记录排查。');
+      if(row.adapter==='opencode'&&agent?.startupError)throw fail(agent.startupError.code,agent.startupError.message);
       if(row.adapter==='opencode'&&agent?.healthy===false)throw fail('AGENT_UNHEALTHY','原生工具尚未就绪，未提交需求；请检查原生账号或等待服务就绪。');
-      return {...row,teamCollaboration:adapters.get(row.adapter)?.capabilities.teamCollaboration===true};
+      return {...row,teamCollaboration:supportsTeamCollaboration(row)};
     })().finally(()=>this.connecting.delete(key));this.connecting.set(key,job);return job;
   }
   async call(method,params={}){
     if (method === 'dsh.status') return require('./dsh-connection.cjs').status(this.options);
     if (method === 'dsh.configure') return require('./dsh-connection.cjs').configure(this.options, params);
-    if(['mcp.status','mcp.install','mcp.remove','mcp.export'].includes(method)){
+    if(['mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe'].includes(method)){
       if(method==='mcp.remove')await this.mcpReady.catch(()=>{});else await this.mcpReady;
       return this.mcp.call(method,params);
     }
@@ -107,7 +116,9 @@ class MachineHost {
     if(method==='environment')return this.legacy.call(method,params);
     if(method==='scope'){
       const row=this.rows.find(r=>r.contextId===params.contextId);if(!row)throw fail('CONTEXT_STATE','执行上下文不存在。');
-      if(adapters.get(row.adapter)?.capabilities.teamCollaboration!==true)throw fail('ADAPTER_UNSUPPORTED','这个原生接入暂未适配 Bridge MCP 协作，需求未派发。');
+      // Hosted-task scope binding is its own admission. An entry that cannot bind
+      // one scoped session keeps its independent MCP configuration and calling.
+      if(!supportsTeamCollaboration(row))throw fail('ADAPTER_UNSUPPORTED','这个入口尚不能绑定 Bridge 托管的单次任务，需求未派发；其独立 MCP 配置与调用不受影响。');
       const mcp=await this.broker.configure(row.contextId,params.scope);
       row.mcp=mcp;this.save();
       if(row.adapter==='opencode'){
