@@ -1,0 +1,17 @@
+{
+  "approved": true,
+  "pr18": {
+    "merged": true,
+    "commit": "226ec1fb46818425116e9e55a576e5b30dc0fee2"
+  },
+  "pr22": {
+    "merged": true,
+    "commit": "9e2d2835aa53d7e5a217f40b8f71b5d092d91792"
+  },
+  "issues19and20": "closed",
+  "releaseApproved": true,
+  "tagCreated": true,
+  "assetsUploaded": true,
+  "publicDownloadVerified": true,
+  "published": true
+}

@@ -7,13 +7,13 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0 |
-| 当前公开预发布 | **0.6.0-alpha.51.recovery.2**（冻结 `905b792`，EXE130196014字节，匿名完整下载核验通过） |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.51.recovery.2/AgentBridge-0.6.0-alpha.51.recovery.2-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.51.recovery.2/SHA256SUMS.txt)；未签名；[交付与验证边界](doc/iterations/I08/alpha51-recovery2-release.md) |
-| 当前集成版本 | 本地 **alpha.52** 候选修复 #19/#20 的 OpenDesk MCP 退出写入与独立节点设主；尚未公开。此前 Pi/Hermes/DSH原生MCP与WSL/图修复保留，完整准出边界不变；[交付与验证](doc/iterations/I08/opendesk-lifecycle-relation-scope.md) |
-| 当前公开源码范围 | 对应完整源码在标签 `v0.6.0-alpha.51.recovery.2` 与发布分支；#15/#16和此前alpha.50/51增量均包含，master合并另行审查 |
+| 当前公开预发布 | **0.6.0-alpha.52**（冻结 `49bd12b`，EXE130190265字节，匿名完整下载核验通过） |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.52/AgentBridge-0.6.0-alpha.52-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.52/SHA256SUMS.txt)；未签名；[交付与验证边界](doc/iterations/I08/alpha52-release.md) |
+| 当前集成版本 | 公开 **alpha.52** 修复 #19/#20 的 OpenDesk MCP 退出写入与独立节点设主；EXE/校验文件和源码已公开。此前 Pi/Hermes/DSH原生MCP与WSL/图修复保留，完整准出边界不变；[交付与验证](doc/iterations/I08/opendesk-lifecycle-relation-scope.md) |
+| 当前公开源码范围 | 对应完整源码在标签 `v0.6.0-alpha.52` 与发布分支；#15/#16和此前alpha.50/51增量均包含，PR #18/#22已合入master |
 | 未准出 | 完整 I06C/I07C/MCP02；原生父模型自主MCP委派、原生页面增删；Hermes/Pi及DSH其他执行入口、独立 SSH |
 
-当前公开 alpha.46（2026-10-22 预发布）：[源码、包与公开核验](doc/iterations/I08/alpha46-release.md)。
+历史 alpha.46（2026-10-22 预发布）：[源码、包与公开核验](doc/iterations/I08/alpha46-release.md)。
 
 [下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/AgentBridge-0.6.0-alpha.46-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.46)。用户无需自行编译或安装 WSL/Node.js。
 
