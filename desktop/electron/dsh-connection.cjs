@@ -25,8 +25,8 @@ function status(options = {}) {
   if (!fs.existsSync(directory)) return {items: []};
   return {items: fs.readdirSync(directory).filter(n => /^(dsh-desktop|dsh-web)-[a-f0-9]{32}\.json$/.test(n)).map(n => {
     const file = path.join(directory, n);
-    try { const row = read(file); return {adapter: row.adapter, origin: row.origin, enabled: row.enabled !== false, executable: file}; }
-    catch { return {adapter: n.startsWith('dsh-desktop-') ? 'dsh-desktop' : 'dsh-web', origin: '', enabled: true, executable: file, error: 'DSH 连接配置损坏，请保留原文件并核对。'}; }
+    try { const row = read(file); return {adapter: row.adapter, origin: row.origin, enabled: row.enabled !== false, executable: file, connectionId: n.slice(0,-5)}; }
+    catch { return {adapter: n.startsWith('dsh-desktop-') ? 'dsh-desktop' : 'dsh-web', origin: '', enabled: true, executable: file, connectionId: n.slice(0,-5), error: 'DSH 连接配置损坏，请保留原文件并核对。'}; }
   })};
 }
 function configure(options, params) {
@@ -39,7 +39,7 @@ function configure(options, params) {
   if (params.enabled !== undefined && typeof params.enabled !== 'boolean') throw fail('INVALID_INPUT', '连接状态无效。');
   require('./private-directory.cjs').ensurePrivateDirectory(directory);
   require('./graph-layout.cjs').atomicWrite(file, {adapter: params.adapter, origin, token: secret, enabled: params.enabled !== false});
-  return status(options);
+  return {...status(options), selectedConnectionId: params.adapter + '-' + key};
 }
 async function client(file, expectedOrigin) {
   const row = read(file);

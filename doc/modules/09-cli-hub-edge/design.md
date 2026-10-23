@@ -1,5 +1,12 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
+HostConnection关闭使用仅内存的启动代次和原子进程引用：枚举迟到不spawn，原请求不能落到新通道，未写关闭保留明确未派发、已写后失联仍按原ID查询。CLI/controller/Task/Session和持久协议均未改变。[关闭竞态修复](../../iterations/I08/wsl-close-and-graph-stability.md)。
+M09：现有六项mcp方法统一支持Pi/Hermes；Hermes新增独立YAML导出文件，profile只读回显，CLI不用新参数猜Profile。原生列表用安全摘要保留失败原因，不能把plain list当连接；原JSON脱敏和原请求查询保持。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+M09：Core stdio入口仅在AGENTBRIDGE_HOST_READY=1时，行读取器安装后输出bridgeReady:1、protocol:agentbridge-host-v1；未设置标志的原生直连保持原回应流。并发或失败语义不改变原业务方法与CLI JSON脱敏契约。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。
+
+M09-F01：mcp status显示DSH Desktop绑定Profile、原配置/当前配置路径和原生选择核对错误；MCP_NATIVE_TARGET_CHANGED是拒绝，MCP_DSH_DESKTOP_TARGET是原生目标不可核对，均不转换为成功或重放原操作。 [实现与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
+
 ## MCP02恢复与观测（2026-10-22）
 
 非GUI新增nodes、attach和原操作查询operation；稳定operationId与桌面profile共享；打包manifest取真实版本、离线包随后台暂存。JSON保留授权状态枚举，隐藏凭据。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。

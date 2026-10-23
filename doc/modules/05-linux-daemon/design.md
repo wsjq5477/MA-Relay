@@ -1,5 +1,11 @@
 # M05 Linux 机器后台设计
 
+M05-F02：共享MachineHost带Pi/Hermes配置适配，在目标机器解释原生目录与环境。新模块随alpha.50离线包收录；SSH协议不变、不自动升级远端，本机Linux原生MCP组件成功不替代独立SSH。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+M05-F02：WSL bootstrap设置AGENTBRIDGE_HOST_READY，Core安装stdin读取器后返回就绪帧。此帧属于Windows→WSL stdio启动，不是daemon SSH帧协议变更；共享离线资源同时收录bootstrap，旧SSH不自动升级。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。
+
+M05-F02：共享MCP配置模块新增DSH Desktop原生选择解析与绑定清理；随离线资源交付，不新增daemon方法或自动部署。当前真实验收在Windows隔离目录，不能充作独立SSH证据。 [实现与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
+
 OpenDesk已有接口连接与worker随Linux离线包收录。目标后台启动正常安装的CLI serve，经随机Basic认证连接现有HTTP接口；去重和恢复记录保存在Bridge，恢复不启动原生替代服务。旧daemon须单独升级，不要求安装定制OpenDesk。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
 
 M05-F02：OpenCode 显式接入遇原服务已退出时，仅启动原 context 内的原生服务，再核验原 Agent；本次新增恢复不放在快照或原请求读取分支。接入准备失败原子记录本地 attach 拒绝收据，原图意图只按匹配证据收敛；不改变原任务、Session 或 unknown 门禁。恢复不改协议或原生模型配置。详见[恢复契约与边界](../../iterations/I08/opencode-oom-recovery.md)。

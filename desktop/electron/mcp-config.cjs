@@ -21,6 +21,23 @@ function read(file) {
 function parse(text, adapter) {
   try {
     if (adapter === "codex") return toml.parse(text);
+    if (adapter === 'hermes') return require('./hermes-mcp-config.cjs').document(text).data;
+    if (adapter === 'pi') {
+      // Pi's native loader uses JSON.parse, not JSONC. Reject duplicate keys too:
+      // ownership must never depend on which duplicate a parser happens to pick.
+      const strictText = text.replace(/^\uFEFF/, '') || '{}';
+      const value = JSON.parse(strictText);
+      const visit = node => {
+        if (node?.type === 'object') {
+          const keys = node.children.map(property => property.children[0].value);
+          if (new Set(keys).size !== keys.length) throw Error();
+        }
+        for (const child of node?.children || []) visit(child);
+      };
+      visit(jsonc.parseTree(strictText));
+      if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error();
+      return value;
+    }
     const errors = [],
       value = jsonc.parse(text || "{}", errors, { allowTrailingComma: true });
     if (
@@ -57,7 +74,10 @@ function dshPatchFile(home, env, profile) {
   const name = dshProfile(profile);
   return path.join(dshHome(home, env), "profiles", name, "cordis.patch.yml");
 }
-function location(adapter, home, env, profile) {
+function location(adapter, home, env, profile, nativeTarget) {
+  if (adapter === 'hermes') return require('./hermes-mcp-config.cjs').targetFile(nativeTarget);
+  if (adapter === 'pi') return require('./pi-mcp-config.cjs').targetFile(nativeTarget);
+  if (adapter === 'dsh-desktop') return require('./dsh-desktop-config.cjs').targetFile(nativeTarget);
   if (adapter === "dsh-web") return dshPatchFile(home, env, "web");
   if (adapter === "dsh") return dshPatchFile(home, env, profile);
   if (['opendesk', 'opendesk-desktop'].includes(adapter)) return path.join(require('./opendesk-connection.cjs').nativeHome({home,environment:env}), 'setting.json');
@@ -79,15 +99,10 @@ function location(adapter, home, env, profile) {
         ),
       "opencode.jsonc",
     );
-  if (adapter === 'dsh-desktop')
-    throw fail(
-      "MCP_NATIVE_CONFIG_UNSUPPORTED",
-      "DSH Desktop 使用应用保留 profile，尚未核对到可管理的原生配置路径；请在 DSH Desktop 原生设置中添加 AgentBridge MCP。",
-    );
   throw fail("MCP_UNSUPPORTED", "这个 Agent 尚未提供可验证的 MCP 配置格式。");
 }
 function nativeEntry(adapter, config, protocol = 'v2') {
-  if (['dsh-web', 'dsh'].includes(adapter)) return {
+  if (['dsh-web', 'dsh', 'dsh-desktop'].includes(adapter)) return {
     id: dshRowId,
     name: "@deepseek-ai/dsh-mcp-client",
     config: {serverName: "agentbridge", transport: "stdio", command: config.command, args: config.args, env: config.env},
@@ -164,13 +179,29 @@ function dshInspect(text, file) {
   return {text, entry: rows[0]?.value, present: rows.length, doc};
 }
 class McpConfig {
-  constructor(adapter, home, env = process.env, protocol = 'v2', profile) {
+  constructor(adapter, home, env = process.env, protocol = 'v2', profile, nativeTarget) {
     this.adapter = adapter;
     this.protocol = protocol;
     // Both DSH surfaces edit a native patch layer; only the profile differs.
-    this.dshWeb = ['dsh-web', 'dsh'].includes(adapter);
-    this.profile = adapter === 'dsh-web' ? 'web' : profile === undefined ? undefined : dshProfile(profile);
-    this.file = location(adapter, home, env, this.profile);
+    this.dshWeb = ['dsh-web', 'dsh', 'dsh-desktop'].includes(adapter);
+    this.targetModule = {pi: './pi-mcp-config.cjs', hermes: './hermes-mcp-config.cjs', 'dsh-desktop': './dsh-desktop-config.cjs'}[adapter];
+    if (adapter === 'hermes') {
+      const hermes = require(this.targetModule);
+      this.nativeSelection = () => hermes.currentTarget(home, env);
+      this.nativeTarget = nativeTarget ? hermes.validateTarget(nativeTarget) : this.nativeSelection();
+    }
+    if (adapter === 'pi') {
+      const pi = require('./pi-mcp-config.cjs');
+      this.nativeSelection = () => pi.currentTarget(home, env);
+      this.nativeTarget = nativeTarget ? pi.validateTarget(nativeTarget) : this.nativeSelection();
+    }
+    if (adapter === 'dsh-desktop') {
+      const desktop = require('./dsh-desktop-config.cjs');
+      this.nativeSelection = () => desktop.desktopTarget(home, env);
+      this.nativeTarget = nativeTarget ? desktop.validateTarget(nativeTarget) : this.nativeSelection();
+    }
+    this.profile = adapter === 'dsh-desktop' ? this.nativeTarget.profile : adapter === 'dsh-web' ? 'web' : profile === undefined ? undefined : dshProfile(profile);
+    this.file = location(adapter, home, env, this.profile, this.nativeTarget);
     // OpenCode merges json/jsonc. Edit the existing file, and reject ambiguous dual entries.
     if (
       adapter === "opencode" &&
@@ -179,9 +210,9 @@ class McpConfig {
     )
       this.file = this.file.replace(/jsonc$/, "json");
     this.key =
-      adapter === "codex"
+      ['codex', 'hermes'].includes(adapter)
         ? "mcp_servers"
-        : adapter === "claude"
+        : ['claude', 'pi'].includes(adapter)
           ? "mcpServers"
           : "mcp";
     this.openDesk = ['opendesk', 'opendesk-desktop'].includes(adapter);
@@ -191,6 +222,7 @@ class McpConfig {
         : [this.key, "agentbridge"];
   }
   inspect() {
+    if (this.nativeTarget) require(this.targetModule).assertTargetDirectory(this.nativeTarget);
     const text = read(this.file);
     if (this.dshWeb) return dshInspect(text, this.file);
     const data = parse(text, this.adapter);
@@ -236,18 +268,48 @@ class McpConfig {
   }
   // True when the native file exists at the expected place for this product.
   get exists() { return fs.existsSync(this.file); }
+  assertCurrentTarget() {
+    if (this.nativeTarget) require(this.targetModule).assertTargetDirectory(this.nativeTarget);
+    if (this.nativeSelection && !equal(this.nativeTarget, this.nativeSelection()))
+      throw fail('MCP_NATIVE_TARGET_CHANGED', this.adapter === 'pi'
+        ? 'Pi 已切换原生 Agent 目录；请先移除原接入配置，再为当前目录添加。原连接和任务未重发。'
+        : this.adapter === 'hermes' ? 'Hermes 已切换原生 Home 或 Profile；请先移除原接入配置，再为当前目标添加。原连接和任务未重发。'
+        : 'DSH Desktop 已切换数据目录或 Profile；请先移除原接入配置，再为当前 Profile 添加。原连接和任务未重发。');
+  }
+  matches(entry, owned) {
+    // OpenDesk 0.3.9 persists this schema default even for stdio. Accept only
+    // the empty object on an otherwise identical, registered stdio entry.
+    // Never ignore unknown fields or apply this equivalence to other adapters.
+    const normalize = value => {
+      if (this.adapter === 'hermes') return require('./hermes-mcp-config.cjs').normalizeEntry(value);
+      if (this.adapter === 'pi' && value && typeof value === 'object' && !Array.isArray(value) && typeof value.enabled === 'boolean') {
+        const copy = {...value}; delete copy.enabled; return copy;
+      }
+      if (!this.openDesk || value?.transport !== 'stdio' || !value.headers ||
+          typeof value.headers !== 'object' || Array.isArray(value.headers) ||
+          Object.keys(value.headers).length) return value;
+      const copy = {...value};
+      delete copy.headers;
+      return copy;
+    };
+    return equal(normalize(entry), normalize(owned));
+  }
+  disabled(entry) {return this.adapter === 'hermes' ? !require('./hermes-mcp-config.cjs').enabled(entry?.enabled) : this.adapter === 'pi' && entry?.enabled === false;}
   update(entry, owned) {
+    if (entry) this.assertCurrentTarget();
     const { text, entry: current } = this.inspect();
+    if (entry && this.disabled(current))
+      throw fail('MCP_NATIVE_DISABLED', '原生 AgentBridge MCP 已禁用，Bridge 不会重新启用；请在原生 MCP 设置中启用后核对。');
     if (
       current !== undefined &&
-      !equal(current, owned) &&
+      !this.matches(current, owned) &&
       !equal(current, entry)
     )
       throw fail(
         "MCP_CONFIG_CONFLICT",
         "agentbridge 条目已存在或被外部修改，已保留原配置。",
       );
-    if (equal(current, entry)) return;
+    if (equal(current, entry) || (this.matches(current, owned) && this.matches(current, entry))) return;
     let next;
     if (this.dshWeb) {
       if (entry && !fs.existsSync(path.dirname(this.file)))
@@ -265,6 +327,13 @@ class McpConfig {
         patch.set('insert', doc.createNode([entry]));
         doc.contents.items.push(patch);
       }
+      next = doc.toString();
+    } else if (this.adapter === 'hermes') {
+      const {doc} = require('./hermes-mcp-config.cjs').document(text);
+      if (entry) {
+        if (!YAML.isMap(doc.get('mcp_servers', true))) doc.set('mcp_servers', new YAML.YAMLMap());
+        doc.setIn(['mcp_servers', 'agentbridge'], doc.createNode(entry));
+      } else doc.deleteIn(['mcp_servers', 'agentbridge']);
       next = doc.toString();
     } else if (this.adapter === "codex") {
       const start = text.indexOf(begin),
@@ -339,6 +408,7 @@ class McpConfig {
           "MCP_CONFIG_CONFLICT",
           "配置同时被其他程序更新，请刷新状态后重试。",
         );
+      if (entry) this.assertCurrentTarget();
       fs.renameSync(tmp, this.file);
     } finally {
       fs.rmSync(tmp, { force: true });

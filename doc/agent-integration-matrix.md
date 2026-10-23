@@ -1,5 +1,13 @@
 # Agent 接入现状与后续目标
 
+Pi/Hermes原生MCP已在alpha.50本地候选适配并完成分层组件验收：Pi官方1.4.0原包Linux/Windows各5组，Hermes固定官方源码/锁定依赖5组，生产前端5组/普通EXE4组、桌面794/794/核心68/68通过，模型0；[当前交付与未测边界](iterations/I08/hermes-mcp-config.md)。公开alpha.46不包含，托管scope/真实自主父模型/独立SSH仍未准出。
+
+WSL配置按原nodeId路由至原发行版MachineHost，原有六项MCP管理方法在源码已存在；alpha.49增加就绪握手，最终包真实Windows→WSL MCP组件5组已通过（配置、原生Codex列表、Linux stdio调用、重开、撤权/轮换/清理），仍保留启动失败和原生父模型未测，不以工具组件代替模型自主调用。[当前范围与失败证据](iterations/I08/wsl-host-readiness.md)。
+
+DSH Desktop原生配置已在alpha.48本地候选补齐：原生选择定位、目标绑定及精确清理；已安装原生配置组合器/客户端5组、生产前端4组，模型0。公开alpha.46仍仅导出；[当前证据与边界](iterations/I08/dsh-desktop-mcp.md)。
+
+OpenDesk 原生 MCP 管理：本地 alpha.47 候选兼容原生 STDIO 空 `headers` 默认值，已登记条目可正常识别、重复添加及撤权清理；其他修改仍保留冲突，公开 alpha.46 尚无此兼容。[本轮范围与证据](iterations/I08/opendesk-mcp-defaults.md)。此修复不改变下表的原生调用能力或准出层级。
+
 当前公开alpha.46包含开放MCP双向管理、恢复与非GUI首次接入，具体支持入口与未测项以本页矩阵为准。[当前交付与验证](iterations/I08/mcp-open-recovery.md)；[当前公开分发](iterations/I08/alpha46-release.md)。
 
 原生组件验收已补：OpenDesk0.3.9协议5组、DSH0.1.3-alpha.1协议6组；组件独立主调用到真实Claude子任务两条链各成功1次。DSH组件代表Web/CLI共享客户端，不推定Desktop配置或完整ACP会话通过。[验收层级](iterations/I08/mcp-native-acceptance.md)。
@@ -10,7 +18,7 @@
 
 本表已核对当前静态注册表：七种产品、十个执行入口。Claude/Codex/Hermes/Pi与DSH CLI使用各自原生CLI；OpenCode由CLI启动服务后走HTTP；DSH Desktop/Web连接用户已运行且认证的HTTP服务。OpenDesk CLI由原生serve提供HTTP控制，Windows Desktop沿用当前实例WebSocket网关；独立MCP配置与托管scope分开。当前没有内置ACP驱动，也没有用厂家SDK驱动这些入口。Agent调用Bridge则走另一方向的stdio MCP；不能把两种方向统称为“MCP接入”。
 
-DSH新增的Desktop/Web仍为alpha.34之后未发布源码，支持直接执行和普通被委派，MCP调用能力与原生配置、托管scope分开判定；不声明已完成真实主调用或小队成员验收。当前在设置页有专属服务配置卡，这是现有界面布局，并非HTTP协议要求；它与其他Agent的接入入口尚未统一。模型、供应商、原生权限不由此配置卡管理。[完整协议、当前设置流程与证据](iterations/I07/dsh-desktop-web.md)。
+DSH新增的Desktop/Web已随alpha.46公开，Desktop原生MCP配置适配属于alpha.48候选，支持直接执行和普通被委派，MCP调用能力与原生配置、托管scope分开判定；不声明已完成真实主调用或小队成员验收。当前在原Agent行的配置弹窗提供独立的服务连接卡，MCP管理与其他Agent共用同一配置入口。模型、供应商、原生权限不由此配置卡管理。[完整协议、当前设置流程与证据](iterations/I07/dsh-desktop-web.md)。
 
 发现时排除Linux同名Distributed Shell，原`/usr/bin/dsh`错误不代表DSH Web连接失败。当前源码可按已安装Desktop或Linux Web profile显示未配置服务提示；须在对应机器配置根地址/token后验证连接，旧alpha.34 EXE没有Desktop/Web入口。[现场核对与修复](iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)。
 
@@ -41,18 +49,18 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | Claude Code | 已接入：stream-json | 未接入 | 已接入 | 未接入 | 未接入 | 未接入 |
 | OpenCode | 已接入：启动serve | 已接入：HTTP执行/控制 | 已接入 | 未接入 | 未接入 | 未接入 |
 | Codex | 已接入：exec/resume JSON | 未接入 | 已接入 | 未接入 | 未接入 | 未接入 |
-| Hermes Agent | 已接入：stream-json | 未接入 | 未接入 | 未接入 | 未接入 | 未接入 |
-| Pi | 已接入：JSON/print | 未接入 | 未接入 | 未接入 | 未接入 | 未接入 |
-| DSH CLI | 已接入：headless JSON | 未接入 | 未接入 | 未接入 | 未接入 | 未接入 |
-| DSH Windows Desktop | 未接入该入口的CLI | 已接入：认证HTTP Session API | 未接入 | 未接入 | 未接入 | 未接入 |
-| DSH Linux / WSL Web | 未接入该入口的CLI | 已接入：认证HTTP Session API | 未接入 | 未接入 | 未接入 | 未接入 |
-| OpenDesk CLI | 已接入：启动serve | 已接入（源码）：已有HTTP会话接口 | 已接入：独立原生配置，未注入托管scope | 未接入 | 未接入 | 未接入 |
+| Hermes Agent | 已接入：stream-json | 未接入 | 已接入：原生Profile YAML（alpha.50本地候选） | 未接入 | 未接入 | 未接入 |
+| Pi | 已接入：JSON/print | 未接入 | 已接入：用户mcp.json（alpha.50本地候选） | 未接入 | 未接入 | 未接入 |
+| DSH CLI | 已接入：headless JSON | 未接入 | 已接入：原生显式profile补丁 | 未接入 | 未接入 | 未接入 |
+| DSH Windows Desktop | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生Profile补丁（alpha.48候选） | 未接入 | 未接入 | 未接入 |
+| DSH Linux / WSL Web | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生web Profile补丁 | 未接入 | 未接入 | 未接入 |
+| OpenDesk CLI | 已接入：启动serve | 已接入（源码）：已有HTTP会话接口 | 已接入：仅片段导出，无原生配置管理/托管scope | 未接入 | 未接入 | 未接入 |
 | OpenDesk Windows Desktop | 未接入该入口的CLI | 已接入（源码）：已有WebSocket设备网关 | 已接入：独立原生配置，未注入托管scope | 未接入 | 未接入 | 未接入 |
 
 各列含义：
 
 - **原生CLI / 原生API / ACP / 厂家SDK**：Bridge调用Agent的具体路径。OpenCode两列同时已接入，因为CLI负责启动，HTTP API负责执行与控制。
-- **MCP**：Agent作为MCP客户端调用Bridge的通路，包含托管任务scope注入和已适配的原生配置管理；不是Bridge通过MCP控制该Agent。其他Agent仍可通过Bridge的MCP委派DSH，末段由DSH的CLI或HTTP驱动执行。本表的MCP列表示“Bridge已实现该方向的适配”，不等于该入口的原生客户端已实际读取配置：OpenDesk 当前属于“适配存在、原生读取未得到证据”，以能力表行为准（见[本轮§12](iterations/I08/mcp-open-integration.md#12-真实原生探测补充2026-10-22-晚)）。
+- **MCP**：Agent作为MCP客户端调用Bridge的通路，包含托管任务scope注入和已适配的原生配置管理；不是Bridge通过MCP控制该Agent。其他Agent仍可通过Bridge的MCP委派DSH，末段由DSH的CLI或HTTP驱动执行。本表的MCP列表示“Bridge已实现该方向的适配”，不等于该入口的原生客户端已实际读取配置：OpenDesk Desktop已有原生读取、授权只读查询和组件委派证据，但自主父模型委派仍未验，以能力表行为准（见[本轮§12](iterations/I08/mcp-open-integration.md#12-真实原生探测补充2026-10-22-晚)）。
 - **插件**：在原生Agent内部安装Bridge专用插件作为连接实现。当前没有这种接入；Bridge内部静态adapter注册、DSH原生已安装的业务插件、MCP配置条目均不计作此列的插件。
 - **未接入**：当前Bridge没有实现这条路径，不代表厂商不支持、也不代表该Agent整体不可用。各入口的真实覆盖与限制另见下表。
 
@@ -63,10 +71,10 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | Claude Code | 直接执行：已实现；MCP调用方：已实现，可作为主节点及小队成员；原生MCP配置：Bridge可管理（写`mcpServers.agentbridge`）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派均通过；三真实角色公共文档链及历史权限证据保留；结构化AskUserQuestion当前拒绝；2026-10-22受控profile下真实`claude`：Bridge写入后`claude mcp list`报Connected、工具目录7项（零模型，非用户profile） | 保持原通路，核验当前版本、跨机的发现/执行/等待/取消/恢复；按实际需求补输入类型 |
 | OpenCode | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（v1/v2两代布局）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派通过；permission/form及独立Linux与Windows Claude双向协作保留历史证据；原生版本契约有约束 | 作为Bridge通用ACP Client的首个目标Agent，比较现有HTTP路径的事件、权限与恢复效果 |
 | Codex | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（`mcp_servers.agentbridge`标记块）；托管scope注入：已实现；被委派：已实现并有真实证据，具体环境见报告 | 当前WSL0.163.0-alpha.10.2直接生命周期及双向普通委派通过；旧版本续聊、Windows原账号失败保留；Bridge权限/表单未适配 | 验证当前原生版本的执行/结果/取消/恢复；有实际控制缺口时比较原生交互接口和 ACP 生态包装器 |
-| Hermes Agent | 直接执行：源码已实现；MCP调用方：**未确认**（无已核对的原生MCP客户端证据，不再写成“不支持”），暂不能作主；原生MCP配置：无已核对格式，Bridge不可管理；托管scope注入：未适配；被委派：普通委派生产链受控通过，未真实工具验收 | 新建、原 Session、取消、去重、恢复及普通委派已有受控 CLI/磁盘/生产MCP链证据；已收录alpha.29冻结包，真实工具/模型与独立SSH仍未验；该包启动检查不是新工具模型验收 | 先完成真实直接执行与受委派验证，再补 MCP 调用方能力；不因图标/版本探测通过而报完成 |
-| Pi | 直接执行：源码已实现；MCP调用方：未确认（同 Hermes）；原生MCP配置：无已核对格式；托管scope注入：未适配；被委派：同 Hermes | 同上；原 Session 文件缺失或不唯一时明确拒绝 | 同上；确需更强交互时比较原生 RPC 与 ACP 生态入口 |
+| Hermes Agent | 直接执行与普通被委派：源码已实现；独立MCP/原生Profile YAML：alpha.50本地候选适配；托管scope/小队：未适配 | 固定官方源码484de065与锁定依赖的真实CLI/配置读写器/MCPServerTask5组、最终包资源复验通过；CLI版本戳unknown，不当作正式安装版；Windows配置前端受控，模型0 | 真实原生父模型/正式安装版生命周期、Windows原生Hermes与独立SSH待验，[证据与限制](iterations/I08/hermes-mcp-config.md) |
+| Pi | 直接执行与普通被委派：源码已实现；独立MCP/用户配置：alpha.50本地候选；托管scope：未适配 | 官方Pi1.4.0原包Linux/Windows各5组与最终包资源通过；共享桌面794/794、核心68/68；[配置/原生证据](iterations/I08/pi-mcp-config.md) | 原Session文件规则保持；真实父模型/生命周期/SSH待验 |
 | DeepSeek Harness（DSH） | 直接执行：源码已实现；MCP调用方：已声明有MCP客户端（可独立配置）；原生MCP配置：**有，但需显式指定启动 profile**（`$DSH_HOME/profiles/<profile>/cordis.patch.yml` 单行`insert:`）；托管scope注入：未适配；被委派：同 Hermes | 使用 headless 自身原生配置，不搬运 web profile 凭据；profile 名称由用户提供并按单段目录校验（`MCP_DSH_PROFILE_REQUIRED` 拒绝非法/缺失值），未指定时只可导出；受控测试覆盖写入仅目标profile、status回显、remove只清理该profile；**真实 `dsh --profile acp` 启动观测到原生加载+`initialize`握手+`tools/list`（7工具，模型0，受控scratch profile）**；TUI/用户自建profile与真实用户profile未观测 | 在真实 `dsh` CLI 启动中核对指定 profile 是否加载该条目并列出工具；先验原生 headless 协议与真实模型 |
-| DSH Windows Desktop（dsh-desktop） | 直接执行：源码已实现，未进入公开发布包；MCP调用方：已声明有MCP客户端（可独立配置）；原生MCP配置：使用应用保留profile、Bridge无已核对落点，不可管理（受控返回`MCP_NATIVE_CONFIG_UNSUPPORTED`）；托管scope注入：未适配；被委派：可接收普通委派；方向能力为受控证据 | Windows社区Desktop2.0.18真实认证/Session接口及同Session两轮去重已观察；两轮模型均RATE_LIMIT；本地.dsh.3 EXE六组通过 | 待原生限流解除后补成功回答/真实取消；[DSH原生证据](iterations/I07/dsh-exe-delivery.md) |
+| DSH Windows Desktop（dsh-desktop） | 直接执行：已随公开alpha.46实现；MCP调用方：已声明有MCP客户端；原生MCP配置：alpha.48候选按Desktop原生数据目录/Profile选择记录管理，保存原目标绑定，切换后先移除再添加（公开alpha.46仅导出）；托管scope注入：未适配；被委派：可接收普通委派；方向能力为受控证据 | Windows社区Desktop2.0.18历史真实认证/Session接口及同Session两轮去重已观察，模型RATE_LIMIT；本轮已安装未修改Desktop原生配置组合器与MCP客户端5组/生产前端4组通过（模型0），[完整证据](iterations/I08/dsh-desktop-mcp.md) | 待原生限流解除后补成功回答/真实取消；[DSH原生证据](iterations/I07/dsh-exe-delivery.md) |
 | DSH Linux / WSL Web（dsh-web） | 直接执行：源码已实现，未进入公开发布包；MCP调用方：已声明（可独立配置）；原生MCP配置：**Bridge可管理且原生会加载**（`$DSH_HOME/profiles/web/cordis.patch.yml` 单行`insert:`，插件`@deepseek-ai/dsh-mcp-client`）；托管scope注入：未适配；被委派：同Desktop入口 | WSL真实Web认证/Session列表通过；生命周期/恢复为受控服务，模型0，独立SSH未验；2026-10-22受控profile下真实DSH `--profile web --dump-config` 组合出Bridge写入行，且真实启动后原生客户端完成 `initialize`/`tools/list` 握手、Bridge返回7个工具（模型0）；原生UI人工可见/删除与真实用户profile未验 | 保存对应机器连接后补模型/续聊/取消验证；[DSH原生证据与边界](iterations/I07/dsh-exe-delivery.md) |
 | OpenDesk CLI（opendesk） | 直接执行、普通被委派、原连接可用时续聊、发送取消请求已实现；MCP调用方：**未确认**（无原生读取/MCP客户端真实证据），暂不按主 Agent 的 MCP 调用能力交付；托管scope注入：未适配并单独拒绝；**原生MCP配置：无可用入口**——0.3.8 的 `opendesk plugins list` 11 个 builtin 插件无 MCP 管理插件、`opendesk plugins tools` 无插件工具、`opendesk tools list` 无MCP分区，且启动会重写 `setting.json` 丢弃未识别 `applications` 段，因此 Bridge 只能导出片段；小队、Bridge权限/表单未开放 |
 | OpenDesk Windows Desktop（opendesk-desktop） | 同上执行/委派/续聊/取消；托管scope注入：未适配并单独拒绝；**原生MCP配置：可用，但需要 Node 启动器，写入前须从托盘完全退出 OpenDesk、写入后再打开**——写 `%APPDATA%\opendesk\setting.json` 的 `applications.mcpmgr.servers`，条目优先用 PATH 中真实 Node（`launcher:'node'`），Electron 回退时 OpenDesk 无法启动（`launcher:'electron'` 并在界面提示先装 Node）；MCP调用方：**原生已加载+已连接+7工具可见**（用户真实 Desktop 0.3.9，模型0，日志 `discovered 7 tools`），同日已安装原生组件正式授权调用及独立主角色→真实Claude子任务已验（各自生产身份/原结果，受控父进程），日常原生父模型实际 `list_agents` 1 次成功、返回7个获准节点，[现场恢复与发现](iterations/I08/opendesk-mcp-diagnostic-repair.md)；**原生父模型自主委派与日常原生页面未验**；小队、Bridge权限/表单未开放 | 使用未修改的原HTTP/桌面网关；去重和原回应由Bridge保存，断线/取消无证明时unknown；Desktop 0.3.9原实例真实回复/续聊及普通EXE窗口重开通过，[现场证据](iterations/I08/opendesk-desktop-live.md)；真实取消/MCP、CLI模型与SSH未验；包边界见[专项](iterations/I08/opendesk-existing-interfaces.md) | 桌面原连接断开后不可续聊，任务沿用原生目录；独立MCP与托管scope分开 |

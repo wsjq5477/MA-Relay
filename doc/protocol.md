@@ -1,5 +1,11 @@
 # 通信协议与接口
 
+## DSH 选择与节点管理能力
+
+`dsh.status({machineId,nodeId?})` 与 `dsh.configure({machineId,nodeId?,adapter,url,token?,enabled?})` 在提供 nodeId 时校验原节点归属；adapter 只能是原 DSH 入口。items 增加可选 connectionId，保存/查询可返回 selectedConnectionId；旧远端缺 ID 时仅兼容精确返回的 executable，不按 adapter 或时间选取。DSH_BINDING_MISMATCH 拒绝错源回应；DSH_BINDING_PERSIST 表示私有配置已写而中央绑定未保存，不能显示完整成功或自动重试。
+
+中央 hello 增加 `scoped-node-management-v1`，新客户端遇旧中央要求显式停止并重开，保留设置/运行信息/停止入口。graphPending 的可选 blockedNodeIds 由可信中央资源判断投影；缺失时保留机器范围保护。机器、关系和原查询/终态契约不变；daemon 协议仍为 2，远端 supportsRecovery 不因此放宽。[契约与验证](iterations/I08/connection-identity-node-scope.md)。
+
 当前源码已随公开 alpha.46 分发，冻结提交 `9766eb4`；本轮仅更新发布状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha46-release.md)。
 
 非GUI新增mcp nodes（无node参数）、mcp attach/operation --node ID --operation-id ID。分别复用snapshot、manageNode(action=attach)、nodeOperation；不新增RPC或模型提交。管理收据confirmed退出0、rejected退出4、unknown/not_found/不匹配退出3，查询失败不视为结束，不重放attach。status增加evidence.observation时间/有效性；配置变化或超过60秒的连接/工具观测不再用于当前事实。JSON保留authorization状态枚举，其他凭据类字段仍脱敏。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
@@ -20,7 +26,7 @@ OpenCode显式context准备可以复用既有ipc.start恢复已退出的原服�
 
 ## 配置入口移动的兼容性
 
-本轮仅将MCP/DSH接入表单移至Agent行的绑定目标弹窗。继续使用mcp.status/install/remove/export({nodeId})、dsh.status({machineId})、dsh.configure({machineId,adapter,url,token?,enabled?})；不新增RPC/字段/daemon能力或迁移。旧EXE保留原设置入口，新界面需新客户端；仅此呈现调整不要求独立SSH升级，但远端仍须具备原方法。DSH诊断文字改指向对应Agent配置，不改变错误码。[流程与验证](iterations/I07/agent-row-configuration.md)。
+本轮仅将MCP/DSH接入表单移至Agent行的绑定目标弹窗。继续使用mcp.status/install/remove/export({nodeId})、dsh.status({machineId,nodeId?})、dsh.configure({machineId,nodeId?,adapter,url,token?,enabled?})；不新增方法；可选节点选择字段见本页“DSH 选择与节点管理能力”，daemon协议不变。旧EXE保留原设置入口，新界面需新客户端；仅此呈现调整不要求独立SSH升级，但远端仍须具备原方法。DSH诊断文字改指向对应Agent配置，不改变错误码。[流程与验证](iterations/I07/agent-row-configuration.md)。
 
 ## list_agents调用方连接视图
 
@@ -40,7 +46,7 @@ discover的DSH安装提示可携带errorCode=DSH_CONNECTION_REQUIRED，节点sna
 
 原生认证接受附Cookie的302/303，始终不跟随跳转；HTTP RPC外层payload.args遵循Typert命名参数，session/list使用`{_request:{}}`，其余已支持Session方法使用`{request:原请求对象}`。中央/daemon RPC格式不变。真实服务验证与打包交付见[本地DSH候选](iterations/I07/dsh-exe-delivery.md)。
 
-新增机器方法dsh.status({machineId})、dsh.configure({machineId,adapter,url,token?,enabled?})，adapter限定dsh-desktop/dsh-web。status返回脱敏items，保存回应也不带token；配置方法不进入通用执行台账，未知保存读原状态核对，daemon维护期间拒绝配置。运行能力新增dsh-web-desktop-v1。原生侧使用根token换内存Cookie，同源session/list/create/prompt/projections/page/cancel RPC严格关联rpcId；page解析event封装并按原requestId和turn结算，回应丢失不重发。完整schema/限制/身份语义见[DSH Desktop/Web 接入](iterations/I07/dsh-desktop-web.md)。
+新增机器方法dsh.status({machineId,nodeId?})、dsh.configure({machineId,nodeId?,adapter,url,token?,enabled?})，adapter限定dsh-desktop/dsh-web。status返回脱敏items，保存回应也不带token；配置方法不进入通用执行台账，未知保存读原状态核对，daemon维护期间拒绝配置。运行能力新增dsh-web-desktop-v1。原生侧使用根token换内存Cookie，同源session/list/create/prompt/projections/page/cancel RPC严格关联rpcId；page解析event封装并按原requestId和turn结算，回应丢失不重发。完整schema/限制/身份语义见[DSH Desktop/Web 接入](iterations/I07/dsh-desktop-web.md)。
 
 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
 
@@ -87,13 +93,21 @@ CT-04桌面消费者不新增RPC/参数/daemon帧。team.document返回须匹配
 | `mcp.status` | `{nodeId}` | 只读；返回`state`（`absent`/`exported`/`installed`/`conflict`/`revoked_config_pending`/`unsupported`）、`facts`（`config`/`nativeLoad`/`connection`/`tools`/`authorization`/`ownership`）、`evidence`（`configPath`/`nativeProbe`/`toolsProbe`/`configError`）、`nativeSupport`/`nativeSupportCode`/`nativeSupportReason`，并保留`enabled`/`installed`/`conflict`/`configPath`/可选`connectionId`/`files` |
 | `mcp.install` | `{nodeId}` | 写Bridge自己拥有的原生条目；已存在外部条目返回`MCP_CONFIG_CONFLICT`并保留 |
 | `mcp.export` | `{nodeId}` | 只登记身份并生成标准片段（JSON/TOML/JSONC/OpenDesk JSON/DSH补丁YAML），不写原生配置 |
-| `mcp.remove` | `{nodeId}` | 先撤权再删原样归属条目；清理失败返回`state:'revoked_config_pending'`与`cleanupError`，不恢复授权 |
+| `mcp.remove` | `{nodeId}` | 先撤权再删可核对归属条目；仅 OpenDesk STDIO 空 `headers:{}` 与缺省等价，其他修改仍保留；清理失败返回`state:'revoked_config_pending'`与`cleanupError`，不恢复授权 |
 | `mcp.revoke` | `{nodeId}` | **只**持久撤销授权，绝不修改原生条目 |
 | `mcp.probe` | `{nodeId}` | 只读探测：该产品自身的MCP列表（仅`claude`/`codex`/`opencode`有）+ Bridge stdio工具目录；不写配置、不重装、不启动模型 |
 
-机器路由：Windows本机与SSH机器经`MachineHost`；**Linux本机**在协调器进程内由本地MCP宿主处理上述六个方法（其他方法仍走原执行宿主，MCP失败不回落到执行）；WSL本机仍走远端路径，当前方法集合无`mcp.*`。
+机器路由：Windows本机与SSH机器经`MachineHost`；**Linux本机**在协调器进程内由本地MCP宿主处理上述六个方法（其他方法仍走原执行宿主，MCP失败不回落到执行）；WSL经HostConnection→Core stdio完整MachineHost，在原发行版处理同一六项`mcp.*`，不回落Windows本机。
+
+WSL启动：bootstrap设置`AGENTBRIDGE_HOST_READY=1`，Core安装stdin读取器后输出`{bridgeReady:1,protocol:'agentbridge-host-v1'}`，Windows收到后才发送业务帧；并发首次调用等待同一启动。close使内存启动代次失效；发行版枚举迟到返回时不得spawn或派发。新调用有独立启动Promise，原调用发送前绑定并复核原子进程；就绪后但尚未写入请求即关闭仍返回严格未派发证明，已写入请求仍保持未知语义。30秒无握手、就绪前退出/无效帧/关闭返回`WSL_HOST_NOT_READY`与`executionNotDispatched:true`。旧Core没有握手时有界拒绝，原生直连/旧启动器未设置该标志仍使用原回应流。请求已写入后断线/回应超时保持`DESKTOP_TRANSPORT`/`DESKTOP_TIMEOUT`未知结果，不携带未派发证明、不重发。无新增持久字段或SSH协议变化；[实现与当前实测限制](iterations/I08/wsl-host-readiness.md)。
+
+Pi（alpha.50本地候选）：同一六项方法管理用户`mcp.json`，路径来自`PI_CODING_AGENT_DIR`或`~/.pi/agent`；`nativeTarget`固定原目录，切换返回`nativeTargetChanged/currentConfigPath`并拒绝新写入。原生仅布尔enabled变化时保留归属，false投影config=disabled、installed=false，安装拒绝`MCP_NATIVE_DISABLED`；移除仍先撤权只清原目标。相对/损坏/链接目录`MCP_PI_TARGET`，未核对版本`NATIVE_VERSION`，当前安装准入1.4+的1.x正式版；导出/撤权/清理不因版本改变失效。原生探测用`pi mcp list --json`精确身份/用户scope/无项目覆盖及connected状态，输出安全摘要，项目覆盖保留未知、不写项目配置。[源码与实际验收边界](iterations/I08/pi-mcp-config.md)。
+
+Hermes（alpha.50本地候选）：六项方法管理原生Home当前Profile的YAML `mcp_servers.agentbridge`；保存Hermes nativeTarget分支，profile为只读回显，不接受由客户端代替原生选择。`MCP_HERMES_TARGET`拒绝不可核对/已删除目标，`MCP_NATIVE_TARGET_CHANGED`拒绝在切换后新写入；清理仍按原绑定。已核对bool-like enabled控制不改变归属，禁用拒绝`MCP_NATIVE_DISABLED`。`hermes mcp list`只证明加载，不映射连接成功；原生列表错误保留安全原因，过期观测不复用。导出files新增hermes YAML路径；没有新增RPC/Task状态/SSH帧，[实现与实际原生证据](iterations/I08/hermes-mcp-config.md)。
 
 新增能力标记`mcp-open-access-v1`（中央与daemon hello同时公布）。缺该标记时：`mcp.status`/`mcp.revoke`/`mcp.probe`返回`MCP_BACKEND_UPGRADE_REQUIRED`（不静默降级），`mcp.install`/`mcp.export`/`mcp.remove`在旧“当前版本”后台仍可用。维护期间：撤权与安装/导出/移除同属配置变更被拒，只读探测与状态允许。错误码新增`MCP_PROFILE_MISSING`（DSH Web profile目录不存在，安装前拒绝，不创建文件）与`MCP_DSH_PROFILE_REQUIRED`（DSH CLI 未指定或非法的原生 profile 名称）。
+
+**DSH Desktop原生目标**：后端读取稳定版原生数据目录/Profile选择并保存`nativeTarget:{home,profile}`。状态可返回`profile`、`nativeTargetChanged`、`currentConfigPath`与`evidence.configError`；选择变化时安装拒绝`MCP_NATIVE_TARGET_CHANGED`，原生选择/目录不可核对拒绝`MCP_DSH_DESKTOP_TARGET`，不回落其他目录。移除仍先撤权并仅清理原绑定，清理失败保留原文件；旧远端能力声明不能由新前端放宽。[完整契约](iterations/I08/dsh-desktop-mcp.md)。
 
 **DSH 的 `profile` 参数**：`mcp.status|export|install|remove|revoke|probe` 均接受可选 `profile`，仅 `dsh` 适配器使用，其余适配器忽略；DSH Web 固定 `web` 且不暴露该参数。原生目标是 `$DSH_HOME/profiles/<profile>/cordis.patch.yml`（`DSH_HOME` 缺省 `~/.dsh`），写入仍是单一 `insert:` 行 + `@deepseek-ai/dsh-mcp-client`。名称必须匹配 `^[a-z0-9][a-z0-9-]{0,63}$`（`../escape`、`a/b`、空串、大写、前导 `-` 一律拒绝，不拼接逃逸路径）。未指定时 `mcp.status` 返回 `nativeSupport:false`+`MCP_DSH_PROFILE_REQUIRED`+`profile:null`，`mcp.install`/`mcp.remove` 同码拒绝，`mcp.export` 仍出片段；`status` 回显 `profile`，省略参数时使用登记值，`mcp.remove` 只清理登记的那个 profile。安装后事实为 `nativeLoad:'reload_required'`，不宣布已连接。[接口与未测项](iterations/I08/mcp-open-integration.md#125-dsh-cli-显式-profile-原生配置2026-10-22-晚补)。
 

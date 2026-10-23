@@ -7,11 +7,11 @@ const tools=['claude','opencode','codex','hermes','pi','dsh','dsh-desktop','dsh-
 // Independent MCP client support is a product capability, not the old three-name
 // whitelist and not hosted-scope adaptation. Native config adaptation is a third,
 // separate answer.
-const callers=['claude','opencode','codex','dsh','dsh-desktop','dsh-web','opendesk','opendesk-desktop'];
+const callers=['hermes','pi','claude','opencode','codex','dsh','dsh-desktop','dsh-web','opendesk','opendesk-desktop'];
 const hosted=['claude','opencode','codex'];
 // DSH CLI manages its own native MCP entry only when the user names the launch
 // profile; the product-level adaptation exists, so it declares the dimension.
-const nativeConfig=['claude','opencode','codex','dsh','dsh-web','opendesk-desktop'];
+const nativeConfig=['hermes','pi','claude','opencode','codex','dsh','dsh-web','dsh-desktop','opendesk-desktop'];
 function fixture(t, selectedTools=tools){
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-connection-capabilities-'));
  const host={agents:[],tasks:[],conversations:[],calls:[],executions:0,scopeSupported:undefined,
@@ -61,8 +61,8 @@ test('unknown or explicitly absent capabilities cannot be enabled by RPC metadat
  const unknown=connectionCapabilities({adapter:'unregistered',executionSupported:true,connectionCapabilities:{execution:true,bridgeMcp:true}});
  assert.equal(unknown.connectionCapabilities.execution,null);assert.equal(unknown.connectionCapabilities.bridgeMcp,null);
  assert.deepEqual(unknown.capabilitySource,{kind:'unknown'});
- // Hermes/Pi have no reviewed MCP client evidence: unknown, never "unsupported".
- assert.equal(connectionCapabilities({adapter:'hermes',connectionCapabilities:{bridgeMcp:true}}).connectionCapabilities.bridgeMcp,null);
+ // An older remote observation can narrow a newly adapted product to unknown.
+ assert.equal(connectionCapabilities({adapter:'hermes',connectionCapabilities:{mcpClient:null,bridgeMcp:true}}).connectionCapabilities.bridgeMcp,null);
  for(const value of [false,null])assert.equal(connectionCapabilities({adapter:'claude',connectionCapabilities:{bridgeMcp:value}}).connectionCapabilities.bridgeMcp,value);
  const unavailable=connectionCapabilities({adapter:'claude',executionSupported:false});assert.equal(unavailable.connectionCapabilities.execution,false);assert.equal(unavailable.connectionCapabilities.delegation,false);
  // Hosted-task and independent MCP answers stay separate: no folded prohibition.
@@ -82,7 +82,9 @@ test('unknown or explicitly absent capabilities cannot be enabled by RPC metadat
 });
 test('independent callers are admitted while MCP-unknown agents stay delegation-only targets',async t=>{
  const f=fixture(t),nodes=await f.ready(),leader=nodes.find(n=>n.adapter==='claude');
- for(const adapter of tools.filter(a=>!callers.includes(a))){
+ const unknownAdapters=['hermes'];
+ for(const adapter of unknownAdapters)f.network.node(nodes.find(n=>n.adapter===adapter).nodeId).connectionCapabilities={execution:true,delegation:true,mcpClient:null,nativeMcpConfig:null};
+ for(const adapter of unknownAdapters){
   const target=nodes.find(n=>n.adapter===adapter),params={operationId:'reject-'+adapter,leaderId:target.nodeId,memberIds:[],expectedRevision:0};
   const relation=await f.service.call({method:'saveCollaboration',params});assert.equal(relation.ok,false);assert.equal(relation.error.code,'COLLABORATION_CAPABILITY');
   assert.equal((await f.network.call('collaborationOperation',{operationId:params.operationId})).state,'not_found');
@@ -93,18 +95,18 @@ test('independent callers are admitted while MCP-unknown agents stay delegation-
  assert.equal(f.service.pending().length,0);
  const graphRows=JSON.parse(fs.readFileSync(path.join(f.directory,'graph-pending.json')));assert(graphRows.every(row=>row.state==='rejected'));
  for(const row of graphRows){const original=await f.service.call({method:'collaborationOperation',params:{operationId:row.operationId}});assert.equal(original.result.state,'rejected');assert.equal(original.result.error.code,'COLLABORATION_CAPABILITY');}
- const members=nodes.filter(n=>!callers.includes(n.adapter));
+ const members=nodes.filter(n=>unknownAdapters.includes(n.adapter));
  const saved=await f.service.call({method:'saveCollaboration',params:{operationId:'valid',leaderId:leader.nodeId,memberIds:members.map(n=>n.nodeId),expectedRevision:0}});assert.equal(saved.ok,true,JSON.stringify(saved.error));
  const parent=await f.network.call('nodeRequest',{op:'submit',nodeId:leader.nodeId,requestId:'parent',message:'controlled',collaboration:true});
  const scope={nodeId:leader.nodeId,parentRequestId:'parent'},listed=await f.network.collaborationTool(scope,'list_agents',{},'list',leader.machineId);
- assert.equal(listed.items.length,tools.length-callers.length);
+ assert.equal(listed.items.length,unknownAdapters.length);
  for(const target of listed.items){
   assert.notEqual(target.connectionCapabilities.bridgeMcp,true);assert.equal(target.connectionCapabilities.delegation,true);assert.equal(target.capabilitySource.kind,'static-adapter');
   assert.equal(Object.hasOwn(target,'executable'),false);assert.equal(Object.hasOwn(target,'model'),false);
   const task=await f.network.collaborationTool(scope,'delegate',{nodeId:target.nodeId,requestId:'child-'+target.adapter,message:'controlled'},'delegate-'+target.adapter,leader.machineId);assert.equal(task.status,'running');
   const childCall=f.host.calls.filter(c=>c.method==='context'&&c.p.nodeId===target.nodeId).at(-1);assert.equal(Object.hasOwn(childCall.p,'scope'),false);
  }
- assert.equal(f.host.executions,1+tools.length-callers.length);assert.equal(parent.status,'running');
+ assert.equal(f.host.executions,1+unknownAdapters.length);assert.equal(parent.status,'running');
 });
 test('old relation and dispatched request receipts recover before current caller capability checks',async t=>{
  const f=fixture(t),nodes=await f.ready(),leader=nodes.find(n=>n.adapter==='claude'),params={operationId:'original-relation',leaderId:leader.nodeId,memberIds:[],expectedRevision:0};

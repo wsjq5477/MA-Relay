@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import type {GraphRecovery,RecoveryRow,RecoveryReceipt} from './management-recovery';
-import {matchingReceipt,mergeRecoveryRows} from './management-recovery';
+import {matchingReceipt,mergeRecoveryRows,managementRowBlocks,redactedOperation} from './management-recovery';
 export interface ManagementIntent {operationId:string;machineId?:string;connectionId?:string;nodeId?:string;action:string}
 export const sameManagementMachine=(a:ManagementIntent,b:ManagementIntent)=>
  a.machineId&&b.machineId?a.machineId===b.machineId:a.connectionId&&b.connectionId?a.connectionId===b.connectionId:true;
@@ -23,17 +23,20 @@ export function useManagementLane<T extends ManagementIntent>(directory:string,p
    if(intent.operationId===row.operationId&&valid(intent)&&!next.some(item=>item.operationId===intent.operationId))next.push(intent);
   }write(next);}catch{setStorageError(true);}
  },[directory,recovery.rows]);
- useEffect(()=>{if(!items.length)return;void query(undefined,false);const timer=setInterval(()=>void query(undefined,false),5000);return()=>clearInterval(timer);},[items.map(item=>item.operationId).join('|'),directory]);
- const authorityPending=recovery.rows.some(row=>row.lane==='relation'),unscopedPending=recovery.rows.some(row=>['node','machine'].includes(row.lane)&&!row.params?.machineId&&!row.params?.connectionId);
- const blockReason=(machineId?:string,connectionId?:string)=>{
+ const observed=useRef({key,ids:new Set<string>()});if(observed.current.key!==key)observed.current={key,ids:new Set<string>()};
+ useEffect(()=>{if(!items.length)return;
+  for(const item of items){const known=observed.current.ids.has(item.operationId);observed.current.ids.add(item.operationId);if(!known&&!jobs.current.some(job=>job.operationId===item.operationId))void query(item,false);}
+  const timer=setInterval(()=>void query(undefined,false),5000);return()=>clearInterval(timer);
+ },[items.map(item=>item.operationId).join('|'),directory]);
+ const currentRows=(saved:T[]=items)=>mergeRecoveryRows(recovery.rows,saved.map(asRow),jobs.current.map(asRow));
+ const blockReason=(machineId?:string,connectionId?:string,nodeId?:string)=>{
   if(storageError||recovery.error)return '本机管理台账无法读取，请保留原记录排查。';if(!recovery.loaded)return '正在读取原管理台账。';
-  if(unscopedPending)return '原管理操作缺少机器来源，请查询原操作。';if(authorityPending)return '原协作授权操作待核对，请查询原授权操作。';
-  const central=recovery.rows.filter(row=>row.lane===lane).map(row=>({...row.params,operationId:row.operationId,action:row.params.action||row.method?.slice(8)})) as T[];
-  const row=[...items,...workingItems,...central].find(item=>sameManagementMachine(item,{operationId:'',action:'',machineId,connectionId}));return row?(lane==='node'?'节点':'机器')+'操作“'+(actionNames[row.action]||'管理')+'”待核对。':'';
+  const row=currentRows().find(row=>managementRowBlocks(row,{machineId,connectionId,nodeId}));
+  return row?'原'+(row.lane==='relation'?'协作授权':row.lane==='machine'?'机器管理':'节点')+'操作待核对（'+redactedOperation(row.operationId)+'），请在设置中查询原操作。':'';
  };
  const run=async(intent:T)=>{
   let rows:T[];try{rows=read();}catch{setStorageError(true);notify('无法读取原管理台账，请保留本机数据排查。');return false;}
-  if(blockReason(intent.machineId,intent.connectionId)||[...rows,...jobs.current].some(row=>sameManagementMachine(row,intent)))return false;
+  if(blockReason(intent.machineId,intent.connectionId,intent.nodeId)||currentRows(rows).some(row=>managementRowBlocks(row,intent)))return false;
   try{write([...rows,intent]);}catch{notify('无法保存管理操作意图，请检查本机存储后重试。');return false;}
   jobs.current.push(intent);setWorkingItems([...jobs.current]);
   try{return await settle(intent,await dispatch(intent),true);}

@@ -4,8 +4,8 @@ const os = require("node:os");
 const { randomUUID, createHash } = require("node:crypto");
 const { spawn, execFile } = require("node:child_process");
 const { atomicWrite } = require("./graph-layout.cjs");
-const { McpConfig, nativeEntry, equal } = require("./mcp-config.cjs");
-const { scanTools, openCodeCompatibility, openCodeVersionError } = require('./tool-discovery.cjs');
+const { McpConfig, nativeEntry } = require("./mcp-config.cjs");
+const { scanTools, command, openCodeCompatibility, openCodeVersionError } = require('./tool-discovery.cjs');
 const toml = require("smol-toml");
 const fail = (code, message) => Object.assign(new Error(message), { code });
 // Bridge can only manage a native entry where it has a reviewed conversion. The
@@ -15,18 +15,20 @@ const fail = (code, message) => Object.assign(new Error(message), { code });
 // is deliberately absent: its 0.3.8 surface has no MCP manager, so nativeSupport()
 // reports it unsupported and only export is offered. DSH CLI is handled by
 // nativeSupport() because it also requires the user-named launch profile.
-const configurable = new Set(['claude', 'codex', 'opencode', 'opendesk-desktop', 'dsh-web']);
+const configurable = new Set(['claude', 'codex', 'opencode', 'pi', 'hermes', 'opendesk-desktop', 'dsh-web', 'dsh-desktop']);
 // Read-only native MCP list commands. Health-checking list is evidence for both
 // the native load and the connection; a plain list proves only configuration.
 const nativeLists = {
   claude: {args: ['mcp', 'list'], health: true},
   codex: {args: ['mcp', 'list'], health: false},
   opencode: {args: ['mcp', 'list'], health: false},
+  pi: {args: ['mcp', 'list', '--json'], health: true},
+  hermes: {args: ['mcp', 'list'], health: false},
 };
 function probeTimeout() { return 20000; }
 function run(command, args, options = {}) {
   return new Promise(resolve => {
-    const child = execFile(command, args, {timeout: options.timeout || probeTimeout(), windowsHide: true, env: options.env || process.env, maxBuffer: 1024 * 1024},
+    const child = execFile(command, args, {timeout: options.timeout || probeTimeout(), windowsHide: true, env: options.env || process.env, ...(options.cwd ? {cwd: options.cwd} : {}), maxBuffer: 1024 * 1024},
       (error, stdout, stderr) => resolve({error, stdout: String(stdout || ''), stderr: String(stderr || '')}));
     child.on('error', error => resolve({error, stdout: '', stderr: ''}));
   });
@@ -47,13 +49,14 @@ class McpIntegration {
     fs.mkdirSync(this.directory, { recursive: true });
     atomicWrite(this.file, this.rows);
   }
-  config(adapter, protocol = 'v2', profile) {
+  config(adapter, protocol = 'v2', profile, nativeTarget) {
     return new McpConfig(
       adapter,
       this.options.home || os.homedir(),
       this.options.environment || process.env,
       protocol,
       profile,
+      nativeTarget,
     );
   }
   authorize(scope) {
@@ -91,6 +94,7 @@ class McpIntegration {
       opencode: path.join(directory, "agentbridge.opencode.jsonc"),
       opendesk: path.join(directory, "agentbridge.opendesk.json"),
       dsh: path.join(directory, "agentbridge.dsh.patch.yml"),
+      hermes: path.join(directory, 'agentbridge.hermes.yaml'),
     };
     fs.writeFileSync(
       files.json,
@@ -123,6 +127,7 @@ class McpIntegration {
     // A DSH patch fragment: the user can paste it into any DSH profile patch file,
     // and Bridge uses the same shape when it writes the DSH Web profile itself.
     fs.writeFileSync(files.dsh, require('yaml').stringify([{insert: [nativeEntry('dsh-web', config)]}]), {mode:0o600});
+    fs.writeFileSync(files.hermes, require('yaml').stringify({mcp_servers: {agentbridge: nativeEntry('hermes', config)}}), {mode: 0o600});
     return { config, files };
   }
   // Restart recovery re-creates the private endpoint descriptor so an already
@@ -140,13 +145,12 @@ class McpIntegration {
       ? {supported: true}
       : {supported: false, code: 'MCP_DSH_PROFILE_REQUIRED', reason: 'DSH CLI 的原生 MCP 配置属于启动时选择的 profile。请先指定目标 profile（与启动 dsh 时使用的名称一致），Bridge 只会写入该 profile 的原生补丁层。'};
     if (configurable.has(adapter)) return {supported: true};
-    if (adapter === 'dsh-desktop') return {supported: false, code: 'MCP_NATIVE_CONFIG_UNSUPPORTED', reason: 'DSH Desktop 使用应用保留 profile，尚未核对到可管理的原生配置路径；请在 DSH Desktop 原生设置中添加 AgentBridge MCP。'};
-    if (['hermes', 'pi'].includes(adapter)) return {supported: false, code: 'MCP_NATIVE_CONFIG_UNSUPPORTED', reason: '尚未核对到该产品的原生 MCP 配置文件或接口，Bridge 不猜测路径；请按其原生文档添加 AgentBridge MCP。'};
     return {supported: false, code: 'MCP_UNSUPPORTED', reason: '这个 Agent 尚未提供可验证的 MCP 配置格式。'};
   }
   probeBinding(params, row) {
     try {
-      const target = this.config(params.adapter, row?.nativeProtocol, params.profile === undefined ? row?.profile : params.profile);
+      const target = this.config(params.adapter, row?.nativeProtocol, params.profile === undefined ? row?.profile : params.profile, row?.nativeTarget);
+      target.assertCurrentTarget();
       const inspected = target.inspect();
       return createHash('sha256').update(JSON.stringify([target.file, inspected.text, row?.connectionId, row?.configuration])).digest('hex');
     } catch { return null; }
@@ -173,16 +177,23 @@ class McpIntegration {
         tools: 'unknown', authorization: row?.enabled ? 'valid' : row ? 'revoked' : 'unknown', ownership: 'unconfirmed',
       }, evidence: {configPath: '', nativeProbe: {kind: 'none'}}, ...(row?.enabled ? {files: this.files(row)} : {})};
     }
-    const target = this.config(params.adapter, row?.nativeProtocol, profile);
-    let entry, inspectError;
-    try { entry = target.inspect().entry; } catch (error) { inspectError = error; }
+    let target, entry, inspectError, selectionError, currentTarget;
+    try {
+      target = this.config(params.adapter, row?.nativeProtocol, profile, row?.nativeTarget);
+      entry = target.inspect().entry;
+      if (target.nativeSelection) {
+        try { currentTarget = target.nativeSelection(); target.assertCurrentTarget(); }
+        catch (error) { selectionError = error; }
+      }
+    } catch (error) { inspectError = error; }
     const owned = row?.configuration;
     // Ownership is about the entry's provenance, not current authorization: a
     // revoked connection whose native entry is still the Bridge-written one must
     // read as "configuration present, authorization revoked", never as a conflict.
-    const ownedEntry = !inspectError && entry !== undefined && equal(entry, owned);
-    const matching = !!row?.enabled && ownedEntry;
-    const foreign = !inspectError && entry !== undefined && !equal(entry, owned);
+    const ownedEntry = !inspectError && entry !== undefined && target.matches(entry, owned);
+    const nativeDisabled = target?.disabled(entry) || false;
+    const matching = !!row?.enabled && ownedEntry && !selectionError && !nativeDisabled;
+    const foreign = !inspectError && entry !== undefined && !ownedEntry;
     const authorization = row ? (row.enabled ? 'valid' : 'revoked') : 'unknown';
     const savedProbe = row?.probe || {};
     const binding = this.probeBinding(params, row);
@@ -195,7 +206,7 @@ class McpIntegration {
       freshness: fresh ? 'current' : savedProbe.at ? 'stale' : 'unknown',
       ...(!fresh ? {reason: !savedProbe.binding ? 'unbound' : !bound ? 'configuration_changed' : 'expired'} : {}),
     };
-    const config = inspectError ? 'unknown' : entry === undefined ? 'absent' : ownedEntry ? 'present' : 'conflict';
+    const config = inspectError ? 'unknown' : entry === undefined ? 'absent' : ownedEntry ? nativeDisabled ? 'disabled' : 'present' : 'conflict';
     const facts = {
       config,
       nativeLoad: probe.nativeLoad || (inspectError ? 'unknown' : 'unknown'),
@@ -204,13 +215,14 @@ class McpIntegration {
       authorization,
       ownership: ownedEntry ? 'bridge' : foreign ? 'external' : 'unconfirmed',
     };
-    const state = inspectError
+    const targetConflict = selectionError && (row?.enabled || entry !== undefined);
+    const state = inspectError || targetConflict
       ? 'conflict'
       : row && !row.enabled && entry !== undefined
         ? 'revoked_config_pending'
         : foreign
           ? 'conflict'
-          : row?.enabled && matching
+          : row?.enabled && ownedEntry && !selectionError
             ? 'installed'
             : row?.enabled
               ? 'exported'
@@ -218,16 +230,22 @@ class McpIntegration {
     return {
       ...base,
       installed: matching,
-      conflict: foreign || !!inspectError,
-      configPath: target.file,
+      conflict: foreign || !!inspectError || !!targetConflict,
+      configPath: target?.file || '',
+      ...(params.adapter === 'dsh-desktop' ? {profile: target?.profile || row?.nativeTarget?.profile || null, nativeTargetChanged: !!targetConflict,
+        ...(currentTarget ? {currentConfigPath: require('./dsh-desktop-config.cjs').targetFile(currentTarget)} : {})} : {}),
+      ...(params.adapter === 'pi' ? {nativeTargetChanged: !!targetConflict,
+        ...(currentTarget ? {currentConfigPath: require('./pi-mcp-config.cjs').targetFile(currentTarget)} : {})} : {}),
+      ...(params.adapter === 'hermes' ? {profile: target?.nativeTarget?.profile || row?.nativeTarget?.profile || null, nativeTargetChanged: !!targetConflict,
+        ...(currentTarget ? {currentConfigPath: require('./hermes-mcp-config.cjs').targetFile(currentTarget)} : {})} : {}),
       state,
       facts,
       evidence: {
-        configPath: target.file,
+        configPath: target?.file || '',
         observation,
-        nativeProbe: probe.nativeLoad ? {kind: probe.kind || 'native-list', command: probe.command, outcome: probe.outcome, detail: probe.detail} : {kind: 'none'},
+        nativeProbe: probe.nativeLoad || probe.kind === 'native-list' ? {kind: probe.kind || 'native-list', command: probe.command, outcome: probe.outcome, detail: probe.detail} : {kind: 'none'},
         ...(probe.tools ? {toolsProbe: {kind: 'bridge-stdio', outcome: probe.tools, ...(probe.toolCount === undefined ? {} : {toolCount: probe.toolCount})}} : {}),
-        ...(inspectError ? {configError: {code: inspectError.code, message: inspectError.message}} : {}),
+        ...(inspectError || targetConflict ? {configError: {code: (inspectError || selectionError).code, message: (inspectError || selectionError).message}} : {}),
       },
       ...(row?.enabled ? {files: this.files(row)} : {}),
     };
@@ -240,6 +258,7 @@ class McpIntegration {
       codex: path.join(directory, "agentbridge.codex.toml"),
       opencode: path.join(directory, "agentbridge.opencode.jsonc"),
       dsh: path.join(directory, "agentbridge.dsh.patch.yml"),
+      hermes: path.join(directory, 'agentbridge.hermes.yaml'),
     };
   }
   // OpenDesk 0.3.9 refuses the Electron runtime as a stdio MCP command (its
@@ -268,7 +287,7 @@ class McpIntegration {
     }
     // Discovery metadata may be absent (for example the local Linux host). A
     // PATH lookup finds only an already installed product; nothing is downloaded.
-    const name = {claude: 'claude', codex: 'codex', opencode: 'opencode'}[adapter];
+    const name = {claude: 'claude', codex: 'codex', opencode: 'opencode', pi: 'pi', hermes: 'hermes'}[adapter];
     if (!name) return null;
     const env = this.options.environment || {};
     const searchPath = String(env.PATH || process.env.PATH || '');
@@ -293,7 +312,10 @@ class McpIntegration {
       } catch { /* discovery failure leaves the probe unsupported, not guessed */ }
     }
     if (!list || !executable) return {kind: 'none'};
-    const result = await run(executable, list.args, {env: this.options.environment || process.env});
+    const launch = ['pi', 'hermes'].includes(adapter) ? command(executable, list.args, this.options.environment || process.env) : {executable, args: list.args, env: this.options.environment || process.env};
+    const result = await run(launch.executable, launch.args, {env: launch.env, ...(adapter === 'pi' ? {cwd: this.options.home || os.homedir()} : {})});
+    if (adapter === 'pi') return {kind: 'native-list', command: 'pi mcp list --json', ...require('./pi-mcp-config.cjs').parseNativeList(result.stdout)};
+    if (adapter === 'hermes') return {kind: 'native-list', command: 'hermes mcp list', ...(result.error ? {outcome: 'error', detail: 'Hermes 原生列表命令未成功完成，未取得加载证明。'} : require('./hermes-mcp-config.cjs').parseNativeList(result.stdout))};
     const text = (result.stdout + '\n' + result.stderr).trim();
     const detail = text.split('\n').filter(Boolean).slice(0, 6).join('\n').slice(0, 800);
     if (result.error && !text) return {kind: 'native-list', command: adapter + ' ' + list.args.join(' '), outcome: 'error', detail: String(result.error.code || result.error.message)};
@@ -338,7 +360,16 @@ class McpIntegration {
   }
   async call(method, params) {
     const prior = this.pending || Promise.resolve();
-    const job = prior.catch(() => {}).then(() => this.perform(method, params));
+    const job = prior.catch(() => {}).then(async () => {
+      // Desktop selection may change while preparing the endpoint. A refused
+      // write must retain the old registration/ownership and revoke a new id.
+      const before = ['dsh-desktop', 'pi', 'hermes'].includes(params.adapter) && ['mcp.install', 'mcp.export'].includes(method) ? structuredClone(this.rows) : null;
+      try { return await this.perform(method, params); }
+      catch (error) {
+        if (before) { this.rows = before; this.save(); }
+        throw error;
+      }
+    });
     this.pending = job;
     return job;
   }
@@ -399,7 +430,23 @@ class McpIntegration {
       protocol = installation.version.startsWith('1.') ? 'v1' : 'v2';
       if (row?.enabled && (row.nativeProtocol || 'v2') !== protocol) throw fail('MCP_CONFIG_CONFLICT', 'OpenCode 协议已变化，请先移除原 MCP 接入再重新添加。');
     }
-    const target = this.config(params.adapter, protocol, profile);
+    if (params.adapter === 'pi' && method === 'mcp.install') {
+      const installation = await this.piInstallation();
+      if (!installation?.healthy) throw fail('DISCOVERY_CHANGED', '原 Pi 安装当前不可调用，请重新扫描；原生配置未写入。');
+      if (!require('./pi-mcp-config.cjs').compatibleVersion(installation.version))
+        throw fail('NATIVE_VERSION', '当前 Pi 原生 MCP 配置适配已核对 1.4.0 格式（支持 1.4+ 的 1.x 正式版）；请核对原安装版本。旧记录与配置保留，可先导出片段。');
+    }
+    if (method === 'mcp.remove' && row?.enabled) { row.enabled = false; this.save(); }
+    let target;
+    try {
+      target = this.config(params.adapter, protocol, profile, row?.nativeTarget);
+      if (['dsh-desktop', 'pi', 'hermes'].includes(params.adapter) && ['mcp.install', 'mcp.export'].includes(method) && !row?.enabled && target.inspect().entry === undefined)
+        target = this.config(params.adapter, protocol, profile);
+    } catch (error) {
+      if (method === 'mcp.export') return await this.exportOnly(params, row);
+      if (method === 'mcp.remove') return {...this.status(params), state: 'revoked_config_pending', cleanupError: {code: error.code, message: error.message}};
+      throw error;
+    }
     if (method === "mcp.remove") {
       // Revoke first, including when the native entry has since been edited.
       if (row) {
@@ -418,9 +465,12 @@ class McpIntegration {
     }
     if (!["mcp.install", "mcp.export"].includes(method))
       throw fail("INVALID_INPUT", "MCP 操作不受支持。");
+    target.assertCurrentTarget();
     if (method === "mcp.install") {
       const { entry } = target.inspect();
-      if (entry !== undefined && !equal(entry, row?.configuration))
+      if (target.disabled(entry))
+        throw fail('MCP_NATIVE_DISABLED', '原生 AgentBridge MCP 已禁用，请在原生设置中启用后核对；Bridge 不会重新启用。');
+      if (entry !== undefined && !target.matches(entry, row?.configuration))
         throw fail(
           "MCP_CONFIG_CONFLICT",
           "原配置已有其他 agentbridge 条目，已保留，请先处理冲突。",
@@ -435,18 +485,20 @@ class McpIntegration {
         enabled: true,
         ...(params.adapter === 'opencode' ? {nativeProtocol:protocol} : {}),
         ...(params.adapter === 'dsh' ? {profile} : {}),
+        ...(target.nativeTarget ? {nativeTarget: target.nativeTarget} : {}),
       };
       if (row) this.rows[this.rows.indexOf(row)] = fresh;
       else this.rows.push(fresh);
       row = fresh;
       this.save();
     }
+    if (target.nativeTarget) row.nativeTarget = target.nativeTarget;
     const { config, files } = await this.configure(row, {selectLauncher:true});
     row.configuration = nativeEntry(params.adapter, config, protocol);
     delete row.probe;
     this.save();
     if (method === "mcp.install") target.update(row.configuration, owned);
-    if (method === "mcp.install" && ['dsh-web', 'dsh'].includes(params.adapter)) {
+    if (method === "mcp.install" && ['dsh-web', 'dsh', 'dsh-desktop'].includes(params.adapter)) {
       // DSH applies the profile patch layer itself (live when HMR is enabled).
       // Bridge reports the requirement instead of claiming a loaded connection.
       row.probe = {kind: 'patch-layer', nativeLoad: 'reload_required', at:new Date().toISOString(), binding:this.probeBinding(params,row)};
@@ -454,6 +506,7 @@ class McpIntegration {
     }
     return { ...this.status(params), files, configuration: row.configuration };
   }
+  async piInstallation() { return (await scanTools(this.options)).find(item => item.adapter === 'pi'); }
   // Export for a product Bridge cannot write yet: identity registration plus a
   // standard config fragment. It never claims the native product installed it.
   async exportOnly(params, row) {

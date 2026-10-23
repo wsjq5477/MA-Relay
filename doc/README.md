@@ -1,5 +1,11 @@
 # AgentBridge 项目资料
 
+当前连接配置与节点准入修复见[issue #15/#16 的实现、验证与交付](iterations/I08/connection-identity-node-scope.md)；保存的 DSH 地址具有明确节点选择，独立节点接入不再被同机其他安装的 unknown 误锁。该修复尚未公开，当前公开版仍 alpha.46。
+
+本地候选alpha.51修复通道关闭期间的迟到启动与原请求跨代次发送，并取消会移动画布的自动布局保存成功横幅；图工具栏保留保存状态，原unknown/错误保护不变。桌面798/798、核心68/68与工程检查通过；EXE已生成、包源码一致性通过，Windows最终验收进行中。[需求、反例与当前交付](iterations/I08/wsl-close-and-graph-stability.md)。公开仍alpha.46，完整目标未准出。
+
+本地alpha.49候选承接alpha.48，WSL宿主等待就绪后发送请求，明确就绪前未派发与就绪后未知；桌面770/770、核心68/68、普通Windows EXE4组通过，模型0。最终包真实Windows→WSL MCP5组通过、保留启动失败，原生父模型及稳定性待验见[本轮交付](iterations/I08/wsl-host-readiness.md)。完整迭代目标按[推进台账](iterations/I08/completion-audit.md)继续，公开仍alpha.46。
+
 最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
 AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：在一个客户端里发需求、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置仍由各工具自己管理。

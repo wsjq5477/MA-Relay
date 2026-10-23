@@ -32,6 +32,30 @@ const factValue = (html, label) => {
   assert.ok(match, label + ' fact row must render as its own labelled row');
   return match[1];
 };
+test('Pi native disable is visible, keeps removal available and never offers re-enable through install', () => {
+  const html = render(McpSettings, {node: {...node, adapter: 'pi', name: 'Pi', capabilitySource: {kind: 'static-adapter', adapterId: 'pi'}}, initialStatus: {
+    ...base, adapter: 'pi', installed: false,
+    facts: {config: 'disabled', nativeLoad: 'unknown', connection: 'unknown', tools: 'unknown', authorization: 'valid', ownership: 'bridge'},
+  }});
+  assert.equal(factValue(html, '配置'), '已禁用');
+  assert.match(html, /<button[^>]*disabled=""[^>]*>添加 Bridge MCP/);
+  assert.match(html, /<button[^>]*>移除 Bridge MCP/);
+  assert.match(html, /不会静默重新启用/);
+});
+test('DSH Desktop shows the registered profile and native selection change without claiming foreign ownership', () => {
+  const html = render(McpSettings, {node: {...node, adapter: 'dsh-desktop', name: 'DSH Desktop', capabilitySource: {kind: 'static-adapter', adapterId: 'dsh-desktop'}}, initialStatus: {
+    ...base, adapter: 'dsh-desktop', state: 'conflict', installed: false, conflict: true,
+    profile: 'original', nativeTargetChanged: true, currentConfigPath: '/other/profile/cordis.patch.yml',
+    facts: {config: 'present', nativeLoad: 'unknown', connection: 'unknown', tools: 'unknown', authorization: 'valid', ownership: 'bridge'},
+    evidence: {configPath, configError: {code: 'MCP_NATIVE_TARGET_CHANGED', message: 'DSH Desktop 已切换数据目录或 Profile；请先移除原接入配置。'}},
+  }});
+  assert.match(html, /接入的 DSH Desktop Profile：original/);
+  assert.match(html, /已切换数据目录或 Profile/);
+  assert.match(html, /移除仅清理原接入目标/);
+  assert.match(html, /\/other\/profile\/cordis.patch.yml/);
+  assert.doesNotMatch(html, /同名条目已存在或被外部修改/);
+  assert.equal(factValue(html, '归属'), 'Bridge 管理');
+});
 
 test('a full facts payload renders six separate labelled rows without inventing native evidence', () => {
   const html = render(McpSettings, { node, initialStatus: {

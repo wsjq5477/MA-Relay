@@ -95,7 +95,9 @@ export function useGraphDraft(directory:string,remote:Collaboration,notify:(s:st
         :{...s,layout:data as GraphLayout,layoutDirty:false,layoutPending:null};
     });
     if(lane==='layout')setServerLayout(data as GraphLayout);
-    notify(lane==='relation'?'协作授权已保存。':'布局已保存。');return true;
+    // The persistent layout status already confirms autosaves. A transient
+    // page-level success banner shifts the canvas while the user is dragging.
+    if(lane==='relation')notify('协作授权已保存。');return true;
   }
   async function reconcile(lane:'relation'|'layout'){
     const pending=lane==='relation'?current.current.relationPending:current.current.layoutPending;if(!pending||!online)return;

@@ -1,5 +1,15 @@
 # M10 构建、发布与持久运行资源设计
 
+M10-F01/F02/F03：连接恢复候选从当前工作区冻结到独立source目录，仅在快照修改候选版本，保留原alpha.50/51功能。核对53后台、84Core、1701Linux资源、ASAR/前端/bootstrap与冻结源码一致；旧公开alpha.46中央必须停止后重开才能满足scoped-node-management-v1，不自动切换日常后台或远端。[源码清单、字节与验收](../../iterations/I08/connection-identity-node-scope.md)。
+
+M10-F01/F02/F03：alpha.50同时包含Pi/Hermes目标解析模块、配置/原生探测与前端提示，两个新增CJS须进入后台/ASAR/Linux离线包；53后台/84Core/1701Linux及bootstrap源码一致性均核对。普通Windows EXE、实际原生组件与Windows前端分层，未签名/未公开/未部署远端。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+M10-F01/F02/F03：alpha.49包含WSL HostConnection/Core就绪握手，Windows bridge/bootstrap.sh及Linux离线desktop/electron/bootstrap.sh必须与源码SHA一致，包核验新增bootstrapMatches。ASAR仍核对实际收录的CJS/Core/前端；普通EXE与真实WSL分别验收，不提升独立SSH结论。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。
+
+M10-F01/F02/F03：alpha.48候选承接alpha.47，并加入DSH Desktop目标解析模块、原生补丁适配、绑定与前端展示；须核对新增模块同时进入Windows后台/ASAR及Linux离线包。旧alpha.46公开附件和alpha.47候选保留。 [实现与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
+
+当前本地候选 alpha.47 包含 OpenDesk MCP 默认字段归属兼容；后台、窗口 ASAR、Core、Linux离线包与生产前端必须一致。Windows隔离验收、文件摘要与切换步骤见[本轮交付](../../iterations/I08/opendesk-mcp-defaults.md)。公开alpha.46的标签和附件保留；客户端候选不自动升级日常后台或SSH。
+
 当前公开预发布 alpha.46，标签冻结 `9766eb4`；源码、EXE 与校验文件已公开，匿名完整下载130180760字节与SHA-256一致。包源码一致，未签名、未部署SSH；[当前完整交付](../../iterations/I08/alpha46-release.md)。
 
 ## MCP02恢复与观测（2026-10-22）

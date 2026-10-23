@@ -2,12 +2,12 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),assert=require('node:assert/strict');
 const {Worker}=require('node:worker_threads'),{pathToFileURL}=require('node:url'),{createHash}=require('node:crypto');
-const [bridge,nativeArchive,chunkName,output]=process.argv.slice(2);
+const [bridge,nativeArchive,chunkName,output,version='0.6.0-alpha.46']=process.argv.slice(2);
 if(process.platform!=='win32'||!output)throw Error('Windows Node, packaged Bridge, installed archive, native chunk, report required');
 const {MachineHost}=require(path.join(bridge,'desktop/electron/machine-host.cjs'));
 const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-opendesk-native-mcp-')),nativeHome=path.join(directory,'native');
 const environment={...process.env,OPENDESK_CONFIG_DIRECTORY:nativeHome};
-const report={date:new Date().toISOString(),bridgeVersion:'0.6.0-alpha.46',nativeVersion:'0.3.9',environment:'unmodified installed OpenDesk MCP worker component / controlled parent / isolated native profile',modelCalls:0,status:'running',checks:[]};
+const report={date:new Date().toISOString(),bridgeVersion:version,nativeVersion:'0.3.9',environment:'unmodified installed OpenDesk MCP schema and worker component / controlled parent / isolated native profile',modelCalls:0,status:'running',checks:[]};
 let host,worker,sequence=0;const calls=[],pending=new Map();
 const newHost=()=>new MachineHost({directory:path.join(directory,'bridge'),home:directory,environment,legacy:{close(){}},
   collaboration:async(scope,name,args)=>{calls.push({scope,name,args});return {items:[]};}});
@@ -23,13 +23,24 @@ async function rpc(method,args=[]){const id=++sequence;return new Promise((resol
     (async()=>{const api=await import(workerData.module);const platform=new api.W();api.ah(platform);
     const App=platform.getApplicationClasses().find(C=>new C().bundleName==='mcpmgr');if(!App)throw Error('Native MCP application not found');
     const Client=App.getWorkerClass(),client=new Client('mcpmgr',workerData.home);await client.initialize();
-    parentPort.on('message',async m=>{try{const value=await client.handleMessage(m.method,...m.args);parentPort.postMessage({id:m.id,value});}catch(e){parentPort.postMessage({id:m.id,error:e.message});}});
+    parentPort.on('message',async m=>{try{const value=m.method==='parseConfig'?App.getConfigSchema().parse(m.args[0]):await client.handleMessage(m.method,...m.args);parentPort.postMessage({id:m.id,value});}catch(e){parentPort.postMessage({id:m.id,error:e.message});}});
     parentPort.postMessage({ready:true});})().catch(e=>parentPort.postMessage({fatal:e.message}));`,
     {eval:true,env:{...environment,ELECTRON_RUN_AS_NODE:'1'},workerData:{module:pathToFileURL(chunk).href,home:nativeHome,paths:{opendeskDirectory:nativeHome},setting:{applications:{},network_config:{use_proxy:'none'}}},stdout:true,stderr:true});
   const ready=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Native worker boot timeout')),30000);worker.on('message',m=>{if(m.ready){clearTimeout(timer);resolve();}if(m.fatal){clearTimeout(timer);reject(Error(m.fatal));}if(pending.has(m.id)){const p=pending.get(m.id);pending.delete(m.id);m.error?p.reject(Error(m.error)):p.resolve(m.value);}});worker.on('error',reject);});
   // Native logs are consumed, not copied: they can include native user settings.
   worker.stdout.resume();worker.stderr.resume();await ready;
-  await rpc('applicationConfigChanged',[{servers:[entry]}]);
+  const normalized=await rpc('parseConfig',[{servers:[entry]}]);
+  assert.deepEqual(normalized.servers[0].headers,{});
+  const nativeSettings=JSON.parse(fs.readFileSync(installed.configPath));
+  nativeSettings.applications.mcpmgr=normalized;
+  const normalizedBytes=JSON.stringify(nativeSettings);
+  fs.writeFileSync(installed.configPath,normalizedBytes);
+  const nativeStatus=await host.call('mcp.status',params);
+  assert.equal(nativeStatus.installed,true);assert.equal(nativeStatus.conflict,false);assert.equal(nativeStatus.facts.ownership,'bridge');
+  const reinstalled=await host.call('mcp.install',params);assert.equal(reinstalled.connectionId,installed.connectionId);
+  assert.equal(fs.readFileSync(installed.configPath,'utf8'),normalizedBytes);
+  report.checks.push('Unmodified installed native schema adds empty headers; Bridge preserves registered ownership, identity and native bytes on reinstall');
+  await rpc('applicationConfigChanged',[normalized]);
   let tools=[];for(let i=0;i<80;i++){tools=await rpc('getDiscoveredTools');if(tools.length===7)break;await new Promise(r=>setTimeout(r,250));}
   assert.equal(tools.length,7);assert(tools.some(t=>t.name==='list_agents'));
   const call=()=>rpc('callMcpTool',['agentbridge','list_agents',{}]);
@@ -47,12 +58,17 @@ async function rpc(method,args=[]){const id=++sequence;return new Promise((resol
   const fresh=await host.call('mcp.install',params);assert.notEqual(fresh.connectionId,installed.connectionId);
   assert.equal(JSON.parse(await call()).error.code,'MCP_REVOKED');
   await rpc('applicationConfigChanged',[{servers:[]}]);assert.equal((await rpc('getDiscoveredTools')).length,0);
-  const freshEntry=JSON.parse(fs.readFileSync(fresh.configPath)).applications.mcpmgr.servers[0];
-  await rpc('applicationConfigChanged',[{servers:[freshEntry]}]);
+  const freshSettings=JSON.parse(fs.readFileSync(fresh.configPath));
+  const freshNative=await rpc('parseConfig',[freshSettings.applications.mcpmgr]);
+  freshSettings.applications.mcpmgr=freshNative;fs.writeFileSync(fresh.configPath,JSON.stringify(freshSettings));
+  await rpc('applicationConfigChanged',[freshNative]);
   for(let i=0;i<80;i++){tools=await rpc('getDiscoveredTools');if(tools.length===7)break;await new Promise(r=>setTimeout(r,250));}
   assert.deepEqual(JSON.parse(await call()),{items:[]});
   report.checks.push('Revocation rejects the already-connected native client; reinstallation rotates identity and only the new native entry works');
-  await host.call('mcp.remove',params);await rpc('applicationConfigChanged',[{servers:[]}]);assert.equal((await rpc('getDiscoveredTools')).length,0);
+  const removed=await host.call('mcp.remove',params);assert.equal(removed.cleanupError,undefined);assert.equal(removed.facts.config,'absent');
+  assert.equal(JSON.parse(await call()).error.code,'MCP_REVOKED');
+  report.checks.push('Removal cleans native-schema-normalized entry and immediately rejects the still-connected client');
+  await rpc('applicationConfigChanged',[{servers:[]}]);assert.equal((await rpc('getDiscoveredTools')).length,0);
   report.checks.push('Bridge removal revokes authorization and native reload removes all seven Bridge tools');
   await rpc('finalize');report.status='passed';
 })().catch(e=>{report.status='failed';report.error={code:e.code,message:e.message};process.exitCode=1;}).finally(async()=>{

@@ -1,10 +1,12 @@
 # Agent 接入方式、选型与快速接入
 
+WSL配置按原nodeId路由至原发行版MachineHost，原有六项MCP管理方法在源码已存在；alpha.49增加就绪握手，最终包真实Windows→WSL MCP组件5组已通过（配置、原生Codex列表、Linux stdio调用、重开、撤权/轮换/清理），仍保留启动失败和原生父模型未测，不以工具组件代替模型自主调用。[当前范围与失败证据](iterations/I08/wsl-host-readiness.md)。
+
 最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
 本地alpha.46已支持非GUI首次接入及原操作查询；MCP探测按配置绑定和60秒有效期核对。[实际交付范围](iterations/I08/mcp-open-recovery.md)。
 
-[I08-MCP02开放MCP与双向配置](iterations/I08/mcp-open-integration.md)已完成Bridge源码第一片：用户只管理一个AgentBridge MCP，可从Bridge或原生Agent增删；能力拆为MCP调用、原生配置管理、托管scope注入三问，状态拆为配置/原生加载/连接/工具/授权/归属六项事实。当前可管理原生MCP条目的入口是Claude、Codex、OpenCode（两代）、DSH Web 与 DSH CLI（CLI 需显式指定启动 profile；DSH Web 已在隔离 profile 的真实启动中完成原生握手并取到工具目录）；OpenDesk 两个入口不同：CLI 0.3.8 完全没有 MCP 管理面（插件清单与工具列表都无 MCP 入口、启动重写 `setting.json` 丢弃未识别 `applications` 段），只能导出片段；Desktop 的原生 MCP 条目已可用（写入后必须完全重开 OpenDesk，且条目要用 PATH 中的真实 Node 启动器，Electron 运行时它在 mcpmgr 里启动不了），用户真实 Desktop 0.3.9 上已观察到“已连接 + 7 工具可见”，但**真实授权后的工具调用仍未验**；DSH Desktop 与Hermes/Pi只有标准片段导出。逐入口真实原生可见性与主调用链仍待验收，因此不能用设计目标替代[接入矩阵](agent-integration-matrix.md)中的实际能力状态。
+[I08-MCP02开放MCP与双向配置](iterations/I08/mcp-open-integration.md)已完成Bridge源码第一片：用户只管理一个AgentBridge MCP，可从Bridge或原生Agent增删；能力拆为MCP调用、原生配置管理、托管scope注入三问，状态拆为配置/原生加载/连接/工具/授权/归属六项事实。当前可管理原生MCP条目的入口是Claude、Codex、OpenCode（两代）、DSH Web 与 DSH CLI（CLI 需显式指定启动 profile；DSH Web 已在隔离 profile 的真实启动中完成原生握手并取到工具目录）；OpenDesk 两个入口不同：CLI 0.3.8 完全没有 MCP 管理面（插件清单与工具列表都无 MCP 入口、启动重写 `setting.json` 丢弃未识别 `applications` 段），只能导出片段；Desktop 的原生 MCP 条目已可用（写入后必须完全重开 OpenDesk，且条目要用 PATH 中的真实 Node 启动器，Electron 运行时它在 mcpmgr 里启动不了），用户真实 Desktop 0.3.9 上已观察到“已连接 + 7 工具可见”，已完成原生组件正式授权调用（真实自主父模型委派仍未验）；DSH Desktop在alpha.48本地候选新增原生选择定位、绑定和精确清理（公开alpha.46仍只导出）；Hermes/Pi原生管理已在alpha.50本地候选补齐并验证原生组件；公开alpha.46仍只导出。逐入口真实原生可见性与主调用链仍待验收，因此不能用设计目标替代[接入矩阵](agent-integration-matrix.md)中的实际能力状态。
 
 关联 AB-F02/F07/F08/F10/F11/F12/F13、M03/M06/M07/M08/M10。本文是接入说明与后续开发建议，不修改运行代码、协议、存储或发布版本，也不调用模型。各 Agent **实际接入了哪些方式**，只以[当前接入矩阵](agent-integration-matrix.md#2-每个-agent-已接入的方式)为准；不能把本文的协议能力或推荐方案算作已交付功能。
 
@@ -35,7 +37,7 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | **原生CLI** | 通常可直接使用用户已有程序和原生配置；无须常驻网络端口；结构化事件成熟时，首个适配改动较小 | 各工具参数/事件不同；进程树、stdin/stdout、Windows启动器和非交互PATH需处理；仅有交互TUI或纯文本输出时难以可靠映射控制 | 有相应原生命令/事件时可提交需求、读输出、续用Session、取消、处理权限；持久恢复还需保存派发边界和原生身份 | 已有可用CLI协议的Claude/Codex/Hermes/Pi/DSH CLI；复用宿主和发现框架，分别实现协议 |
 | **原生API** | 直接操作已有服务中的Session、任务和状态；适合Desktop/Web/daemon；可沿用该服务的运行配置 | 需服务可达、认证有效；处理启动/就绪、版本、超时和连接变化；GUI内部API未必有稳定兼容承诺；HTTP成功不等于任务完成 | 由API实际提供的create/prompt/query/cancel等实现控制；可靠恢复需有原请求/轮次/持久事件可核对 | OpenCode托管serve，或DSH Desktop/Web的已运行服务；继承目标服务而非另建模型层 |
-| **MCP** | 工具schema与调用方式标准化；Agent原生支持MCP时，开放Bridge发现/委派/材料工具的成本低；可复用现有broker与授权 | 主要描述工具交互，不自动成为Agent完整生命周期协议；客户端可用工具、输入能力和认证方式仍有差别；新增工具不等于具备执行权限 | 当前实现是Agent调用Bridge工具。某Agent若另暴露执行MCP工具，Bridge作为客户端的控制适配需单独开发；会话/取消/任务恢复不能凭“MCP”三字推定 | 希望Agent能主动使用Bridge时优先；当前Claude/Codex/OpenCode/DSH Web/DSH CLI（需profile）与OpenDesk Desktop可声明调用并有Bridge可管理的原生配置（OpenDesk 需 Node 启动器且要重开）；OpenDesk CLI与DSH Desktop、Hermes/Pi只到片段导出；托管scope注入仍只有原三种工具 |
+| **MCP** | 工具schema与调用方式标准化；Agent原生支持MCP时，开放Bridge发现/委派/材料工具的成本低；可复用现有broker与授权 | 主要描述工具交互，不自动成为Agent完整生命周期协议；客户端可用工具、输入能力和认证方式仍有差别；新增工具不等于具备执行权限 | 当前实现是Agent调用Bridge工具。某Agent若另暴露执行MCP工具，Bridge作为客户端的控制适配需单独开发；会话/取消/任务恢复不能凭“MCP”三字推定 | 希望Agent能主动使用Bridge时优先；当前Claude/Codex/OpenCode/DSH Web/DSH CLI（需profile）与OpenDesk Desktop可声明调用并有Bridge可管理的原生配置（OpenDesk 需 Node 启动器且要重开）；DSH Desktop在alpha.48候选可管理当前原生Profile；OpenDesk CLI只到片段导出；Pi用户目录/Hermes原生Profile管理已在alpha.50本地候选交付；托管scope注入仍只有原三种工具 |
 | **ACP** | 面向客户端与Agent的会话交互，标准化初始化、Prompt、会话更新、工具进度、权限询问和取消，可降低多Agent专用解析重复 | 需要通用Client、能力协商及Bridge状态映射；厂商或生态包装器可能改变配置/Session/权限行为；会话恢复为可选能力；协议标准不等于跨进程持久幂等 | 合适实现可新建会话、收增量输出、应答权限、请求取消；load/resume须协商并验证。Bridge的原请求台账、授权和unknown保护仍要保留 | 后续以支持原生ACP的目标做可选试点；当前尚未实现通用ACP驱动，不批量替换已可用CLI/API |
 | **原生插件** | 若宿主提供所需扩展API，可贴近原生日志、工具、生命周期或界面；能补外部CLI/API无法观察或操作的能力 | 每个宿主单独维护安装/更新/卸载、权限和兼容；插件往往与Agent同进程，出错可能影响原生运行；有插件机制不代表能控制Session | 可以在宿主允许范围内提供hook、注册工具、暴露受限控制接口或安装MCP连接；具体能力取决于宿主扩展点，并非天然拥有所有内部控制。若以插件承载调用方接入，只作为薄传输层复用同一协作服务端点、身份与工具契约，不另行实现协作逻辑 | 外部接口存在明确缺口、且官方扩展点能解决时再增加；当前未安装Bridge专用原生插件。Bridge静态adapter不计作原生插件 |
 | **Agent SDK** | 类型、事件、错误和资源生命周期封装可能减少胶水代码；官方维护的适配层可降低底层协议解析负担 | 增加语言/运行时/依赖与打包成本；SDK可能新建自己的Agent或要求独立模型凭据，未必能复用用户已有登录、GUI配置和Session；SDK更新也需验收 | 取决于SDK暴露的完整Agent能力；可能覆盖会话、工具、权限、取消、恢复。库的名字或类型声明不能证明能控制用户原进程 | SDK确实调用完整原生Agent且保留原配置语义时可评估；只有模型API封装的SDK不满足本项目接入目标 |
@@ -52,7 +54,7 @@ flowchart LR
 | 重启/断线恢复与去重 | 由原生持久记录和Bridge台账共同完成 | 需持久查询证据，不能仅依赖在线状态 | 工具任务或取消机制不自动等于Bridge持久业务去重 | load/resume为可选；JSON-RPC id不等于业务去重键 | 仍需持久存储/身份及重连设计 | 仍需核对恢复语义，不能靠自动重试重放输入 |
 | 授权发现其他Agent并委派 | Bridge当前通过MCP开放；CLI本身不建立授权关系 | API本身不建立Bridge授权关系 | 当前已提供此方向的获准工具 | 可在会话配置中传递MCP连接，但需真实可用与撤权验证 | 可承载MCP/受限工具，仍受Bridge授权 | 可挂载MCP/工具时需保留相同授权规则 |
 
-“支持协议”“支持功能”“经过真实验收”是三件事。例如当前DSH API已实现取消，却没有Bridge权限表单回复；当前Claude能通过MCP委派DSH，但DSH本身仍没有作为Bridge MCP调用方。
+“支持协议”“支持功能”“经过真实验收”是三件事。例如当前DSH API已实现取消，却没有Bridge权限表单回复；当前Claude可通过MCP委派DSH，DSH独立MCP调用仍需其原生客户端与正式授权；托管scope尚未适配。
 
 ## 4. 结合当前矩阵的后续推荐
 
@@ -72,7 +74,7 @@ flowchart LR
 
 ### 新Agent如何选第一条路径
 
-1. **只需要它调用Bridge**：目标原生支持MCP时，先走MCP。复用现有Bridge工具和授权；没有执行宿主就不能把它列为可由Bridge启动/取消的目标。当前Bridge能直接管理原生MCP条目的是Claude/Codex/OpenCode/DSH Web/DSH CLI（DSH CLI 需用 `--profile` 或弹窗指定启动 profile）；OpenDesk CLI 无可用管理面只能导出片段，OpenDesk Desktop 的原生条目已可用（需 Node 启动器并重开 OpenDesk）；DSH Desktop与Hermes/Pi只能生成标准配置片段，需要用户按各自原生文档添加，Bridge只读识别、不按名称猜测归属。也可以用 `agentbridge mcp export --node NODE_ID` 在不开窗口的情况下取得片段与身份引用。
+1. **只需要它调用Bridge**：目标原生支持MCP时，先走MCP。复用现有Bridge工具和授权；没有执行宿主就不能把它列为可由Bridge启动/取消的目标。当前Bridge能直接管理原生MCP条目的是Claude/Codex/OpenCode/DSH Web/DSH CLI（DSH CLI 需用 `--profile` 或弹窗指定启动 profile）；OpenDesk CLI 无可用管理面只能导出片段，OpenDesk Desktop 的原生条目已可用（需 Node 启动器并重开 OpenDesk）；DSH Desktop在alpha.48候选可按原生选择记录管理并绑定当前数据目录/Profile（公开alpha.46仅导出），切换后先清理原绑定再添加；Hermes/Pi在alpha.50本地候选可管理原生配置；公开alpha.46仍需导出片段，需要用户按各自原生文档添加，Bridge只读识别、不按名称猜测归属。也可以用 `agentbridge mcp export --node NODE_ID` 在不开窗口的情况下取得片段与身份引用。
 2. **需要由Bridge驱动它**：先确认有没有已注册的同产品适配，能复用则不再建另一套身份。新目标有经过维护的官方ACP且符合配置/权限/Session需求时，可考虑可选ACP试点；当前先要开发Client，不能承诺这是今天最快的即插即用路径。
 3. **目标主要是已运行的Desktop/Web/daemon**：有可用、受认证、可核对原执行的原生API时优先该API；接入已运行服务与Bridge托管启动服务分别设计。
 4. **目标主要是CLI且有结构化协议**：通常先做CLI适配。只有TUI或纯文本时，先寻找原生非交互API/ACP；不要用屏幕文字推断可靠的Session/权限/终态。

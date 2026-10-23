@@ -1,5 +1,15 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+## 连接身份与节点管理准入
+
+M03-F01：dsh.status/configure按原machineId/nodeId/adapter验证归属；从原adapter+显式origin唯一保存回应核对connectionId后原子保存dshBindings。绑定保存失败报告部分结果，原选择不变；扫描遵循原选择，不因枚举先后或更新时间选回旧origin。连接切换后需显式接入，原上下文不改绑。 [完整设计与失败流程](../../iterations/I08/connection-identity-node-scope.md)。
+
+M03-F02/F05：Pi/Hermes独立MCP/原生配置静态声明true，仍受来源后台false/unknown收窄；读写按原nodeId所属机器，不迁移节点/原任务。Pi安装核对1.4+的1.x正式版，Hermes按原生Home/sticky/pinned Profile解析，不创建缺失Profile。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+M03-F02/F05：WSL节点配置继续按原机器/发行版路由完整MachineHost；HostConnection并发首次调用共享启动，就绪前不写请求，30秒无握手/退出/无效帧/关闭明确未派发。close使仅内存的启动代次失效；发行版枚举迟到不创建宿主，新显式调用共享新Promise，旧finally仅清理自己的Promise。发送前绑定并复核原子进程引用，关闭后未写请求可证明未派发，已写请求仍保持unknown；旧进程事件不污染新连接。不改节点身份、不回落Windows。[关闭竞态修复](../../iterations/I08/wsl-close-and-graph-stability.md)。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。
+
+M03-F02：DSH Desktop静态nativeMcpConfig声明为已适配，旧机器/后台的false仍收窄；配置操作在节点所属机器解析原生选择记录，不移动节点、任务或执行绑定。 [实现与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
+
 OpenDesk CLI按目标环境当前PATH发现；已知扩展名为空的npm入口使用原安装和后台Node。Windows Desktop只读原生setting中的网关地址与本用户网关身份，调用已有接口核对，不启动桌面程序或写原生配置；网关不可用时显示原因。CLI/Desktop节点独立，桌面默认目录沿用原生设置。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
 
 M03-F02：OpenCode 显式接入遇原服务已退出时，仅启动原 context 内的原生服务，再核验原 Agent；本次新增恢复不放在快照或原请求读取分支。接入准备失败原子记录本地 attach 拒绝收据，原图意图只按匹配证据收敛；不改变原任务、Session 或 unknown 门禁。恢复不改协议或原生模型配置。详见[恢复契约与边界](../../iterations/I08/opencode-oom-recovery.md)。

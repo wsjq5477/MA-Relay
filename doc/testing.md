@@ -1,5 +1,11 @@
 # 整体测试与验收报告
 
+连接身份/节点管理修复已在公开 alpha.46 基线上完成隔离桌面回归 777/777，Windows 生产前端 10 组受控交互通过，原始三项故障在未修复基线上均复现。当前工作目录的集成包验证单独记录，不把受控 IPC/临时配置结果当成真实 DSH/OpenDesk 或模型验收。[证据与边界](iterations/I08/connection-identity-node-scope.md)。
+
+本地候选alpha.51修复通道关闭期间的迟到启动与原请求跨代次发送，并取消会移动画布的自动布局保存成功横幅；图工具栏保留保存状态，原unknown/错误保护不变。桌面798/798、核心68/68与工程检查通过；EXE已生成、包源码一致性通过，Windows最终验收进行中。[需求、反例与当前交付](iterations/I08/wsl-close-and-graph-stability.md)。公开仍alpha.46，完整目标未准出。
+
+本地alpha.49（2026-10-23）：WSL就绪握手与未派发/未知边界，桌面770/770、核心68/68、类型/lint/构建、包源码及bootstrap一致性通过，普通Windows EXE4组通过，模型0。最终包真实Windows→WSL MCP5组通过；另有只读启动2次通过/1次就绪前退出，稳定性与原生父模型尚未准出，见[本轮专项](iterations/I08/wsl-host-readiness.md)。公开仍alpha.46，完整目标按[推进台账](iterations/I08/completion-audit.md)继续。
+
 最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
 当前验证（2026-10-22，alpha.46）：WSL Node22.23.1根全量68/68、桌面758/758；最终JSON脱敏修复后CLI相关11/11、类型/lint/核心构建通过。已公开EXE130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`；包核验50后台模块/84核心文件/1698 Linux文件及四项一致性通过。Windows普通EXE、非GUI与生产前端的实际结果单列于[本轮专项](iterations/I08/mcp-open-recovery.md)，不将模拟、端点工具调用或历史原生模型混记为真实主Agent委派。未签名、已公开、未部署SSH；冻结提交9766eb4，匿名完整下载核验通过，[当前发布证据](iterations/I08/alpha46-release.md)。

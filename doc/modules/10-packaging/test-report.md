@@ -1,5 +1,24 @@
 # M10 构建与发布测试报告
 
+| 场景 ID | 实际结果 |
+| --- | --- |
+| T-M10-200 | 2026-10-23，本地0.6.0-alpha.51.recovery.1生成，EXE130198720字节；53后台/84Core/1701Linux、ASAR/Core/前端/bootstrap一致性通过。普通EXE验证分层见[交付记录](../../iterations/I08/connection-identity-node-scope.md)。 |
+
+公开仍alpha.46；本次未签名、未部署SSH或切换日常后台。
+
+2026-10-23 / alpha.50未改包补验：本地20次落盘→DOM同步p95 1513ms通过；20组/60节点/59边的20次真实拖动观测上界p95 117.9ms未达到100ms门槛，未记录>500ms卡顿。WSL启动9/20通过/11次就绪前退出、失败写入0，原始WSL/PowerShell也复现；根因未定位。包与源码一致性重核通过，EXE未变；模型0，未重跑原全量，不替代独立LAN/SSH或原生模型。[本轮完整样本、失败、脚本与限制](../../iterations/I06/current-candidate-metrics.md)。
+2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+2026-10-23 / alpha.49，WSL Node22.23.1：共享桌面770/770、核心68/68、类型/lint/生产构建和最终包/bootstrap一致性通过；普通Windows EXE4组通过，模型0。新启动受控契约4项在全量内，真实生产WSL只读三次中2次通过/1次就绪前退出；最终包真实Windows→WSL MCP组件5组通过，包含原生Codex0.162.1及Linux stdio调用/重开/撤权/轮换/清理；稳定性、原生父模型与独立SSH尚未准出，失败不抹除。共享计数不跨模块累加。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。
+
+## DSH Desktop原生MCP（2026-10-22）
+
+T-M10-MCP02DSH / M10-F01/F02/F03/F06；2026-10-22，alpha.48候选。共享桌面766/766、核心68/68、工程检查通过；Windows原生组件5组/生产前端4组（模型0），最终EXE130183681字节、SHA-256 `44f5d34d9ed365b2cec7c047a38045593a1ce51ac6a49949d28756c3f48740f6`，51后台/84Core/1699Linux资源与源码一致，普通无调试EXE4组通过，下载副本完整摘要一致。目录链接保护追加后保留首包记录并重建最终包，首次包不作交付。未签名、未公开、未切换日常后台或部署SSH。 [开发、原始失败与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
+
+## alpha.47 本地候选（2026-10-22）
+
+T-M10-MCP02DEFAULT / M10-F01/F02/F03/F06：WSL Node22.23.1交叉构建，EXE130179147字节、SHA-256 `281cfc14d4ea48c95408b32f0177037f6a79130ac6eac585651159b2730bff45`；50后台模块/84核心/1698Linux文件和ASAR/前端/后台/Core源码一致性均通过。桌面760/760、核心68/68及类型/lint/生产构建通过；Windows原生组件7组、普通无调试EXE隔离启动/资料持久化/关闭重开/完整后台重启4组通过，模型0；Windows下载副本完整SHA-256一致。[本轮交付](../../iterations/I08/opendesk-mcp-defaults.md)。未签名、未公开、未切换日常后台、未部署SSH，公开alpha.46保持原字节。
+
 ## alpha.46 公开分发核验（2026-10-22）
 
 冻结源码9766eb4已推送master并固定标签v0.6.0-alpha.46；EXE与SHA256SUMS.txt已公开。匿名无凭据完整下载HTTP 200、130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`，与本地和附件digest一致。本轮核心68/68、桌面758/758及类型/lint/用户站6/6与构建通过；包复核50后台模块/84核心/1698Linux文件和四类一致性均通过。普通EXE四组为同日未变产品的既有结果，不标本轮重跑；未签名、未部署SSH，完整准出限制保留。[源码、首次认证失败与公开核验](../../iterations/I08/alpha46-release.md)。

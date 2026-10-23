@@ -1,5 +1,20 @@
 # 迭代资料目录
 
+## 2026-10-23：连接身份与节点管理作用域
+
+[issue #15/#16](I08/connection-identity-node-scope.md)：保存 DSH 连接的精确持久选择、加载前反馈与扫描绑定；前后端统一节点资源冲突、原 unknown 保留和旧后台能力门禁。隔离基线 777/777、Windows 生产前端受控 10 组通过；当前集成候选与未测边界在专项单列，尚未公开。
+
+[alpha.51关闭竞态与画布稳定性](I08/wsl-close-and-graph-stability.md)：迟到WSL枚举不spawn/不派发，原调用绑定原通道；自动布局保存状态不再引起60.4px画布跳动。桌面798/798、核心68/68通过，包核验通过、Windows验收进行中，模型0。
+
+[alpha.50当前包指标与WSL稳定性补验](I06/current-candidate-metrics.md)：20次本地落盘→界面同步p95 1513ms通过；60节点图20次拖动反馈观测上界p95 117.9ms未准出；WSL启动9/20通过/11次就绪前退出，失败写入0。原始WSL/PowerShell同类失败、根因未定位；产品/EXE未变、模型0，全部原始失败保留。
+[Hermes/Pi原生MCP与alpha.50本地交付](I08/hermes-mcp-config.md)：补齐两种原生配置与目标绑定/禁用保护；桌面794/794、核心68/68，Pi原生Linux/Windows各5组、Hermes原生组件5组、Windows前端5组/普通EXE4组和最终包/下载副本核验通过，模型0。公开仍alpha.46；原生自主父模型/独立SSH/完整矩阵未准出。Pi首轮与审批限制保留在[原专项](I08/pi-mcp-config.md)。
+
+[WSL宿主就绪握手与alpha.49候选](I08/wsl-host-readiness.md)：桌面770/770、核心68/68、包及bootstrap一致性、普通Windows EXE4组通过，模型0；就绪前明确未派发，就绪后未知不重发。真实WSL MCP组件5组通过，仍有就绪前启动失败，稳定性及原生父模型待验；公开仍alpha.46。
+
+[全迭代开发与验收推进台账](I08/completion-audit.md)：保持完整目标、各范围准出依据与未完成项；已完成[DSH Desktop原生MCP本地交付](I08/dsh-desktop-mcp.md)：alpha.48、桌面766/766、核心68/68及Windows组件5组/前端4组/普通EXE4组，模型0；不以单个候选替代整体完成。
+
+[OpenDesk MCP 默认字段兼容与 alpha.47 本地候选](I08/opendesk-mcp-defaults.md)：修复原生自动补空 `headers` 导致状态、重复添加和清理误报冲突，其他修改仍拒绝；桌面760/760、根68/68及包源码一致性通过；Windows分层验收见专项。公开仍alpha.46，未部署远端。
+
 [alpha.46 源码与 Windows EXE 发布](I08/alpha46-release.md)：源码9766eb4与标签已推送，EXE/校验附件已公开，匿名完整下载130180760字节与SHA-256一致；本轮核心68/68、桌面758/758通过，未签名、未部署远端，完整准出边界见专项。
 
 [OpenDesk 日常 MCP 诊断条目恢复](I08/opendesk-mcp-diagnostic-repair.md)：2026-10-22 日常后台已为 alpha.46；用户确认后备份并替换指向本机端口 1 的旧诊断条目。首次改盘被退出写回覆盖；改为进程 0 时离线替换并启动，日常原生父模型实际 list_agents 调用 1 次成功、返回 7 个获准节点，Prompt 1、子任务 0；自主委派与原生页面未验，无产品代码或 EXE 变化。

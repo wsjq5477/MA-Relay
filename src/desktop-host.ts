@@ -254,4 +254,9 @@ if (
       }
     })();
   });
+  // WSL's Windows launcher can exit when stdin is written before the Linux
+  // process has attached it. Advertise readiness after the reader is installed.
+  // Native callers and older launchers keep their existing response-only stream.
+  if (process.env.AGENTBRIDGE_HOST_READY === '1')
+    process.stdout.write(JSON.stringify({bridgeReady: 1, protocol: 'agentbridge-host-v1'}) + '\n');
 }
