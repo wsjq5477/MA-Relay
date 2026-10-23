@@ -1,0 +1,1 @@
+46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d  AgentBridge-0.6.0-alpha.52-Windows-x64.exe

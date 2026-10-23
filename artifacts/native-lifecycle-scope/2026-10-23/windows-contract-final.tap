@@ -1,0 +1,258 @@
+TAP version 13
+# Subtest: OpenDesk running install is refused before any endpoint or native write; old exit snapshot cannot erase a new entry
+ok 1 - OpenDesk running install is refused before any endpoint or native write; old exit snapshot cannot erase a new entry
+  ---
+  duration_ms: 99.3484
+  type: 'test'
+  ...
+# Subtest: unknown OpenDesk process state keeps original bytes and does not create a false successful registration
+ok 2 - unknown OpenDesk process state keeps original bytes and does not create a false successful registration
+  ---
+  duration_ms: 3.6488
+  type: 'test'
+  ...
+# Subtest: OpenDesk starting during endpoint preparation refuses the final write and rolls back authorization
+ok 3 - OpenDesk starting during endpoint preparation refuses the final write and rolls back authorization
+  ---
+  duration_ms: 43.413
+  type: 'test'
+  ...
+# Subtest: OpenDesk shutdown writeback must settle before any endpoint is prepared
+ok 4 - OpenDesk shutdown writeback must settle before any endpoint is prepared
+  ---
+  duration_ms: 13.7453
+  type: 'test'
+  ...
+# Subtest: OpenDesk removal revokes first while running and later removes only its own entry after exit
+ok 5 - OpenDesk removal revokes first while running and later removes only its own entry after exit
+  ---
+  duration_ms: 58.8336
+  type: 'test'
+  ...
+# Subtest: OpenDesk probe is read-only unsupported and never promotes a Bridge endpoint probe to native success
+ok 6 - OpenDesk probe is read-only unsupported and never promotes a Bridge endpoint probe to native success
+  ---
+  duration_ms: 46.7189
+  type: 'test'
+  ...
+# Subtest: failed process observation is unknown and cannot authorize native writes
+ok 7 - failed process observation is unknown and cannot authorize native writes
+  ---
+  duration_ms: 2.082
+  type: 'test'
+  ...
+# Subtest: original exact health admission refusal can settle its attach; query errors or generic health codes retain unknown
+    # Subtest: original
+    ok 1 - original
+      ---
+      duration_ms: 26.2794
+      type: 'test'
+      ...
+    # Subtest: generic-message
+    ok 2 - generic-message
+      ---
+      duration_ms: 7.8187
+      type: 'test'
+      ...
+    # Subtest: query-only
+    ok 3 - query-only
+      ---
+      duration_ms: 9.8552
+      type: 'test'
+      ...
+    # Subtest: changed-input
+    ok 4 - changed-input
+      ---
+      duration_ms: 7.4581
+      type: 'test'
+      ...
+    # Subtest: foreign-receipt
+    ok 5 - foreign-receipt
+      ---
+      duration_ms: 8.4165
+      type: 'test'
+      ...
+    1..5
+ok 8 - original exact health admission refusal can settle its attach; query errors or generic health codes retain unknown
+  ---
+  duration_ms: 60.837
+  type: 'test'
+  ...
+# Subtest: persisted original host factory refusal settles only its attach intent after an original receipt read, with no replay
+ok 9 - persisted original host factory refusal settles only its attach intent after an original receipt read, with no replay
+  ---
+  duration_ms: 21.6815
+  type: 'test'
+  ...
+# Subtest: host refusal recovery requires original durable error and fingerprint; bare query errors, wrong lane, changed inputs and foreign receipts retain uncertainty
+    # Subtest: no-original-error
+    ok 1 - no-original-error
+      ---
+      duration_ms: 8.4876
+      type: 'test'
+      ...
+    # Subtest: different-error
+    ok 2 - different-error
+      ---
+      duration_ms: 13.4169
+      type: 'test'
+      ...
+    # Subtest: bad-fingerprint
+    ok 3 - bad-fingerprint
+      ---
+      duration_ms: 13.3035
+      type: 'test'
+      ...
+    # Subtest: remove
+    ok 4 - remove
+      ---
+      duration_ms: 7.9041
+      type: 'test'
+      ...
+    # Subtest: wrong-lane
+    ok 5 - wrong-lane
+      ---
+      duration_ms: 12.9026
+      type: 'test'
+      ...
+    # Subtest: wrong-id
+    ok 6 - wrong-id
+      ---
+      duration_ms: 14.5012
+      type: 'test'
+      ...
+    # Subtest: foreign-receipt
+    ok 7 - foreign-receipt
+      ---
+      duration_ms: 11.8839
+      type: 'test'
+      ...
+    # Subtest: query-error
+    ok 8 - query-error
+      ---
+      duration_ms: 14.8812
+      type: 'test'
+      ...
+    1..8
+ok 10 - host refusal recovery requires original durable error and fingerprint; bare query errors, wrong lane, changed inputs and foreign receipts retain uncertainty
+  ---
+  duration_ms: 98.7745
+  type: 'test'
+  ...
+# Subtest: an actual original confirmed receipt takes priority over the historical host factory error
+ok 11 - an actual original confirmed receipt takes priority over the historical host factory error
+  ---
+  duration_ms: 17.3209
+  type: 'test'
+  ...
+# Subtest: new attach host factory refusal is recorded as rejected without admitting any task or replaying attach
+ok 12 - new attach host factory refusal is recorded as rejected without admitting any task or replaying attach
+  ---
+  duration_ms: 26.0584
+  type: 'test'
+  ...
+# Subtest: central graph uncertainty survives restart, blocks new IDs in its lane and only queries the original request
+ok 13 - central graph uncertainty survives restart, blocks new IDs in its lane and only queries the original request
+  ---
+  duration_ms: 45.2764
+  type: 'test'
+  ...
+# Subtest: graph intent must persist before dispatch; definite validation failure frees the lane while retaining original payload fingerprint
+ok 14 - graph intent must persist before dispatch; definite validation failure frees the lane while retaining original payload fingerprint
+  ---
+  duration_ms: 38.3724
+  type: 'test'
+  ...
+# Subtest: layout uncertainty does not block authorization and receipts atomically committed before lost ACK reconcile without another write
+ok 15 - layout uncertainty does not block authorization and receipts atomically committed before lost ACK reconcile without another write
+  ---
+  duration_ms: 74.8833
+  type: 'test'
+  ...
+# Subtest: node and authority writes share a safety barrier but layout remains independent; original node receipts are queried after lost ACK
+ok 16 - node and authority writes share a safety barrier but layout remains independent; original node receipts are queried after lost ACK
+  ---
+  duration_ms: 73.834
+  type: 'test'
+  ...
+# Subtest: an original local node unknown does not block another machine maintenance; same-machine and missing provenance still block
+ok 17 - an original local node unknown does not block another machine maintenance; same-machine and missing provenance still block
+  ---
+  duration_ms: 52.2056
+  type: 'test'
+  ...
+# Subtest: scope isolation preserves same-machine, missing-source and authority barriers despite unrelated query failure
+ok 18 - scope isolation preserves same-machine, missing-source and authority barriers despite unrelated query failure
+  ---
+  duration_ms: 45.5124
+  type: 'test'
+  ...
+# Subtest: original graph query never settles a foreign machine or changed content receipt
+ok 19 - original graph query never settles a foreign machine or changed content receipt
+  ---
+  duration_ms: 17.7457
+  type: 'test'
+  ...
+# Subtest: runtime capability negotiation marks MCP open access without changing ordinary coordinator requirements
+ok 20 - runtime capability negotiation marks MCP open access without changing ordinary coordinator requirements
+  ---
+  duration_ms: 0.4851
+  type: 'test'
+  ...
+# Subtest: coordinator-service accepts both new MCP methods and forwards them through the network to the host
+ok 21 - coordinator-service accepts both new MCP methods and forwards them through the network to the host
+  ---
+  duration_ms: 39.8473
+  type: 'test'
+  ...
+# Subtest: daemon advertises the capability, allows read-only probe during maintenance, and blocks revocation like other configuration mutations
+ok 22 - daemon advertises the capability, allows read-only probe during maintenance, and blocks revocation like other configuration mutations # SKIP Linux-only daemon contract; exercised on Linux
+  ---
+  duration_ms: 0.4473
+  type: 'test'
+  ...
+# Subtest: an old remote daemon without the capability yields an explicit upgrade error before any frame is sent
+ok 23 - an old remote daemon without the capability yields an explicit upgrade error before any frame is sent
+  ---
+  duration_ms: 32.9106
+  type: 'test'
+  ...
+# Subtest: probe and revoke require a connected non-removed node while status keeps its existing contract
+ok 24 - probe and revoke require a connected non-removed node while status keeps its existing contract
+  ---
+  duration_ms: 54.6176
+  type: 'test'
+  ...
+# Subtest: an offline remote machine refuses MCP methods before any capability or native read
+ok 25 - an offline remote machine refuses MCP methods before any capability or native read
+  ---
+  duration_ms: 0.2895
+  type: 'test'
+  ...
+# Subtest: an old coordinator without the capability is told to upgrade for MCP facts only
+ok 26 - an old coordinator without the capability is told to upgrade for MCP facts only
+  ---
+  duration_ms: 103.5468
+  type: 'test'
+  ...
+# Subtest: OpenDesk native writes require the remote lifecycle marker while reads and revocation stay available
+ok 27 - OpenDesk native writes require the remote lifecycle marker while reads and revocation stay available
+  ---
+  duration_ms: 0.3081
+  type: 'test'
+  ...
+# Subtest: stopped OpenDesk original node can configure while disconnected without enabling other adapters or removed identities
+ok 28 - stopped OpenDesk original node can configure while disconnected without enabling other adapters or removed identities
+  ---
+  duration_ms: 25.3185
+  type: 'test'
+  ...
+1..28
+# tests 41
+# suites 0
+# pass 40
+# fail 0
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 2490.7233

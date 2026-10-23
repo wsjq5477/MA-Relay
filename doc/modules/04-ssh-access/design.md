@@ -1,5 +1,7 @@
 # M04 SSH 机器接入设计
 
+M04-F01/F04：SSH hello记录opendesk-mcp-lifecycle-v1，仅OpenDesk Desktop原生增删在旧后台缺标记时于派发前拒绝MCP_BACKEND_UPGRADE_REQUIRED；状态、探测与撤权保持既有开放MCP门禁，不要求所有旧机器统一升级。未部署远端，真实Windows进程核验仍由来源后台负责。 [合约与边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## alpha.38 维护前置门禁只读 RPC
 
 M04-F04/F06/F08：[ssh-host.cjs](../../../desktop/electron/ssh-host.cjs) 新增两个**只读** RPC，不进 lifecycle、不写本地或远端状态：`machine.maintenanceBlockers`（在线时经既有 relay 读 `snapshot`，再分页 `daemon.receiptRead`（128/页、最多 32 页）收集收据阻塞项，判定规则与 worker 一致；无收据端点 → `receiptsSupported:false`；离线/维护中/需凭据 → `available:false` + 原因，不抛异常）与 `machine.queryBlockedOperation`（单次、原 ID；`submit`/`continue`/`verify` → `ipc request`，`reply`/`cancel` → `ipc operation`；不重发任务、不新铸 ID、失败保留原错误码）。两者只服务对话框展示与用户主动核对，不构成新的授权或执行通道。[契约与未测边界](../../iterations/I08/alpha38-delivery.md)。

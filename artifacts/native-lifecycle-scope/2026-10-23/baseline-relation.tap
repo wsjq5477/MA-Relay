@@ -8,9 +8,9 @@ not ok 1 - independent relation save uses one original relation operation withou
   failureType: 'testCodeFailure'
   error: |-
     {"ok":false,"error":{"code":"GRAPH_UNCONFIRMED","message":"原图保存尚未确认，请查询原操作，不能换 ID 再保存。"}}
-    
+
     false !== true
-    
+
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected: true

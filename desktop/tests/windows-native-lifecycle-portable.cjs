@@ -18,17 +18,19 @@ const native={revision:1,agents:[{agentId,adapter:'codex',executable:'C:/synthet
 write('windows/node-contexts/retained-codex/codex-state.json',native);
 const report={date:new Date().toISOString(),version,environment:'Windows ordinary no-debug EXE / production Coordinator+MachineHost+CodexHost / synthetic persisted original history',status:'running',modelCalls:0,checks:[],portable:{bytes:fs.statSync(exe).size,sha256:createHash('sha256').update(fs.readFileSync(exe)).digest('hex')}};
 const output=path.resolve(process.argv[3]);
+function checkpoint(phase){report.phase=phase;fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n');}
+checkpoint('created');
 const delay=ms=>new Promise(r=>setTimeout(r,ms));let wrapper,client,main;
 const ps=command=>new Promise((resolve,reject)=>execFile(path.join(process.env.SystemRoot||'C:/Windows','System32/WindowsPowerShell/v1.0/powershell.exe'),['-NoProfile','-NonInteractive','-Command',command],{windowsHide:true,timeout:15000},(error,out)=>error?reject(error):resolve(out.trim())));
 async function launch(executable=exe,expectedVersion=version){
  const env={...process.env,AGENTBRIDGE_DESKTOP_PROFILE:directory,USERPROFILE:nativeHome,OPENDESK_CONFIG_DIRECTORY:path.join(nativeHome,'opendesk')};delete env.ELECTRON_RUN_AS_NODE;
- wrapper=spawn(executable,[],{env,stdio:'ignore'});
+ checkpoint('launching '+expectedVersion);wrapper=spawn(executable,[],{env,stdio:'ignore'});
  const until=Date.now()+120000;
  while(Date.now()<until){
   if(fs.existsSync(path.join(directory,'coordinator-status.json'))){
    const text=await ps(`Get-CimInstance Win32_Process | Where-Object {$_.ParentProcessId -eq ${wrapper.pid} -and $_.Name -eq 'AgentBridge.exe'} | ForEach-Object {@{pid=$_.ProcessId;parent=$_.ParentProcessId;command=$_.CommandLine;title=(Get-Process -Id $_.ProcessId).MainWindowTitle}} | ConvertTo-Json -Compress`);
    const parsed=text?JSON.parse(text):[];main=(Array.isArray(parsed)?parsed:[parsed]).find(p=>p.title==='AgentBridge');
-   if(main){assert(!/remote-debugging|--inspect/.test(main.command));const next=new CoordinatorClient({directory});try{await next.attach();client=next;assert.equal(client.info.version,expectedVersion);return;}catch(error){next.close();if(!['ENOENT','ECONNREFUSED'].includes(error.code))throw error;}}
+   if(main){assert(!/remote-debugging|--inspect/.test(main.command));const next=new CoordinatorClient({directory});try{await next.attach();client=next;assert.equal(client.info.version,expectedVersion);checkpoint('attached '+expectedVersion);return;}catch(error){next.close();if(!['ENOENT','ECONNREFUSED'].includes(error.code))throw error;}}
   }
   await delay(500);
  }
@@ -55,7 +57,7 @@ async function check(){
  const oldVersion='0.6.0-alpha.51.recovery.2',oldExe=path.join(directory,'old-'+oldVersion+'.exe');const oldSource=path.resolve(process.argv[5]);assert.equal(createHash('sha256').update(fs.readFileSync(oldSource)).digest('hex'),'db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd');fs.copyFileSync(oldSource,oldExe);
  await launch(oldExe,oldVersion);const oldPid=client.info.pid;assert(!client.info.capabilities?.includes('scoped-relation-management-v1'));await closeWindow();client.close();
  await launch(exe,oldVersion);await assert.rejects(client.request('call',{method:'snapshot',params:{}}),{code:'COORDINATOR_UPGRADE_REQUIRED'});assert.equal((await client.request('preferences')).version,oldVersion);report.checks.push('New ordinary EXE detects the still-running alpha.51.recovery.2 coordinator and blocks unsafe calls while settings remain accessible');
- await closeWindow();await client.request('shutdown');client.close();for(let i=0;i<150;i++){try{process.kill(oldPid,0);}catch{break;}await delay(200);}
+ checkpoint('old coordinator refused; stopping controlled old runtime');await closeWindow();await client.request('shutdown');client.close();for(let i=0;i<150;i++){try{process.kill(oldPid,0);}catch{break;}await delay(200);}
  await launch();assert(client.info.capabilities.includes('owned-object-controls-v1'));const firstPid=client.info.pid;
  assert(client.info.capabilities.includes('scoped-relation-management-v1'));assert(client.info.capabilities.includes('opendesk-mcp-lifecycle-v1'));
  const pendingBefore=JSON.parse(fs.readFileSync(path.join(directory,'graph-pending.json'))).find(r=>r.operationId==='original-node-unknown');

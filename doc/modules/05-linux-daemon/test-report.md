@@ -1,5 +1,7 @@
 # M05 Linux daemon 测试报告
 
+2026-10-23，alpha.52：远端与断开原节点受控契约9/9通过，包含旧后台无安全写入标记零派发拒绝。完整桌面841/841、核心68/68共享回归通过；Linux daemon契约在Linux已通过，Windows上明确不支持。未连接或部署独立SSH，不提升原远端/模型验收。[原始证据](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 2026-10-23 / alpha.50未改包补验：本地20次落盘→DOM同步p95 1513ms通过；20组/60节点/59边的20次真实拖动观测上界p95 117.9ms未达到100ms门槛，未记录>500ms卡顿。WSL启动9/20通过/11次就绪前退出、失败写入0，原始WSL/PowerShell也复现；根因未定位。包与源码一致性重核通过，EXE未变；模型0，未重跑原全量，不替代独立LAN/SSH或原生模型。[本轮完整样本、失败、脚本与限制](../../iterations/I06/current-candidate-metrics.md)。
 2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
 

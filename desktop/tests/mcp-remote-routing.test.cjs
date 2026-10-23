@@ -63,7 +63,7 @@ async function daemonClient(t,options){
   const peer=await call('hello',{protocolVersion:2,coordinatorId:options.ownerCoordinatorId,profileId:options.profileId,nonce:'nonce-'+Math.random().toString(16).slice(2)});
   return {peer,call};
 }
-test('daemon advertises the capability, allows read-only probe during maintenance, and blocks revocation like other configuration mutations',async t=>{
+test('daemon advertises the capability, allows read-only probe during maintenance, and blocks revocation like other configuration mutations',{skip:process.platform==='win32'?'Linux-only daemon contract; exercised on Linux':false},async t=>{
   const root=directoryFor(t),options={stateDirectory:path.join(root,'state'),ownerCoordinatorId:'coordinator-test',profileId:'profile-test',monitorIntervalMs:0};
   const host=mcpHost(),daemon=await startDaemon({...options,hostFactory:()=>host});t.after(()=>daemon.close());
   const {peer,call}=await daemonClient(t,options);

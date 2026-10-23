@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "markdownFiles": 243,
+  "moduleDesignReportPairs": 15,
+  "localLinks": 5378,
+  "mermaidDiagrams": 100,
+  "moduleFeatures": 100,
+  "testCases": 453,
+  "errors": []
+}

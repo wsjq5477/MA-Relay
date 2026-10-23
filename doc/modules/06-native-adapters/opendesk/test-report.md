@@ -2,7 +2,7 @@
 
 ## #19/#20 修复验证
 
-2026-10-23，alpha.52 源码候选；M06-F05。定向生命周期、中央资源与原请求回归131/131，远端/断开身份契约9/9，Windows生产前端12组通过、pageErrors=0；实际Windows进程检测识别日常OpenDesk运行并在隔离文件拒写，模型0。共享计数不跨模块累加；桌面共享全量841/841、核心68/68，类型/lint通过；普通EXE另记。原失败、命令、原始证据及未测项见[本轮记录](../../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+2026-10-23，alpha.52 源码候选；M06-F05。定向生命周期、中央资源与原请求回归131/131，远端/断开身份契约9/9，Windows生产前端12组通过、pageErrors=0；实际Windows进程检测识别日常OpenDesk运行并在隔离文件拒写，模型0。共享计数不跨模块累加；桌面共享全量841/841、核心68/68，类型/lint通过；普通无调试Windows EXE8组通过；包54后台/84Core/1702Linux与冻结源码一致，模型0。原失败、命令、原始证据及未测项见[本轮记录](../../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 ## 连接身份与节点管理验证
 

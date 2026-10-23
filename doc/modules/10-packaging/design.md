@@ -12,7 +12,7 @@ M10-F01/F02/F03：alpha.49包含WSL HostConnection/Core就绪握手，Windows br
 
 M10-F01/F02/F03：alpha.48候选承接alpha.47，并加入DSH Desktop目标解析模块、原生补丁适配、绑定与前端展示；须核对新增模块同时进入Windows后台/ASAR及Linux离线包。旧alpha.46公开附件和alpha.47候选保留。 [实现与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
 
-当前本地候选 alpha.47 包含 OpenDesk MCP 默认字段归属兼容；后台、窗口 ASAR、Core、Linux离线包与生产前端必须一致。Windows隔离验收、文件摘要与切换步骤见[本轮交付](../../iterations/I08/opendesk-mcp-defaults.md)。公开alpha.46的标签和附件保留；客户端候选不自动升级日常后台或SSH。
+alpha.47历史候选包含 OpenDesk MCP 默认字段归属兼容；后台、窗口 ASAR、Core、Linux离线包与生产前端必须一致。Windows隔离验收、文件摘要与切换步骤见[本轮交付](../../iterations/I08/opendesk-mcp-defaults.md)。公开alpha.46的标签和附件保留；客户端候选不自动升级日常后台或SSH。
 
 当前公开预发布0.6.0-alpha.51.recovery.2，标签冻结 `905b792`；源码、EXE与校验文件已公开，匿名完整下载130196014字节与SHA-256一致。包源码一致，未签名、未部署SSH；[当前完整交付](../../iterations/I08/alpha51-recovery2-release.md)。
 
