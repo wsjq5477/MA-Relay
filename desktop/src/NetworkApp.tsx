@@ -29,7 +29,7 @@ import AgentIcon from "./AgentIcon";
 import CollaborationChoice from "./CollaborationChoice";
 import {canCallBridge,canExecuteNode} from "./connection-capabilities";
 import { TasksPage, ConversationsPage, SettingsPage } from "./WorkspacePages";
-import {useGraphRecovery,mergeRecoveryRows,executionRecoveryReason,querySummaryText,type ManagementLane} from './management-recovery';
+import {useGraphRecovery,mergeRecoveryRows,executionRecoveryReason,relationRecoveryReason,querySummaryText,type ManagementLane} from './management-recovery';
 import TeamWorkspace from "./TeamWorkspace";
 import { useNodeManagement, type NodeAction } from "./node-management";
 import type {
@@ -378,6 +378,8 @@ export default function NetworkApp() {
     !!machineManagement.pending;
   const managementRows=mergeRecoveryRows(graphRecovery.rows,management.pendingItems.map(management.asRow),machineManagement.pendingItems.map(machineManagement.asRow));
   const managementSummary=querySummaryText(graphRecovery.summary);
+  const relationReason=!graphRecovery.loaded||graphRecovery.error||management.storageError||machineManagement.storageError?'原管理台账尚未安全读取，请在设置中核对后再编辑授权。':relationRecoveryReason(managementRows,allNodes,allMachines);
+  const collaborationGuardReason=relationReason||(targetNode?managementReason(targetNode.machineId,targetNode.nodeId):'');
   function executionReason(machineId?:string,nodeId?:string,chosenWorkspace?:string){
     if(!graphRecovery.loaded||graphRecovery.error||management.storageError||machineManagement.storageError)return '原管理台账尚未安全读取，请保留原记录。';
     return executionRecoveryReason(managementRows,machineId,nodeId,allNodes,allMachines,data.instances,chosenWorkspace);
@@ -802,6 +804,7 @@ export default function NetworkApp() {
           machines={machines}
           nodes={nodes}
           relation={relationship}
+          relationReason={relationReason}
           onExecutionLockChange={setGraphExecutionLocked}
           hidden={page !== "machines" || machineView !== "graph"}
           filter={machineFilter}
@@ -1287,6 +1290,7 @@ export default function NetworkApp() {
                 if(!canExecuteNode(targetNode)||blocked(targetNode?.machineId,target,workspace.trim()||undefined)){
                   setNotice("当前节点不能开始新执行，请先核对执行能力与原操作。");return;
                 }
+                if(collaborate&&collaborationGuardReason){setNotice(collaborationGuardReason);return;}
                 if(collaborate&&!collaborationAllowed){setNotice("当前节点不能调用 Bridge MCP，请关闭协作后使用直接会话。");return;}
                 void act("submit", async () => {
                   const t = await call<Task>("nodeRequest", {
@@ -1352,7 +1356,7 @@ export default function NetworkApp() {
                 </div>
               )}
               <CollaborationChoice node={targetNode} isLeader={target===relationship.leaderId}
-                checked={collaborate} onChange={setCollaborate}/>
+                checked={collaborate} disabledReason={collaborationGuardReason} onChange={setCollaborate}/>
               <label className="network-field">
                 需求
                 <textarea

@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+OpenDesk Desktop mcp.install/mcp.remove 在来源后台检查退出与配置写回，新增 MCP_NATIVE_RUNNING / MCP_NATIVE_STATE_UNKNOWN / MCP_NATIVE_EXIT_PENDING / MCP_OPENDESK_NODE_REQUIRED；remove 已先撤权时以 revoked_config_pending+cleanupError 返回。mcp.probe 只读返回 unsupported，不探测 Bridge 端点冒充原生列表。hello 新增 scoped-relation-management-v1（中央必需）与 opendesk-mcp-lifecycle-v1（OpenDesk远端原生增删必需）；旧远端仍可读状态/撤权，未修改帧版本。saveCollaboration 的 relation/node 冲突由中央解析旧/新关系资源并集，原关系/机器及缺来源保守阻塞；无ID兼容调用同样经过日志准入，确认返回原关系数据。[完整合约](iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## DSH 选择与节点管理能力
 
 `dsh.status({machineId,nodeId?})` 与 `dsh.configure({machineId,nodeId?,adapter,url,token?,enabled?})` 在提供 nodeId 时校验原节点归属；adapter 只能是原 DSH 入口。items 增加可选 connectionId，保存/查询可返回 selectedConnectionId；旧远端缺 ID 时仅兼容精确返回的 executable，不按 adapter 或时间选取。DSH_BINDING_MISMATCH 拒绝错源回应；DSH_BINDING_PERSIST 表示私有配置已写而中央绑定未保存，不能显示完整成功或自动重试。

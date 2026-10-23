@@ -1,0 +1,58 @@
+
+> agentbridge@0.1.0 docs:test
+> node scripts/prepare-doc-site.mjs && node tests/doc-site.test.mjs
+
+{
+  "ok": true,
+  "pages": 18,
+  "generatedTables": 2,
+  "publicAssets": 1,
+  "internalPagesPublished": 0,
+  "evidenceFilesExported": 0
+}
+TAP version 13
+# Subtest: 公开页面只包含用户文档，七种产品均有独立章节
+ok 1 - 公开页面只包含用户文档，七种产品均有独立章节
+  ---
+  duration_ms: 7.6394
+  type: 'test'
+  ...
+# Subtest: 接入方式和能力表分别保持方向及 DSH 服务边界
+ok 2 - 接入方式和能力表分别保持方向及 DSH 服务边界
+  ---
+  duration_ms: 3.0954
+  type: 'test'
+  ...
+# Subtest: 正文拒绝内部编号、过程、仓库链接及未许可 include
+ok 3 - 正文拒绝内部编号、过程、仓库链接及未许可 include
+  ---
+  duration_ms: 0.8221
+  type: 'test'
+  ...
+# Subtest: HTML / 引用式链接不能绕过正文链接检查
+ok 4 - HTML / 引用式链接不能绕过正文链接检查
+  ---
+  duration_ms: 0.2025
+  type: 'test'
+  ...
+# Subtest: 发布审计对生成目录执行独立白名单与内容检查
+ok 5 - 发布审计对生成目录执行独立白名单与内容检查
+  ---
+  duration_ms: 14.9868
+  type: 'test'
+  ...
+# Subtest: 站点配置使用隔离源目录，资源准备不再扫描仓库引用
+ok 6 - 站点配置使用隔离源目录，资源准备不再扫描仓库引用
+  ---
+  duration_ms: 0.5041
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 37.1577

@@ -10,21 +10,22 @@ function managedNote(node?: AgentNode) {
   return managed === false ? ' · 以独立 MCP 会话作为主 Agent，托管任务绑定未适配' : ' · 托管任务绑定未确认，不影响独立 MCP 调用';
 }
 
-export function PrimaryAgentButton({node, current=false, disabled=false, className='btn', onSelect}: {
-  node:AgentNode; current?:boolean; disabled?:boolean; className?:string; onSelect:()=>void;
+export function PrimaryAgentButton({node, current=false, disabled=false, disabledReason='', className='btn', onSelect}: {
+  node:AgentNode; current?:boolean; disabled?:boolean; disabledReason?:string; className?:string; onSelect:()=>void;
 }) {
   const supported = canCallBridge(node);
-  return <button className={className} disabled={disabled || !node.connected || !supported}
-    title={supported ? '允许此 Agent 调用 Bridge MCP，向已授权子节点委派' + managedNote(node) : bridgeCallerReason(node)}
+  return <button className={className} disabled={disabled || !!disabledReason || !node.connected || !supported}
+    title={disabledReason || (!node.connected?'请先接入此 Agent。':supported ? '允许此 Agent 调用 Bridge MCP，向已授权子节点委派' + managedNote(node) : bridgeCallerReason(node))}
     onClick={onSelect}>{current ? '当前主 Agent' : '设为主 Agent'}</button>;
 }
 
-export default function CollaborationChoice({node, isLeader, checked, onChange}: {
-  node?: AgentNode; isLeader:boolean; checked:boolean; onChange:(value:boolean)=>void;
+export default function CollaborationChoice({node, isLeader, checked, disabledReason, onChange}: {
+  node?: AgentNode; isLeader:boolean; checked:boolean; disabledReason?:string; onChange:(value:boolean)=>void;
 }) {
   const allowed = canCallBridge(node);
   return <div className="conversation-collaboration">
-    {isLeader && <label className="network-checks"><input type="checkbox" checked={allowed && checked} disabled={!allowed} onChange={event=>onChange(event.target.checked)}/>允许主 Agent 使用已配置的子 Agent</label>}
+    {isLeader && <label className="network-checks"><input type="checkbox" checked={allowed && checked} disabled={!allowed||!!disabledReason} onChange={event=>onChange(event.target.checked)}/>允许主 Agent 使用已配置的子 Agent</label>}
+    {disabledReason&&<small role="status">{disabledReason}</small>}
     {node && <small>{connectionCapabilitySummary(node)}{managedNote(node)}</small>}
     {isLeader && !allowed && <p role="status">{bridgeCallerReason(node)} 已有主节点记录保留，可关闭协作后使用直接会话。</p>}
   </div>;

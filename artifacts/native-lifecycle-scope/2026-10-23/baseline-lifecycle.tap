@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: OpenDesk running install is refused before any endpoint or native write; old exit snapshot cannot erase a new entry
+not ok 1 - OpenDesk running install is refused before any endpoint or native write; old exit snapshot cannot erase a new entry
+  ---
+  duration_ms: 37.8474
+  type: 'test'
+  location: '/home/jiqi/.codex/worktrees/issue-6-history-routing/AgentBridge/desktop/tests/native-lifecycle-scope.test.cjs:4:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'MCP_NATIVE_RUNNING'
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (/home/jiqi/.codex/worktrees/issue-6-history-routing/AgentBridge/desktop/tests/native-lifecycle-scope.test.cjs:4:193)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: unknown OpenDesk process state keeps original bytes and does not create a false successful registration
+not ok 2 - unknown OpenDesk process state keeps original bytes and does not create a false successful registration
+  ---
+  duration_ms: 21.9762
+  type: 'test'
+  location: '/home/jiqi/.codex/worktrees/issue-6-history-routing/AgentBridge/desktop/tests/native-lifecycle-scope.test.cjs:5:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'MCP_NATIVE_STATE_UNKNOWN'
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (/home/jiqi/.codex/worktrees/issue-6-history-routing/AgentBridge/desktop/tests/native-lifecycle-scope.test.cjs:5:201)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 68.5904

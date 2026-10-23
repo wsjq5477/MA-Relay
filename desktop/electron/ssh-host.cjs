@@ -110,6 +110,7 @@ class SshHost {
       throw problem('MCP_BACKEND_UPGRADE_REQUIRED','来源机器后台缺少MCP开放接入能力，请在该机器的后台维护中升级后台，再查看或撤销MCP接入；原配置与授权未改动。');
     if(this.connection.objectRoutingSupported===false&&(method==='context'||method==='scope'||method==='ipc'&&['task','conversation','pending','reply','cancel','operation','continue','reconcile','submit','verify'].includes(params.op)))
       throw problem('DAEMON_UPGRADE_REQUIRED','来源机器后台缺少原对象安全读取能力；请在该机器的后台维护中升级后台，再查询原任务。已接受任务不会重发。');
+    if(params.adapter==='opendesk-desktop'&&['mcp.install','mcp.remove'].includes(method)&&this.connection.openDeskMcpLifecycle!==true)throw problem('MCP_BACKEND_UPGRADE_REQUIRED','来源后台未提供 OpenDesk 安全退出写入检查，请升级该机器后台后再管理配置；原文件未改动。');
     const generation=this.generation;
     try{return await this.request(method, params);}
     catch(error){
@@ -584,6 +585,7 @@ class SshManager {
       connection.daemonVersion=hello.version;
       connection.objectRoutingSupported=supportsRecovery(hello.capabilities);
       connection.mcpOpenAccess=supportsMcpOpenAccess(hello.capabilities);
+      connection.openDeskMcpLifecycle=Array.isArray(hello.capabilities)&&hello.capabilities.includes('opendesk-mcp-lifecycle-v1');
       connection.identity = { machineId, name: connection.name, kind: 'ssh', platform: 'linux', connectionId: connection.connectionId, daemonId: identity.daemonId, hostname: hello.hostname, username: connection.username, uid: probe.uid, arch: probe.arch, daemonVersion: hello.version, objectRoutingSupported:connection.objectRoutingSupported, mcpOpenAccess:connection.mcpOpenAccess, protocolVersion: 2, profileId: install.profileId, installDirectory: probe.installPath, stateDirectory: install.stateDirectory, host: connection.host, port: connection.port };
       // Resume observation only; this path never submits an Agent Prompt.
       this.options.onMachine?.(connection.identity);

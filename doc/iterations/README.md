@@ -1,5 +1,9 @@
 # 迭代资料目录
 
+## 2026-10-23：OpenDesk 生命周期与关系作用域
+
+[issue #19/#20](I08/opendesk-lifecycle-relation-scope.md)：运行中/状态未知/退出写回拒绝原生写入，退出后断开原节点可配置，原生列表核验明确unsupported；独立设主与旧新关系资源并集准入、原 unknown 保留。alpha.52 候选，公开仍alpha.51.recovery.2。
+
 ## 2026-10-23：alpha.51.recovery.2公开预发布
 
 [发布、对应源码与完整下载验证](I08/alpha51-recovery2-release.md)：冻结 `905b792`，EXE130196014字节；#15/#16与此前alpha.50/51集成增量，包一致性/817桌面/68核心/Windows5组及全部公开字节SHA核验通过；未签名、未部署SSH，完整指标准出边界保留。

@@ -1,5 +1,9 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+## 当前 OpenDesk 生命周期与关系作用域
+
+M08-F02/F03/F04/F05：无关节点管理 unknown 不再全局禁用独立 MCP 主节点草稿；保存核对现有和新主/子节点的资源并集。原关系 unknown、机器 pending、原节点/同安装/共享目录及缺失来源/范围仍拒绝。设置草稿不写后台；保存使用一个原 operationId，同 ID 幂等，原 A 的参数、时间、错误与占用保留，不附加查询/重派。MCP客户端、托管scope、原生加载与工具事实仍独立。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 M08-F01/F02/F05：十入口均有独立MCP客户端声明，OpenDesk CLI仍无Bridge原生写入适配；Pi/Hermes可按独立MCP维度作主，旧来源未知/false不放宽。托管scope/小队仅原三种工具；角色资格与原生父模型实测分开。原生禁用/删除不会自动撤销旧缓存授权，revoke/remove才撤权，原关系/台账保持。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
 
 M08-F02/F05：DSH Desktop独立接入保存原生目标绑定，仅影响配置归属与清理。原生选择切换不迁移授权或原委派，安装竞态拒绝时回滚登记；撤权先于原目标清理，unknown与旧台账不变。 [实现与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
@@ -42,7 +46,7 @@ M08-F01：OpenCode 1.x 托管 scope 使用原生 mcp.agentbridge，不写 V2 cod
 
 ## 当前版本准入与管理作用域
 
-M08-F02/F03/F04：OpenCode版本不兼容时执行/委派能力关闭，关系与原历史保留。relation未知仍阻断非布局元数据，异机node/machine放行不放宽授权编辑；原请求/派生ID及确定拒绝证明规则保持。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+M08-F02/F03/F04：OpenCode版本不兼容时执行/委派能力关闭，关系与原历史保留。relation未知仍阻断非布局元数据；node管理未知按旧/新授权资源并集判断，machine与来源不明仍阻止授权编辑；原请求/派生ID及确定拒绝证明规则保持。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
 ## 独立 MCP 配置与运行契约
 
@@ -52,7 +56,7 @@ M08-F02/F05：McpIntegration登记长期外部接入并导出独立三格式文�
 
 连接核心、各Agent方向能力与后续目标见[接入矩阵](../../agent-integration-matrix.md)，通信负载、可选ACP、Multica及公共MD/上下文方案见[研究](../../iterations/I07/connectivity-research.md)。未新增协议、原生执行或公开能力。
 
-Hermes/Pi/DSH 直接会话尚未实现 Bridge MCP 注入（`hostManagedTask=false`），MachineHost 在配置协作 scope 前明确拒绝；其中DSH与Pi已声明独立MCP客户端，Pi/Hermes原生配置已随alpha.50本地候选交付，真实自主父模型未验。托管scope能力与独立MCP调用能力分开判定：能独立调用不等于能接收Bridge注入的托管scope，反之亦然。经典delegate以`collaboration:false`提交普通子任务，其被调用源码路径可达，但未进行三种真实Agent委派/最终包验收；不能把不能注入MCP等同于不能被委派。CT-01已按调用方/被调用方分别统一关系、任务与界面门禁，受控完整普通委派链通过；真实工具与最终包仍未验。自定义原生适配器要另行实现作用域注入并验收后才声明调用方能力。[扩展范围](../../iterations/I07/native-agent-expansion.md)、[开发指南](../../custom-agent-development.md)。
+Hermes/Pi/DSH 直接会话尚未实现 Bridge MCP 注入（`hostManagedTask=false`），MachineHost 在配置协作 scope 前明确拒绝；Hermes/Pi/DSH均已声明独立MCP客户端，相关原生配置已随alpha.51.recovery.2公开，真实自主父模型未验。托管scope能力与独立MCP调用能力分开判定：能独立调用不等于能接收Bridge注入的托管scope，反之亦然。经典delegate以`collaboration:false`提交普通子任务，其被调用源码路径可达，但未进行三种真实Agent委派/最终包验收；不能把不能注入MCP等同于不能被委派。CT-01已按调用方/被调用方分别统一关系、任务与界面门禁，受控完整普通委派链通过；真实工具与最终包仍未验。自定义原生适配器要另行实现作用域注入并验收后才声明调用方能力。[扩展范围](../../iterations/I07/native-agent-expansion.md)、[开发指南](../../custom-agent-development.md)。
 
 业务验收除原生成功终态外，还须当前有效执行没有continuationError：工作项按当前业务轮次最后一次尝试，独立协调按每成员最后一次尝试。旧轮次/已被后续执行取代的异常保留历史但不永久阻塞。任务验收、直接总验收及延后提议生效前均核对，不改写Core原生终态。该规则尚未进入公开 EXE，[规则与验证](../../iterations/I07/acceptance-native-binding.md)。
 

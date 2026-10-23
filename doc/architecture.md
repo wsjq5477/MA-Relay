@@ -1,8 +1,10 @@
 # AgentBridge 整体架构
 
+OpenDesk 原生配置管理在来源 MachineHost 通过独立生命周期检查后才原子写入；进程不可核验默认拒绝，Bridge 不退出用户程序。关系写入通过中央可信旧/新关系资源并集核对，再持久原操作意图；前端仅消费可信范围并保持保守退路。仅 OpenDesk 安装允许已断开的原节点；执行仍需既有接入。[完整时序与边界](iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## 连接身份与节点管理准入
 
-DSH 弹窗携带原 machineId/nodeId，中央校验节点归属后向原 MachineHost 保存连接；脱敏回应给出明确 connectionId，中央原子保存节点选择。扫描前表单保留新连接并提示尚未加载，扫描后按同一选择匹配；不改绑旧 Session。GraphOperationJournal 注入中央可信资源冲突判断，与执行保护共用 managementBlocks；只有可确认独立的 node/node 写入才能并行，恢复也只查询冲突行。前端概览、关系图、run 和按钮理由使用同一 blockedNodeIds 投影，旧后台要求 scoped-node-management-v1 后再开放管理。[完整流程](iterations/I08/connection-identity-node-scope.md)。
+DSH 弹窗携带原 machineId/nodeId，中央校验节点归属后向原 MachineHost 保存连接；脱敏回应给出明确 connectionId，中央原子保存节点选择。扫描前表单保留新连接并提示尚未加载，扫描后按同一选择匹配；不改绑旧 Session。GraphOperationJournal 注入中央可信资源冲突判断，与执行保护共用 managementBlocks；可确认独立的 node/node 与 relation/node 写入按资源放行，恢复也只查询冲突行。前端概览、关系图、run 和按钮理由使用同一 blockedNodeIds 投影，旧后台要求 scoped-node-management-v1 后再开放管理。[完整流程](iterations/I08/connection-identity-node-scope.md)。
 
 当前公开0.6.0-alpha.51.recovery.2源码冻结 `905b792`，包含已验证的本地集成增量。本地alpha.50增加Pi/Hermes用户级MCP配置适配，仍经原机器MachineHost/McpIntegration、原broker授权与协作服务；项目配置不由Bridge改写，托管任务scope仍未适配。固定原生组件、Windows分层及EXE已验，完整准出保留，[当前交付边界](iterations/I08/hermes-mcp-config.md)。[发布与核验](iterations/I08/alpha51-recovery2-release.md)。
 

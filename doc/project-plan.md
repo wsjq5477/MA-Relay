@@ -1,5 +1,7 @@
 # 迭代路线与当前交付
 
+当前开发候选 alpha.52 修复 #19/#20：OpenDesk退出保护、持久人工核对提示，以及无关节点 unknown 下独立关系编辑/单次保存；原 unknown、同安装/共享目录和关系/机器保护保留。候选包与公开发布分别验收，当前公开仍 alpha.51.recovery.2；[需求、验收与剩余边界](iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 当前公开预发布 **0.6.0-alpha.51.recovery.2**，标签冻结 `905b792`；EXE 130196014 字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha51-recovery2-release.md)。
 
 本次 issue #15/#16 修复范围为 DSH 原节点连接选择、同机独立节点管理准入及原操作保护，源码已实现；隔离修复与当前工作区候选分开验证，不扩大原生模型/SSH验收范围。已随0.6.0-alpha.51.recovery.2公开，完整 I06C/I07C/MCP02 准出按既有台账执行。[交付与未测项](iterations/I08/connection-identity-node-scope.md)。

@@ -134,3 +134,12 @@ test('an old coordinator without the capability is told to upgrade for MCP facts
   assert.deepEqual(await client.request('call',{method:'mcp.probe',params:{nodeId:'node-mcp'}}),{accepted:true});
   assert.deepEqual(calls.at(-1).params,{method:'mcp.probe',params:{nodeId:'node-mcp'}});
 });
+
+test('OpenDesk native writes require the remote lifecycle marker while reads and revocation stay available',async()=>{
+ const {SshHost}=require('../electron/ssh-host.cjs'),connection={stage:'online',mcpOpenAccess:true},host=new SshHost({},connection),calls=[];host.request=async(m,p)=>{calls.push(m);return {};};const p={nodeId:'original',adapter:'opendesk-desktop'};
+ for(const method of ['mcp.install','mcp.remove'])await assert.rejects(host.call(method,p),{code:'MCP_BACKEND_UPGRADE_REQUIRED'});assert.deepEqual(calls,[]);for(const method of ['mcp.status','mcp.revoke','mcp.probe'])await host.call(method,p);assert.deepEqual(calls,['mcp.status','mcp.revoke','mcp.probe']);connection.openDeskMcpLifecycle=true;await host.call('mcp.install',p);assert.equal(calls.at(-1),'mcp.install');
+});
+
+test('stopped OpenDesk original node can configure while disconnected without enabling other adapters or removed identities',async t=>{
+ const f=networkFixture(t),node=f.node({adapter:'opendesk-desktop',connected:false});const result=await f.router.call('mcp.install',{nodeId:node.nodeId});assert.equal(result.method,'mcp.install');assert.equal(f.host.calls.filter(c=>c.method==='mcp.install').length,1);node.removed=true;await assert.rejects(f.router.call('mcp.install',{nodeId:node.nodeId}),{code:'NODE_DISCONNECTED'});delete node.removed;node.adapter='claude';await assert.rejects(f.router.call('mcp.install',{nodeId:node.nodeId}),{code:'NODE_DISCONNECTED'});
+});

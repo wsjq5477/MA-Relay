@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-23T06:20:06.666Z",
+  "version": "0.6.0-alpha.51.recovery.2",
+  "baseline": true,
+  "modelCalls": 0,
+  "environment": "Windows Node / Edge / production renderer / controlled IPC",
+  "observations": [
+    {
+      "adapter": "dsh-desktop",
+      "independentPrimaryEnabled": false,
+      "title": "允许此 Agent 调用 Bridge MCP，向已授权子节点委派 · 以独立 MCP 会话作为主 Agent，托管任务绑定未适配"
+    },
+    {
+      "adapter": "opendesk-desktop",
+      "independentPrimaryEnabled": false,
+      "title": "允许此 Agent 调用 Bridge MCP，向已授权子节点委派 · 以独立 MCP 会话作为主 Agent，托管任务绑定未适配"
+    }
+  ],
+  "checks": [],
+  "pageErrors": [],
+  "browser": "155.0.4283.45",
+  "status": "observed"
+}

@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: runtime capability negotiation marks MCP open access without changing ordinary coordinator requirements
+ok 1 - runtime capability negotiation marks MCP open access without changing ordinary coordinator requirements
+  ---
+  duration_ms: 1.5526
+  type: 'test'
+  ...
+# Subtest: coordinator-service accepts both new MCP methods and forwards them through the network to the host
+ok 2 - coordinator-service accepts both new MCP methods and forwards them through the network to the host
+  ---
+  duration_ms: 33.3694
+  type: 'test'
+  ...
+# Subtest: daemon advertises the capability, allows read-only probe during maintenance, and blocks revocation like other configuration mutations
+ok 3 - daemon advertises the capability, allows read-only probe during maintenance, and blocks revocation like other configuration mutations
+  ---
+  duration_ms: 63.8392
+  type: 'test'
+  ...
+# Subtest: an old remote daemon without the capability yields an explicit upgrade error before any frame is sent
+ok 4 - an old remote daemon without the capability yields an explicit upgrade error before any frame is sent
+  ---
+  duration_ms: 69.5186
+  type: 'test'
+  ...
+# Subtest: probe and revoke require a connected non-removed node while status keeps its existing contract
+ok 5 - probe and revoke require a connected non-removed node while status keeps its existing contract
+  ---
+  duration_ms: 91.5705
+  type: 'test'
+  ...
+# Subtest: an offline remote machine refuses MCP methods before any capability or native read
+ok 6 - an offline remote machine refuses MCP methods before any capability or native read
+  ---
+  duration_ms: 0.2972
+  type: 'test'
+  ...
+# Subtest: an old coordinator without the capability is told to upgrade for MCP facts only
+ok 7 - an old coordinator without the capability is told to upgrade for MCP facts only
+  ---
+  duration_ms: 8.7718
+  type: 'test'
+  ...
+# Subtest: OpenDesk native writes require the remote lifecycle marker while reads and revocation stay available
+ok 8 - OpenDesk native writes require the remote lifecycle marker while reads and revocation stay available
+  ---
+  duration_ms: 0.404
+  type: 'test'
+  ...
+# Subtest: stopped OpenDesk original node can configure while disconnected without enabling other adapters or removed identities
+ok 9 - stopped OpenDesk original node can configure while disconnected without enabling other adapters or removed identities
+  ---
+  duration_ms: 41.9003
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 430.1573

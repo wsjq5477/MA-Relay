@@ -1,5 +1,9 @@
 # OpenDesk 原生适配设计
 
+## 当前 OpenDesk 生命周期与关系作用域
+
+M06-F05：OpenDesk Desktop 必须先从托盘完全退出，刷新状态后才能添加。Bridge 在准备端点前与最终写入前检测所有匹配 OpenDesk.exe / OpenDesk Desktop.exe 的进程，并以250ms静默窗口及文件摘要确认退出写回稳定；失败保留原文件，不自动退出/重启 OpenDesk。仅支持可核验的 Windows 进程快照，其他平台或查询失败保守拒绝。已断开的原节点仍可添加，缺 Node 拒绝；移除先撤权再安全清理。没有原生列表查询接口，mcp.probe只读返回unsupported，连接/工具保持未知；原生组件或历史人工成功不提升本次观测。 [需求、流程与失败边界](../../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## 连接身份与节点管理准入
 
 M06-F05：同机其他安装的管理unknown不再永久禁用健康独立OpenDesk Desktop接入；中央可信blockedNodeIds、概览、关系图和run保持同一规则。共享安装/目录、原节点、机器/关系及缺身份仍阻止写入；只新增B的管理意图，不查询/重放A。原生协议和能力不变。 [完整设计与失败流程](../../../iterations/I08/connection-identity-node-scope.md)。

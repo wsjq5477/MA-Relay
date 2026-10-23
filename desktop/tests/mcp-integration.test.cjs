@@ -121,7 +121,8 @@ function host(directory, calls) {
   return new MachineHost({
     directory: path.join(directory, "bridge"),
     home: path.join(directory, "home"),
-    environment: {},
+    environment: {PATH:path.dirname(process.execPath)},
+    observeOpenDesk:async()=>({state:'stopped'}),openDeskQuietMs:1,
     legacy: { close() {} },
     collaboration: async (scope, name, args) => {
       calls.push({ scope, name, args });
@@ -286,7 +287,8 @@ function probeHost(directory, calls = [], candidates = {}, environment = {}) {
   return new MachineHost({
     directory: path.join(directory, "bridge"),
     home: path.join(directory, "home"),
-    environment,
+    environment:{PATH:process.env.PATH,...environment},
+    observeOpenDesk:async()=>({state:'stopped'}),openDeskQuietMs:1,
     candidates,
     legacy: { close() {} },
     collaboration: async (scope, name, args) => {
@@ -629,7 +631,7 @@ test("OpenDesk native entries prefer a real Node launcher over the Electron runt
   fs.writeFileSync(node, "#!/bin/sh\nexit 0\n", { mode: 0o700 });
   const machine = new MachineHost({
     directory: path.join(directory, "bridge"), home: path.join(directory, "home"),
-    environment: { PATH: bin }, legacy: { close() {} },
+    environment: { PATH: bin }, observeOpenDesk:async()=>({state:'stopped'}),openDeskQuietMs:1, legacy: { close() {} },
     collaboration: async () => ({ items: [] }),
   });
   t.after(() => machine.close());
@@ -638,14 +640,15 @@ test("OpenDesk native entries prefer a real Node launcher over the Electron runt
   assert.equal(installed.launcher, "node");
   const native = JSON.parse(fs.readFileSync(installed.configPath, "utf8"));
   assert.equal(native.applications.mcpmgr.servers[0].command, node);
-  // Without any Node on PATH the Electron runtime is kept and reported as such.
+  // Native installation requires real Node; a manual export keeps its explicit fallback.
   const fallback = new MachineHost({
     directory: path.join(directory, "bridge2"), home: path.join(directory, "home2"),
-    environment: { PATH: path.join(directory, "empty") }, legacy: { close() {} },
+    environment: { PATH: path.join(directory, "empty") }, observeOpenDesk:async()=>({state:'stopped'}),openDeskQuietMs:1, legacy: { close() {} },
     collaboration: async () => ({ items: [] }),
   });
   t.after(() => fallback.close());
-  const electronEntry = await fallback.call("mcp.install", { nodeId: "odd", adapter: "opendesk-desktop" });
+  await assert.rejects(fallback.call("mcp.install", desktop), {code:"MCP_OPENDESK_NODE_REQUIRED"});
+  const electronEntry = await fallback.call("mcp.export", desktop);
   assert.equal(electronEntry.launcher, "electron");
 });
 

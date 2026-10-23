@@ -1,0 +1,32 @@
+TAP version 13
+# Subtest: independent relation save uses one original relation operation without querying or replaying an unrelated node unknown
+not ok 1 - independent relation save uses one original relation operation without querying or replaying an unrelated node unknown
+  ---
+  duration_ms: 189.2134
+  type: 'test'
+  location: '/home/jiqi/.codex/worktrees/issue-6-history-routing/AgentBridge/desktop/tests/agent-network.test.cjs:713:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":false,"error":{"code":"GRAPH_UNCONFIRMED","message":"原图保存尚未确认，请查询原操作，不能换 ID 再保存。"}}
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/jiqi/.codex/worktrees/issue-6-history-routing/AgentBridge/desktop/tests/agent-network.test.cjs:714:1203)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 281.0763
