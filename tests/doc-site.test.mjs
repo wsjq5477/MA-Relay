@@ -16,14 +16,16 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   assert.match(methods, /\| Claude Code \| ✓ \| — \| ✓ \|/);
   assert.match(methods, /\| OpenCode \| 启动服务 \| HTTP \| ✓ \|/);
   for (const name of ['DSH Desktop', 'DSH Web']) {
-    assert.ok(methods.includes(`| ${name} | — | HTTP | — | — | — | — |`));
-    // DSH ships an MCP client, so it can call the AgentBridge MCP even though the
-    // product is reached through its HTTP service and no hosted binding exists.
+    assert.ok(methods.includes(`| ${name} | — | HTTP | ✓ | — | — | — |`));
+    // MCP is the native Agent-to-Bridge direction; HTTP drives execution.
+    // Native config support never implies hosted task/squad binding.
     assert.ok(capabilities.includes(`| ${name} | ✓ | ✓ | ✓ | ✓ | ✓ | — |`));
   }
-  // A product whose MCP client support is unreviewed stays unknown, not "yes".
-  assert.ok(capabilities.includes('| Hermes | ✓ | ✓ | ✓ | ✓ | — | — |'));
-  assert.ok(capabilities.includes('| Pi | ✓ | ✓ | ✓ | ✓ | — | — |'));
+  assert.ok(methods.includes('| DSH CLI | ✓ | — | ✓ | — | — | — |'));
+  // Independent client support remains separate from hosted task injection.
+  assert.ok(capabilities.includes('| Hermes | ✓ | ✓ | ✓ | ✓ | ✓ | — |'));
+  assert.ok(capabilities.includes('| Pi | ✓ | ✓ | ✓ | ✓ | ✓ | — |'));
+  assert.ok(methods.includes('| Pi | ✓ | — | ✓ | — | — | — |'));
   assert.equal(methods.trim().split('\n').length, 12);
   assert.equal(capabilities.trim().split('\n').length, 12);
 });

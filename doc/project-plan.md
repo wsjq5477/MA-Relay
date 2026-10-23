@@ -1,14 +1,18 @@
 # 迭代路线与当前交付
 
-本次 issue #15/#16 修复范围为 DSH 原节点连接选择、同机独立节点管理准入及原操作保护，源码已实现；隔离修复与当前工作区候选分开验证，不扩大原生模型/SSH验收范围。公开版仍 alpha.46，完整 I06C/I07C/MCP02 准出按既有台账执行。[交付与未测项](iterations/I08/connection-identity-node-scope.md)。
+当前公开预发布 **0.6.0-alpha.51.recovery.2**，标签冻结 `905b792`；EXE 130196014 字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha51-recovery2-release.md)。
+
+本次 issue #15/#16 修复范围为 DSH 原节点连接选择、同机独立节点管理准入及原操作保护，源码已实现；隔离修复与当前工作区候选分开验证，不扩大原生模型/SSH验收范围。已随0.6.0-alpha.51.recovery.2公开，完整 I06C/I07C/MCP02 准出按既有台账执行。[交付与未测项](iterations/I08/connection-identity-node-scope.md)。
+
+当前推进：alpha.50原生MCP本地分片完成；当前包补验本地20次状态同步p95 1513ms通过，图反馈观测上界p95 117.9ms未达到100ms门槛，WSL启动9/20通过/11次就绪前退出。下一步定位实际图帧呈现/必要优化与WSL原始启动器失败，同时继续原生父模型、真实生命周期、独立SSH及CT-07/08；[当前原始证据](iterations/I06/current-candidate-metrics.md)，完整目标按[台账](iterations/I08/completion-audit.md)保持进行。
 
 最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
-当前公开alpha.46已承接[I08-MCP02](iterations/I08/mcp-open-integration.md)，完成[恢复与观测修复、非GUI首次接入](iterations/I08/mcp-open-recovery.md)。六项事实按配置绑定与60秒观测有效期核对，Linux重启恢复端点且不补装原生条目；根68/68、桌面758/758，最终JSON修复后CLI11/11与工程检查通过。未签名、已公开、未部署远端；逐入口真实原生增删、主Agent委派与托管归属仍未准出，公开基线已为alpha.46。
+当前公开版本承接alpha.46的[I08-MCP02](iterations/I08/mcp-open-integration.md)，完成[恢复与观测修复、非GUI首次接入](iterations/I08/mcp-open-recovery.md)。六项事实按配置绑定与60秒观测有效期核对，Linux重启恢复端点且不补装原生条目；根68/68、桌面758/758，最终JSON修复后CLI11/11与工程检查通过。未签名、已公开、未部署远端；逐入口真实原生增删、主Agent委派与托管归属仍未准出，公开版现为0.6.0-alpha.51.recovery.2。
 
 当前发布已补齐OpenDesk前端能力门禁；[本轮交付](iterations/I08/opendesk-ui-admission.md)。当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。 当前Windows Desktop 0.3.9原实例真实执行、续聊和窗口重开通过；[现场验证范围](iterations/I08/opendesk-desktop-live.md)。
 
-当前修复：OpenCode OOM 后原上下文恢复与本地接入拒绝收据已实现并完成受控与限定现场验证；已纳入当前公开 alpha.46，完整I06C/I07C未准出。详见[OpenCode OOM 恢复与接入拒绝收据](iterations/I08/opencode-oom-recovery.md)。
+当前修复：OpenCode OOM 后原上下文恢复与本地接入拒绝收据已实现并完成受控与限定现场验证；已纳入当前公开版本，完整I06C/I07C未准出。详见[OpenCode OOM 恢复与接入拒绝收据](iterations/I08/opencode-oom-recovery.md)。
 
 这里维护交付顺序与后续目标，不另建一套架构；完整功能与模块设计见 [资料入口](README.md)。逐轮历史与发布记录见 [迭代目录](iterations/README.md)。
 
@@ -17,11 +21,11 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | **0.6.0-alpha.46**，标签冻结 `9766eb4`；源码、EXE 与校验附件已公开并通过匿名完整下载核验；[交付与边界](iterations/I08/alpha46-release.md) |
+| 最新 Windows 预发布 | **0.6.0-alpha.51.recovery.2**，冻结 `905b792`；EXE/校验附件已公开并经匿名完整下载核验；[交付与边界](iterations/I08/alpha51-recovery2-release.md) |
 | 上一公开预发布 | **0.6.0-alpha.36**，冻结 `1fef25f`；[发布登记](iterations/release-ledger.md) |
-| 当前自动回归 | 本轮核心68/68、桌面758/758、类型/lint、用户站6/6与构建通过；普通EXE同日4组隔离生命周期及真实原生证据分别见[发布专项](iterations/I08/alpha46-release.md)，不混算计数 |
+| 当前自动回归 | 集成桌面817/817、核心68/68；Windows后端55/55、前端10组、普通EXE5组，模型0；[分层证据](iterations/I08/alpha51-recovery2-release.md) |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
-| 当前发布范围与缺口 | DSH Desktop/Web、CT-07、OpenDesk与MCP02源码均已随alpha.46公开；CT-06/08及逐入口准出仍按专项与规划推进 |
+| 当前发布范围与缺口 | 已包含DSH Desktop/Web、CT-07、OpenDesk、MCP02与#15/#16修复；完整准出继续按专项推进 |
 | I06A/I06B | 6A 候选已验收（见 [6A 验收](iterations/I06/acceptance.md)）；6B alpha.6 主要范围已验收（见 [实施报告](iterations/I06/graph-implementation.md)） |
 | I06C | alpha.10 首批、alpha.13/15/16 维护收尾已交付（见 [I06C 收尾](iterations/I06/final-delivery.md)）；完整范围与正式 0.6.0 未准出 |
 | I07 | I07A/B 与 I07C 首批已实现（见 [I07A 交付](iterations/I07/delivery.md)、[I07B 任务交接](iterations/I07/task-handoff.md)、[I07C 首批](iterations/I07/automation.md)）；完整 I07C 未准出 |

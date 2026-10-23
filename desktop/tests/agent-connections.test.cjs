@@ -13,7 +13,7 @@ test('caller view projects only current authorized targets and safe caller metad
 });
 test('roles, parent uncertainty and unsupported callers explain authority without turning an offline target into a grant',()=>{
  const network={collaboration:{leaderId:'leader',memberIds:['member'],revision:1}},snapshot={nodes:[{nodeId:'member',machineId:'other',status:'offline'}],machines:[]};
- for(const [node,owner,role,block] of [[leader,{status:'unknown'},'leader','parent_unknown'],[{...leader,adapter:'hermes'}, {},'leader','caller_unsupported'],[{...leader,nodeId:'member'}, {},'member','not_leader'],[{...leader,nodeId:'other'}, {},'unassigned','not_leader'],[{...leader,nodeId:''},{},'unassigned','not_leader']]){
+ for(const [node,owner,role,block] of [[leader,{status:'unknown'},'leader','parent_unknown'],[{...leader,adapter:'hermes',connectionCapabilities:{mcpClient:null}}, {},'leader','caller_unsupported'],[{...leader,nodeId:'member'}, {},'member','not_leader'],[{...leader,nodeId:'other'}, {},'unassigned','not_leader'],[{...leader,nodeId:''},{},'unassigned','not_leader']]){
   const view=listAgentConnections(network,node,owner,snapshot);assert.equal(view.caller.role,role);assert.equal(view.caller.delegationAuthorized,false);assert.equal(view.caller.delegationBlock,block);assert.equal(view.items.length,role==='leader'?1:0);
  }
  const external=listAgentConnections(network,leader,{externalConnectionId:'private-connection'},snapshot);assert.equal(external.caller.kind,'external-connection');assert(!JSON.stringify(external).includes('private-connection'));

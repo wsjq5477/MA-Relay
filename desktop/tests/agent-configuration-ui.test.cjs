@@ -20,7 +20,7 @@ test('global settings retains appearance/background/recovery and contains no Age
 test('every agent with a manageable native config gets one unified AgentBridge MCP section bound to its own node',()=>{
  // OpenDesk CLI is excluded: 0.3.8 has no native MCP manager, so it stays
  // export-only in the same unified section (asserted below).
- for(const adapter of ['claude','codex','opencode','opendesk-desktop','dsh-web']){
+ for(const adapter of ['claude','codex','opencode','pi','hermes','opendesk-desktop','dsh-web','dsh-desktop']){
   const html=render(Dialog,{node:projected(adapter),machine,onClose:noop});
   assert.match(html,/WSL 目标机器/);assert.match(html,/AgentBridge MCP 操作/);assert.match(html,/添加 Bridge MCP/);
   assert.doesNotMatch(html,/MCP 目标 Agent|<select|两种 MCP 安装模式/);
@@ -36,10 +36,10 @@ test('every agent with a manageable native config gets one unified AgentBridge M
   assert.match(html,/<button[^>]*>生成独立 MCP 文件/);
  }
 });
-test('a product with an MCP client but no Bridge-managed native config keeps manual configuration honest',()=>{
- // DSH Web manages a fixed profile; DSH Desktop owns a reserved application
- // profile Bridge has no reviewed path for, so it stays export-only.
- const html=render(Dialog,{node:projected('dsh-desktop'),machine,onClose:noop});
+test('a stale backend refusing native config keeps manual configuration honest',()=>{
+ // Old Desktop backends lack the new path adapter; the frontend cannot widen
+ // their explicit false even though its current static declaration supports it.
+ const html=render(Dialog,{node:projected('dsh-desktop',{connectionCapabilities:{...backendCapabilities(node('dsh-desktop')).connectionCapabilities,nativeMcpConfig:false}}),machine,onClose:noop});
  assert.match(html,/AgentBridge MCP 操作/);
  assert.match(html,/该产品已有 MCP 客户端，但 Bridge 暂不能管理它的原生 MCP 配置/);
  assert.doesNotMatch(html,/<button[^>]*>(添加 Bridge MCP|移除 Bridge MCP|重新探测原生列表|撤销连接授权)/);
@@ -74,8 +74,8 @@ test('a backend without the capability contract shows the honest upgrade note an
  }
 });
 test('an explicitly unsupported product keeps the native boundary and offers no MCP writes',()=>{
- for(const adapter of ['hermes','pi']){
-  const html=render(Dialog,{node:projected(adapter),machine,onClose:noop});
+ for(const adapter of ['hermes']){
+  const html=render(Dialog,{node:projected(adapter,{connectionCapabilities:{execution:true,delegation:true,mcpClient:null,nativeMcpConfig:false}}),machine,onClose:noop});
   assert.match(html,/该产品未确认提供 MCP 客户端/);
   assert.doesNotMatch(html,/<button[^>]*>(添加 Bridge MCP|移除 Bridge MCP|撤销连接授权|重新探测原生列表)/);
   assert.match(html,/<button[^>]*>生成独立 MCP 文件/,'a manual fragment stays possible without claiming native support');

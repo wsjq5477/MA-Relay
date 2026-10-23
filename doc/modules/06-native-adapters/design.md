@@ -4,6 +4,14 @@
 
 M06-F01/F05：DSH服务配置status公开文件名主体connectionId，configure明确selectedConnectionId。adapter/origin/token/enabled私有文件格式不变，旧origin/原生登录、模型、历史和unknown保持。OpenDesk接入仅应用中央节点准入修复，不启动/重启真实原生服务。 [完整设计与失败流程](../../iterations/I08/connection-identity-node-scope.md)。
 
+M06-F02：Pi管理严格JSON mcpServers.agentbridge；Hermes管理原生Profile YAML mcp_servers.agentbridge，保留其他设置/注释。持久绑定目标，变化后先移除再添加；原生禁用不启用、删除不补装，清理先撤权。Hermes原生列表只证明加载，Pi JSON列表按精确scope/state；托管scope/小队仍false。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+M06-F02：WSL原生MCP配置由所在发行版完整MachineHost处理六项管理方法，CODEX_HOME等继承该Linux环境。alpha.49只调整外层启动就绪，不改原生配置格式、模型或托管scope；尚无完整原生父模型通过证据。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。
+
+M06-F02：DSH Desktop的原生MCP适配读取稳定版Desktop数据目录/Profile选择，保存nativeTarget后按原绑定管理用户补丁。选择变化不自动改写，删除先撤权再清理原目标，未知原生选择不回落默认路径。MCP客户端、原生配置和托管scope能力仍独立。 [实现与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
+
+OpenDesk STDIO 条目归属比较允许原生解析器补入或省略空对象 `headers:{}`；其余字段逐项严格比较，未登记条目不能因此被认领。重复添加保留原生文件及原连接身份；撤权、删除和重启使用同一规则。配置原文变化仍使连接观测失效。[兼容修复与验收](../../iterations/I08/opendesk-mcp-defaults.md)。
+
 ## MCP02恢复与观测（2026-10-22）
 
 OpenDesk选择Node后再渲染所有导出格式，恢复保存的launcherPath；OpenCode数组command正确拆成程序/参数。配置绑定和60秒有效期限制观测复用。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
@@ -24,7 +32,7 @@ M06-F01/F02：新普通子任务在中央按持久contextVersion=1给原需求�
 
 ## 原生接入配置入口
 
-M06-F01/F02：Claude/Codex/OpenCode在原节点配置弹窗管理Bridge MCP；DSH Desktop/Web在其原节点管理已有服务连接。Hermes/Pi/DSH CLI只展示原生配置说明与安装位置，不提供未适配的MCP/服务/模型表单。配置入口可查看，不推定执行成功；DSH发现/认证错误指向机器页对应Agent配置。MCP所有权、冲突保留、先撤权后删除及原请求恢复契约不变。[当前流程与验证](../../iterations/I07/agent-row-configuration.md)。
+M06-F01/F02：Claude/Codex/OpenCode在原节点配置弹窗管理Bridge MCP；DSH Desktop/Web在其原节点管理已有服务连接。Hermes/Pi在alpha.50本地候选提供原生配置管理，DSH CLI要求显式profile。均不提供模型表单。配置入口可查看，不推定执行成功；DSH发现/认证错误指向机器页对应Agent配置。MCP所有权、冲突保留、先撤权后删除及原请求恢复契约不变。[当前流程与验证](../../iterations/I07/agent-row-configuration.md)。
 
 ## MCP连接视图契约
 
@@ -36,7 +44,7 @@ M06-F01/F02：DSH Desktop/Web未保存原生服务连接与程序启动失败分
 
 ## 经典MCP只读委派发现（M06-F02）
 
-未发布源码经典MCP现7项，增加list_delegations，小队18项保持；服务按原父/connectionId核对并只读列表。Claude --allowedTools及Codex逐工具approval_mode加入该只读项，reply_task保持原审批边界；指引区分台账与实时结果。OpenCode按原MCP发现schema；不增加SDK/ACP，不将Hermes/Pi/DSH翻为MCP调用方，不改原生模型/账号/目录权限。原生实际调用与新EXE另验。[契约和受控证据](../../iterations/I07/delegation-list.md)。
+未发布源码经典MCP现7项，增加list_delegations，小队18项保持；服务按原父/connectionId核对并只读列表。Claude --allowedTools及Codex逐工具approval_mode加入该只读项，reply_task保持原审批边界；指引区分台账与实时结果。OpenCode按原MCP发现schema；不增加SDK/ACP，不因增加只读工具改变调用方能力；当前Pi/Hermes/DSH独立MCP声明另按原生配置适配核对，不改原生模型/账号/目录权限。原生实际调用与新EXE另验。[契约和受控证据](../../iterations/I07/delegation-list.md)。
 
 ## OpenCode 宿主生命周期
 
@@ -68,7 +76,7 @@ M06-F01/F02：原生adapter不新建模型/API层；历史task/conversation由Ma
 
 ## 独立 MCP 配置与运行契约
 
-M06-F01/F04：Claude/Codex/OpenCode 2支持独立MCP接入的配置格式适配。Claude改mcpServers.agentbridge，Codex改mcp_servers.agentbridge标记块，OpenCode 2改mcp.servers.agentbridge；尊重各自配置目录变量，仅修改自己拥有的条目。生成JSON/TOML/JSONC独立文件，模型/登录配置保持；Hermes/Pi/DSH无兼容声明。Bridge托管任务仍用任务scope覆盖同名MCP，长期入口面向外部会话。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
+M06-F01/F04：Claude/Codex/OpenCode 2支持独立MCP接入的配置格式适配。Claude改mcpServers.agentbridge，Codex改mcp_servers.agentbridge标记块，OpenCode 2改mcp.servers.agentbridge；尊重各自配置目录变量，仅修改自己拥有的条目。生成JSON/TOML/JSONC独立文件，模型/登录配置保持；当前另有DSH三入口与OpenDesk Desktop适配；Pi/Hermes原生配置已随alpha.50本地候选交付。Bridge托管任务仍用任务scope覆盖同名MCP，长期入口面向外部会话。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
 
 ## 开放MCP接入：能力、状态事实与原生配置
 
@@ -119,7 +127,7 @@ DSH Desktop 使用应用保留 profile，Bridge 没有已核对的落点，因�
 
 ### 未适配入口与本轮边界
 
-OpenDesk **CLI** 在 0.3.8 上**没有 MCP 管理面**：`opendesk plugins list` 的 11 个 builtin 插件无 MCP 管理插件、`opendesk plugins tools` 无插件工具、`opendesk tools list` 无 MCP 分区，且启动会重写 `setting.json` 的 `applications` 丢弃未识别 app 段；因此 `nativeMcpConfig=false`，`mcp.install` 以 `MCP_NATIVE_CONFIG_UNSUPPORTED` 拒绝，只可 `mcp.export` 出片段。**Desktop** 的原生条目已可用：写入 `%APPDATA%\opendesk\setting.json` 的 `applications.mcpmgr.servers`，用真实 Node 启动器，**必须完全退出并重开 OpenDesk** 才会读取；在用户真实 Desktop 0.3.9 上已观察到原生连接并 `discovered 7 tools`，但真实授权后的工具调用未验。CLI 的 MCP 调用方状态为“未确认”；Hermes/Pi 未核对到原生MCP配置格式，MCP客户端能力保持“未确认”。所有入口的真实添加/删除/工具调用/主调用链/托管归属仍待按验收表逐项执行。[本轮开发与验收记录](../../iterations/I08/mcp-open-integration.md)、[模块报告](test-report.md)。
+OpenDesk **CLI** 在 0.3.8 上**没有 MCP 管理面**：`opendesk plugins list` 的 11 个 builtin 插件无 MCP 管理插件、`opendesk plugins tools` 无插件工具、`opendesk tools list` 无 MCP 分区，且启动会重写 `setting.json` 的 `applications` 丢弃未识别 app 段；因此 `nativeMcpConfig=false`，`mcp.install` 以 `MCP_NATIVE_CONFIG_UNSUPPORTED` 拒绝，只可 `mcp.export` 出片段。**Desktop** 的原生条目已可用：写入 `%APPDATA%\opendesk\setting.json` 的 `applications.mcpmgr.servers`，用真实 Node 启动器，**必须完全退出并重开 OpenDesk** 才会读取；在用户真实 Desktop 0.3.9 上已观察到原生连接并 `discovered 7 tools`，但真实授权后的工具调用未验。CLI 的 MCP 调用方状态为“未确认”；Pi1.4.0与固定Hermes官方源码的真实原生MCP组件已通过，alpha.50本地候选已交付；完整自主父模型仍未验。所有入口的真实添加/删除/工具调用/主调用链/托管归属仍待按验收表逐项执行。[本轮开发与验收记录](../../iterations/I08/mcp-open-integration.md)、[模块报告](test-report.md)。
 
 [Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)核对产品入口与公开驱动区别：Grok Build的headless/ACP列为CT-03候选，尚未注册；Claude Projects协调器、Dots和Grok Bot也没有因已有CLI适配而成为可直接操控入口。未增加原生协议或产品代码。
 
@@ -154,7 +162,7 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 
 稳定历史 Windows 便携包为 `0.5.0`，当前发布状态见[历史发布登记](../../iterations/release-ledger.md)；早期版本的主要 Windows/SSH 证据与自然语言发现证据保留，兼容范围沿革见 [交付](../../iterations/I06/ssh-compatible-reuse.md)。
 
-本模块把用户机器上已有的 OpenCode、Claude Code、Codex CLI、Nous Research Hermes、Pi Coding Agent 和 DeepSeek Harness（DSH）接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。后三种为未发布源码扩展；真实模型和发布包边界见[扩展专项](../../iterations/I07/native-agent-expansion.md)。模型、供应商、账号和原生配置仍由原工具管理。
+本模块把用户机器上已有的 OpenCode、Claude Code、Codex CLI、Nous Research Hermes、Pi Coding Agent 和 DeepSeek Harness（DSH）接入 AgentBridge，使上层能统一提交需求、读取真实回答、管理会话，并在各工具允许的范围内处理取消和等待。后三种已包含现有适配；原生配置版本及真实模型边界见[扩展专项](../../iterations/I07/native-agent-expansion.md)。模型、供应商、账号和原生配置仍由原工具管理。
 
 ## 1. 用户看到的功能与边界
 

@@ -1,5 +1,15 @@
 # M08 主从协作测试报告
 
+2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+## DSH Desktop原生MCP（2026-10-22）
+
+T-M08-MCP02DSH / M08-F02/F05；2026-10-22，alpha.48候选。原生Desktop组件5组正式授权/伪造参数拒绝/缓存撤权与身份轮换通过，Windows前端4组和桌面766/766、核心68/68共享回归通过，模型0。Profile/目录切换不会迁移授权或原台账；准备竞态回滚、链接目录只撤权不误删已受控验证。未证明自主父模型委派或托管scope。 [开发、原始失败与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
+
+## MCP 已登记归属默认值兼容（2026-10-22，alpha.47本地候选）
+
+T-M08-MCP02DEFAULT / M08-F02/F05：空 `headers` 默认值不再阻断OpenDesk已登记连接的状态、重复添加及清理；未登记/其他修改仍拒绝。WSL定向44/44、桌面760/760和核心68/68；Windows未修改原生schema/worker组件7组验证正式授权、旧客户端撤权立即拒绝、原身份重启恢复和清理，模型0。未变更关系、scope、委派台账或unknown规则，组件证据不提升为自主父模型委派。[原始反例与验收](../../iterations/I08/opendesk-mcp-defaults.md)。
+
 ## 后续原生组件验收（2026-10-22，alpha.46）
 
 已安装OpenDesk/DSH原生MCP组件协议分别5组/6组通过；两条生产协作链各完成1个真实Claude子任务，并分别只读重开原任务/Session/结果，无重放。原生父模型自主决策与日常原生页面未验；产品运行代码与EXE未变，不把新增验收与原全量计数叠加。[脚本、初次失败、准确层级和未测项](../../iterations/I08/mcp-native-acceptance.md)。

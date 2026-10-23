@@ -2,9 +2,11 @@ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {AgentNetwork}=require('../electron/agent-network.cjs');
 const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
 async function graphFixture(options={}){
+  const RuntimeNetwork=options.runtimeRoot?require(path.join(options.runtimeRoot,'desktop/electron/agent-network.cjs')).AgentNetwork:AgentNetwork;
+  const runtimeService=options.runtimeRoot?require(path.join(options.runtimeRoot,'desktop/electron/coordinator-service.cjs')).createCoordinatorService:createCoordinatorService;
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-i06b-ui-')),hosts=new Map();
   let scale=false;
-  const router=new AgentNetwork({directory,platform:'win32',hostname:'Windows 测试机',distributions:async()=>['Ubuntu'],createHost:m=>{
+  const router=new RuntimeNetwork({directory,platform:'win32',hostname:'Windows 测试机',distributions:async()=>['Ubuntu'],createHost:m=>{
     const adapter=m.kind==='windows'?'claude':'opencode';
     const contexts=[],tasks=[],controls=new Map();
     const h={offline:false,calls:[],tasks,controls,setCollaboration(){},close(){},async call(method,p){
@@ -44,7 +46,7 @@ async function graphFixture(options={}){
   router.save();let snapshot=await router.snapshot();
   for(const node of snapshot.nodes)await router.call('attachNode',{nodeId:node.nodeId});
   snapshot=await router.snapshot();
-  const service=createCoordinatorService({directory,platform:'win32',network:router,version:require('../package.json').version});
+  const service=runtimeService({directory,platform:'win32',network:router,version:require('../package.json').version});
   let loseRelationAck=false,loseLayoutAck=false,hideReceipt=false,staleRelation=null;
   const calls=[];
   return {router,directory,calls,hosts,nodes:snapshot.nodes,
@@ -59,7 +61,7 @@ async function graphFixture(options={}){
     async inject(action){
       if(action==='hold-relation')staleRelation=structuredClone(router.network.collaboration);
       if(action==='release-relation')staleRelation=null;
-      if(action==='scale'){scale=true;for(let i=0;i<17;i++)router.catalog.machines.push({machineId:'scale-'+i,name:'测试服务器 '+(i+1),kind:'ssh',platform:'linux',host:'scale.example.test',username:'fixture',port:22,online:true});router.discovered.clear();const s=await router.snapshot();for(const n of s.nodes)if(!n.connected)await router.call('attachNode',{nodeId:n.nodeId});}
+      if(action==='scale'){scale=true;for(let i=0;i<17;i++)router.catalog.machines.push({machineId:'scale-'+i,name:'测试服务器 '+(i+1),kind:'ssh',platform:'linux',host:'scale.example.test',username:'fixture',port:22,online:true});await Promise.all(router.catalog.machines.map(machine=>router.discover(machine)));const s=await router.snapshot();for(const n of s.nodes)if(!n.connected)await router.call('attachNode',{nodeId:n.nodeId});}
       if(action==='lose-relation')loseRelationAck=true;
       if(action==='lose-layout')loseLayoutAck=true;
       if(action==='hide-receipt')hideReceipt=true;

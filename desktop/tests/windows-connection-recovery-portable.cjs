@@ -52,12 +52,10 @@ async function check(){
  const saved=JSON.parse(fs.readFileSync(path.join(directory,'windows/node-contexts/retained-codex/codex-state.json')));assert.deepEqual(saved.tasks,native.tasks);assert.deepEqual(saved.requests,native.requests);assert.deepEqual(saved.conversations,native.conversations);assert.deepEqual(saved.operations,[]);assert(!fs.existsSync(path.join(directory,'windows/node-contexts/retained-codex/runs')));
 }
 (async()=>{
- if(process.argv[5]){
  const oldVersion='0.6.0-alpha.46',oldExe=path.join(directory,'old-'+oldVersion+'.exe');const oldSource=path.resolve(process.argv[5]);assert.equal(createHash('sha256').update(fs.readFileSync(oldSource)).digest('hex'),'57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48');fs.copyFileSync(oldSource,oldExe);
  await launch(oldExe,oldVersion);const oldPid=client.info.pid;assert(!client.info.capabilities?.includes('scoped-node-management-v1'));await closeWindow();client.close();
  await launch(exe,oldVersion);await assert.rejects(client.request('call',{method:'snapshot',params:{}}),{code:'COORDINATOR_UPGRADE_REQUIRED'});assert.equal((await client.request('preferences')).version,oldVersion);report.checks.push('New ordinary EXE detects the still-running alpha.46 coordinator and blocks unsafe calls while settings remain accessible');
  await closeWindow();await client.request('shutdown');client.close();for(let i=0;i<150;i++){try{process.kill(oldPid,0);}catch{break;}await delay(200);}
- }
  await launch();assert(client.info.capabilities.includes('owned-object-controls-v1'));const firstPid=client.info.pid;
  originalDshExecutable=JSON.parse(fs.readFileSync(path.join(directory,'agent-network.json'))).nodes.find(n=>n.nodeId===dshNode).executable;
  const a=await call('dsh.configure',{machineId,nodeId:dshNode,adapter:'dsh-desktop',url:'http://127.0.0.1:3080/',token:'synthetic-private-token',enabled:false});const aRow=a.items.find(i=>i.connectionId===a.selectedConnectionId);assert(aRow.executable.startsWith(nativeHome+path.sep));originalA={file:aRow.executable,bytes:fs.readFileSync(aRow.executable,'utf8')};

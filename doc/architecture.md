@@ -4,7 +4,7 @@
 
 DSH 弹窗携带原 machineId/nodeId，中央校验节点归属后向原 MachineHost 保存连接；脱敏回应给出明确 connectionId，中央原子保存节点选择。扫描前表单保留新连接并提示尚未加载，扫描后按同一选择匹配；不改绑旧 Session。GraphOperationJournal 注入中央可信资源冲突判断，与执行保护共用 managementBlocks；只有可确认独立的 node/node 写入才能并行，恢复也只查询冲突行。前端概览、关系图、run 和按钮理由使用同一 blockedNodeIds 投影，旧后台要求 scoped-node-management-v1 后再开放管理。[完整流程](iterations/I08/connection-identity-node-scope.md)。
 
-当前源码已随公开 alpha.46 分发，冻结提交 `9766eb4`；本轮仅更新发布状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha46-release.md)。
+当前公开0.6.0-alpha.51.recovery.2源码冻结 `905b792`，包含已验证的本地集成增量。本地alpha.50增加Pi/Hermes用户级MCP配置适配，仍经原机器MachineHost/McpIntegration、原broker授权与协作服务；项目配置不由Bridge改写，托管任务scope仍未适配。固定原生组件、Windows分层及EXE已验，完整准出保留，[当前交付边界](iterations/I08/hermes-mcp-config.md)。[发布与核验](iterations/I08/alpha51-recovery2-release.md)。
 
 非GUI首次接入复用Coordinator的manageNode/nodeOperation，显式操作ID持久化；nodes只读发现，attach确认后才能配置MCP。CLI和窗口共用同一profile。Linux本机MCP主机启动时先恢复私有端点，保持原生文件不变。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
 
@@ -88,7 +88,7 @@ CT-04桌面路径：M01按需调用既有team.materials/team.document.revision�
 
 能力判定与执行路径分层：静态适配器注册表分别声明 `mcpClient`（产品有MCP客户端）、`nativeMcpConfig`（Bridge可管理其原生条目）、`hostManagedTask`（可注入单次托管scope），旧投影名 `bridgeMcp`/`teamCollaboration` 保留；主角色准入只看调用能力，托管scope注入是独立准入，二者都不再依赖旧的三种产品白名单。状态侧把“配置存在/原生加载/连接/工具/授权/归属”作为独立事实，任何一项都不能代替其他项。
 
-宿主归属按机器类型：Windows本机与SSH机器使用 `MachineHost`+`McpIntegration`；**Linux本机**的协调器进程与原生产品同机，因此在协调器内增加本地MCP宿主只处理六个 `mcp.*` 方法，执行仍走原核心宿主，MCP失败不回落到执行；WSL本机的文件系统不属于该进程，仍走远端路径，其方法集合当前无 `mcp.*`。DSH Web的原生适配写入 `$DSH_HOME/profiles/web/cordis.patch.yml` 的一行 `insert:` 补丁（保留用户注释与其他行），安装后只报“需重新加载”，不宣称已加载或已连接。
+宿主归属按机器类型：Windows本机与SSH机器使用 `MachineHost`+`McpIntegration`；**Linux本机**的协调器进程与原生产品同机，因此在协调器内增加本地MCP宿主只处理六个 `mcp.*` 方法，执行仍走原核心宿主，MCP失败不回落到执行；WSL的配置文件属于原发行版，经HostConnection与Core stdio入口的完整MachineHost处理上述六项方法；不会写Windows配置。alpha.49在stdin读取器安装后返回就绪帧，Windows在此之前不发送请求，并发启动共享同一Promise；close使本代启动失效，迟到枚举不再启动宿主，旧finally不清理新代Promise，发送前核对原子进程引用。尚未写入本次请求时明确未派发，已经写入后失联仍查询原请求。真实验收边界见[WSL专项](iterations/I08/wsl-host-readiness.md)。DSH Web的原生适配写入 `$DSH_HOME/profiles/web/cordis.patch.yml` 的一行 `insert:` 补丁（保留用户注释与其他行），安装后只报“需重新加载”，不宣称已加载或已连接。
 
 ## CT-04公共材料只读路径
 

@@ -1,5 +1,10 @@
 # M07 任务、会话、交互控制与恢复设计
 
+传输关闭不自动取消独立原生任务。HostConnection只对该调用尚未写入时给出executionNotDispatched，已写请求的关闭继续保持未知/原ID查询，不能因新连接代次解除占位或重放。[关闭竞态边界](../../iterations/I08/wsl-close-and-graph-stability.md)。
+M07-F01/F06/F07：独立MCP的Pi/Hermes配置不改NativeCliHost执行、Session或unknown台账。原生删除/禁用只改配置事实，不取消原任务；显式撤权/移除拒绝缓存客户端的新调用，原任务沿原ID核对且不重放。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+M07-F01/F06/F07：WSL就绪前尚未写请求时才返回WSL_HOST_NOT_READY与executionNotDispatched:true；就绪后已写请求的断线/超时保留未知，沿原ID查询。启动失败证明不清理既有unknown、Task/Session或资源占位，不自动重发。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。
+
 OpenDesk请求摘要、派发围栏和原生回应全部由Bridge持久保存，不依赖原生request lookup。CLI绑定原HTTP会话/消息父子关系，Desktop绑定connId与sessionKey；原连接丢失不可续聊。只读核对不重发，历史completed与cancel ACK不推定当前轮终态，unknown不释放占用。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
 
 ## alpha.36整合边界

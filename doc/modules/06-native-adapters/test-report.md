@@ -6,7 +6,19 @@
 | --- | --- |
 | T-M06-200 | DSH真实文件模块与生产中央在隔离临时HOME下验证稳定连接ID和旧文件保留；无真实DSH认证、OpenDesk网关、模型或用户profile写入。 通过；2026-10-23，WSL Node22.23.1/Windows Node+Edge，模型0。 |
 
-隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成和普通EXE另列。[原始证据、环境与未测项](../../iterations/I08/connection-identity-node-scope.md)。
+隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成及普通EXE已随0.6.0-alpha.51.recovery.2公开，分层证据见发布记录。[原始证据、环境与未测项](../../iterations/I08/connection-identity-node-scope.md)。
+
+2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+2026-10-23 / alpha.49，WSL Node22.23.1：共享桌面770/770、核心68/68、类型/lint/生产构建和最终包/bootstrap一致性通过；普通Windows EXE4组通过，模型0。新启动受控契约4项在全量内，真实生产WSL只读三次中2次通过/1次就绪前退出；最终包真实Windows→WSL MCP组件5组通过，包含原生Codex0.162.1及Linux stdio调用/重开/撤权/轮换/清理；稳定性、原生父模型与独立SSH尚未准出，失败不抹除。共享计数不跨模块累加。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。
+
+## DSH Desktop原生MCP（2026-10-22）
+
+T-M06-MCP02DSH / M06-F02；2026-10-22，alpha.48候选。已安装未修改Desktop2.0.18的prepareDesktopProfile/composeEntries实际读取Bridge条目，原生MCP客户端发现7工具、正式授权只读调用、伪造参数拒绝、外部删除/重启不补装、撤权/身份轮换/原生组合移除，共5组通过，模型0。受控父进程，不是日常UI或原生父模型。桌面766/766、核心68/68；最终目标/链接保护及界面已覆盖。 [开发、原始失败与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
+
+## OpenDesk MCP 默认字段兼容（2026-10-22，alpha.47本地候选）
+
+T-M06-MCP02DEFAULT / M06-F02：WSL Node22.23.1，MCP定向44/44、桌面全量760/760、核心68/68、类型/lint/构建通过。空 `headers` 与缺省双向兼容、后台重启/同身份重复添加/撤权清理、12类外部修改保留及探测失效均覆盖；其他适配器保持严格比较。Windows已安装未修改OpenDesk0.3.9 schema/worker组件7组通过，模型0：原生补默认值后归属正确、7工具及正式只读调用、恢复不补装、撤权和清理。组件由受控父进程加载，不代表原生UI或父模型自主委派。[反例、脚本、最终包与证据](../../iterations/I08/opendesk-mcp-defaults.md)。
 
 2026-10-22 日常 OpenDesk 原生父模型只读发现已补验：离线修复诊断条目后，真实父模型调用 list_agents 1 次成功，返回 7 个获准节点；Prompt 1、子任务 0。自主委派与日常原生页面仍未验，不并入历史回归计数。[现场证据](../../iterations/I08/opendesk-mcp-diagnostic-repair.md)。
 

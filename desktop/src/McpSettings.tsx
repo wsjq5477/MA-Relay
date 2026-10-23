@@ -262,7 +262,22 @@ export default function McpSettings({ node, disabled = false, onBusyChange, init
               原生配置：<code>{status.configPath}</code>
             </p>
           )}
-          {status?.conflict && (
+          {node.adapter === 'dsh-desktop' && status?.profile && (
+            <p className="settings-footnote">接入的 DSH Desktop Profile：{status.profile}</p>
+          )}
+          {node.adapter === 'pi' && (
+            <p className="settings-footnote">支持 Pi 1.4 及以上的 1.x 正式版，管理用户级 MCP 配置。更改后请在 Pi 执行 /reload；项目覆盖或原生禁用请在 Pi 中核对，Bridge 不会重新启用。</p>
+          )}
+          {node.adapter === 'hermes' && (
+            <p className="settings-footnote">Hermes 按原生 Home 与当前 Profile 管理配置{status?.profile ? `（${status.profile}）` : ""}。更改后在 Hermes 执行 /reload-mcp；切换 Profile 后先移除原接入，再为当前目标添加。原生列表仅证明条目已加载。</p>
+          )}
+          {status?.evidence?.configError && (
+            <p role="alert">{status.evidence.configError.message}</p>
+          )}
+          {status?.nativeTargetChanged && status.currentConfigPath && (
+            <p className="settings-footnote">当前原生配置：<code>{status.currentConfigPath}</code>。移除仅清理原接入目标，再添加才使用当前选择。</p>
+          )}
+          {status?.conflict && !status.evidence?.configError && (
             <p role="alert">
               同名条目已存在或被外部修改，Bridge
               会保留原条目。移除仍会先撤销本接入授权。
@@ -303,6 +318,7 @@ export default function McpSettings({ node, disabled = false, onBusyChange, init
                   !status ||
                   status.conflict ||
                   status.installed ||
+                  status.facts?.config === 'disabled' ||
                   !node.connected ||
                   status.state === "unsupported"
                 }

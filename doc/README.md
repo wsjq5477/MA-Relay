@@ -1,6 +1,8 @@
 # AgentBridge 项目资料
 
-当前连接配置与节点准入修复见[issue #15/#16 的实现、验证与交付](iterations/I08/connection-identity-node-scope.md)；保存的 DSH 地址具有明确节点选择，独立节点接入不再被同机其他安装的 unknown 误锁。该修复尚未公开，当前公开版仍 alpha.46。
+当前公开预发布 **0.6.0-alpha.51.recovery.2**，标签冻结 `905b792`；EXE 130196014 字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha51-recovery2-release.md)。
+
+当前连接配置与节点准入修复见[issue #15/#16 的实现、验证与交付](iterations/I08/connection-identity-node-scope.md)；保存的 DSH 地址具有明确节点选择，独立节点接入不再被同机其他安装的 unknown 误锁。已随0.6.0-alpha.51.recovery.2公开。
 
 最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
@@ -13,11 +15,9 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前 GitHub 预发布 | **0.6.0-alpha.46**，标签冻结 `9766eb4`；EXE 130180760 字节，SHA-256 `57f1af73…`；源码/附件已公开并通过匿名完整下载核验；[交付与边界](iterations/I08/alpha46-release.md) |
-| alpha.34 包含 | OpenCode 1.x/2.x 双协议、独立MCP配置管理、CT-04公共材料、CT-05选材包、alpha.30–33修复、I07A/B与I07C首批 |
-| 公开 alpha.35 | issue #12 同机独立执行与原查询反馈，标签冻结 `b5de577`；[发布登记](iterations/release-ledger.md) |
-| 当前发布包 | **alpha.46**：MCP启动器/数组探测、配置绑定与60秒观测有效期、Linux端点恢复、非GUI首次接入；未签名、未部署远端；[发布与证据](iterations/I08/alpha46-release.md) |
-| 当前公开源码范围 | OpenDesk已有接口、当前维护恢复与MCP02源码均已随alpha.46公开；能力与未测项按专项保留 |
+| 当前 GitHub 预发布 | **0.6.0-alpha.51.recovery.2**，冻结 `905b792`；源码/附件与匿名完整下载核验通过；[发布与边界](iterations/I08/alpha51-recovery2-release.md) |
+| 当前发布包 | **0.6.0-alpha.51.recovery.2**：#15/#16、Pi/Hermes/DSH原生MCP、WSL/图修复；未签名、未切换日常后台/部署SSH；[发布证据](iterations/I08/alpha51-recovery2-release.md) |
+| 当前公开源码范围 | 完整集成源码在 `v0.6.0-alpha.51.recovery.2` 标签与独立发布分支公开；master合并另行审查 |
 | 当前已发布实现与验收边界 | [I08-MCP02](iterations/I08/mcp-open-integration.md)与[恢复修复](iterations/I08/mcp-open-recovery.md)：三维能力、六项事实、双向增删/撤权、DSH显式profile、非GUI接入；桌面758/758、根68/68。OpenDesk CLI0.3.8无MCP管理面、DSH Desktop/Hermes/Pi原生配置及逐入口真实主调用仍为缺口 |
 | 未准出 | 完整 I06C/I07C；Hermes/Pi/DSH 真实工具执行验收；DSH 原实例推理；独立SSH |
 

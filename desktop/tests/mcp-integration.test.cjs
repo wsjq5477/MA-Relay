@@ -224,14 +224,14 @@ test("export does not install into native settings and serialized install/remove
   const descriptorConfig = JSON.parse(fs.readFileSync(exported.files.json))
     .mcpServers.agentbridge;
   assert.equal((await invoke(descriptorConfig)).error.code, "MCP_REVOKED");
-  // Hermes has no reviewed native config path: export prepares a standard
+  // OpenDesk CLI still has no native manager: export prepares a standard
   // fragment, install refuses and says why instead of guessing a file.
-  const hermesExport = await machine.call("mcp.export", { nodeId: "unsupported", adapter: "hermes" });
-  assert.equal(hermesExport.exported, true);
-  assert.equal(hermesExport.nativeSupport, false);
-  assert.equal(hermesExport.facts.config, "unsupported");
+  const cliExport = await machine.call("mcp.export", { nodeId: "unsupported", adapter: "opendesk" });
+  assert.equal(cliExport.exported, true);
+  assert.equal(cliExport.nativeSupport, false);
+  assert.equal(cliExport.facts.config, "unsupported");
   await assert.rejects(
-    machine.call("mcp.install", { nodeId: "unsupported", adapter: "hermes" }),
+    machine.call("mcp.install", { nodeId: "unsupported", adapter: "opendesk" }),
     { code: "MCP_NATIVE_CONFIG_UNSUPPORTED" },
   );
 });
@@ -295,6 +295,91 @@ function probeHost(directory, calls = [], candidates = {}, environment = {}) {
     },
   });
 }
+test('OpenDesk native default headers keep registered ownership across restart, reinstall and removal', async t => {
+  const directory = fixture(t);
+  let machine = probeHost(directory);
+  t.after(() => machine.close());
+  const params = {nodeId: 'desktop', adapter: 'opendesk-desktop'};
+  const installed = await machine.call('mcp.install', params);
+  const row = machine.mcp.rows.find(item => item.nodeId === params.nodeId);
+  row.probe = {at: new Date().toISOString(), binding: machine.mcp.probeBinding(params, row), connection: 'connected', tools: 'available', nativeLoad: 'loaded'};
+  machine.mcp.save();
+  const data = JSON.parse(fs.readFileSync(installed.configPath, 'utf8'));
+  data.theme = 'keep';
+  data.applications.mcpmgr.servers.push({id: 'other', command: 'keep'});
+  data.applications.mcpmgr.servers[0].headers = {};
+  const nativeBytes = JSON.stringify(data);
+  fs.writeFileSync(installed.configPath, nativeBytes);
+  const status = await machine.call('mcp.status', params);
+  assert.equal(status.installed, true);
+  assert.equal(status.conflict, false);
+  assert.equal(status.facts.ownership, 'bridge');
+  assert.equal(status.facts.connection, 'unknown');
+  assert.equal(status.facts.tools, 'unknown');
+  assert.equal(status.evidence.observation.reason, 'configuration_changed');
+  machine.close();
+  machine = probeHost(directory);
+  await machine.mcpReady;
+  assert.equal((await machine.call('mcp.status', params)).installed, true);
+  const reinstalled = await machine.call('mcp.install', params);
+  assert.equal(reinstalled.connectionId, installed.connectionId);
+  assert.equal(fs.readFileSync(installed.configPath, 'utf8'), nativeBytes);
+  // Also accept old persisted registrations that already contain the default
+  // when the native editor subsequently omits it.
+  machine.mcp.rows[0].configuration.headers = {};
+  machine.mcp.save();
+  delete data.applications.mcpmgr.servers[0].headers;
+  fs.writeFileSync(installed.configPath, JSON.stringify(data));
+  assert.equal((await machine.call('mcp.status', params)).installed, true);
+  await machine.call('mcp.revoke', params);
+  assert.equal((await machine.call('mcp.status', params)).facts.ownership, 'bridge');
+  const removed = await machine.call('mcp.remove', params);
+  assert.equal(removed.facts.config, 'absent');
+  assert.equal(removed.facts.authorization, 'revoked');
+  const after = JSON.parse(fs.readFileSync(installed.configPath, 'utf8'));
+  assert.equal(after.theme, 'keep');
+  assert.deepEqual(after.applications.mcpmgr.servers, [{id: 'other', command: 'keep'}]);
+});
+test('OpenDesk default headers never adopt an unregistered entry or hide other changes', async t => {
+  const directory = fixture(t), machine = probeHost(directory);
+  t.after(() => machine.close());
+  const params = {nodeId: 'desktop', adapter: 'opendesk-desktop'};
+  const installed = await machine.call('mcp.install', params);
+  const original = JSON.parse(fs.readFileSync(installed.configPath, 'utf8'));
+  const changes = [
+    {headers: {custom: 'changed'}}, {headers: null}, {headers: []}, {headers: ''},
+    {headers: {}, command: 'foreign'}, {headers: {}, args: ['foreign']},
+    {headers: {}, env: {CUSTOM: 'changed'}}, {headers: {}, enabled: false},
+    {headers: {}, transport: 'streamableHttp'}, {headers: {}, cwd: '/foreign'},
+    {headers: {}, name: 'changed'}, {headers: {}, unknownField: true},
+  ];
+  for (const change of changes) {
+    const data = structuredClone(original);
+    Object.assign(data.applications.mcpmgr.servers[0], change);
+    const before = JSON.stringify(data);
+    fs.writeFileSync(installed.configPath, before);
+    assert.equal((await machine.call('mcp.status', params)).conflict, true);
+    await assert.rejects(machine.call('mcp.install', params), {code: 'MCP_CONFIG_CONFLICT'});
+    const removed = await machine.call('mcp.remove', params);
+    assert.equal(removed.cleanupError.code, 'MCP_CONFIG_CONFLICT');
+    assert.equal(removed.facts.authorization, 'revoked');
+    assert.equal(fs.readFileSync(installed.configPath, 'utf8'), before);
+  }
+  const target = new McpConfig('opendesk-desktop', path.join(directory, 'home'), {});
+  original.applications.mcpmgr.servers[0].headers = {};
+  const foreignBytes = JSON.stringify(original);
+  fs.writeFileSync(target.file, foreignBytes);
+  assert.throws(() => target.update(nativeEntry('opendesk-desktop', config)), {code: 'MCP_CONFIG_CONFLICT'});
+  const withoutDefault = {...original.applications.mcpmgr.servers[0]};
+  delete withoutDefault.headers;
+  assert.throws(() => target.update(withoutDefault), {code: 'MCP_CONFIG_CONFLICT'});
+  assert.throws(() => target.update(undefined), {code: 'MCP_CONFIG_CONFLICT'});
+  assert.equal(fs.readFileSync(target.file, 'utf8'), foreignBytes);
+  const claude = new McpConfig('claude', path.join(directory, 'home'), {});
+  const entry = nativeEntry('claude', config);
+  claude.update({...entry, headers: {}});
+  assert.throws(() => claude.update(undefined, entry), {code: 'MCP_CONFIG_CONFLICT'});
+});
 test("external deletion is never rewritten by restart, reinstall rotates identity", async (t) => {
   const directory = fixture(t);
   let machine = probeHost(directory);
@@ -419,10 +504,10 @@ test("native list probe and bridge tool catalogue are reported as separate evide
   assert.equal(fs.readFileSync(machine.mcp.config("claude").file, "utf8"), before);
   assert.equal(failed.state, "installed");
 });
-test("DSH Desktop and an unnamed DSH CLI profile stay export-only; the native entry is never written", async (t) => {
+test("unnamed DSH CLI profiles stay export-only; the native entry is never written", async (t) => {
   const directory = fixture(t), machine = probeHost(directory);
   t.after(() => machine.close());
-  for (const adapter of ["dsh", "dsh-desktop"]) {
+  for (const adapter of ["dsh"]) {
     const status = await machine.call("mcp.status", { nodeId: adapter, adapter });
     assert.equal(status.nativeSupport, false);
     assert.equal(status.nativeSupportReason.includes("DSH"), true);

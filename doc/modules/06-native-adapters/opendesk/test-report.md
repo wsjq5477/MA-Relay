@@ -6,7 +6,11 @@
 | --- | --- |
 | T-M06-OD-200 | 生产Coordinator受控路由+生产前端两入口：独立B一次接入、A的原ID/参数/时间/错误保留；实际原生网关和模型本轮未调用。 通过；2026-10-23，WSL Node22.23.1/Windows Node+Edge，模型0。 |
 
-隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成和普通EXE另列。[原始证据、环境与未测项](../../../iterations/I08/connection-identity-node-scope.md)。
+隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成及普通EXE已随0.6.0-alpha.51.recovery.2公开，分层证据见发布记录。[原始证据、环境与未测项](../../../iterations/I08/connection-identity-node-scope.md)。
+
+## 空默认字段管理兼容（2026-10-22，alpha.47本地候选）
+
+T-M06-MCP02DEFAULT / M06-F02：已安装Desktop0.3.9原包schema真实补入 `headers:{}` 后，最终候选资源识别已登记归属、重复添加保持身份及原生字节；原生worker连接/7工具/正式只读调用、恢复、撤权/重装、带默认值移除和工具清空共7组通过。受控父进程、隔离原生目录、模型0；不是原生UI或自主父模型验收。WSL定向44/44、桌面760/760、核心68/68共享计数不叠加；未触碰日常配置。[修复前后与限制](../../../iterations/I08/opendesk-mcp-defaults.md)。下节alpha.46现场遗留的默认字段兼容缺口由本候选修复，公开alpha.46仍保留原行为。
 
 ## 日常原生父模型只读发现（2026-10-22，alpha.46）
 

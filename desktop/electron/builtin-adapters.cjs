@@ -23,14 +23,11 @@ const adapters = createAdapterRegistry([
     capabilities: {execution: true, delegation: true, mcpClient: true, nativeMcpConfig: id === 'opendesk-desktop', hostManagedTask: false, resume: true, cancellation: true, permissions: false, forms: false, verification: false},
     createHost: options => new (require('./native-cli-host.cjs').NativeCliHost)({...options, adapter: id}),
   })),
-  // Only DSH Web owns one unambiguous on-disk profile (`$DSH_HOME/profiles/web`),
-  // so only it exposes a native MCP config adaptation. DSH Desktop uses a reserved
-  // application-owned profile Bridge has no reviewed path for, and a DSH CLI
-  // profile is chosen by the user's launch argument; both keep independent MCP
-  // client support but no Bridge config adaptation.
+  // DSH Desktop resolves its native data-directory and profile-selection state;
+  // Web uses the fixed web profile. Both edit only the target's user patch layer.
   ...['dsh-desktop', 'dsh-web'].map(id => ({
     id, name: id === 'dsh-desktop' ? 'DSH Desktop' : 'DSH Web', commands: [id], npmEntrypoints: [], driver: 'cli-http',
-    capabilities: {execution: true, delegation: true, mcpClient: true, nativeMcpConfig: id === 'dsh-web', hostManagedTask: false, resume: true, cancellation: true, permissions: false, forms: false, verification: false},
+    capabilities: {execution: true, delegation: true, mcpClient: true, nativeMcpConfig: true, hostManagedTask: false, resume: true, cancellation: true, permissions: false, forms: false, verification: false},
     createHost: options => new (require('./native-cli-host.cjs').NativeCliHost)({...options, adapter: id}),
   })),
   {
@@ -59,15 +56,12 @@ const adapters = createAdapterRegistry([
     { id: 'dsh', name: 'DeepSeek Harness', npmEntrypoints: ['@deepseek-ai/dsh/lib/bin.js'] },
   ].map(definition => ({
     ...definition, commands: [definition.id], driver: 'native-cli',
-    // Hermes and Pi have no reviewed native MCP config format yet: Bridge cannot
-    // manage their entry (false), and their MCP client support stays unknown
-    // (mcpClient omitted) instead of being asserted unsupported.
+    // Hermes and Pi have reviewed independent native MCP configuration adapters.
+    // Their hosted task scope remains a separate, unimplemented capability.
     // DSH CLI keeps one native profile per launch argument, so Bridge can manage
     // its MCP entry only when the user names that profile explicitly (the MCP
     // status reports `MCP_DSH_PROFILE_REQUIRED` until then).
-    capabilities: definition.id === 'dsh'
-      ? { execution: true, delegation: true, mcpClient: true, nativeMcpConfig: true, hostManagedTask: false, resume: true, cancellation: true, permissions: false, forms: false, verification: false }
-      : { execution: true, delegation: true, nativeMcpConfig: false, hostManagedTask: false, resume: true, cancellation: true, permissions: false, forms: false, verification: false },
+    capabilities: { execution: true, delegation: true, mcpClient: true, nativeMcpConfig: true, hostManagedTask: false, resume: true, cancellation: true, permissions: false, forms: false, verification: false },
     createHost: options => new (require('./native-cli-host.cjs').NativeCliHost)({ ...options, adapter: definition.id }),
   })),
 ]);

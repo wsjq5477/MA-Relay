@@ -1,14 +1,18 @@
 # AgentBridge 整体功能设计
 
-当前源码修复 DSH 服务连接保存后的目标选择与同机独立节点管理准入（AB-F01/AB-F02/AB-F06）。保存、刷新、重开和扫描始终核对原机器/节点的明确连接身份；节点管理 unknown 仅保护原节点、原安装或共享目录，机器管理/关系及缺失身份继续保守阻塞。源码修复尚未公开；[需求、实现与分层验证](iterations/I08/connection-identity-node-scope.md)。
+当前公开预发布 **0.6.0-alpha.51.recovery.2**，标签冻结 `905b792`；EXE 130196014 字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha51-recovery2-release.md)。
 
-当前源码已落地（AB-F02/F07/F08/F11/F12/F13）：[I08-MCP02](iterations/I08/mcp-open-integration.md)支持从Bridge或原生Agent管理同一MCP，能力分为MCP调用/原生配置/托管scope，六项事实独立展示。当前公开alpha.46进一步修复导出启动器、OpenCode数组探测、过期观测、Linux端点恢复及非GUI首次接入；共享根68/68、桌面758/758，最终JSON修复后CLI11/11；[当前包与Windows验证](iterations/I08/mcp-open-recovery.md)。直接配置支持Claude/Codex/OpenCode两代、DSH Web/显式profile CLI、OpenDesk Desktop；DSH两入口已有受控原生加载/握手/7工具证据，OpenDesk Desktop0.3.9已有诊断条目列表可见证据，已安装OpenDesk/DSH原生MCP组件已通过正式授权调用，并分别经生产协作链委派1个真实Claude子任务成功；OpenDesk 日常原生父模型只读 list_agents 已返回 7 个获准节点，见[现场恢复与发现](iterations/I08/opendesk-mcp-diagnostic-repair.md)；原生父模型自主委派、日常原生页面仍未验，见[原生组件验收](iterations/I08/mcp-native-acceptance.md)。OpenDesk CLI0.3.8无MCP管理面，仅可导出；DSH Desktop/Hermes/Pi原生配置尚未适配。发布包未签名、已公开、未部署远端，完整MCP02未准出。
+当前源码修复 DSH 服务连接保存后的目标选择与同机独立节点管理准入（AB-F01/AB-F02/AB-F06）。保存、刷新、重开和扫描始终核对原机器/节点的明确连接身份；节点管理 unknown 仅保护原节点、原安装或共享目录，机器管理/关系及缺失身份继续保守阻塞。已随0.6.0-alpha.51.recovery.2公开；[需求、实现与分层验证](iterations/I08/connection-identity-node-scope.md)。
+
+AB-F02/F07/F11/F13：WSL宿主等待Linux接收器就绪后发送请求；就绪前失败明确未派发，就绪后失联保持未知并查询原请求。当前alpha.50补验启动9/20通过、11次就绪前退出，失败写入0；原始WSL/PowerShell亦复现，稳定性未准出。AB-F11图反馈观测上界p95 117.9ms未达到100ms门槛，本地20次状态同步p95 1513ms通过；产品代码/EXE未变、模型0，独立LAN/真实原生父模型未验。[当前指标与失败](iterations/I06/current-candidate-metrics.md)、[握手实现](iterations/I08/wsl-host-readiness.md)。
+
+当前源码已落地（AB-F02/F07/F08/F11/F12/F13）：[I08-MCP02](iterations/I08/mcp-open-integration.md)支持从Bridge或原生Agent管理同一MCP，能力分为MCP调用/原生配置/托管scope，六项事实独立展示。继承的alpha.46基线进一步修复导出启动器、OpenCode数组探测、过期观测、Linux端点恢复及非GUI首次接入；共享根68/68、桌面758/758，最终JSON修复后CLI11/11；[当前包与Windows验证](iterations/I08/mcp-open-recovery.md)。直接配置支持Claude/Codex/OpenCode两代、DSH Web/显式profile CLI、OpenDesk Desktop；DSH两入口已有受控原生加载/握手/7工具证据，OpenDesk Desktop0.3.9已有诊断条目列表可见证据，已安装OpenDesk/DSH原生MCP组件已通过正式授权调用，并分别经生产协作链委派1个真实Claude子任务成功；OpenDesk 日常原生父模型只读 list_agents 已返回 7 个获准节点，见[现场恢复与发现](iterations/I08/opendesk-mcp-diagnostic-repair.md)；原生父模型自主委派、日常原生页面仍未验，见[原生组件验收](iterations/I08/mcp-native-acceptance.md)。OpenDesk CLI0.3.8无MCP管理面，仅可导出；当前公开0.6.0-alpha.51.recovery.2已包含DSH Desktop及Pi/Hermes原生配置，见[当前本地交付](iterations/I08/hermes-mcp-config.md)。发布包未签名、已公开、未部署远端，完整MCP02未准出。
 
 当前发布前端已补齐OpenDesk CLI/Desktop能力识别，健康且能力明确的节点可接入并开始会话；[修复与包验证](iterations/I08/opendesk-ui-admission.md)。当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。 当前Windows Desktop 0.3.9原实例真实执行、续聊和窗口重开通过，日常alpha.42后台已发现健康桌面节点；[现场验证范围](iterations/I08/opendesk-desktop-live.md)。
 
 当前源码：OpenCode 原生服务退出后，显式接入在原上下文恢复服务；接入准备失败原子保留 rejected 收据，历史精确健康拒绝按原操作核对收敛，原请求读取不进入本次新增启动路径，也不重放。现场 OOM 原服务已恢复、未发模型需求；详见[OpenCode OOM 恢复与接入拒绝收据](iterations/I08/opencode-oom-recovery.md)。
 
-适用：稳定历史0.5.0与当前公开预发布alpha.46。alpha.46继承alpha.36整合基线，并包含维护恢复、OpenDesk已有接口、开放MCP管理与恢复/非GUI接入；CT-06的MCP02实现已分片交付，完整准出与CT-08仍保留后续范围。当前实际包、公开下载核验和未测边界见[alpha.46交付](iterations/I08/alpha46-release.md)，历史见[发布登记](iterations/release-ledger.md)；完整I06C/I07C/MCP02未准出。
+适用：稳定历史0.5.0与当前公开预发布0.6.0-alpha.51.recovery.2。alpha.46继承alpha.36整合基线，并包含维护恢复、OpenDesk已有接口、开放MCP管理与恢复/非GUI接入；CT-06的MCP02实现已分片交付，完整准出与CT-08仍保留后续范围。当前实际包、公开下载核验和未测边界见[alpha.46交付](iterations/I08/alpha46-release.md)，历史见[发布登记](iterations/release-ledger.md)；完整I06C/I07C/MCP02未准出。
 
 alpha.36包含 OpenCode 在 WSL/Linux 与 SSH daemon 中创建后台对象时的 `ADAPTER_HOST` 修复；原会话与任务继续保留，公开 alpha.35 的冻结源码未包含此修复，alpha.36 已含并核对包内入口。见[宿主生命周期修复](iterations/I07/opencode-host-lifecycle.md)。
 

@@ -1,6 +1,5 @@
 const { spawn, execFile } = require("node:child_process");
 const { randomUUID } = require("node:crypto");
-const { resolve } = require("node:path");
 
 function distributions() {
   if (process.platform !== "win32") return Promise.resolve([]);
@@ -53,24 +52,33 @@ class HostConnection {
     this.lines = "";
     this.child = null;
     this.starting = null;
+    this.generation = 0;
     this.lastError = "";
   }
   async start() {
-    if (this.child) return;
     if (this.starting) return this.starting;
-    this.starting = this.launch();
+    if (this.child) return this.child;
+    const starting = this.launch(this.generation);
+    this.starting = starting;
     try {
-      await this.starting;
+      return await starting;
     } finally {
-      this.starting = null;
+      if (this.starting === starting) this.starting = null;
     }
   }
-  async launch() {
+  notDispatched() {
+    return Object.assign(new Error('后台通道在请求发送前已关闭，原请求未派发。'), {
+      code: process.platform === 'win32' && !this.options.native ? 'WSL_HOST_NOT_READY' : 'DESKTOP_TRANSPORT',
+      executionNotDispatched: true,
+    });
+  }
+  async launch(generation = this.generation) {
     let command,
       args,
       env = { ...process.env };
     if (process.platform === "win32" && !this.options.native) {
       const names = await distributions();
+      if (generation !== this.generation) throw this.notDispatched();
       const distribution = this.options.distribution || names[0];
       if (!distribution || !names.includes(distribution))
         throw Object.assign(
@@ -108,7 +116,19 @@ class HostConnection {
     });
     this.child = child;
     this.lines = "";
+    this.lastError = "";
+    let ready;
+    if (command === 'wsl.exe') {
+      ready = new Promise((resolveReady, rejectReady) => {
+        const timer = setTimeout(() => {
+          this.rejectStartup('WSL 宿主未返回就绪握手，尚未发送请求。请核对 Node 与包内后台版本，不要重发原任务。');
+          if (this.child === child) { this.child = null; child.kill(); }
+        }, 30000);
+        this.startup = {child, timer, resolve: resolveReady, reject: rejectReady};
+      });
+    }
     child.stdout.on("data", (b) => {
+      if (this.child !== child) return;
       this.lines += b.toString();
       if (Buffer.byteLength(this.lines) > 20 * 1024 * 1024) {
         this.fail("后台返回的数据过大，请查看原生会话。");
@@ -124,6 +144,12 @@ class HostConnection {
         } catch {
           this.fail("后台返回无效数据。");
           return;
+        }
+        if (value.bridgeReady === 1 && value.protocol === 'agentbridge-host-v1') {
+          if (this.startup?.child === child) {
+            clearTimeout(this.startup.timer); this.startup.resolve(); this.startup = null;
+          }
+          continue;
         }
         if(value.bridgeTool){
           const reply=async()=>{
@@ -147,13 +173,17 @@ class HostConnection {
       }
     });
     child.stderr.on("data", (b) => {
+      if (this.child !== child) return;
       this.lastError = (this.lastError + b.toString()).slice(-4000);
     });
-    child.once("error", () =>
-      this.fail("无法启动本机后台通道，请检查运行环境。"),
-    );
+    child.once("error", () => {
+      if (this.child === child) this.fail("无法启动本机后台通道，请检查运行环境。");
+    });
     child.once("exit", () => {
       if (this.child === child) {
+        this.rejectStartup(this.lastError.includes('AGENTBRIDGE_NODE_MISSING')
+          ? 'WSL 中需要 Node 22.13 或更新版本；尚未发送请求。'
+          : 'WSL 宿主在就绪前退出，尚未发送请求；请核对原后台，不要重发原任务。');
         this.child = null;
         this.rejectAll(
           this.lastError.includes("AGENTBRIDGE_NODE_MISSING")
@@ -162,6 +192,15 @@ class HostConnection {
         );
       }
     });
+    if (ready) await ready;
+    if (generation !== this.generation || this.child !== child) throw this.notDispatched();
+    return child;
+  }
+  rejectStartup(message) {
+    if (!this.startup) return;
+    clearTimeout(this.startup.timer);
+    this.startup.reject(Object.assign(new Error(message), {code: 'WSL_HOST_NOT_READY', executionNotDispatched: true}));
+    this.startup = null;
   }
   rejectAll(message) {
     for (const job of this.pending.values()) {
@@ -173,14 +212,15 @@ class HostConnection {
     this.pending.clear();
   }
   fail(message) {
+    this.rejectStartup(message);
     this.rejectAll(message);
     const child = this.child;
     this.child = null;
     child?.kill();
   }
   async call(method, params = {}) {
-    await this.start();
-    if (!this.child) throw new Error("后台通道不可用");
+    const child = await this.start();
+    if (!child || this.child !== child) throw this.notDispatched();
     const id = randomUUID();
     const data = JSON.stringify({ id, method, params });
     if (Buffer.byteLength(data) > 1048576) throw new Error("请求超过大小限制");
@@ -197,7 +237,7 @@ class HostConnection {
         );
       }, 65000);
       this.pending.set(id, { resolve: resolveResult, reject, timer });
-      this.child.stdin.write(data + "\n", (error) => {
+      child.stdin.write(data + "\n", (error) => {
         if (error) {
           clearTimeout(timer);
           this.pending.delete(id);
@@ -211,9 +251,13 @@ class HostConnection {
     });
   }
   close() {
+    this.generation++;
+    this.starting = null;
+    this.rejectStartup('WSL 通道在就绪前关闭，尚未发送请求。');
     this.rejectAll("桌面通道已关闭，后台任务继续运行。");
-    this.child?.stdin.end();
+    const child = this.child;
     this.child = null;
+    child?.stdin.end();
   }
   setCollaboration(handler){this.collaboration=handler;}
 }

@@ -1,10 +1,12 @@
 # 整体测试与验收报告
 
+当前公开预发布 **0.6.0-alpha.51.recovery.2**，标签冻结 `905b792`；EXE 130196014 字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha51-recovery2-release.md)。
+
 连接身份/节点管理修复已在公开 alpha.46 基线上完成隔离桌面回归 777/777，Windows 生产前端 10 组受控交互通过，原始三项故障在未修复基线上均复现。当前工作目录集成桌面817/817、核心68/68、Windows契约55/55及最终普通EXE5组通过，模型0；集成包验证单独记录，不把受控 IPC/临时配置结果当成真实 DSH/OpenDesk 或模型验收。[证据与边界](iterations/I08/connection-identity-node-scope.md)。
 
 最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
-当前验证（2026-10-22，alpha.46）：WSL Node22.23.1根全量68/68、桌面758/758；最终JSON脱敏修复后CLI相关11/11、类型/lint/核心构建通过。已公开EXE130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`；包核验50后台模块/84核心文件/1698 Linux文件及四项一致性通过。Windows普通EXE、非GUI与生产前端的实际结果单列于[本轮专项](iterations/I08/mcp-open-recovery.md)，不将模拟、端点工具调用或历史原生模型混记为真实主Agent委派。未签名、已公开、未部署SSH；冻结提交9766eb4，匿名完整下载核验通过，[当前发布证据](iterations/I08/alpha46-release.md)。
+alpha.46历史验证（2026-10-22）：WSL Node22.23.1根全量68/68、桌面758/758；最终JSON脱敏修复后CLI相关11/11、类型/lint/核心构建通过。已公开EXE130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`；包核验50后台模块/84核心文件/1698 Linux文件及四项一致性通过。Windows普通EXE、非GUI与生产前端的实际结果单列于[本轮专项](iterations/I08/mcp-open-recovery.md)，不将模拟、端点工具调用或历史原生模型混记为真实主Agent委派。未签名、已公开、未部署SSH；冻结提交9766eb4，匿名完整下载核验通过，[当前发布证据](iterations/I08/alpha46-release.md)。
 
 OpenDesk Desktop0.3.9已有真实执行/续聊与诊断MCP列表可见记录；DSH Web/CLI显式profile已有受控原生握手/7工具记录。正式原生授权调用、十入口人工增删与主调用/托管归属仍未全部完成。历史候选与各次计数保留于[迭代目录](iterations/README.md)。
 

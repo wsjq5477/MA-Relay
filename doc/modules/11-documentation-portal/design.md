@@ -1,5 +1,9 @@
 # M11 文档网页入口设计
 
+M11-F01/F05：用户Pi/Hermes页与方式表按alpha.50本地候选说明原生管理、禁用/目录切换和重载；公开alpha.46只导出边界保留。调用方与托管scope分开；内部迭代/证据不发布。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+M11-F01/F05：用户方式表继续从接入矩阵生成，DSH三入口按当前原生MCP配置实现标为已接入；HTTP执行、独立MCP与托管scope分开，OpenDesk CLI仍明确仅片段导出。不得把当前候选当作公开alpha.46能力。 [本轮证据](../../iterations/I08/wsl-host-readiness.md)。
+
 ## MCP02当前使用说明同步（2026-10-22）
 
 补齐非GUI首次接入/原操作查询、同profile、60秒观测有效期和OpenDesk同名诊断条目冲突处理；更新当前alpha.46候选与真实验证边界。用户站测试6/6、构建/边界审计通过；内部专项与证据不发布。[本轮交付](../../iterations/I08/mcp-open-recovery.md)。

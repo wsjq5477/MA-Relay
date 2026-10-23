@@ -166,13 +166,16 @@ export interface McpFacts {
 }
 export interface McpEvidence {
   configPath: string;
+  configError?: {code?:string;message:string};
   nativeProbe?: {kind:"cli-list"|"native-list"|"none";command?:string;outcome?:string;detail?:string};
   observation?: {observedAt?:string;freshness:"current"|"stale"|"unknown";reason?:string};
   toolsProbe?: {kind:"bridge-stdio";outcome:string;toolCount?:number};
 }
 export interface McpStatus {
-  /** DSH native profile this registration targets (DSH CLI only). */
+  /** DSH CLI explicit profile or Desktop's registered native selection. */
   profile?: string | null;
+  nativeTargetChanged?: boolean;
+  currentConfigPath?: string;
   /** Native stdio launcher chosen for OpenDesk: a real Node (`node`) or the
    * Electron runtime (`electron`). OpenDesk 0.3.9 cannot start the latter. */
   launcher?: string | null;

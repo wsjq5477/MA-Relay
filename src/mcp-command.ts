@@ -90,10 +90,12 @@ const refusalCodes = new Set([
   'MCP_CONFIG_CONFLICT', 'MCP_REVOKED', 'MCP_UNSUPPORTED', 'MCP_NATIVE_CONFIG_UNSUPPORTED',
   'MCP_BACKEND_UPGRADE_REQUIRED', 'ADAPTER_UNSUPPORTED', 'COLLABORATION_FORBIDDEN',
   'COORDINATOR_UPGRADE_REQUIRED', 'REVISION_CONFLICT', 'OPERATION_CONFLICT', 'DAEMON_MAINTENANCE',
+  'MCP_NATIVE_TARGET_CHANGED',
 ]);
 const inputCodes = new Set([
   'INVALID_INPUT', 'INVALID_ARGUMENT', 'INVALID_MCP_PARAMS', 'MCP_CONFIG_INVALID',
   'MCP_PROFILE_MISSING', 'MCP_STATE', 'MCP_DSH_PROFILE_REQUIRED',
+  'MCP_DSH_DESKTOP_TARGET',
   'AUTH_REQUIRED', 'COORDINATOR_IDENTITY', 'NODE_NOT_FOUND', 'MCP_NOT_CONFIGURED',
 ]);
 const secretKey = /token|secret|bearer|authorization|password|privatekey|apikey|credential|configuration/i;
@@ -276,6 +278,10 @@ function statusFacts(result: Record<string, unknown>): string[] {
   ];
   const path = configPath(result);
   if (path) lines.push('原生配置：' + path);
+  if (result.adapter === 'dsh-desktop' && text(result.profile)) lines.push('DSH Desktop Profile：' + text(result.profile));
+  const configError = evidenceOf(result).configError;
+  if (isRecord(configError) && text(configError.message)) lines.push('配置核对：' + text(configError.message));
+  if (result.nativeTargetChanged === true && text(result.currentConfigPath)) lines.push('当前原生配置：' + text(result.currentConfigPath) + '；移除只清理原接入目标');
   if (result.nativeSupport === false) {
     const reason = text(result.nativeSupportReason);
     lines.push('原生配置路径：该产品暂无可管理的原生配置路径' + (reason ? '（' + reason + '）' : ''));

@@ -1,5 +1,9 @@
 # M11 文档网页测试报告
 
+2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
+
+2026-10-23 / WSL Node22.23.1：首轮用户站5/6，旧断言要求DSH Desktop MCP方式为未接入，发现DSH Web/CLI汇总也落后于当前配置实现；修正汇总与明确断言后复验6/6，构建18页/19 HTML、内部页与证据导出均0；结果及原始失败见专项。产品EXE未改变，不重复计算模型或前端验收。 [本轮证据](../../iterations/I08/wsl-host-readiness.md)。
+
 ## 后续原生组件验收（2026-10-22，alpha.46）
 
 已安装OpenDesk/DSH原生MCP组件协议分别5组/6组通过；两条生产协作链各完成1个真实Claude子任务，并分别只读重开原任务/Session/结果，无重放。原生父模型自主决策与日常原生页面未验；产品运行代码与EXE未变，不把新增验收与原全量计数叠加。[脚本、初次失败、准确层级和未测项](../../iterations/I08/mcp-native-acceptance.md)。

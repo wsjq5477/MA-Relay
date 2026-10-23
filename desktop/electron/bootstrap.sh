@@ -12,6 +12,7 @@ for candidate in "$bridge_candidate" "$HOME"/.local/share/fnm/node-versions/*/in
 done
 if [ -z "$bridge_node" ]; then echo 'AGENTBRIDGE_NODE_MISSING' >&2; exit 78; fi
 export PATH="$(dirname "$bridge_node"):$PATH"
+export AGENTBRIDGE_HOST_READY=1
 cd "$HOME"
 if [ -n "$bridge_dir" ]; then
   exec "$bridge_node" --disable-warning=ExperimentalWarning "$bridge_host" "$bridge_dir"
