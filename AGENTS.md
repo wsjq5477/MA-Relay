@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.51.recovery.2**，标签冻结 `905b792`；EXE 130196014 字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。见doc/iterations/I08/alpha51-recovery2-release.md。
+当前公开预发布 **0.6.0-alpha.52**，标签冻结 `49bd12b`；EXE 130190265 字节、SHA-256 `46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。见doc/iterations/I08/alpha52-release.md。
 
-包含issue #15/#16、Pi/Hermes/DSH原生MCP与WSL/图修复；集成桌面817/817、核心68/68、Windows后端55/55、生产前端10组、普通EXE5组通过，模型0。alpha.50原始指标仅作历史证据，见doc/iterations/I06/current-candidate-metrics.md；本次公开不代表图/WSL与完整原生接入准出。
+包含issue #19/#20与此前#15/#16、Pi/Hermes/DSH原生MCP及WSL/图修复；桌面841/841、核心68/68、Windows契约40/40（1项Linux专用另验）、生产前端12组、普通EXE8组通过，模型0。alpha.50原始指标仅作历史证据，见doc/iterations/I06/current-candidate-metrics.md；本次公开不代表图/WSL与完整原生接入准出。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

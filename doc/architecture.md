@@ -6,7 +6,7 @@ OpenDesk 原生配置管理在来源 MachineHost 通过独立生命周期检查�
 
 DSH 弹窗携带原 machineId/nodeId，中央校验节点归属后向原 MachineHost 保存连接；脱敏回应给出明确 connectionId，中央原子保存节点选择。扫描前表单保留新连接并提示尚未加载，扫描后按同一选择匹配；不改绑旧 Session。GraphOperationJournal 注入中央可信资源冲突判断，与执行保护共用 managementBlocks；可确认独立的 node/node 与 relation/node 写入按资源放行，恢复也只查询冲突行。前端概览、关系图、run 和按钮理由使用同一 blockedNodeIds 投影，旧后台要求 scoped-node-management-v1 后再开放管理。[完整流程](iterations/I08/connection-identity-node-scope.md)。
 
-当前公开0.6.0-alpha.51.recovery.2源码冻结 `905b792`，包含已验证的本地集成增量。本地alpha.50增加Pi/Hermes用户级MCP配置适配，仍经原机器MachineHost/McpIntegration、原broker授权与协作服务；项目配置不由Bridge改写，托管任务scope仍未适配。固定原生组件、Windows分层及EXE已验，完整准出保留，[当前交付边界](iterations/I08/hermes-mcp-config.md)。[发布与核验](iterations/I08/alpha51-recovery2-release.md)。
+当前公开0.6.0-alpha.52源码冻结 `49bd12b`，包含已验证的本地集成增量。本地alpha.50增加Pi/Hermes用户级MCP配置适配，仍经原机器MachineHost/McpIntegration、原broker授权与协作服务；项目配置不由Bridge改写，托管任务scope仍未适配。固定原生组件、Windows分层及EXE已验，完整准出保留，[当前交付边界](iterations/I08/hermes-mcp-config.md)。[发布与核验](iterations/I08/alpha52-release.md)。
 
 非GUI首次接入复用Coordinator的manageNode/nodeOperation，显式操作ID持久化；nodes只读发现，attach确认后才能配置MCP。CLI和窗口共用同一profile。Linux本机MCP主机启动时先恢复私有端点，保持原生文件不变。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
 

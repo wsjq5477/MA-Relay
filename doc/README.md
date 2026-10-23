@@ -1,6 +1,6 @@
 # AgentBridge 项目资料
 
-当前公开预发布 **0.6.0-alpha.51.recovery.2**，标签冻结 `905b792`；EXE 130196014 字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha51-recovery2-release.md)。
+当前公开预发布 **0.6.0-alpha.52**，标签冻结 `49bd12b`；EXE 130190265 字节、SHA-256 `46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha52-release.md)。
 
 当前连接配置与节点准入修复见[issue #15/#16 的实现、验证与交付](iterations/I08/connection-identity-node-scope.md)；保存的 DSH 地址具有明确节点选择，独立节点接入不再被同机其他安装的 unknown 误锁。已随0.6.0-alpha.51.recovery.2公开。
 
@@ -16,8 +16,8 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
 | 当前 GitHub 预发布 | **0.6.0-alpha.51.recovery.2**，冻结 `905b792`；源码/附件与匿名完整下载核验通过；[发布与边界](iterations/I08/alpha51-recovery2-release.md) |
-| 当前发布包 | **0.6.0-alpha.51.recovery.2**：#15/#16、Pi/Hermes/DSH原生MCP、WSL/图修复；未签名、未切换日常后台/部署SSH；[发布证据](iterations/I08/alpha51-recovery2-release.md) |
-| 当前公开源码范围 | 完整集成源码在 `v0.6.0-alpha.51.recovery.2` 标签与独立发布分支公开；master合并另行审查 |
+| 当前发布包 | **0.6.0-alpha.52**：#15/#16、Pi/Hermes/DSH原生MCP、WSL/图修复；未签名、未切换日常后台/部署SSH；[发布证据](iterations/I08/alpha52-release.md) |
+| 当前公开源码范围 | 完整集成源码在 `v0.6.0-alpha.52` 标签与已合并的修复分支公开；PR #18/#22已合入master |
 | 当前已发布实现与验收边界 | [I08-MCP02](iterations/I08/mcp-open-integration.md)与[恢复修复](iterations/I08/mcp-open-recovery.md)：三维能力、六项事实、双向增删/撤权、DSH显式profile、非GUI接入；桌面758/758、根68/68。OpenDesk CLI0.3.8无MCP管理面、DSH Desktop/Hermes/Pi原生配置及逐入口真实主调用仍为缺口 |
 | 未准出 | 完整 I06C/I07C；Hermes/Pi/DSH 真实工具执行验收；DSH 原实例推理；独立SSH |
 

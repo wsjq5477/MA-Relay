@@ -1,8 +1,12 @@
 # M10 构建与发布测试报告
 
+T-M10-201 / M10-F01/F02/F03：2026-10-23，alpha.52公开，标签49bd12b，EXE130190265字节；上传及匿名完整下载SHA一致，包54后台/84Core/1702Linux匹配冻结源，普通EXE8组，模型0；未签名、未切换日常后台或部署远端。[发布证据与边界](../../iterations/I08/alpha52-release.md)。
+
 ## #19/#20 修复验证
 
-2026-10-23，alpha.52 源码候选；M10-F01/F02/F03。定向生命周期、中央资源与原请求回归131/131，远端/断开身份契约9/9，Windows生产前端12组通过、pageErrors=0；实际Windows进程检测识别日常OpenDesk运行并在隔离文件拒写，模型0。共享计数不跨模块累加；桌面共享全量841/841、核心68/68，类型/lint通过；普通无调试Windows EXE8组通过；包54后台/84Core/1702Linux与冻结源码一致，模型0。原失败、命令、原始证据及未测项见[本轮记录](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+EXE与校验文件已公开，匿名完整下载HTTP200、130190265字节及SHA-256一致；[发布核验](../../iterations/I08/alpha52-release.md)。
+
+2026-10-23，alpha.52公开版；M10-F01/F02/F03。定向生命周期、中央资源与原请求回归131/131，远端/断开身份契约9/9，Windows生产前端12组通过、pageErrors=0；实际Windows进程检测识别日常OpenDesk运行并在隔离文件拒写，模型0。共享计数不跨模块累加；桌面共享全量841/841、核心68/68，类型/lint通过；普通无调试Windows EXE8组通过；包54后台/84Core/1702Linux与冻结源码一致，模型0。原失败、命令、原始证据及未测项见[本轮记录](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 | 场景 ID | 实际结果 |
 | --- | --- |

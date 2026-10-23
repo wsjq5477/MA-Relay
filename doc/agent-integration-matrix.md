@@ -8,7 +8,7 @@ DSH Desktop原生配置已在alpha.48本地候选补齐：原生选择定位、�
 
 OpenDesk 原生 MCP 管理：本地 alpha.47 候选兼容原生 STDIO 空 `headers` 默认值，已登记条目可正常识别、重复添加及撤权清理；其他修改仍保留冲突，0.6.0-alpha.51.recovery.2已包含此兼容。[本轮范围与证据](iterations/I08/opendesk-mcp-defaults.md)。此修复不改变下表的原生调用能力或准出层级。
 
-当前公开0.6.0-alpha.51.recovery.2包含开放MCP双向管理、恢复与非GUI首次接入，具体支持入口与未测项以本页矩阵为准。[当前交付与验证](iterations/I08/mcp-open-recovery.md)；[当前公开分发](iterations/I08/alpha51-recovery2-release.md)。
+当前公开0.6.0-alpha.52包含开放MCP双向管理、恢复与非GUI首次接入，具体支持入口与未测项以本页矩阵为准。[当前交付与验证](iterations/I08/mcp-open-recovery.md)；[当前公开分发](iterations/I08/alpha52-release.md)。
 
 原生组件验收已补：OpenDesk0.3.9协议5组、DSH0.1.3-alpha.1协议6组；组件独立主调用到真实Claude子任务两条链各成功1次。DSH组件代表Web/CLI共享客户端，不推定Desktop配置或完整ACP会话通过。[验收层级](iterations/I08/mcp-native-acceptance.md)。
 

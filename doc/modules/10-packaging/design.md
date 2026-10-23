@@ -2,7 +2,7 @@
 
 ## 当前 OpenDesk 生命周期与关系作用域
 
-M10-F01/F02/F03：alpha.52 候选包含新增 opendesk-lifecycle.cjs、关系作用域中央能力和 OpenDesk 安全写入能力；Windows 后台、ASAR、Linux离线资源及生产前端必须与冻结源码一致。旧中央需显式停止重开，SSH仅对 OpenDesk 原生增删要求 opendesk-mcp-lifecycle-v1，不因该标记统一阻断读取/撤权或其他产品；本轮不部署远端。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+M10-F01/F02/F03：alpha.52公开版包含新增 opendesk-lifecycle.cjs、关系作用域中央能力和 OpenDesk 安全写入能力；Windows 后台、ASAR、Linux离线资源及生产前端必须与冻结源码一致。旧中央需显式停止重开，SSH仅对 OpenDesk 原生增删要求 opendesk-mcp-lifecycle-v1，不因该标记统一阻断读取/撤权或其他产品；本轮不部署远端。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 M10-F01/F02/F03：连接恢复候选从当前工作区冻结到独立source目录，仅在快照修改候选版本，保留原alpha.50/51功能。核对53后台、84Core、1701Linux资源、ASAR/前端/bootstrap与冻结源码一致；旧公开alpha.46中央必须停止后重开才能满足scoped-node-management-v1，不自动切换日常后台或远端。[源码清单、字节与验收](../../iterations/I08/connection-identity-node-scope.md)。
 
