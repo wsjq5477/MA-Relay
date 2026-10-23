@@ -27,16 +27,17 @@ export class OpenCodeV1 {
   route(path: string): string {
     return path + (path.includes('?') ? '&' : '?') + 'directory=' + encodeURIComponent(this.config.workspace);
   }
-  async probe() {
-    const health = await this.call<{ healthy: boolean; version: string }>('/global/health');
+  async probe(knownHealth?: { healthy: boolean; version: string }, signal?: AbortSignal) {
+    const call = <T>(route: string) => this.call<T>(route, undefined, signal);
+    const health = knownHealth ?? await call<{ healthy: boolean; version: string }>('/global/health');
     if (!health || health.healthy !== true || typeof health.version !== 'string' || !/^1\./.test(health.version)) throw contract();
     const [agents, config, catalogue, statuses, permissions, questions] = await Promise.all([
-      this.call<{ name: string; model?: { providerID: string; modelID: string }; variant?: string }[]>(this.route('/agent')),
-      this.call<Record<string, unknown>>(this.route('/config')),
-      this.call<{ providers: { id: string; models: Record<string, { id: string }> }[]; default: Record<string, string> }>(this.route('/config/providers')),
-      this.call<unknown>(this.route('/session/status')),
-      this.call<unknown>(this.route('/permission')),
-      this.call<unknown>(this.route('/question')),
+      call<{ name: string; model?: { providerID: string; modelID: string }; variant?: string }[]>(this.route('/agent')),
+      call<Record<string, unknown>>(this.route('/config')),
+      call<{ providers: { id: string; models: Record<string, { id: string }> }[]; default: Record<string, string> }>(this.route('/config/providers')),
+      call<unknown>(this.route('/session/status')),
+      call<unknown>(this.route('/permission')),
+      call<unknown>(this.route('/question')),
     ]);
     if (!Array.isArray(agents) || !agents.every(a => a && typeof a.name === 'string') || !object(config)
       || !catalogue || !Array.isArray(catalogue.providers) || !object(catalogue.default)

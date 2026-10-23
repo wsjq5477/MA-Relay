@@ -1,5 +1,9 @@
 # 对象、身份与持久数据
 
+## OpenCode 观察版本与接入投影
+
+持久格式不变。OpenCode 节点的 apiCompatibility 继续按原 executable、实际观察 version、compatible/error 记录；复验更新原安装的版本，失配或失败时快照投影 connected=false 与 needs_check，存储的原接入意图及 nodeId/context/Session/历史/unknown 保留。已保留所有者的原安装不因 PATH 改变而换绑。[完整规则与验证](iterations/I08/opencode-bounded-probe.md).
+
 McpStatus新增可选 nativeProbeSupported 与 lifecycle={phase,processState,safeToWrite,message,checkedAt?}，phase 为 exit_required/process_unknown/ready_to_write/reopen_required/running_unverified，processState 为 running/stopped/unknown；均为即时观测，不持久PID/命令行/进程明细。safeToWrite仅证明本次进程检查，文件归属/冲突另行校验；旧后台缺字段时前端禁用 OpenDesk 添加。graphPending、关系与请求持久格式不变；可信关系资源并集在中央实时解析，不接受IPC传入的放行范围。[合约与验证](iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 ## DSH 节点选择

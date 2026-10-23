@@ -77,12 +77,12 @@ export async function startNativeServer(config: OpenCodeConfig): Promise<NativeS
       if (ended) throw new BridgeError(launchError ? 'NATIVE_EXECUTABLE' : 'NATIVE_EXITED', launchError ? 'Cannot launch OpenCode; check the executable path' : 'OpenCode exited during startup; check configuration', 503);
       if (!identity && child.pid) { const current = processIdentity(child.pid); if (current) identity = saveNativeIdentity(config, current); }
       try {
-        await client.probe();
+        await client.probe(AbortSignal.timeout(Math.max(1, deadline - Date.now())));
         if (!identity || !sameBirth(identity)) throw new BridgeError('NATIVE_OWNERSHIP', '服务进程身份在启动期间改变', 409);
         const settled = processIdentity(child.pid!); if (!settled) throw new BridgeError('NATIVE_EXITED', '服务就绪后退出', 503);
         identity = saveNativeIdentity(config, settled);
         return { pid: child.pid!, reused: false, close, closed };
-      } catch (e) { if (e instanceof BridgeError && ['NATIVE_VERSION','OPENCODE_API_UNSUPPORTED','OPENCODE_HTTP_401','OPENCODE_HTTP_403','NATIVE_OWNERSHIP'].includes(e.code)) throw e; }
+      } catch (e) { if (!(e instanceof BridgeError) || e.code !== 'NATIVE_UNAVAILABLE') throw e; }
       await delay(100);
     }
     throw new BridgeError('NATIVE_START_TIMEOUT', 'OpenCode did not become ready within 20 seconds', 503);

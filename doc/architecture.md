@@ -1,5 +1,9 @@
 # AgentBridge 整体架构
 
+## OpenCode 就绪检查边界
+
+OpenCode 协议协商位于 Core 的 OpenCodeClient/OpenCodeV1，只使用认证 GET，候选入口各 700ms、全套元数据总计 4000ms，并受托管启动剩余预算限制。有效 1.x 健康入口直接选 V1，其他候选按 2.x 契约核验；确定协议或认证错误从 native-server 快速返回，纯连接不可达才重试。节点层将该能力和原安装/观察版本共同投影到接入状态，不修改原操作台账。[需求与验证](iterations/I08/opencode-bounded-probe.md).
+
 OpenDesk 原生配置管理在来源 MachineHost 通过独立生命周期检查后才原子写入；进程不可核验默认拒绝，Bridge 不退出用户程序。关系写入通过中央可信旧/新关系资源并集核对，再持久原操作意图；前端仅消费可信范围并保持保守退路。仅 OpenDesk 安装允许已断开的原节点；执行仍需既有接入。[完整时序与边界](iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 ## 连接身份与节点管理准入

@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+当前本地候选 **alpha.53**（AB-F01/F02/F07）：OpenCode 早期 1.x 用有界健康入口识别协议，避免错误 `/api/info` 首探占满启动预算；API状态一致、观察版本复核且原安装不换绑。原 unknown 与会话保留，未公开/未切换日常后台/未部署SSH。[实现与分层验收](iterations/I08/opencode-bounded-probe.md)。
+
 当前公开 **0.6.0-alpha.52**（AB-F01/F02/F06/F11/F13）修复 OpenDesk 运行中 MCP 写入与退出覆盖，并将关系图设主/保存按旧新关系节点资源判断；原 unknown 和授权边界保留。EXE已公开并完成匿名完整下载核验；[完整行为与分层验证](iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 当前公开预发布 **0.6.0-alpha.52**，标签冻结 `49bd12b`；EXE 130190265 字节、SHA-256 `46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha52-release.md)。

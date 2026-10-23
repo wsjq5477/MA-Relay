@@ -2,13 +2,13 @@ import { createServer } from 'node:http';
 import assert from 'node:assert/strict';
 
 // Official 1.19.3-shaped contract fixture, not native/model acceptance.
-export async function v1Fixture(workspace: string) {
+export async function v1Fixture(workspace: string, options: { hangInfo?: boolean } = {}) {
   type Message = { info: { id: string; sessionID: string; role: string; parentID?: string; finish?: string;
     time: { created: number; completed?: number }; error?: { name: string; data: { message: string } } };
     parts: { type: string; text?: string; tool?: string; state?: { status: string } }[] };
   const sessions = new Map<string, {id:string;directory:string;agent:string;model:unknown;messages:Message[];mode:string;done:boolean}>();
   const password = 'synthetic-v1-secret';
-  const counts = {creates:0,prompts:0,aborts:0,replies:0};
+  const counts = {creates:0,prompts:0,aborts:0,replies:0,info:0,writes:0};
   let losePrompt = false, loseCreate = false, delayAbort = false, loseAbort = false;
   const finish = (id:string, outcome='succeeded') => {
     const s=sessions.get(id)!;s.done=true;
@@ -21,7 +21,8 @@ export async function v1Fixture(workspace: string) {
     const send=(status:number,body?:unknown)=>{res.writeHead(status,{'content-type':'application/json'});res.end(JSON.stringify(body));};
     if(req.headers.authorization!=='Basic '+Buffer.from('opencode:'+password).toString('base64'))return send(401,{});
     const url=new URL(req.url!,'http://localhost'),path=url.pathname;
-    if(path==='/api/info')return send(404,{});
+    if(req.method !== 'GET')counts.writes++;
+    if(path==='/api/info'){counts.info++;if(options.hangInfo)return;return send(404,{});}
     if(path==='/global/health')return send(200,{healthy:true,version:'1.19.3'});
     assert.equal(url.searchParams.get('directory'),workspace);
     let body:Record<string,unknown>={};

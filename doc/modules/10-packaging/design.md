@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## 当前 OpenCode 协议修复候选
+
+M10-F01/F02/F03：alpha.53 本地候选承接 alpha.52，加入有界协议发现、原安装绑定与一致状态。核对 Windows 冻结 Core、ASAR、后台、Linux 离线资源和生产前端；最终普通EXE6组与包一致性通过，保留旧 EXE。使用新候选前显式停止旧后台再重开；客户端不会替换 SSH daemon。本轮不公开或部署日常后台。[交付与包证据](../../iterations/I08/opencode-bounded-probe.md).
+
 ## 当前 OpenDesk 生命周期与关系作用域
 
 M10-F01/F02/F03：alpha.52公开版包含新增 opendesk-lifecycle.cjs、关系作用域中央能力和 OpenDesk 安全写入能力；Windows 后台、ASAR、Linux离线资源及生产前端必须与冻结源码一致。旧中央需显式停止重开，SSH仅对 OpenDesk 原生增删要求 opendesk-mcp-lifecycle-v1，不因该标记统一阻断读取/撤权或其他产品；本轮不部署远端。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。

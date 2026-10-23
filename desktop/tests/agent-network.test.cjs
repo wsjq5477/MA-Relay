@@ -723,3 +723,20 @@ test('relation saves retain original and new resource protection including legac
   f.router.saveNetwork();const row={lane,method:lane==='node'?'manageNode':lane==='machine'?'machine.maintainDaemon':'saveCollaboration',operationId:params.operationId,params,state:'unknown',time:timestamp};new GraphOperationJournal(f.directory).update(row);const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());const p={leaderId:target.nodeId,memberIds:[],expectedRevision:0,...(scenario==='legacy'?{}:{operationId:'new-relation'})};const reply=await service.call({method:'saveCollaboration',params:p});assert.equal(reply.error?.code,'GRAPH_UNCONFIRMED',JSON.stringify(reply));assert.deepEqual(new GraphOperationJournal(f.directory).pending(),[row]);assert.equal((f.router.network.relationOperations||[]).length,0);assert.equal(f.host.executions,0);
  });
 });
+
+test('issue21: API gating is consistent and preserves original unknown, context and installation across version drift',async t=>{
+ const f=await setup(t),node=f.nodes.find(n=>n.adapter==='opencode'),h=f.hosts.get(node.machineId),original=f.router.node(node.nodeId);
+ original.connected=true;original.managed=true;original.apiCompatibility={executable:original.executable,version:original.version,compatible:false,error:{code:'OPENCODE_API_UNSUPPORTED',message:'原服务协议协商失败'}};
+ const unknown={operationId:'original-start-timeout',state:'unknown',error:{code:'NATIVE_START_TIMEOUT'},data:{nodeId:node.nodeId}};f.router.network.nodeOperations=[unknown];
+ const originalContexts=structuredClone(f.router.catalog.instances),calls=h.calls.length;
+ let observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.connected,false);assert.equal(observed.status,'needs_check');assert.equal(observed.available,false);assert.match(observed.error,/协议协商失败/);assert.deepEqual(f.router.network.nodeOperations,[unknown]);assert.deepEqual(f.router.catalog.instances,originalContexts);assert.equal(h.calls.slice(calls).filter(c=>c.method==='context'||c.method==='submit').length,0);
+ h.items[0].version='1.2.22.h0.r1';await f.router.call('discover',{machineId:node.machineId});await f.router.snapshot();assert.equal(original.version,'1.2.22.h0.r1');
+ // Read-only rescans do not settle the old operation or rebind to a new PATH tool.
+ const executable=original.executable;h.items[0]={...h.items[0],executable:'/different/opencode',version:'2.0.24'};await f.router.call('discover',{machineId:node.machineId});observed=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);assert.equal(observed.executable,executable);assert.equal(observed.connected,false);assert.deepEqual(f.router.network.nodeOperations,[unknown]);assert.deepEqual(f.router.catalog.instances,originalContexts);assert.equal(h.executions,0);
+});
+
+test('issue21: explicit attach refreshes version from exact executable before recording API compatibility',async t=>{
+ const f=await setup(t),node=f.nodes.find(n=>n.adapter==='opencode'),h=f.hosts.get(node.machineId);h.items[0].version='1.2.22.h0.r1';
+ await f.router.call('attachNode',{nodeId:node.nodeId});const current=(await f.router.snapshot()).nodes.find(n=>n.nodeId===node.nodeId);
+ assert.equal(current.version,'1.2.22.h0.r1');assert.equal(current.apiCompatibility.version,current.version);assert.equal(current.status,'connected');assert.equal(current.connected,true);assert.equal(current.executable,node.executable);assert.equal(h.executions,0);
+});

@@ -433,7 +433,7 @@ export default function MachineInventory(props: Props) {
                       <div className="inventory-node-meta">
                         <span>{toolLabel(node.adapter)}</span>
                         <span>{node.version || "版本未知"}</span>
-                        <span>{node.status === "version_incompatible" ? "版本不兼容" : node.connected ? "已接入" : "未接入"}</span>
+                        <span>{node.status === "version_incompatible" ? "版本不兼容" : node.status === "needs_check" ? "待检查原生 API" : node.connected ? "已接入" : "未接入"}</span>
                       </div>
                       <small>{connectionCapabilitySummary(node)}</small>
                       <details className="inventory-node-details">

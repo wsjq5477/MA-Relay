@@ -1,5 +1,9 @@
 # M06 原生 Agent 适配器设计
 
+## OpenCode 有界双协议发现
+
+M06-F01：启动、恢复和执行前的只读检查先探 `/global/health`，有效 1.x 直接校验其完整元数据契约，跳过 `/api/info`；其他结果在短预算内检查 2.x。候选端点各 700ms，整次协议/元数据 4000ms，并受剩余启动预算约束。已响应但无兼容契约或探测超时报告 OPENCODE_API_UNSUPPORTED；认证、Agent、配置错误分别保留，未监听才继续启动重试。普通业务请求和原 Session/取消/恢复规则不变。[完整设计与证据](../../iterations/I08/opencode-bounded-probe.md).
+
 ## 当前 OpenDesk 生命周期与关系作用域
 
 M06-F05：OpenDesk Desktop 原生配置管理新增 Windows tasklist 进程核对与配置静默窗口，准备端点前和最终原子替换前分别复核。运行、不可核验或退出写回未稳定均拒绝；缺真实 Node 时拒绝安装。移除先撤权，运行中仅保留待清理；原同名冲突、空 headers 默认值、损坏文件与原子归属检查不变。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。

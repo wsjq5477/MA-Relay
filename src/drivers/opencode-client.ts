@@ -66,26 +66,52 @@ export class OpenCodeClient {
     } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
   }
   /** Read-only contract probe shared by startup, reconnect and execution checks. */
-  async probe(): Promise<{version: string; selected: {id:string;providerID:string;variant?:string}|null; models:{id:string;providerID:string}[]}> {
-    try {
-      let info: {version?: unknown};
-      try { info = await this.call<{version?: unknown}>('/api/info'); }
+  async probe(signal?: AbortSignal): Promise<{version: string; selected: {id:string;providerID:string;variant?:string}|null; models:{id:string;providerID:string}[]}> {
+    this.protocol = undefined;
+    // Protocol discovery has its own budget, including response bodies and metadata.
+    // Never touch api/info on a healthy v1: early v1 initializes and hangs there.
+    const budget = AbortSignal.timeout(4000);
+    const deadline = signal ? AbortSignal.any([signal, budget]) : budget;
+    const candidate = async <T>(route: string): Promise<T> => {
+      const short = AbortSignal.any([deadline, AbortSignal.timeout(700)]);
+      try { return await this.call<T>(route, undefined, short); }
       catch (error) {
-        if (!(error instanceof BridgeError) || !['NATIVE_CONTRACT','OPENCODE_HTTP_404','OPENCODE_HTTP_405'].includes(error.code)) throw error;
-        const result = await this.v1.probe();
-        requireOpenCodeVersion(result.version);
+        if (short.aborted) throw new BridgeError('OPENCODE_PROBE_TIMEOUT', 'OpenCode 协议候选端点未及时响应。', 503);
+        throw error;
+      }
+    };
+    const call = <T>(route: string) => this.call<T>(route, undefined, deadline);
+    let reachable = false;
+    const fallback = (error: unknown) => {
+      if (!(error instanceof BridgeError) || !['NATIVE_CONTRACT','NATIVE_RESPONSE_LIMIT','OPENCODE_HTTP_404','OPENCODE_HTTP_405','NATIVE_UNAVAILABLE','OPENCODE_PROBE_TIMEOUT'].includes(error.code)) throw error;
+      if (error.code !== 'NATIVE_UNAVAILABLE') reachable = true;
+    };
+    try {
+      let health: {healthy?: unknown; version?: unknown} | undefined;
+      try { health = await candidate('/global/health'); reachable = true; }
+      catch (error) {
+        // A v2 server may reject the optional v1 path with any HTTP status.
+        // Authentication is shared; other health-path errors still allow v2.
+        if (error instanceof NativeHttpError && ![401, 403].includes(error.status)) reachable = true;
+        else fallback(error);
+      }
+      if (health?.healthy === true && typeof health.version === 'string' && health.version.startsWith('1.')) {
+        requireOpenCodeVersion(health.version);
+        const result = await this.v1.probe({healthy: true, version: health.version}, deadline);
         this.protocol = 'v1';
         return result;
       }
-      if(info&&typeof info.version==='string')requireOpenCodeVersion(info.version);
-      if (info && typeof info.version === 'string' && info.version.startsWith('1.')) {
-        const result = await this.v1.probe(); requireOpenCodeVersion(result.version); this.protocol = 'v1'; return result;
-      }
+      let info: {version?: unknown} | undefined;
+      try { info = await candidate('/api/info'); reachable = true; }
+      catch (error) { fallback(error); throw error; }
+      if (!info || typeof info.version !== 'string') throw new BridgeError('NATIVE_CONTRACT', 'API version is missing', 503);
+      requireOpenCodeVersion(info.version);
+      if (!info.version.startsWith('2.')) throw new BridgeError('NATIVE_CONTRACT', 'OpenCode 1.x health contract is missing', 503);
       const location = '?location%5Bdirectory%5D=' + encodeURIComponent(this.config.workspace);
       const [agents, selected, models] = await Promise.all([
-        this.call<{data?: {id?: string; name?: string}[]}>('/api/agent' + location),
-        this.call<{data?: unknown}>('/api/model/default' + location),
-        this.call<{data?: unknown[]}>('/api/model' + location),
+        call<{data?: {id?: string; name?: string}[]}>('/api/agent' + location),
+        call<{data?: unknown}>('/api/model/default' + location),
+        call<{data?: unknown[]}>('/api/model' + location),
       ]);
       const model = (value: unknown): value is {id: string; providerID: string} => !!value && typeof value === 'object'
         && typeof (value as {id?: unknown}).id === 'string' && typeof (value as {providerID?: unknown}).providerID === 'string';
@@ -94,14 +120,14 @@ export class OpenCodeClient {
         || !selected || selected.data !== null && !model(selected.data)
         || !Array.isArray(models?.data) || !models.data.every(model)) throw new BridgeError('NATIVE_CONTRACT', 'API shape mismatch', 503);
       if (this.config.inheritNativeCli) {
-        const config = await this.call<unknown>('/api/config' + location);
+        const config = await call<unknown>('/api/config' + location);
         if (!Array.isArray(config) || !config.every(s => s && typeof s === 'object')) throw new BridgeError('NATIVE_CONTRACT', 'API config shape mismatch', 503);
       }
       this.protocol = 'v2';
       return {version: info.version, selected:selected.data as {id:string;providerID:string;variant?:string}|null, models:models.data as {id:string;providerID:string}[]};
     } catch (error) {
-      if (error instanceof BridgeError && ['NATIVE_CONTRACT','OPENCODE_HTTP_404','OPENCODE_HTTP_405'].includes(error.code))
-        throw new BridgeError('OPENCODE_API_UNSUPPORTED', '当前 OpenCode 未提供兼容的 1.x 或 2.x 原生 API，需求未派发；请核对原安装的服务接口和配置。', 503);
+      if (error instanceof BridgeError && (['NATIVE_CONTRACT','NATIVE_RESPONSE_LIMIT','OPENCODE_HTTP_404','OPENCODE_HTTP_405','OPENCODE_PROBE_TIMEOUT'].includes(error.code) || reachable && error.code === 'NATIVE_UNAVAILABLE'))
+        throw new BridgeError('OPENCODE_API_UNSUPPORTED', 'OpenCode 服务的 1.x/2.x API 契约或响应时限不满足要求，协议协商失败；请核对原安装的健康接口与服务配置，保留原请求与会话。', 503);
       throw error;
     }
   }

@@ -98,3 +98,8 @@ test('an unavailable original source remains identified in a read-only configura
  assert.match(html,/AgentBridge MCP 操作/);
  assert.match(html,/<button\b[^>]*disabled[^>]*>添加 Bridge MCP/);
 });
+
+test('issue21: stale connected field never labels a needs_check OpenCode as attached',()=>{
+ const html=render(Inventory,{machines:[machine],nodes:[projected('opencode',{status:'needs_check',connected:true,available:false,error:'原服务协议协商失败'})],relation:{leaderId:null,memberIds:[],revision:0},filter:'all',query:'',busy:false,managementSupported:true,machineManagementSupported:true,daemonManagementSupported:true,blocked:()=>false,start:noop,attach:noop,configure:noop,nodeAction:noop,addAgent:noop,machineAction:noop});
+ assert.match(html,/待检查原生 API/);assert.match(html,/原服务协议协商失败/);assert.doesNotMatch(html,/>已接入</);
+});

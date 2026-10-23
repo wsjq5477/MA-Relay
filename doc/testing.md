@@ -1,6 +1,7 @@
 # 整体测试与验收报告
 
-当前 alpha.52 修复验证：生命周期/关系资源定向131/131，远端与断开身份9/9，Windows生产前端12组通过、实际Windows进程拒写通过，模型0。桌面完整回归841/841、核心68/68，类型/lint与用户站6/6和构建通过；普通EXE8组与包一致性通过，Windows契约40/40（另1项Linux专用跳过）；详细实测按[本轮分层记录](iterations/I08/opendesk-lifecycle-relation-scope.md)更新；受控UI和临时文件不代表日常原生GUI/父模型/独立SSH验收。
+当前 alpha.53 本地候选修复 #21：核心71/71、桌面844/844、启动专项9/9、Windows生产前端2组、普通EXE6组与包源码一致性通过，类型/lint/文档检查通过，用户站6/6及构建通过，模型0；原 unknown/安装/上下文保留。最终启动专项、包/普通EXE与工程检查按[本轮分层记录](iterations/I08/opencode-bounded-probe.md)登记，现场WindowsApps1.2.22及真实模型未复验，完整准出不变。
+
 
 当前公开预发布 **0.6.0-alpha.52**，标签冻结 `49bd12b`；EXE 130190265 字节、SHA-256 `46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha52-release.md)。
 

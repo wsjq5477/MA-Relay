@@ -1,5 +1,11 @@
 # OpenCode 适配器设计
 
+## 有界协议发现
+
+M06-OC-F01：只读协议发现首先请求 `/global/health`，仅 healthy=true 且版本为有效 1.x 时直接进入 V1 元数据检查；保留 agent/config/providers/status/permission/question 全量校验，不再请求会在早期 1.x 上挂起的 `/api/info`。否则以短探测请求 `/api/info`，须为 2.x 并通过其 agent/model/config 契约。每个候选入口 700ms，整个发现含响应体与元数据最多 4000ms；启动调用还受剩余 20 秒预算限制。不缓存跨服务探测结果，失败复验清除内存协议选择。
+
+已响应但契约无效、候选或元数据超时返回 `OPENCODE_API_UNSUPPORTED`；401/403、版本、认证文件、原生 Agent/配置错误保持具体错误。两个入口均连接不可达才保留 `NATIVE_UNAVAILABLE` 供启动重试。普通业务请求仍为 15 秒，不改变其异常、Prompt、Session、取消、恢复或模型来源。既有 NATIVE_START_TIMEOUT unknown 不由新探测结算，原 executable 不替换。[需求、流程与分层验证](../../../iterations/I08/opencode-bounded-probe.md).
+
 M06-OC-F01：OpenCode 显式接入遇原服务已退出时，仅启动原 context 内的原生服务，再核验原 Agent；本次新增恢复不放在快照或原请求读取分支。接入准备失败原子记录本地 attach 拒绝收据，原图意图只按匹配证据收敛；不改变原任务、Session 或 unknown 门禁。恢复不改协议或原生模型配置。详见[恢复契约与边界](../../../iterations/I08/opencode-oom-recovery.md)。
 
 ## alpha.36当前包验证

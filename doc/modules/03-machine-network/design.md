@@ -1,5 +1,9 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+## OpenCode 原安装与能力投影
+
+M03-F01/F02：OpenCode API 未核验或核验失败时投影 connected=false、executionSupported=false、available=false，保留持久接入意图。显式接入只复验原 executable 并更新其观察版本，再记录同版本 API 兼容结果；已有管理、接入、兼容记录或上下文的节点不会跟随 PATH 换绑其他安装。原安装缺失保留原身份并提示扫描检查；快照与扫描不改旧 unknown/Session/请求。[完整流程与验证](../../iterations/I08/opencode-bounded-probe.md).
+
 ## 当前 OpenDesk 生命周期与关系作用域
 
 M03-F04/F05：relationManagementBlocks 重用 managementBlocks 的原节点、同安装与 Windows/WSL 共享目录规则，校验来源身份后核对旧/新 leaderId 与 memberIds 并集。独立 B 新保存不附加查询或重派 A。仅 OpenDesk Desktop 的原节点 MCP 安装允许已断开状态，仍拒绝已移除/替代身份，原机器必须可用；不放宽普通执行或其他适配器。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。

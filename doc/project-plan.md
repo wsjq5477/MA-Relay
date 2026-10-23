@@ -1,5 +1,7 @@
 # 迭代路线与当前交付
 
+当前开发候选 alpha.53 承接 #19/#20，并修复 #21 的 OpenCode 有界协议协商、原安装复核与状态一致性；[本轮实现与验证](iterations/I08/opencode-bounded-probe.md)。
+
 当前公开 alpha.52 修复 #19/#20：OpenDesk退出保护、持久人工核对提示，以及无关节点 unknown 下独立关系编辑/单次保存；原 unknown、同安装/共享目录和关系/机器保护保留。源码、EXE和校验文件已公开且完整下载核验通过；[需求、验收与剩余边界](iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 当前公开预发布 **0.6.0-alpha.52**，标签冻结 `49bd12b`；EXE 130190265 字节、SHA-256 `46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha52-release.md)。
