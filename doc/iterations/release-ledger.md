@@ -2,6 +2,10 @@
 
 逐版本发布对照与当时边界集中在本页，供追溯使用；主文档[远端源码范围](../repository-sync.md)只保留当前材料范围与边界。登记以公开预发布为主（alpha.9 起，未列入的中间版本见对应迭代专项）。每条记录的验收事实、证据级别和未测项以对应迭代专项为准，本页不改写历史结论，也不用后续结果覆盖原日期版本。
 
+## 2026-10-23 alpha.51.recovery.2预发布
+
+标签 `v0.6.0-alpha.51.recovery.2` 冻结 `905b79249dcc662584894659623616bb9e341802`，完整源码在独立发布分支，master合并另行审查。EXE130196014字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`；EXE与SHA256SUMS均uploaded，匿名HTTP200完整下载摘要一致。集成桌面817/817、核心68/68、Windows后端55/55、生产前端10组、普通EXE5组，模型0；未签名、未切换日常后台、未部署SSH。[下载、源码边界、证据与未测项](I08/alpha51-recovery2-release.md)。
+
 ## 2026-10-22 alpha.46 预发布
 
 源码冻结 `9766eb4e6b9d5faa7a764fa2fe998c452b128cbb` 已推送master，标签 **v0.6.0-alpha.46** 固定同一提交；包含alpha.36之后维护恢复、OpenDesk已有CLI/桌面网关、开放MCP配置管理及恢复/观测/非GUI接入全部本地产品增量。[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/AgentBridge-0.6.0-alpha.46-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.46)。EXE **130180760字节**，SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`；上传大小/digest一致，匿名完整下载HTTP 200、全部字节与摘要一致。当前源码包复核50后台模块、84Core文件、1698Linux文件及四类一致性通过；本轮核心68/68、桌面758/758、类型/lint、用户站6/6与构建通过。Windows普通EXE四组为同日最终未变产品既有隔离结果；日常OpenDesk父模型只读list_agents 1次成功、返回7个获准节点另证。未签名、未部署远端，原生父模型自主委派/原生页面/独立SSH及完整I06C/I07C/MCP02未准出。后续仅文档状态提交不移动标签。[完整交付、认证恢复与原始证据](I08/alpha46-release.md)。

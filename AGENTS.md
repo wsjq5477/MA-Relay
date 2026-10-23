@@ -1,11 +1,8 @@
 # AgentBridge 开发与文档协作
 
-alpha.50当前包补验：20次本地状态同步p95 1513ms通过；60节点图反馈观测上界p95 117.9ms未达到100ms门槛；WSL启动9/20通过/11次就绪前退出，失败写入0，原始WSL/PowerShell亦复现。产品/EXE未变、模型0，稳定性/图指标仍未准出；见doc/iterations/I06/current-candidate-metrics.md。
-本地候选**0.6.0-alpha.50**补齐Pi/Hermes原生MCP配置、原目标绑定、禁用/外部删除保护与精确清理；Pi1.4+的1.x版本准入，Hermes按原生Home/sticky/pinned Profile。桌面794/794、核心68/68，Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows前端5组/普通EXE4组通过（模型0）；最终包与Downloads副本完整SHA一致。EXE130184924字节、SHA-256 `0468608387c0f2894cfe1df58f3a92dec24427030c1bb2a0420f689be1f7230d`，见doc/iterations/I08/hermes-mcp-config.md。未公开、未切换日常后台或部署SSH；公开alpha.46不变，完整目标继续按台账推进。
+当前公开预发布 **0.6.0-alpha.51.recovery.2**，标签冻结 `905b792`；EXE 130196014 字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。见doc/iterations/I08/alpha51-recovery2-release.md。
 
-当前公开预发布**0.6.0-alpha.46**，标签冻结`9766eb4`，Windows EXE 130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`，源码、EXE及校验附件已公开并通过匿名完整下载核验；稳定历史Windows版本0.5.0。完整I06C/I07C/MCP02未准出，发布见doc/iterations/I08/alpha46-release.md，历史见doc/iterations/README.md。
-
-当前公开版本**0.6.0-alpha.46**（未签名、未部署远端）：承接I08-MCP02，修复OpenDesk导出启动器、OpenCode数组命令探测、配置变化/过期观测、Linux本机MCP端点恢复，并补齐非GUI首次接入和原操作查询。EXE130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`；核心68/68、桌面758/758，最终JSON修复后CLI11/11、类型/lint/构建通过。Windows真实隔离非GUI5组、生产前端5组、普通EXE4组通过（模型0），包源码一致性通过；详情见doc/iterations/I08/mcp-open-recovery.md。只修改Bridge，不修改或构建OpenDesk；OpenDesk Desktop已有真实执行/续聊与诊断MCP列表证据，但正式原生主Agent委派仍未验。OpenDesk CLI0.3.8只能导出MCP片段，DSH Desktop/Hermes/Pi原生配置仍未适配；完整MCP02未准出。同日后续原生组件验收：OpenDesk协议5组、DSH6组，两条生产协作链各1个真实Claude子任务succeeded，原观察器重开无重放；未修改产品代码/EXE。OpenDesk日常原生父模型只读list_agents已验，实际返回7个获准节点；退出前先改盘会被旧内存配置写回，须完全退出后再写。现场见doc/iterations/I08/opendesk-mcp-diagnostic-repair.md；原生父模型自主委派及日常原生页面仍未验，见doc/iterations/I08/mcp-native-acceptance.md。历史候选与真实验证见doc/iterations/I08/。
+包含issue #15/#16、Pi/Hermes/DSH原生MCP与WSL/图修复；集成桌面817/817、核心68/68、Windows后端55/55、生产前端10组、普通EXE5组通过，模型0。alpha.50原始指标仅作历史证据，见doc/iterations/I06/current-candidate-metrics.md；本次公开不代表图/WSL与完整原生接入准出。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

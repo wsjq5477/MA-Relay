@@ -21,7 +21,7 @@ DSH Web 的情况最好：在一次隔离的 profile 里真实启动 DSH Web 后
 
 DSH CLI 的配置目录由你启动 `dsh` 时选择的 profile 决定，所以需要你告诉 Bridge 是哪一个：在 DSH CLI 节点的配置弹窗里填写“DSH 原生 profile”（或命令行加 `--profile`）。不填时 Bridge 只生成配置片段，不会写入任何 profile。填错 profile 不会报错，只会写到一个不会被加载的目录，请与启动 dsh 时使用的名称保持一致。
 
-alpha.48本地候选支持DSH Desktop原生MCP配置：Bridge读取Desktop已保存的数据目录/Profile选择，绑定当前Profile，只修改其中的AgentBridge条目。切换原生数据目录或Profile后，先在Bridge移除原接入，再为当前Profile添加；移除不会改另一份Profile。找不到或无法核对原生选择时会保留配置并提示，不猜目录。公开alpha.46仍只支持Desktop片段导出。Hermes/Pi在alpha.50本地候选中支持原生MCP管理并提供EXE；公开alpha.46仍导出片段。配置后分别在原生执行/reload-mcp、/reload核对。
+alpha.48本地候选支持DSH Desktop原生MCP配置：Bridge读取Desktop已保存的数据目录/Profile选择，绑定当前Profile，只修改其中的AgentBridge条目。切换原生数据目录或Profile后，先在Bridge移除原接入，再为当前Profile添加；移除不会改另一份Profile。找不到或无法核对原生选择时会保留配置并提示，不猜目录。当前公开0.6.0-alpha.51.recovery.2已包含Desktop原生配置管理。Hermes/Pi在alpha.50本地候选中支持原生MCP管理并提供EXE；当前公开0.6.0-alpha.51.recovery.2已包含Hermes/Pi原生管理。配置后分别在原生执行/reload-mcp、/reload核对。
 
 注意：Bridge 写入配置、原生 Agent 加载配置、建立连接、工具可用、连接授权有效是**五件不同的事**，界面会逐项显示，不会合并成一个“已连接”。
 
@@ -76,4 +76,4 @@ agentbridge mcp export --node <节点ID>
 
 ## 同机其他节点有待核对操作
 
-`alpha.51.recovery.1` 本地候选将节点管理保护落实到原节点、同一安装或共享目录。独立的健康节点仍可接入；被阻塞的按钮会说明原操作待核对，可从设置的“未确认操作”按原ID查询。机器管理、协作关系、来源缺失或旧后台未提供作用域时仍保持保护。独立节点接入成功不会清除其他节点的 unknown，也不证明其原任务完成。该修复尚未包含在公开alpha.46。
+`alpha.51.recovery.2` 公开预发布将节点管理保护落实到原节点、同一安装或共享目录。独立的健康节点仍可接入；被阻塞的按钮会说明原操作待核对，可从设置的“未确认操作”按原ID查询。机器管理、协作关系、来源缺失或旧后台未提供作用域时仍保持保护。独立节点接入成功不会清除其他节点的 unknown，也不证明其原任务完成。该修复已随0.6.0-alpha.51.recovery.2公开。

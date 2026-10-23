@@ -8,7 +8,7 @@ Bridge 调用 Hermes Agent 原生 CLI，通过 stream-json 读取会话输出，
 
 ## 支持的功能
 
-支持直接会话、同会话续聊、结果读取、取消，以及接收普通委派。alpha.50本地候选支持独立MCP调用方与原生配置；原生小队、Bridge内权限与结构化表单回复未适配。公开alpha.46仍只导出MCP片段。
+支持直接会话、同会话续聊、结果读取、取消，以及接收普通委派。alpha.50本地候选支持独立MCP调用方与原生配置；原生小队、Bridge内权限与结构化表单回复未适配。早期alpha.46仅导出MCP片段。
 
 这表示 Claude Code、Codex 或 OpenCode 可以把普通任务委派给 Hermes，Hermes要主动调用Bridge则需要独立MCP接入及相应关系授权，接收委派本身不授予该权限。
 

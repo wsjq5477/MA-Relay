@@ -6,7 +6,7 @@
 
 中央 hello 增加 `scoped-node-management-v1`，新客户端遇旧中央要求显式停止并重开，保留设置/运行信息/停止入口。graphPending 的可选 blockedNodeIds 由可信中央资源判断投影；缺失时保留机器范围保护。机器、关系和原查询/终态契约不变；daemon 协议仍为 2，远端 supportsRecovery 不因此放宽。[契约与验证](iterations/I08/connection-identity-node-scope.md)。
 
-当前源码已随公开 alpha.46 分发，冻结提交 `9766eb4`；本轮仅更新发布状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha46-release.md)。
+当前源码已随公开 0.6.0-alpha.51.recovery.2 分发，冻结提交 `905b792`；本轮发布只同步状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha51-recovery2-release.md)。
 
 非GUI新增mcp nodes（无node参数）、mcp attach/operation --node ID --operation-id ID。分别复用snapshot、manageNode(action=attach)、nodeOperation；不新增RPC或模型提交。管理收据confirmed退出0、rejected退出4、unknown/not_found/不匹配退出3，查询失败不视为结束，不重放attach。status增加evidence.observation时间/有效性；配置变化或超过60秒的连接/工具观测不再用于当前事实。JSON保留authorization状态枚举，其他凭据类字段仍脱敏。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
 
@@ -101,9 +101,9 @@ CT-04桌面消费者不新增RPC/参数/daemon帧。team.document返回须匹配
 
 WSL启动：bootstrap设置`AGENTBRIDGE_HOST_READY=1`，Core安装stdin读取器后输出`{bridgeReady:1,protocol:'agentbridge-host-v1'}`，Windows收到后才发送业务帧；并发首次调用等待同一启动。close使内存启动代次失效；发行版枚举迟到返回时不得spawn或派发。新调用有独立启动Promise，原调用发送前绑定并复核原子进程；就绪后但尚未写入请求即关闭仍返回严格未派发证明，已写入请求仍保持未知语义。30秒无握手、就绪前退出/无效帧/关闭返回`WSL_HOST_NOT_READY`与`executionNotDispatched:true`。旧Core没有握手时有界拒绝，原生直连/旧启动器未设置该标志仍使用原回应流。请求已写入后断线/回应超时保持`DESKTOP_TRANSPORT`/`DESKTOP_TIMEOUT`未知结果，不携带未派发证明、不重发。无新增持久字段或SSH协议变化；[实现与当前实测限制](iterations/I08/wsl-host-readiness.md)。
 
-Pi（alpha.50本地候选）：同一六项方法管理用户`mcp.json`，路径来自`PI_CODING_AGENT_DIR`或`~/.pi/agent`；`nativeTarget`固定原目录，切换返回`nativeTargetChanged/currentConfigPath`并拒绝新写入。原生仅布尔enabled变化时保留归属，false投影config=disabled、installed=false，安装拒绝`MCP_NATIVE_DISABLED`；移除仍先撤权只清原目标。相对/损坏/链接目录`MCP_PI_TARGET`，未核对版本`NATIVE_VERSION`，当前安装准入1.4+的1.x正式版；导出/撤权/清理不因版本改变失效。原生探测用`pi mcp list --json`精确身份/用户scope/无项目覆盖及connected状态，输出安全摘要，项目覆盖保留未知、不写项目配置。[源码与实际验收边界](iterations/I08/pi-mcp-config.md)。
+Pi（alpha.51.recovery.2公开版）：同一六项方法管理用户`mcp.json`，路径来自`PI_CODING_AGENT_DIR`或`~/.pi/agent`；`nativeTarget`固定原目录，切换返回`nativeTargetChanged/currentConfigPath`并拒绝新写入。原生仅布尔enabled变化时保留归属，false投影config=disabled、installed=false，安装拒绝`MCP_NATIVE_DISABLED`；移除仍先撤权只清原目标。相对/损坏/链接目录`MCP_PI_TARGET`，未核对版本`NATIVE_VERSION`，当前安装准入1.4+的1.x正式版；导出/撤权/清理不因版本改变失效。原生探测用`pi mcp list --json`精确身份/用户scope/无项目覆盖及connected状态，输出安全摘要，项目覆盖保留未知、不写项目配置。[源码与实际验收边界](iterations/I08/pi-mcp-config.md)。
 
-Hermes（alpha.50本地候选）：六项方法管理原生Home当前Profile的YAML `mcp_servers.agentbridge`；保存Hermes nativeTarget分支，profile为只读回显，不接受由客户端代替原生选择。`MCP_HERMES_TARGET`拒绝不可核对/已删除目标，`MCP_NATIVE_TARGET_CHANGED`拒绝在切换后新写入；清理仍按原绑定。已核对bool-like enabled控制不改变归属，禁用拒绝`MCP_NATIVE_DISABLED`。`hermes mcp list`只证明加载，不映射连接成功；原生列表错误保留安全原因，过期观测不复用。导出files新增hermes YAML路径；没有新增RPC/Task状态/SSH帧，[实现与实际原生证据](iterations/I08/hermes-mcp-config.md)。
+Hermes（alpha.51.recovery.2公开版）：六项方法管理原生Home当前Profile的YAML `mcp_servers.agentbridge`；保存Hermes nativeTarget分支，profile为只读回显，不接受由客户端代替原生选择。`MCP_HERMES_TARGET`拒绝不可核对/已删除目标，`MCP_NATIVE_TARGET_CHANGED`拒绝在切换后新写入；清理仍按原绑定。已核对bool-like enabled控制不改变归属，禁用拒绝`MCP_NATIVE_DISABLED`。`hermes mcp list`只证明加载，不映射连接成功；原生列表错误保留安全原因，过期观测不复用。导出files新增hermes YAML路径；没有新增RPC/Task状态/SSH帧，[实现与实际原生证据](iterations/I08/hermes-mcp-config.md)。
 
 新增能力标记`mcp-open-access-v1`（中央与daemon hello同时公布）。缺该标记时：`mcp.status`/`mcp.revoke`/`mcp.probe`返回`MCP_BACKEND_UPGRADE_REQUIRED`（不静默降级），`mcp.install`/`mcp.export`/`mcp.remove`在旧“当前版本”后台仍可用。维护期间：撤权与安装/导出/移除同属配置变更被拒，只读探测与状态允许。错误码新增`MCP_PROFILE_MISSING`（DSH Web profile目录不存在，安装前拒绝，不创建文件）与`MCP_DSH_PROFILE_REQUIRED`（DSH CLI 未指定或非法的原生 profile 名称）。
 

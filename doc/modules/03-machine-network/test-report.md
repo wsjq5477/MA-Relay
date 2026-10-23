@@ -6,7 +6,7 @@
 | --- | --- |
 | T-M03-200 | 真实临时私有配置保存A/B、重建AgentNetwork与显式扫描；旧A字节不变、token不进入公开状态/台账；错机器/adapter/回应/丢失文件及EBUSY绑定失败保持原选择。 通过；2026-10-23，WSL Node22.23.1/Windows Node+Edge，模型0。 |
 
-隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成和普通EXE另列。[原始证据、环境与未测项](../../iterations/I08/connection-identity-node-scope.md)。
+隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成及普通EXE已随0.6.0-alpha.51.recovery.2公开，分层证据见发布记录。[原始证据、环境与未测项](../../iterations/I08/connection-identity-node-scope.md)。
 
 2026-10-23 / alpha.50未改包补验：本地20次落盘→DOM同步p95 1513ms通过；20组/60节点/59边的20次真实拖动观测上界p95 117.9ms未达到100ms门槛，未记录>500ms卡顿。WSL启动9/20通过/11次就绪前退出、失败写入0，原始WSL/PowerShell也复现；根因未定位。包与源码一致性重核通过，EXE未变；模型0，未重跑原全量，不替代独立LAN/SSH或原生模型。[本轮完整样本、失败、脚本与限制](../../iterations/I06/current-candidate-metrics.md)。
 2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。

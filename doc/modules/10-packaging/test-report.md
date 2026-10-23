@@ -2,9 +2,9 @@
 
 | 场景 ID | 实际结果 |
 | --- | --- |
-| T-M10-200 | 2026-10-23，本地0.6.0-alpha.51.recovery.1生成，EXE130198720字节；53后台/84Core/1701Linux、ASAR/Core/前端/bootstrap一致性通过。普通EXE验证分层见[交付记录](../../iterations/I08/connection-identity-node-scope.md)。 |
+| T-M10-200 | 2026-10-23，本地0.6.0-alpha.51.recovery.2生成，EXE130196014字节；53后台/84Core/1701Linux、ASAR/Core/前端/bootstrap一致性通过。最终普通无调试Windows EXE5组通过、模型0；普通EXE验证分层见[交付记录](../../iterations/I08/connection-identity-node-scope.md)。 |
 
-公开仍alpha.46；本次未签名、未部署SSH或切换日常后台。
+已公开0.6.0-alpha.51.recovery.2；本次未签名、未部署SSH或切换日常后台。
 
 2026-10-23 / alpha.50未改包补验：本地20次落盘→DOM同步p95 1513ms通过；20组/60节点/59边的20次真实拖动观测上界p95 117.9ms未达到100ms门槛，未记录>500ms卡顿。WSL启动9/20通过/11次就绪前退出、失败写入0，原始WSL/PowerShell也复现；根因未定位。包与源码一致性重核通过，EXE未变；模型0，未重跑原全量，不替代独立LAN/SSH或原生模型。[本轮完整样本、失败、脚本与限制](../../iterations/I06/current-candidate-metrics.md)。
 2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
@@ -21,7 +21,7 @@ T-M10-MCP02DEFAULT / M10-F01/F02/F03/F06：WSL Node22.23.1交叉构建，EXE1301
 
 ## alpha.46 公开分发核验（2026-10-22）
 
-冻结源码9766eb4已推送master并固定标签v0.6.0-alpha.46；EXE与SHA256SUMS.txt已公开。匿名无凭据完整下载HTTP 200、130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`，与本地和附件digest一致。本轮核心68/68、桌面758/758及类型/lint/用户站6/6与构建通过；包复核50后台模块/84核心/1698Linux文件和四类一致性均通过。普通EXE四组为同日未变产品的既有结果，不标本轮重跑；未签名、未部署SSH，完整准出限制保留。[源码、首次认证失败与公开核验](../../iterations/I08/alpha46-release.md)。
+冻结源码9766eb4已推送master并固定标签v0.6.0-alpha.46；EXE与SHA256SUMS.txt已公开。匿名无凭据完整下载HTTP 200、130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`，与本地和附件digest一致。本轮核心68/68、桌面758/758及类型/lint/用户站6/6与构建通过；包复核50后台模块/84核心/1698Linux文件和四类一致性均通过。普通EXE四组为同日未变产品的既有结果，不标本轮重跑；未签名、未部署SSH，完整准出限制保留。[源码、首次认证失败与公开核验](../../iterations/I08/alpha51-recovery2-release.md)。
 
 ## 后续原生组件验收（2026-10-22，alpha.46）
 

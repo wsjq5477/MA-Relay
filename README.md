@@ -7,11 +7,10 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0 |
-| 当前公开预发布 | **0.6.0-alpha.46**（标签冻结 `9766eb4`；EXE 130180760 字节，SHA-256 `57f1af73…`，附件已公开并通过匿名完整下载核验） |
-| alpha.35 公开预发布 | **0.6.0-alpha.35**（冻结 `b5de577`，issue #12 同机独立执行与恢复反馈） |
-| 当前发布包 | [0.6.0-alpha.46 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/AgentBridge-0.6.0-alpha.46-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.46/SHA256SUMS.txt)；未签名；[交付与验证边界](doc/iterations/I08/alpha46-release.md) |
-| 当前本地候选 | **alpha.50**：Pi/Hermes原生MCP配置、目标绑定和禁用保护；[实现与EXE](doc/iterations/I08/hermes-mcp-config.md)。[补验](doc/iterations/I06/current-candidate-metrics.md)本地同步指标通过，图反馈/WSL启动稳定性未准出；未公开或部署 |
-| 当前公开源码范围 | [开放MCP接入与双向管理](doc/iterations/I08/mcp-open-integration.md)、[恢复与观测修复](doc/iterations/I08/mcp-open-recovery.md)、OpenDesk已有接口与维护恢复；已随alpha.46发布，十入口原生父模型自主调用与托管归属仍未全部验收 |
+| 当前公开预发布 | **0.6.0-alpha.51.recovery.2**（冻结 `905b792`，EXE130196014字节，匿名完整下载核验通过） |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.51.recovery.2/AgentBridge-0.6.0-alpha.51.recovery.2-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.51.recovery.2/SHA256SUMS.txt)；未签名；[交付与验证边界](doc/iterations/I08/alpha51-recovery2-release.md) |
+| 当前集成版本 | 已验证集成候选现已公开为0.6.0-alpha.51.recovery.2；Pi/Hermes/DSH原生MCP与WSL/图修复已包含，图/WSL稳定性与完整原生父模型仍未准出 |
+| 当前公开源码范围 | 对应完整源码在标签 `v0.6.0-alpha.51.recovery.2` 与发布分支；#15/#16和此前alpha.50/51增量均包含，master合并另行审查 |
 | 未准出 | 完整 I06C/I07C/MCP02；原生父模型自主MCP委派、原生页面增删；Hermes/Pi及DSH其他执行入口、独立 SSH |
 
 当前公开 alpha.46（2026-10-22 预发布）：[源码、包与公开核验](doc/iterations/I08/alpha46-release.md)。

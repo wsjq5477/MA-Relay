@@ -6,7 +6,7 @@ agent-network.json 继续 version=1，可选 dshBindings 数组保存 {nodeId,ma
 
 WSL启动使用HostConnection内存中的startup Promise/timer、generation和原子进程引用，以及Core流中的就绪帧。close使原代次失效，旧启动finally不能清掉新Promise；generation不持久化、不作为业务身份。不新增持久数据、Task状态、请求ID或关系版本。`executionNotDispatched:true`只描述尚未写入该次请求的通道失败或关闭；既有unknown历史不会因此结算。[协议与验收](iterations/I08/wsl-host-readiness.md)。
 
-当前源码已随公开 alpha.46 分发，冻结提交 `9766eb4`；本轮仅更新发布状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha46-release.md)。
+当前源码已随公开 0.6.0-alpha.51.recovery.2 分发，冻结提交 `905b792`；本轮发布只同步状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha51-recovery2-release.md)。
 
 MCP登记增加可选launcherPath，后台恢复保持原启动命令。probe增加binding（配置路径、原文、connectionId与configuration的SHA-256）；旧probe无binding按未知处理。status.evidence.observation={observedAt?,freshness:current|stale|unknown,reason?:unbound|configuration_changed|expired}，不落盘；连接/工具观测最长60秒，配置/profile变化立即失效。此摘要仅为一致性校验，不是授权凭据。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
 
@@ -100,7 +100,7 @@ I08-MCP02在行内新增/明确以下字段（旧行缺字段按“未知/外部
 | `nativeProtocol` | OpenCode v1/v2 布局，缺省按历史 v2 核对 |
 | `configuration` | Bridge自己写入的原生条目原样快照；所有权比较与“只删自己的条目”以它为准，不按显示名；OpenDesk STDIO 的空对象 `headers:{}` 与字段缺省等价；Pi仅忽略布尔`enabled`差别用于归属，Hermes仅忽略已核对的bool-like控制值；原生禁用不能自动启用；其余字段严格比较，不迁移或改写旧快照 |
 | `probe` | 最近一次只读探测（`kind`/`outcome`/`command`/`nativeLoad`/`connection`/`tools`/`toolCount`/`at`）；不参与授权，也不因探测失败改写授权 |
-| `nativeTarget` | 可选；DSH Desktop为`{home,profile}`，Pi为`{kind:"pi-agent-dir",agentDir}`。首次成功原生安装/导出保存目标，后续读写/清理固定原目标；选择变更不迁移授权，显式移除后新接入才轮换身份与采用新目标。Hermes为`{kind:"hermes-profile",home,root,profile,named}`，`named`区分原生命名Profile与custom根。Pi/Hermes字段随alpha.50本地候选交付，公开alpha.46不包含 |
+| `nativeTarget` | 可选；DSH Desktop为`{home,profile}`，Pi为`{kind:"pi-agent-dir",agentDir}`。首次成功原生安装/导出保存目标，后续读写/清理固定原目标；选择变更不迁移授权，显式移除后新接入才轮换身份与采用新目标。Hermes为`{kind:"hermes-profile",home,root,profile,named}`，`named`区分原生命名Profile与custom根。Pi/Hermes字段随alpha.51.recovery.2公开版交付，已随0.6.0-alpha.51.recovery.2公开 |
 | `profile` | 仅 DSH CLI：本次写入/识别所用的原生 profile 名称（单段目录名，`^[a-z0-9][a-z0-9-]{0,63}$`）。`mcp.status` 回显，省略参数时使用该值；`mcp.remove` 只清理这个 profile，其他 profile 的原生文件逐字节不变。DSH Web 固定 `web`、不落该字段；其他适配器不写该字段 |
 
 `configuration`与`probe`是观测/归属证据，不是执行凭据：`configuration`不含Token，`probe`不证明已获准委派。`mcp.status`的返回结构（`state`/`facts`/`evidence`/`nativeSupport`）为瞬时投影，不落盘；重启只重建私有endpoint描述文件，不写原生配置，也不恢复已撤销的授权。原生条目被外部删除或修改时保留原文件、不自动补回。[完整契约与证据](iterations/I08/mcp-open-integration.md)。

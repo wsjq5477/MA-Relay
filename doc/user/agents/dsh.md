@@ -18,7 +18,7 @@ CLI 不自动继承 Desktop / Web 的账号或 profile。不能把服务版已�
 
 ## 保存后如何核对连接
 
-本地 `alpha.51.recovery.1` 候选修复保存后的地址选择；公开 `alpha.46` 尚不含此修复。切换候选前，通过“设置 → 后台运行 → 停止后台并退出”停止旧后台，再打开候选。
+公开预发布 `alpha.51.recovery.2`修复保存后的地址选择；此修复已包含在当前公开附件中。切换候选前，通过“设置 → 后台运行 → 停止后台并退出”停止旧后台，再打开候选。
 
 保存服务地址后，“刷新连接状态”或关闭重开配置会保留刚保存的目标。提示“当前节点尚未加载”时，回到原机器重新扫描，再为该节点接入；旧地址、历史与原请求保留。Desktop 和 Web 分别选择，不互相代替。只有从未配置才显示默认3080；目标缺失、身份不匹配或损坏时按提示核对原连接，不能把空地址当作首次接入。保存不完整时先刷新核对，不自动重试；token不回填。
 
@@ -59,7 +59,7 @@ API 让 Bridge 直接操作正在运行的 Desktop / Web 会话服务，沿用�
 | 输出与结果 | 按原生轮次读取输出及状态 |
 | 取消与恢复查询 | 操作和查询原请求，结果未知时不重发 |
 | 普通被委派 | 可作为获准目标接收其他 Agent 的任务 |
-| 主动调用 Bridge MCP | 已声明具备 MCP 客户端能力；**DSH Web** 的原生 MCP 配置可由 Bridge 管理并在真实启动中被读取（`$DSH_HOME/profiles/web/cordis.patch.yml` 的一行补丁）；**DSH CLI** 也可管理，但要你指定启动时使用的 profile（`$DSH_HOME/profiles/<profile>/cordis.patch.yml`）；**DSH Desktop** 在alpha.48本地候选可管理原生当前数据目录/Profile的条目（公开alpha.46仅能导出）；选择变更后先移除原绑定，再添加当前目标。三者都使用已安装的 `@deepseek-ai/dsh-mcp-client` |
+| 主动调用 Bridge MCP | 已声明具备 MCP 客户端能力；**DSH Web** 的原生 MCP 配置可由 Bridge 管理并在真实启动中被读取（`$DSH_HOME/profiles/web/cordis.patch.yml` 的一行补丁）；**DSH CLI** 也可管理，但要你指定启动时使用的 profile（`$DSH_HOME/profiles/<profile>/cordis.patch.yml`）；**DSH Desktop** 在alpha.48本地候选可管理原生当前数据目录/Profile的条目（当前公开版已包含）；选择变更后先移除原绑定，再添加当前目标。三者都使用已安装的 `@deepseek-ai/dsh-mcp-client` |
 | 小队成员 / 托管会话注入 | 当前未接入；这不影响独立 MCP 调用 |
 | 权限与原生提问 | 在 DSH 原生界面处理，Bridge 内暂不提供回复 |
 

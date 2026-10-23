@@ -6,7 +6,7 @@
 | --- | --- |
 | T-M06-OD-200 | 生产Coordinator受控路由+生产前端两入口：独立B一次接入、A的原ID/参数/时间/错误保留；实际原生网关和模型本轮未调用。 通过；2026-10-23，WSL Node22.23.1/Windows Node+Edge，模型0。 |
 
-隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成和普通EXE另列。[原始证据、环境与未测项](../../../iterations/I08/connection-identity-node-scope.md)。
+隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成及普通EXE已随0.6.0-alpha.51.recovery.2公开，分层证据见发布记录。[原始证据、环境与未测项](../../../iterations/I08/connection-identity-node-scope.md)。
 
 ## 空默认字段管理兼容（2026-10-22，alpha.47本地候选）
 
