@@ -1,5 +1,11 @@
 # 通信协议与接口
 
+## DSH 选择与节点管理能力
+
+`dsh.status({machineId,nodeId?})` 与 `dsh.configure({machineId,nodeId?,adapter,url,token?,enabled?})` 在提供 nodeId 时校验原节点归属；adapter 只能是原 DSH 入口。items 增加可选 connectionId，保存/查询可返回 selectedConnectionId；旧远端缺 ID 时仅兼容精确返回的 executable，不按 adapter 或时间选取。DSH_BINDING_MISMATCH 拒绝错源回应；DSH_BINDING_PERSIST 表示私有配置已写而中央绑定未保存，不能显示完整成功或自动重试。
+
+中央 hello 增加 `scoped-node-management-v1`，新客户端遇旧中央要求显式停止并重开，保留设置/运行信息/停止入口。graphPending 的可选 blockedNodeIds 由可信中央资源判断投影；缺失时保留机器范围保护。机器、关系和原查询/终态契约不变；daemon 协议仍为 2，远端 supportsRecovery 不因此放宽。[契约与验证](iterations/I08/connection-identity-node-scope.md)。
+
 当前源码已随公开 alpha.46 分发，冻结提交 `9766eb4`；本轮仅更新发布状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha46-release.md)。
 
 非GUI新增mcp nodes（无node参数）、mcp attach/operation --node ID --operation-id ID。分别复用snapshot、manageNode(action=attach)、nodeOperation；不新增RPC或模型提交。管理收据confirmed退出0、rejected退出4、unknown/not_found/不匹配退出3，查询失败不视为结束，不重放attach。status增加evidence.observation时间/有效性；配置变化或超过60秒的连接/工具观测不再用于当前事实。JSON保留authorization状态枚举，其他凭据类字段仍脱敏。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
@@ -20,7 +26,7 @@ OpenCode显式context准备可以复用既有ipc.start恢复已退出的原服�
 
 ## 配置入口移动的兼容性
 
-本轮仅将MCP/DSH接入表单移至Agent行的绑定目标弹窗。继续使用mcp.status/install/remove/export({nodeId})、dsh.status({machineId})、dsh.configure({machineId,adapter,url,token?,enabled?})；不新增RPC/字段/daemon能力或迁移。旧EXE保留原设置入口，新界面需新客户端；仅此呈现调整不要求独立SSH升级，但远端仍须具备原方法。DSH诊断文字改指向对应Agent配置，不改变错误码。[流程与验证](iterations/I07/agent-row-configuration.md)。
+本轮仅将MCP/DSH接入表单移至Agent行的绑定目标弹窗。继续使用mcp.status/install/remove/export({nodeId})、dsh.status({machineId,nodeId?})、dsh.configure({machineId,nodeId?,adapter,url,token?,enabled?})；不新增方法；可选节点选择字段见本页“DSH 选择与节点管理能力”，daemon协议不变。旧EXE保留原设置入口，新界面需新客户端；仅此呈现调整不要求独立SSH升级，但远端仍须具备原方法。DSH诊断文字改指向对应Agent配置，不改变错误码。[流程与验证](iterations/I07/agent-row-configuration.md)。
 
 ## list_agents调用方连接视图
 
@@ -40,7 +46,7 @@ discover的DSH安装提示可携带errorCode=DSH_CONNECTION_REQUIRED，节点sna
 
 原生认证接受附Cookie的302/303，始终不跟随跳转；HTTP RPC外层payload.args遵循Typert命名参数，session/list使用`{_request:{}}`，其余已支持Session方法使用`{request:原请求对象}`。中央/daemon RPC格式不变。真实服务验证与打包交付见[本地DSH候选](iterations/I07/dsh-exe-delivery.md)。
 
-新增机器方法dsh.status({machineId})、dsh.configure({machineId,adapter,url,token?,enabled?})，adapter限定dsh-desktop/dsh-web。status返回脱敏items，保存回应也不带token；配置方法不进入通用执行台账，未知保存读原状态核对，daemon维护期间拒绝配置。运行能力新增dsh-web-desktop-v1。原生侧使用根token换内存Cookie，同源session/list/create/prompt/projections/page/cancel RPC严格关联rpcId；page解析event封装并按原requestId和turn结算，回应丢失不重发。完整schema/限制/身份语义见[DSH Desktop/Web 接入](iterations/I07/dsh-desktop-web.md)。
+新增机器方法dsh.status({machineId,nodeId?})、dsh.configure({machineId,nodeId?,adapter,url,token?,enabled?})，adapter限定dsh-desktop/dsh-web。status返回脱敏items，保存回应也不带token；配置方法不进入通用执行台账，未知保存读原状态核对，daemon维护期间拒绝配置。运行能力新增dsh-web-desktop-v1。原生侧使用根token换内存Cookie，同源session/list/create/prompt/projections/page/cancel RPC严格关联rpcId；page解析event封装并按原requestId和turn结算，回应丢失不重发。完整schema/限制/身份语义见[DSH Desktop/Web 接入](iterations/I07/dsh-desktop-web.md)。
 
 alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-mcp-v1`语义能力，新前台遇到仍运行的alpha.33后台时要求显式停止并重开，设置/停止入口保留。避免新EXE复用旧2.x独占后台后仍拒绝1.x或缺MCP/材料方法；原任务、收据和unknown不改。
 

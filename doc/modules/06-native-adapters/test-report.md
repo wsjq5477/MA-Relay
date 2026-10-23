@@ -1,5 +1,13 @@
 # M06 原生 Agent 适配器测试报告
 
+## 连接身份与节点管理验证
+
+| 场景 ID | 场景与实际结果 |
+| --- | --- |
+| T-M06-200 | DSH真实文件模块与生产中央在隔离临时HOME下验证稳定连接ID和旧文件保留；无真实DSH认证、OpenDesk网关、模型或用户profile写入。 通过；2026-10-23，WSL Node22.23.1/Windows Node+Edge，模型0。 |
+
+隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成和普通EXE另列。[原始证据、环境与未测项](../../iterations/I08/connection-identity-node-scope.md)。
+
 2026-10-22 日常 OpenDesk 原生父模型只读发现已补验：离线修复诊断条目后，真实父模型调用 list_agents 1 次成功，返回 7 个获准节点；Prompt 1、子任务 0。自主委派与日常原生页面仍未验，不并入历史回归计数。[现场证据](../../iterations/I08/opendesk-mcp-diagnostic-repair.md)。
 
 ## 后续原生组件验收（2026-10-22，alpha.46）

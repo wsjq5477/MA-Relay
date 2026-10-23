@@ -1,8 +1,12 @@
 # OpenDesk 原生适配设计
 
+## 连接身份与节点管理准入
+
+M06-F05：同机其他安装的管理unknown不再永久禁用健康独立OpenDesk Desktop接入；中央可信blockedNodeIds、概览、关系图和run保持同一规则。共享安装/目录、原节点、机器/关系及缺身份仍阻止写入；只新增B的管理意图，不查询/重放A。原生协议和能力不变。 [完整设计与失败流程](../../../iterations/I08/connection-identity-node-scope.md)。
+
 alpha.46在所有导出格式渲染前统一选择Node启动器，并保存launcherPath用于后台恢复；恢复只刷新私有端点，不改变原生命令或补回外部删除。未登记的同名诊断条目视为冲突，不能覆盖。[本轮证据与边界](../../../iterations/I08/mcp-open-recovery.md)。
 
-所属M06-F05、AB-F02/F07/F08/F10/F11/F13，复用M03/M07/M08/M10。实现只修改AgentBridge，使用OpenDesk已有接口，不构建或替换OpenDesk。当前源码已随alpha.46公开，验收层级见[测试报告](test-report.md)和[本轮记录](../../../iterations/I08/opendesk-existing-interfaces.md)。
+所属M06-F05、AB-F02/F07/F08/F10/F11/F13，复用M03/M07/M08/M10。实现只修改AgentBridge，使用OpenDesk已有接口，不构建或替换OpenDesk。原生接口基线已随alpha.46公开；本页新增节点准入修复尚未公开，验收层级见[测试报告](test-report.md)和[本轮记录](../../../iterations/I08/opendesk-existing-interfaces.md)。
 
 ## 产品、入口和归属
 

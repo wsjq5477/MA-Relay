@@ -1,5 +1,13 @@
 # M03 机器与 Agent 网络测试报告
 
+## 连接身份与节点管理验证
+
+| 场景 ID | 场景与实际结果 |
+| --- | --- |
+| T-M03-200 | 真实临时私有配置保存A/B、重建AgentNetwork与显式扫描；旧A字节不变、token不进入公开状态/台账；错机器/adapter/回应/丢失文件及EBUSY绑定失败保持原选择。 通过；2026-10-23，WSL Node22.23.1/Windows Node+Edge，模型0。 |
+
+隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成和普通EXE另列。[原始证据、环境与未测项](../../iterations/I08/connection-identity-node-scope.md)。
+
 ## 后续原生组件验收（2026-10-22，alpha.46）
 
 已安装OpenDesk/DSH原生MCP组件协议分别5组/6组通过；两条生产协作链各完成1个真实Claude子任务，并分别只读重开原任务/Session/结果，无重放。原生父模型自主决策与日常原生页面未验；产品运行代码与EXE未变，不把新增验收与原全量计数叠加。[脚本、初次失败、准确层级和未测项](../../iterations/I08/mcp-native-acceptance.md)。

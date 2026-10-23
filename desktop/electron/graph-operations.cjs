@@ -17,15 +17,20 @@ function rejectedAttachAdmission(row){
   &&(row.error?.code==='ADAPTER_HOST'&&/^[a-z][a-z0-9-]* must synchronously create a host with call\(\) and close\(\)\.$/.test(row.error.message)
     ||row.error?.code==='AGENT_UNHEALTHY'&&row.error.message==='原生工具尚未就绪，未提交需求；请检查原生账号或等待服务就绪。');
 }
-function conflicts(kind,params,row){
+function conflicts(kind,params,row,nodeConflict){
  if(kind==='layout'||row.lane==='layout')return kind===row.lane;
  if(kind==='relation'||row.lane==='relation')return true;
+ if(kind==='node'&&row.lane==='node'&&nodeConflict){
+  if(![params.machineId,params.nodeId,row.params?.machineId,row.params?.nodeId].every(value=>typeof value==='string'&&value.trim()))return true;
+  // This callback is trusted coordinator code, never an IPC parameter.
+  return nodeConflict(params,row)!==false;
+ }
  if(typeof params.machineId==='string'&&params.machineId&&typeof row.params?.machineId==='string'&&row.params.machineId)return params.machineId===row.params.machineId;
  if(params.connectionId&&row.params?.connectionId)return params.connectionId===row.params.connectionId;
  return true;
 }
 class GraphOperationJournal{
-  constructor(directory){this.file=path.join(directory,'graph-pending.json');}
+  constructor(directory,options={}){this.file=path.join(directory,'graph-pending.json');this.nodeConflict=options.nodeConflict;}
   read(){if(!fs.existsSync(this.file))return [];const rows=JSON.parse(fs.readFileSync(this.file,'utf8'));if(!Array.isArray(rows))throw fail('GRAPH_JOURNAL_INVALID','图操作台账无法读取，请保留记录排查。');return rows;}
   pending(){return this.read().filter(r=>r.state==='pending'||r.state==='unknown');}
   update(row){const rows=this.read(),i=rows.findIndex(r=>r.lane===row.lane&&r.operationId===row.operationId);if(i<0)rows.push(row);else rows[i]=row;atomicWrite(this.file,rows);}
@@ -44,16 +49,16 @@ class GraphOperationJournal{
     const savedRejection=['nodeOperation','machine.operation'].includes(method)||method==='collaborationOperation'&&row?.error?.code==='COLLABORATION_CAPABILITY';
     return savedRejection&&row?.state==='rejected'?{operationId:row.operationId,state:'rejected',error:row.error}:receipt;
   }
-  async recover(dispatch){for(const r of this.pending())try{await this.lookup(query(r.lane),{operationId:r.operationId},dispatch);}catch{/* Keep the original unknown; its scope decides whether new work conflicts. */}}
+  async recover(dispatch,include=()=>true){for(const r of this.pending().filter(include))try{await this.lookup(query(r.lane),{operationId:r.operationId},dispatch);}catch{/* Keep the original unknown; its scope decides whether new work conflicts. */}}
   async save(method,params,dispatch){
     operationId(params.operationId);const kind=lane(method),fingerprint=digest(params);
     const fields=kind==='machine'?['operationId','machineId','connectionId','expectedRevision','config']:kind==='node'?['operationId','nodeId','machineId','action']:kind==='relation'?['operationId','expectedRevision','leaderId','memberIds']:['operationId','expectedLayoutRevision','layout'];
     if(Object.keys(params).some(k=>!fields.includes(k)))throw fail('INVALID_INPUT','图保存请求包含不支持的字段。');
-    await this.recover(dispatch);
+    await this.recover(dispatch,row=>conflicts(kind,params,row,this.nodeConflict));
     const rows=this.read(),prior=rows.find(r=>r.lane===kind&&r.operationId===params.operationId);
     if(prior&&prior.fingerprint!==fingerprint)throw fail('OPERATION_CONFLICT','原图操作 ID 已用于其他内容，请查询原操作。');
     if(prior&&(prior.state==='pending'||prior.state==='unknown'))return this.lookup(query(kind),{operationId:params.operationId},dispatch);
-    if(rows.some(r=>conflicts(kind,params,r)&&(r.state==='pending'||r.state==='unknown')))throw fail('GRAPH_UNCONFIRMED','原图保存尚未确认，请查询原操作，不能换 ID 再保存。');
+    if(rows.some(r=>conflicts(kind,params,r,this.nodeConflict)&&(r.state==='pending'||r.state==='unknown')))throw fail('GRAPH_UNCONFIRMED','原图保存尚未确认，请查询原操作，不能换 ID 再保存。');
     if(prior?.state==='rejected')throw fail(prior.error.code,prior.error.message);
     if(prior?.state==='confirmed')return this.lookup(query(kind),{operationId:params.operationId},dispatch);
     const row={operationId:params.operationId,lane:kind,method,params,fingerprint,state:'pending',time:new Date().toISOString()};

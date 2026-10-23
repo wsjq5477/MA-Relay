@@ -1,5 +1,11 @@
 # M10 构建与发布测试报告
 
+| 场景 ID | 实际结果 |
+| --- | --- |
+| T-M10-200 | 2026-10-23，本地0.6.0-alpha.51.recovery.2生成，EXE130196014字节；53后台/84Core/1701Linux、ASAR/Core/前端/bootstrap一致性通过。最终普通无调试Windows EXE5组通过、模型0；普通EXE验证分层见[交付记录](../../iterations/I08/connection-identity-node-scope.md)。 |
+
+公开仍alpha.46；本次未签名、未部署SSH或切换日常后台。
+
 ## alpha.46 公开分发核验（2026-10-22）
 
 冻结源码9766eb4已推送master并固定标签v0.6.0-alpha.46；EXE与SHA256SUMS.txt已公开。匿名无凭据完整下载HTTP 200、130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`，与本地和附件digest一致。本轮核心68/68、桌面758/758及类型/lint/用户站6/6与构建通过；包复核50后台模块/84核心/1698Linux文件和四类一致性均通过。普通EXE四组为同日未变产品的既有结果，不标本轮重跑；未签名、未部署SSH，完整准出限制保留。[源码、首次认证失败与公开核验](../../iterations/I08/alpha46-release.md)。

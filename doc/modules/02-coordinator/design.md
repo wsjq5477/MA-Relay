@@ -1,5 +1,9 @@
 # M02 中央协调后台设计
 
+## 连接身份与节点管理准入
+
+M02-F03/F04：GraphOperationJournal以注入的managementBlocks核对node/node可信资源，缺来源或解析不完整保持冲突；机器写入、relation及原证明规则不放宽。save仅恢复冲突行，独立B的新操作不查询/重派A。要求scoped-node-management-v1，原中央停止重开后生效。 [完整设计与失败流程](../../iterations/I08/connection-identity-node-scope.md)。
+
 ## MCP02恢复与观测（2026-10-22）
 
 Linux本机MCP主机在处理方法前等待私有端点恢复；remove在恢复失败时仍可撤权。不写原生配置、不借用执行主机处理MCP。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。
@@ -22,7 +26,7 @@ M02-F04：进度通知仅内存合并；正确性通知同步保存，失败恢�
 
 ## 当前版本准入与管理作用域
 
-M02-F04：中央要求三项能力owned-object-controls-v1/scoped-management-v1/opencode-v2-admission-v1；旧中央仍允许设置/运行信息/显式停止。GraphOperationJournal的node/machine按machineId或connectionId冲突，缺来源和relation保守互锁。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+M02-F04：中央要求三项能力owned-object-controls-v1/scoped-management-v1/opencode-v2-admission-v1；旧中央仍允许设置/运行信息/显式停止。GraphOperationJournal的node/node按可信原节点、安装和共享目录冲突；混合machine写入仍按machineId或connectionId冲突，缺来源和relation保守互锁。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
 ## 独立 MCP 配置与运行契约
 
