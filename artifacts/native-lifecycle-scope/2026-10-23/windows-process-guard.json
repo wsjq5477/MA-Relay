@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-23T06:32:34.777Z",
+  "environment": "Windows Node / real tasklist / isolated native settings",
+  "modelCalls": 0,
+  "checks": [
+    "Actual running OpenDesk detected; default production guard refuses isolated write before endpoint creation."
+  ],
+  "processState": "running",
+  "status": "passed"
+}

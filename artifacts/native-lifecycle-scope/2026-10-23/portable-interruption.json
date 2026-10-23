@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-23",
+  "status": "interrupted",
+  "phase": "first ordinary EXE launch before relation save",
+  "relationWrites": 0,
+  "originalUnknownRetained": true,
+  "cleanup": "controlled fixture only; coordinator endpoint absent",
+  "reason": "turn interrupted before harness produced final report"
+}

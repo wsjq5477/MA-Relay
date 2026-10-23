@@ -22,19 +22,19 @@ OpenDesk CLI和Windows桌面版分别接入，使用它们已有的接口，沿�
 
 **OpenDesk Windows Desktop** 现在可以让 AgentBridge 出现在它自己的 MCP 列表里。三个前提：
 
-1. **需要 Node.js**：Bridge 写入的启动命令优先使用你系统里的 `node`。OpenDesk 启动不了 Bridge 自带的 Electron 运行时（会报“命令未找到”或连接立刻关闭），所以请先装好 Node.js，或在 Bridge 配置里看到“原生启动器：Node”提示后再添加。
+1. **需要 Node.js**：Bridge 写入的启动命令必须使用你系统里的 `node`。OpenDesk 启动不了 Bridge 自带的 Electron 运行时（会报“命令未找到”或连接立刻关闭），所以请先装好 Node.js，并使它出现在来源后台的 PATH 中，缺少 Node 时添加会被拒绝。
 2. **写入前先完全退出 OpenDesk，写入后再打开**：请从托盘菜单退出，确认没有后台进程后再让 Bridge 添加配置。OpenDesk 会保存内存中的整份设置；运行时直接改文件，退出时可能把旧条目写回。
-3. **在 OpenDesk 的“MCP 管理 → 已安装 MCP”核对**：应看到 `AgentBridge`、传输方式 STDIO、状态已连接、工具数 7。
+3. **在 OpenDesk 的“MCP 管理 → 已安装 MCP”核对**：核对 `AgentBridge` 的 STDIO 条目、连接与工具状态。Bridge 无法查询该原生列表，写入成功不会显示为原生已连接。
 
-操作：已扫描并接入 OpenDesk Desktop 后，先从托盘完全退出 OpenDesk；在 Bridge 已接入的 OpenDesk Desktop 节点行点“配置”，点“添加 Bridge MCP”，再打开 OpenDesk。若 Bridge 提示“无法启动 Electron 运行时”，说明没找到 `node`，请装好 Node.js 后重新添加。
+操作：已扫描并接入 OpenDesk Desktop 后，先从托盘完全退出 OpenDesk；在 Bridge 原来的 OpenDesk Desktop 节点行点“配置”，先点“刷新配置状态”核对退出完成，再点“添加 Bridge MCP”（节点已断开也可以配置），再打开 OpenDesk。Bridge 不会自动退出或重启 OpenDesk；运行中或进程无法核验时添加保持禁用。若提示缺少 Node 启动器，请装好 Node.js 后重新添加。
 
 如果你在列表里看到的 `AgentBridge` 是之前排查问题时人工写入的临时条目，它并不带真实授权。Bridge 会将未登记的同名条目视为冲突并保留。请先在 OpenDesk 原生 MCP 管理中核实并移除该诊断条目，再到 Bridge 添加正式连接；完全重开 OpenDesk 后核对工具调用。
 
 **OpenDesk CLI（0.3.8）仍然不能由 Bridge 添加**：它的插件清单和工具列表里都没有 MCP 管理入口，启动时还会重写自己的 `setting.json`，把认不出的 app 配置段丢掉。所以对 CLI 只能“生成独立配置片段”，不会写原生配置，也不会显示“添加 Bridge MCP”。
 
-两个入口共同的注意事项：Windows 与 WSL 各自管理配置及授权；同名冲突或外部修改会保留（不按名称猜归属），移除先撤权；授权已撤销但条目仍在时会显示“已撤销授权，原生配置待清理”。Bridge 会区分配置、原生加载、连接、工具、授权、归属六项状态。
+两个入口共同的注意事项：Windows 与 WSL 各自管理配置及授权；同名冲突或外部修改会保留（不按名称猜归属），移除先撤权；授权已撤销但条目仍在时会显示“已撤销授权，原生配置待清理”。Bridge 会区分配置、原生加载、连接、工具、授权、归属六项状态。OpenDesk 的“重新探测原生列表”不可用，请在原生应用人工核对；运行中移除只撤销授权，完全退出后再清理自己拥有的条目。
 
-alpha.47 候选兼容 OpenDesk 自动补入的空 `headers` 默认值：原已登记连接仍可识别、重复添加与移除。使用公开 alpha.46 时仍可能显示冲突；升级 Bridge 后再核对。修改命令、参数、环境、启用状态或其他字段仍会保留冲突；写入或移除前仍需完全退出 OpenDesk，避免退出时旧配置写回。
+当前版本兼容 OpenDesk 自动补入的空 `headers` 默认值：原已登记连接仍可识别、重复添加与移除。未登记的同名条目仍须先核对归属。修改命令、参数、环境、启用状态或其他字段仍会保留冲突；写入或移除前仍需完全退出 OpenDesk，避免退出时旧配置写回。
 
 **看到“已连接 + 7 个工具”不等于调用已经验证**：真实授权后的工具调用还需要你自己发起一次并核对结果。Bridge 托管会话的 MCP 自动注入和小队仍不支持；Bridge 内权限回复、结构化输入与连接验证也尚未适配，相关操作在原生程序处理。
 

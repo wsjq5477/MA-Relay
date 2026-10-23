@@ -113,7 +113,7 @@ function toolsProbeText(status: McpStatus) {
 function actionNotice(action: McpAction, status: McpStatus, adapter: string) {
   if (action === "install")
     return adapter.startsWith("opendesk")
-      ? "已写入 OpenDesk 的原生候选配置。请完全退出并重新打开 OpenDesk，在 MCP 管理 → 已安装 MCP 查看 AgentBridge（原生端只在启动时读取该配置）。"
+      ? "已在确认 OpenDesk 完全退出后写入配置。请手动打开 OpenDesk，在 MCP 管理 → 已安装 MCP 人工核对；Bridge 当前无法核验原生加载、连接或工具。"
       : adapter.startsWith("dsh")
         ? "已添加到 DSH 原生配置。请重新打开 DSH 会话，在 MCP 列表查看 AgentBridge。"
         : "已添加到用户配置。请重开 Agent 会话，在 MCP 列表查看 agentbridge。";
@@ -150,6 +150,8 @@ export default function McpSettings({ node, disabled = false, onBusyChange, init
   // (e.g. a product with a client but no Bridge-owned config adapter). That
   // reason is authoritative evidence and must be shown verbatim.
   const nativeUnsupported = status?.nativeSupport === false;
+  const openDesk=node.adapter==='opendesk-desktop';
+  const writeReason=openDesk?(status?.lifecycle?.safeToWrite?'':status?.lifecycle?.message||'当前后台未提供 OpenDesk 安全退出检查，请升级来源后台后再添加。'):'';
   useEffect(() => { onBusyChange?.(busy); }, [busy, onBusyChange]);
   const mcpParams = () => ({ nodeId, adapter: node.adapter, ...(node.adapter === "dsh" && profile.trim() ? { profile: profile.trim() } : {}) });
   useEffect(() => {
@@ -207,6 +209,7 @@ export default function McpSettings({ node, disabled = false, onBusyChange, init
       <p className="settings-footnote">
         Windows、WSL 与 SSH 各自管理目标环境的用户配置；写文件或生成配置不等于原生已加载。原生列表可能异步刷新，必要时重开 Agent，OpenCode 还可能需重启其原生后台。Bridge 后台需保持运行，不会在检测到外部删除后自动补回。
       </p>
+      {openDesk && <p className="workspace-inline-note mcp-native-lifecycle" role="status">{status?.lifecycle?.message||'正在核对 OpenDesk 的退出状态；原生加载、连接和工具无法由 Bridge 自动核验。'}</p>}
       {boundary === false && (
         <p role="status" className="settings-footnote">
           {caller === true
@@ -236,7 +239,7 @@ export default function McpSettings({ node, disabled = false, onBusyChange, init
       )}
           <p role="status">
             {status
-              ? mcpStateLabel(status.state)
+              ? openDesk&&status.state==='installed'?'配置已写入 · 原生加载尚未核验':mcpStateLabel(status.state)
               : notice
                 ? "尚未读取配置"
                 : "正在读取配置…"}
@@ -284,7 +287,7 @@ export default function McpSettings({ node, disabled = false, onBusyChange, init
             </p>
           )}
           {status && <McpFactsView status={status} />}
-          {status?.evidence?.observation && (
+          {!openDesk && status?.evidence?.observation && (
             <p className="settings-footnote" role="status">
               最近探测：{status.evidence.observation.observedAt || "尚未探测"}。
               {status.evidence.observation.freshness === "current"
@@ -319,9 +322,10 @@ export default function McpSettings({ node, disabled = false, onBusyChange, init
                   status.conflict ||
                   status.installed ||
                   status.facts?.config === 'disabled' ||
-                  !node.connected ||
+                  (!node.connected && !openDesk) || !!writeReason ||
                   status.state === "unsupported"
                 }
+                title={writeReason||undefined}
                 onClick={() => void manage("install")}
               >
                 添加 Bridge MCP
@@ -362,7 +366,8 @@ export default function McpSettings({ node, disabled = false, onBusyChange, init
             {boundary !== false && (
               <button
                 className="btn"
-                disabled={busy || disabled || !node.connected}
+                disabled={busy || disabled || !node.connected || openDesk || status?.nativeProbeSupported===false}
+                title={openDesk?'OpenDesk 没有可查询的原生 MCP 列表，无法由 Bridge 核验；请在原生 MCP 管理中人工核对。':undefined}
                 onClick={() => void manage("probe")}
               >
                 重新探测原生列表

@@ -145,6 +145,13 @@ class AgentNetwork extends MachineRouter {
     const targetWork=[...targetResource.workspaces,...(params.workspace?[workspaceKey(this.machine(params.machineId),params.workspace)]:[])];
     return oldWork.some(w=>targetWork.includes(w));
   }
+  relationManagementBlocks(row,params){
+    const source=row.params||{},original=this.network.nodes.find(n=>n.nodeId===source.nodeId&&n.machineId===source.machineId);
+    if(row.lane!=='node'||!original||!this.catalog.machines.some(m=>m.machineId===source.machineId)||!Array.isArray(params.memberIds)||params.memberIds.some(id=>typeof id!=='string'||!id)||params.leaderId!==null&&(typeof params.leaderId!=='string'||!params.leaderId))return true;
+    const current=this.network.collaboration,ids=new Set([current.leaderId,...current.memberIds,params.leaderId,...params.memberIds].filter(Boolean));
+    for(const id of ids){const node=this.network.nodes.find(n=>n.nodeId===id);if(!node||this.managementBlocks(row,{machineId:node.machineId,nodeId:node.nodeId}))return true;}
+    return false;
+  }
   pendingBlocks(row,params){
     if(!row.machineId)return true;
     const original=this.pendingResource(row.params||{},row.machineId),target=this.pendingResource(params,params.machineId);
@@ -455,7 +462,7 @@ class AgentNetwork extends MachineRouter {
       const node=this.node(params.nodeId),machine=this.machine(node.machineId);
       // Revoking authorization and probing native state both need a live, attached
       // node; a removed node never owns an MCP connection any more.
-      if(['mcp.install','mcp.export','mcp.revoke','mcp.probe'].includes(method)&&(!node.connected||node.removed))throw fail('NODE_DISCONNECTED','请先接入此 Agent。');
+      if(['mcp.install','mcp.export','mcp.revoke','mcp.probe'].includes(method)&&(node.removed||node.supersededBy||!node.connected&&!(node.adapter==='opendesk-desktop'&&method==='mcp.install')))throw fail('NODE_DISCONNECTED','请先接入此 Agent。');
       this.assertMachineAdmission(machine);
       // `profile` only applies to the DSH CLI surface (its native config is per
       // launch profile); every other adapter ignores it.

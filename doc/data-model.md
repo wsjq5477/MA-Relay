@@ -1,5 +1,7 @@
 # 对象、身份与持久数据
 
+McpStatus新增可选 nativeProbeSupported 与 lifecycle={phase,processState,safeToWrite,message,checkedAt?}，phase 为 exit_required/process_unknown/ready_to_write/reopen_required/running_unverified，processState 为 running/stopped/unknown；均为即时观测，不持久PID/命令行/进程明细。safeToWrite仅证明本次进程检查，文件归属/冲突另行校验；旧后台缺字段时前端禁用 OpenDesk 添加。graphPending、关系与请求持久格式不变；可信关系资源并集在中央实时解析，不接受IPC传入的放行范围。[合约与验证](iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## DSH 节点选择
 
 agent-network.json 继续 version=1，可选 dshBindings 数组保存 {nodeId,machineId,adapter,connectionId,executable}；仅登记经过原节点归属与回应校验的目标。旧数据缺该字段仍可读。connectionId 为 adapter+origin 摘要私有文件的文件名主体，公开状态/保存回应允许此脱敏标识及 selectedConnectionId，不含 token。缺目标、重复身份和损坏状态不能回退默认连接；旧上下文、请求和凭据文件保留。图管理持久台账格式及终态证明不变，可信冲突判断不从客户端或持久字段加载。[完整数据与失败边界](iterations/I08/connection-identity-node-scope.md)。

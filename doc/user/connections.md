@@ -9,11 +9,11 @@ Bridge 提供 MCP 工具，让原生 Agent 在授权范围内发现目标、委�
 | Bridge 托管的协作会话 | 为会话注入受限的 Bridge 工具通路 | 由当前协作关系与会话授权决定 |
 | 原生 Agent 独立运行 | 在其 MCP 配置中添加 Bridge 连接 | 由独立连接身份和授予的权限决定 |
 
-当前 Bridge 能直接管理原生 MCP 配置的入口：Claude Code、Codex、OpenCode（1.x/2.x 两代布局）、DSH Web 与 DSH CLI（需要你指定 profile，见下）。这些入口在“配置”里可以添加、移除、生成独立配置、撤销连接授权和重新探测原生列表。
+当前 Bridge 能直接管理原生 MCP 配置的入口：Claude Code、Codex、OpenCode（1.x/2.x 两代布局）、DSH Web 与 DSH CLI（需要你指定 profile，见下）。这些入口在“配置”里可以添加、移除、生成独立配置、撤销连接授权，并按原生产品支持的入口探测列表。
 
 OpenDesk CLI（0.3.8）目前**不能由 Bridge 添加**：它的插件清单和工具列表里都没有 MCP 管理入口，启动时还会重写自己的 `setting.json`，把不认识的 app 配置段丢掉。所以对 CLI 只能“生成独立配置片段”，不会写入原生配置。
 
-OpenDesk Windows Desktop 现在可以真正读到 Bridge 写入的条目：添加后**必须完全退出并重新打开 OpenDesk**，并且写入的启动命令要使用你系统里的 Node.js（OpenDesk 无法启动 Bridge 自带的 Electron 运行时，Bridge 会在配置里提示“原生启动器：Node”）。重启后到 OpenDesk 的“MCP 管理 → 已安装 MCP”应能看到 AgentBridge、STDIO、已连接、7 个工具。看到这些只说明配置被读取并连上了，**真实授权后的工具调用仍需你实际发一次并核对结果**。
+OpenDesk Windows Desktop 需要**写入前先从托盘完全退出**，在 Bridge 原节点的配置弹窗刷新核对退出完成，再添加 MCP，最后手动打开 OpenDesk。节点已断开也可以添加，但进程仍运行、无法核验、退出写回未稳定或缺少系统 Node.js 时会拒绝；Bridge 不会退出或重启它。配置写入只证明文件事实，原生加载、连接和工具无法由 Bridge 核验，“重新探测原生列表”保持禁用。请在 OpenDesk 的“MCP 管理 → 已安装 MCP”核对 AgentBridge 的 STDIO 条目、连接和工具，再自行发起真实授权调用核对结果。
 
 如果列表里那条 AgentBridge 是排查问题时人工写入的临时条目，它不带真实授权；Bridge 会保留未登记的同名条目并提示冲突。先在 OpenDesk 核实并移除该诊断条目，再由 Bridge 添加正式连接，完全重开 OpenDesk 后核对。
 

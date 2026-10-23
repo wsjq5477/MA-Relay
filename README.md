@@ -9,7 +9,7 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 稳定历史版本 | 0.5.0 |
 | 当前公开预发布 | **0.6.0-alpha.51.recovery.2**（冻结 `905b792`，EXE130196014字节，匿名完整下载核验通过） |
 | 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.51.recovery.2/AgentBridge-0.6.0-alpha.51.recovery.2-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.51.recovery.2/SHA256SUMS.txt)；未签名；[交付与验证边界](doc/iterations/I08/alpha51-recovery2-release.md) |
-| 当前集成版本 | 已验证集成候选现已公开为0.6.0-alpha.51.recovery.2；Pi/Hermes/DSH原生MCP与WSL/图修复已包含，图/WSL稳定性与完整原生父模型仍未准出 |
+| 当前集成版本 | 本地 **alpha.52** 候选修复 #19/#20 的 OpenDesk MCP 退出写入与独立节点设主；尚未公开。此前 Pi/Hermes/DSH原生MCP与WSL/图修复保留，完整准出边界不变；[交付与验证](doc/iterations/I08/opendesk-lifecycle-relation-scope.md) |
 | 当前公开源码范围 | 对应完整源码在标签 `v0.6.0-alpha.51.recovery.2` 与发布分支；#15/#16和此前alpha.50/51增量均包含，master合并另行审查 |
 | 未准出 | 完整 I06C/I07C/MCP02；原生父模型自主MCP委派、原生页面增删；Hermes/Pi及DSH其他执行入口、独立 SSH |
 

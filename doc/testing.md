@@ -1,5 +1,7 @@
 # 整体测试与验收报告
 
+当前 alpha.52 修复验证：生命周期/关系资源定向131/131，远端与断开身份9/9，Windows生产前端12组通过、实际Windows进程拒写通过，模型0。桌面完整回归841/841、核心68/68，类型/lint与用户站6/6和构建通过；普通EXE8组与包一致性通过，Windows契约40/40（另1项Linux专用跳过）；详细实测按[本轮分层记录](iterations/I08/opendesk-lifecycle-relation-scope.md)更新；受控UI和临时文件不代表日常原生GUI/父模型/独立SSH验收。
+
 当前公开预发布 **0.6.0-alpha.51.recovery.2**，标签冻结 `905b792`；EXE 130196014 字节、SHA-256 `db079cb622d4fea75607758cb7e94a6f151683fb81c8f29b88b5f382f65152cd`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha51-recovery2-release.md)。
 
 连接身份/节点管理修复已在公开 alpha.46 基线上完成隔离桌面回归 777/777，Windows 生产前端 10 组受控交互通过，原始三项故障在未修复基线上均复现。当前工作目录集成桌面817/817、核心68/68、Windows契约55/55及最终普通EXE5组通过，模型0；集成包验证单独记录，不把受控 IPC/临时配置结果当成真实 DSH/OpenDesk 或模型验收。[证据与边界](iterations/I08/connection-identity-node-scope.md)。

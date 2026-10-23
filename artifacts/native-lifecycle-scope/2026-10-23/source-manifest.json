@@ -1,0 +1,627 @@
+{
+  "date": "2026-10-23",
+  "version": "0.6.0-alpha.52",
+  "frozenSource": "49bd12b7fabdeee9d30b5f1fae47efac3e686df2",
+  "sourceTree": "eb68c7d76a27ac3d467ccdd4b519e48b167b6356",
+  "localSourceTreeMatchesRemote": true,
+  "productUnchangedAfterBuild": true,
+  "files": [
+    {
+      "path": "desktop/assets/agents/README.md",
+      "sha256": "a6f588379bdfd6f50c0accbbee04d99515a0ac32d6ae274c95b5c1fd2f8f562b"
+    },
+    {
+      "path": "desktop/assets/agents/claude.png",
+      "sha256": "7241633e5a39b44a947c7b9a821637f30d6e86716e7a8c847136d91f9c3f6ba1"
+    },
+    {
+      "path": "desktop/assets/agents/codex.png",
+      "sha256": "2ce1c57dd3b312417106a487815ab1235bddce17e1fa9b32a2f048bd71ee25d3"
+    },
+    {
+      "path": "desktop/assets/agents/dsh.BRAND_GUIDELINES.md",
+      "sha256": "c8a188bd39677c08b699fc1e4095e435503a8a051318da0c7864ed36e0003271"
+    },
+    {
+      "path": "desktop/assets/agents/dsh.LICENSE.txt",
+      "sha256": "ebb4f09972aee8608be255debaf78451a68e95c290f55c240dec2ecfa16ea6be"
+    },
+    {
+      "path": "desktop/assets/agents/dsh.svg",
+      "sha256": "9e983b4f649c25c6ca0623a50be1a6e705fd8f49f756638b980fa13b40575ab6"
+    },
+    {
+      "path": "desktop/assets/agents/hermes.LICENSE.txt",
+      "sha256": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6"
+    },
+    {
+      "path": "desktop/assets/agents/hermes.png",
+      "sha256": "4b75d873f29e3f330c7f9032051555b66218cf11e5a470876f3e0754cb32bc8e"
+    },
+    {
+      "path": "desktop/assets/agents/opencode.LICENSE.txt",
+      "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b"
+    },
+    {
+      "path": "desktop/assets/agents/opencode.svg",
+      "sha256": "b1c48d82ebd304eab820658387642bcf4c9b8350d6860894d0fe21ddca25ef3f"
+    },
+    {
+      "path": "desktop/assets/agents/opendesk-LICENSE",
+      "sha256": "43e47adcf75ac27fe931f3c86e9b4ca0e52646b8f4e687ac769df8612170d70e"
+    },
+    {
+      "path": "desktop/assets/agents/opendesk.png",
+      "sha256": "4ca37af6a4ca95458575cc6ed385b1e4396ec2e9149e3a51b6d4b311291f7f98"
+    },
+    {
+      "path": "desktop/assets/agents/pi.LICENSE.txt",
+      "sha256": "0457f5bcec3b3b211605dfb5d1a49042fd638f3686a410fe099c24a25af13c48"
+    },
+    {
+      "path": "desktop/assets/agents/pi.svg",
+      "sha256": "d266b2c1d2c7bf169ca30d438963b176fba16fea6263b9ac30c8302f34ad7ce7"
+    },
+    {
+      "path": "desktop/assets/agents/sources.json",
+      "sha256": "a098090358ea1fd5c4233052c9f70aa0b95ed2b8a2e27a0bef1a23ff58cc04ba"
+    },
+    {
+      "path": "desktop/assets/icon.ico",
+      "sha256": "ffb1221f84cae62f78765322ccc16355be7137d38b18fbce3752162a038392a3"
+    },
+    {
+      "path": "desktop/assets/icon.png",
+      "sha256": "55206403b636b9d16f50b3ac267c4b964dd497fa2275db4beddcbb4dd982571b"
+    },
+    {
+      "path": "desktop/assets/icon.svg",
+      "sha256": "fd5a7600865c499ccc7f41bb0eb9248fa2e64f3a7791b176e18f8ef0312a2354"
+    },
+    {
+      "path": "desktop/electron/agent-adapter-contract.cjs",
+      "sha256": "659a8af996dce42bc5a6d4f68ba837634f4b691dfc997718db9ee5ffb1ded927"
+    },
+    {
+      "path": "desktop/electron/agent-connections.cjs",
+      "sha256": "90b835bccd438ac4b89117187690031f45b4701bf1f5e9bd3eecea1d44585429"
+    },
+    {
+      "path": "desktop/electron/agent-network.cjs",
+      "sha256": "ea4e5c4a043921c6f0d97d8bd8b8a586ce45aa59d10bee66b9ab273aa0610568"
+    },
+    {
+      "path": "desktop/electron/bootstrap.sh",
+      "sha256": "3a80a062a41f62aff2364f39506948b2063f634d2d23121c9ec6053c1cfb23e7"
+    },
+    {
+      "path": "desktop/electron/builtin-adapters.cjs",
+      "sha256": "49e288df1d59ae4b088f8d608ce9ce8b37506f8cc61c360f021b7bd1f2d866ec"
+    },
+    {
+      "path": "desktop/electron/claude-host.cjs",
+      "sha256": "48ac06366cd7c998e0731b1cc88164a1db639e862813f02c74700d0591e75fa1"
+    },
+    {
+      "path": "desktop/electron/codex-host.cjs",
+      "sha256": "e79c3fc4944d68fb64460adb0bee6d97e508d49ade6733edfa002dad19d42006"
+    },
+    {
+      "path": "desktop/electron/collaboration-broker.cjs",
+      "sha256": "7db96c157de93f4dbfdd38738ac66d17122eee2472de1bc2c265aa9b40108e3e"
+    },
+    {
+      "path": "desktop/electron/coordinator-client.cjs",
+      "sha256": "4d6d6db4a7731e9e91930acc7d115d4a68840447087ad9ef992525094b150f4c"
+    },
+    {
+      "path": "desktop/electron/coordinator-runtime.cjs",
+      "sha256": "5a76b91efc63d1923fee302cb5ede355966371c7f2c6a7801b63bd82dab431f0"
+    },
+    {
+      "path": "desktop/electron/coordinator-service.cjs",
+      "sha256": "ab583895f91e5b214f6066a761a5dc68e4cd50e0002fe865e897c423accc5164"
+    },
+    {
+      "path": "desktop/electron/coordinator.cjs",
+      "sha256": "5cd1294b678298beb0cf61b1886c1b6b65db030f0bca2136f39564f1d722d1e9"
+    },
+    {
+      "path": "desktop/electron/daemon-rejection.cjs",
+      "sha256": "77445dbed9138a87a0b19f677dd2d9c4346a1d037f147b303488f44710dd3408"
+    },
+    {
+      "path": "desktop/electron/delegation-context.cjs",
+      "sha256": "687002e0a4b37c8e9f2e11b4420191b4bad83c2d406ec3dccea55e727c31618f"
+    },
+    {
+      "path": "desktop/electron/delegation-list.cjs",
+      "sha256": "b573443ae76f8c43290166a2479e8d40564f983b24f9bd928047816105da2935"
+    },
+    {
+      "path": "desktop/electron/dsh-connection.cjs",
+      "sha256": "4cac22d024ea8c3db34621b20d5c8b32477b0a6def06f62c256c9e1335914d6d"
+    },
+    {
+      "path": "desktop/electron/dsh-desktop-config.cjs",
+      "sha256": "581a566c0f5a292ec3ed2fb7b8f1d6c57d06c29716cd9b76c758b09ea5c72b82"
+    },
+    {
+      "path": "desktop/electron/dsh-worker.cjs",
+      "sha256": "dcb6438d1ea6964587f2e54223dbd78d2db1f38a7673f8471a3a1bb3476a7664"
+    },
+    {
+      "path": "desktop/electron/graph-layout.cjs",
+      "sha256": "c5f6a72b75c56f2adecc7c9ecb43dfd1ef2b782bd620a8580c9d8d25f947d2c8"
+    },
+    {
+      "path": "desktop/electron/graph-operations.cjs",
+      "sha256": "6d873784cccd104329bed4020f860a3bfee08d5c26e78c814e12345615cf36a7"
+    },
+    {
+      "path": "desktop/electron/hermes-mcp-config.cjs",
+      "sha256": "98cd1dfe2e5ce5c689b03b0144b58ae9928003446b27b28fe35df21c96148653"
+    },
+    {
+      "path": "desktop/electron/machine-daemon.cjs",
+      "sha256": "919c78123e212c6a5d445c98bb8caf00f5ebfef8c5cd9f391b9ed9d00acd329f"
+    },
+    {
+      "path": "desktop/electron/machine-host.cjs",
+      "sha256": "0b6c6befc84943ff9e23689253ff21e6f28ac16daffce5e6753a60cb1f8bd6e4"
+    },
+    {
+      "path": "desktop/electron/machine-protocol.cjs",
+      "sha256": "d5bb2f4864acdc3da5287ff93e08144686c355ebac4b0c5cdb4d6d31a3583868"
+    },
+    {
+      "path": "desktop/electron/machine-relay.cjs",
+      "sha256": "22bb0f2bb5d787a4ebfe73ac45c357599c9b7927235e1075a74fc3bf21f10012"
+    },
+    {
+      "path": "desktop/electron/machine-router.cjs",
+      "sha256": "0d43c645bd68da237e5074cf54e566597b58bb91cd6f64c7351024437ea27bd0"
+    },
+    {
+      "path": "desktop/electron/main.cjs",
+      "sha256": "696f15eda4e37d04f5ea4df9496ff46c8f40fbf40b2c8bd05a95d4dda766cb1f"
+    },
+    {
+      "path": "desktop/electron/mcp-client.cjs",
+      "sha256": "f80da1fbb467e409b9b8756d538f45b4190f073bb466799904e662997193a4cc"
+    },
+    {
+      "path": "desktop/electron/mcp-config.cjs",
+      "sha256": "09e8d41fe0d697ddc2d960cbb64dd5be7ae7d9b3391a8236aa9febeb3b338947"
+    },
+    {
+      "path": "desktop/electron/mcp-integration.cjs",
+      "sha256": "db869673dea348d7a2f471b7ae5516705461053ebe19ffa358028b674497cd8e"
+    },
+    {
+      "path": "desktop/electron/native-cli-host.cjs",
+      "sha256": "371bd7dd192085a9864a0fa8fbd2d2b5d94e1dd33a24c2b754820abea66a8c5d"
+    },
+    {
+      "path": "desktop/electron/native-cli-protocols.cjs",
+      "sha256": "ab97b3c65711602ca95c9d7fedd761286eefda263f02ce10e5bba0c8fa6b0837"
+    },
+    {
+      "path": "desktop/electron/opendesk-connection.cjs",
+      "sha256": "f835255e0f323e3044fec1eda1d5bf647295407c9a7578a5c7a82e67b93abdaf"
+    },
+    {
+      "path": "desktop/electron/opendesk-lifecycle.cjs",
+      "sha256": "1a146c36a1fddd54565420d745f3f738308444d7da0ef6bbe0237cd641f148b9"
+    },
+    {
+      "path": "desktop/electron/opendesk-worker.cjs",
+      "sha256": "eed201c35f8266f97e4f0e8a32d48d0240b0aadd5536d95b478c29d46da4fa3f"
+    },
+    {
+      "path": "desktop/electron/pending-journal.cjs",
+      "sha256": "e45f03ab5d1b3ec7bafb17867bb97a6cc821e4be11b038d2c06dd489737791d7"
+    },
+    {
+      "path": "desktop/electron/pi-mcp-config.cjs",
+      "sha256": "befca9ab9fa0295d2084c9a235b0423b7b8f50f2fcd71e135744fb8f36717631"
+    },
+    {
+      "path": "desktop/electron/preload.cjs",
+      "sha256": "a87a34f2da5ff1543a1b6e561d5add2cd05d8df5c02e25bb238a676026ce7681"
+    },
+    {
+      "path": "desktop/electron/private-directory.cjs",
+      "sha256": "910778f35ae0652e961620052178451830c44c1884821abb13ac6e0c8673723b"
+    },
+    {
+      "path": "desktop/electron/remote-maintenance.cjs",
+      "sha256": "8c765b84655552f23a7e80fb252154956d0a02531ac68f2f59e509e7fdf21507"
+    },
+    {
+      "path": "desktop/electron/rpc.cjs",
+      "sha256": "eb93b314ec0338598721f5616f9df8fd6b2a34dfedb69ee1fde4854451374011"
+    },
+    {
+      "path": "desktop/electron/runtime-capabilities.cjs",
+      "sha256": "5df7b6ed9020571d084042e8c211d6669e221c34b2c0398d45d3d82df499bfe5"
+    },
+    {
+      "path": "desktop/electron/ssh-credentials.cjs",
+      "sha256": "d5f3135291b3df5a961fa46fe68ce62558b53866c488db6cac5df6b6143c008c"
+    },
+    {
+      "path": "desktop/electron/ssh-host.cjs",
+      "sha256": "4caa3ce04917a76624f3e1903305033603831a4e02657c01814589a0b262397d"
+    },
+    {
+      "path": "desktop/electron/ssh-install.cjs",
+      "sha256": "a8e28265603233cfc1e04a8c812a817e1efe10c602910173a8e8c353c92b5424"
+    },
+    {
+      "path": "desktop/electron/ssh-known-hosts.cjs",
+      "sha256": "1188329c3c388c11a6eb320e6656e095da8de963e4f6b22702067186bf46e3fa"
+    },
+    {
+      "path": "desktop/electron/team-automation.cjs",
+      "sha256": "e55e06c119b66ce0d4e10fc32086adc7196fdb77448074599bbe8f5c1804f140"
+    },
+    {
+      "path": "desktop/electron/team-context-packet.cjs",
+      "sha256": "e8b40efb2f57bb3c7502fbe81f6fd2caa0a815dd06936da31fd360e85d982646"
+    },
+    {
+      "path": "desktop/electron/team-materials.cjs",
+      "sha256": "be3acc6072d8e0aba4cce490a856d5bacbbfed8f4d2a9f3bc1833d9b316ea793"
+    },
+    {
+      "path": "desktop/electron/team-space.cjs",
+      "sha256": "89d599ba3d9cda9b08d9e9b73406c1c4857c5f1f0b0ae928ed7f083fb75b1a61"
+    },
+    {
+      "path": "desktop/electron/team-stop.cjs",
+      "sha256": "c4a97b6f7f538f8c1d02d6932e34607bb5075297de600396593966d2f6e4aebd"
+    },
+    {
+      "path": "desktop/electron/team-tools.cjs",
+      "sha256": "406d29d08d19ecb17312fee8b031fa3148979b8ac9065a8b0c34a0d205b4ad19"
+    },
+    {
+      "path": "desktop/electron/team-work.cjs",
+      "sha256": "6896c8430e74cd9394045e903ebf712144e9b5a7bcbc9a8066530363f2542e77"
+    },
+    {
+      "path": "desktop/electron/tool-discovery.cjs",
+      "sha256": "573c7cbc92d31aae04edcc39ba204778a9128689361ab6a0aa4aa089fd69cbd5"
+    },
+    {
+      "path": "desktop/electron/worker-runtime.cjs",
+      "sha256": "7eb6e360b460a2b22ed0c5d5e507565310a21bbfe346998ed257c2f00cd80297"
+    },
+    {
+      "path": "desktop/package-lock.json",
+      "sha256": "6671b84aa6783306f4bca3f4f8e1e30ad6e923107f0f8273a34b723e15f41100"
+    },
+    {
+      "path": "desktop/package.json",
+      "sha256": "98f6a6dd764381d530714dfaea326e93a2518ec134bcbb62364035ff4fde15ef"
+    },
+    {
+      "path": "desktop/src/AddMachineDialog.tsx",
+      "sha256": "4e308b399eebeff6144a4cb2650f3fb67bbbaf44667805d2603217f0e0b37ae6"
+    },
+    {
+      "path": "desktop/src/AgentConfigurationDialog.tsx",
+      "sha256": "35afeefe6d84a8632817ea56995b0edf2932db7dfc21ce6d92d523d6377a45d6"
+    },
+    {
+      "path": "desktop/src/AgentGraph.tsx",
+      "sha256": "72e9261d7476d06dc95e35bad0ade0961d0753c9f57b89d4e43e538d3ad66718"
+    },
+    {
+      "path": "desktop/src/AgentIcon.tsx",
+      "sha256": "6b45d190a7cb2cd0ec82de5b4949e251e4d9bbbe54d5180ac685b3a3a377ac3a"
+    },
+    {
+      "path": "desktop/src/App.tsx",
+      "sha256": "61023e757bee722a77f046aed01e1dddc044946267d851d49e5d93c28fd0e938"
+    },
+    {
+      "path": "desktop/src/AppShell.tsx",
+      "sha256": "959da78bef87f54bb25033c8bcfb7a9b70100e58a63f45fc65c0335627be7ac0"
+    },
+    {
+      "path": "desktop/src/CollaborationChoice.tsx",
+      "sha256": "ad2aab3924c60e9af60a665f011394dfd93c55623cf92e593492c587c5517576"
+    },
+    {
+      "path": "desktop/src/DaemonDialog.tsx",
+      "sha256": "2927a4d2ca6f21f0d214d71a338debf992f722a3df503a409b1ad39194c9e385"
+    },
+    {
+      "path": "desktop/src/DshSettings.tsx",
+      "sha256": "0ab9c1b147284f52f5d7368d91256ef9877657e7f8d244e38a210aeb406878f1"
+    },
+    {
+      "path": "desktop/src/MachineInventory.tsx",
+      "sha256": "c0057f89591177c3ce0766744e9157cc897f2d7cbfe177ac6aa66e2625f328e3"
+    },
+    {
+      "path": "desktop/src/MachinesView.tsx",
+      "sha256": "40e17670deafb9aa3129811fae2223834c86a42e47d1fec63ac12447945e4e2e"
+    },
+    {
+      "path": "desktop/src/McpSettings.tsx",
+      "sha256": "1fa49d9feecc32c881e42f079c4f9e671db2828927336925b49739a00d412608"
+    },
+    {
+      "path": "desktop/src/NetworkApp.tsx",
+      "sha256": "8fa6ea5db1795e0f5e344a93946c979e62948a8cab54425f1c9981fffaf86794"
+    },
+    {
+      "path": "desktop/src/TeamAutomationSettings.tsx",
+      "sha256": "4780d692e069c8a29a4007a55f035e5116e475343384b21f104b1c38ce285074"
+    },
+    {
+      "path": "desktop/src/TeamContextPacket.tsx",
+      "sha256": "f281e988d99285a728bf72871418b51bc471875b302901e787a3a5ddb7308fa0"
+    },
+    {
+      "path": "desktop/src/TeamMaterials.tsx",
+      "sha256": "297d7cecc82dfa82e8a12844a969864a79437b73080da1d52599c46564f62c91"
+    },
+    {
+      "path": "desktop/src/TeamNativeNodeSelect.tsx",
+      "sha256": "31f5b9ae8b3097a9bef82003e601c97fef3d96a4208831a9c0a576fec35333c2"
+    },
+    {
+      "path": "desktop/src/TeamStopStatus.tsx",
+      "sha256": "6939810dbe8b51c2790c10993ab4a55afb84d0dd643def46a8dc6ffb9f05132a"
+    },
+    {
+      "path": "desktop/src/TeamTaskBoard.tsx",
+      "sha256": "1be449f0114e40f781bfd8cfe98d60dcbed14f4d9f6d8437c728085d86a994ad"
+    },
+    {
+      "path": "desktop/src/TeamWorkspace.tsx",
+      "sha256": "10c845d6c47b10c65664cb8762be298d7b7bb4f6e0411e62cdf6674a9aadc2fd"
+    },
+    {
+      "path": "desktop/src/WorkspacePages.tsx",
+      "sha256": "8d6fd82f9953d8eef67cbad6300e5fe64363870aa6328d18be1020e2c5b18f46"
+    },
+    {
+      "path": "desktop/src/agent-tools.ts",
+      "sha256": "2351544c848a1d1f3a51bf98ca8e0ee510d41414ad0f31041bf308cf14e8c00f"
+    },
+    {
+      "path": "desktop/src/api.ts",
+      "sha256": "abe8b34b4eb89213245a3b1fdee8bb403176220f34dcb5135cc047b7b37d1871"
+    },
+    {
+      "path": "desktop/src/connection-capabilities.ts",
+      "sha256": "f319b2422c829141c3aa899c9a1d506d1b23abb7abbd74c996e47f4989f5f082"
+    },
+    {
+      "path": "desktop/src/dsh-settings-state.ts",
+      "sha256": "1d8548b71969d142affad14a5237650ed19c7c09ac57e74ea739c98a7b0c065f"
+    },
+    {
+      "path": "desktop/src/graph-routing.ts",
+      "sha256": "0e06b807cf059724001822fe92bb82688168c9dd16e8f33123a6fa02d84f2d63"
+    },
+    {
+      "path": "desktop/src/graph-state.ts",
+      "sha256": "c6aee550ce06906e10e269caf61d86c90054718f7b744e00fec9066b3e59f1f4"
+    },
+    {
+      "path": "desktop/src/graph.css",
+      "sha256": "bf0a9d9ff5c9970b42374094ae7554e7b38366790d75ef4bc0053b0565270eda"
+    },
+    {
+      "path": "desktop/src/machine-management.ts",
+      "sha256": "0010c0c3a933f53aca4ec3ee319bbc48b92626daefeca92e4dadd3344cff2b86"
+    },
+    {
+      "path": "desktop/src/main.tsx",
+      "sha256": "edb3d6b698cf28f72f04b00d52396e98634f5bb121f377dc6536113aa9078e60"
+    },
+    {
+      "path": "desktop/src/management-recovery.ts",
+      "sha256": "7cb4b18c56d537fa1ddc795b2f543cce850562c285b7f221ca333d56b70e0f02"
+    },
+    {
+      "path": "desktop/src/management-state.ts",
+      "sha256": "d2c80f91eb91e3ff47f410de9c12f5b77bbd5d7e1130eac311d61b288bfe89df"
+    },
+    {
+      "path": "desktop/src/network.css",
+      "sha256": "4142797bde331c1fbc2e61e2f3914e0a594a92e67bf425c84eabe1183eb27617"
+    },
+    {
+      "path": "desktop/src/node-management.ts",
+      "sha256": "e96f97341bf13d00d8371e20197e83a30515b627dfcbd2b0a55ff40bf9f0bbe1"
+    },
+    {
+      "path": "desktop/src/operation-recovery.ts",
+      "sha256": "edcaabf3dcf495ef10f33e5b88994fc110ce8b611468e05d19d4a50cc9a04be4"
+    },
+    {
+      "path": "desktop/src/poll-state.ts",
+      "sha256": "3a525c253ed9fb762b0bb2947487c1d0cdbc541781cb3a784949d0548b88c3b9"
+    },
+    {
+      "path": "desktop/src/style.css",
+      "sha256": "7c15d905c2e357506e126678d372be4f830f51c99f23e61aa569ec135cd549eb"
+    },
+    {
+      "path": "desktop/src/team-context-transfer.ts",
+      "sha256": "1aa61659d6e9a4f6ad6361af6552171c0862e60c3bd124627544b346e5794e8a"
+    },
+    {
+      "path": "desktop/src/team-material-transfer.ts",
+      "sha256": "d7245f206a3cc57c84a16136a6f0741413f6f23bf2ce2fedaef156d85131bd08"
+    },
+    {
+      "path": "desktop/src/team-types.ts",
+      "sha256": "9c002eb60347e78327c91e6b3d011864895a0fecd141de3b3eb9110fae3c489f"
+    },
+    {
+      "path": "desktop/src/team.css",
+      "sha256": "923684c0a2311a60312ec211dee6149a9a096ca17899c0b0182e3ea09e2b26d3"
+    },
+    {
+      "path": "desktop/src/types.ts",
+      "sha256": "a2bb4b6f867f213d7b4a3ebeffcc29cd6a6aa2513d54ea621d3bc6bd902dd3ad"
+    },
+    {
+      "path": "desktop/src/workbench.css",
+      "sha256": "e43f278bcadc6b9caa04d556d7ec8a6dd4439a1696e001fadecc73b2cd62ae8b"
+    },
+    {
+      "path": "desktop/src/workspace-pages.css",
+      "sha256": "25f847f80e0e1cf72479ec7652554c49fd62d012ddfa8d4ef82a4ff074cacd07"
+    },
+    {
+      "path": "desktop/tsconfig.json",
+      "sha256": "cce7cc0f786930994a309a741c0b6edaaafd98377ccc71f23da731466b177174"
+    },
+    {
+      "path": "desktop/vite.config.ts",
+      "sha256": "8ddb421b8d4cb040bb1bd3852a90e01eb7cca8b7d95121e627d6fe34f89e6325"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "7313895b5df8add123caf9fabc733c78ea7d8993335a3d95faddc0af8468f03c"
+    },
+    {
+      "path": "package.json",
+      "sha256": "f272fe34d139581eefaa050be129a02b189d73bbb3bd90d0b50828cb8410e0b3"
+    },
+    {
+      "path": "src/cli.ts",
+      "sha256": "9f94627240ee8f8007aa50ddb97d6bd2f16f83a00d6c69a2a29f4eae56926c71"
+    },
+    {
+      "path": "src/client.ts",
+      "sha256": "83136af959bb4f48a4c4bf874c274b76cfe9047ff44f227d2cc1f18f620a274e"
+    },
+    {
+      "path": "src/config.ts",
+      "sha256": "01ac26601d72065f168e677bc9f916268ea9044845228239090ba53a3cf711ea"
+    },
+    {
+      "path": "src/controller.ts",
+      "sha256": "30f97781d1b530121cfd6ee9aac24f472fe029f4b445ed81f3fe174cdf51a9aa"
+    },
+    {
+      "path": "src/core.ts",
+      "sha256": "15fe0f040596bff69aef67deb7dfe0a31c2f75e4a26c945649d17d759132d9cc"
+    },
+    {
+      "path": "src/desktop-host.ts",
+      "sha256": "1d85fe76fcd3caa5714f8719cd0e3756fd89e5c9951afb21b0bdb3b1c3aa69f4"
+    },
+    {
+      "path": "src/discovery.ts",
+      "sha256": "1f2c78c56aa0e31468f1805f63bf15e481cb5878fdf1d09614a7caceee53b46d"
+    },
+    {
+      "path": "src/drivers/driver.ts",
+      "sha256": "17c6ea3516958e27cb9df1b08232c26b2c9c2b22a93451b65153b2a4a76213d9"
+    },
+    {
+      "path": "src/drivers/forms.ts",
+      "sha256": "0188b9278c014a990f8abea6feef6ea4a0dbba85b900fbb4ad0b55c9e34e37ad"
+    },
+    {
+      "path": "src/drivers/mock.ts",
+      "sha256": "c920536df933cb2036fc0e0f838aa83508a2374b2380d925e6a1b4e6231684f1"
+    },
+    {
+      "path": "src/drivers/opencode-client.ts",
+      "sha256": "c670a98b130624075f5f707006f48d2e93f1843b317d067d5645404c7e30d74a"
+    },
+    {
+      "path": "src/drivers/opencode-v1.ts",
+      "sha256": "243192a5a9a775c6d7b923461571487fefb290a813ea8273df3b08dbd5d53ccb"
+    },
+    {
+      "path": "src/drivers/opencode.ts",
+      "sha256": "0f39c0c17a9b6d048a9e99d8e4d5969e75de9383df78ad0daad81629d8794c48"
+    },
+    {
+      "path": "src/edge.ts",
+      "sha256": "5a914a61ffb6d32420d829ee6368f6bdebcc46ddea4cf58e70f1009326b28656"
+    },
+    {
+      "path": "src/hub.ts",
+      "sha256": "10d1f2d2f3ffff48bf9e5c1340cee700ae1fbd40abe2eea3fd4fb9f80bc66b60"
+    },
+    {
+      "path": "src/local.ts",
+      "sha256": "bfcd66fc42a8604e04e03c13cffa742b48c227132a4065f1f14eb0720862190f"
+    },
+    {
+      "path": "src/mcp-command.ts",
+      "sha256": "76e756a3454820c0006355c87a285526b63cf071791f32db6d94c72c2c2d4a1a"
+    },
+    {
+      "path": "src/native-identity.ts",
+      "sha256": "ffc091c53fe1bb254f476abe97c348ccb0c9132daec08bb5806f42736c3af64b"
+    },
+    {
+      "path": "src/native-server.ts",
+      "sha256": "5130a09377679ecaefaac09df1f4bb38484810c226e19f76bdad30b3bd145075"
+    },
+    {
+      "path": "src/observe.ts",
+      "sha256": "224b277f5d1801fb05a887c01238e9989a90db2acafb9dc1b5bad1b3a0ae2529"
+    },
+    {
+      "path": "src/protocol.ts",
+      "sha256": "87748fbd2e71564944886769be58eaaa5fda3feff8d2e2b705a93c85f8db1fad"
+    },
+    {
+      "path": "src/security.ts",
+      "sha256": "01240a0f14234b71841aface280f7ad947c059b9460de0aacea73ca7c473010d"
+    },
+    {
+      "path": "src/settings.ts",
+      "sha256": "897ffd5feac2f50bd25aa064ac85d4149a29d4fd1ccada65cc61f0b97957dc24"
+    },
+    {
+      "path": "src/storage/database.ts",
+      "sha256": "e50e78759f67457a26d38f9cf676819724bd933121deeac1750d83da0abb1271"
+    },
+    {
+      "path": "src/storage/edge-journal.ts",
+      "sha256": "4756e6ee1f070accf26df05756490880b16ab27080ca6b543a44338c0e01f419"
+    },
+    {
+      "path": "src/storage/hub-store.ts",
+      "sha256": "05194ff1da5a156b5a36ea5c0b091f97584b8f8cc45c8c1f6690e9a422df11de"
+    },
+    {
+      "path": "src/storage/operations.ts",
+      "sha256": "eb90c2f5add3c22e142dd1f15cb81b1c6104139abdae788349467e47ed57f1f6"
+    },
+    {
+      "path": "src/terminal.ts",
+      "sha256": "87fb993fa082c38d7dd6c6adb5f9611d5f720aec95770c8845f48ff9fb0f162a"
+    },
+    {
+      "path": "tsconfig.check.json",
+      "sha256": "a38b70782b056006e212f38f4029b2df14747d57d99be93495fc4544f52d8fd5"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "8cfbd010f66fc7af63f71dfe859c1a8a675ae5b5a352eeb51fb21f3a4415f14d"
+    }
+  ],
+  "portable": {
+    "file": "desktop/release/AgentBridge-0.6.0-alpha.52-Windows-x64.exe",
+    "bytes": 130190265,
+    "sha256": "46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d"
+  }
+}

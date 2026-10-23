@@ -1,8 +1,12 @@
 # M02 中央协调后台设计
 
+## 当前 OpenDesk 生命周期与关系作用域
+
+M02-F03/F04：GraphOperationJournal 对 relation/node 使用中央可信 relationManagementBlocks：检查现有关系与新关系节点资源的并集，且只恢复冲突行。原关系、机器或缺失来源继续全局保护；无 operationId 的兼容调用也经过同一台账准入，确认后返回原数据格式。新增 scoped-relation-management-v1 要求旧中央显式停止后重开。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## 连接身份与节点管理准入
 
-M02-F03/F04：GraphOperationJournal以注入的managementBlocks核对node/node可信资源，缺来源或解析不完整保持冲突；机器写入、relation及原证明规则不放宽。save仅恢复冲突行，独立B的新操作不查询/重派A。要求scoped-node-management-v1，原中央停止重开后生效。 [完整设计与失败流程](../../iterations/I08/connection-identity-node-scope.md)。
+M02-F03/F04：GraphOperationJournal以注入的managementBlocks核对node/node可信资源，缺来源或解析不完整保持冲突；机器写入与原关系未知仍保守；relation/node按当前可信关系并集检查，原证明规则不变。save仅恢复冲突行，独立B的新操作不查询/重派A。要求scoped-node-management-v1，原中央停止重开后生效。 [完整设计与失败流程](../../iterations/I08/connection-identity-node-scope.md)。
 
 ## MCP02恢复与观测（2026-10-22）
 

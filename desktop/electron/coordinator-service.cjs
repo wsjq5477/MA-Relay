@@ -66,7 +66,7 @@ function createCoordinatorService(options) {
   let host, ssh=options.ssh;
   let teams,teamBroker,teamEngine,teamTimer,teamReady=Promise.resolve();
   const teamInvocation=Symbol('teamInvocation');
-  const graphJournal=new GraphOperationJournal(options.directory,{nodeConflict:(params,row)=>connection().managementBlocks?.(row,params)??true});
+  const graphJournal=new GraphOperationJournal(options.directory,{nodeConflict:(params,row)=>connection().managementBlocks?.(row,params)??true,relationConflict:(params,row)=>connection().relationManagementBlocks?.(row,params)??true});
   async function teamRead(params){
     const reply=await call({method:'ipc',params});
     if(!reply.ok)throw Object.assign(Error('原执行或控制收据尚无法核对。'),{code:reply.error.code});
@@ -327,6 +327,10 @@ async function call(input) {
     if(input.method==='manageNode'){
       const prepared=await connection().prepare(input.method,input.params);input={...input,params:prepared.params};
       if(read('pending.json',[]).some(r=>['pending','unknown'].includes(r.state)&&(!r.machineId||r.machineId===prepared.machineId)))throw Object.assign(new Error('来源机器仍有未确认操作，请先查询原请求。'),{code:'DESKTOP_UNCONFIRMED'});
+    }
+    if(input.method==='saveCollaboration'&&!input.params.operationId){
+      const receipt=await graphJournal.save(input.method,{...input.params,operationId:require('node:crypto').randomUUID()},graphDispatch);
+      return {ok:true,result:receipt?.state==='confirmed'?receipt.data:receipt};
     }
     if(['saveCollaboration','saveGraphLayout','manageNode'].includes(input.method)&&input.params.operationId)return {ok:true,result:await graphJournal.save(input.method,input.params,graphDispatch)};
     const prepared = await connection().prepare(input.method, input.params);

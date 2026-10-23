@@ -1,0 +1,34 @@
+
+> agentbridge@0.1.0 docs:build
+> node scripts/prepare-doc-site.mjs && vitepress build doc && node scripts/check-doc-site.mjs
+
+{
+  "ok": true,
+  "pages": 18,
+  "generatedTables": 2,
+  "publicAssets": 1,
+  "internalPagesPublished": 0,
+  "evidenceFilesExported": 0
+}
+
+  vitepress 2.0.0-alpha.20  (using vite 8.3.4)
+
+- building client + server bundles...
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[32m✓[0m building client + server bundles...
+- rendering pages...
+[32m✓[0m rendering pages...
+build complete in 5.70s.
+{
+  "ok": true,
+  "pages": 18,
+  "generatedTables": 2,
+  "htmlPages": 19,
+  "internalPagesPublished": 0,
+  "evidenceFilesExported": 0,
+  "searchAndPageAssetsChecked": 158
+}

@@ -172,6 +172,8 @@ export interface McpEvidence {
   toolsProbe?: {kind:"bridge-stdio";outcome:string;toolCount?:number};
 }
 export interface McpStatus {
+  nativeProbeSupported?:boolean;
+  lifecycle?:{phase:'exit_required'|'process_unknown'|'ready_to_write'|'reopen_required'|'running_unverified';processState:'running'|'stopped'|'unknown';safeToWrite:boolean;message:string;checkedAt?:string};
   /** DSH CLI explicit profile or Desktop's registered native selection. */
   profile?: string | null;
   nativeTargetChanged?: boolean;

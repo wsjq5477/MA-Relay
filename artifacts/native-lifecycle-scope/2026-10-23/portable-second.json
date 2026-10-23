@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-23T06:57:16.429Z",
+  "version": "0.6.0-alpha.52",
+  "environment": "Windows ordinary no-debug EXE / production Coordinator+MachineHost+CodexHost / synthetic persisted original history",
+  "status": "passed",
+  "modelCalls": 0,
+  "checks": [
+    "New ordinary EXE detects the still-running alpha.51.recovery.2 coordinator and blocks unsafe calls while settings remain accessible",
+    "Packaged production lifecycle detects real running OpenDesk and refuses isolated native write before registration; native list explicitly unsupported.",
+    "Independent original node B saves one idempotent relationship while original A unknown, time, parameters and error remain unchanged. No model execution.",
+    "Packaged DSH configure/status selects B before rescan, preserves private A bytes and never returns a token; disabled synthetic endpoints avoid service traffic.",
+    "Actual orphan Codex turns load through the frozen backend; absent original is NOT_FOUND, global snapshot remains usable",
+    "Ordinary window close/reopen retains original coordinator and history without replay",
+    "Full coordinator restart preserves both original turns, requests and native session",
+    "Frozen lifecycle, MCP, network, journal and coordinator modules match the verified source"
+  ],
+  "portable": {
+    "bytes": 130190265,
+    "sha256": "46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d"
+  },
+  "phase": "attached 0.6.0-alpha.52"
+}

@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-23T06:45:39.835Z",
+  "status": "passed",
+  "version": "0.6.0-alpha.52",
+  "backendModules": 54,
+  "coreFiles": 84,
+  "coreBuildMatches": true,
+  "linuxBackendMatches": true,
+  "linuxFiles": 1702,
+  "linuxManifestDigest": "3bf18b4d97d0c951767fbe3bfa612b4031e2e5078ae067a2ac77a48b9c8c66ba",
+  "appAsarSourceMatches": true,
+  "frontendMatches": true,
+  "bootstrapMatches": true,
+  "portable": {
+    "file": "desktop/release/AgentBridge-0.6.0-alpha.52-Windows-x64.exe",
+    "bytes": 130190265,
+    "sha256": "46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d"
+  }
+}

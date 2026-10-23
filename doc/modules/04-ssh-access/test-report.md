@@ -1,5 +1,7 @@
 # M04 SSH 接入测试报告
 
+2026-10-23，alpha.52：远端与断开原节点受控契约9/9通过，包含旧后台无安全写入标记零派发拒绝。完整桌面841/841、核心68/68共享回归通过；Linux daemon契约在Linux已通过，Windows上明确不支持。未连接或部署独立SSH，不提升原远端/模型验收。[原始证据](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## alpha.38 只读门禁 RPC 与越过确认
 
 T-M04-152 / M04-F04/F06/F08：2026-10-21，工作区 0.6.0-alpha.38，受控 TCP SSH + 假 client/installer，模型 0。[daemon-maintenance.test.cjs](../../../desktop/tests/daemon-maintenance.test.cjs) 与 [ssh-recovery-integration.test.cjs](../../../desktop/tests/ssh-recovery-integration.test.cjs) 合计 **26/26**（失败/跳过 0），覆盖显式确认后的门禁收集与 `overridden`/`unresolved` 落盘、非越过路径行为不变；新界面用例 [ui-maintenance-blockers.cjs](../../../desktop/tests/ui-maintenance-blockers.cjs) 5 checks 通过，其中第②③⑤项覆盖“按原 ID 单次查询”“门禁原话显示”与“无收据端点不判整体失败”。**真实 SSH 远端与真实 EXE/GUI 未测**：越过路径的远端停机与占位接管只在受控夹具验证；真实阿里云机器的切换是运维侧带外作业，不作为产品 UI 验收（见[交付记录第 5 节](../../iterations/I08/alpha38-delivery.md)）。[契约、风险与未测边界](../../iterations/I08/alpha38-delivery.md)。

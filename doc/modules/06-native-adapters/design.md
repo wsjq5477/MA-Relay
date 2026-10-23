@@ -1,5 +1,9 @@
 # M06 原生 Agent 适配器设计
 
+## 当前 OpenDesk 生命周期与关系作用域
+
+M06-F05：OpenDesk Desktop 原生配置管理新增 Windows tasklist 进程核对与配置静默窗口，准备端点前和最终原子替换前分别复核。运行、不可核验或退出写回未稳定均拒绝；缺真实 Node 时拒绝安装。移除先撤权，运行中仅保留待清理；原同名冲突、空 headers 默认值、损坏文件与原子归属检查不变。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## 连接身份与节点管理准入
 
 M06-F01/F05：DSH服务配置status公开文件名主体connectionId，configure明确selectedConnectionId。adapter/origin/token/enabled私有文件格式不变，旧origin/原生登录、模型、历史和unknown保持。OpenDesk接入仅应用中央节点准入修复，不启动/重启真实原生服务。 [完整设计与失败流程](../../iterations/I08/connection-identity-node-scope.md)。

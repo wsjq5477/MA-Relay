@@ -1,5 +1,7 @@
 # M05 Linux 机器后台设计
 
+M05-F02：hello随共享runtimeCapabilities广播新能力；opendesk-lifecycle模块随alpha.52离线资源进入包。非Windows进程核验保守unknown，不能以Linux daemon上线证明Windows OpenDesk退出。无新增daemon方法或帧版本，Windows客户端不自动部署或重启远端。 [合约与边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 M05-F02：共享MachineHost带Pi/Hermes配置适配，在目标机器解释原生目录与环境。新模块随alpha.50离线包收录；SSH协议不变、不自动升级远端，本机Linux原生MCP组件成功不替代独立SSH。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
 
 M05-F02：WSL bootstrap设置AGENTBRIDGE_HOST_READY，Core安装stdin读取器后返回就绪帧。此帧属于Windows→WSL stdio启动，不是daemon SSH帧协议变更；共享离线资源同时收录bootstrap，旧SSH不自动升级。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。

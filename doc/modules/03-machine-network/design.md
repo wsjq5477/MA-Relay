@@ -1,5 +1,9 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+## 当前 OpenDesk 生命周期与关系作用域
+
+M03-F04/F05：relationManagementBlocks 重用 managementBlocks 的原节点、同安装与 Windows/WSL 共享目录规则，校验来源身份后核对旧/新 leaderId 与 memberIds 并集。独立 B 新保存不附加查询或重派 A。仅 OpenDesk Desktop 的原节点 MCP 安装允许已断开状态，仍拒绝已移除/替代身份，原机器必须可用；不放宽普通执行或其他适配器。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## 连接身份与节点管理准入
 
 M03-F01：dsh.status/configure按原machineId/nodeId/adapter验证归属；从原adapter+显式origin唯一保存回应核对connectionId后原子保存dshBindings。绑定保存失败报告部分结果，原选择不变；扫描遵循原选择，不因枚举先后或更新时间选回旧origin。连接切换后需显式接入，原上下文不改绑。 [完整设计与失败流程](../../iterations/I08/connection-identity-node-scope.md)。

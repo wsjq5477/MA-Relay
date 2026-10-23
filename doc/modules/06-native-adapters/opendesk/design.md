@@ -1,5 +1,9 @@
 # OpenDesk 原生适配设计
 
+## 当前 OpenDesk 生命周期与关系作用域
+
+M06-F05：OpenDesk Desktop 必须先从托盘完全退出，刷新状态后才能添加。Bridge 在准备端点前与最终写入前检测所有匹配 OpenDesk.exe / OpenDesk Desktop.exe 的进程，并以250ms静默窗口及文件摘要确认退出写回稳定；失败保留原文件，不自动退出/重启 OpenDesk。仅支持可核验的 Windows 进程快照，其他平台或查询失败保守拒绝。已断开的原节点仍可添加，缺 Node 拒绝；移除先撤权再安全清理。没有原生列表查询接口，mcp.probe只读返回unsupported，连接/工具保持未知；原生组件或历史人工成功不提升本次观测。 [需求、流程与失败边界](../../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 ## 连接身份与节点管理准入
 
 M06-F05：同机其他安装的管理unknown不再永久禁用健康独立OpenDesk Desktop接入；中央可信blockedNodeIds、概览、关系图和run保持同一规则。共享安装/目录、原节点、机器/关系及缺身份仍阻止写入；只新增B的管理意图，不查询/重放A。原生协议和能力不变。 [完整设计与失败流程](../../../iterations/I08/connection-identity-node-scope.md)。
@@ -8,7 +12,7 @@ M06-F05：同机其他安装的管理unknown不再永久禁用健康独立OpenDe
 
 alpha.46在所有导出格式渲染前统一选择Node启动器，并保存launcherPath用于后台恢复；恢复只刷新私有端点，不改变原生命令或补回外部删除。未登记的同名诊断条目视为冲突，不能覆盖。[本轮证据与边界](../../../iterations/I08/mcp-open-recovery.md)。
 
-所属M06-F05、AB-F02/F07/F08/F10/F11/F13，复用M03/M07/M08/M10。实现只修改AgentBridge，使用OpenDesk已有接口，不构建或替换OpenDesk。原生接口基线已随alpha.46公开；本页新增节点准入修复已随0.6.0-alpha.51.recovery.2公开，验收层级见[测试报告](test-report.md)和[本轮记录](../../../iterations/I08/opendesk-existing-interfaces.md)。
+所属M06-F05、AB-F02/F07/F08/F10/F11/F13，复用M03/M07/M08/M10。实现只修改AgentBridge，使用OpenDesk已有接口，不构建或替换OpenDesk。原生接口基线已随alpha.46公开；既有独立节点接入修复已随0.6.0-alpha.51.recovery.2公开，本轮生命周期保护与关系资源范围为alpha.52本地候选，验收层级见[测试报告](test-report.md)和[本轮记录](../../../iterations/I08/opendesk-existing-interfaces.md)。
 
 ## 产品、入口和归属
 

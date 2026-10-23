@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-23T06:33:26.642Z",
+  "version": "0.6.0-alpha.51.recovery.2",
+  "baseline": false,
+  "modelCalls": 0,
+  "environment": "Windows Node / Edge / production renderer / controlled IPC",
+  "observations": [
+    {
+      "adapter": "dsh-desktop",
+      "independentPrimaryEnabled": true,
+      "title": "允许此 Agent 调用 Bridge MCP，向已授权子节点委派 · 以独立 MCP 会话作为主 Agent，托管任务绑定未适配"
+    },
+    {
+      "adapter": "opendesk-desktop",
+      "independentPrimaryEnabled": true,
+      "title": "允许此 Agent 调用 Bridge MCP，向已授权子节点委派 · 以独立 MCP 会话作为主 Agent，托管任务绑定未适配"
+    }
+  ],
+  "checks": [
+    "dsh-desktop: draft selection has no dispatch; one save, no unrelated original query/replay.",
+    "opendesk-desktop: draft selection has no dispatch; one save, no unrelated original query/replay.",
+    "target-blocked: protected with specific reason 本机测试机器：原节点操作待核对（操作 #15c880b7），请在设置中查询原操作。",
+    "missing-range: protected with specific reason 原节点管理操作缺少可信范围，请在设置中查询原操作后再编辑授权。",
+    "missing-source: protected with specific reason 原节点管理操作缺少可信范围，请在设置中查询原操作后再编辑授权。",
+    "machine-pending: protected with specific reason 原机器管理或维护操作待核对，请先查询原操作。",
+    "relation-pending: protected with specific reason 原协作授权操作待核对，请在设置中查询原授权操作。",
+    "read-failure: protected with specific reason 原管理台账尚未安全读取，请在设置中核对后再编辑授权。",
+    "disconnected: protected with specific reason 目标节点尚未接入。",
+    "no-execution: protected with specific reason 目标节点当前不支持执行。",
+    "no-mcp: protected with specific reason 该产品未确认提供 MCP 客户端，不能作为主 Agent；仍可直接会话或接收普通委派。",
+    "OpenDesk running cannot install; stopped disconnected original node can install once; persistent manual verification, native probe disabled; reopening never promotes native evidence."
+  ],
+  "pageErrors": [],
+  "browser": "155.0.4283.45",
+  "status": "passed"
+}

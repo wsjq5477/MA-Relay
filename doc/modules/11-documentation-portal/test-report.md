@@ -1,5 +1,7 @@
 # M11 文档网页测试报告
 
+T-M11-201 / M11-F01/F05：2026-10-23，alpha.52用户说明同步，docs:test 6/6、静态18页/19HTML构建与边界审计通过，内部页和证据导出均0。说明以当前原生能力为准，不增加原生/模型验收；[记录](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
 
 2026-10-23 / WSL Node22.23.1：首轮用户站5/6，旧断言要求DSH Desktop MCP方式为未接入，发现DSH Web/CLI汇总也落后于当前配置实现；修正汇总与明确断言后复验6/6，构建18页/19 HTML、内部页与证据导出均0；结果及原始失败见专项。产品EXE未改变，不重复计算模型或前端验收。 [本轮证据](../../iterations/I08/wsl-host-readiness.md)。

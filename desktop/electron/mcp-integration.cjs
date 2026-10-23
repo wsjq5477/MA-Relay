@@ -215,6 +215,8 @@ class McpIntegration {
       authorization,
       ownership: ownedEntry ? 'bridge' : foreign ? 'external' : 'unconfirmed',
     };
+    const openDesk=params.adapter==='opendesk-desktop';
+    if(openDesk){facts.nativeLoad=config==='present'?'reload_required':'unsupported';facts.connection=authorization==='revoked'?'revoked':'unknown';facts.tools=authorization==='revoked'?'unauthorized':'unknown';}
     const targetConflict = selectionError && (row?.enabled || entry !== undefined);
     const state = inspectError || targetConflict
       ? 'conflict'
@@ -239,12 +241,13 @@ class McpIntegration {
       ...(params.adapter === 'hermes' ? {profile: target?.nativeTarget?.profile || row?.nativeTarget?.profile || null, nativeTargetChanged: !!targetConflict,
         ...(currentTarget ? {currentConfigPath: require('./hermes-mcp-config.cjs').targetFile(currentTarget)} : {})} : {}),
       state,
+      ...(openDesk?{nativeProbeSupported:false,lifecycle:require('./opendesk-lifecycle.cjs').lifecycle(this.openDeskObservation,config)}:{}),
       facts,
       evidence: {
         configPath: target?.file || '',
         observation,
-        nativeProbe: probe.nativeLoad || probe.kind === 'native-list' ? {kind: probe.kind || 'native-list', command: probe.command, outcome: probe.outcome, detail: probe.detail} : {kind: 'none'},
-        ...(probe.tools ? {toolsProbe: {kind: 'bridge-stdio', outcome: probe.tools, ...(probe.toolCount === undefined ? {} : {toolCount: probe.toolCount})}} : {}),
+        nativeProbe: openDesk ? {kind:'none',outcome:'unsupported',detail:'OpenDesk Desktop 没有可查询的原生 MCP 列表，无法由 Bridge 核验；请在原生 MCP 管理中人工核对。'} : probe.nativeLoad || probe.kind === 'native-list' ? {kind: probe.kind || 'native-list', command: probe.command, outcome: probe.outcome, detail: probe.detail} : {kind: 'none'},
+        ...(!openDesk && probe.tools ? {toolsProbe: {kind: 'bridge-stdio', outcome: probe.tools, ...(probe.toolCount === undefined ? {} : {toolCount: probe.toolCount})}} : {}),
         ...(inspectError || targetConflict ? {configError: {code: (inspectError || selectionError).code, message: (inspectError || selectionError).message}} : {}),
       },
       ...(row?.enabled ? {files: this.files(row)} : {}),
@@ -363,10 +366,11 @@ class McpIntegration {
     const job = prior.catch(() => {}).then(async () => {
       // Desktop selection may change while preparing the endpoint. A refused
       // write must retain the old registration/ownership and revoke a new id.
-      const before = ['dsh-desktop', 'pi', 'hermes'].includes(params.adapter) && ['mcp.install', 'mcp.export'].includes(method) ? structuredClone(this.rows) : null;
+      if(params.adapter === 'opendesk-desktop') this.openDeskObservation=await require('./opendesk-lifecycle.cjs').observe(this.options);
+      const before = ['dsh-desktop', 'pi', 'hermes', 'opendesk-desktop'].includes(params.adapter) && ['mcp.install', 'mcp.export'].includes(method) ? structuredClone(this.rows) : null;
       try { return await this.perform(method, params); }
       catch (error) {
-        if (before) { this.rows = before; this.save(); }
+        if (before && JSON.stringify(before)!==JSON.stringify(this.rows)) { this.rows = before; this.save(); }
         throw error;
       }
     });
@@ -392,6 +396,7 @@ class McpIntegration {
       return this.status(params);
     }
     if (method === 'mcp.probe') {
+      if(params.adapter === 'opendesk-desktop')return this.status(params);
       if (!support.supported) return this.status(params);
       const binding = this.probeBinding(params, row);
       const native = await this.nativeProbe(params.adapter);
@@ -422,6 +427,10 @@ class McpIntegration {
         return this.status(params);
       }
       throw fail(support.code, support.reason);
+    }
+    if(params.adapter==='opendesk-desktop'&&method==='mcp.install'){
+      this.openDeskObservation=await require('./opendesk-lifecycle.cjs').assertStopped(this.options,require('./opendesk-connection.cjs').settingsFile(this.options));
+      if(!this.nodeLauncher())throw fail('MCP_OPENDESK_NODE_REQUIRED','OpenDesk 原生 MCP 需要可用的 Node 启动器；请先安装 Node，再刷新核对。原生配置未写入。');
     }
     if (params.adapter === 'opencode' && method !== 'mcp.remove') {
       const installation = (await scanTools(this.options)).find(i => i.adapter === 'opencode');
@@ -454,6 +463,7 @@ class McpIntegration {
         this.save();
       }
       try {
+        if(params.adapter==='opendesk-desktop')this.openDeskObservation=await require('./opendesk-lifecycle.cjs').assertStopped(this.options,target.file);
         target.update(undefined, row?.configuration);
       } catch (error) {
         // Configuration cleanup failed, but the authorization is already gone.
@@ -497,7 +507,10 @@ class McpIntegration {
     row.configuration = nativeEntry(params.adapter, config, protocol);
     delete row.probe;
     this.save();
-    if (method === "mcp.install") target.update(row.configuration, owned);
+    if (method === 'mcp.install') {
+      if(params.adapter==='opendesk-desktop')this.openDeskObservation=await require('./opendesk-lifecycle.cjs').assertStopped(this.options,target.file);
+      target.update(row.configuration, owned);
+    }
     if (method === "mcp.install" && ['dsh-web', 'dsh', 'dsh-desktop'].includes(params.adapter)) {
       // DSH applies the profile patch layer itself (live when HMR is enabled).
       // Bridge reports the requirement instead of claiming a loaded connection.

@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## 当前 OpenDesk 生命周期与关系作用域
+
+M10-F01/F02/F03：alpha.52 候选包含新增 opendesk-lifecycle.cjs、关系作用域中央能力和 OpenDesk 安全写入能力；Windows 后台、ASAR、Linux离线资源及生产前端必须与冻结源码一致。旧中央需显式停止重开，SSH仅对 OpenDesk 原生增删要求 opendesk-mcp-lifecycle-v1，不因该标记统一阻断读取/撤权或其他产品；本轮不部署远端。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+
 M10-F01/F02/F03：连接恢复候选从当前工作区冻结到独立source目录，仅在快照修改候选版本，保留原alpha.50/51功能。核对53后台、84Core、1701Linux资源、ASAR/前端/bootstrap与冻结源码一致；旧公开alpha.46中央必须停止后重开才能满足scoped-node-management-v1，不自动切换日常后台或远端。[源码清单、字节与验收](../../iterations/I08/connection-identity-node-scope.md)。
 
 M10-F01/F02/F03：alpha.50同时包含Pi/Hermes目标解析模块、配置/原生探测与前端提示，两个新增CJS须进入后台/ASAR/Linux离线包；53后台/84Core/1701Linux及bootstrap源码一致性均核对。普通Windows EXE、实际原生组件与Windows前端分层，未签名/未公开/未部署远端。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
@@ -8,7 +12,7 @@ M10-F01/F02/F03：alpha.49包含WSL HostConnection/Core就绪握手，Windows br
 
 M10-F01/F02/F03：alpha.48候选承接alpha.47，并加入DSH Desktop目标解析模块、原生补丁适配、绑定与前端展示；须核对新增模块同时进入Windows后台/ASAR及Linux离线包。旧alpha.46公开附件和alpha.47候选保留。 [实现与分层验收](../../iterations/I08/dsh-desktop-mcp.md)。
 
-当前本地候选 alpha.47 包含 OpenDesk MCP 默认字段归属兼容；后台、窗口 ASAR、Core、Linux离线包与生产前端必须一致。Windows隔离验收、文件摘要与切换步骤见[本轮交付](../../iterations/I08/opendesk-mcp-defaults.md)。公开alpha.46的标签和附件保留；客户端候选不自动升级日常后台或SSH。
+alpha.47历史候选包含 OpenDesk MCP 默认字段归属兼容；后台、窗口 ASAR、Core、Linux离线包与生产前端必须一致。Windows隔离验收、文件摘要与切换步骤见[本轮交付](../../iterations/I08/opendesk-mcp-defaults.md)。公开alpha.46的标签和附件保留；客户端候选不自动升级日常后台或SSH。
 
 当前公开预发布0.6.0-alpha.51.recovery.2，标签冻结 `905b792`；源码、EXE与校验文件已公开，匿名完整下载130196014字节与SHA-256一致。包源码一致，未签名、未部署SSH；[当前完整交付](../../iterations/I08/alpha51-recovery2-release.md)。
 
