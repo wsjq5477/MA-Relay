@@ -1,5 +1,9 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+## 连接身份与节点管理准入
+
+M03-F01：dsh.status/configure按原machineId/nodeId/adapter验证归属；从原adapter+显式origin唯一保存回应核对connectionId后原子保存dshBindings。绑定保存失败报告部分结果，原选择不变；扫描遵循原选择，不因枚举先后或更新时间选回旧origin。连接切换后需显式接入，原上下文不改绑。 [完整设计与失败流程](../../iterations/I08/connection-identity-node-scope.md)。
+
 OpenDesk CLI按目标环境当前PATH发现；已知扩展名为空的npm入口使用原安装和后台Node。Windows Desktop只读原生setting中的网关地址与本用户网关身份，调用已有接口核对，不启动桌面程序或写原生配置；网关不可用时显示原因。CLI/Desktop节点独立，桌面默认目录沿用原生设置。 [实现与证据边界](../../iterations/I08/opendesk-existing-interfaces.md)。
 
 M03-F02：OpenCode 显式接入遇原服务已退出时，仅启动原 context 内的原生服务，再核验原 Agent；本次新增恢复不放在快照或原请求读取分支。接入准备失败原子记录本地 attach 拒绝收据，原图意图只按匹配证据收敛；不改变原任务、Session 或 unknown 门禁。恢复不改协议或原生模型配置。详见[恢复契约与边界](../../iterations/I08/opencode-oom-recovery.md)。

@@ -67,7 +67,13 @@ class AgentNetwork extends MachineRouter {
         ||siblings.find(n=>!n.supersededBy&&!n.removed)
         ||siblings.find(n=>n.nodeId===nodeId)||siblings[0];
       if(!node){node={nodeId,machineId:connection.machineId,adapter:connection.adapter,name:connection.name,executable:connection.executable,connected:connection.connected};this.network.nodes.push(node);}
-      if(!connection.current)connection=snapshot.connections.find(c=>c.connectionId===node.connectionId)||connection;
+      const dshBinding=(this.network.dshBindings||[]).find(b=>b.nodeId===node.nodeId&&b.machineId===node.machineId&&b.adapter===node.adapter);
+      if(dshBinding){
+        const selected=snapshot.connections.find(c=>c.current&&c.machineId===node.machineId&&c.adapter===node.adapter&&c.executable===dshBinding.executable);
+        if(selected){if(node.executable!==selected.executable)node.connected=false;connection=selected;}
+        else connection=snapshot.connections.find(c=>!c.current&&c.machineId===node.machineId&&c.adapter===node.adapter&&c.executable===dshBinding.executable)||{...connection,current:false,connectionId:node.connectionId,executable:node.executable,healthy:false,error:'已保存的 DSH 目标连接未发现，请保留原连接并重新扫描核对。',errorCode:'DSH_CONNECTION_REQUIRED',executionSupported:false};
+      }
+      if(!connection.current&&!dshBinding)connection=snapshot.connections.find(c=>c.connectionId===node.connectionId)||connection;
       delete node.supersededBy;
       for(const sibling of siblings)if(sibling!==node)sibling.supersededBy=node.nodeId;
       Object.assign(node,{executable:connection.current?connection.executable:node.executable,connectionId:connection.connectionId,version:connection.current?connection.version:node.version,connected:node.managed?!!node.connected:node.connected||connection.connected,installed:!connection.error||connection.healthy,error:connection.error,errorCode:connection.errorCode,executionSupported:connection.executionSupported??connection.adapter!=='codex'});
@@ -430,7 +436,19 @@ class AgentNetwork extends MachineRouter {
     if (['dsh.status', 'dsh.configure'].includes(method)) {
       const machine = this.machine(params.machineId);
       this.assertMachineAdmission(machine);
-      return this.host(machine).call(method, params);
+      const node=params.nodeId?this.node(params.nodeId):null;
+      if(node&&(node.machineId!==machine.machineId||!['dsh-desktop','dsh-web'].includes(node.adapter)||method==='dsh.configure'&&params.adapter!==node.adapter))throw fail('WRONG_MACHINE','DSH 配置必须属于原机器和原节点入口。');
+      if(method==='dsh.configure'&&node&&(node.removed||node.supersededBy))throw fail('NODE_DISCONNECTED','原节点已移除或被替代，配置只供查看。');
+      const result=await this.host(machine).call(method,params);
+      if(!node)return result;
+      const bindings=this.network.dshBindings||[];
+      if(method==='dsh.status')return {...result,selectedConnectionId:bindings.find(b=>b.nodeId===node.nodeId&&b.machineId===machine.machineId&&b.adapter===node.adapter)?.connectionId};
+      const origin=new URL(params.url).origin,matches=result.items?.filter(row=>row.adapter===node.adapter&&row.origin===origin&&!row.error);
+      if(matches?.length!==1||typeof matches[0].executable!=='string'||!matches[0].executable||matches[0].connectionId&&matches[0].connectionId!==node.adapter+'-'+hash(node.adapter+':'+origin).slice(0,32)||result.selectedConnectionId&&result.selectedConnectionId!==(matches[0].connectionId||matches[0].executable))throw fail('DSH_BINDING_MISMATCH','连接配置回应不匹配原目标，请保留配置并刷新核对。');
+      const row=matches[0],binding={nodeId:node.nodeId,machineId:machine.machineId,adapter:node.adapter,connectionId:row.connectionId||row.executable,executable:row.executable};
+      const next={...this.network,dshBindings:[...bindings.filter(b=>b.nodeId!==node.nodeId||b.machineId!==machine.machineId),binding]};
+      try{atomicWrite(this.networkFile,next);}catch{throw fail('DSH_BINDING_PERSIST','服务配置已写入，但节点连接身份未保存；请重新扫描并核对原连接。');}
+      this.network=next;return {...result,selectedConnectionId:binding.connectionId};
     }
     if(method==='snapshot')return this.snapshot();
     if(['mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe'].includes(method)){

@@ -1,5 +1,13 @@
 # OpenDesk 适配验证
 
+## 连接身份与节点管理验证
+
+| 场景 ID | 场景与实际结果 |
+| --- | --- |
+| T-M06-OD-200 | 生产Coordinator受控路由+生产前端两入口：独立B一次接入、A的原ID/参数/时间/错误保留；实际原生网关和模型本轮未调用。 通过；2026-10-23，WSL Node22.23.1/Windows Node+Edge，模型0。 |
+
+隔离修复基线桌面777/777，Windows生产前端受控10组通过；当前集成和普通EXE另列。[原始证据、环境与未测项](../../../iterations/I08/connection-identity-node-scope.md)。
+
 ## 日常原生父模型只读发现（2026-10-22，alpha.46）
 
 修复旧诊断条目时，首次运行中改盘被退出时的旧内存配置覆盖；用户从托盘退出后，确认进程 0，离线备份替换并重新启动。实际 OpenDesk MCP 子进程使用正式端点，原生日志发现 7 工具；通过日常网关提交 1 条验收 Prompt，原生父模型实际调用 `mcpmgr-AgentBridge__list_agents` 1 次，原生持久工具记录为 `success`、返回 7 个获准节点。子任务 0，没有重放用户原查询。原生页面与父模型自主委派未验，新增事实不并入既有回归计数。启动会补入空 `headers`，Bridge 严格所有权比较的默认字段兼容仍保留。[修复、失败复报与原始证据](../../../iterations/I08/opendesk-mcp-diagnostic-repair.md)。

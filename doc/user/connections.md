@@ -73,3 +73,7 @@ agentbridge mcp export --node <节点ID>
 `attach` 需要接入操作ID；回应未知时只查询同一个 `operation`，不要换ID或重复接入。操作收据确认接入后，再执行 `install` 或 `export`。命令与桌面共用 `agentbridge-desktop` profile，也支持 `AGENTBRIDGE_DESKTOP_PROFILE` 或显式 `--profile-dir`；Windows与WSL进程使用各自的本地profile。
 
 探测会标明时间。连接和工具观测有效期60秒；配置文件或DSH profile改变后旧观测立即失效，需重新探测。服务端能列工具，只证明服务端可启动，不证明原生Agent已连接、拥有主角色或完成真实委派。
+
+## 同机其他节点有待核对操作
+
+`alpha.51.recovery.2` 本地候选将节点管理保护落实到原节点、同一安装或共享目录。独立的健康节点仍可接入；被阻塞的按钮会说明原操作待核对，可从设置的“未确认操作”按原ID查询。机器管理、协作关系、来源缺失或旧后台未提供作用域时仍保持保护。独立节点接入成功不会清除其他节点的 unknown，也不证明其原任务完成。该修复尚未包含在公开alpha.46。

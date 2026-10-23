@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+当前源码修复 DSH 服务连接保存后的目标选择与同机独立节点管理准入（AB-F01/AB-F02/AB-F06）。保存、刷新、重开和扫描始终核对原机器/节点的明确连接身份；节点管理 unknown 仅保护原节点、原安装或共享目录，机器管理/关系及缺失身份继续保守阻塞。源码修复尚未公开；[需求、实现与分层验证](iterations/I08/connection-identity-node-scope.md)。
+
 当前源码已落地（AB-F02/F07/F08/F11/F12/F13）：[I08-MCP02](iterations/I08/mcp-open-integration.md)支持从Bridge或原生Agent管理同一MCP，能力分为MCP调用/原生配置/托管scope，六项事实独立展示。当前公开alpha.46进一步修复导出启动器、OpenCode数组探测、过期观测、Linux端点恢复及非GUI首次接入；共享根68/68、桌面758/758，最终JSON修复后CLI11/11；[当前包与Windows验证](iterations/I08/mcp-open-recovery.md)。直接配置支持Claude/Codex/OpenCode两代、DSH Web/显式profile CLI、OpenDesk Desktop；DSH两入口已有受控原生加载/握手/7工具证据，OpenDesk Desktop0.3.9已有诊断条目列表可见证据，已安装OpenDesk/DSH原生MCP组件已通过正式授权调用，并分别经生产协作链委派1个真实Claude子任务成功；OpenDesk 日常原生父模型只读 list_agents 已返回 7 个获准节点，见[现场恢复与发现](iterations/I08/opendesk-mcp-diagnostic-repair.md)；原生父模型自主委派、日常原生页面仍未验，见[原生组件验收](iterations/I08/mcp-native-acceptance.md)。OpenDesk CLI0.3.8无MCP管理面，仅可导出；DSH Desktop/Hermes/Pi原生配置尚未适配。发布包未签名、已公开、未部署远端，完整MCP02未准出。
 
 当前发布前端已补齐OpenDesk CLI/Desktop能力识别，健康且能力明确的节点可接入并开始会话；[修复与包验证](iterations/I08/opendesk-ui-admission.md)。当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。 当前Windows Desktop 0.3.9原实例真实执行、续聊和窗口重开通过，日常alpha.42后台已发现健康桌面节点；[现场验证范围](iterations/I08/opendesk-desktop-live.md)。

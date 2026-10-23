@@ -66,7 +66,7 @@ function createCoordinatorService(options) {
   let host, ssh=options.ssh;
   let teams,teamBroker,teamEngine,teamTimer,teamReady=Promise.resolve();
   const teamInvocation=Symbol('teamInvocation');
-  const graphJournal=new GraphOperationJournal(options.directory);
+  const graphJournal=new GraphOperationJournal(options.directory,{nodeConflict:(params,row)=>connection().managementBlocks?.(row,params)??true});
   async function teamRead(params){
     const reply=await call({method:'ipc',params});
     if(!reply.ok)throw Object.assign(Error('原执行或控制收据尚无法核对。'),{code:reply.error.code});

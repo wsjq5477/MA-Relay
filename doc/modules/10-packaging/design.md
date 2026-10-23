@@ -1,5 +1,7 @@
 # M10 构建、发布与持久运行资源设计
 
+M10-F01/F02/F03：连接恢复候选从当前工作区冻结到独立source目录，仅在快照修改候选版本，保留原alpha.50/51功能。核对53后台、84Core、1701Linux资源、ASAR/前端/bootstrap与冻结源码一致；旧公开alpha.46中央必须停止后重开才能满足scoped-node-management-v1，不自动切换日常后台或远端。[源码清单、字节与验收](../../iterations/I08/connection-identity-node-scope.md)。
+
 当前公开预发布 alpha.46，标签冻结 `9766eb4`；源码、EXE 与校验文件已公开，匿名完整下载130180760字节与SHA-256一致。包源码一致，未签名、未部署SSH；[当前完整交付](../../iterations/I08/alpha46-release.md)。
 
 ## MCP02恢复与观测（2026-10-22）

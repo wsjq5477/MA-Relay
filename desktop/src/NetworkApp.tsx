@@ -386,9 +386,9 @@ export default function NetworkApp() {
     if(lane==='node')return management.query();if(lane==='machine')return machineManagement.query();
     return graphRecovery.query(managementRows.filter(row=>row.lane===lane));
   }
-  function managementReason(machineId?:string){
+  function managementReason(machineId?:string,nodeId?:string){
     const machine=allMachines.find(m=>m.machineId===machineId);
-    const reason=management.blockReason(machineId,machine?.connectionId)||machineManagement.blockReason(machineId,machine?.connectionId);
+    const reason=management.blockReason(machineId,machine?.connectionId,nodeId)||machineManagement.blockReason(machineId,machine?.connectionId,nodeId);
     return reason?(machine?.name||'来源机器')+'：'+reason:'';
   }
   function nodeAction(node: AgentNode, action: NodeAction) {
@@ -618,7 +618,7 @@ export default function NetworkApp() {
       )}
       {managementRows.some(row=>row.lane==='node') && (
         <div className="notice-banner" role="status">
-          原节点管理操作待核对，同机管理与授权编辑受保护；独立执行资源仍可使用。
+          原节点管理操作待核对，冲突节点、机器管理与授权编辑继续受保护；独立节点仍可接入和执行。
           <button className="text-btn" disabled={graphRecovery.querying} onClick={() => void queryManagement('node')}>
             {graphRecovery.querying?'正在查询原管理操作…':'查询原节点操作'}
           </button>
@@ -1041,7 +1041,7 @@ export default function NetworkApp() {
                       <button
                         className="btn"
                         disabled={
-                          !!managementReason(n.machineId) || busy ||
+                          !!managementReason(n.machineId,n.nodeId) || busy ||
                           graphExecutionLocked ||
                           !data.nodeManagement ||
                           !n.online ||
@@ -1127,7 +1127,7 @@ export default function NetworkApp() {
               <button
                 className="btn primary"
                 disabled={
-                  !!managementReason(nodeDialog.node.machineId) || busy ||
+                  !!managementReason(nodeDialog.node.machineId,nodeDialog.node.nodeId) || busy ||
                   graphExecutionLocked ||
                   !data.nodeManagement ||
                   !nodeDialog.node.online ||

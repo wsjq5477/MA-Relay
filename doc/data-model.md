@@ -1,5 +1,9 @@
 # 对象、身份与持久数据
 
+## DSH 节点选择
+
+agent-network.json 继续 version=1，可选 dshBindings 数组保存 {nodeId,machineId,adapter,connectionId,executable}；仅登记经过原节点归属与回应校验的目标。旧数据缺该字段仍可读。connectionId 为 adapter+origin 摘要私有文件的文件名主体，公开状态/保存回应允许此脱敏标识及 selectedConnectionId，不含 token。缺目标、重复身份和损坏状态不能回退默认连接；旧上下文、请求和凭据文件保留。图管理持久台账格式及终态证明不变，可信冲突判断不从客户端或持久字段加载。[完整数据与失败边界](iterations/I08/connection-identity-node-scope.md)。
+
 当前源码已随公开 alpha.46 分发，冻结提交 `9766eb4`；本轮仅更新发布状态，数据归属、线协议和恢复边界不变。[发布与核验](iterations/I08/alpha46-release.md)。
 
 MCP登记增加可选launcherPath，后台恢复保持原启动命令。probe增加binding（配置路径、原文、connectionId与configuration的SHA-256）；旧probe无binding按未知处理。status.evidence.observation={observedAt?,freshness:current|stale|unknown,reason?:unbound|configuration_changed|expired}，不落盘；连接/工具观测最长60秒，配置/profile变化立即失效。此摘要仅为一致性校验，不是授权凭据。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
@@ -24,7 +28,7 @@ delegations新增可选contextVersion，新行固定整数1且在派发前持久
 
 ## 配置弹窗的临时状态
 
-Agent行配置选择只在当前前端内存保存原nodeId/machineId及展示快照；弹窗以该二元归属挂载，缺失/离线/移除保留原目标并禁用写入，不回退到第一个可用Agent。DSH从已有脱敏status中匹配原adapter+executable，token为空且不持久至浏览器；原存储结构与身份、Task/Conversation不变。[本轮边界](iterations/I07/agent-row-configuration.md)。
+Agent行配置选择只在当前前端内存保存原nodeId/machineId及展示快照；弹窗以该二元归属挂载，缺失/离线/移除保留原目标并禁用写入，不回退到第一个可用Agent。DSH优先核对原节点持久选择的connectionId，旧数据按原adapter+executable精确匹配，token为空且不持久至浏览器；原存储结构与身份、Task/Conversation不变。[本轮边界](iterations/I07/agent-row-configuration.md)。
 
 ## 连接视图的观察字段
 
@@ -42,7 +46,7 @@ list_agents响应兼容保留items并增加schema=1、readOnly=true、view=autho
 
 ## DSH连接与原轮次绑定
 
-未配置安装提示沿用发现项adapter/name/executable/healthy/error，Desktop路径为原生EXE，Linux Web路径为profile的package.json；`healthy:false`，不能据安装路径建立可执行会话。配置服务后仍按adapter+origin私有文件标识连接；旧记录与unknown不清除，不新增持久字段。[发现与连接身份](iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)。
+未配置安装提示沿用发现项adapter/name/executable/healthy/error，Desktop路径为原生EXE，Linux Web路径为profile的package.json；`healthy:false`，不能据安装路径建立可执行会话。配置服务后仍按adapter+origin私有文件标识连接；旧记录与unknown不清除，节点选择新增可选dshBindings字段。[发现与连接身份](iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)。
 
 新增稳定adapter ID dsh-desktop/dsh-web；目标用户私有dsh-connections目录按adapter+origin摘要保存连接配置（adapter/origin/token/enabled）。公开status不含token。配置文件路径是连接身份；不同地址不改绑旧上下文。NativeCliHost旧Task/Conversation兼容，job新增requestId/origin，binding保存sessionId/afterSeq/requestId，attempted与cancel-attempted分别标记一次派发边界。停用不删除原凭据或历史；不搬运已有原生Session。字段、权限、失败与恢复见[DSH Desktop/Web 接入](iterations/I07/dsh-desktop-web.md)。
 

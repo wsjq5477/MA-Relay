@@ -46,7 +46,7 @@ interface Props {
   busy: boolean;
   executionLocked?: boolean;
   metadataBusy: boolean;
-  managementReason?: (machineId:string)=>string;
+  managementReason?: (machineId:string,nodeId?:string)=>string;
   executionReason?: (machineId?:string,nodeId?:string)=>string;
   managementSupported: boolean;
   machineManagementSupported: boolean;
@@ -202,13 +202,6 @@ export default function MachineInventory(props: Props) {
             : machine.kind === "wsl"
               ? Terminal
               : Server;
-        const managementLocked =
-          props.busy ||
-          props.executionLocked ||
-          !!metadataReason ||
-          !props.managementSupported ||
-          !machine.online ||
-          props.blocked(machine.machineId);
         const machineEditLocked =
           props.busy ||
           props.executionLocked ||
@@ -394,8 +387,8 @@ export default function MachineInventory(props: Props) {
                   node.machineId,
                   node.nodeId,
                 );
-                const nodeManagementLocked =
-                  managementLocked || !node.online || node.busy;
+                const nodeManagementReason=props.managementReason?.(machine.machineId,node.nodeId)??metadataReason;
+                const nodeManagementLocked = props.busy||props.executionLocked||!!nodeManagementReason||!props.managementSupported||!machine.online||!node.online||node.busy||resourceBlocked;
                 const canStart =
                   !props.busy &&
                   !props.executionLocked &&
@@ -473,6 +466,7 @@ export default function MachineInventory(props: Props) {
                       ) : (
                         <button
                           className="btn small"
+                          title={nodeManagementReason||(!node.healthy?'原生工具尚未就绪，请查看节点配置。':'')}
                           disabled={
                             nodeManagementLocked ||
                             !node.healthy ||
@@ -494,7 +488,7 @@ export default function MachineInventory(props: Props) {
                         <div className="inventory-menu-content">
                           {node.connected && (
                             <button
-                              disabled={nodeManagementLocked}
+                              title={nodeManagementReason} disabled={nodeManagementLocked}
                               onClick={() =>
                                 props.nodeAction(node, "disconnect")
                               }
@@ -504,7 +498,7 @@ export default function MachineInventory(props: Props) {
                           )}
                           <button
                             className="inventory-danger"
-                            disabled={nodeManagementLocked}
+                            title={nodeManagementReason} disabled={nodeManagementLocked}
                             onClick={() => props.nodeAction(node, "remove")}
                           >
                             移除 Agent

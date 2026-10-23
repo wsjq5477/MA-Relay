@@ -654,3 +654,58 @@ test('final resolved context workspace still protects shared resources before a 
  const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());const result=await service.call({method:'nodeRequest',params:{nodeId:b.nodeId,machineId:b.machineId,op:'submit',requestId:'resolved-alias',message:'controlled',workspace:'D:/apparently-independent',collaboration:false}});
  assert.equal(result.error.code,'DESKTOP_UNCONFIRMED');assert.equal(host.executions,0);assert.equal(new GraphOperationJournal(f.directory).pending().length,1);
 });
+
+async function independentAttachFixture(t){
+ const f=await setup(t),machine=f.router.catalog.machines.find(m=>m.kind==='windows'),host=f.hosts.get(machine.machineId);host.items.push({adapter:'opencode',name:'OpenCode',executable:'C:/tools/opencode.exe',version:'1.19.3',healthy:true,executionSupported:true},{adapter:'opendesk-desktop',name:'OpenDesk Desktop',executable:'C:/tools/opendesk.exe',version:'0.3.9',healthy:true,executionSupported:true});await f.router.call('discover',{machineId:machine.machineId});const state=await f.router.snapshot(),a=state.nodes.find(n=>n.machineId===machine.machineId&&n.adapter==='opencode'),b=state.nodes.find(n=>n.machineId===machine.machineId&&n.adapter==='opendesk-desktop');return {...f,machine,host,a,b};
+}
+test('independent OpenDesk attach reaches production management once while original OpenCode unknown remains untouched',async t=>{
+ const f=await independentAttachFixture(t),{GraphOperationJournal}=require('../electron/graph-operations.cjs'),{digest}=require('../electron/graph-layout.cjs');const params={operationId:'original-opencode-attach',machineId:f.a.machineId,nodeId:f.a.nodeId,action:'attach'},row={operationId:params.operationId,lane:'node',method:'manageNode',params,fingerprint:digest(params),state:'unknown',time:timestamp,error:{code:'NATIVE_START_TIMEOUT',message:'synthetic original timeout'}};new GraphOperationJournal(f.directory).update(row);
+ const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());const projection=(await service.call({method:'graphPending',params:{}})).result;assert(projection[0].blockedNodeIds.includes(f.a.nodeId));assert(!projection[0].blockedNodeIds.includes(f.b.nodeId));
+ const query=f.router.call.bind(f.router),queries=[];let writes=0;f.router.call=async(method,p)=>{if(method==='nodeOperation')queries.push(p.operationId);if(method==='manageNode')writes++;return query(method,p);};const before=0;const request={operationId:'new-independent-opendesk-attach',machineId:f.b.machineId,nodeId:f.b.nodeId,action:'attach'};const result=await service.call({method:'manageNode',params:request});assert.equal(result.ok,true,JSON.stringify(result));assert.equal(writes,before+1);assert.equal(f.host.executions,0);assert.deepEqual(queries,[],'independent attach does not query or replay the old OpenCode operation');assert.deepEqual(new GraphOperationJournal(f.directory).pending(),[row]);assert.equal((await service.call({method:'manageNode',params:request})).ok,true);assert.equal(writes,before+1);
+});
+
+function dshDataHost(host,home){
+ const original=host.call.bind(host),dsh=require('../electron/dsh-connection.cjs');
+ host.call=async(method,p={})=>{
+  if(method==='dsh.status')return dsh.status({home});
+  if(method==='dsh.configure')return dsh.configure({home},p);
+  if(method==='discover'){const records=dsh.status({home}).items;if(records.length)return {items:[...host.items.filter(i=>i.adapter!=='dsh-desktop'),...records.filter(r=>r.enabled).map(r=>({...r,healthy:!r.error,executionSupported:true,version:'synthetic-web-api'}))]};}
+  return original(method,p);
+ };
+}
+async function dshTargetFixture(t){
+ const f=await setup(t),machine=f.router.catalog.machines.find(m=>m.kind==='windows'),host=f.hosts.get(machine.machineId),home=path.join(f.directory,'dsh-target-home');
+ host.items.push({adapter:'dsh-desktop',name:'DSH Desktop',executable:'C:/tools/DSH Desktop.exe',healthy:false,errorCode:'DSH_CONNECTION_REQUIRED',executionSupported:true});dshDataHost(host,home);await f.router.call('discover',{machineId:machine.machineId});const node=(await f.router.snapshot()).nodes.find(n=>n.machineId===machine.machineId&&n.adapter==='dsh-desktop');return {...f,machine,host,home,node};
+}
+test('DSH save binds original installation to exact new connection across reads, coordinator reopen and explicit rescan',async t=>{
+ const f=await dshTargetFixture(t),request={machineId:f.machine.machineId,nodeId:f.node.nodeId,adapter:f.node.adapter},secret='private-synthetic-dsh-token';
+ const first=await f.router.call('dsh.configure',{...request,url:'http://127.0.0.1:3080/',token:secret}),a=first.items.find(i=>i.connectionId===first.selectedConnectionId),oldBytes=fs.readFileSync(a.executable);assert(a);
+ const next=await f.router.call('dsh.configure',{...request,url:'http://127.0.0.1:43120/',token:secret}),b=next.items.find(i=>i.connectionId===next.selectedConnectionId);assert.equal(b.origin,'http://127.0.0.1:43120');assert.notEqual(a.connectionId,b.connectionId);assert.equal(next.items.length,2);assert.deepEqual(fs.readFileSync(a.executable),oldBytes);assert.equal(f.router.node(f.node.nodeId).executable,'C:/tools/DSH Desktop.exe');
+ assert.equal((await f.router.call('dsh.status',request)).selectedConnectionId,b.connectionId);assert(!JSON.stringify(next).includes(secret));assert(!JSON.stringify(f.router.network).includes(secret));
+ const observer=new AgentNetwork(f.options);t.after(()=>observer.close());const otherHost=observer.host(observer.machine(f.machine.machineId));dshDataHost(otherHost,f.home);const reopened=await observer.call('dsh.status',request);assert.equal(reopened.selectedConnectionId,b.connectionId);assert.equal(reopened.items.length,2);
+ await observer.call('discover',{machineId:f.machine.machineId});const current=(await observer.snapshot()).nodes.find(n=>n.nodeId===f.node.nodeId);assert.equal(current.executable,b.executable);assert.equal(current.connected,false,'new origin requires explicit attach');assert.deepEqual(fs.readFileSync(a.executable),oldBytes);assert.equal(f.host.executions,0);assert.equal(otherHost.executions,0);
+});
+test('DSH target binding cannot select another machine, adapter, deleted file or a foreign save response',async t=>{
+ const f=await dshTargetFixture(t),p={machineId:f.machine.machineId,nodeId:f.node.nodeId,adapter:f.node.adapter,url:'http://127.0.0.1:43120/',token:'synthetic-token'};
+ await assert.rejects(f.router.call('dsh.configure',{...p,adapter:'dsh-web'}),{code:'WRONG_MACHINE'});const remote=f.router.catalog.machines.find(m=>m.machineId!==f.machine.machineId);await assert.rejects(f.router.call('dsh.configure',{...p,machineId:remote.machineId}),{code:'WRONG_MACHINE'});
+ const result=await f.router.call('dsh.configure',p),selected=result.items[0];fs.unlinkSync(selected.executable);const missing=await f.router.call('dsh.status',p);assert.equal(missing.selectedConnectionId,result.selectedConnectionId);assert.equal(missing.items.length,0);
+ const original=f.host.call.bind(f.host);f.host.call=async(method,params)=>method==='dsh.configure'?{items:[{adapter:'dsh-web',origin:'http://127.0.0.1:43120',connectionId:'foreign',executable:'foreign'}],selectedConnectionId:'foreign'}:original(method,params);
+ await assert.rejects(f.router.call('dsh.configure',p),{code:'DSH_BINDING_MISMATCH'});assert.equal(f.router.network.dshBindings[0].connectionId,result.selectedConnectionId);
+});
+test('DSH private config write followed by binding persistence failure never reports complete success or replaces the original binding',async t=>{
+ const f=await dshTargetFixture(t),p={machineId:f.machine.machineId,nodeId:f.node.nodeId,adapter:f.node.adapter,token:'synthetic-token'},first=await f.router.call('dsh.configure',{...p,url:'http://127.0.0.1:3080/'}),binding=structuredClone(f.router.network.dshBindings),rename=fs.renameSync;
+ fs.renameSync=(source,target)=>{if(target===f.router.networkFile)throw Object.assign(Error('synthetic lock'),{code:'EBUSY'});return rename(source,target);};
+ try{await assert.rejects(f.router.call('dsh.configure',{...p,url:'http://127.0.0.1:43120/'}),{code:'DSH_BINDING_PERSIST'});}finally{fs.renameSync=rename;}
+ assert.deepEqual(f.router.network.dshBindings,binding);const status=await f.router.call('dsh.status',p);assert.equal(status.items.length,2);assert.equal(status.selectedConnectionId,first.selectedConnectionId);assert(!JSON.stringify(status).includes(p.token));assert.equal(f.host.executions,0);
+});
+test('resource scoped node management retains alias, workspace, maintenance, authority and missing source protections',async t=>{
+ for(const scenario of ['same-node','same-adapter','same-executable','shared-workspace','shared-windows-wsl','machine','relation','missing-node','missing-machine'])await t.test(scenario,async t=>{
+  const f=await independentAttachFixture(t),{GraphOperationJournal}=require('../electron/graph-operations.cjs');let target=f.b,params={operationId:'original',machineId:f.a.machineId,nodeId:f.a.nodeId,action:'attach'},lane='node';
+  if(scenario==='same-node')target=f.a;
+  if(scenario==='same-adapter')f.router.node(f.b.nodeId).adapter=f.a.adapter;
+  if(scenario==='same-executable')f.router.node(f.b.nodeId).executable=f.a.executable;
+  if(scenario==='machine')lane='machine';if(scenario==='relation')lane='relation';if(scenario==='missing-node')delete params.nodeId;if(scenario==='missing-machine')delete params.machineId;
+  if(scenario.startsWith('shared-')){let machineId=f.b.machineId,workspace='D:/shared';if(scenario==='shared-windows-wsl'){machineId=f.router.catalog.machines.find(m=>m.kind==='wsl').machineId;workspace='/mnt/d/shared';target={...f.b,nodeId:'cross-machine-target',machineId};f.router.network.nodes.push(target);}f.router.catalog.instances.push({instanceId:'original-shared',nodeId:f.a.nodeId,machineId:f.a.machineId,workspace:'D:/shared'},{instanceId:'target-shared',nodeId:target.nodeId,machineId,workspace});}
+  const row={lane,method:lane==='node'?'manageNode':lane==='machine'?'machine.maintainDaemon':'saveCollaboration',operationId:'original',params,state:'unknown',time:timestamp,error:{code:'NATIVE_START_TIMEOUT'}};new GraphOperationJournal(f.directory).update(row);const service=createCoordinatorService({directory:f.directory,network:f.router});t.after(()=>service.close());const result=await service.call({method:'manageNode',params:{operationId:'new',machineId:target.machineId,nodeId:target.nodeId,action:'attach'}});assert.equal(result.error?.code,'GRAPH_UNCONFIRMED',JSON.stringify(result));assert.deepEqual(new GraphOperationJournal(f.directory).pending(),[row]);assert.equal(f.host.executions,0);
+ });
+});

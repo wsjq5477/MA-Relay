@@ -1,5 +1,9 @@
 # M06 原生 Agent 适配器设计
 
+## 连接身份与节点管理准入
+
+M06-F01/F05：DSH服务配置status公开文件名主体connectionId，configure明确selectedConnectionId。adapter/origin/token/enabled私有文件格式不变，旧origin/原生登录、模型、历史和unknown保持。OpenDesk接入仅应用中央节点准入修复，不启动/重启真实原生服务。 [完整设计与失败流程](../../iterations/I08/connection-identity-node-scope.md)。
+
 ## MCP02恢复与观测（2026-10-22）
 
 OpenDesk选择Node后再渲染所有导出格式，恢复保存的launcherPath；OpenCode数组command正确拆成程序/参数。配置绑定和60秒有效期限制观测复用。 [实现、原始证据与未测项](../../iterations/I08/mcp-open-recovery.md)。

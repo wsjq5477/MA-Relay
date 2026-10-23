@@ -1,5 +1,7 @@
 # AgentBridge 项目资料
 
+当前连接配置与节点准入修复见[issue #15/#16 的实现、验证与交付](iterations/I08/connection-identity-node-scope.md)；保存的 DSH 地址具有明确节点选择，独立节点接入不再被同机其他安装的 unknown 误锁。该修复尚未公开，当前公开版仍 alpha.46。
+
 最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
 AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：在一个客户端里发需求、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置仍由各工具自己管理。

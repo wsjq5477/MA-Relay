@@ -24,6 +24,18 @@ const workspaceKey=(workspace:string,machineId:string,machines:Machine[])=>{
  if(machines.find(m=>m.machineId===machineId)?.kind==='ssh')return machineId+':'+workspace.replace(/\/+$/,'');
  const p=workspace.replaceAll('\\','/'),m=p.match(/^(?:([a-z]):\/|\/mnt\/([a-z])\/)(.*)$/i);return m?'drive:'+(m[1]||m[2])!.toLowerCase()+'/'+m[3]!.replace(/\/+$/,'').toLowerCase():machineId+':'+p.replace(/\/+$/,'');
 };
+export function managementRowBlocks(row:RecoveryRow,target:{machineId?:string;connectionId?:string;nodeId?:string}){
+ if(row.lane==='layout')return false;if(row.lane==='relation')return true;
+ const source=row.params,valid=(value:unknown)=>typeof value==='string'&&!!value.trim();
+ const knownMachine=valid(source.machineId)&&valid(target.machineId),knownConnection=valid(source.connectionId)&&valid(target.connectionId);
+ const same=knownMachine?source.machineId===target.machineId:knownConnection?source.connectionId===target.connectionId:true;
+ if(!valid(source.machineId)&&!valid(source.connectionId)||!valid(target.machineId)&&!valid(target.connectionId))return true;
+ if(row.lane==='node'&&valid(target.nodeId)&&valid(source.nodeId)&&Array.isArray(row.blockedNodeIds)&&row.blockedNodeIds.every(id=>valid(id))){
+  if(same&&source.nodeId===target.nodeId)return true;
+  return row.blockedNodeIds.includes(target.nodeId!);
+ }
+ return same;
+}
 export function executionRecoveryReason(rows:RecoveryRow[],machineId:string|undefined,nodeId:string|undefined,nodes:AgentNode[],machines:Machine[],instances:AgentInstance[]=[],workspace?:string){
  for(const row of rows){
   if(row.lane==='layout')continue;
