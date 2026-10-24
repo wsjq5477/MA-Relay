@@ -22,9 +22,9 @@ async def main():
                         raise RuntimeError("Original Hermes MCP SDK unavailable")
                     cfg = load_config_readonly().get("mcp_servers", {}).get("agentbridge")
                     server = await asyncio.wait_for(_connect_server("agentbridge", cfg), 25)
-                    result = {"tools": len(server._tools), "configPath": str(get_config_path())}
+                    result = {"tools": len(server._tools), "configPath": str(get_config_path()), "catalog": [t.model_dump(by_alias=True, exclude_none=True) for t in server._tools]}
                 elif action == "call":
-                    reply = await asyncio.wait_for(server.session.call_tool("list_agents", arguments=request.get("args", {})), 25)
+                    reply = await asyncio.wait_for(server.session.call_tool(request.get("name", "list_agents"), arguments=request.get("args", {})), 25)
                     result = reply.model_dump(by_alias=True, exclude_none=True)
                 elif action == "disable":
                     config = load_config()

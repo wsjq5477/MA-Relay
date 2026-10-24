@@ -1,25 +1,32 @@
 const fs=require('node:fs'),path=require('node:path');
 const {randomUUID,createHash}=require('node:crypto');
-const {MachineRouter,qualified,project,folderPath,workspaceKey}=require('./machine-router.cjs');
+const {MachineRouter,qualified,folderPath,workspaceKey}=require('./machine-router.cjs');
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');
 const {rejectionProof,marker:daemonRejectionMarker}=require('./daemon-rejection.cjs');
 const {openCodeCompatibility,openCodeVersionError}=require('./tool-discovery.cjs');
 const {supportsTeamCollaboration,connectionCapabilities,collaborationCapabilityError}=require('./builtin-adapters.cjs');
+const {loadRelationState,syncSelectedRelation,runtimeRelations,relationForCaller,putRelation,revokeNodes,projection,humanRelation}=require('./relation-state.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const requestFingerprint=(nodeId,params)=>hash(JSON.stringify({nodeId,op:params.op,message:params.message,workspace:params.workspace||'',conversationId:params.conversationId||'',collaboration:!!params.collaboration}));
 const terminal=new Set(['succeeded','failed','cancelled']);
 class AgentNetwork extends MachineRouter {
   constructor(options){
-    super(options);this.networkFile=path.join(options.directory,'agent-network.json');this.nodeJobs=new Map();this.nodeLocks=new Set();this.machineLocks=new Set();
-    this.network=fs.existsSync(this.networkFile)?JSON.parse(fs.readFileSync(this.networkFile,'utf8')):{version:1,revision:0,nodes:[],collaboration:{leaderId:null,memberIds:[],revision:0},requests:[],delegations:[]};
-    if(this.network.version!==1||!Array.isArray(this.network.nodes)||!Array.isArray(this.network.requests))throw fail('NETWORK_STATE','Agent 网络记录无法读取，请保留数据排查。');
+    const networkFile=path.join(options.directory,'agent-network.json');
+    const stored=fs.existsSync(networkFile)?JSON.parse(fs.readFileSync(networkFile,'utf8')):{version:1,revision:0,nodes:[],collaboration:{leaderId:null,memberIds:[],revision:0},requests:[],delegations:[]};
+    if(stored.version!==1||!Array.isArray(stored.nodes)||!Array.isArray(stored.requests))throw fail('NETWORK_STATE','Agent 网络记录无法读取，请保留数据排查。');
+    const network=loadRelationState(stored);
+    super(options);this.networkFile=networkFile;this.network=network;this.nodeJobs=new Map();this.nodeLocks=new Set();this.machineLocks=new Set();
     if(!fs.existsSync(this.networkFile)){fs.copyFileSync(this.file,this.file+'.before-nodes.json',fs.constants.COPYFILE_EXCL);this.saveNetwork();}
     this.layoutStore=new GraphLayoutStore(options.directory);
   }
   saveNetwork(){
-    try{atomicWrite(this.networkFile,this.network);}
+    try{this.commitNetwork(this.network);}
     catch(error){throw Object.assign(fail('NETWORK_PERSIST','本地任务台账持久化失败（'+(error.code||'IO_ERROR')+'）：'+error.message),{cause:error});}
+  }
+  commitNetwork(next){
+    const normalized=syncSelectedRelation(next);
+    atomicWrite(this.networkFile,normalized);this.network=normalized;
   }
   localRenameFailure(error){
     if(error?.code!=='EPERM'||typeof error.message!=='string')return false;
@@ -61,8 +68,8 @@ class AgentNetwork extends MachineRouter {
       const siblings=this.network.nodes.filter(n=>n.machineId===connection.machineId&&n.adapter===connection.adapter);
       // Keep the established role/identity across native upgrades. Historical
       // aliases retain their original IDs, receipts and context ownership.
-      let node=siblings.find(n=>n.nodeId===this.network.collaboration.leaderId)
-        ||siblings.find(n=>!n.removed&&this.network.collaboration.memberIds.includes(n.nodeId))
+      let node=siblings.find(n=>runtimeRelations(this.network).some(row=>n.nodeId===row.leaderId))
+        ||siblings.find(n=>!n.removed&&runtimeRelations(this.network).some(row=>row.memberIds.includes(n.nodeId)))
         ||siblings.find(n=>!n.supersededBy&&!n.removed&&n.connected)
         ||siblings.find(n=>!n.supersededBy&&!n.removed)
         ||siblings.find(n=>n.nodeId===nodeId)||siblings[0];
@@ -109,15 +116,15 @@ class AgentNetwork extends MachineRouter {
       // context/request/role; no operation or occupancy is settled here.
       const fresh=this.discovered.has(node.machineId)&&node.online;
       return !fresh||snapshot.connections.some(c=>c.connectionId===node.connectionId)||node.managed||node.connected
-        ||this.network.collaboration.leaderId===node.nodeId||this.network.collaboration.memberIds.includes(node.nodeId)
+        ||runtimeRelations(this.network).some(row=>row.leaderId===node.nodeId||row.memberIds.includes(node.nodeId))
         ||this.catalog.instances.some(i=>i.nodeId===node.nodeId)||this.network.requests.some(r=>r.nodeId===node.nodeId);
     });
     const annotate=item=>{const instance=this.catalog.instances.find(i=>i.instanceId===item.targetAgent);return {...item,nodeId:instance?.nodeId,workspace:instance?.workspace};};
     this.save();this.saveNetwork();
-    return {...snapshot,nodeManagement:true,configured:nodes.some(n=>n.connected),nodes,collaboration:this.network.collaboration,tasks:snapshot.tasks.map(annotate),conversations:snapshot.conversations.map(annotate),delegations:this.network.delegations};
+    return {...snapshot,nodeManagement:true,configured:nodes.some(n=>n.connected),nodes,collaboration:this.network.collaboration,relations:this.network.relations.map(({relationId,enabled,leaderId,memberIds,revision})=>({relationId,enabled,leaderId,memberIds:[...memberIds],revision})),activeRelationId:this.network.activeRelationId,tasks:snapshot.tasks.map(annotate),conversations:snapshot.conversations.map(annotate),delegations:this.network.delegations};
   }
   async prepare(method,params={}){
-    if(['saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','nodeOperation'].includes(method))return {machineId:null,params};
+    if(['connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation','relations','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','nodeOperation'].includes(method))return {machineId:null,params};
     if(['attachNode','manageNode','nodeRequest','mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe'].includes(method)){
       const node=params.nodeId?this.node(params.nodeId):this.node(this.network.collaboration.leaderId);
       if(params.machineId&&params.machineId!==node.machineId)throw fail('WRONG_MACHINE','节点属于另一台机器。');
@@ -153,7 +160,7 @@ class AgentNetwork extends MachineRouter {
   relationManagementBlocks(row,params){
     const source=row.params||{},original=this.network.nodes.find(n=>n.nodeId===source.nodeId&&n.machineId===source.machineId);
     if(row.lane!=='node'||!original||!this.catalog.machines.some(m=>m.machineId===source.machineId)||!Array.isArray(params.memberIds)||params.memberIds.some(id=>typeof id!=='string'||!id)||params.leaderId!==null&&(typeof params.leaderId!=='string'||!params.leaderId))return true;
-    const current=this.network.collaboration,ids=new Set([current.leaderId,...current.memberIds,params.leaderId,...params.memberIds].filter(Boolean));
+    const current=params.relationId?this.network.relations.find(row=>row.relationId===params.relationId)||{leaderId:null,memberIds:[]}:this.network.collaboration,ids=new Set([current.leaderId,...current.memberIds,params.leaderId,...params.memberIds].filter(Boolean));
     for(const id of ids){const node=this.network.nodes.find(n=>n.nodeId===id);if(!node||this.managementBlocks(row,{machineId:node.machineId,nodeId:node.nodeId}))return true;}
     return false;
   }
@@ -264,7 +271,7 @@ class AgentNetwork extends MachineRouter {
       if(!params.teamScope&&prior?.collaboration&&prior.contextId){receipt.contextId=prior.contextId;const scoped=await this.host(machine).call('scope',{contextId:prior.contextId,scope:{nodeId:node.nodeId,parentRequestId:params.requestId}});if(scoped.teamCollaboration===false)throw collaborationCapabilityError('来源后台未提供 Bridge MCP 通道，续聊需求未派发。');}
       rawParams={op:'continue',conversationId:params.conversationId,requestId:params.requestId,message:params.message};
     }else{
-      if(params.collaboration&&this.network.collaboration.leaderId!==node.nodeId)throw fail('COLLABORATION_FORBIDDEN','这个节点不是当前主 Agent。');
+      if(params.collaboration&&relationForCaller(this.network,node.nodeId).leaderId!==node.nodeId)throw fail('COLLABORATION_FORBIDDEN','这个节点不是当前主 Agent。');
       const context=await this.host(machine).call('context',{nodeId:node.nodeId,adapter:node.adapter,executable:node.executable,workspace:params.workspace?folderPath(params.workspace,machine):undefined,...(params.teamScope?{collaborationId:'team:'+params.teamScope.teamSessionId,scope:params.teamScope}:params.collaboration?{collaborationId:'default',scope:{nodeId:node.nodeId,parentRequestId:params.requestId}}:{})});
       if(node.adapter==='opencode')node.apiCompatibility={executable:node.executable,version:node.version,compatible:true};
       if(params.collaboration&&context.teamCollaboration===false)throw collaborationCapabilityError('来源后台未提供 Bridge MCP 通道，需求未派发。');
@@ -297,19 +304,20 @@ class AgentNetwork extends MachineRouter {
     if(!parent||!parent.dispatched)throw fail('COLLABORATION_FORBIDDEN','协作工具未绑定已提交的主任务。');
     const parentTask=await super.call('ipc',{op:'request',machineId:sourceMachine,requestId:parent.requestId});
     if(terminal.has(parentTask.status))throw fail('COLLABORATION_FORBIDDEN','主任务已结束，此执行身份不可继续委派。');
-    return this.scopedCollaborationTool(node,this.network.collaboration,{...parentTask,requestId:parent.requestId},name,args);
+    return this.scopedCollaborationTool(node,relationForCaller(this.network,node.nodeId),{...parentTask,requestId:parent.requestId},name,args);
   }
   async externalCollaborationTool(scope,name,args,callId,sourceMachine){
     const node=this.node(scope.nodeId);
     if(node.machineId!==sourceMachine||!node.connected||node.removed||(this.network.removedMachines||[]).includes(sourceMachine))throw fail('COLLABORATION_FORBIDDEN','MCP 所属节点或机器已断开或移除。');
     // A durable MCP connection owns its delegations; it is not a native Task.
-    return this.scopedCollaborationTool(node,this.network.collaboration,{requestId:scope.externalConnectionId,conversationId:'mcp:'+scope.externalConnectionId,taskId:null,externalConnectionId:scope.externalConnectionId},name,args);
+    return this.scopedCollaborationTool(node,relationForCaller(this.network,node.nodeId),{requestId:scope.externalConnectionId,conversationId:'mcp:'+scope.externalConnectionId,taskId:null,externalConnectionId:scope.externalConnectionId},name,args);
   }
   async scopedCollaborationTool(node,relation,owner,name,args){
+    if(['list_connectable','connect_agent','disconnect_agent'].includes(name)){const policy=this.connectionPolicy||(this.connectionPolicy=new (require('./connection-policy.cjs').ConnectionPolicy)(this));return name==='list_connectable'?policy.list(node,owner,args):policy.operate(node,owner,name==='connect_agent'?'connect':'disconnect',args);}
     if(name==='list_delegations')return require('./delegation-list.cjs').delegationList(this.network,node,owner,args);
     if(name==='list_agents'){
       const {assertListArgs,listAgentConnections}=require('./agent-connections.cjs');assertListArgs(args);
-      const snapshot=node.nodeId===this.network.collaboration.leaderId?await this.snapshot():null;
+      const snapshot=node.nodeId===relationForCaller(this.network,node.nodeId).leaderId?await this.snapshot():null;
       return listAgentConnections(this.network,node,owner,snapshot);
     }
     if(name==='delegate'){
@@ -367,11 +375,9 @@ class AgentNetwork extends MachineRouter {
     const prior=operations.find(o=>o.operationId===receipt.operationId);if(prior)return structuredClone(prior);
     const {machineId}=receipt.data,action=receipt.data.remoteAction==='uninstall'?'remove':receipt.data.action,removed=new Set(this.network.removedMachines||[]);
     if(action==='remove')removed.add(machineId);if(action==='restore')removed.delete(machineId);
-    const owned=new Set(this.network.nodes.filter(n=>n.machineId===machineId).map(n=>n.nodeId)),old=this.network.collaboration;
-    const revoke=action==='remove'&&(owned.has(old.leaderId)||old.memberIds.some(id=>owned.has(id)));
-    const collaboration=revoke?{leaderId:owned.has(old.leaderId)?null:old.leaderId,memberIds:owned.has(old.leaderId)?[]:old.memberIds.filter(id=>!owned.has(id)),revision:old.revision+1}:old;
-    const next={...this.network,removedMachines:[...removed],collaboration,machineOperations:[...operations,receipt]};
-    atomicWrite(this.networkFile,next);this.network=next;return structuredClone(receipt);
+    const owned=new Set(this.network.nodes.filter(n=>n.machineId===machineId).map(n=>n.nodeId));
+    const next={...(action==='remove'?revokeNodes(this.network,owned):this.network),removedMachines:[...removed],machineOperations:[...operations,receipt]};
+    this.commitNetwork(next);return structuredClone(receipt);
   }
   assertAdmission(machine,instance,params){
     this.assertMachineAdmission(machine);
@@ -428,21 +434,20 @@ class AgentNetwork extends MachineRouter {
             // context may exist; never infer task completion or replay it.
             const receipt={operationId:params.operationId,state:'rejected',fingerprint,error:refusal,data:{nodeId:node.nodeId,machineId:node.machineId,action:params.action}};
             const next={...this.network,nodes:this.network.nodes.map(n=>n.nodeId===node.nodeId?nextNode:n),nodeOperations:[...operations,receipt]};
-            atomicWrite(this.networkFile,next);this.network=next;throw error;
+            this.commitNetwork(next);throw error;
           }
         }
       }
       const operations=this.network.nodeOperations||[];
       if(operations.length>=4096)throw fail('OPERATION_LIMIT','节点操作收据达到上限，请保留记录并联系维护者。');
       const nextNode={...node,managed:true,connected:params.action==='attach',removed:params.action==='remove'};
-      const currentRelation=this.network.collaboration;
-      const affected=params.action!=='attach'&&(currentRelation.leaderId===node.nodeId||currentRelation.memberIds.includes(node.nodeId));
-      const collaboration=affected?{leaderId:currentRelation.leaderId===node.nodeId?null:currentRelation.leaderId,memberIds:currentRelation.leaderId===node.nodeId?[]:currentRelation.memberIds.filter(id=>id!==node.nodeId),revision:currentRelation.revision+1}:currentRelation;
+      const revoked=params.action!=='attach'?revokeNodes(this.network,new Set([node.nodeId])):this.network;
+      const collaboration=revoked.collaboration;
       const receipt=JSON.parse(JSON.stringify({operationId:params.operationId,state:'confirmed',fingerprint,data:{node:nextNode,collaboration}}));
-      const next={...this.network,nodes:this.network.nodes.map(n=>n.nodeId===node.nodeId?nextNode:n),collaboration,nodeOperations:[...operations,receipt]};
+      const next={...revoked,nodes:this.network.nodes.map(n=>n.nodeId===node.nodeId?nextNode:n),collaboration,nodeOperations:[...operations,receipt]};
       // Local admission, authorization revocation and receipt commit together.
       // Native contexts, requests, history and installation remain untouched.
-      atomicWrite(this.networkFile,next);this.network=next;return structuredClone(receipt);
+      this.commitNetwork(next);return structuredClone(receipt);
     }finally{this.nodeLocks.delete(node.nodeId);}
   }
   async call(method,params={}){
@@ -460,8 +465,8 @@ class AgentNetwork extends MachineRouter {
       if(matches?.length!==1||typeof matches[0].executable!=='string'||!matches[0].executable||matches[0].connectionId&&matches[0].connectionId!==node.adapter+'-'+hash(node.adapter+':'+origin).slice(0,32)||result.selectedConnectionId&&result.selectedConnectionId!==(matches[0].connectionId||matches[0].executable))throw fail('DSH_BINDING_MISMATCH','连接配置回应不匹配原目标，请保留配置并刷新核对。');
       const row=matches[0],binding={nodeId:node.nodeId,machineId:machine.machineId,adapter:node.adapter,connectionId:row.connectionId||row.executable,executable:row.executable};
       const next={...this.network,dshBindings:[...bindings.filter(b=>b.nodeId!==node.nodeId||b.machineId!==machine.machineId),binding]};
-      try{atomicWrite(this.networkFile,next);}catch{throw fail('DSH_BINDING_PERSIST','服务配置已写入，但节点连接身份未保存；请重新扫描并核对原连接。');}
-      this.network=next;return {...result,selectedConnectionId:binding.connectionId};
+      try{this.commitNetwork(next);}catch{throw fail('DSH_BINDING_PERSIST','服务配置已写入，但节点连接身份未保存；请重新扫描并核对原连接。');}
+      return {...result,selectedConnectionId:binding.connectionId};
     }
     if(method==='snapshot')return this.snapshot();
     if(['mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe'].includes(method)){
@@ -474,7 +479,18 @@ class AgentNetwork extends MachineRouter {
       // launch profile); every other adapter ignores it.
       return this.host(machine).call(method,{nodeId:node.nodeId,adapter:node.adapter,...(typeof params.profile==='string'?{profile:params.profile}:{})});
     }
-    if(method==='collaboration')return {...this.network.collaboration};
+    if(['connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation'].includes(method)){const policy=this.connectionPolicy||(this.connectionPolicy=new (require('./connection-policy.cjs').ConnectionPolicy)(this));return policy.call(method,params);}
+    if(method==='relations'){
+      if(Object.keys(params).length)throw fail('INVALID_INPUT','关系目录不接受身份或过滤参数。');
+      return {schema:1,activeRelationId:this.network.activeRelationId,items:this.network.relations.map(({relationId,enabled,leaderId,memberIds,revision})=>({relationId,enabled,leaderId,memberIds:[...memberIds],revision}))};
+    }
+    if(method==='collaboration'){
+      if(!Object.hasOwn(params,'relationId'))return {...this.network.collaboration};
+      if(typeof params.relationId!=='string'||!params.relationId||params.relationId.length>128)throw fail('INVALID_INPUT','关系标识不合法。');
+      const row=this.network.relations.find(row=>row.relationId===params.relationId);
+      if(!row)throw fail('INVALID_INPUT','原关系不存在，请读取关系目录后核对。');
+      return {relationId:row.relationId,enabled:row.enabled,...projection(row)};
+    }
     if(method==='collaborationOperation'){
       operationId(params.operationId);
       return structuredClone((this.network.relationOperations||[]).find(o=>o.operationId===params.operationId)||{operationId:params.operationId,state:'not_found'});
@@ -485,23 +501,29 @@ class AgentNetwork extends MachineRouter {
     if(method==='saveCollaboration'){
       // Legacy in-process clients remain usable; the desktop graph always supplies
       // an operation ID and reads that receipt after an uncertain response.
+      const explicit=Object.hasOwn(params,'relationId');
+      if(explicit&&(typeof params.relationId!=='string'||!params.relationId||params.relationId.length>128||!params.operationId))throw fail('INVALID_INPUT','指定关系保存需要有效关系标识和原操作 ID。');
       const id=params.operationId||randomUUID();operationId(id);
-      const fingerprint=digest({leaderId:params.leaderId,memberIds:params.memberIds,expectedRevision:params.expectedRevision});
+      const fingerprint=digest({leaderId:params.leaderId,memberIds:params.memberIds,expectedRevision:params.expectedRevision,...(explicit?{relationId:params.relationId}:{})});
       const operations=this.network.relationOperations||[],prior=operations.find(o=>o.operationId===id);
       if(prior){if(prior.fingerprint!==fingerprint)throw fail('OPERATION_CONFLICT','原授权操作 ID 已用于其他内容，请查询原操作。');return structuredClone(prior);}
-      const current=this.network.collaboration;if(params.expectedRevision!==current.revision)throw fail('REVISION_CONFLICT','协作关系已更新，请刷新后保存。');
+      const old=explicit?this.network.relations.find(row=>row.relationId===params.relationId):null;
+      const current=explicit?old||{leaderId:null,memberIds:[],revision:0}:this.network.collaboration;
+      if(params.expectedRevision!==current.revision)throw fail('REVISION_CONFLICT','协作关系已更新，请刷新后保存。');
       if(params.leaderId!==null&&typeof params.leaderId!=='string')throw fail('INVALID_INPUT','主节点不合法。');
       if(!Array.isArray(params.memberIds)||new Set(params.memberIds).size!==params.memberIds.length)throw fail('INVALID_INPUT','子节点清单不合法或重复。');
       if(params.leaderId===null&&params.memberIds.length)throw fail('INVALID_INPUT','请先选择主 Agent。');
-      for(const id of [params.leaderId,...params.memberIds].filter(Boolean)){const node=this.node(id);if(!node.connected||!node.executionSupported)throw fail('NODE_DISCONNECTED','授权节点必须已接入并支持执行。');if(connectionCapabilities(node).connectionCapabilities.execution!==true)throw collaborationCapabilityError('授权节点必须具有已声明的原生执行能力。');}
+      for(const id of [params.leaderId,...params.memberIds].filter(Boolean)){const node=this.node(id);if(node.removed||node.supersededBy||!node.connected||!node.executionSupported)throw fail('NODE_DISCONNECTED','授权节点必须已接入并支持执行。');if(connectionCapabilities(node).connectionCapabilities.execution!==true)throw collaborationCapabilityError('授权节点必须具有已声明的原生执行能力。');}
       if(params.leaderId&&connectionCapabilities(this.node(params.leaderId)).connectionCapabilities.bridgeMcp!==true)throw collaborationCapabilityError('主 Agent 必须支持调用 Bridge MCP；普通执行接入可以保留为子 Agent。');
       for(const id of params.memberIds)if(connectionCapabilities(this.node(id)).connectionCapabilities.delegation!==true)throw collaborationCapabilityError('子 Agent 必须具有已声明的受委派执行能力。');
       if(params.memberIds.includes(params.leaderId))throw fail('INVALID_INPUT','主 Agent 不能作为自己的子 Agent。');
       if(operations.length>=4096)throw fail('OPERATION_LIMIT','授权收据达到上限，请保留记录并联系维护者。');
       const collaboration={leaderId:params.leaderId,memberIds:[...params.memberIds],revision:current.revision+1};
-      const receipt={operationId:id,state:'confirmed',fingerprint,data:collaboration};
-      const next={...this.network,collaboration,relationOperations:[...operations,receipt]};
-      atomicWrite(this.networkFile,next);this.network=next;
+      const data=explicit?{relationId:params.relationId,enabled:true,...collaboration}:collaboration;
+      const receipt={operationId:id,state:'confirmed',fingerprint,data};
+      const updated=explicit?putRelation(this.network,humanRelation(old,{...old,...data})):{...this.network,collaboration};
+      const next={...updated,relationOperations:[...operations,receipt]};
+      this.commitNetwork(next);
       return params.operationId?structuredClone(receipt):{...collaboration};
     }
     if(method==='nodeOperation'){

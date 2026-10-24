@@ -1,11 +1,14 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {AgentNetwork}=require('../electron/agent-network.cjs');
 const {atomicWrite}=require('../electron/graph-layout.cjs');
+const {loadRelationState}=require('../electron/relation-state.cjs');
 test('network saves and shared atomic writes retry sharing violations, clean up and preserve definitive errors',async t=>{
  for(const save of ['network','atomic'])for(const code of ['EPERM','EACCES','EBUSY','ENOSPC'])await t.test(save+' '+code,t=>{
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-network-write-')),file=path.join(directory,'agent-network.json');
   t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));fs.writeFileSync(file,JSON.stringify({marker:'old'}));
-  const router=Object.create(AgentNetwork.prototype);router.networkFile=file;router.network={marker:'new'};
+  // Exercise the actual network commit contract, including its relation index;
+  // the original rename faults, attempt counts and retained old bytes stay unchanged.
+  const router=Object.create(AgentNetwork.prototype);router.networkFile=file;router.network=loadRelationState({marker:'new',collaboration:{leaderId:null,memberIds:[],revision:0}});
   const rename=fs.renameSync;let attempts=0;
   fs.renameSync=(from,to)=>{if(to===file&&++attempts<=2)throw Object.assign(Error('controlled '+code),{code});return rename(from,to);};
   try{

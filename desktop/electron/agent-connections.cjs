@@ -1,3 +1,4 @@
+const {relationForCaller}=require('./relation-state.cjs');
 // Caller identity is established by AgentNetwork, never by tool arguments.
 const {connectionCapabilities}=require('./builtin-adapters.cjs');
 const identity=value=>typeof value==='string'&&value.trim().length>0;
@@ -7,7 +8,7 @@ function assertListArgs(args={}){
 function listAgentConnections(network,node,owner,snapshot){
   // Read the current relation after the asynchronous snapshot, so a role or
   // grant revoked while it was pending cannot be disclosed from a stale copy.
-  const relation=network.collaboration;
+  const relation=relationForCaller(network,node.nodeId);
   const role=identity(node.nodeId)&&node.nodeId===relation.leaderId?'leader':identity(node.nodeId)&&relation.memberIds.includes(node.nodeId)?'member':'unassigned';
   const delegationBlock=role!=='leader'?'not_leader':owner.status==='unknown'?'parent_unknown':connectionCapabilities(node).connectionCapabilities.bridgeMcp!==true?'caller_unsupported':null;
   const caller={nodeId:node.nodeId,machineId:node.machineId,kind:identity(owner.externalConnectionId)?'external-connection':'native-parent',role,delegationAuthorized:delegationBlock===null,delegationBlock};

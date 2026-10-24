@@ -2,7 +2,7 @@
 
 ## issue #21 有界协议协商验证
 
-2026-10-23，alpha.53 本地候选；M06-OC-F01。共享桌面844/844、核心71/71通过；最终启动专项9/9、Windows生产前端2组与普通无调试EXE6组通过；包54后台/84Core/1702Linux及各类源码一致性通过，模型0。修复前挂起/启动失败对照、最终启动专项、包与普通EXE结果分层登记，不以合成1.2.22替代现场原生。[完整证据、命令、首次失败与未测边界](../../../iterations/I08/opencode-bounded-probe.md)。
+2026-10-23，alpha.53 已公开；M06-OC-F01。共享桌面844/844、核心71/71通过；最终启动专项9/9、Windows生产前端2组与普通无调试EXE6组通过；包54后台/84Core/1702Linux及各类源码一致性通过，模型0。修复前挂起/启动失败对照、最终启动专项、包与普通EXE结果分层登记，不以合成1.2.22替代现场原生。[完整证据、命令、首次失败与未测边界](../../../iterations/I08/opencode-bounded-probe.md)。 已公开EXE与SHA256SUMS，全部字节匿名下载核验一致；[发布证据](../../../iterations/I08/alpha53-release.md)。
 
 2026-10-21 / M06-OC-F01 / alpha.40 源码：WSL Node22.23.1 定向97/97、全桌面705/705，计数共享不相加。真实阿里云 alpha.37/OpenCode2.0.26 只读确认原进程 OOM；用户批准临时Swap后原服务健康、原Task/Conversation各1→1、设置与Agent归属保留，原接入拒绝收敛，随后一次管理核验confirmed，Prompt新增0。此次为带外恢复，非新EXE/GUI/模型推理验收。[原始证据、失败与限制](../../../iterations/I08/opencode-oom-recovery.md)。
 

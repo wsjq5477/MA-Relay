@@ -85,7 +85,7 @@ async function client(t,config){
 test('independent MCP and actual stdio expose only the authenticated view, with immediate role and connection revocation',async t=>{
  const f=await fixture(t),machine=new MachineHost({directory:path.join(f.directory,'machine'),home:path.join(f.directory,'home'),legacy:{close(){}},collaboration:(...args)=>f.network.collaborationTool(...args,f.main.machineId)});t.after(()=>machine.close());await machine.mcpReady;
  const exported=await machine.call('mcp.export',{nodeId:f.main.nodeId,adapter:'claude'}),config=JSON.parse(fs.readFileSync(exported.files.json)).mcpServers.agentbridge;
- const send=await client(t,config);await send('initialize',{protocolVersion:'2025-03-26'});const tools=(await send('tools/list')).result.tools;assert.equal(tools.length,7);assert.equal(tools.find(t=>t.name==='list_agents').annotations.readOnlyHint,true);
+ const send=await client(t,config);await send('initialize',{protocolVersion:'2025-03-26'});const tools=(await send('tools/list')).result.tools;assert.equal(tools.length,10);assert.equal(tools.find(t=>t.name==='list_agents').annotations.readOnlyHint,true);
  const read=async(args={})=>JSON.parse((await send('tools/call',{name:'list_agents',arguments:args})).result.content[0].text);
  const view=await read();assert.equal(view.caller.kind,'external-connection');assert.equal(view.caller.delegationAuthorized,true);assert.deepEqual(view.items.map(n=>n.nodeId),[f.member.nodeId]);assert(!JSON.stringify(view).includes(exported.connectionId));
  assert.equal((await read({externalConnectionId:'forged'})).error.code,'INVALID_INPUT');

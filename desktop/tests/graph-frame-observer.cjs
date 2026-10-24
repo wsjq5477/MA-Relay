@@ -24,6 +24,50 @@ function borderPosition(png, rect, color) {
   return runs.filter(value => value.width >= 4).sort((a, b) => b.width - a.width)[0] || null;
 }
 
+function analyzeCapturedFrames({frames, files, errors = [], samples, timeOrigin, gestures}) {
+  assert.equal(errors.length, 0, 'Every observed frame must be acknowledged');
+  for (const frame of frames) {
+    assert(Number.isFinite(frame.metadata.timestamp), 'Frame swap epoch timestamp is required; no DOM-time fallback');
+  }
+  const cache = new Map();
+  const ordered = [...files].sort((a, b) => a.swapAt - b.swapAt);
+  const imageFor = frame => {
+    if (cache.has(frame.index)) return cache.get(frame.index);
+    const image = PNG.sync.read(frames[frame.index].bytes);
+    assert.equal(image.width, 1440); assert.equal(image.height, 960);
+    assert.equal(frame.metadata.offsetTop, 0); assert.equal(frame.metadata.pageScaleFactor, 1);
+    cache.set(frame.index, image); if (cache.size > 4) cache.delete(cache.keys().next().value);
+    return image;
+  };
+  const evidence = samples.map((sample, index) => {
+    const gesture = gestures[index], inputAt = timeOrigin + sample.firstMoveAt;
+    // The capture stops before sync begins. The last gesture has no next input;
+    // retain its entire captured window, rather than imposing an unrelated 100ms tail.
+    const endAt = samples[index + 1] ? timeOrigin + samples[index + 1].downAt : ordered.at(-1).swapAt + 1;
+    let prior, moved;
+    ordered.filter(frame => frame.swapAt < inputAt).reverse().find(frame => {
+      const border = borderPosition(imageFor(frame), gesture.rect, gesture.color);
+      if (!border || Math.abs(border.x - gesture.rect.x) > 2) return false;
+      prior = {frame, border}; return true;
+    });
+    assert(prior, 'Sample ' + (index + 1) + ': the actual stationary border must be visible in a frame before the original input');
+    ordered.filter(frame => frame.swapAt >= inputAt && frame.swapAt < endAt).find(frame => {
+      const border = borderPosition(imageFor(frame), gesture.rect, gesture.color);
+      if (!border || (border.x - prior.border.x) * gesture.direction < 2) return false;
+      moved = {frame, border}; return true;
+    });
+    assert(moved, 'Sample ' + (index + 1) + ': a rendered frame must show the original card moving in the requested direction');
+    const durationMs = moved.frame.swapAt - inputAt;
+    assert(durationMs >= 0 && durationMs < 10000);
+    return {index: index + 1, inputAt, input: sample.inputEvents[0], rect: gesture.rect, color: gesture.color,
+      baseline: {frame: prior.frame.name, swapAt: prior.frame.swapAt, border: prior.border},
+      moved: {frame: moved.frame.name, swapAt: moved.frame.swapAt, border: moved.border},
+      durationMs, rafUpperBoundMs: sample.feedbackUpperBoundMs};
+  });
+  return {method: 'PNG leader solid-border movement by at least two pixels; CDP frame swap epoch timestamp minus original pointer event epoch; no DOM/RAF fallback',
+    frameCount: frames.length, samples: evidence, p95Ms: [...evidence].sort((a, b) => a.durationMs - b.durationMs)[Math.ceil(evidence.length * 0.95) - 1].durationMs};
+}
+
 async function observeFrames(page, directory) {
   const client = await page.context().newCDPSession(page), frames = [], errors = [];
   let stopped = false;
@@ -47,6 +91,14 @@ async function observeFrames(page, directory) {
   client.on('Page.screencastFrame', receive);
   await client.send('Page.startScreencast', {format: 'png', everyNthFrame: 1});
   return {
+    async ready() {
+      if (frames.length) return;
+      await new Promise((resolve, reject) => {
+        const received = () => {clearTimeout(timer); client.off('Page.screencastFrame', received); resolve();};
+        const timer = setTimeout(() => {client.off('Page.screencastFrame', received); reject(Error('No baseline frame received before input'));}, 5000);
+        client.on('Page.screencastFrame', received);
+      });
+    },
     async stop() {
       if (stopped) return {frameCount: archived?.length}; stopped = true;
       await client.send('Page.stopScreencast'); client.off('Page.screencastFrame', receive);
@@ -54,47 +106,8 @@ async function observeFrames(page, directory) {
       archive(); return {frameCount: archived.length};
     },
     analyze(samples, timeOrigin, gestures) {
-      assert.equal(errors.length, 0, 'Every observed frame must be acknowledged');
-      const files = archive();
-      for (const frame of frames) {
-        assert(Number.isFinite(frame.metadata.timestamp), 'Frame swap epoch timestamp is required; no DOM-time fallback');
-      }
-      const cache = new Map();
-      const ordered = [...files].sort((a, b) => a.swapAt - b.swapAt);
-      const imageFor = frame => {
-        if (cache.has(frame.index)) return cache.get(frame.index);
-        const image = PNG.sync.read(frames[frame.index].bytes);
-        assert.equal(image.width, 1440); assert.equal(image.height, 960);
-        assert.equal(frame.metadata.offsetTop, 0); assert.equal(frame.metadata.pageScaleFactor, 1);
-        cache.set(frame.index, image); if (cache.size > 4) cache.delete(cache.keys().next().value);
-        return image;
-      };
-      const evidence = samples.map((sample, index) => {
-        const gesture = gestures[index], inputAt = timeOrigin + sample.firstMoveAt;
-        const endAt = timeOrigin + (samples[index + 1]?.downAt ?? sample.secondFrame + 100);
-        let prior, moved;
-        ordered.filter(frame => frame.swapAt < inputAt).reverse().find(frame => {
-          const border = borderPosition(imageFor(frame), gesture.rect, gesture.color);
-          if (!border || Math.abs(border.x - gesture.rect.x) > 2) return false;
-          prior = {frame, border}; return true;
-        });
-        assert(prior, 'The actual stationary border must be visible in a frame before the original input');
-        ordered.filter(frame => frame.swapAt >= inputAt && frame.swapAt < endAt).find(frame => {
-          const border = borderPosition(imageFor(frame), gesture.rect, gesture.color);
-          if (!border || (border.x - prior.border.x) * gesture.direction < 2) return false;
-          moved = {frame, border}; return true;
-        });
-        assert(moved, 'A rendered frame must show the original card moving in the requested direction');
-        const durationMs = moved.frame.swapAt - inputAt;
-        assert(durationMs >= 0 && durationMs < 10000);
-        return {index: index + 1, inputAt, input: sample.inputEvents[0], rect: gesture.rect, color: gesture.color,
-          baseline: {frame: prior.frame.name, swapAt: prior.frame.swapAt, border: prior.border},
-          moved: {frame: moved.frame.name, swapAt: moved.frame.swapAt, border: moved.border},
-          durationMs, rafUpperBoundMs: sample.feedbackUpperBoundMs};
-      });
-      return {method: 'PNG leader solid-border movement by at least two pixels; CDP frame swap epoch timestamp minus original pointer event epoch; no DOM/RAF fallback',
-        frameCount: frames.length, samples: evidence, p95Ms: [...evidence].sort((a, b) => a.durationMs - b.durationMs)[Math.ceil(evidence.length * 0.95) - 1].durationMs};
+      return analyzeCapturedFrames({frames, files: archive(), errors, samples, timeOrigin, gestures});
     },
   };
 }
-module.exports = {borderPosition, observeFrames};
+module.exports = {borderPosition, observeFrames, analyzeCapturedFrames};

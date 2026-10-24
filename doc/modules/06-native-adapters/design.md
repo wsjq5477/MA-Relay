@@ -1,5 +1,9 @@
 # M06 原生 Agent 适配器设计
 
+## CT-08经典MCP连接工具
+
+M06-F01/F02/F05：经典MCP现10项，小队18项保持；新增list_connectable/connect_agent/disconnect_agent，连接操作绑定原父或独立connectionId与原operationId，不接收用户审批/身份参数。Claude/Codex在原托管临时允许项中加入新3项，reply_task原审批保持；MachineHost指引区分预授权/待确认和原授权收据。未改用户持久原生配置/模型/账号，原生客户端实际消费另验。 [完整契约、验证与边界](../../iterations/I07/connection-policy.md)。
+
 ## OpenCode 有界双协议发现
 
 M06-F01：启动、恢复和执行前的只读检查先探 `/global/health`，有效 1.x 直接校验其完整元数据契约，跳过 `/api/info`；其他结果在短预算内检查 2.x。候选端点各 700ms，整次协议/元数据 4000ms，并受剩余启动预算约束。已响应但无兼容契约或探测超时报告 OPENCODE_API_UNSUPPORTED；认证、Agent、配置错误分别保留，未监听才继续启动重试。普通业务请求和原 Session/取消/恢复规则不变。[完整设计与证据](../../iterations/I08/opencode-bounded-probe.md).
@@ -44,7 +48,7 @@ M06-F01/F02：Claude/Codex/OpenCode在原节点配置弹窗管理Bridge MCP；DS
 
 ## MCP连接视图契约
 
-M06-F02：经典list_agents保留items，增加schema/readOnly/view、relationRevision与安全caller字段；不接受身份/筛选参数。工具说明区分当前委派授权与目标在线/空闲，工具缺失/调用失败不解释为空关系。经典7工具、小队18项及原生允许项保持，未新增原生协议或调用方能力。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
+M06-F02：经典list_agents保留items，增加schema/readOnly/view、relationRevision与安全caller字段；不接受身份/筛选参数。工具说明区分当前委派授权与目标在线/空闲，工具缺失/调用失败不解释为空关系。当前经典10/小队18工具；此只读视图本身不增加原生允许项，未新增原生协议或调用方能力。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
 
 ## 安装提示与服务就绪
 
@@ -52,7 +56,7 @@ M06-F01/F02：DSH Desktop/Web未保存原生服务连接与程序启动失败分
 
 ## 经典MCP只读委派发现（M06-F02）
 
-未发布源码经典MCP现7项，增加list_delegations，小队18项保持；服务按原父/connectionId核对并只读列表。Claude --allowedTools及Codex逐工具approval_mode加入该只读项，reply_task保持原审批边界；指引区分台账与实时结果。OpenCode按原MCP发现schema；不增加SDK/ACP，不因增加只读工具改变调用方能力；当前Pi/Hermes/DSH独立MCP声明另按原生配置适配核对，不改原生模型/账号/目录权限。原生实际调用与新EXE另验。[契约和受控证据](../../iterations/I07/delegation-list.md)。
+本地alpha.60源码经典MCP现10项，含list_delegations与上方连接3工具，小队18项保持；服务按原父/connectionId核对并只读列表。Claude --allowedTools及Codex逐工具approval_mode加入该只读项，reply_task保持原审批边界；指引区分台账与实时结果。OpenCode按原MCP发现schema；不增加SDK/ACP，不因增加只读工具改变调用方能力；当前Pi/Hermes/DSH独立MCP声明另按原生配置适配核对，不改原生模型/账号/目录权限。原生实际调用与新EXE另验。[契约和受控证据](../../iterations/I07/delegation-list.md)。
 
 ## OpenCode 宿主生命周期
 

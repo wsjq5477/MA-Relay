@@ -1,4 +1,4 @@
-const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
+const fs=require('node:fs'),path=require('node:path');
 const {spawn,execFile}=require('node:child_process');
 const {createHash,randomUUID}=require('node:crypto');
 const worker=process.argv[2]==='--codex-worker';
@@ -144,7 +144,7 @@ async function runWorker(directory){
   if(job.mcp){
     args.push('-c','mcp_servers.agentbridge.command='+JSON.stringify(job.mcp.command),'-c','mcp_servers.agentbridge.args='+JSON.stringify(job.mcp.args),'-c','mcp_servers.agentbridge.default_tools_approval_mode="prompt"');
     // User-configured relations authorize these bounded bridge operations only.
-    for(const tool of (job.mcp.mode==='team'?job.mcp.toolNames:['list_delegations','list_agents','delegate','task_result','cancel_task','task_pending']))args.push('-c','mcp_servers.agentbridge.tools.'+tool+'.approval_mode="auto"');
+    for(const tool of (job.mcp.mode==='team'?job.mcp.toolNames:['list_delegations','list_agents','list_connectable','connect_agent','disconnect_agent','delegate','task_result','cancel_task','task_pending']))args.push('-c','mcp_servers.agentbridge.tools.'+tool+'.approval_mode="auto"');
     if(job.mcp.env)for(const [k,v] of Object.entries(job.mcp.env))args.push('-c','mcp_servers.agentbridge.env.'+k+'='+JSON.stringify(v));
   }
   args.push('-');const launch=require('./tool-discovery.cjs').command(job.executable,args);

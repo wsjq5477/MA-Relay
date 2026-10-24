@@ -1,5 +1,15 @@
 # M07 任务、会话、交互控制与恢复设计
 
+## CT-08连接收据与原任务边界
+
+M07-F01/F04：连接或断开收据只描述授权操作，不能据confirmed推定原任务成功或取消；不重建/重归属原Task/Conversation/请求/权限/取消。Agent原操作键交集绑定node/request/task/conversation或原独立connectionId，动作/目标指纹固定；历史收据先查，queryOnly缺失不写，unknown父不能新改连接。 [完整契约、验证与边界](../../iterations/I07/connection-policy.md)。
+
+## 关系存储迁移与原执行身份
+
+M07-F01/F02/F03：托管父和独立接入按原来源身份查自己的启用关系，未选中UI的主也可按授权协作。requests/delegations、Task/Session、默认原生collaborationId和原父scope不迁移；delegate派生requestId仍不含relationId，更换关系标识不能释放unknown。原父读控按原账本交集，另一主不能接管；新授权与原结果/取消/权限事实分开。 [契约、验证与未完成项](../../iterations/I07/multi-parent-runtime.md)。
+
+本地候选alpha.56的完整维护控制面输入采用有界64MiB字节流读取，保留全部版本描述和原fingerprint；Daemon RPC帧仍1MiB。原ID查询在线端副本省去不消费的releases，持久remoteInput及身份/操作ID不改，维护命令仍发送完整目录。新控制器由原已核验包暂存，旧控制器可继续接收小查询；不部署或改写既有运行实例。[实际缺陷、完整CLI与恢复验证](../../iterations/I08/maintenance-input-capacity.md)。
+
 传输关闭不自动取消独立原生任务。HostConnection只对该调用尚未写入时给出executionNotDispatched，已写请求的关闭继续保持未知/原ID查询，不能因新连接代次解除占位或重放。[关闭竞态边界](../../iterations/I08/wsl-close-and-graph-stability.md)。
 M07-F01/F06/F07：独立MCP的Pi/Hermes配置不改NativeCliHost执行、Session或unknown台账。原生删除/禁用只改配置事实，不取消原任务；显式撤权/移除拒绝缓存客户端的新调用，原任务沿原ID核对且不重放。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
 

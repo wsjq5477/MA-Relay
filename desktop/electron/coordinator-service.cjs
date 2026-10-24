@@ -13,7 +13,7 @@ const { supportsTeamCollaboration, connectionCapabilities, isCollaborationCapabi
 const teamMethods=new Set(['team.contextPacket','team.materials','team.stopRun','team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
 const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview','machine.maintenanceBlockers','machine.queryBlockedOperation']);
-const methods = new Set(['dsh.status','dsh.configure','mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
+const methods = new Set(['dsh.status','dsh.configure','mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation','relations','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
 // SSH state is a complete observation: absent errors revoke cached failures.
 // A live transport must not hide a failed business snapshot (e.g. RPC timeout).
 function mergeSshState(machine, state, snapshot = false) {
@@ -321,6 +321,7 @@ async function call(input) {
       return {ok:true,result:await graphJournal.save(input.method,params,graphDispatch)};
     }
     if (sshMethods.has(input.method)) return {ok: true, result: await ssh.call(input.method, input.params)};
+    if(['connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation'].includes(input.method))return {ok:true,result:await connection().call(input.method,input.params)};
     if(input.method==='graphPending')return {ok:true,result:graphJournal.pending().map(row=>({...row,blockedNodeIds:connection().managementBlocks&&connection().network?.nodes?connection().network.nodes.filter(node=>connection().managementBlocks(row,{machineId:node.machineId,nodeId:node.nodeId})).map(node=>node.nodeId):undefined}))};
     if(['dsh.status', 'dsh.configure'].includes(input.method)) return {ok:true,result:await connection().call(input.method,input.params)};
     if(['collaborationOperation','graphLayoutOperation','nodeOperation'].includes(input.method))return {ok:true,result:await graphJournal.lookup(input.method,input.params,graphDispatch)};
@@ -328,6 +329,7 @@ async function call(input) {
       const prepared=await connection().prepare(input.method,input.params);input={...input,params:prepared.params};
       if(read('pending.json',[]).some(r=>['pending','unknown'].includes(r.state)&&(!r.machineId||r.machineId===prepared.machineId)))throw Object.assign(new Error('来源机器仍有未确认操作，请先查询原请求。'),{code:'DESKTOP_UNCONFIRMED'});
     }
+    if(input.method==='saveCollaboration'&&Object.hasOwn(input.params,'relationId')&&!input.params.operationId)throw Object.assign(Error('指定关系保存需要原操作 ID，未派发。'),{code:'INVALID_INPUT'});
     if(input.method==='saveCollaboration'&&!input.params.operationId){
       const receipt=await graphJournal.save(input.method,{...input.params,operationId:require('node:crypto').randomUUID()},graphDispatch);
       return {ok:true,result:receipt?.state==='confirmed'?receipt.data:receipt};

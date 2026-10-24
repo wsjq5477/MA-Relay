@@ -1,5 +1,9 @@
 # M05 Linux 机器后台设计
 
+本地候选alpha.56的完整维护控制面输入采用有界64MiB字节流读取，保留全部版本描述和原fingerprint；Daemon RPC帧仍1MiB。原ID查询在线端副本省去不消费的releases，持久remoteInput及身份/操作ID不改，维护命令仍发送完整目录。新控制器由原已核验包暂存，旧控制器可继续接收小查询；不部署或改写既有运行实例。[实际缺陷、完整CLI与恢复验证](../../iterations/I08/maintenance-input-capacity.md)。
+
+本地候选alpha.56的可信旧daemon索引按原冻结EXE补齐46、51.recovery.2、52、53与本地54/55，原32份保持，现38项；解析/打包统一上限128，超过上限拒绝，逐文件SHA、原owner/profile/路径及未知版本拒绝规则保持。文件核验失败只发固定CHECKSUM诊断，沿原错误码返回，不回显大清单、不结算原unknown。协议2与持久格式不变；未部署远端。[实现与实际分层证据](../../iterations/I08/daemon-compatibility-refresh.md)。
+
 M05-F02：hello随共享runtimeCapabilities广播新能力；opendesk-lifecycle模块随alpha.52离线资源进入包。非Windows进程核验保守unknown，不能以Linux daemon上线证明Windows OpenDesk退出。无新增daemon方法或帧版本，Windows客户端不自动部署或重启远端。 [合约与边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 M05-F02：共享MachineHost带Pi/Hermes配置适配，在目标机器解释原生目录与环境。新模块随alpha.50离线包收录；SSH协议不变、不自动升级远端，本机Linux原生MCP组件成功不替代独立SSH。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。

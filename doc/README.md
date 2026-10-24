@@ -1,12 +1,16 @@
 # AgentBridge 项目资料
 
-当前本地候选 alpha.53 修复 OpenCode 早期 1.x 首探挂起及状态矛盾，保留原安装与 unknown；尚未公开或切换日常后台。[需求、实现与分层验证](iterations/I08/opencode-bounded-probe.md)。
+本地候选**alpha.60**实现CT-08-A3连接管理：各主在用户预授权内自行连接/断开，范围外请求须用户明确确认；原ID/unknown和原父读控保持。源码900/900、Windows包内37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；[本片证据](iterations/I07/connection-policy.md)。旧图仍编辑selected，完整真实原生多主/图100ms/WSL及SSH仍未准出；未公开/未切换日常后台/未部署SSH。
 
-当前公开预发布 **0.6.0-alpha.52**，标签冻结 `49bd12b`；EXE 130190265 字节、SHA-256 `46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha52-release.md)。
+当前公开 alpha.53 修复 OpenCode 早期 1.x 首探挂起及状态矛盾，保留原安装与 unknown；已公开，未切换日常后台。[需求、实现与分层验证](iterations/I08/opencode-bounded-probe.md)。
+
+当前公开预发布 **0.6.0-alpha.53**，标签冻结 `5269d65`；EXE 130190405 字节、SHA-256 `3f82bbc3c03ce52c348315f325fe5838de73daadfc1a6658a0170d58d8d3f4a3`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha53-release.md)。
 
 当前连接配置与节点准入修复见[issue #15/#16 的实现、验证与交付](iterations/I08/connection-identity-node-scope.md)；保存的 DSH 地址具有明确节点选择，独立节点接入不再被同机其他安装的 unknown 误锁。已随0.6.0-alpha.51.recovery.2公开。
 
 最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
+
+当前公开包指标：alpha.53自动保存画布位移0px通过，本地状态同步p95 1504ms通过；完整20次PNG帧观测p95 388.932ms仍未准出。指定Windows OpenCode父模型子任务已获授权，日常现场缺少该节点，模型0。[本轮证据与边界](iterations/I06/alpha53-current-metrics.md)。
 
 AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：在一个客户端里发需求、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置仍由各工具自己管理。
 
@@ -17,10 +21,10 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前 GitHub 预发布 | **0.6.0-alpha.51.recovery.2**，冻结 `905b792`；源码/附件与匿名完整下载核验通过；[发布与边界](iterations/I08/alpha51-recovery2-release.md) |
-| 当前发布包 | **0.6.0-alpha.52**：#15/#16、Pi/Hermes/DSH原生MCP、WSL/图修复；未签名、未切换日常后台/部署SSH；[发布证据](iterations/I08/alpha52-release.md) |
-| 当前公开源码范围 | 完整集成源码在 `v0.6.0-alpha.52` 标签与已合并的修复分支公开；PR #18/#22已合入master |
-| 当前已发布实现与验收边界 | [I08-MCP02](iterations/I08/mcp-open-integration.md)与[恢复修复](iterations/I08/mcp-open-recovery.md)：三维能力、六项事实、双向增删/撤权、DSH显式profile、非GUI接入；桌面758/758、根68/68。OpenDesk CLI0.3.8无MCP管理面、DSH Desktop/Hermes/Pi原生配置及逐入口真实主调用仍为缺口 |
+| 当前 GitHub 预发布 | **0.6.0-alpha.53**，冻结 `5269d65`；源码/附件与匿名完整下载核验通过；[发布与边界](iterations/I08/alpha53-release.md) |
+| 当前发布包 | **0.6.0-alpha.53**：#21、#19/#20、#15/#16、Pi/Hermes/DSH原生MCP、WSL/图修复；未签名、未切换日常后台/部署SSH；[发布证据](iterations/I08/alpha53-release.md) |
+| 当前公开源码范围 | 完整集成源码在 `v0.6.0-alpha.53` 标签（5269d65）与master公开 |
+| 当前已发布实现与验收边界 | [I08-MCP02](iterations/I08/mcp-open-integration.md)与[恢复修复](iterations/I08/mcp-open-recovery.md)：三维能力、六项事实、双向增删/撤权、DSH显式profile、非GUI接入；桌面758/758、根68/68。DSH Desktop/Hermes/Pi配置已有分层证据；OpenDesk CLI0.3.8无MCP管理面、逐入口真实主调用仍为缺口 |
 | 未准出 | 完整 I06C/I07C；Hermes/Pi/DSH 真实工具执行验收；DSH 原实例推理；独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

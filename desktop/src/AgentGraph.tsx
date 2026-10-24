@@ -96,6 +96,11 @@ export default function AgentGraph(props:Props){
   const metadataReasonFor=(id:string,nodeId?:string)=>props.managementReason?.(id,nodeId)??(props.metadataBusy?"原管理操作进行中或待核对。":"");
   const editor=useGraphDraft(props.directory,relation,notify,props.online),{state}=editor;
   const [flow,setFlow]=useState<ReactFlowInstance<FlowNode>|null>(null),[selection,setSelection]=useState<string|null>(null),[edge,setEdge]=useState<string|null>(null),[keySource,setKeySource]=useState<string|null>(null),[keyTarget,setKeyTarget]=useState<string|null>(null);
+  // React Flow uses measured dimensions to retain its DOM-derived handle
+  // bounds. Dropping them when rebuilding controlled nodes unmounts every
+  // incident edge until the handles are measured again, even for a small drag.
+  // These values belong to this mounted view, never the saved graph layout.
+  const [measurements,setMeasurements]=useState<Record<string,{width:number;height:number}>>({});
   const cancelled=useRef(false);
   const pan=useRef<{x:number;y:number;pointerId:number;viewport:Viewport;canvas:HTMLElement;latest:Viewport;frame:number}|null>(null);
   const keyLink=useRef<{source:string|null;target:string|null}>({source:null,target:null});
@@ -212,9 +217,9 @@ export default function AgentGraph(props:Props){
   const machineData=useMemo(()=>new Map(machines.map(m=>[m.machineId,{machine:m,hostName:machineById(m.parentMachineId||'')?.name,count:nodes.filter(n=>n.machineId===m.machineId).length,browseLocked:props.busy,managementLocked:props.busy||!!metadataReasonFor(m.machineId)||!props.managementSupported||!m.online||props.blocked(m.machineId),machineName:metadataReasonFor(m.machineId),addAgent:(m:Machine)=>nodeActions.current.addAgent(m),locked:layoutLocked,move:(...args:Parameters<typeof move>)=>nodeActions.current.move(...args)}])),[machines,nodes,layoutLocked,props.managementReason,props.busy,props.managementSupported,props.blocked]);
   const toolData=useMemo(()=>new Map(nodes.map(n=>[n.nodeId,{node:n,machineName:machineById(n.machineId)?.name,configure:(node:AgentNode)=>nodeActions.current.configure?.(node),executionReason:props.executionReason?.(n.machineId,n.nodeId),keyboardTarget:keyTarget===n.nodeId,role:n.nodeId===state.draft.leaderId?'主 Agent':state.draft.memberIds.includes(n.nodeId)?'子 Agent':'节点',locked:executionLocked||props.blocked(n.machineId,n.nodeId),managementReason:metadataReasonFor(n.machineId,n.nodeId),managementLocked:executionLocked||!!metadataReasonFor(n.machineId,n.nodeId)||!props.managementSupported||props.blocked(n.machineId,n.nodeId),nodeAction:(n:AgentNode,a:NodeAction)=>nodeActions.current.nodeAction(n,a),relationReason:relationReasonFor(n),relationLocked:!!relationReasonFor(n)||!canExecuteNode(n)||n.busy, start:(node:AgentNode)=>nodeActions.current.start(node),attach:(id:string)=>nodeActions.current.attach(id),setMain:(id:string)=>nodeActions.current.main(id),keyboard:(...args:Parameters<typeof keyboard>)=>nodeActions.current.keyboard(...args),move:(...args:Parameters<typeof move>)=>nodeActions.current.move(...args),warning:(message:string)=>nodeActions.current.warning(message)}])),[machines,nodes,state.draft,locked,executionLocked,keyTarget,props.blocked,props.managementSupported,props.metadataBusy,props.managementReason,props.executionReason,props.relationReason,editor.layoutAvailable]);
   const flowNodes=useMemo<FlowNode[]>(()=>[
-    ...sortedMachines.map(m=>({id:'machine:'+m.machineId,type:'machine' as const,position:state.layout.groups[m.machineId]||defaultGroups[m.machineId]!,dragHandle:'.graph-machine',draggable:!layoutLocked,selectable:false,width,height:150+Math.max(1,nodes.filter(n=>n.machineId===m.machineId).length)*155,data:machineData.get(m.machineId)!})),
-    ...nodes.filter(n=>machineById(n.machineId)).map(n=>({id:n.nodeId,type:'agent' as const,parentId:'machine:'+n.machineId,extent:'parent' as const,position:state.layout.nodes[n.nodeId]||defaultNodes[n.nodeId]!,draggable:!layoutLocked,selected:selection===n.nodeId,ariaLabel:machineById(n.machineId)?.name+' / '+n.name,width:nodeWidth,height:nodeHeight,data:toolData.get(n.nodeId)!}))
-  ],[machines,nodes,state.layout,layoutLocked,selection,machineData,toolData]);
+    ...sortedMachines.map(m=>({id:'machine:'+m.machineId,type:'machine' as const,position:state.layout.groups[m.machineId]||defaultGroups[m.machineId]!,dragHandle:'.graph-machine',draggable:!layoutLocked,selectable:false,width,height:150+Math.max(1,nodes.filter(n=>n.machineId===m.machineId).length)*155,measured:measurements['machine:'+m.machineId],data:machineData.get(m.machineId)!})),
+    ...nodes.filter(n=>machineById(n.machineId)).map(n=>({id:n.nodeId,type:'agent' as const,parentId:'machine:'+n.machineId,extent:'parent' as const,position:state.layout.nodes[n.nodeId]||defaultNodes[n.nodeId]!,draggable:!layoutLocked,selected:selection===n.nodeId,ariaLabel:machineById(n.machineId)?.name+' / '+n.name,width:nodeWidth,height:nodeHeight,measured:measurements[n.nodeId],data:toolData.get(n.nodeId)!}))
+  ],[machines,nodes,state.layout,layoutLocked,selection,machineData,toolData,measurements]);
   const confirmed=state.base.revision>relation.revision?state.base:relation;
   const obstacleKey=flowNodes.filter(n=>n.type==='agent').map(n=>{const parent=flowNodes.find(p=>p.id===n.parentId)!;return [n.id,parent.position.x+n.position.x,parent.position.y+n.position.y].join(':');}).join('|');
   const obstacles=useMemo<Obstacle[]>(()=>flowNodes.filter(n=>n.type==='agent').map(n=>{const parent=flowNodes.find(p=>p.id===n.parentId)!;return {x:parent.position.x+n.position.x,y:parent.position.y+n.position.y,width:nodeWidth,height:nodeHeight};}),[obstacleKey]);
@@ -225,6 +230,16 @@ export default function AgentGraph(props:Props){
     return {id,...e,type:'routed',zIndex:2,sourceHandle:'output',targetHandle:'input',selected:edge===id,focusable:true,ariaLabel:'允许委派 '+nodes.find(n=>n.nodeId===e.source)?.name+' 到 '+nodes.find(n=>n.nodeId===e.target)?.name+(added?' 待保存':removed?' 待移除':''),label:added?'待保存':removed?'待移除':offline?'授权已保存 · 离线':'授权已保存',markerEnd:{type:MarkerType.ArrowClosed},style:{stroke:removed?'var(--red)':offline?'var(--muted)':'var(--orange)',strokeDasharray:added||removed?'6 4':undefined},data:{removed,obstacles}};
   });
   function positionChanges(changes:NodeChange<FlowNode>[]){
+    if(changes.some(c=>c.type==='dimensions'&&c.dimensions))setMeasurements(current=>{
+      let next=current;
+      for(const c of changes){
+        if(c.type!=='dimensions'||!c.dimensions)continue;
+        if(current[c.id]?.width===c.dimensions.width&&current[c.id]?.height===c.dimensions.height)continue;
+        if(next===current)next={...current};
+        next[c.id]={width:c.dimensions.width,height:c.dimensions.height};
+      }
+      return next;
+    });
     const positions=changes.filter(c=>c.type==='position'&&c.position);
     if(!positions.length||layoutLocked)return;
     editor.move(l=>{

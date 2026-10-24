@@ -17,6 +17,16 @@ async function fixture(t,modes={}){const root=fs.mkdtempSync(path.join(os.tmpdir
  t.after(async()=>{try{const lock=JSON.parse(fs.readFileSync(path.join(options.stateDirectory,'daemon.lock')));execFileSync(path.join(install,'versions',target.version,'runtime/owned-stop'),[String(lock.pid),String(lock.pidStart),String(process.getuid())],{stdio:'ignore'});}catch{}await new Promise(r=>setTimeout(r,200));fs.rmSync(root,{recursive:true,force:true});});
  const run=async(p=input,opts={})=>{const file=path.join(options.stateDirectory,'maintenance-operations.json');const rows=fs.existsSync(file)?JSON.parse(fs.readFileSync(file)):[];rows.push({operationId:p.operationId,state:'unknown',fingerprint:maintenance.digest(p)});fs.writeFileSync(file,JSON.stringify(rows),{mode:0o600});return maintenance.run(p,opts);};
  return {root,input,options,from,target,run,boot};}
+test('actual maintenance CLI reads the complete large catalogue and queries the original unknown without another action',async t=>{
+ const f=await fixture(t),before=await inspectDaemon(f.options);
+ const input={...f.input,...require('./maintenance-input-fixture.cjs').frozenCatalogueInput(),...f.options,action:'query',daemonId:before.daemonId,uid:process.getuid(),home:f.root,installPath:f.input.installPath};
+ const row={operationId:input.operationId,state:'unknown',fingerprint:'original-fingerprint',phase:'waiting'};
+ const file=path.join(f.options.stateDirectory,'maintenance-operations.json');fs.writeFileSync(file,JSON.stringify([row]),{mode:0o600});const saved=fs.readFileSync(file);
+ const bytes=JSON.stringify(input);assert(Buffer.byteLength(bytes)>8*1048576);
+ const result=require('node:child_process').spawnSync(process.execPath,[path.resolve(__dirname,'../electron/remote-maintenance.cjs')],{input:bytes,encoding:'utf8',maxBuffer:1024*1024,timeout:30000});
+ assert.ifError(result.error);assert.equal(result.status,0,result.stderr);assert.deepEqual(JSON.parse(result.stdout),row);
+ assert(fs.readFileSync(file).equals(saved));const after=await inspectDaemon(f.options);assert.equal(after.pid,before.pid);assert.equal(after.daemonId,before.daemonId);
+});
 test('real daemon version switch and rollback preserve identity/history, restart healthy, and original receipts never perform another switch',async t=>{
  const f=await fixture(t),id=(await inspectDaemon(f.options)).daemonId;const first=await f.run();assert.equal(first.state,'confirmed',JSON.stringify(first));assert.equal((await inspectDaemon(f.options)).version,f.target.version);assert.equal((await inspectDaemon(f.options)).daemonId,id);assert(fs.existsSync(path.join(f.options.stateDirectory,'synthetic-host.json')));
  const saved=maintenance.query({...f.input,action:'query'});assert.equal(saved.operationId,f.input.operationId);assert.equal(saved.state,'confirmed');

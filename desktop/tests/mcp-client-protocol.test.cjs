@@ -49,6 +49,6 @@ test('the legacy initialize and tools/list catalogue still work after the discov
   const lines = output.trim().split('\n').map(line => JSON.parse(line));
   assert.equal(lines.find(line => line.id === 1).result.serverInfo.name, 'agentbridge');
   const tools = lines.find(line => line.id === 2).result.tools;
-  assert.equal(tools.length, 7);
+  assert.equal(tools.length, 10);
   assert.ok(tools.some(tool => tool.name === 'list_agents'));
 });

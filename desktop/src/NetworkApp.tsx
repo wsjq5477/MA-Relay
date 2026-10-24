@@ -22,6 +22,7 @@ import DaemonDialog, {
 import AddMachineDialog from "./AddMachineDialog";
 import { useMachineManagement, type MachineAction } from "./machine-management";
 import AgentGraph from "./AgentGraph";
+import ConnectionPolicyPanel from "./ConnectionPolicyPanel";
 import AppShell, { type Page } from "./AppShell";
 import MachineInventory from "./MachineInventory";
 import AgentConfigurationDialog from './AgentConfigurationDialog';
@@ -173,7 +174,9 @@ export default function NetworkApp() {
       revision: 0,
     };
   const targetNode=nodes.find(n=>n.nodeId===target);
-  const collaborationAllowed=target===relationship.leaderId&&canCallBridge(targetNode);
+  const [policyOpen,setPolicyOpen]=useState(false);
+  const isCurrentLeader=data.relations?data.relations.some(row=>row.enabled&&row.leaderId===target):target===relationship.leaderId;
+  const collaborationAllowed=(data.relations?data.relations.some(row=>row.enabled&&row.leaderId===target):target===relationship.leaderId)&&canCallBridge(targetNode);
   useEffect(()=>{if(!collaborationAllowed)setCollaborate(false);},[collaborationAllowed]);
   const machineName = (id?: string) =>
     allMachines.find((m) => m.machineId === id)?.name || "原机器";
@@ -445,7 +448,7 @@ export default function NetworkApp() {
     setTarget(id);
     setMessage("");
     setWorkspace("");
-    setCollaborate(!node && id === relationship.leaderId&&canCallBridge(leader));
+    setCollaborate(!node&&(data.relations?data.relations.some(row=>row.enabled&&row.leaderId===id):id===relationship.leaderId)&&canCallBridge(nodes.find(n=>n.nodeId===id)));
     setPickTarget(!id);
     setCompose(true);
   }
@@ -697,12 +700,12 @@ export default function NetworkApp() {
             <div>
               <GitBranch size={18} />
               <div className="summary-copy">
-                <strong>{relationship.memberIds.length}</strong>
+                <strong>{data.relations?data.relations.filter(row=>row.enabled).reduce((sum,row)=>sum+row.memberIds.length,0):relationship.memberIds.length}</strong>
                 <span>条已保存授权</span>
               </div>
             </div>
           </div>
-          <div className="machine-filterbar">
+          <div className="machine-filterbar"><button className="btn" onClick={()=>setPolicyOpen(true)}>连接策略与确认</button>
             {filters}
             <div
               className="ui-segmented"
@@ -797,6 +800,7 @@ export default function NetworkApp() {
           )}
         </>
       )}
+      {policyOpen&&data.directory&&<ConnectionPolicyPanel directory={data.directory} nodes={nodes} machineName={machineName} online={!error&&!loading} onClose={()=>setPolicyOpen(false)}/>}
       {data.directory && (
         <AgentGraph
           key={data.directory}
@@ -1355,7 +1359,7 @@ export default function NetworkApp() {
                     ))}
                 </div>
               )}
-              <CollaborationChoice node={targetNode} isLeader={target===relationship.leaderId}
+              <CollaborationChoice node={targetNode} isLeader={isCurrentLeader}
                 checked={collaborate} disabledReason={collaborationGuardReason} onChange={setCollaborate}/>
               <label className="network-field">
                 需求

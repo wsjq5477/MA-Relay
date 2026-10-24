@@ -1,5 +1,10 @@
 # M07 任务、会话与恢复测试报告
 
+2026-10-24，CT-08-A3/alpha.60：Agent连接3工具、v3预授权/用户明确确认及策略审计/原意图恢复页面已实现。源码900/900，最终相关25/25；Windows冻结包37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组与Downloads SHA均通过，真实模型0。交付结果及原始失败见[完整分层记录](../../iterations/I07/connection-policy.md)。真实原生消费/日常多主、图100ms/WSL及完整SSH仍未准出，原任务/unknown不重建。共享计数不累加。
+
+
+2026-10-23，alpha.56本地候选：桌面全量863/863、零跳过；实际完整维护CLI读取超过旧8MiB的大目录并查询原unknown，原收据文件字节与真实合成daemon PID/daemonId不变。输入保真3/3与复用/查询传输26/26通过，完整命令保留所有版本，查询不改原持久意图。均为本地受控进程/传输，模型0，不是用户SSH或真实任务准出。[完整证据与边界](../../iterations/I08/maintenance-input-capacity.md)。
+
 2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
 
 2026-10-23 / alpha.49，WSL Node22.23.1：共享桌面770/770、核心68/68、类型/lint/生产构建和最终包/bootstrap一致性通过；普通Windows EXE4组通过，模型0。新启动受控契约4项在全量内，真实生产WSL只读三次中2次通过/1次就绪前退出；最终包真实Windows→WSL MCP组件5组通过，包含原生Codex0.162.1及Linux stdio调用/重开/撤权/轮换/清理；稳定性、原生父模型与独立SSH尚未准出，失败不抹除。共享计数不跨模块累加。 [完整需求、实现、原始证据与限制](../../iterations/I08/wsl-host-readiness.md)。

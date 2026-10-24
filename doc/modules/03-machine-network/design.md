@@ -1,5 +1,13 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+## CT-08连接授权与原子收据
+
+M03-F02/F04：ConnectionPolicy统一路由Agent连接和用户策略RPC，使用原来源身份与当前启用出站关系。预授权内只改该主成员，范围外持久待确认；用户撤权/节点或机器移除同时撤销预授权与原待确认，不恢复重授。GraphJournal原unknown与节点/机器锁继续互锁；所有策略/网络/收据同文件atomicWrite，写后丢回应按原收据恢复。中央独有agent-connection-policy-v1，daemon不声明。 [完整契约、验证与边界](../../iterations/I07/connection-policy.md)。
+
+## 当前关系索引存储
+
+M03-F02/F04：中央关系索引v3及预授权按主nodeId区分启用出站授权，selected旧视图仅作图兼容。v1非selected行迁移为未启用，不自动授权；节点扫描保留所有启用主/成员原身份，原节点/请求/unknown不变。节点/机器移除原子撤销所有受影响行，恢复不重授权。用户侧显式关系保存由原operationId与该行修订核对。 [契约、验证与未完成项](../../iterations/I07/multi-parent-runtime.md)。
+
 ## OpenCode 原安装与能力投影
 
 M03-F01/F02：OpenCode API 未核验或核验失败时投影 connected=false、executionSupported=false、available=false，保留持久接入意图。显式接入只复验原 executable 并更新其观察版本，再记录同版本 API 兼容结果；已有管理、接入、兼容记录或上下文的节点不会跟随 PATH 换绑其他安装。原安装缺失保留原身份并提示扫描检查；快照与扫描不改旧 unknown/Session/请求。[完整流程与验证](../../iterations/I08/opencode-bounded-probe.md).
@@ -34,7 +42,7 @@ M03-F02/F05：配置入口属于机器上的原Agent节点。MCP读写携带原n
 
 ## 调用方获准连接视图
 
-M03-F02：list_agents不读取全网身份供调用者选择，仅按原scope节点与当前关系投影。当前主快照完成后再次读取关系，撤销目标或换主不会返回旧关系目标；非主无目标，caller区分leader/member/unassigned，节点来源和能力仍取原快照。没有节点/角色迁移、全网发现或接入行为。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
+M03-F02：list_agents不读取全网身份供调用者选择，仅按原scope节点自己的当前启用关系投影。各主快照完成后再次读取自己的关系，撤销目标或换主不会返回旧关系目标；非主无目标，caller区分leader/member/unassigned，节点来源和能力仍取原快照。没有节点/角色迁移、全网发现或接入行为。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
 
 ## 发现提示与管理占位
 
@@ -268,7 +276,7 @@ flowchart LR
 
 - 同机器同 adapter 的旧安装归为当前入口的历史节点；不跨机器或工具合并。历史节点不能新建任务或重新接入，原请求查询和原会话续接仍按原身份路由；原安装不可调用时保留实际失败。若同一工具曾有多个授权节点，仅保留原授权记录，不自动扩权。
 - Windows/WSL 真实链路已发布；alpha.6 候选的独立 SSH Linux 接入与 Windows 双向核心协作已实际验收；正式 0.6.0 与完整 I06C 专项尚未准出。
-- 当前只有一个默认协作组；alpha.6 节点图编辑同一真实授权。图的几何 parent、布局与 WSL 的物理宿主/机器身份分别管理，布局不改变任务路由。
+- 公开alpha.53仍为默认单组；本地A2后台可按身份维护多条启用关系，现有图编辑selected兼容视图。图的几何 parent、布局与 WSL 的物理宿主/机器身份分别管理，布局不改变任务路由。
 - alpha.10 远端连接编辑/移除/恢复已实现，原生工具卸载仍未完成；alpha.9 是节点管理历史增量。机器移除保留远端安装和历史。
 
 ## 10. 代码入口与维护

@@ -99,6 +99,8 @@ export interface Snapshot {
   machineManagement?:boolean;
   daemonManagement?:boolean;
   collaboration?: Collaboration;
+  relations?: (Collaboration & {relationId:string;enabled:boolean})[];
+  activeRelationId?:string;
   delegations?: Delegation[];
   configured: boolean;
   directory: string;

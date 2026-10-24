@@ -1,5 +1,7 @@
 # Claude Code 适配器测试报告
 
+2026-10-24，经典连接工具的允许项/托管指引进入900/900受控全量与最终25/25定向；没有运行真实claude模型或安装用户持久配置，不代表该原生客户端已实际消费10工具。 [本片契约与证据](../../../iterations/I07/connection-policy.md)。
+
 ## 普通子任务上下文输入
 
 T-M06-CC-155 / M06-CC-F01：2026-10-21，WSL Node22.23.1，未发布源码。统一生产AgentNetwork加受控宿主覆盖该目标入口的说明+原文与无scope/MCP/TeamScope传参；本轮667/667完整桌面/121项定向、Windows36项、Core构建为共用工程证据，不跨模块相加。没有以当前实际claude CLI/模型、Windows EXE或独立SSH消费新上下文，模型0。[实际范围与来源](../../../iterations/I07/delegation-context.md)。

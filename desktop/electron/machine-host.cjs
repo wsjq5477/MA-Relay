@@ -3,7 +3,6 @@ const {createHash,randomUUID}=require('node:crypto');
 const {adapters,supportsTeamCollaboration}=require('./builtin-adapters.cjs');
 const {scanTools,openCodeVersionError}=require('./tool-discovery.cjs');
 const {CollaborationBroker}=require('./collaboration-broker.cjs');
-const terminal=new Set(['succeeded','failed','cancelled']);
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 /** A machine owns installed tools; private contexts own directories and native sessions. */
 class MachineHost {
@@ -123,7 +122,7 @@ class MachineHost {
       row.mcp=mcp;this.save();
       if(row.adapter==='opencode'){
         const context=path.join(this.directory,'node-contexts',row.contextId),instructions=path.join(context,'agentbridge-instructions.md');
-        fs.writeFileSync(instructions,params.scope.teamSessionId?require('./team-tools.cjs').instructions:'你是用户指定的主 Agent。需要协作时，通过 agentbridge_list_agents 查询允许连接的子节点，agentbridge_delegate 委派任务，agentbridge_task_result 查询或等待真实结果，然后在当前会话汇总。每项委派使用稳定 requestId，回应未知时查询原请求，不重复提交。不要通过终端命令绕过协作接口。子节点不能扩大连接关系。\n',{mode:0o600});
+        fs.writeFileSync(instructions,params.scope.teamSessionId?require('./team-tools.cjs').instructions:'你是用户指定的主 Agent。需要协作时，通过 agentbridge_list_agents 查询允许连接的子节点，agentbridge_delegate 委派任务，agentbridge_task_result 查询或等待真实结果，然后在当前会话汇总。每项委派使用稳定 requestId，回应未知时查询原请求，不重复提交。不要通过终端命令绕过协作接口。list_connectable仅查看用户预授权候选，connect_agent/disconnect_agent仅管理自己的出站连接；pending_approval不授予权限，交给用户确认，不确定时queryOnly查询原operationId，不能扩大预授权范围。\n',{mode:0o600});
         fs.writeFileSync(path.join(context,'bridge-mcp.json'),JSON.stringify({instructions:[instructions],mcp:{servers:{agentbridge:{type:'local',command:[mcp.command,...mcp.args],environment:mcp.env,codemode:false}}}}),{mode:0o600});
       }
       return {configured:true,teamContinuation:true};

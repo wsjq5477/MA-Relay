@@ -1,5 +1,9 @@
 # 对象、身份与持久数据
 
+## CT-08连接策略与确认
+
+agent-network.json外层version1、索引relationsVersion3，每行增加必需envelope={version:1,revision,allowedNodeIds}；v1/v2仅继承原成员为范围，v1非selected仍disabled。新增connectionOperations/connectionPolicyOperations各最多4096条，原身份/ID/指纹/待确认及原用户收据与网络一次原子提交，旧历史不清理。成员须在范围内，v3未知/损坏拒绝保留原文件，alpha.59拒绝v3数据。用户页面localStorage保存原方法/参数/ID/指纹，非匹配收据不释放意图。 [完整契约与证据](iterations/I07/connection-policy.md)。
+
 ## OpenCode 观察版本与接入投影
 
 持久格式不变。OpenCode 节点的 apiCompatibility 继续按原 executable、实际观察 version、compatible/error 记录；复验更新原安装的版本，失配或失败时快照投影 connected=false 与 needs_check，存储的原接入意图及 nodeId/context/Session/历史/unknown 保留。已保留所有者的原安装不因 PATH 改变而换绑。[完整规则与验证](iterations/I08/opencode-bounded-probe.md).
@@ -286,15 +290,19 @@ SSH 的 `/mnt/c/project` 属于远端独立文件系统，不能与本机 Window
 
 OpenCode/Core 会话响应额外携带 canContinue/kind，均从持久原生绑定、上一轮状态、验证标志及配置/资源归属计算，不新增持久列。Conversation/native Session 的真实两轮与重开保留见 [6A 验收](iterations/I06/acceptance.md)。
 
+## 维护查询与完整原意图
+
+本地候选alpha.56保留原remoteInput的完整releases和fingerprint，不做持久迁移。仅构造action=query的线端副本时将未消费的releases设为空数组，原owner/profile/daemon/UID、operationId及其他参数不改；原控制器按原身份读原收据，not_found仍不能释放unknown。维护动作发送的JSON内容保持完整。[实际验证](iterations/I08/maintenance-input-capacity.md)。
+
 ## Linux 发布兼容数据
 
-离线 manifest 可选 `compatibleDaemons: [{version,manifestPath,manifestDigest}]`。路径仅能是清单内 `compatible-daemons/<version>.json`，其文件 SHA-256 和内容 manifestDigest 均校验，版本不能重复。旧协议 2 manifest 不要求有该字段。当前 alpha.10 明确收录 alpha.2–alpha.9；未知或未来版本不按协议相同自动接受。
+离线 manifest 可选 `compatibleDaemons: [{version,manifestPath,manifestDigest}]`。路径仅能是清单内 `compatible-daemons/<version>.json`，其文件 SHA-256 和内容 manifestDigest 均校验，版本不能重复。旧协议 2 manifest 不要求有该字段。本地候选alpha.56解析上限128、实际收录38项，含46/51.recovery.2/52/53及本地54/55的冻结清单；原清单不改写、无持久迁移；未知或未来版本不按协议相同自动接受。
 
 SSH probe 的 `daemonVersion` 是实际选中后台版本，`clientDaemonVersion` 是客户端新安装包版本，`reuseCompatible` 是展示信息，`installNeeded=false` 表示旧安装可复用。执行分支按实际可信清单选择结果判定，不能凭缓存展示标志绕过校验。旧 current.json、daemon 身份和任务数据无需迁移。
 
 ## 关系、布局与图操作
 
-agent-network.json 增加 relationOperations，每项含 operationId、state=confirmed、内容 fingerprint 和 data（提交时的 collaboration）。现有 version=1、节点、请求、委派与 ID 不迁移或重建。图权威边仍来自 leaderId/memberIds；成员顺序不改变权限。
+agent-network.json 增加 relationOperations，每项含 operationId、state=confirmed、内容 fingerprint 和 data（提交时的 collaboration）。现有 version=1、节点、请求、委派与 ID 不迁移或重建。每条启用关系的权威边来自其leaderId/memberIds；图仍使用selected兼容视图，成员顺序不改变权限。
 
 graph-layout.json 是 version=1 容器：layout 包含独立 layoutRevision、groups[machineId] 与 nodes[nodeId] 的 x/y、viewport 的 x/y/zoom；operations 为同类稳定收据。节点坐标相对于机器组，几何 parent 不代替 parentMachineId。损坏文件先复制为 graph-layout.json.corrupt-*，恢复默认位置不重置关系。
 
@@ -304,6 +312,8 @@ graph-pending.json 保存 operationId、lane=relation/layout/node/machine、完�
 
 
 AGENT_UNHEALTHY 的原执行前拒绝使用现有 daemon-receipts 的 rejected/error 与中央 pending 的 rejected/result，不新增版本或字段。旧 unknown 记录只在原查询依据其保存的确定拒绝核对，其他 unknown 原样保留；Task 状态未因此改变。
+
+图节点的measured尺寸由原DOM dimensions事件提供，只在当前挂载视图内按节点ID保留width/height，坐标重建继续带回以保留端点测量，真实尺寸改变时更新。它不属于GraphLayout/localStorage/中央数据，不保存端点、角色或权限；无需持久迁移。[实现与验收](iterations/I08/graph-measured-dimensions.md)。
 
 布局读取可用状态是前端临时状态，不改变 GraphLayout 或收据格式。本机模式保留浏览器 State 中坐标、视口、layoutDirty 与所有原 pending ID，不创建后台确认记录。仅在图接口恢复支持且对应 lane 无 pending、修订可校验时同步。
 

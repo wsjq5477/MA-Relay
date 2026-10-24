@@ -1,11 +1,19 @@
 const fs=require('node:fs'),path=require('node:path'),net=require('node:net');
 const {spawn,execFileSync}=require('node:child_process'),{createHash,randomUUID}=require('node:crypto');
-const {identity,inspectDaemon,inspectFile,privateDirectory,socketPathFor}=require('./machine-daemon.cjs');
+const {identity,inspectDaemon,inspectFile,socketPathFor}=require('./machine-daemon.cjs');
 const {FramedStream}=require('./machine-protocol.cjs');
 const fail=(code,message)=>Object.assign(Error(message),{code}),terminal=new Set(['succeeded','failed','cancelled']);
 const safeCode=error=>typeof error?.code==='string'&&/^[A-Z][A-Z0-9_]{0,63}$/.test(error.code)?error.code:'DAEMON_MAINTENANCE_FAILED';
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
 const digest=v=>createHash('sha256').update(JSON.stringify(canonical(v))).digest('hex');
+// A maintenance command carries complete trusted release manifests, separate
+// from the one-MiB daemon RPC frames. Retain every byte within a bounded input.
+const MAX_MAINTENANCE_INPUT_BYTES=64*1048576;
+async function readMaintenanceInput(stream,maxBytes=MAX_MAINTENANCE_INPUT_BYTES){
+ const chunks=[];let bytes=0;
+ for await(const chunk of stream){const data=Buffer.isBuffer(chunk)?chunk:Buffer.from(chunk);bytes+=data.length;if(bytes>maxBytes)throw fail('INVALID_INPUT','维护输入过大。');chunks.push(data);}
+ return JSON.parse(Buffer.concat(chunks,bytes).toString('utf8'));
+}
 function atomic(file,value){const temp=file+'.'+randomUUID()+'.tmp';const fd=fs.openSync(temp,'wx',0o600);try{fs.writeFileSync(fd,JSON.stringify(value));fs.fsyncSync(fd);}finally{fs.closeSync(fd);}fs.renameSync(temp,file);}
 function mutateRows(file,change){
  const lock=file+'.lock',deadline=Date.now()+2000;let acquired=false;
@@ -35,7 +43,7 @@ function version(input,release){
 }
 async function peer(input){const info=await inspectDaemon({stateDirectory:input.stateDirectory,ownerCoordinatorId:input.ownerCoordinatorId,profileId:input.profileId});if(info.daemonId!==input.daemonId||info.uid!==input.uid)throw fail('DAEMON_IDENTITY_CHANGED','运行中后台不是原来源。');
  const socket=net.connect(socketPathFor(input.stateDirectory)),channel=new FramedStream(socket),pending=new Map();channel.on('error',()=>{});channel.on('close',()=>{for(const r of pending.values()){clearTimeout(r.timer);r.reject(fail('DAEMON_OFFLINE','维护通道关闭。'));}pending.clear();});
- channel.on('frame',v=>{const r=pending.get(v.id);if(!r)return;pending.delete(v.id);clearTimeout(r.timer);v.error?r.reject(Object.assign(Error(v.error.message),{code:v.error.code})):r.resolve(v.result);});
+ channel.on('frame',v=>{const r=pending.get(v.id);if(!r)return;pending.delete(v.id);clearTimeout(r.timer);if(v.error)r.reject(Object.assign(Error(v.error.message),{code:v.error.code}));else r.resolve(v.result);});
  const call=(method,params={})=>new Promise((resolve,reject)=>{const id=randomUUID(),timer=setTimeout(()=>{pending.delete(id);reject(fail('DESKTOP_TIMEOUT','维护观察超时。'));},15000);pending.set(id,{resolve,reject,timer});channel.send({id,method,params});});
  await new Promise((r,j)=>{socket.once('connect',r);socket.once('error',j);});await call('hello',{protocolVersion:2,nonce:randomUUID(),sessionId:randomUUID(),coordinatorId:input.ownerCoordinatorId,profileId:input.profileId,expectedDaemonId:input.daemonId});return {info,call,close:()=>channel.close()};
 }
@@ -204,5 +212,5 @@ function launch(input){const o=opts(input),fingerprint=digest(input),source=path
  if(row.state!=='unknown'||row.workerPid)return row;
  return mutateRows(o.file,rows=>{const current=rows.find(r=>r.operationId===input.operationId);if(current.workerPid||current.state!=='unknown')return current;const child=spawn(process.execPath,[__filename,'--worker',source],{detached:true,stdio:'ignore',env:{...process.env,PATH:path.dirname(process.execPath)+path.delimiter+(process.env.PATH||'')}});child.unref();current.workerPid=child.pid;current.workerStart=processStart(child.pid);return current;});
 }
-if(require.main===module){(async()=>{if(process.argv[2]==='--recover'){await recover(read(process.argv[3]));}else if(process.argv[2]==='--worker'){const file=process.argv[3];await run(read(file));}else{let text='';for await(const chunk of process.stdin){text+=chunk;if(Buffer.byteLength(text)>8*1048576)throw fail('INVALID_INPUT','维护输入过大。');}const input=JSON.parse(text);process.stdout.write(JSON.stringify(input.action==='query'?query(input):launch(input)));}})().catch(e=>{process.stderr.write(JSON.stringify({code:e.code||'MAINTENANCE_ERROR',message:'维护未完成，查询原操作。'}));process.exitCode=1;});}
-module.exports={launch,run,recover,query,version,digest,opts,waitStopped};
+if(require.main===module){(async()=>{if(process.argv[2]==='--recover'){await recover(read(process.argv[3]));}else if(process.argv[2]==='--worker'){const file=process.argv[3];await run(read(file));}else{const input=await readMaintenanceInput(process.stdin);process.stdout.write(JSON.stringify(input.action==='query'?query(input):launch(input)));}})().catch(e=>{process.stderr.write(JSON.stringify({code:e.code||'MAINTENANCE_ERROR',message:'维护未完成，查询原操作。'}));process.exitCode=1;});}
+module.exports={launch,run,recover,query,version,digest,opts,waitStopped,readMaintenanceInput,MAX_MAINTENANCE_INPUT_BYTES};

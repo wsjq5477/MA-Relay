@@ -685,7 +685,7 @@ test('an exported OpenDesk stdio entry calls the scoped broker and loses access 
     child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n');
   });
   assert.equal((await request('initialize',{protocolVersion:'2025-06-18',capabilities:{},clientInfo:{name:'isolated-native',version:'1'}})).result.serverInfo.name,'agentbridge');
-  assert.equal((await request('tools/list')).result.tools.length,7);
+  assert.equal((await request('tools/list')).result.tools.length,10);
   const first=await request('tools/call',{name:'list_agents',arguments:{}});
   assert.deepEqual(JSON.parse(first.result.content[0].text),{items:[]});
   assert.equal(calls[0].scope.nodeId,params.nodeId);assert.equal(calls[0].scope.externalConnectionId,exported.connectionId);

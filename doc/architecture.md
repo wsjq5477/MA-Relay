@@ -1,5 +1,9 @@
 # AgentBridge 整体架构
 
+## CT-08连接策略与确认
+
+原scope/独立接入身份 → 自己启用出站关系 → ConnectionPolicy核对用户envelope与原GraphJournal/节点机器锁 → 范围内连接或持久待用户确认；用户认证中央RPC明确决定后同文件atomicWrite授权/收据。Agent无用户审批接口；用户缩范围、节点/机器撤权同时清理重连权限。前端先保存原意图，丢回应只查询原收据，原ID/unknown与Task读控交集保持。经典10/小队18，中央扩展不冒充daemon能力。 [完整契约与证据](iterations/I07/connection-policy.md)。
+
 ## OpenCode 就绪检查边界
 
 OpenCode 协议协商位于 Core 的 OpenCodeClient/OpenCodeV1，只使用认证 GET，候选入口各 700ms、全套元数据总计 4000ms，并受托管启动剩余预算限制。有效 1.x 健康入口直接选 V1，其他候选按 2.x 契约核验；确定协议或认证错误从 native-server 快速返回，纯连接不可达才重试。节点层将该能力和原安装/观察版本共同投影到接入状态，不修改原操作台账。[需求与验证](iterations/I08/opencode-bounded-probe.md).
@@ -32,7 +36,7 @@ OpenDesk的连接持有进程属于Bridge后台：CLI侧持有自己启动的现
 
 ## 调用方连接视图
 
-原MCP/broker身份 → 原来源机器/父scope或独立enabled连接检查 → 空参数校验 → 当前主原snapshot → await后当前关系纯投影。原父查询返回后为新委派读取当前关系；快照中节点状态和当前授权分别表达；撤权期间不沿旧关系返回目标。既有快照可能保存观察字段，新的投影不写数据、不触发执行。经典7工具/小队18项、关系模型与daemon协议不变。[完整契约](iterations/I07/agent-connections.md)。
+原MCP/broker身份 → 原来源机器/父scope或独立enabled连接检查 → 空参数校验 → 各主原snapshot → await后按原nodeId的当前启用关系纯投影。原父查询返回后为新委派读取当前关系；快照中节点状态和当前授权分别表达；撤权期间不沿旧关系返回目标。既有快照可能保存观察字段，新的投影不写数据、不触发执行。经典7工具/小队18项、关系模型与daemon协议不变。[完整契约](iterations/I07/agent-connections.md)。
 
 ## 扫描与原操作核对边界
 
@@ -276,7 +280,13 @@ Codex 的协作回合由 worker 在本轮 stdin 需求前加入 Bridge 工具指
 
 6A 候选已实际验证窗口与中央分离：普通关闭不停止 Coordinator；设置页确认停止后中央退出，远端已接收任务和原生 Session 保留，新窗口重连回读。后台版本自动切换与完整故障/注销策略仍归 6C。
 
+## 完整维护目录与查询控制面
+
+本地候选alpha.56在原stageMaintenance暂存的当前控制器中按64MiB字节边界一次解析完整维护JSON；所有可信原版本描述保留。原控制器上的只读查询不携带未消费的版本目录，持久原意图与身份/operationId不变，继续只读核对。Daemon帧、原后台和任务执行控制面不扩大。[输入实测、状态与实际CLI证据](iterations/I08/maintenance-input-capacity.md)。
+
 ## 已安装 daemon 的客户端兼容
+
+本地候选alpha.55将可信索引上限与打包校验统一为128，实际37份来自已核验冻结包，按原字节入包。原安装校验通过才复用；失败以短诊断返回，原后台与unknown不改，不在复用中部署新代码。[完整流程与证据](iterations/I08/daemon-compatibility-refresh.md)。
 
 SSH 安装器可以选择本地可信 manifest 明确收录的旧发布，按旧清单验证已有文件后复用同一 daemon。桌面包版本、可用于新安装的 Linux 包版本与远端实际运行版本分别记录；握手仍核对实际所选版本和原身份。兼容复用不部署新代码，不改变状态归属或执行账本；详情见 [M04](modules/04-ssh-access/design.md)、[兼容复用交付](iterations/I06/ssh-compatible-reuse.md)。
 
@@ -284,6 +294,8 @@ SSH 安装器可以选择本地可信 manifest 明确收录的旧发布，按旧
 SSH 恢复状态由 Coordinator 更新并持久化到机器目录，恢复成功删除旧连接错误；MachineRouter 成功快照清理旧目录错误，失败快照保留实际 RPC 错误。合并不能以 transport online 覆盖业务快照失败；不改变任务台账、远端运行实例或协作权限。[SSH 错误恢复](iterations/I06/ssh-error-recovery.md)。
 
 ## 图编辑与中央权威
+
+图组件将React Flow的实际尺寸测量保留于当前挂载视图，坐标变化保留端点和授权边；角色及真实尺寸改变仍走原DOM重测。此界面状态不传中央、不落布局或草稿缓存。[实现与实际证据](iterations/I08/graph-measured-dimensions.md)。
 
 图组件只编辑本机草稿，通过原认证 IPC 提交。当前协作关系与其收据由 AgentNetwork 原子提交；布局由中央独立 GraphLayoutStore 保存，位置不参与执行路由。GraphOperationJournal 先写图意图并按 lane 查询原收据，任务 pending journal 保持独立。浏览器缓存用于保留草稿/原 ID，不能作为授权来源。后台布局读取失败时允许本机视图编辑，显示未同步并禁用需要图事务的新授权编辑；不发送旧式写入，不清除任何原 pending ID。后台可用后以原布局协议/修订同步，本机缓存不证明服务端已提交。
 

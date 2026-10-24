@@ -1,5 +1,27 @@
 # 迭代资料目录
 
+- 2026-10-24：[CT-08-A3连接工具与用户预授权/确认](I07/connection-policy.md)：本地alpha.60，索引v3安全迁移，经典10工具与用户策略/确认/原意图恢复界面；源码900/900、Windows包内37/37与中央管道/重启、兼容26/26、生产页面/普通EXE各4组及Downloads SHA通过，模型0；真实原生多主和低频操作面收尾未准出。
+
+- 2026-10-24：[CT-08-A2多主运行期](I07/multi-parent-runtime.md)：本地alpha.59，按身份出站关系、用户侧关系RPC、全关系撤权与原拒绝恢复；884/884、Windows包内21/21及实际中央管道/重启、兼容26/26与完整大输入、普通EXE4组和Downloads SHA通过，模型0。Agent连接/envelope与完整策略UI仍待开发；中间58构建/失败证据保留。
+
+- 2026-10-24：[CT-08-A1关系索引存储迁移](I07/relation-storage-migration.md)：alpha.57本地候选，旧视图/索引/收据原子同步与冲突拒绝；870/870、包内Windows迁移7/7及真实管道、兼容26/26与完整大输入、普通EXE4组和Downloads SHA通过，模型0。运行仍单主，多主/连接/envelope和普通EXE未准出。
+
+- 2026-10-24：[alpha.56图反馈与渲染管线诊断](I06/alpha56-graph-pipeline.md)：默认/软件对照各20条PNG p95 363.722/112.902ms均未达100ms，本地同步1556/1514ms通过；GPU长跨度仅解释部分样本，产品/EXE不变，模型0。
+
+- 2026-10-23：[冻结客户端与原SSH后台只读复验](I08/current-ssh-readonly.md)：alpha.56客户端对实际alpha.37后台完成原凭据/主机指纹认证、严格逐文件核验与两次非接管inspect；原身份/PID/入口/本地配置保持，三组通过，模型0；未部署，完整故障与联合流程仍未准出。
+
+- 2026-10-23：[完整维护输入与原ID查询](I08/maintenance-input-capacity.md)：alpha.56候选，修复37项全目录超过旧8MiB的问题，保留全部原版本与fingerprint；863/863、Windows包内26/26及8,914,703字节解析、普通EXE4组与Downloads SHA通过，模型0；独立SSH未准出。
+
+- 2026-10-23：[可信旧daemon与错误分类修复](I08/daemon-compatibility-refresh.md)：alpha.55候选，37份原清单/128项边界，桌面856/856、真实冻结文件3组、Windows包内23/23与短诊断通过，模型0；未部署或切换日常后台。
+
+- 2026-10-23：[图节点尺寸保留修复](I08/graph-measured-dimensions.md)：源码候选alpha.54，解决尺寸丢弃导致授权边反复重建；最终20次拖动文字测量11,800→0；844/844、Windows界面7组、普通EXE4组和Downloads完整SHA通过，PNG离线复核p95 241.069ms仍未准出。
+
+
+- 2026-10-23：[alpha.53冻结包图帧补验](I06/alpha53-current-metrics.md)：自动保存画布0px位移通过；20次PNG帧观测p95 388.932ms未准出，本地20次状态同步p95 1504ms通过，模型0。OpenDesk指定Windows OpenCode验收已获授权，现场缺少该节点。
+## 2026-10-23：alpha.53公开预发布
+
+[源码、EXE与匿名完整下载核验](I08/alpha53-release.md)：固定5269d65，#21修复；EXE130190405字节，SHA256SUMS与完整下载摘要一致。未签名、未切换日常后台/部署SSH，真实1.2.22与模型边界保留。
+
 ## 2026-10-23：issue #21 OpenCode 有界协议协商
 
 [需求、实现与分层验证](I08/opencode-bounded-probe.md)：alpha.53 本地候选，健康优先识别1.x、候选/元数据独立短预算、API与认证具体失败，原安装/版本/状态一致；原 unknown 不结算。

@@ -8,7 +8,7 @@ DSH Desktop原生配置已在alpha.48本地候选补齐：原生选择定位、�
 
 OpenDesk 原生 MCP 管理：本地 alpha.47 候选兼容原生 STDIO 空 `headers` 默认值，已登记条目可正常识别、重复添加及撤权清理；其他修改仍保留冲突，0.6.0-alpha.51.recovery.2已包含此兼容。[本轮范围与证据](iterations/I08/opendesk-mcp-defaults.md)。此修复不改变下表的原生调用能力或准出层级。
 
-当前公开0.6.0-alpha.52包含开放MCP双向管理、恢复与非GUI首次接入，具体支持入口与未测项以本页矩阵为准。[当前交付与验证](iterations/I08/mcp-open-recovery.md)；[当前公开分发](iterations/I08/alpha52-release.md)。
+当前公开0.6.0-alpha.53包含开放MCP双向管理、恢复与非GUI首次接入，具体支持入口与未测项以本页矩阵为准。[当前交付与验证](iterations/I08/mcp-open-recovery.md)；[当前公开分发](iterations/I08/alpha53-release.md)。
 
 原生组件验收已补：OpenDesk0.3.9协议5组、DSH0.1.3-alpha.1协议6组；组件独立主调用到真实Claude子任务两条链各成功1次。DSH组件代表Web/CLI共享客户端，不推定Desktop配置或完整ACP会话通过。[验收层级](iterations/I08/mcp-native-acceptance.md)。
 
@@ -22,7 +22,7 @@ DSH新增的Desktop/Web已随alpha.46公开，Desktop原生MCP配置适配属于
 
 发现时排除Linux同名Distributed Shell，原`/usr/bin/dsh`错误不代表DSH Web连接失败。当前源码可按已安装Desktop或Linux Web profile显示未配置服务提示；须在对应机器配置根地址/token后验证连接，旧alpha.34 EXE没有Desktop/Web入口。[现场核对与修复](iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)。
 
-后续规划见[Agent侧自主操作与通用调用方规划](iterations/I07/agent-centric-operations.md)：CT-06逐工具核对Hermes/Pi/DSH（含DSH服务入口）原生MCP客户端与插件扩展点后接入通用调用方、CT-07补Agent侧连接操作面、CT-08将单主关系泛化为按身份多关系并加受确认流保护的连接管理；均登记在本页§4后续目标，CT-07已补只读委派列表和[当前调用方连接视图](iterations/I07/agent-connections.md)及[子任务最小上下文](iterations/I07/delegation-context.md)（源码7工具、受控验证），CT-06首片已落地（能力三维拆分、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI`agentbridge mcp`），逐入口真实原生验收仍未完成；CT-08多主化仍为规划。插件仅作无MCP客户端时的薄传输缺口填补。
+后续规划见[Agent侧自主操作与通用调用方规划](iterations/I07/agent-centric-operations.md)：CT-06逐工具核对Hermes/Pi/DSH（含DSH服务入口）原生MCP客户端与插件扩展点后接入通用调用方、CT-07补Agent侧连接操作面、CT-08将单主关系泛化为按身份多关系并加受确认流保护的连接管理；均登记在本页§4后续目标，CT-07已补只读委派列表和[当前调用方连接视图](iterations/I07/agent-connections.md)及[子任务最小上下文](iterations/I07/delegation-context.md)（本地源码10工具、受控验证），CT-06首片已落地（能力三维拆分、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI`agentbridge mcp`），逐入口真实原生验收仍未完成；CT-08已补[A3连接策略](iterations/I07/connection-policy.md)，含Agent连接工具、预授权/用户确认与各主策略/审计界面，旧图仍selected；真实原生多主未验。插件仅作无MCP客户端时的薄传输缺口填补。
 
 当前发布：公开预发布 **0.6.0-alpha.36**（标签冻结`1fef25f`，含公开alpha.35历史；EXE与校验附件已公开并通过匿名完整下载核验，[交付与边界](iterations/I07/alpha36-delivery.md)）；上一公开预发布alpha.35冻结`b5de577`，其issue #12独立修复已含在alpha.36内。alpha.34包含OpenCode 1.x/2.x双协议与MCP双布局（官方1.19.3 CLI受控验证；真实模型、Windows 1.x、独立SSH未测，[专项](iterations/I07/opencode-v1-compatibility.md)）。独立MCP配置管理与CT-04/CT-05当前状态见本页§2/§4；逐轮记录统一见[迭代目录](iterations/README.md)。
 
@@ -98,7 +98,7 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | 原请求持久查询与 unknown 保护 | 已实现 | 已实现 | 已实现 | 已实现 |
 | 当前内置 ACP 驱动 | 无 | 无 | 无 | 无 |
 
-经典MCP（源码7项、已发布6项）里的 `delegate` 发起新的子会话，没有父完整历史复制；当前也没有给已委派子会话发送后续普通消息的工具。用户未将这项扩展列为优先目标，不以此否定现有任务通路。TeamSpace 的公共材料与某个原生 Agent 的私有对话是不同层，不能混为“共享了所有上下文”。
+经典MCP（本地60源码10项、公开53为7项）里的 `delegate` 发起新的子会话，没有父完整历史复制；当前也没有给已委派子会话发送后续普通消息的工具。用户未将这项扩展列为优先目标，不以此否定现有任务通路。TeamSpace 的公共材料与某个原生 Agent 的私有对话是不同层，不能混为“共享了所有上下文”。
 
 ## 4. 后续目标与完成条件
 
@@ -113,9 +113,9 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | CT-05 显式共享上下文 | AB-F08/11/20/21；M01/M02/M06/M07/M08 | 源码实现同工作目标/四类版本的只读包及桌面明确选择、核对预览、MD/JSON本机副本；实际发送/收件仍待开发 | API片真实Claude一次消费旧版保留原证据；桌面581/581、Windows生产前端9组/模型0。不授予权限、不确认已读/可达、不执行或搬原生Session。[当前桌面范围](iterations/I07/context-packet-ui.md) |
 | CT-06 通用MCP调用方 | AB-F02/07/08/11/12/13；M01/M02/M03/M06/M07/M08 | 按[I08-MCP02开发记录](iterations/I08/mcp-open-integration.md)推进同一MCP的Bridge/原生双向管理、原生列表可见和实际调用；优先OpenDesk/DSH，覆盖当前十入口；配置、独立调用与托管任务能力拆分 | **源码第一片已完成**（能力三维、六项状态事实、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI CLI、Linux本机路由）；逐入口真实原生增删/列表/工具/主调用归属仍待执行，外部删除不补回与撤权已受控验证。不因实现或静态声明当通过，不强制等待完整I07C；旧[规划](iterations/I07/agent-centric-operations.md)保留历史 |
 | CT-07 Agent侧连接操作面 | AB-F02/07/08/10/11/13；M01/M03/M07/M08 | list_agents按原身份返回当前获准连接；list_delegations只读查原委派；普通子会话附最小说明 | 三项已源码/受控覆盖，最新冻结667/667、定向121/121及Windows36/36，模型0。身份、撤权、原请求和无新增工具授权保持；[最新上下文与首次失败](iterations/I07/delegation-context.md)。整合包/真实消费及完整I06C/I07C未准出；[完整目标](iterations/I07/agent-centric-operations.md) |
-| CT-08 多主关系与连接管理 | AB-F02/07/08/10/11/12/13；M01/M03/M07/M08 | 单主collaboration关系泛化为按身份relations[]并迁移；新增list_connectable/connect_agent/disconnect_agent与envelope预授权及确认流；Bridge界面收缩为接入配置、策略与审计 | 关系重构与行为变更分片验收，旧数据迁移可核对；Agent不能自批envelope外关系，撤权即时生效；data-model/protocol同轮同步。规划未实现，[完整定义](iterations/I07/agent-centric-operations.md) |
+| CT-08 多主关系与连接管理 | AB-F02/07/08/10/11/12/13；M01/M03/M07/M08 | 单主collaboration关系泛化为按身份relations[]并迁移；新增list_connectable/connect_agent/disconnect_agent与envelope预授权及确认流；Bridge界面收缩为接入配置、策略与审计 | 关系重构与行为变更分片验收，旧数据迁移可核对；Agent不能自批envelope外关系，撤权即时生效；data-model/protocol同轮同步。A3按身份多主/预授权/明确确认与策略审计UI已在本地60实现；真实原生消费与日常多主待验；[本片证据](iterations/I07/connection-policy.md)，[完整定义](iterations/I07/agent-centric-operations.md) |
 
-CT-01已完成所列源码/受控范围；CT-02旧三工具WSL直接生命周期与六个委派方向已实测，新三工具仍待真实环境。CT-04桌面阅读/复制/MD下载已补，继续材料交接；CT-05只读API/MCP及桌面选材/核对导出已补，明确传递/收件与跨工具实际消费仍待验，CT-03用试点证据决定是否扩大。CT-06/CT-07/CT-08为后续规划（[Agent侧自主操作](iterations/I07/agent-centric-operations.md)），CT-07只读委派列表及当前调用方连接视图已源码实现，[子会话上下文](iterations/I07/delegation-context.md)也已源码实现，CT-06/08规划及真实消费仍待完成；I07C六工具真实覆盖与DSH原实例验证仍是CT-06的前置。自动续接、多用户、模型管理、云平台和全套外部产品工作流不作为此表的目标。
+CT-01已完成所列源码/受控范围；CT-02旧三工具WSL直接生命周期与六个委派方向已实测，新三工具仍待真实环境。CT-04桌面阅读/复制/MD下载已补，继续材料交接；CT-05只读API/MCP及桌面选材/核对导出已补，明确传递/收件与跨工具实际消费仍待验，CT-03用试点证据决定是否扩大。CT-06/CT-07/CT-08按分片推进（[Agent侧自主操作](iterations/I07/agent-centric-operations.md)），CT-07只读委派列表及当前调用方连接视图已源码实现，[子会话上下文](iterations/I07/delegation-context.md)也已源码实现，CT-08-A3连接工具/预授权/用户确认及策略审计已本地实现；CT-06完整原生消费、CT-08真实原生多主与低频操作面收尾仍待完成；I07C六工具真实覆盖与DSH原实例验证仍是CT-06的前置。自动续接、多用户、模型管理、云平台和全套外部产品工作流不作为此表的目标。
 
 ## 5. 核对入口与证据
 

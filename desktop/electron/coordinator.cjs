@@ -6,7 +6,7 @@ const { StringDecoder } = require('node:string_decoder');
 const { createHash, randomBytes, randomUUID, timingSafeEqual } = require('node:crypto');
 const { ensurePrivateDirectory } = require('./private-directory.cjs');
 const { createCoordinatorService } = require('./coordinator-service.cjs');
-const {runtimeCapabilities}=require('./runtime-capabilities.cjs');
+const {coordinatorRuntimeCapabilities:runtimeCapabilities}=require('./runtime-capabilities.cjs');
 const PROTOCOL = 2;
 function identity(directory) {
   ensurePrivateDirectory(directory);

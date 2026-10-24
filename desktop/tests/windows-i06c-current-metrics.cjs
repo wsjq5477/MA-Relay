@@ -8,10 +8,11 @@ const [bridge, frontend, output, version = require('../package.json').version] =
 if (process.platform !== 'win32' || !output) throw Error('Windows, frozen backend/frontend and output required');
 fs.mkdirSync(output, {recursive: true});
 const report = {date: new Date().toISOString(), version, status: 'running', modelCalls: 0,
+  frontendKind: process.env.AGENTBRIDGE_METRIC_FRONTEND_KIND || 'frozen app.asar production frontend',
   scope: 'Production package frontend/Coordinator/AgentNetwork; controlled machines and local durable catalog, real Windows Edge pointer/paint. Not independent SSH/LAN or native-model evidence',
   hardware: {os: os.release(), cpu: os.cpus()[0]?.model, cores: os.cpus().length, memoryBytes: os.totalmem()},
   viewport: {width: 1440, height: 960}, theme: 'light', checks: [], errors: []};
-let fixture, browser, page, server, frameObserver;
+let fixture, browser, page, server, frameObserver, profiler, timeline, measurementObserver;
 const gestures = [];
 const hash = file => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const percentile = (values, fraction) => [...values].sort((a, b) => a - b)[Math.ceil(values.length * fraction) - 1];
@@ -33,7 +34,10 @@ const percentile = (values, fraction) => [...values].sort((a, b) => a - b)[Math.
     catch {res.writeHead(404).end();}
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  browser = await chromium.launch({executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', headless: true});
+  const diagnosticSoftwareRendering = process.env.AGENTBRIDGE_GRAPH_DISABLE_GPU === '1';
+  report.rendererMode = diagnosticSoftwareRendering ? 'diagnostic software rendering (--disable-gpu); not the default product runtime' : 'default browser rendering';
+  browser = await chromium.launch({executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', headless: true,
+    args: diagnosticSoftwareRendering ? ['--disable-gpu'] : []});
   report.browserVersion = browser.version();
   page = await browser.newPage({viewport: report.viewport, reducedMotion: 'reduce'});
   page.on('pageerror', error => report.errors.push(error.message));
@@ -91,7 +95,20 @@ const percentile = (values, fraction) => [...values].sort((a, b) => a - b)[Math.
   report.timeOrigin = await page.evaluate(() => performance.timeOrigin);
   if (process.env.AGENTBRIDGE_GRAPH_FRAMES === '1') {
     frameObserver = await require('./graph-frame-observer.cjs').observeFrames(page, path.join(output, 'frames'));
+    await frameObserver.ready();
     await page.waitForTimeout(200);
+  }
+  if (process.env.AGENTBRIDGE_GRAPH_PROFILE === '1') {
+    report.diagnosticProfiling = true;
+    profiler = await page.context().newCDPSession(page);
+    await profiler.send('Profiler.enable');
+    await profiler.send('Profiler.start');
+  }
+  if (process.env.AGENTBRIDGE_GRAPH_TRACE === '1') {
+    report.diagnosticTimeline = true;
+    timeline = await require('./graph-drag-profiler.cjs').traceDrags(page, output);
+  } else if (process.env.AGENTBRIDGE_GRAPH_MEASUREMENTS === '1') {
+    measurementObserver = await require('./graph-drag-profiler.cjs').measureDrags(page, output);
   }
   await page.evaluate(selector => {
     const node = document.querySelector(selector);
@@ -134,9 +151,20 @@ const percentile = (values, fraction) => [...values].sort((a, b) => a - b)[Math.
     await expect(page.locator('.graph-machine')).toHaveCount(20);
   }
   const drag = await page.evaluate(() => ({samples: window.metricDrags, longTasks: window.metricLongTasks, zoom: new DOMMatrix(getComputedStyle(document.querySelector('.react-flow__viewport')).transform).a}));
-  report.graph = {...drag, machines: 20, nodes: 60, edges: 59,
+  await timeline?.stop();
+  if (profiler) {
+    const {profile} = await profiler.send('Profiler.stop');
+    fs.writeFileSync(path.join(output, 'drag-cpu-profile.json'), JSON.stringify(profile) + '\n');
+    await profiler.detach(); profiler = null;
+  }
+  report.graph = {...drag, gestures, machines: 20, nodes: 60, edges: 59,
     p95Ms: percentile(drag.samples.map(sample => sample.feedbackUpperBoundMs), 0.95),
     maximumLongTaskMs: Math.max(0, ...drag.longTasks.map(entry => entry.duration))};
+  if (measurementObserver) report.graph.textMeasurements = await measurementObserver.stop();
+  if (process.env.AGENTBRIDGE_EXPECT_RETAINED_EDGES === '1') {
+    assert.equal(report.graph.textMeasurements?.count, 0, 'Stable edge labels must not remount and remeasure while only coordinates change');
+    report.checks.push('All existing edge labels retain their measured DOM across 20 coordinate-only drags');
+  }
   if (frameObserver) {
     await frameObserver.stop();
     report.graph.presentation = frameObserver.analyze(drag.samples, report.timeOrigin, gestures);
@@ -179,4 +207,4 @@ const percentile = (values, fraction) => [...values].sort((a, b) => a - b)[Math.
   assert(report.sync.p95Ms <= 2000, 'Local durable state-to-render p95 exceeds 2s');
   report.status = 'passed';
 })().catch(async error => {report.status = 'failed'; report.error = error.message; process.exitCode = 1; try {report.partial = await page?.evaluate(() => ({samples: window.metricDrags, longTasks: window.metricLongTasks, composerVisible: !!document.querySelector('.compose-dialog')})); await page?.screenshot({path: path.join(output, 'failure.png'), fullPage: true});} catch {}})
-  .finally(async () => {await frameObserver?.stop(); await browser?.close(); fixture?.close(); if (server) await new Promise(resolve => server.close(resolve)); fs.writeFileSync(path.join(output, 'metrics.json'), JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify({status: report.status, checks: report.checks.length, graphP95: report.graph?.presentation?.p95Ms ?? report.graph?.p95Ms, rafUpperBoundP95: report.graph?.p95Ms, syncP95: report.sync?.p95Ms, error: report.error}));});
+  .finally(async () => {await measurementObserver?.stop().catch(error => {report.measurementArchiveError = error.message; report.status = 'failed'; process.exitCode = 1;}); await timeline?.stop(); await profiler?.detach(); await frameObserver?.stop(); await browser?.close(); fixture?.close(); if (server) await new Promise(resolve => server.close(resolve)); fs.writeFileSync(path.join(output, 'metrics.json'), JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify({status: report.status, checks: report.checks.length, graphP95: report.graph?.presentation?.p95Ms ?? report.graph?.p95Ms, rafUpperBoundP95: report.graph?.p95Ms, syncP95: report.sync?.p95Ms, error: report.error}));});

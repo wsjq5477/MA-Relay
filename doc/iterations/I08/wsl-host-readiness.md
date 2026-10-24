@@ -60,4 +60,6 @@ WSL原生MCP测试使用独立CODEX_HOME与临时Bridge目录，不触碰日常�
 
 ## 真实父模型验收待授权
 
-2026-10-22的只读预检在日常正式授权列表找到7个目标，但没有Windows Claude；父模型Prompt提交0、子任务0。拟改用现有Windows OpenCode时，自动审批拒绝了更换真实模型目标，理由是既有授权只覆盖一次Windows Claude。已向用户询问是否允许最多1个Windows OpenCode心算子任务；未收到明确答复前不执行，也不改关系或用户配置。[预检证据](../../../artifacts/opendesk-parent-delegation/2026-10-22/native-parent.json)。
+2026-10-22只读预检发现正式列表7个目标但无Windows Claude，父Prompt0/子任务0；更换目标曾被自动审批拒绝。[历史预检](../../../artifacts/opendesk-parent-delegation/2026-10-22/native-parent.json)。用户随后明确答复“允许 Windows OpenCode 验收”，许可范围为最多1个心算子任务、不读写业务文件、不修改关系，不再重复询问该许可。
+
+2026-10-23复核日常后台仍为alpha.46：新版客户端因能力检查拒绝读取，模型0；随后通过该日常实例自身冻结客户端只读核对，正式7个目标中Windows OpenCode为0，完整快照也没有该Windows节点，现有两个OpenCode均来自非Windows机器。没有原验收私有意图，没有父Prompt或子任务提交，授权尚未消耗。不能用WSL/SSH或其他Agent替代本次指定目标。待既有正式Windows目标可用后按原授权执行；[当前只读结果](../../../artifacts/opendesk-parent-delegation/2026-10-23/preflight-target-state.json)、[客户端版本门禁](../../../artifacts/opendesk-parent-delegation/2026-10-23/preflight.json)。这不是alpha.53包或真实父模型成功证据。

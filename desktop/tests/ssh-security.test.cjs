@@ -7,9 +7,16 @@ const { createHmac, randomBytes, createCipheriv, createDecipheriv } = require('n
 const { KnownHosts, fingerprint, endpoint } = require('../electron/ssh-known-hosts.cjs');
 const { CredentialStore, dpapiScript } = require('../electron/ssh-credentials.cjs');
 const { validateDraft } = require('../electron/ssh-host.cjs');
-const { quote, localManifest, sufficientNode, privateDirectory } = require('../electron/ssh-install.cjs');
+const { quote, localManifest, sufficientNode, privateDirectory, verifyScript } = require('../electron/ssh-install.cjs');
 function temp(t) { const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-ssh-security-')); t.after(() => fs.rmSync(directory, { recursive: true, force: true })); return directory; }
 function publicKey(seed = 'first') { const type = Buffer.from('ssh-ed25519'), header = Buffer.alloc(4); header.writeUInt32BE(type.length); return Buffer.concat([header, type, Buffer.from(seed)]); }
+test('a large-manifest checksum failure emits a bounded diagnostic instead of echoing the script', t => {
+  const directory = temp(t), manifest = {files: Array.from({length: 1702}, (_, i) => ({path: 'controlled-' + i, size: 1, sha256: 'a'.repeat(64)}))};
+  const result = require('node:child_process').spawnSync(process.execPath, ['-'], {input: verifyScript(directory, manifest), encoding: 'utf8', maxBuffer: 1024 * 1024});
+  assert.ifError(result.error); assert.notEqual(result.status, 0); assert.equal(result.stdout, '');
+  assert(result.stderr.length <= 1024, 'Checksum diagnostics must stay below the RPC stderr bound');
+  assert.equal(result.stderr.trim(), 'CHECKSUM');
+});
 test('host trust persists only a specifically accepted key and refuses changes', t => {
   const directory = temp(t), store = new KnownHosts(directory, { openSshFiles: [] }), key = publicKey();
   const record = store.check('SERVER.example', 2222, key); assert.equal(record.trusted, false); assert.equal(record.fingerprint, fingerprint(key)); assert.equal(record.target, '[server.example]:2222');

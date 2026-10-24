@@ -4,16 +4,26 @@ const {chromium,expect}=require('../node_modules/@playwright/test');
 const {graphFixture}=require('./i06b-ui-fixture.cjs');
 const out=process.env.AGENTBRIDGE_GRAPH_REPORT_DIR?path.resolve(process.env.AGENTBRIDGE_GRAPH_REPORT_DIR):path.resolve(__dirname,'../../artifacts/graph-usability/2026-10-13');
 const report={date:new Date().toISOString(),version:require('../package.json').version,status:'running',scope:'Windows Edge real pointer input / production graph stores / controlled machines; no native inference',checks:[],submittedNativePrompts:0};
-let browser,fixture,page;
+let browser,fixture,page,server;
 (async()=>{
-  fs.mkdirSync(out,{recursive:true});fixture=await graphFixture();
+  fs.mkdirSync(out,{recursive:true});fixture=await graphFixture({runtimeRoot:process.env.AGENTBRIDGE_GRAPH_RUNTIME_ROOT});
+  let frontendUrl=process.argv[2]||'http://127.0.0.1:4217';
+  if(process.env.AGENTBRIDGE_GRAPH_FRONTEND){
+    const frontend=path.resolve(process.env.AGENTBRIDGE_GRAPH_FRONTEND);
+    server=require('node:http').createServer((req,res)=>{
+      const relative=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/+/, '')||'index.html',file=path.resolve(frontend,relative);
+      if(!file.startsWith(frontend+path.sep))return res.writeHead(403).end();
+      try{res.setHeader('content-type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync(file));}catch{res.writeHead(404).end();}
+    });
+    await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));frontendUrl='http://127.0.0.1:'+server.address().port;
+  }
   // Arrange the controlled catalog like the reported Windows + adjacent WSL scene.
   fixture.router.catalog.machines.sort((a,b)=>({windows:0,wsl:1,ssh:2}[a.kind]-{windows:0,wsl:1,ssh:2}[b.kind]));
   browser=await chromium.launch({executablePath:'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',headless:true});
   const context=await browser.newContext({viewport:{width:1440,height:960}});
   await context.exposeFunction('bridgeCall',(m,p)=>fixture.call(m,p));
   await context.addInitScript(version=>{window.agentbridge={call:(m,p)=>window.bridgeCall(m,p),preferences:async()=>({theme:'light',version,platform:'win32'}),pending:async()=>[],recoverPending:async()=>({resolved:0}),window:async()=>{},savePreferences:async p=>p};},report.version);
-  const open=async()=>{page=await context.newPage();await page.goto(process.argv[2]||'http://127.0.0.1:4217');await expect(page.locator('.graph-tool')).toHaveCount(3);await expect(page.locator('.graph-view-tools').getByText('布局已保存',{exact:true})).toBeVisible();};
+  const open=async()=>{page=await context.newPage();await page.goto(frontendUrl);await page.getByRole('button',{name:'关系图',exact:true}).click();await expect(page.locator('.graph-tool')).toHaveCount(3);await expect(page.locator('.graph-view-tools').getByText('布局已保存',{exact:true})).toBeVisible();};
   await open();await page.getByRole('button',{name:'适配全图',exact:true}).click();await expect(page.locator('.graph-view-tools').getByText('布局已保存',{exact:true})).toBeVisible();await page.waitForTimeout(300);
   const snapshot=await fixture.router.snapshot(),leader=snapshot.nodes.find(n=>snapshot.machines.find(m=>m.machineId===n.machineId)?.kind==='wsl'),child=snapshot.nodes.find(n=>snapshot.machines.find(m=>m.machineId===n.machineId)?.kind==='windows');
   const tool=id=>page.locator('.react-flow__node[data-id="'+id+'"]');
@@ -82,5 +92,21 @@ let browser,fixture,page;
   report.checks.push('Leader styling/usable ports follow draft role changes; pending removal edge keeps measured hidden anchors and discard restores saved role');
   await page.getByRole('button',{name:'适配全图',exact:true}).click();await page.waitForTimeout(700);
   await page.screenshot({path:path.join(out,'usability-light.png'),fullPage:true});await page.getByRole('button',{name:'切换深浅主题',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');await page.screenshot({path:path.join(out,'usability-dark.png'),fullPage:true});
+  // Real dimension changes must still update the retained measurements. Add
+  // tools to the same group, then compare its new child against saved geometry.
+  await fixture.inject('scale');
+  await expect(page.locator('.graph-tool')).toHaveCount(60);
+  await expect(page.locator('.graph-machine')).toHaveCount(20);
+  await expect(page.locator('.graph-view-tools').getByText('布局已保存',{exact:true})).toBeVisible();
+  const expanded=await fixture.router.snapshot(),added=expanded.nodes.find(n=>n.machineId===child.machineId&&n.adapter==='opencode');assert(added);
+  await expect.poll(async()=>(await fixture.router.call('graphLayout')).nodes[added.nodeId]?.y||0).toBeGreaterThan(300);
+  const grownLayout=await fixture.router.call('graphLayout');
+  await expect.poll(async()=>{
+    const card=await tool(added.nodeId).boundingBox(),group=await tool('machine:'+child.machineId).boundingBox();
+    const zoom=await page.locator('.react-flow__viewport').evaluate(el=>new DOMMatrix(getComputedStyle(el).transform).a);
+    return Math.abs((card.y-group.y)/zoom-grownLayout.nodes[added.nodeId].y);
+  }).toBeLessThan(1);
+  assert(!JSON.stringify(grownLayout).includes('measured'));
+  report.checks.push('Adding tools grows the same machine group, refreshes actual measurements and renders the new child at its saved position; DOM measurements never enter the saved layout');
   report.status='passed';
-})().catch(async e=>{report.status='failed';report.error=e.stack;process.exitCode=1;try{await page.screenshot({path:path.join(out,'usability-failure.png'),fullPage:true});}catch{}}).finally(async()=>{await browser?.close();fixture?.close();fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'usability.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));});
+})().catch(async e=>{report.status='failed';report.error=e.stack;process.exitCode=1;try{await page.screenshot({path:path.join(out,'usability-failure.png'),fullPage:true});}catch{}}).finally(async()=>{await browser?.close();fixture?.close();if(server)await new Promise(resolve=>server.close(resolve));fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'usability.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));});

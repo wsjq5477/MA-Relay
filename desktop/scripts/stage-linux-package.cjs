@@ -2,8 +2,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash, randomUUID } = require('node:crypto');
 const { execFileSync } = require('node:child_process');
+const { validateManifest, MAX_COMPATIBLE_DAEMONS } = require('../electron/ssh-install.cjs');
 
 function stageLinuxPackage({repo,runtime,destination,nodeExecutable,version}) {
+  const compatible=path.join(repo,'desktop/compatible-daemons');
+  const pinNames=fs.existsSync(compatible)?fs.readdirSync(compatible).sort():[];
+  if(pinNames.length>MAX_COMPATIBLE_DAEMONS)throw new Error('兼容后台清单超过受支持的索引上限。');
   const previous = path.join(destination,'runtime/node');
   const executable = nodeExecutable || process.env.AGENTBRIDGE_LINUX_NODE || (process.platform==='linux'?process.execPath:previous);
   if(!fs.existsSync(executable)) throw new Error('缺少 Linux Node 运行时，请设置 AGENTBRIDGE_LINUX_NODE 后再打包。');
@@ -29,10 +33,10 @@ function stageLinuxPackage({repo,runtime,destination,nodeExecutable,version}) {
     if(process.platform==='linux') nodeVersion=execFileSync(executable,['--version'],{encoding:'utf8'}).trim();
     else nodeVersion=JSON.parse(fs.readFileSync(path.join(destination,'manifest.json'),'utf8')).runtime.version;
     const compatibleDaemons=[];
-    const compatible=path.join(repo,'desktop/compatible-daemons');
-    if(fs.existsSync(compatible)) for(const name of fs.readdirSync(compatible).sort()) {
+    for(const name of pinNames) {
       if(!/^[a-zA-Z0-9.-]+\.json$/.test(name)) throw new Error('兼容后台清单文件名无效。');
       const manifest=JSON.parse(fs.readFileSync(path.join(compatible,name),'utf8'));
+      validateManifest(manifest);
       if(manifest.protocolVersion!==2 || name!==manifest.version+'.json' || manifest.platform!=='linux' || manifest.arch!=='x64') throw new Error('兼容后台清单版本/协议无效。');
       const manifestPath='compatible-daemons/'+name;
       fs.mkdirSync(path.join(stage,'compatible-daemons'),{recursive:true});fs.copyFileSync(path.join(compatible,name),path.join(stage,manifestPath));

@@ -67,7 +67,7 @@ async function client(t,config){
 test('actual broker/stdio discovers the seventh read-only tool and binds lookup to authenticated parent rather than caller arguments',async t=>{
  const f=await fixture(t),broker=new CollaborationBroker(path.join(f.directory,'broker'),(scope,name,p)=>f.network.collaborationTool(scope,name,p,'unused',f.leader.machineId));t.after(()=>broker.close());
  const send=await client(t,await broker.configure('native-parent',f.scope));await send('initialize',{protocolVersion:'2025-03-26'});
- const tools=(await send('tools/list')).result.tools;assert.equal(tools.length,7);assert.equal(tools.find(x=>x.name==='list_delegations').annotations.readOnlyHint,true);
+ const tools=(await send('tools/list')).result.tools;assert.equal(tools.length,10);assert.equal(tools.find(x=>x.name==='list_delegations').annotations.readOnlyHint,true);
  const read=async args=>JSON.parse((await send('tools/call',{name:'list_delegations',arguments:args})).result.content[0].text);
  assert.equal((await read({})).items.length,1);assert.equal((await read({nodeId:'forged'})).error.code,'INVALID_INPUT');
 });

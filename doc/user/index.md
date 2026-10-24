@@ -6,7 +6,7 @@ AgentBridge 连接你已有的原生 Agent，让你在一个桌面入口查看�
 
 ## Agent 接入总览
 
-七种产品按十个执行入口展示。**✓ 表示当前适配方式，— 表示尚未接入该方式**，不是厂商产品的全部能力。Desktop/Web 服务入口需要包含该功能的 AgentBridge 版本，当前公开 0.6.0-alpha.51.recovery.2 已包含这两个入口。
+七种产品按十个执行入口展示。**✓ 表示当前适配方式，— 表示尚未接入该方式**，不是厂商产品的全部能力。Desktop/Web 服务入口需要包含该功能的 AgentBridge 版本，当前公开 0.6.0-alpha.53 已包含这两个入口。
 
 <!--@include: ./_generated/connection-table.md-->
 

@@ -1,5 +1,9 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+## CT-08当前关系模型
+
+M08-F02/F03/F05：索引v3含envelope.version1/revision/allowedNodeIds；v1/v2按原成员迁移，不自动扩大范围或启用原非selected行。各主一个启用出站关系，成员可兼任其他主。Agent仅在自己范围内连接/断开，范围外原请求须用户明确确认；断开保留预授权，用户撤权删范围防自动重连，原任务读控/unknown不变。各主策略/确认/安全审计页面已实现，旧图仍编辑selected；完整真实原生多主未准出。 [完整契约、验证与边界](../../iterations/I07/connection-policy.md)。
+
 ## 当前 OpenDesk 生命周期与关系作用域
 
 M08-F02/F03/F04/F05：无关节点管理 unknown 不再全局禁用独立 MCP 主节点草稿；保存核对现有和新主/子节点的资源并集。原关系 unknown、机器 pending、原节点/同安装/共享目录及缺失来源/范围仍拒绝。设置草稿不写后台；保存使用一个原 operationId，同 ID 幂等，原 A 的参数、时间、错误与占用保留，不附加查询/重派。MCP客户端、托管scope、原生加载与工具事实仍独立。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
@@ -24,17 +28,17 @@ M08-F01：alpha.36整合基线含公开alpha.35执行资源级保护/原查询�
 
 ## 普通子会话最小协作上下文
 
-M08-F03/F05：仅新delegate在既有当前授权检查后选择固定v1说明，要求执行单项需求、在本会话报告结果/证据/未完成项并交回主Agent，需要额外信息/权限时说明。上下文不含父对话、Task/Conversation/connectionId/节点或机器身份，不注入MCP/TeamScope，不改变现有独立工具授权。新台账可选contextVersion=1在派发前保存，message保持原需求；缺字段历史原文，不支持版本DELEGATION_CONTEXT_UNSUPPORTED保留unknown。原准备拒绝仅按原机器/节点/ID、明确未派发和该版本完整输入指纹严格结算。文本是感知说明，不是访问控制或模型遵守证明；经典7/小队18工具、单主关系与原结果/取消/权限规则保持。[完整输入、恢复与证据](../../iterations/I07/delegation-context.md)。
+M08-F03/F05：仅新delegate在既有当前授权检查后选择固定v1说明，要求执行单项需求、在本会话报告结果/证据/未完成项并交回主Agent，需要额外信息/权限时说明。上下文不含父对话、Task/Conversation/connectionId/节点或机器身份，不注入MCP/TeamScope，不改变现有独立工具授权。新台账可选contextVersion=1在派发前保存，message保持原需求；缺字段历史原文，不支持版本DELEGATION_CONTEXT_UNSUPPORTED保留unknown。原准备拒绝仅按原机器/节点/ID、明确未派发和该版本完整输入指纹严格结算。文本是感知说明，不是访问控制或模型遵守证明；经典7/小队18工具与原结果/取消/权限规则保持，关系读取已按当前调用方出站关系处理。[完整输入、恢复与证据](../../iterations/I07/delegation-context.md)。
 
 ## 按当前调用方查看连接
 
-M08-F02/F03/F05/F06：list_agents只接受空参数，身份由原机器/原父或独立enabled连接确定。返回caller的nodeId/machineId、native-parent或external-connection、leader/member/unassigned；delegationAuthorized与not_leader/parent_unknown/caller_unsupported解释新委派授权，允许时block=null，不替代状态/资源准入。当前主沿原snapshot观察，await后读取最新collaboration再筛选当前memberIds，排除自身；非主返回空items且不查其他节点。保留原items字段并加schema=1/readOnly=true/view=authorized-connections/relationRevision。原父终态、外来机器及独立连接撤权沿原入口拒绝，不公开私有连接ID或父Task/Conversation，不列incoming主或全网。原父查询完成后才为既有新委派准入取当前关系，防止旧主副本绕过等待期间的撤权；角色模型、原委派读控和去重/原请求策略保持。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
+M08-F02/F03/F05/F06：list_agents只接受空参数，身份由原机器/原父或独立enabled连接确定。返回caller的nodeId/machineId、native-parent或external-connection、leader/member/unassigned；delegationAuthorized与not_leader/parent_unknown/caller_unsupported解释新委派授权，允许时block=null，不替代状态/资源准入。各主沿原snapshot观察，await后按原nodeId读取自己的最新启用关系再筛选当前memberIds，排除自身；非主返回空items且不查其他节点。保留原items字段并加schema=1/readOnly=true/view=authorized-connections/relationRevision。原父终态、外来机器及独立连接撤权沿原入口拒绝，不公开私有连接ID或父Task/Conversation，不列incoming主或全网。原父查询完成后才为既有新委派准入取当前关系，防止旧主副本绕过等待期间的撤权；角色模型、原委派读控和去重/原请求策略保持。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
 
 ## 原委派发现与作用域（M08-F04/F05）
 
 源码新增list_delegations({limit?,after?})，默认20/最多50；原生按leader和原父request/task/conversation交集，独立接入按非空connectionId/原父范围且parentTaskId=null过滤，不能以空身份匹配。游标只允许当前作用域原委派ID，额外身份参数拒绝；移除子关系保留原父读控，失效父/撤销独立接入仍拒绝。
 
-只投影原ID、已有taskId、ledgerState和安全元数据，无Prompt/目录/结果/秘密，不查子工具或写/恢复台账。ledgerState非实时，已有taskId再用task_result；无taskId保留unknown与原请求，不补发。单主关系和既有六工具语义不变，完整CT-07未完成。[完整当前契约](../../iterations/I07/delegation-list.md)。
+只投影原ID、已有taskId、ledgerState和安全元数据，无Prompt/目录/结果/秘密，不查子工具或写/恢复台账。ledgerState非实时，已有taskId再用task_result；无taskId保留unknown与原请求，不补发。多主共享存储不改变既有六工具的原父读控语义，完整CT-07未完成。[完整当前契约](../../iterations/I07/delegation-list.md)。
 
 ## DSH Desktop / Web 当前行为
 
@@ -104,7 +108,7 @@ M08-F02/F05/F07：scopedCollaborationTool同时接受原生父owner与长期MCP 
 
 | 功能 ID | 用户可验收功能 | 当前状态 |
 | --- | --- | --- |
-| M08-F01 | 保存一个主节点和多个子节点，重开保留，过期修订拒绝覆盖 | 已发布；图草稿/原子修订保留；CT-01新关系按主MCP调用/子普通委派能力准入，确定拒绝可原ID恢复 |
+| M08-F01 | 按主身份保存多条出站授权，重开保留，各行过期修订拒绝覆盖 | 默认单组已发布；本地A2已支持后台多主，旧图仍编辑selected；CT-01新关系按主MCP调用/子普通委派能力准入，确定拒绝可原ID恢复 |
 | M08-F02 | 主 Agent 只发现用户允许的子节点，显示机器和忙碌状态 | 源码已实现；来源机器和主执行 scope 后台校验 |
 | M08-F03 | 委派真实子任务，稳定 ID 去重，子节点不继续委派 | 源码已实现；Windows/WSL 四条真实链通过 |
 | M08-F04 | 主会话读取/等待子结果，查询 pending、回复和取消自己委派的任务 | 源码已实现；原父会话及活跃 scope 限制 |
@@ -181,7 +185,7 @@ M08-F01/F02/F05：本轮把“能否调用Bridge MCP”和“能否把一次托�
 
 M08-F01/F02/F03/F05/F06：保存新关系要求主节点execution=true且具备MCP调用能力（`mcpClient`；旧快照的`bridgeMcp`为同一投影），子节点delegation=true；本机静态注册与明确元数据收窄共同决定。托管任务scope注入是独立维度（`hostManagedTask`），不再是作主的前提，见[主角色准入与托管scope注入的分离](#主角色准入与托管scope注入的分离)。经典delegate子任务使用collaboration:false，Hermes/Pi/DSH可被普通委派；Pi与DSH的独立MCP声明不等于小队注入，Hermes/Pi独立MCP调用方已声明但完整自主父模型未验。已有原操作/委派先查询，不让新能力检查阻断恢复；历史关系展示保留但不能据历史主身份新发协作任务。MCP list_agents追加能力/来源，不泄漏执行/模型/认证配置。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
 
-用户提交 operationId、expectedRevision 和完整主/成员集合。后台先查原收据，同 ID 同内容返回原结果；改变内容返回 OPERATION_CONFLICT。新保存校验所有节点存在、已接入并支持执行、唯一主、无重复/自连与期望修订，随后在 agent-network.json 同一次原子替换中提交关系 revision+1 和 relationOperations 收据。坐标/状态不能成为授权。过期修订返回 REVISION_CONFLICT，前端保留草稿；收据最多 4096 项，到限明确拒绝，不删除未确认历史来释放占位。兼容旧内部调用不带 operationId 时返回原 collaboration 形状；新图入口总使用稳定 ID 和中央图意图台账。
+用户提交 operationId、expectedRevision、完整主/成员集合，指定其他关系时另带relationId并强制原operationId。后台先查原收据，同 ID 同内容返回原结果；改变内容返回 OPERATION_CONFLICT。新保存校验所有节点存在、已接入并支持执行、每行唯一主/启用主身份无重复、无重复成员/自连与该行期望修订，随后在 agent-network.json 同一次原子替换中提交关系 revision+1 和 relationOperations 收据。坐标/状态不能成为授权。过期修订返回 REVISION_CONFLICT，前端保留草稿；收据最多 4096 项，到限明确拒绝，不删除未确认历史来释放占位。兼容旧内部调用不带 operationId 时返回原 collaboration 形状；新图入口总使用稳定 ID 和中央图意图台账。
 
 ```json
 {"method":"saveCollaboration","params":{"operationId":"relation-save-example","leaderId":"node-main","memberIds":["node-child-a","node-child-b"],"expectedRevision":3}}
@@ -232,10 +236,13 @@ CT-04 实现范围：小队MCP有17项，包含新增 `team_materials({limit?,do
 
 `team_document({documentId,revision?})` 指定revision时返回准确的title/content/authorId/time、revision/currentRevision及contentSha256，不附全部history；正整数非法报TEAM_INPUT，不存在报TEAM_DOCUMENT_REVISION，不回退。无revision保持原完整当前文档响应。先授权再查文档，引用不授予成员资格；跨工作/撤权/无效原生尝试继续拒绝。旧后台/旧工具表须按实际schema/返回revision辨别，不假定支持新字段。普通委派不强制建立公共工作；当前已有CT-04桌面MD副本及上方CT-05瞬时只读包，实体同步/实际投递仍未实现。[完整当前契约与验证](../../iterations/I07/public-materials.md)。
 
-经典主从MCP在源码暴露七个操作（已发布包六个），与上方小队工具集合分开；原生客户端可按自己的命名空间显示为 `agentbridge_*`。
+经典主从MCP在本地alpha.60暴露十个操作（公开alpha.53仍七个），与上方小队工具集合分开；原生客户端可按自己的命名空间显示为 `agentbridge_*`。
 
 | 工具 | 关键参数 | 输出与限制 |
 | --- | --- | --- |
+| list_connectable | 无身份参数 | 只读自己的预授权目标，非全网络发现 |
+| connect_agent | nodeId/operationId/queryOnly? | 范围内连接，范围外只登记待用户确认，原ID查收据 |
+| disconnect_agent | 同上 | 仅断开该主当前授权，保留预授权及原任务 |
 | list_delegations | 可选limit/after，身份来自原scope | 只读列自己的原委派ID/台账状态，不查询实时任务或结算unknown |
 | list_agents | 无节点身份参数 | 返回当前关系允许的子节点、machine、status、busy、能力 |
 | delegate | nodeId、message、requestId，可选 workspace | 返回真实子任务与 delegationId；目标必须已授权 |
@@ -297,7 +304,7 @@ broker 将 token 对应 scope 与业务参数分开，中央宿主/远端 relay 
 
 ## 节点生命周期对授权的影响
 
-配置入口合并到机器图同页。断开/移除子节点撤销该成员；断开/移除主节点清空当前主节点与全部子授权；仅当关系受影响时 revision 增一，并与节点状态和原操作收据原子提交。接回原节点不恢复已撤销权限。node/relation 未确认写入互锁，图位置不参与授权。节点必须空闲且来源可核对才能变更；任何原父对旧任务的读控仍按原账本及活跃 scope 校验，不转交给新主。详见 [节点管理说明](../../iterations/I06/node-management.md)。
+配置入口合并到机器图同页。断开/移除节点撤销其在所有关系中的成员身份，并清空其所有出站授权；每条受影响关系的revision单独增一，并与节点状态和原操作收据原子提交。接回原节点不恢复已撤销权限。node/relation 未确认写入互锁，图位置不参与授权。节点必须空闲且来源可核对才能变更；任何原父对旧任务的读控仍按原账本及活跃 scope 校验，不转交给新主。详见 [节点管理说明](../../iterations/I06/node-management.md)。
 
 ## 当前机器管理与观察恢复
 

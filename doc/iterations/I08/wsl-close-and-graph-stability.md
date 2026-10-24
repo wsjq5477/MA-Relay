@@ -44,4 +44,4 @@ WSL原始启动器在Bridge之外也存在退出1；本轮修复关闭竞态不�
 
 ## 本轮工程与交付
 
-工程、最终包与Windows验收正在执行，以下仅在实际完成后登记；不以定向8项替代全量、普通EXE或原生模型。
+alpha.51原始工程与交付材料保留在artifacts/wsl-lifecycle/2026-10-23；后续alpha.53已公开并复核冻结包。2026-10-23补验自动保存后canvas.top位移0px，通过真实指针与持久修订验证；完整20次PNG帧观测p95 388.932ms仍未满足100ms。当前工程/普通EXE沿用注明版本的[alpha.53分层报告](opencode-bounded-probe.md)，本轮没有重跑全量或重新打包。[当前包指标与原始证据](../I06/alpha53-current-metrics.md)。

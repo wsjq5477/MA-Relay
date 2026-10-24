@@ -1,8 +1,10 @@
 # M10 构建、发布与持久运行资源设计
 
+当前本地候选alpha.60：CT-08-A3连接工具/预授权/用户确认与策略页面，41份原daemon清单；EXE130212267字节，SHA-256 `d74c711b8475e84834519c8509a12a63351c1864a5ed4c01559588dc1fdc9cf6`。56后台/84Core/1713Linux及ASAR/前端/bootstrap一致；源码900/900、Windows包内37/37和实际中央管道/重启、兼容26/26与9,665,523字节输入、生产页面4组、普通EXE4组及Downloads完整SHA通过，模型0。公开仍alpha.53，未签名、未切换日常后台/部署SSH；真实原生多主/图100ms/WSL和完整SSH仍未准出。[完整交付与原始失败](../../iterations/I07/connection-policy.md)。
+
 ## 当前 OpenCode 协议修复候选
 
-M10-F01/F02/F03：alpha.53 本地候选承接 alpha.52，加入有界协议发现、原安装绑定与一致状态。核对 Windows 冻结 Core、ASAR、后台、Linux 离线资源和生产前端；最终普通EXE6组与包一致性通过，保留旧 EXE。使用新候选前显式停止旧后台再重开；客户端不会替换 SSH daemon。本轮不公开或部署日常后台。[交付与包证据](../../iterations/I08/opencode-bounded-probe.md).
+M10-F01/F02/F03：alpha.53 公开预发布承接 alpha.52，加入有界协议发现、原安装绑定与一致状态。核对 Windows 冻结 Core、ASAR、后台、Linux 离线资源和生产前端；最终普通EXE6组与包一致性通过，保留旧 EXE。使用新候选前显式停止旧后台再重开；客户端不会替换 SSH daemon。本轮已公开EXE和校验文件，匿名完整下载核验通过；未切换日常后台或部署SSH。[交付与包证据](../../iterations/I08/opencode-bounded-probe.md).
 
 ## 当前 OpenDesk 生命周期与关系作用域
 

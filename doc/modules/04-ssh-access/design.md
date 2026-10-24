@@ -1,5 +1,9 @@
 # M04 SSH 机器接入设计
 
+本地候选alpha.56的完整维护控制面输入采用有界64MiB字节流读取，保留全部版本描述和原fingerprint；Daemon RPC帧仍1MiB。原ID查询在线端副本省去不消费的releases，持久remoteInput及身份/操作ID不改，维护命令仍发送完整目录。新控制器由原已核验包暂存，旧控制器可继续接收小查询；不部署或改写既有运行实例。[实际缺陷、完整CLI与恢复验证](../../iterations/I08/maintenance-input-capacity.md)。
+
+本地候选alpha.56的可信旧daemon索引按原冻结EXE补齐46、51.recovery.2、52、53与本地54/55，原32份保持，现38项；解析/打包统一上限128，超过上限拒绝，逐文件SHA、原owner/profile/路径及未知版本拒绝规则保持。文件核验失败只发固定CHECKSUM诊断，沿原错误码返回，不回显大清单、不结算原unknown。协议2与持久格式不变；未部署远端。[实现与实际分层证据](../../iterations/I08/daemon-compatibility-refresh.md)。
+
 M04-F01/F04：SSH hello记录opendesk-mcp-lifecycle-v1，仅OpenDesk Desktop原生增删在旧后台缺标记时于派发前拒绝MCP_BACKEND_UPGRADE_REQUIRED；状态、探测与撤权保持既有开放MCP门禁，不要求所有旧机器统一升级。未部署远端，真实Windows进程核验仍由来源后台负责。 [合约与边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 ## alpha.38 维护前置门禁只读 RPC
@@ -43,7 +47,7 @@ M04-F04/F05/F08：alpha.27客户端收录原alpha.26冻结manifest，digest为66
 
 ## 1. 功能与用户操作
 
-M04-F04/F05/F08：可信兼容索引按公开预发布逐版本收录原Linux清单（当前覆盖alpha.2–alpha.33），每条按摘要匹配原公开EXE；alpha.32清单的规范digest为33bbd002f9163bbada063b5ef9feb89aaa8653e12dcd6b86d068c5beaa190d19。兼容仅保留认证连接/观察/维护，不绕过原对象能力和同机/缺来源unknown保护，不自动升级远端。 [实现与实际证据](../../iterations/I07/integrated-source.md)。
+M04-F04/F05/F08：可信兼容索引按公开预发布逐版本收录原Linux清单（当前候选实际37项，明细见本轮可信清单记录），每条按摘要匹配原公开EXE；alpha.32清单的规范digest为33bbd002f9163bbada063b5ef9feb89aaa8653e12dcd6b86d068c5beaa190d19。兼容仅保留认证连接/观察/维护，不绕过原对象能力和同机/缺来源unknown保护，不自动升级远端。 [实现与实际证据](../../iterations/I07/integrated-source.md)。
 
 本模块把一台已有 SSH 登录能力的 Linux 服务器加入 AgentBridge 的机器列表。用户使用服务器原有账号认证，无需额外申请 Bridge 设备令牌；服务器仍需要 Bridge daemon，由客户端在用户目录自动安装。
 

@@ -1,5 +1,7 @@
 # I07：Agent 侧自主操作与通用调用方规划
 
+CT-08后续已实现[A3连接策略](connection-policy.md)，承接[A2按身份多主运行期](multi-parent-runtime.md)与[A1存储迁移](relation-storage-migration.md)：Agent连接工具、envelope预授权/用户明确确认及多主策略/审计页面已本地实现；真实原生消费和日常多主仍待验。下文规划保留原交付时点。
+
 ## CT-07后续实现状态（2026-10-20）
 
 只读委派列表首片已实现，保留原父/连接身份与只读事实，源码经典7工具；[需求、实现、回归与未发布边界](delegation-list.md)。本页其余“纯规划/未实现”描述保留原交付时点，[list_agents身份视图](agent-connections.md)已后续源码实现；[子会话最小上下文](delegation-context.md)也已后续源码实现；CT-06/08仍按原前置，未扩大调用方能力。

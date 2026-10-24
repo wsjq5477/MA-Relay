@@ -41,11 +41,17 @@ class GraphOperationJournal{
     if(row&&receipt?.operationId===params.operationId&&['confirmed','rejected'].includes(receipt.state)){
       const p=row.params||{},data=receipt.data||{},node=data.node||{};
       for(const key of ['machineId','connectionId','nodeId'])if((data[key]??node[key])!==undefined&&p[key]!==undefined&&(data[key]??node[key])!==p[key])throw fail('RECEIPT_MISMATCH','原收据来源不匹配，原操作继续保留。');
-      const expected=row.lane==='node'?digest({nodeId:p.nodeId,machineId:p.machineId,action:p.action}):row.lane==='relation'?digest({leaderId:p.leaderId,memberIds:p.memberIds,expectedRevision:p.expectedRevision}):row.lane==='layout'?digest({expectedLayoutRevision:p.expectedLayoutRevision,layout:p.layout}):digest(row.method==='machine.maintainDaemon'?p:{method:row.method,...p});
+      const expected=row.lane==='node'?digest({nodeId:p.nodeId,machineId:p.machineId,action:p.action}):row.lane==='relation'?digest({leaderId:p.leaderId,memberIds:p.memberIds,expectedRevision:p.expectedRevision,...(Object.hasOwn(p,'relationId')?{relationId:p.relationId}:{})}):row.lane==='layout'?digest({expectedLayoutRevision:p.expectedLayoutRevision,layout:p.layout}):digest(row.method==='machine.maintainDaemon'?p:{method:row.method,...p});
       if(receipt.fingerprint&&receipt.fingerprint!==expected)throw fail('RECEIPT_MISMATCH','原收据内容不匹配，原操作继续保留。');
+      if(row.lane==='relation'&&Object.hasOwn(p,'relationId')&&(data.relationId!==p.relationId||receipt.fingerprint!==expected))throw fail('RECEIPT_MISMATCH','原关系收据标识或内容不匹配，原操作继续保留。');
       row.state=receipt.state;if(receipt.error)row.error=receipt.error;this.update(row);}
     else if(method==='nodeOperation'&&receipt?.operationId===params.operationId&&receipt.state==='not_found'&&['pending','unknown'].includes(row?.state)&&rejectedAttachAdmission(row)){
       row.state='rejected';this.update(row);
+    }
+    if(method==='collaborationOperation'&&row?.method==='saveCollaboration'&&row.state==='rejected'&&Object.hasOwn(row.params||{},'relationId')&&(rejected.has(row.error?.code)||row.error?.code==='COLLABORATION_CAPABILITY')){
+      const p=row.params;
+      if(p.operationId!==row.operationId||row.fingerprint!==digest(p))throw fail('RECEIPT_MISMATCH','原关系拒绝记录的内容不匹配，未释放原操作。');
+      return {operationId:row.operationId,state:'rejected',error:row.error,data:{relationId:p.relationId},fingerprint:digest({leaderId:p.leaderId,memberIds:p.memberIds,expectedRevision:p.expectedRevision,relationId:p.relationId})};
     }
     const savedRejection=['nodeOperation','machine.operation'].includes(method)||method==='collaborationOperation'&&row?.error?.code==='COLLABORATION_CAPABILITY';
     return savedRejection&&row?.state==='rejected'?{operationId:row.operationId,state:'rejected',error:row.error}:receipt;
@@ -53,7 +59,7 @@ class GraphOperationJournal{
   async recover(dispatch,include=()=>true){for(const r of this.pending().filter(include))try{await this.lookup(query(r.lane),{operationId:r.operationId},dispatch);}catch{/* Keep the original unknown; its scope decides whether new work conflicts. */}}
   async save(method,params,dispatch){
     operationId(params.operationId);const kind=lane(method),fingerprint=digest(params);
-    const fields=kind==='machine'?['operationId','machineId','connectionId','expectedRevision','config']:kind==='node'?['operationId','nodeId','machineId','action']:kind==='relation'?['operationId','expectedRevision','leaderId','memberIds']:['operationId','expectedLayoutRevision','layout'];
+    const fields=kind==='machine'?['operationId','machineId','connectionId','expectedRevision','config']:kind==='node'?['operationId','nodeId','machineId','action']:kind==='relation'?['operationId','expectedRevision','leaderId','memberIds','relationId']:['operationId','expectedLayoutRevision','layout'];
     if(Object.keys(params).some(k=>!fields.includes(k)))throw fail('INVALID_INPUT','图保存请求包含不支持的字段。');
     await this.recover(dispatch,row=>conflicts(kind,params,row,this.nodeConflict,this.relationConflict));
     const rows=this.read(),prior=rows.find(r=>r.lane===kind&&r.operationId===params.operationId);
@@ -64,7 +70,12 @@ class GraphOperationJournal{
     if(prior?.state==='confirmed')return this.lookup(query(kind),{operationId:params.operationId},dispatch);
     const row={operationId:params.operationId,lane:kind,method,params,fingerprint,state:'pending',time:new Date().toISOString()};
     try{this.update(row);}catch{throw fail('GRAPH_INTENT_FAILED','保存未发送：图操作意图无法落盘，请检查磁盘。');}
-    try{const receipt=await dispatch(method,params);row.state=receipt?.operationId===params.operationId&&['confirmed','rejected'].includes(receipt.state)?receipt.state:'unknown';if(receipt?.error)row.error=receipt.error;this.update(row);return receipt;}
+    try{const receipt=await dispatch(method,params);
+      if(kind==='relation'&&Object.hasOwn(params,'relationId')&&receipt?.state==='confirmed'){
+        const expected=digest({leaderId:params.leaderId,memberIds:params.memberIds,expectedRevision:params.expectedRevision,relationId:params.relationId});
+        if(receipt.operationId!==params.operationId||receipt.data?.relationId!==params.relationId||receipt.fingerprint!==expected)throw fail('RECEIPT_MISMATCH','原关系收据标识或内容不匹配，原操作继续保留。');
+      }
+      row.state=receipt?.operationId===params.operationId&&['confirmed','rejected'].includes(receipt.state)?receipt.state:'unknown';if(receipt?.error)row.error=receipt.error;this.update(row);return receipt;}
     catch(error){row.error={code:error.code,message:error.message,...(['SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED'].includes(error.code)&&error.details?{details:error.details}:{})};row.state=isOpenCodeVersionRejection(error)||rejected.has(error.code)||rejectedAttachAdmission(row)||method==='saveCollaboration'&&isCollaborationCapabilityRejection(error)?'rejected':'unknown';try{this.update(row);}catch{/* Original pending intent stays durable. */}
       // A failed context preparation can have a durable local attach refusal.
       // Read that exact receipt; transport/query failures retain uncertainty.

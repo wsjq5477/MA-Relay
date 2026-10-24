@@ -1,5 +1,11 @@
 # M05 Linux daemon 测试报告
 
+2026-10-23，当前冻结alpha.56客户端已对原独立SSH服务器完成只读复验：实际daemon为alpha.37，原凭据/主机指纹认证、生产逐文件核验、两次非接管inspect通过；原daemon身份/PID、远端入口与本地连接配置保持，模型0。完整故障/升级矩阵与普通EXE联合流程仍未准出。[原始报告、脚本及来源](../../iterations/I08/current-ssh-readonly.md)。既有863/863为alpha.56交付证据，本轮不重复计数。
+
+2026-10-23，alpha.56本地候选：桌面全量863/863、零跳过；实际完整维护CLI读取超过旧8MiB的大目录并查询原unknown，原收据文件字节与真实合成daemon PID/daemonId不变。输入保真3/3与复用/查询传输26/26通过，完整命令保留所有版本，查询不改原持久意图。均为本地受控进程/传输，模型0，不是用户SSH或真实任务准出。[完整证据与边界](../../iterations/I08/maintenance-input-capacity.md)。
+
+2026-10-23，alpha.55本地候选；M04-F04/F05/F06与M05-F01/F02。真实冻结53的1702文件/原Node在受控probe与文件系统SFTP适配下验证3组通过，篡改稳定返回SSH_PACKAGE_CHECKSUM、原元数据和合成unknown字节不变，变更方法0；不是实际SSH网络/原生产PID证明。最终桌面856/856、Windows包内兼容23/23及八字节诊断通过，模型0。未知版本、摘要/归属/路径和索引129项拒绝；37份已核验pin与128项边界分开计数。[原始证据、失败与交付边界](../../iterations/I08/daemon-compatibility-refresh.md)。
+
 2026-10-23，alpha.52：远端与断开原节点受控契约9/9通过，包含旧后台无安全写入标记零派发拒绝。完整桌面841/841、核心68/68共享回归通过；Linux daemon契约在Linux已通过，Windows上明确不支持。未连接或部署独立SSH，不提升原远端/模型验收。[原始证据](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 2026-10-23 / alpha.50未改包补验：本地20次落盘→DOM同步p95 1513ms通过；20组/60节点/59边的20次真实拖动观测上界p95 117.9ms未达到100ms门槛，未记录>500ms卡顿。WSL启动9/20通过/11次就绪前退出、失败写入0，原始WSL/PowerShell也复现；根因未定位。包与源码一致性重核通过，EXE未变；模型0，未重跑原全量，不替代独立LAN/SSH或原生模型。[本轮完整样本、失败、脚本与限制](../../iterations/I06/current-candidate-metrics.md)。

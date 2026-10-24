@@ -4,6 +4,7 @@ const os = require('node:os');
 const zlib = require('node:zlib');
 const { createHash, randomUUID } = require('node:crypto');
 const { problem } = require('./ssh-known-hosts.cjs');
+const MAX_COMPATIBLE_DAEMONS = 128;
 
 // Observer failures are diagnostic only; never reinterpret them as SFTP faults.
 function progressFailure(error,progress={}){
@@ -53,7 +54,7 @@ function validateManifest(manifest) {
   }
   if (!manifest.runtime || !seen.has(manifest.runtime.path) || !sufficientNode(manifest.runtime.version)) throw problem('SSH_PACKAGE_INVALID', 'Linux 发布包缺少可用的私有 Node 运行时。');
   if (manifest.compatibleDaemons !== undefined) {
-    if (!Array.isArray(manifest.compatibleDaemons) || manifest.compatibleDaemons.length > 32) throw problem('SSH_PACKAGE_INVALID', '兼容后台清单索引无效。');
+    if (!Array.isArray(manifest.compatibleDaemons) || manifest.compatibleDaemons.length > MAX_COMPATIBLE_DAEMONS) throw problem('SSH_PACKAGE_INVALID', '兼容后台清单索引无效。');
     const versions = new Set();
     for (const pin of manifest.compatibleDaemons) {
       if (!pin || !/^[a-zA-Z0-9.-]{1,80}$/.test(pin.version) || versions.has(pin.version) || pin.manifestPath !== 'compatible-daemons/' + pin.version + '.json' || !seen.has(pin.manifestPath) || !/^[a-f0-9]{64}$/.test(pin.manifestDigest)) throw problem('SSH_PACKAGE_INVALID', '兼容后台清单索引含不安全路径或重复版本。');
@@ -173,7 +174,7 @@ async function packArchive(manifest, directory) {
   }
 }
 function verifyScript(finalPath, manifest) {
-  return `const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');const root=${JSON.stringify(finalPath)},manifest=${JSON.stringify(manifest)};for(const file of manifest.files){const target=path.join(root,file.path),stat=fs.lstatSync(target);if(!stat.isFile()||stat.isSymbolicLink()||stat.uid!==process.getuid()||stat.size!==file.size||crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex')!==file.sha256)throw new Error('CHECKSUM');}process.stdout.write(JSON.stringify({verified:true}));`;
+  return `const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');const root=${JSON.stringify(finalPath)},manifest=${JSON.stringify(manifest)};try{for(const file of manifest.files){const target=path.join(root,file.path),stat=fs.lstatSync(target);if(!stat.isFile()||stat.isSymbolicLink()||stat.uid!==process.getuid()||stat.size!==file.size||crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex')!==file.sha256)throw new Error('CHECKSUM');}}catch{process.stderr.write('CHECKSUM');process.exit(3);}process.stdout.write(JSON.stringify({verified:true}));`;
 }
 function hashScript(archivePath, expected) {
   return `const fs=require('node:fs'),crypto=require('node:crypto');const h=crypto.createHash('sha256');const input=fs.createReadStream(${JSON.stringify(archivePath)});input.on('data',c=>h.update(c));input.on('error',()=>process.exit(3));input.on('end',()=>{const d=h.digest('hex');if(d!==${JSON.stringify(expected)}){process.stderr.write('MISMATCH');process.exit(4);}process.stdout.write(JSON.stringify({verified:true,size:fs.statSync(${JSON.stringify(archivePath)}).size}));});`;
@@ -301,7 +302,7 @@ class SshInstaller {
     const probe = { home, platform: 'linux', arch: 'x64', uid, username, glibcVersion: libcVersion[1] + '.' + libcVersion[2], nodePath, nodeVersion, runtimeNeeded: !sufficientNode(nodeVersion), installNeeded, installPath, stateDirectory, versionPath, diskAvailable, packageBytes: totalBytes, daemonVersion: manifest.version, clientDaemonVersion: bundle.manifest.version, reuseCompatible: manifest.version !== bundle.manifest.version, protocolVersion: 2, profileId: this.profileId, manifestDigest: digest };
     // Free space fluctuates with ordinary use; it is checked separately at
     // install time and must not invalidate the summary a user confirmed.
-    const { diskAvailable: _, ...stable } = probe;
+    const stable = {...probe}; delete stable.diskAvailable;
     probe.previewId = createHash('sha256').update(JSON.stringify(stable)).digest('hex');
     probe.summary = probe.reuseCompatible ? `复用已验证兼容的 Linux 后台 ${manifest.version}，保留任务与历史，不替换运行中的后台。` : `Linux 后台 ${manifest.version}，用户目录安装，不需要 sudo。${probe.runtimeNeeded ? '使用 Bridge 私有 Node，不修改系统环境。' : '使用已安装的 Node。'}`;
     return probe;
@@ -326,7 +327,11 @@ class SshInstaller {
   }
   async remoteMaintenance(client,input,controller){
     const node=path.posix.join(controller,'runtime/node'),entry=path.posix.join(controller,'desktop/electron/remote-maintenance.cjs');
-    const raw=await remoteExec(client,quote(node)+' '+quote(entry),JSON.stringify(input),{timeoutMs:60000,errorCode:'DAEMON_MAINTENANCE_TRANSPORT',errorMessage:'维护回应尚未确认，请查询原操作。'});
+    // Receipt lookup uses only the original identity/operation. The release
+    // catalogue is needed for commands, and stays intact in the saved intent;
+    // omit it only from read-only queries so older controllers remain queryable.
+    const wire=input.action==='query'?{...input,releases:[]}:input;
+    const raw=await remoteExec(client,quote(node)+' '+quote(entry),JSON.stringify(wire),{timeoutMs:60000,errorCode:'DAEMON_MAINTENANCE_TRANSPORT',errorMessage:'维护回应尚未确认，请查询原操作。'});
     try{return JSON.parse(raw);}catch{throw problem('DAEMON_PROTOCOL','维护收据无法读取，请查询原操作。');}
   }
   async install(client, probe, operationId, onProgress = () => {}, options = {}) {
@@ -410,4 +415,4 @@ class SshInstaller {
     }
   }
 }
-module.exports = { SshInstaller, quote, remoteExec, probeScript, sufficientNode, localManifest, privateDirectory, verifyScript, hashScript, packArchive, uploadArchive, sftpCall, progressFailure };
+module.exports = { SshInstaller, quote, remoteExec, probeScript, sufficientNode, localManifest, validateManifest, MAX_COMPATIBLE_DAEMONS, privateDirectory, verifyScript, hashScript, packArchive, uploadArchive, sftpCall, progressFailure };

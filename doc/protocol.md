@@ -1,5 +1,9 @@
 # 通信协议与接口
 
+## CT-08连接策略与确认
+
+新增经典list_connectable/connect_agent/disconnect_agent，连接变更传nodeId/operationId/queryOnly?，不接受源身份/关系或用户确认参数；经典10/小队18。用户侧新增connectionPolicies/saveConnectionPolicy/decideConnection/connectionPolicyOperation；保存关系/策略双修订CAS，决定绑定原approvalId，所有回应confirmed只描述原授权操作。中央hello独有agent-connection-policy-v1，新4RPC定向升级门禁，daemon不声明；daemon帧2/旧默认会话/Task身份不变。 [完整契约与证据](iterations/I07/connection-policy.md)。
+
 ## OpenCode 协议协商时限
 
 GET /global/health（700ms）有效 1.x → 完整 V1 元数据；否则 GET /api/info（700ms）及原 2.x 元数据。整次探测含响应体限 4000ms；已监听但两个契约均不可确认返回 OPENCODE_API_UNSUPPORTED，认证拒绝保持 OPENCODE_HTTP_401/403。两个候选均连接不可达保持 NATIVE_UNAVAILABLE，由托管启动在原 20 秒预算内重试。业务请求仍限 15 秒；无新增 RPC 或持久字段，不以探测成功/失败结算原 operationId。[流程与验证](iterations/I08/opencode-bounded-probe.md).
@@ -36,7 +40,7 @@ OpenCode显式context准备可以复用既有ipc.start恢复已退出的原服�
 
 ## list_agents调用方连接视图
 
-经典MCP list_agents仅接受空对象或缺省arguments；AgentNetwork路由收到身份/筛选参数、null/数组/非对象返回INVALID_INPUT；既有stdio/broker把缺省或falsy arguments归一为{}的行为保持。成功响应保留items并增加schema/readOnly/view、relationRevision和caller的安全角色/委派授权说明。原父请求查询返回后新委派使用当前关系，当前主snapshot完成后再按当前关系筛选，非主items为空；失败/缺工具不能解释为空关系，旧后台缺新字段不可推定已部署。原父终态/独立连接撤权仍拒绝，新委派再核对当前授权。MCP工具数量及daemon/JSON/SQLite版本不变。[字段、错误与例外](iterations/I07/agent-connections.md)。
+经典MCP list_agents仅接受空对象或缺省arguments；AgentNetwork路由收到身份/筛选参数、null/数组/非对象返回INVALID_INPUT；既有stdio/broker把缺省或falsy arguments归一为{}的行为保持。成功响应保留items并增加schema/readOnly/view、relationRevision和caller的安全角色/委派授权说明。原父请求查询返回后新委派使用当前关系，各主snapshot完成后再按自己的当前启用关系筛选，非主items为空；失败/缺工具不能解释为空关系，旧后台缺新字段不可推定已部署。原父终态/独立连接撤权仍拒绝，新委派再核对当前授权。MCP工具数量及daemon/JSON/SQLite版本不变。[字段、错误与例外](iterations/I07/agent-connections.md)。
 
 ## 服务配置提示与原管理拒绝
 
@@ -139,7 +143,7 @@ Bridge 作为 stdio MCP 服务端的握手：对协议修订 2026-07-28 的 `ser
 
 CT-04 冻结范围为17项小队MCP工具，经典主从六工具不变；当前工具数以上方CT-05为准。新服务schema可发现；旧后台可能没有新工具或忽略revision，调用方须核对响应revision/摘要，不能仅据版本名宣称精确历史读取；可回原context/tasks/document通路并明确只读当前版本。原IPC/daemon帧版本保持2，没有MD同步/上下文包协议。[完整契约与证据](iterations/I07/public-materials.md)。
 
-通信内容与ACP研究见[连接研究](iterations/I07/connectivity-research.md)及[接入矩阵](agent-integration-matrix.md)。当前源码使用七工具主从MCP/已有小队工具和原IPC/SSH帧；没有ACP RPC、新上下文包接口或MD同步协议。后续建议不构成当前已实现合约。
+通信内容与ACP研究见[连接研究](iterations/I07/connectivity-research.md)及[接入矩阵](agent-integration-matrix.md)。本地alpha.60源码使用十工具主从MCP/已有小队工具和原IPC/SSH帧；没有ACP RPC、新上下文包接口或MD同步协议。后续建议不构成当前已实现合约。
 
 原生接入补强：snapshot 节点可选 teamCollaboration；team.registerAgent/team.execute 新操作对不支持小队的原生节点返回 TEAM_CAPABILITY，拒绝发生在工作项认领/意图/派发前。原收据重放仍可查询。Codex/NativeCliHost 的 ipc reconcile/operation 保留原方法和 operationId/state/data，收据新增 kind/taskId 并持久保存；跨控制种类/任务复用同 ID 为 REQUEST_CONFLICT，历史无 kind 取消兼容。无新 RPC 或 daemon 帧版本。[专项](iterations/I07/native-integration-guards.md)。
 
@@ -322,15 +326,19 @@ SSH 的 `/mnt/c/project` 属于远端独立文件系统，不能与本机 Window
 
 OpenCode/Core 会话响应额外携带 canContinue/kind，均从持久原生绑定、上一轮状态、验证标志及配置/资源归属计算，不新增持久列。Conversation/native Session 的真实两轮与重开保留见 [6A 验收](iterations/I06/acceptance.md)。
 
+## 完整维护控制面输入
+
+本地候选alpha.56的remote-maintenance stdin仍为原JSON，容量按UTF-8字节计为64MiB，收齐后解析；超限在任何动作/身份处理前拒绝。此边界与Daemon RPC的1MiB帧分开。维护命令传完整releases及原意图；原收据query仅在线端副本设releases=[]，其他原身份/operationId不变，原持久意图与fingerprint保留。旧控制器仍适用其旧输入上限，但不需消费大目录即可查原收据。[设计、容量实测与CLI验证](iterations/I08/maintenance-input-capacity.md)。
+
 ## Linux 发布兼容数据
 
-离线 manifest 可选 `compatibleDaemons: [{version,manifestPath,manifestDigest}]`。路径仅能是清单内 `compatible-daemons/<version>.json`，其文件 SHA-256 和内容 manifestDigest 均校验，版本不能重复。旧协议 2 manifest 不要求有该字段。当前 alpha.11 明确收录 alpha.2–alpha.10；未知或未来版本不按协议相同自动接受。
+离线 manifest 可选 `compatibleDaemons: [{version,manifestPath,manifestDigest}]`。路径仅能是清单内 `compatible-daemons/<version>.json`，其文件 SHA-256 和内容 manifestDigest 均校验，版本不能重复。旧协议 2 manifest 不要求有该字段。本地候选alpha.56解析上限128、实际收录38项，含46/51.recovery.2/52/53及本地54/55的冻结清单；原清单不改写、无持久迁移；未知或未来版本不按协议相同自动接受。生产文件核验失败仅输出固定CHECKSUM并退出3，由既有调用点归类SSH_PACKAGE_CHECKSUM；stdout成功回应仍verified:true。原输出上限、收据、operationId与unknown规则不变。[实现与实际负例](iterations/I08/daemon-compatibility-refresh.md)。
 
 SSH probe 的 `daemonVersion` 是实际选中后台版本，`clientDaemonVersion` 是客户端新安装包版本，`reuseCompatible` 是展示信息，`installNeeded=false` 表示旧安装可复用。执行分支按实际可信清单选择结果判定，不能凭缓存展示标志绕过校验。旧 current.json、daemon 身份和任务数据无需迁移。
 
 ## 关系、布局与图操作
 
-agent-network.json 增加 relationOperations，每项含 operationId、state=confirmed、内容 fingerprint 和 data（提交时的 collaboration）。现有 version=1、节点、请求、委派与 ID 不迁移或重建。图权威边仍来自 leaderId/memberIds；成员顺序不改变权限。
+agent-network.json 增加 relationOperations，每项含 operationId、state=confirmed、内容 fingerprint 和 data（提交时的 collaboration）。现有 version=1、节点、请求、委派与 ID 不迁移或重建。每条启用关系的权威边来自其leaderId/memberIds；旧图使用selected兼容视图，成员顺序不改变权限。
 
 graph-layout.json 是 version=1 容器：layout 包含独立 layoutRevision、groups[machineId] 与 nodes[nodeId] 的 x/y、viewport 的 x/y/zoom；operations 为同类稳定收据。节点坐标相对于机器组，几何 parent 不代替 parentMachineId。损坏文件先复制为 graph-layout.json.corrupt-*，恢复默认位置不重置关系。
 

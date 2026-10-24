@@ -1,5 +1,7 @@
 # Codex 适配器设计
 
+原托管临时工具允许策略加入list_connectable/connect_agent/disconnect_agent，后端预授权与用户确认仍是唯一连接授予边界；reply_task审批、原账号/模型/持久原生配置不变。 [本片契约与证据](../../../iterations/I07/connection-policy.md)。
+
 ## 普通子任务的最小上下文
 
 M06-CX-F01：作为普通委派目标时，中央v1固定说明+原始需求作为既有message传入，不新增MCP/TeamScope或更改原生账号、模型、权限、Session。Task.message显示收到的完整输入；历史无版本委派保持原文，主会话/直接请求不包装。统一宿主受控检查证明中央传参，不等于当前原生模型实际消费。[持久版本、大小与未测边界](../../../iterations/I07/delegation-context.md)。
