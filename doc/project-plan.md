@@ -1,14 +1,16 @@
 # 迭代路线与当前交付
 
-当前公开 alpha.53 承接 #19/#20，并修复 #21 的 OpenCode 有界协议协商、原安装复核与状态一致性；[本轮实现与验证](iterations/I08/opencode-bounded-probe.md)。
+当前公开预发布 **0.6.0-alpha.60**，标签冻结 `a0f313c`；EXE 130212267 字节、SHA-256 `d74c711b8475e84834519c8509a12a63351c1864a5ed4c01559588dc1fdc9cf6`。发布前142个产品/依赖文件与构建时冻结摘要逐项一致，源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha60-release.md)。
+
+上一公开 alpha.53 承接 #19/#20，并修复 #21 的 OpenCode 有界协议协商、原安装复核与状态一致性；[实现与验证](iterations/I08/opencode-bounded-probe.md)、[发布核验](iterations/I08/alpha53-release.md)。
 
 当前版本同时包含 #19/#20：OpenDesk退出保护、持久人工核对提示，以及无关节点 unknown 下独立关系编辑/单次保存；原 unknown、同安装/共享目录和关系/机器保护保留。源码、EXE和校验文件已公开且完整下载核验通过；[需求、验收与剩余边界](iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
-当前公开预发布 **0.6.0-alpha.53**，标签冻结 `5269d65`；EXE 130190405 字节、SHA-256 `3f82bbc3c03ce52c348315f325fe5838de73daadfc1a6658a0170d58d8d3f4a3`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha53-release.md)。
+当前公开预发布 **0.6.0-alpha.60**，标签冻结 `a0f313c`；EXE 130212267 字节、SHA-256 `d74c711b8475e84834519c8509a12a63351c1864a5ed4c01559588dc1fdc9cf6`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha60-release.md)。
 
 本次 issue #15/#16 修复范围为 DSH 原节点连接选择、同机独立节点管理准入及原操作保护，源码已实现；隔离修复与当前工作区候选分开验证，不扩大原生模型/SSH验收范围。已随0.6.0-alpha.51.recovery.2公开，完整 I06C/I07C/MCP02 准出按既有台账执行。[交付与未测项](iterations/I08/connection-identity-node-scope.md)。
 
-本地候选**alpha.60**实现CT-08-A3连接管理：各主在用户预授权内自行连接/断开，范围外请求须用户明确确认；原ID/unknown和原父读控保持。源码900/900、Windows包内37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；[本片证据](iterations/I07/connection-policy.md)。旧图仍编辑selected，完整真实原生多主/图100ms/WSL及SSH仍未准出；未公开/未切换日常后台/未部署SSH。
+公开**alpha.60**实现CT-08-A3连接管理：各主在用户预授权内自行连接/断开，范围外请求须用户明确确认；原ID/unknown和原父读控保持。源码900/900、Windows包内37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；[本片证据](iterations/I07/connection-policy.md)、[发布核验](iterations/I08/alpha60-release.md)。旧图仍编辑selected，完整真实原生多主/图100ms/WSL及SSH仍未准出；未切换日常后台/未部署SSH。
 
 当前推进：alpha.56冻结包图管线诊断（2026-10-24）：默认渲染含tracing的完整20条PNG p95 363.722ms未达100ms，本地同步p95 1556ms通过；GPU提交停顿与部分慢样本重叠，软件渲染诊断仍112.902ms失败，不能据此关闭产品GPU或宣告准出。继续核对默认普通EXE呈现与采帧链路、WSL稳定性、真实生命周期和CT-07/08。[本轮图诊断](iterations/I06/alpha56-graph-pipeline.md)。冻结56客户端对实际alpha.37 SSH后台认证、严格文件与原进程保持已通过；完整故障/升级及普通EXE联合流程仍待准出。[SSH证据](iterations/I08/current-ssh-readonly.md)。OpenDesk父模型指定Windows OpenCode心算验收已获许可，最近预检缺少该正式目标。完整目标按[台账](iterations/I08/completion-audit.md)保持进行。
 
@@ -27,8 +29,8 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | **0.6.0-alpha.53**，冻结 `5269d65`；源码/EXE/校验附件已公开并经匿名完整下载核验；[交付与边界](iterations/I08/alpha53-release.md) |
-| 上一公开预发布 | **0.6.0-alpha.52**，冻结 `49bd12b`；[发布核验](iterations/I08/alpha52-release.md) |
+| 最新 Windows 预发布 | **0.6.0-alpha.60**，冻结 `a0f313c`；源码/EXE/校验附件已公开并经匿名完整下载核验；[交付与边界](iterations/I08/alpha60-release.md) |
+| 上一公开预发布 | **0.6.0-alpha.53**，冻结 `5269d65`；[发布核验](iterations/I08/alpha53-release.md) |
 | 当前自动回归 | 源码900/900，Windows生产策略界面4组，模型0；包内/普通EXE以[本片分层证据](iterations/I07/connection-policy.md)为准，Core71/71为alpha.53历史 |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
 | 当前发布范围与缺口 | 已包含DSH Desktop/Web、CT-07、OpenDesk、MCP02与#15/#16修复；完整准出继续按专项推进 |

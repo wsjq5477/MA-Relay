@@ -1,6 +1,6 @@
 # CT-08-A3：Agent连接工具与用户预授权/确认
 
-日期：2026-10-24（Asia/Shanghai）。关联CT-08、AB-F02/F07/F08/F11/F12/F13、M01/M03/M06/M07/M08/M10。承接[A2多主运行期](multi-parent-runtime.md)。公开仍alpha.53；本片不切换日常后台、不改用户原关系/原生配置、不部署SSH，真实模型0。Windows OpenCode最多一个心算子任务的许可尚未使用。
+日期：2026-10-24（Asia/Shanghai）。关联CT-08、AB-F02/F07/F08/F11/F12/F13、M01/M03/M06/M07/M08/M10。承接[A2多主运行期](multi-parent-runtime.md)。本片随alpha.60公开，见[发布核验](../I08/alpha60-release.md)；不切换日常后台、不改用户原关系/原生配置、不部署SSH，真实模型0。Windows OpenCode最多一个心算子任务的许可尚未使用。
 
 ## 需求与当前行为
 
@@ -51,7 +51,7 @@ Windows Edge生产React页面/受控后端四组通过（源码构建）：预�
 
 类型/生产构建与改动文件lint通过；清理Codex未使用os导入与MachineHost未使用terminal常量，不改行为。[构建](../../../artifacts/ct08-connections/2026-10-24/frontend-build.log)、[lint](../../../artifacts/ct08-connections/2026-10-24/lint.log)。
 
-## 本地候选验证
+## 候选验证与公开
 
 alpha.59原完整EXE摘要与1711项Linux文件已核验，原样导入可信清单，现在41份；不导入未交付58，不改原清单内容。[原导入](../../../artifacts/ct08-connections/2026-10-24/import-alpha59.json)。最终alpha.60 EXE **130212267字节**，SHA-256 **`d74c711b8475e84834519c8509a12a63351c1864a5ed4c01559588dc1fdc9cf6`**；56后台/84Core/1713Linux、ASAR/前端/bootstrap均一致，Linux manifestDigest `dcd5e46c4136b4280110e247064dcf9d57e75958d9f501784eed15d43a1a3a14`。[包核验](../../../artifacts/ct08-connections/2026-10-24/package.json)、[构建](../../../artifacts/ct08-connections/2026-10-24/package-build.log)。
 
@@ -59,9 +59,9 @@ Windows Node24.21.0冻结包迁移7+多主14+策略16共**37/37**、失败/跳�
 
 同冻结包Windows兼容**26/26**，41份pin逐字一致，**9,665,523字节**完整目录/原输入指纹和短失败诊断通过，不涉及真实SSH。[报告](../../../artifacts/ct08-connections/2026-10-24/windows-contract.json)、[TAP](../../../artifacts/ct08-connections/2026-10-24/windows-contract.tap)。冻结后台与包核验一致的生产前端再次通过上述四组页面流程：[最终UI报告](../../../artifacts/ct08-connections/2026-10-24/windows-policy-ui.json)；先前59版本号的源页面报告单列[保留](../../../artifacts/ct08-connections/2026-10-24/source-windows-policy-ui.json)，不相加。
 
-普通无调试EXE独立profile生命周期**4组通过**：当前版本/Windows目录、生产IPC及SQLite公共资料持久化、正常关闭重开复用原中央与资料、完全重启原中央仍保持资料且原生执行0。[报告](../../../artifacts/ct08-connections/2026-10-24/windows-portable.json)。[本地EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.60-Windows-x64.exe)及[校验文件](../../../artifacts/ct08-connections/2026-10-24/SHA256SUMS.txt)已交付Downloads，完整SHA一致、不覆盖不同原文件：[副本核验](../../../artifacts/ct08-connections/2026-10-24/download-copy.json)。未签名，切换时须先在旧版“设置→后台运行→停止后台并退出”，本次没有执行切换。
+普通无调试EXE独立profile生命周期**4组通过**：当前版本/Windows目录、生产IPC及SQLite公共资料持久化、正常关闭重开复用原中央与资料、完全重启原中央仍保持资料且原生执行0。[报告](../../../artifacts/ct08-connections/2026-10-24/windows-portable.json)。[本地EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.60-Windows-x64.exe)及[校验文件](../../../artifacts/ct08-connections/2026-10-24/SHA256SUMS.txt)已交付Downloads，完整SHA一致、不覆盖不同原文件：[副本核验](../../../artifacts/ct08-connections/2026-10-24/download-copy.json)。同一现成EXE与校验文件随后按用户要求公开为`v0.6.0-alpha.60`预发布，未经重打包：[发布核验](../I08/alpha60-release.md)。未签名，切换时须先在旧版“设置→后台运行→停止后台并退出”，本次没有执行切换。
 
-[源冻结清单](../../../artifacts/ct08-connections/2026-10-24/source-manifest.json)记录当前产品源码，冻结后仅测试驱动/清理与文档同步，无产品改动；工作树基于5269d65，无新公开标签。未公开、不切换日常后台或部署SSH；图100ms、WSL稳定性、完整原生/SSH准出不变。
+[源冻结清单](../../../artifacts/ct08-connections/2026-10-24/source-manifest.json)记录当前产品源码，冻结后仅测试驱动/清理与文档同步，无产品改动；工作树基于5269d65，发布时按冻结摘要逐项重算142个产品/依赖文件一致并固定标签`v0.6.0-alpha.60`（a0f313c）。未切换日常后台、未部署SSH；图100ms、WSL稳定性、完整原生/SSH准出不变。
 
 
 ## 真实原生前置与剩余范围

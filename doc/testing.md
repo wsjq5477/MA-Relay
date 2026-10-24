@@ -4,14 +4,14 @@ alpha.56冻结包图管线诊断（2026-10-24）：默认渲染含tracing的完�
 
 当前冻结alpha.56客户端已对原独立SSH服务器完成只读复验：实际daemon为alpha.37，原凭据/主机指纹认证、生产逐文件核验、两次非接管inspect通过；原daemon身份/PID、远端入口与本地连接配置保持，模型0。完整故障/升级矩阵与普通EXE联合流程仍未准出。[实际证据与边界](iterations/I08/current-ssh-readonly.md)。
 
-本地候选**alpha.60**实现CT-08-A3连接管理：各主在用户预授权内自行连接/断开，范围外请求须用户明确确认；原ID/unknown和原父读控保持。源码900/900、Windows包内37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；[本片证据](iterations/I07/connection-policy.md)。旧图仍编辑selected，完整真实原生多主/图100ms/WSL及SSH仍未准出；未公开/未切换日常后台/未部署SSH。
+公开**alpha.60**实现CT-08-A3连接管理：各主在用户预授权内自行连接/断开，范围外请求须用户明确确认；原ID/unknown和原父读控保持。源码900/900、Windows包内37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；[本片证据](iterations/I07/connection-policy.md)、[发布核验](iterations/I08/alpha60-release.md)。旧图仍编辑selected，完整真实原生多主/图100ms/WSL及SSH仍未准出；未切换日常后台/未部署SSH。
 
 alpha.53冻结包补验：自动保存画布位移0px通过；完整20次PNG帧观测p95 388.932ms未满足100ms，本地20次状态同步p95 1504ms通过，未出现longtask。生产包资源一致性通过；不代表普通EXE窗口、独立LAN/SSH或物理显示器首帧准出。[原始报告与边界](iterations/I06/alpha53-current-metrics.md)。
 
 当前公开 alpha.53修复 #21：核心71/71、桌面844/844、启动专项9/9、Windows生产前端2组、普通EXE6组与包源码一致性通过，类型/lint/文档检查通过，用户站6/6及构建通过，模型0；原 unknown/安装/上下文保留。最终启动专项、包/普通EXE与工程检查按[本轮分层记录](iterations/I08/opencode-bounded-probe.md)登记，现场WindowsApps1.2.22及真实模型未复验，完整准出不变。
 
 
-当前公开预发布 **0.6.0-alpha.53**，标签冻结 `5269d65`；EXE 130190405 字节、SHA-256 `3f82bbc3c03ce52c348315f325fe5838de73daadfc1a6658a0170d58d8d3f4a3`。源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha53-release.md)。
+当前公开预发布 **0.6.0-alpha.60**，标签冻结 `a0f313c`；EXE 130212267 字节、SHA-256 `d74c711b8475e84834519c8509a12a63351c1864a5ed4c01559588dc1fdc9cf6`。发布前包校验与142个产品/依赖文件的冻结摘要逐项复核通过，源码、EXE和校验文件已公开，匿名完整下载HTTP200、全部字节与摘要一致。未签名、未切换日常后台、未部署SSH；完整I06C/I07C/MCP02及原生父模型/WSL稳定性/图指标继续保留未准出边界。 [完整发布证据](iterations/I08/alpha60-release.md)。
 
 连接身份/节点管理修复已在公开 alpha.46 基线上完成隔离桌面回归 777/777，Windows 生产前端 10 组受控交互通过，原始三项故障在未修复基线上均复现。当前工作目录集成桌面817/817、核心68/68、Windows契约55/55及最终普通EXE5组通过，模型0；集成包验证单独记录，不把受控 IPC/临时配置结果当成真实 DSH/OpenDesk 或模型验收。[证据与边界](iterations/I08/connection-identity-node-scope.md)。
 

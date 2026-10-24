@@ -1,6 +1,6 @@
 # M10 构建与发布测试报告
 
-当前本地候选alpha.60：CT-08-A3连接工具/预授权/用户确认与策略页面，41份原daemon清单；EXE130212267字节，SHA-256 `d74c711b8475e84834519c8509a12a63351c1864a5ed4c01559588dc1fdc9cf6`。56后台/84Core/1713Linux及ASAR/前端/bootstrap一致；源码900/900、Windows包内37/37和实际中央管道/重启、兼容26/26与9,665,523字节输入、生产页面4组、普通EXE4组及Downloads完整SHA通过，模型0。公开仍alpha.53，未签名、未切换日常后台/部署SSH；真实原生多主/图100ms/WSL和完整SSH仍未准出。[完整交付与原始失败](../../iterations/I07/connection-policy.md)。
+当前公开alpha.60：CT-08-A3连接工具/预授权/用户确认与策略页面，41份原daemon清单；EXE130212267字节，SHA-256 `d74c711b8475e84834519c8509a12a63351c1864a5ed4c01559588dc1fdc9cf6`。56后台/84Core/1713Linux及ASAR/前端/bootstrap一致；源码900/900、Windows包内37/37和实际中央管道/重启、兼容26/26与9,665,523字节输入、生产页面4组、普通EXE4组及Downloads完整SHA通过，模型0。发布前142个产品/依赖文件与构建时冻结摘要逐项复核一致，EXE与校验附件已上传并经匿名完整下载核验；未签名、未切换日常后台/部署SSH；真实原生多主/图100ms/WSL和完整SSH仍未准出。[发布证据](../../iterations/I08/alpha60-release.md)、[完整交付与原始失败](../../iterations/I07/connection-policy.md)。
 alpha.56冻结包图管线诊断（2026-10-24）：默认渲染含tracing的完整20条PNG p95 363.722ms未达100ms，本地同步p95 1556ms通过；GPU提交停顿与部分慢样本重叠，软件渲染诊断仍112.902ms失败，不能据此关闭产品GPU或宣告准出。实际冻结前端/后端配受控20机器/60节点/59边，模型0；仅验收器增加诊断模式，产品与EXE未变。[完整报告](../../iterations/I06/alpha56-graph-pipeline.md)。
 
 2026-10-23，当前冻结alpha.56客户端已对原独立SSH服务器完成只读复验：实际daemon为alpha.37，原凭据/主机指纹认证、生产逐文件核验、两次非接管inspect通过；原daemon身份/PID、远端入口与本地连接配置保持，模型0。完整故障/升级矩阵与普通EXE联合流程仍未准出。[原始报告、脚本及来源](../../iterations/I08/current-ssh-readonly.md)。既有863/863为alpha.56交付证据，本轮不重复计数。

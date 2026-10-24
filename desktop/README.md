@@ -1,10 +1,10 @@
 # AgentBridge Windows
 
-本地候选alpha.60实现按身份多主连接、用户预授权/明确确认和策略审计/原意图恢复页面，旧图仍selected。源码900/900、包内Windows37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；公开仍alpha.53，未切换日常后台，真实原生多主未验。[完整交付与边界](../doc/iterations/I07/connection-policy.md)。
+公开alpha.60实现按身份多主连接、用户预授权/明确确认和策略审计/原意图恢复页面，旧图仍selected。源码900/900、包内Windows37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；未切换日常后台，真实原生多主未验。[完整交付与边界](../doc/iterations/I07/connection-policy.md)、[发布核验](../doc/iterations/I08/alpha60-release.md)。
 
 ## 当前状态
 
-当前公开预发布为 **0.6.0-alpha.53**，标签冻结 `5269d65`：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.53/AgentBridge-0.6.0-alpha.53-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.53/SHA256SUMS.txt) · [发布记录](../doc/iterations/I08/alpha53-release.md)。全部130190405字节匿名下载核验通过；未签名，未部署SSH，完整验收边界保留。
+当前公开预发布为 **0.6.0-alpha.60**，标签冻结 `a0f313c`：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.60/AgentBridge-0.6.0-alpha.60-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.60/SHA256SUMS.txt) · [发布记录](../doc/iterations/I08/alpha60-release.md)。全部130212267字节匿名下载核验通过；未签名，未部署SSH，完整验收边界保留。
 
 升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；SSH 远端需在原机器空闲时确认升级，不自动重发原维护。
 
