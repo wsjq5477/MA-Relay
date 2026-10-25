@@ -1,12 +1,12 @@
 # AgentBridge Windows
 
-当前本地候选alpha.63新增原选材包持久传递、目标接入收据和桌面只读审计，继承alpha.62配置控制台与alpha.61恢复出口；公开仍alpha.60。原生Pi→固定源码Hermes组件7组通过，模型0；[当前交付与完整边界](../doc/iterations/I07/context-delivery.md)。
+当前公开alpha.63新增原选材包持久传递、目标接入收据和桌面只读审计，继承alpha.62配置控制台与alpha.61恢复出口。原生Pi→固定源码Hermes组件7组通过，模型0；[当前交付与完整边界](../doc/iterations/I07/context-delivery.md)。
 
 公开alpha.60实现按身份多主连接、用户预授权/明确确认和策略审计/原意图恢复页面，旧图仍selected。源码900/900、包内Windows37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；未切换日常后台，真实原生多主未验。[完整交付与边界](../doc/iterations/I07/connection-policy.md)、[发布核验](../doc/iterations/I08/alpha60-release.md)。
 
 ## 当前状态
 
-当前公开预发布为 **0.6.0-alpha.60**，标签冻结 `a0f313c`：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.60/AgentBridge-0.6.0-alpha.60-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.60/SHA256SUMS.txt) · [发布记录](../doc/iterations/I08/alpha60-release.md)。全部130212267字节匿名下载核验通过；未签名，未部署SSH，完整验收边界保留。
+当前公开预发布 **0.6.0-alpha.63**，标签冻结 `da60054`；EXE 130203473字节、SHA-256 `2ba100ea01ceee057bed3a03763b92a442c75bd4b094ed70873608f49157b40a`。180个产品/依赖文件与构建时冻结摘要逐项一致，源码、EXE和校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。未签名、未切换日常后台、未部署SSH；图100ms、父模型、冷启动和完整I06C/I07C/MCP02继续未准出。 [完整发布证据](../doc/iterations/I08/alpha63-release.md)。
 
 升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；SSH 远端需在原机器空闲时确认升级，不自动重发原维护。
 

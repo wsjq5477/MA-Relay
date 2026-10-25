@@ -12,7 +12,7 @@ DSH Desktop原生配置已在alpha.48本地候选补齐：原生选择定位、�
 
 OpenDesk 原生 MCP 管理：本地 alpha.47 候选兼容原生 STDIO 空 `headers` 默认值，已登记条目可正常识别、重复添加及撤权清理；其他修改仍保留冲突，0.6.0-alpha.51.recovery.2已包含此兼容。[本轮范围与证据](iterations/I08/opendesk-mcp-defaults.md)。此修复不改变下表的原生调用能力或准出层级。
 
-当前公开0.6.0-alpha.60包含开放MCP双向管理、恢复与非GUI首次接入，以及CT-08-A3连接工具与用户预授权/确认，具体支持入口与未测项以本页矩阵为准。[MCP当前交付与验证](iterations/I08/mcp-open-recovery.md)；[当前公开分发](iterations/I08/alpha60-release.md)。
+当前公开预发布 **0.6.0-alpha.63**，标签冻结 `da60054`；EXE 130203473字节、SHA-256 `2ba100ea01ceee057bed3a03763b92a442c75bd4b094ed70873608f49157b40a`。180个产品/依赖文件与构建时冻结摘要逐项一致，源码、EXE和校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。未签名、未切换日常后台、未部署SSH；图100ms、父模型、冷启动和完整I06C/I07C/MCP02继续未准出。 [完整发布证据](iterations/I08/alpha63-release.md)。
 
 原生组件验收已补：OpenDesk0.3.9协议5组、DSH0.1.3-alpha.1协议6组；组件独立主调用到真实Claude子任务两条链各成功1次。DSH组件代表Web/CLI共享客户端，不推定Desktop配置或完整ACP会话通过。[验收层级](iterations/I08/mcp-native-acceptance.md)。
 
@@ -27,8 +27,6 @@ DSH新增的Desktop/Web已随alpha.46公开，Desktop原生MCP配置适配属于
 发现时排除Linux同名Distributed Shell，原`/usr/bin/dsh`错误不代表DSH Web连接失败。当前源码可按已安装Desktop或Linux Web profile显示未配置服务提示；须在对应机器配置根地址/token后验证连接，旧alpha.34 EXE没有Desktop/Web入口。[现场核对与修复](iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)。
 
 后续规划见[Agent侧自主操作与通用调用方规划](iterations/I07/agent-centric-operations.md)：CT-06逐工具核对Hermes/Pi/DSH（含DSH服务入口）原生MCP客户端与插件扩展点后接入通用调用方、CT-07补Agent侧连接操作面、CT-08将单主关系泛化为按身份多关系并加受确认流保护的连接管理；均登记在本页§4后续目标，CT-07已补只读委派列表和[当前调用方连接视图](iterations/I07/agent-connections.md)及[子任务最小上下文](iterations/I07/delegation-context.md)（本地源码10工具、受控验证），CT-06首片已落地（能力三维拆分、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI`agentbridge mcp`），逐入口真实原生验收仍未完成；CT-08已补[A3连接策略](iterations/I07/connection-policy.md)，含Agent连接工具、预授权/用户确认与各主策略/审计界面，旧图仍selected；真实原生多主未验。插件仅作无MCP客户端时的薄传输缺口填补。
-
-当前公开预发布为 **0.6.0-alpha.60**，冻结a0f313c；[公开交付与边界](iterations/I08/alpha60-release.md)。本地alpha.63新增CT-05传递/接收，继承alpha.62配置/审计和alpha.61恢复出口，未公开、未切换日常后台或部署SSH。旧发布逐轮记录统一见[迭代目录](iterations/README.md)。
 
 ## 1. 目标与统计口径
 
@@ -53,8 +51,8 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | Claude Code | 已接入：stream-json | 未接入 | 已接入 | 未接入 | 未接入 | 未接入 |
 | OpenCode | 已接入：启动serve | 已接入：HTTP执行/控制 | 已接入 | 未接入 | 未接入 | 未接入 |
 | Codex | 已接入：exec/resume JSON | 未接入 | 已接入 | 未接入 | 未接入 | 未接入 |
-| Hermes Agent | 已接入：stream-json | 未接入 | 已接入：原生Profile YAML（当前公开alpha.60） | 未接入 | 未接入 | 未接入 |
-| Pi | 已接入：JSON/print | 未接入 | 已接入：用户mcp.json（当前公开alpha.60） | 未接入 | 未接入 | 未接入 |
+| Hermes Agent | 已接入：stream-json | 未接入 | 已接入：原生Profile YAML（当前公开alpha.63） | 未接入 | 未接入 | 未接入 |
+| Pi | 已接入：JSON/print | 未接入 | 已接入：用户mcp.json（当前公开alpha.63） | 未接入 | 未接入 | 未接入 |
 | DSH CLI | 已接入：headless JSON | 未接入 | 已接入：原生显式profile补丁 | 未接入 | 未接入 | 未接入 |
 | DSH Windows Desktop | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生Profile补丁（alpha.48候选） | 未接入 | 未接入 | 未接入 |
 | DSH Linux / WSL Web | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生web Profile补丁 | 未接入 | 未接入 | 未接入 |
@@ -75,8 +73,8 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | Claude Code | 直接执行：已实现；MCP调用方：已实现，可作为主节点及小队成员；原生MCP配置：Bridge可管理（写`mcpServers.agentbridge`）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派均通过；三真实角色公共文档链及历史权限证据保留；结构化AskUserQuestion当前拒绝；2026-10-22受控profile下真实`claude`：Bridge写入后`claude mcp list`报Connected、工具目录7项（零模型，非用户profile） | 保持原通路，核验当前版本、跨机的发现/执行/等待/取消/恢复；按实际需求补输入类型 |
 | OpenCode | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（v1/v2两代布局）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派通过；permission/form及独立Linux与Windows Claude双向协作保留历史证据；原生版本契约有约束 | 作为Bridge通用ACP Client的首个目标Agent，比较现有HTTP路径的事件、权限与恢复效果 |
 | Codex | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（`mcp_servers.agentbridge`标记块）；托管scope注入：已实现；被委派：已实现并有真实证据，具体环境见报告 | 当前WSL0.163.0-alpha.10.2直接生命周期及双向普通委派通过；旧版本续聊、Windows原账号失败保留；Bridge权限/表单未适配 | 验证当前原生版本的执行/结果/取消/恢复；有实际控制缺口时比较原生交互接口和 ACP 生态包装器 |
-| Hermes Agent | 直接执行与普通被委派：源码已实现；独立MCP/原生Profile YAML：当前公开alpha.60已包含；托管scope/小队：未适配 | 固定官方源码484de065与锁定依赖的真实CLI/MCPServerTask在公开60冻结后台上7组通过，实际消费10工具和连接/确认/撤权；CLI版本戳unknown，不当作正式安装版或Windows原生，模型0 | 真实原生父模型/正式安装版生命周期、Windows原生Hermes与独立SSH待验，[证据与限制](iterations/I08/hermes-mcp-config.md) |
-| Pi | 直接执行与普通被委派：源码已实现；独立MCP/用户配置：当前公开alpha.60已包含；托管scope：未适配 | 官方Pi1.4.0原包Linux/Windows在公开60冻结后台上各7组通过，实际消费10工具和连接/确认/撤权，模型0；[当前原生组件证据](iterations/I08/native-policy-components.md) | 原Session文件规则保持；真实父模型/生命周期/SSH待验 |
+| Hermes Agent | 直接执行与普通被委派：源码已实现；独立MCP/原生Profile YAML：当前公开alpha.63已包含；托管scope/小队：未适配 | 固定官方源码484de065与锁定依赖的真实CLI/MCPServerTask在公开60冻结后台上7组通过，实际消费10工具和连接/确认/撤权；CLI版本戳unknown，不当作正式安装版或Windows原生，模型0 | 真实原生父模型/正式安装版生命周期、Windows原生Hermes与独立SSH待验，[证据与限制](iterations/I08/hermes-mcp-config.md) |
+| Pi | 直接执行与普通被委派：源码已实现；独立MCP/用户配置：当前公开alpha.63已包含；托管scope：未适配 | 官方Pi1.4.0原包Linux/Windows在公开60冻结后台上各7组通过，实际消费10工具和连接/确认/撤权，模型0；[当前原生组件证据](iterations/I08/native-policy-components.md) | 原Session文件规则保持；真实父模型/生命周期/SSH待验 |
 | DeepSeek Harness（DSH） | 直接执行：源码已实现；MCP调用方：已声明有MCP客户端（可独立配置）；原生MCP配置：**有，但需显式指定启动 profile**（`$DSH_HOME/profiles/<profile>/cordis.patch.yml` 单行`insert:`）；托管scope注入：未适配；被委派：同 Hermes | 使用 headless 自身原生配置，不搬运 web profile 凭据；profile 名称由用户提供并按单段目录校验（`MCP_DSH_PROFILE_REQUIRED` 拒绝非法/缺失值），未指定时只可导出；受控测试覆盖写入仅目标profile、status回显、remove只清理该profile；**真实 `dsh --profile acp` 启动观测到原生加载+`initialize`握手+`tools/list`（7工具，模型0，受控scratch profile）**；TUI/用户自建profile与真实用户profile未观测 | 在真实 `dsh` CLI 启动中核对指定 profile 是否加载该条目并列出工具；先验原生 headless 协议与真实模型 |
 | DSH Windows Desktop（dsh-desktop） | 直接执行：已随公开alpha.46实现；MCP调用方：已声明有MCP客户端；原生MCP配置：alpha.48候选按Desktop原生数据目录/Profile选择记录管理，保存原目标绑定，切换后先移除再添加（当前公开版已包含）；托管scope注入：未适配；被委派：可接收普通委派；方向能力为受控证据 | Windows社区Desktop2.0.18历史真实认证/Session接口及同Session两轮去重已观察，模型RATE_LIMIT；本轮已安装未修改Desktop原生配置组合器与MCP客户端5组/生产前端4组通过（模型0），[完整证据](iterations/I08/dsh-desktop-mcp.md) | 待原生限流解除后补成功回答/真实取消；[DSH原生证据](iterations/I07/dsh-exe-delivery.md) |
 | DSH Linux / WSL Web（dsh-web） | 直接执行：源码已实现，未进入公开发布包；MCP调用方：已声明（可独立配置）；原生MCP配置：**Bridge可管理且原生会加载**（`$DSH_HOME/profiles/web/cordis.patch.yml` 单行`insert:`，插件`@deepseek-ai/dsh-mcp-client`）；托管scope注入：未适配；被委派：同Desktop入口 | WSL真实Web认证/Session列表通过；生命周期/恢复为受控服务，模型0，独立SSH未验；2026-10-22受控profile下真实DSH `--profile web --dump-config` 组合出Bridge写入行，且真实启动后原生客户端完成 `initialize`/`tools/list` 握手、Bridge返回7个工具（模型0）；原生UI人工可见/删除与真实用户profile未验 | 保存对应机器连接后补模型/续聊/取消验证；[DSH原生证据与边界](iterations/I07/dsh-exe-delivery.md) |
@@ -114,7 +112,7 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | CT-02 六种原生连接实测 | AB-F07/10/11/13；M06/M07/M08 | 三工具当前WSL[直接生命周期](iterations/I07/connection-native.md)及全部六个[真实普通委派方向](iterations/I07/connection-delegation.md)通过 | 部分完成；新三工具真实环境、新EXE及独立SSH未验；不以旧包或历史权限覆盖当前所有场景 |
 | CT-03 可选 ACP 试点 | AB-F07/10/11；M06/M07/M10 | OpenCode 的可选 ACP Client，保留现有驱动 | 同需求下执行/输出/权限/取消/重连不回归；原请求不重发；至少另一种 ACP 实现验证适配层复用后再扩大 |
 | CT-04 公共工作材料与 MD 视图 | AB-F20/21；M01/M02/M06/M07/M08 | 源码已实现只读索引/Markdown与准确修订，桌面阅读/复制/当前页索引或单份MD下载已补；CT-05只读选材包已补，完整产物/交接视图与同步待开发 | 桌面入口541/541及Windows八组通过、模型0；较早真实Claude一个Task保留原证据。MD是视图，授权、任务/收据和可达性分别核对；[完整证据](iterations/I07/public-materials.md) |
-| CT-05 显式共享上下文 | AB-F08/11/20/21；M01/M02/M06/M07/M08 | 本地alpha.63实现同工作原包持久传递、目标接入收据和桌面只读审计；原选材/预览/本机副本保留 | 当前源码944/944，冻结63原生Pi→固定源码Hermes组件7组已通过，模型0；接入收据不代表模型理解、业务验收或文件可达，Windows包内14项/新审计页面5组/普通EXE6组通过，完整CT-05继续核对。[当前传递与证据](iterations/I07/context-delivery.md) |
+| CT-05 显式共享上下文 | AB-F08/11/20/21；M01/M02/M06/M07/M08 | 公开alpha.63实现同工作原包持久传递、目标接入收据和桌面只读审计；原选材/预览/本机副本保留 | 当前源码944/944，冻结63原生Pi→固定源码Hermes组件7组已通过，模型0；接入收据不代表模型理解、业务验收或文件可达，Windows包内14项/新审计页面5组/普通EXE6组通过，完整CT-05继续核对。[当前传递与证据](iterations/I07/context-delivery.md) |
 | CT-06 通用MCP调用方 | AB-F02/07/08/11/12/13；M01/M02/M03/M06/M07/M08 | 按[I08-MCP02开发记录](iterations/I08/mcp-open-integration.md)推进同一MCP的Bridge/原生双向管理、原生列表可见和实际调用；优先OpenDesk/DSH，覆盖当前十入口；配置、独立调用与托管任务能力拆分 | **源码第一片已完成**（能力三维、六项状态事实、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI CLI、Linux本机路由）；逐入口真实原生增删/列表/工具/主调用归属仍待执行，外部删除不补回与撤权已受控验证。不因实现或静态声明当通过，不强制等待完整I07C；旧[规划](iterations/I07/agent-centric-operations.md)保留历史 |
 | CT-07 Agent侧连接操作面 | AB-F02/07/08/10/11/13；M01/M03/M07/M08 | list_agents按原身份返回当前获准连接；list_delegations只读查原委派；普通子会话附最小说明 | 三项已源码/受控覆盖，最新冻结667/667、定向121/121及Windows36/36，模型0。身份、撤权、原请求和无新增工具授权保持；[最新上下文与首次失败](iterations/I07/delegation-context.md)。整合包/真实消费及完整I06C/I07C未准出；[完整目标](iterations/I07/agent-centric-operations.md) |
 | CT-08 多主关系与连接管理 | AB-F02/07/08/10/11/12/13；M01/M03/M07/M08 | 单主collaboration关系泛化为按身份relations[]并迁移；新增list_connectable/connect_agent/disconnect_agent与envelope预授权及确认流；Bridge界面收缩为接入配置、策略与审计 | 关系重构与行为变更分片验收，旧数据迁移可核对；Agent不能自批envelope外关系，撤权即时生效；data-model/protocol同轮同步。A3已随60公开；alpha.62收敛配置/审计与原执行恢复，Pi双平台/Hermes原生组件已验；真实父模型与日常多主待验；[本片证据](iterations/I07/connection-policy.md)，[完整定义](iterations/I07/agent-centric-operations.md) |

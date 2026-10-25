@@ -1,6 +1,6 @@
 # 迭代资料目录
 
-- [alpha.63预发布登记](I08/alpha63-release.md)：当前全部产品/验证器提交，冻结EXE及公开下载核验，未准出边界保留。
+- [alpha.63公开预发布](I08/alpha63-release.md)：全部产品/验证器已提交推送，冻结EXE及匿名完整下载已核验，未准出边界保留。
 - [alpha.63图指标失败与暂停边界](I06/alpha63-graph-baseline.md)：完整20条PNG p95 496.029ms，保持100ms门槛。
 
 - [alpha.63原生MCP窗口生命周期与WSL持续连接](I08/native-mcp-lifecycle.md)：普通EXE/Pi七组、原端点/收据和实际进程退出；WSL窗口结果单列，不泛化整体准出。
