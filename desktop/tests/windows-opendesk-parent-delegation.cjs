@@ -131,5 +131,5 @@ const callsIn = task => (task?.chat_context?.messages || []).flatMap(message => 
   report.checks.push('Real native child succeeds with the requested arithmetic marker and original native Session binding; no approval, cancellation or retry submission');
   if (existed) report.checks.push('Fresh observer reads the same native task and original child, starts zero new model tasks and preserves exactly one new delegation');
   cp.phase = 'complete'; save(); report.status = 'passed';
-})().catch(error => {report.status = 'failed_or_pending'; report.error = {code: error.code, message: error.code === 'ERR_ASSERTION' ? 'Original native parent/child evidence did not satisfy acceptance; preserve and query original intent' : error.message}; process.exitCode = 1;})
+})().catch(error => {report.status = 'failed_or_pending'; report.error = {code: error.code, message: error.code === 'ERR_ASSERTION' ? 'Original native parent/child evidence did not satisfy acceptance; preserve and query original intent' : ['ENOENT','ECONNREFUSED'].includes(error.code) ? 'Original required file or Coordinator endpoint is unavailable; preserve original intent, no retry submission' : error.message}; process.exitCode = 1;})
   .finally(() => {gateway?.close(); client?.close(); record(); console.log(JSON.stringify(report));});

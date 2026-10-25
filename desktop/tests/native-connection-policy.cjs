@@ -4,7 +4,7 @@ const {pathToFileURL}=require('node:url'),{spawn}=require('node:child_process'),
 const [kind,bridgeArg,nativeArg,output,python,executable]=process.argv.slice(2);
 const bridge=path.resolve(bridgeArg),nativeRoot=path.resolve(nativeArg);
 if(!['pi','hermes'].includes(kind)||!output)throw Error('Native kind, frozen bridge, native source and output required');
-const version=require('../package.json').version,runtime=name=>require(path.join(bridge,'desktop/electron',name));
+const freeze=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../artifacts/ct08-connections/2026-10-24/source-manifest.json'))),version=freeze.version,runtime=name=>require(path.join(bridge,'desktop/electron',name));
 const report={date:new Date().toISOString(),version,nodeVersion:process.version,nativeKind:kind,platform:process.platform,status:'running',modelCalls:0,nativeParentModel:false,
  evidence:'Unmodified native config loader and actual MCP client, frozen production Bridge, controlled discovered nodes, isolated native home; no real task or daily configuration',checks:[]};
 const hash=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -23,15 +23,18 @@ async function piClient(){
 }
 async function hermesClient(){
  const child=spawn(python,[path.join(__dirname,'hermes-mcp-native-driver.py'),nativeRoot],{env:environment,cwd,stdio:['pipe','pipe','pipe'],windowsHide:true}),pending=new Map();let serial=0,buffer='';child.stderr.resume();
- child.stdout.on('data',chunk=>{buffer+=chunk;let end;while((end=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,end);buffer=buffer.slice(end+1);let reply;try{reply=JSON.parse(line);}catch{continue;}const job=pending.get(reply.id);if(job){clearTimeout(job.timer);pending.delete(reply.id);reply.error?job.reject(Error('Native Hermes: '+reply.error)):job.resolve(reply.result);}}});
+ child.stdout.on('data',chunk=>{buffer+=chunk;let end;while((end=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,end);buffer=buffer.slice(end+1);let reply;try{reply=JSON.parse(line);}catch{continue;}const job=pending.get(reply.id);if(job){clearTimeout(job.timer);pending.delete(reply.id);if(reply.error)job.reject(Error('Native Hermes: '+reply.error));else job.resolve(reply.result);}}});
  const rejectAll=error=>{for(const job of pending.values()){clearTimeout(job.timer);job.reject(error);}pending.clear();};child.once('error',rejectAll);child.once('exit',()=>rejectAll(Error('Native driver exited')));
  const call=input=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>{pending.delete(id);reject(Error('Original native response unconfirmed'));},45000);pending.set(id,{resolve,reject,timer});child.stdin.write(JSON.stringify({id,...input})+'\n');});
  clients.push({close:async()=>{if(child.exitCode!==null)return;await call({action:'close'});child.stdin.end();if(child.exitCode===null)await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Native process exit unconfirmed')),15000);child.once('exit',()=>{clearTimeout(timer);resolve();});});}});
  const connected=await call({action:'connect'});return {catalog:connected.catalog,call:(name,args={})=>call({action:'call',name,args}),disable:()=>call({action:'disable'})};
 }
 (async()=>{
- report.modules=Object.fromEntries(['machine-host.cjs','mcp-integration.cjs','mcp-client.cjs','agent-network.cjs','relation-state.cjs','connection-policy.cjs'].map(name=>{const file=path.join(bridge,'desktop/electron',name),value=hash(file);assert.equal(value,hash(path.join(__dirname,'../electron',name)));return [name,value];}));
- fixture=await require('./i06b-ui-fixture.cjs').graphFixture({nativeExecution:true,runtimeRoot:bridge,callerAdapter:kind});
+ const provenance=JSON.parse(fs.readFileSync(path.join(path.dirname(output),'native-provenance.json')));
+ const nativePins=provenance[kind].criticalFilesEqualArchive;for(const [file,expected] of Object.entries(nativePins))assert.equal(hash(path.join(nativeRoot,file)),expected,'Original native source mismatch: '+file);report.nativeSourceFilesVerified=Object.keys(nativePins).length;
+ report.modules=Object.fromEntries(Object.entries(freeze.backend).map(([file,expected])=>{const name=path.basename(file),value=hash(path.join(bridge,'desktop/electron',name));assert.equal(value,expected,'Frozen backend mismatch: '+name);return [name,value];}));
+ assert.equal(JSON.parse(fs.readFileSync(path.join(bridge,'../linux-package/manifest.json'))).version,version);
+ fixture=await require('./i06b-ui-fixture.cjs').graphFixture({nativeExecution:true,runtimeRoot:bridge,callerAdapter:kind,version});
  const snapshot=await fixture.router.snapshot(),leader=snapshot.nodes.find(n=>n.adapter===kind),[b,c]=snapshot.nodes.filter(n=>n.adapter==='opencode');assert(leader&&b&&c);
  const rpc=async(method,params={})=>{const reply=await fixture.call(method,params);assert.equal(reply.ok,true);return reply.result;};
  const old=await rpc('collaboration');assert.equal((await rpc('saveCollaboration',{operationId:'native-initial',expectedRevision:old.revision,leaderId:leader.nodeId,memberIds:[b.nodeId]})).state,'confirmed');
@@ -64,7 +67,13 @@ async function hermesClient(){
  assert.equal((await invoke('connect_agent',{...request,operationId:'native-outside-alias'})).state,'rejected');
  const row=view.relations.find(r=>r.leaderId===leader.nodeId);assert.equal((await rpc('decideConnection',{operationId:'native-user-allow',approvalId:view.pending[0].approvalId,decision:'allow',expectedPolicyRevision:row.envelope.revision})).state,'confirmed');
  assert.equal((await invoke('connect_agent',{...request,queryOnly:true})).state,'confirmed');assert((await invoke('list_agents')).items.some(n=>n.nodeId===c.nodeId));
- report.checks.push('Outside-envelope native request grants nothing and cannot use a new ID to bypass confirmation; explicit isolated human decision settles the original native query');
+ assert.equal((await policy([b.nodeId],'native-revoke-after-allow')).state,'confirmed');
+ const deniedArgs={operationId:'native-outside-denied',nodeId:c.nodeId};assert.equal((await invoke('connect_agent',deniedArgs)).state,'pending_approval');
+ const rejectView=await rpc('connectionPolicies'),denyRequest=rejectView.pending.find(op=>op.operationId===deniedArgs.operationId),rejectRow=rejectView.relations.find(r=>r.leaderId===leader.nodeId);
+ assert.equal((await rpc('decideConnection',{operationId:'native-user-reject',approvalId:denyRequest.approvalId,decision:'reject',expectedPolicyRevision:rejectRow.envelope.revision})).state,'confirmed');
+ assert.equal((await invoke('connect_agent',{...deniedArgs,queryOnly:true})).state,'rejected');
+ assert.equal((await invoke('connect_agent',{...request,queryOnly:true})).state,'confirmed');assert(!(await invoke('list_agents')).items.some(n=>n.nodeId===c.nodeId));
+ report.checks.push('Outside-envelope native requests grant nothing or bypass no original pending ID; explicit isolated allow/reject settle original queries, and historical confirmation never restores a later user-revoked grant');
  await client.disable();assert.equal((await host.call('mcp.status',params)).facts.config,'disabled');await assert.rejects(host.call('mcp.install',params),{code:'MCP_NATIVE_DISABLED'});
  assert.equal((await invoke('list_connectable')).canManage,true);
  await host.call('mcp.revoke',params);assert.equal(await error('connect_agent',{...request,queryOnly:true}),'MCP_REVOKED');
@@ -81,4 +90,4 @@ async function hermesClient(){
  assert.equal(fixture.router.network.requests.length,0);assert.equal(fixture.router.network.delegations.length,0);assert.equal([...fixture.hosts.values()].flatMap(h=>h.tasks).length,0);
  report.checks.push('All connection operations leave controlled native tasks, requests and delegations at zero; no daily files, native credentials or real relationships are used');report.status='passed';
 })().catch(error=>{report.status='failed';report.error={code:error.code||'ACCEPTANCE_FAILED',message:error.message,stack:error.stack};process.exitCode=1;})
-.finally(async()=>{for(const client of clients.reverse())try{await client.close();}catch{report.cleanupPending=true;}host?.close();if(!report.cleanupPending){fixture?.close();fs.rmSync(directory,{recursive:true,force:true,maxRetries:8,retryDelay:200});}fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));});
+.finally(async()=>{for(const client of clients.reverse())try{await client.close();}catch{report.cleanupPending=true;}host?.close();if(report.cleanupPending){report.status='cleanup_pending';process.exitCode=1;}if(!report.cleanupPending){fixture?.close();fs.rmSync(directory,{recursive:true,force:true,maxRetries:8,retryDelay:200});}fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));});

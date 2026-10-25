@@ -6,14 +6,13 @@ import {
   LayoutGrid,
   Plus,
   X,
-  Folder,
   ShieldCheck,
   Search,
   Activity,
   List,
   Network,
 } from "lucide-react";
-import { bridge, call, invoke, isTerminal, labels } from "./api";
+import { bridge, call, invoke, labels } from "./api";
 import { TaskDetail } from "./App";
 import DaemonDialog, {
   type BlockedOperationResult,
@@ -27,8 +26,6 @@ import AppShell, { type Page } from "./AppShell";
 import MachineInventory from "./MachineInventory";
 import AgentConfigurationDialog from './AgentConfigurationDialog';
 import AgentIcon from "./AgentIcon";
-import CollaborationChoice from "./CollaborationChoice";
-import {canCallBridge,canExecuteNode} from "./connection-capabilities";
 import { TasksPage, ConversationsPage, SettingsPage } from "./WorkspacePages";
 import {useGraphRecovery,mergeRecoveryRows,executionRecoveryReason,relationRecoveryReason,querySummaryText,type ManagementLane} from './management-recovery';
 import TeamWorkspace from "./TeamWorkspace";
@@ -92,20 +89,13 @@ export default function NetworkApp() {
     }),
     [journal, setJournal] = useState<Journal[]>([]),
     [machineFilter, setMachineFilter] = useState("all");
-  const [compose, setCompose] = useState(false),
-    [target, setTarget] = useState(""),
-    [message, setMessage] = useState(""),
-    [workspace, setWorkspace] = useState(""),
-    [collaborate, setCollaborate] = useState(false);
   const [conversation, setConversation] = useState<Conversation | null>(null),
     [task, setTask] = useState<Task | null>(null),
-    [followup, setFollowup] = useState(""),
     [showChecks, setShowChecks] = useState(false);
   const [conversationRead,setConversationRead]=useState<DetailRead|null>(null),
     [taskRead,setTaskRead]=useState<DetailRead|null>(null);
   const detailJobs=useRef(new Set<string>()),conversationMachine=useRef<string|undefined>(undefined),taskMachine=useRef<string|undefined>(undefined);
-  const [stopDialog, setStopDialog] = useState(false),
-    [pickTarget, setPickTarget] = useState(false);
+  const [stopDialog, setStopDialog] = useState(false);
   const [recoveryItems, setRecoveryItems] = useState<RecoveryItem[]>([]),
     [querying, setQuerying] = useState(false);
   const [settingsSection, setSettingsSection] = useState<'recovery'|null>(null);
@@ -173,11 +163,7 @@ export default function NetworkApp() {
       memberIds: [],
       revision: 0,
     };
-  const targetNode=nodes.find(n=>n.nodeId===target);
   const [policyOpen,setPolicyOpen]=useState(false);
-  const isCurrentLeader=data.relations?data.relations.some(row=>row.enabled&&row.leaderId===target):target===relationship.leaderId;
-  const collaborationAllowed=(data.relations?data.relations.some(row=>row.enabled&&row.leaderId===target):target===relationship.leaderId)&&canCallBridge(targetNode);
-  useEffect(()=>{if(!collaborationAllowed)setCollaborate(false);},[collaborationAllowed]);
   const machineName = (id?: string) =>
     allMachines.find((m) => m.machineId === id)?.name || "原机器";
   const nodeName = (id?: string) =>
@@ -333,15 +319,16 @@ export default function NetworkApp() {
       setBusy(false);
     }
   }
-  async function queryOriginals() {
+  async function queryOriginals(cleanup = false) {
     if (busy || querying) return;
     setQuerying(true);
     try {
       await act("recover", async () => {
-        if(managementRows.some(row=>row.lane==='node'))await management.query();
-        if(managementRows.some(row=>row.lane==='machine'))await machineManagement.query();
+        const summaries = [];
+        if(managementRows.some(row=>row.lane==='node'))summaries.push(await management.query());
+        if(managementRows.some(row=>row.lane==='machine'))summaries.push(await machineManagement.query());
         const otherRows=managementRows.filter(row=>row.lane==='relation'||row.lane==='layout');
-        if(otherRows.length)await graphRecovery.query(otherRows);
+        if(otherRows.length)summaries.push(await graphRecovery.query(otherRows));
         const api = bridge();
         if (!api.recoverPending)
           throw Error(
@@ -351,6 +338,13 @@ export default function NetworkApp() {
         const pending = await api.pending();
         setJournal(pending);
         setRecoveryItems(result.items || []);
+        if (cleanup) {
+          const rejected = summaries.reduce((total, summary) => total + (summary?.rejected || 0), 0);
+          const confirmed = summaries.reduce((total, summary) => total + (summary?.confirmed || 0), 0);
+          const remaining = managementRows.length - rejected - confirmed + pending.length;
+          setNotice(`清理完成：已解除 ${rejected} 项已失败管理操作的占位，另核对 ${confirmed} 项管理结果、${result.resolved} 项执行请求；仍有 ${remaining} 项待确认。原 ID 与失败历史保留；无法确认的操作继续保留，请查看查询原因。`);
+          return;
+        }
         setNotice(
           pending.length
             ? `查询完成，已核对 ${result.resolved} 项，仍有 ${pending.length} 项待确认。${result.items?.length ? "请查看下方查询原因。" : "当前后台未提供具体原因，请在设置中停止旧后台后重新打开新版程序。"}`
@@ -382,7 +376,6 @@ export default function NetworkApp() {
   const managementRows=mergeRecoveryRows(graphRecovery.rows,management.pendingItems.map(management.asRow),machineManagement.pendingItems.map(machineManagement.asRow));
   const managementSummary=querySummaryText(graphRecovery.summary);
   const relationReason=!graphRecovery.loaded||graphRecovery.error||management.storageError||machineManagement.storageError?'原管理台账尚未安全读取，请在设置中核对后再编辑授权。':relationRecoveryReason(managementRows,allNodes,allMachines);
-  const collaborationGuardReason=relationReason||(targetNode?managementReason(targetNode.machineId,targetNode.nodeId):'');
   function executionReason(machineId?:string,nodeId?:string,chosenWorkspace?:string){
     if(!graphRecovery.loaded||graphRecovery.error||management.storageError||machineManagement.storageError)return '原管理台账尚未安全读取，请保留原记录。';
     return executionRecoveryReason(managementRows,machineId,nodeId,allNodes,allMachines,data.instances,chosenWorkspace);
@@ -420,7 +413,6 @@ export default function NetworkApp() {
     setConversationRead({id:c.conversationId,status:"loading"});
     setConversation(c);
     setPage("conversations");
-    setFollowup("");
     await refresh();
   }
   async function openTask(t: Task) {
@@ -429,28 +421,6 @@ export default function NetworkApp() {
     setTaskRead({id:t.taskId,status:"loading"});
     setTask(t);
     await refresh();
-  }
-  function newConversation(node?: AgentNode) {
-    if (executionLocked) {
-      setNotice("请先恢复后台连接或核对原授权保存，再开始新会话。");
-      return;
-    }
-    if(node&&!canExecuteNode(node)){
-      setNotice("当前节点的执行能力尚未确认，无法开始新会话。");
-      return;
-    }
-    const leader=nodes.find(n=>n.nodeId===relationship.leaderId);
-    const id =
-      node?.nodeId ||
-      (canExecuteNode(leader)?leader?.nodeId:undefined) ||
-      nodes.find((n) => n.available&&canExecuteNode(n))?.nodeId ||
-      "";
-    setTarget(id);
-    setMessage("");
-    setWorkspace("");
-    setCollaborate(!node&&(data.relations?data.relations.some(row=>row.enabled&&row.leaderId===id):id===relationship.leaderId)&&canCallBridge(nodes.find(n=>n.nodeId===id)));
-    setPickTarget(!id);
-    setCompose(true);
   }
   async function reconnectMachine(machine: Machine) {
     if (
@@ -637,7 +607,7 @@ export default function NetworkApp() {
       {graphRecovery.error&&<div className="notice-banner" role="status">管理台账读取失败，原未知记录与保护保留；请稍后查询原操作。</div>}
       {page === "teams" &&
         (data.teamSpaceSupported ? (
-          <TeamWorkspace nodes={nodes} directory={data.directory} />
+          <TeamWorkspace nodes={nodes} directory={data.directory} settingsOnly />
         ) : (
           <div className="notice-banner">
             当前后台尚不支持小队协作。请在“设置”中停止后台并退出，再重新打开新版程序。
@@ -647,8 +617,8 @@ export default function NetworkApp() {
         <>
           <div className="page-heading">
             <div>
-              <h1>机器与 Agent</h1>
-              <p>连接你的工作环境，让合适的 Agent 开始工作。</p>
+              <h1>接入配置</h1>
+              <p>配置机器、原生 Agent 和 MCP；日常需求从原生 Agent 会话发起。</p>
             </div>
             <button className="btn primary" onClick={() => setSshDialog({})}>
               <Plus size={15} />
@@ -786,7 +756,7 @@ export default function NetworkApp() {
                   machineManagementSupported={!!data.machineManagement}
                   daemonManagementSupported={!!data.daemonManagement}
                   blocked={blocked}
-                  start={newConversation}
+                  configurationOnly
                   attach={(id) => {
                     const n = nodes.find((n) => n.nodeId === id);
                     if (n) void management.run(n.nodeId, n.machineId, "attach");
@@ -818,7 +788,7 @@ export default function NetworkApp() {
                   managementReason={managementReason}
                   executionReason={executionReason}
           notify={setNotice}
-          start={newConversation}
+          configurationOnly
           blocked={blocked}
           daemonManagementSupported={!!data.daemonManagement}
           machineManagementSupported={!!data.machineManagement}
@@ -835,19 +805,6 @@ export default function NetworkApp() {
       )}
       {page === "machines" && (
         <>
-          {relationship.leaderId && (
-            <button
-              className="btn"
-              disabled={
-                busy ||
-                !nodes.find((n) => n.nodeId === relationship.leaderId)
-                  ?.available
-              }
-              onClick={() => newConversation()}
-            >
-              向主 Agent 发需求
-            </button>
-          )}
           {(data.delegations || []).length > 0 && (
             <section className="network-topology">
               <h3>最近委派</h3>
@@ -894,7 +851,7 @@ export default function NetworkApp() {
           machineName={machineName}
           nodeFor={nodeFor}
           onOpen={(t) => void openTask(t)}
-          onNew={() => newConversation()}
+          auditOnly
         />
       )}
       {page === "conversations" && (
@@ -911,39 +868,7 @@ export default function NetworkApp() {
           nodeFor={nodeFor}
           onOpen={(c) => void openConversation(c)}
           onTask={(t) => void openTask(t)}
-          onNew={() => newConversation()}
-          followup={followup}
-          onFollowup={setFollowup}
-          onSend={() => {
-            const node = conversation && nodeFor(conversation);
-            if (
-              !node ||
-              !conversation ||
-              executionLocked ||
-              !node.online ||
-              !node.connected ||
-              node.removed ||
-              (conversationRead?.id===conversation.conversationId&&conversationRead.status!=="ready") ||
-              conversation.historical ||
-              !conversation.canContinue ||
-              !conversation.items?.length ||
-              !isTerminal(conversation.items.at(-1)!) ||
-              blocked(node.machineId, node.nodeId) ||
-              !followup.trim()
-            )
-              return;
-            void act("continue", async () => {
-              await call("nodeRequest", {
-                op: "continue",
-                nodeId: node.nodeId,
-                machineId: node.machineId,
-                conversationId: conversation.conversationId,
-                requestId: crypto.randomUUID(),
-                message: followup,
-              });
-              setFollowup("");
-            });
-          }}
+          auditOnly
           busy={busy}
           blocked={blocked}
         />
@@ -966,6 +891,7 @@ export default function NetworkApp() {
           managementSummary={managementSummary}
           managementQuerying={graphRecovery.querying}
           onQueryManagement={lane=>void queryManagement(lane)}
+          onCleanup={()=>void queryOriginals(true)}
           machineName={machineName}
           busy={busy}
           managementLocked={managementLocked}
@@ -1268,184 +1194,6 @@ export default function NetworkApp() {
           </section>
         </div>
       )}
-      {compose && (
-        <div className="modal-overlay">
-          <section
-            className="modal network-compose"
-            role="dialog"
-            aria-modal="true"
-            aria-label="新建会话"
-          >
-            <div className="modal-head">
-              <h2>新建会话</h2>
-              <button
-                aria-label="关闭新建会话"
-                className="icon-btn"
-                onClick={() => setCompose(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <form
-              className="modal-body"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (executionLocked) return;
-                if(!canExecuteNode(targetNode)||blocked(targetNode?.machineId,target,workspace.trim()||undefined)){
-                  setNotice("当前节点不能开始新执行，请先核对执行能力与原操作。");return;
-                }
-                if(collaborate&&collaborationGuardReason){setNotice(collaborationGuardReason);return;}
-                if(collaborate&&!collaborationAllowed){setNotice("当前节点不能调用 Bridge MCP，请关闭协作后使用直接会话。");return;}
-                void act("submit", async () => {
-                  const t = await call<Task>("nodeRequest", {
-                    op: "submit",
-                    nodeId: target,
-                    requestId: crypto.randomUUID(),
-                    message,
-                    workspace: workspace.trim() || undefined,
-                    collaboration: collaborate,
-                  });
-                  setCompose(false);
-                  await openConversation({
-                    conversationId: t.conversationId,
-                    targetAgent: t.targetAgent,
-                    machineId: t.machineId,
-                    nodeId: target,
-                    title: message,
-                    turns: 1,
-                    updatedAt: t.updatedAt,
-                  });
-                });
-              }}
-            >
-              <div className="target-card">
-                <strong>
-                  目标：
-                  {machineName(
-                    nodes.find((n) => n.nodeId === target)?.machineId,
-                  )}{" "}
-                  / <AgentIcon adapter={nodes.find((n) => n.nodeId === target)?.adapter} size={20} /> {nodeName(target)}
-                </strong>
-                <button
-                  type="button"
-                  className="text-btn"
-                  onClick={() => setPickTarget((v) => !v)}
-                >
-                  选择节点
-                </button>
-              </div>
-              {pickTarget && (
-                <div className="node-picker" aria-label="选择会话目标">
-                  {nodes
-                    .filter((n) => n.connected)
-                    .map((n) => (
-                      <button
-                        type="button"
-                        className={target === n.nodeId ? "chosen" : ""}
-                        key={n.nodeId}
-                        disabled={!canExecuteNode(n)}
-                        onClick={() => {
-                          setTarget(n.nodeId);
-                          setWorkspace("");
-                          setCollaborate(false);
-                          setPickTarget(false);
-                        }}
-                      >
-                        <strong>
-                          <AgentIcon adapter={n.adapter} size={22} /> {machineName(n.machineId)} / {n.name}
-                        </strong>
-                        <small>{nodeStatus(n)}</small>
-                      </button>
-                    ))}
-                </div>
-              )}
-              <CollaborationChoice node={targetNode} isLeader={isCurrentLeader}
-                checked={collaborate} disabledReason={collaborationGuardReason} onChange={setCollaborate}/>
-              <label className="network-field">
-                需求
-                <textarea
-                  aria-label="需求"
-                  autoFocus
-                  rows={5}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="描述你希望完成的工作…"
-                />
-              </label>
-              <details className="network-directory">
-                <summary>
-                  <Folder size={15} />
-                  本次会话的执行目录（可选）
-                </summary>
-                <p>
-                  需要操作已有文件时填写目标机器上的目录。留空使用节点默认执行目录；同节点上下文可能复用。
-                </p>
-                <div>
-                  <input
-                    aria-label="会话执行目录"
-                    value={workspace}
-                    onChange={(e) => setWorkspace(e.target.value)}
-                    placeholder={
-                      machines.find(
-                        (m) =>
-                          m.machineId ===
-                          nodes.find((n) => n.nodeId === target)?.machineId,
-                      )?.kind === "ssh"
-                        ? "/home/用户名/项目"
-                        : "目标机器上的目录"
-                    }
-                  />
-                  {machines.find(
-                    (m) =>
-                      m.machineId ===
-                      nodes.find((n) => n.nodeId === target)?.machineId,
-                  )?.kind !== "ssh" && (
-                    <button
-                      className="btn"
-                      type="button"
-                      onClick={() =>
-                        void bridge()
-                          .pickFolder(
-                            nodes.find((n) => n.nodeId === target)?.machineId,
-                          )
-                          .then((value) => {
-                            if (value) setWorkspace(value);
-                          })
-                      }
-                    >
-                      选择目录
-                    </button>
-                  )}
-                </div>
-              </details>
-              {blocked(
-                nodes.find((n) => n.nodeId === target)?.machineId,
-                target,workspace.trim()||undefined,
-              ) && (
-                <p role="status">
-                  {executionReason(targetNode?.machineId,target,workspace.trim()||undefined)||'当前 Agent 有未确认操作，请查询原请求；可选择其他可用 Agent 开始独立会话。'}
-                </p>
-              )}
-              <button
-                className="btn primary"
-                disabled={
-                  executionLocked ||
-                  !message.trim() ||
-                  !canExecuteNode(targetNode) ||
-                  (collaborate&&!collaborationAllowed) ||
-                  !nodes.find((n) => n.nodeId === target)?.available ||
-                  blocked(
-                    nodes.find((n) => n.nodeId === target)?.machineId,
-                    target,workspace.trim()||undefined,
-                  )
-                }
-              >
-                {busy ? "正在提交" : "发送需求"}
-              </button>
-            </form>
-          </section>
-        </div>
-      )}
       {daemonDialog && (
         <DaemonDialog
           machine={
@@ -1454,11 +1202,11 @@ export default function NetworkApp() {
           }
           pending={!!managementReason(daemonDialog.machineId)}
           onClose={() => setDaemonDialog(null)}
-          poll={() => {
+          poll={async () => {
             const intent = machineManagement.pendingItems.find(
               (i) => i.connectionId === daemonDialog.connectionId,
             );
-            if (intent) return machineManagement.query(intent, false);
+            if (intent) await machineManagement.query(intent, false);
           }}
           blockers={() =>
             call<MaintenanceBlockers>("machine.maintenanceBlockers", {
@@ -1520,6 +1268,8 @@ export default function NetworkApp() {
       )}
       {task && (
         <TaskDetail
+          key={JSON.stringify([task.machineId,task.taskId])}
+          auditOnly
           task={task}
           readState={taskRead}
           name={nodeFor(task)?.name || "历史 Agent"}

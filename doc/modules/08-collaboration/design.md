@@ -1,5 +1,15 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+### CT-05原包传递与接收声明
+
+新增同工作原包持久传递、目标读取/匹配收据和桌面按需只读审计；小队MCP22项，经典10不变。原state版本3/receipts结构保持，独立SQLite表与写收据原子提交；无调度、任务或权限副作用。当前本地alpha.63已打包交付，Pi→固定源码Hermes原生组件传递7组已验；真实父模型消费待验。完整字段、当前身份/可见性、原ID恢复、容量/错误和源码见[原包传递设计](../../iterations/I07/context-delivery.md)。
+
+## 配置与审计控制台
+
+M08-F02/F05/F07/F08/F09/F10：桌面仅负责用户配置与审计，成员日常任务、消息、文档正文、报告、返修与验收通过已有工作MCP按原身份执行。建立工作作用域只保存目标/标准/成员，不调用模型；用户独占成员访问、文档编辑者、自动预算和直接交接授权，保留暂停/停止/归档。原生工具目录及后台授权规则保持，隐藏日常UI不扩大成员权限。team.operation投影已有原actor收据的ID/内容指纹；不同原方法/参数不能复用操作ID，params.method不能覆盖实际方法，撤权后不能读缓存证明。[本片完整流程与验证](../../iterations/I07/configuration-console.md)。
+
+M08-F02/F03/F05：当前连接/预授权与原ID收据语义已补Pi/Linux、Pi/Windows、固定源码Hermes/Linux原生客户端组件证据；每链7组，明确允许/拒绝及撤权后旧confirmed不恢复权限已验，模型0。原关系/协议不改，[证据与未完成](../../iterations/I08/native-policy-components.md)。
+
 ## CT-08当前关系模型
 
 M08-F02/F03/F05：索引v3含envelope.version1/revision/allowedNodeIds；v1/v2按原成员迁移，不自动扩大范围或启用原非selected行。各主一个启用出站关系，成员可兼任其他主。Agent仅在自己范围内连接/断开，范围外原请求须用户明确确认；断开保留预授权，用户撤权删范围防自动重连，原任务读控/unknown不变。各主策略/确认/安全审计页面已实现，旧图仍编辑selected；完整真实原生多主未准出。 [完整契约、验证与边界](../../iterations/I07/connection-policy.md)。
@@ -28,7 +38,7 @@ M08-F01：alpha.36整合基线含公开alpha.35执行资源级保护/原查询�
 
 ## 普通子会话最小协作上下文
 
-M08-F03/F05：仅新delegate在既有当前授权检查后选择固定v1说明，要求执行单项需求、在本会话报告结果/证据/未完成项并交回主Agent，需要额外信息/权限时说明。上下文不含父对话、Task/Conversation/connectionId/节点或机器身份，不注入MCP/TeamScope，不改变现有独立工具授权。新台账可选contextVersion=1在派发前保存，message保持原需求；缺字段历史原文，不支持版本DELEGATION_CONTEXT_UNSUPPORTED保留unknown。原准备拒绝仅按原机器/节点/ID、明确未派发和该版本完整输入指纹严格结算。文本是感知说明，不是访问控制或模型遵守证明；经典7/小队18工具与原结果/取消/权限规则保持，关系读取已按当前调用方出站关系处理。[完整输入、恢复与证据](../../iterations/I07/delegation-context.md)。
+M08-F03/F05：仅新delegate在既有当前授权检查后选择固定v1说明，要求执行单项需求、在本会话报告结果/证据/未完成项并交回主Agent，需要额外信息/权限时说明。上下文不含父对话、Task/Conversation/connectionId/节点或机器身份，不注入MCP/TeamScope，不改变现有独立工具授权。新台账可选contextVersion=1在派发前保存，message保持原需求；缺字段历史原文，不支持版本DELEGATION_CONTEXT_UNSUPPORTED保留unknown。原准备拒绝仅按原机器/节点/ID、明确未派发和该版本完整输入指纹严格结算。文本是感知说明，不是访问控制或模型遵守证明；当前经典10/小队22工具与原结果/取消/权限规则保持，关系读取已按当前调用方出站关系处理。[完整输入、恢复与证据](../../iterations/I07/delegation-context.md)。
 
 ## 按当前调用方查看连接
 
@@ -85,8 +95,8 @@ I07A/B基础继续适用，完整I07C与I06C未准出；当前发布状态见[�
 
 | 功能 ID | 功能 | 当前状态 |
 | --- | --- | --- |
-| M08-F07 | 小队、公共文档、群消息与成员授权 | 已发布；小队基础行为继续适用 |
-| M08-F08 | 成员直接授权交接与主角色验收 | 源码已实现；实际分层证据见本模块报告 |
+| M08-F07 | 小队、公共文档、群消息与成员授权 | 公开基础保留；本地63新增同工作明确选材传递/目标接收声明，当前授权每次重验，撤权不清历史或恢复访问 |
+| M08-F08 | 成员直接授权交接与主角色验收 | 源码已实现；63选材传递不构成交接或主角色业务验收，不触发自动事件 |
 | M08-F09 | 用户授权的事件协作和主角色持续跟进 | 源码已实现；证据层级见本模块报告 |
 | M08-F10 | 用户停止工作并撤销协作访问 | 源码已实现；实际证据与边界见[停止专项](../../iterations/I07/native-stop.md) |
 
@@ -226,15 +236,15 @@ sequenceDiagram
 
 ### 公共工作材料读取（M08-F07/F08，CT-04/05）
 
-当前小队MCP有18项，增加 `team_context_packet({targetAgentId,selections})`。只允许原工作有效成员作目标，先核对调用者原scope，再对文档准确revision、任务当前revision/round、消息ID/seq、产物ID/version作白名单投影；单类8项、完整响应256 KiB。输出包返回调用者，不发消息、不转已读、不派发/交接、不授予目标权限；引用与包ID都不是访问凭据。职责与外部正文不能覆盖原授权。旧后台不支持时明确失败，不用当前索引伪造包。[完整当前流程、错误和验证](../../iterations/I07/context-packet.md)。
+当前小队MCP有22项，增加 `team_context_packet({targetAgentId,selections})`。只允许原工作有效成员作目标，先核对调用者原scope，再对文档准确revision、任务当前revision/round、消息ID/seq、产物ID/version作白名单投影；单类8项、完整响应256 KiB。输出包返回调用者，不发消息、不转已读、不派发/交接、不授予目标权限；引用与包ID都不是访问凭据。职责与外部正文不能覆盖原授权。旧后台不支持时明确失败，不用当前索引伪造包。[完整当前流程、错误和验证](../../iterations/I07/context-packet.md)。
 
-CT-04桌面原索引/文档MD入口保持；CT-05现已补明确目标/四类材料选材、核对预览及本机MD/JSON副本。客户端核对原引用/报告来源/摘要，从结构化字段重建Markdown；观察到撤权/所选任务变化或切工作时失效。该消费者不改变18工具/授权或产生发送/交接/已读，实体同步与自动投递仍未实现。[当前桌面行为与证据](../../iterations/I07/context-packet-ui.md)。下方CT-04记录不能作为新包/CT-05全部验收。
+CT-04桌面原索引/文档MD入口保持；CT-05现已补明确目标/四类材料选材、核对预览及本机MD/JSON副本。客户端核对原引用/报告来源/摘要，从结构化字段重建Markdown；观察到撤权/所选任务变化或切工作时失效。该消费者不改变工具授权或产生发送/交接/已读，实体同步与自动推送仍未实现；显式持久传递/接收声明见本页CT-05新契约。[当前桌面行为与证据](../../iterations/I07/context-packet-ui.md)。下方CT-04记录不能作为新包/CT-05全部验收。
 
 桌面M01已复用这些只读方法提供按需索引、精确修订及当前页/单份文档MD下载。它核对响应身份/修订/正文摘要，丢弃旧工作迟到结果；文件只是阅读副本，不授予成员资格、不写小队操作/任务/收据或验证引用可达。该桌面实现没有增加MCP/IPC方法或交接授权；后续整合与CT-05按上方当前范围，不把历史测试当新接口验收。[桌面限定证据](../../iterations/I07/public-materials-ui.md)。
 
 CT-04 实现范围：小队MCP有17项，包含新增 `team_materials({limit?,documentAfter?})`，工作来自原成员scope；不属于下方经典主从六工具。用户入口 `team.materials` 另需runId。limit默认20/最大50，游标须属于该工作；JSON/Markdown同源，文档只含标题/修订/摘要/版本引用，无正文和私有接入字段。目标/成员职责/当前任务报告/产物/原生状态与消息观察位置只读投影，未读不转已读，引用不代表可达。
 
-`team_document({documentId,revision?})` 指定revision时返回准确的title/content/authorId/time、revision/currentRevision及contentSha256，不附全部history；正整数非法报TEAM_INPUT，不存在报TEAM_DOCUMENT_REVISION，不回退。无revision保持原完整当前文档响应。先授权再查文档，引用不授予成员资格；跨工作/撤权/无效原生尝试继续拒绝。旧后台/旧工具表须按实际schema/返回revision辨别，不假定支持新字段。普通委派不强制建立公共工作；当前已有CT-04桌面MD副本及上方CT-05瞬时只读包，实体同步/实际投递仍未实现。[完整当前契约与验证](../../iterations/I07/public-materials.md)。
+`team_document({documentId,revision?})` 指定revision时返回准确的title/content/authorId/time、revision/currentRevision及contentSha256，不附全部history；正整数非法报TEAM_INPUT，不存在报TEAM_DOCUMENT_REVISION，不回退。无revision保持原完整当前文档响应。先授权再查文档，引用不授予成员资格；跨工作/撤权/无效原生尝试继续拒绝。旧后台/旧工具表须按实际schema/返回revision辨别，不假定支持新字段。普通委派不强制建立公共工作；当前已有CT-04桌面MD副本及上方CT-05瞬时只读包，实体同步仍未实现；显式持久传递见本页CT-05新契约。[完整当前契约与验证](../../iterations/I07/public-materials.md)。
 
 经典主从MCP在本地alpha.60暴露十个操作（公开alpha.53仍七个），与上方小队工具集合分开；原生客户端可按自己的命名空间显示为 `agentbridge_*`。
 

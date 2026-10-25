@@ -1,5 +1,15 @@
 # M05 Linux daemon 测试报告
 
+## alpha.63实际WSL持续连接（2026-10-25）
+
+原生产Windows→WSL HostConnection、实际Ubuntu/原生Codex0.162.1列表与Linux通用stdio客户端：15分钟180/180原宿主/驱动/connectionId保持，原生配置摘要不变，任务/委派/模型0；删除/宿主重开不补装、撤权、轮换、移除共六组通过。原Windows启动进程退出、两客户端停止和Linux残留0已确认；这是MCP组件，不是原生父模型，未停止/冷启动发行版或部署SSH。历史入口前失败和完整稳定性仍未准出，原有全量不相加。[实际样本、首次测试路径失败、清理及边界](../../iterations/I08/native-mcp-lifecycle.md)。
+
+2026-10-25：冻结alpha.62对原真实SSH只读三组通过，认证/指纹、原37清单1459项、两次非接管检查及原PID/配置保持，模型0；完整故障/版本切换与普通EXE联合流程仍未准出。产品无变更，[当前证据](../../iterations/I08/alpha62-ssh-readonly.md)。
+
+## WSL当前启动与入口定位
+
+2026-10-25，公开alpha.60冻结资源真实Windows→WSL独立启动20/20；60条environment/snapshot均在原握手后发送，无重放，20个Windows启动进程退出0，事后Linux匹配宿主残留0，模型0。原8项就绪/关闭代次边界8/8；原始WSL四条件80条中1条在首写入口标记前失败，Windows/Linux直接观察80/80一致，未把该失败或历史9/20改成通过。未测试冷启动、持续原生连接、独立SSH或普通窗口图反馈；computer-use初始化仍被WSL路径元数据拒绝，窗口输入0。产品/包无改动，[全部证据、驱动首次失败与未准出](../../iterations/I08/wsl-launch-origin.md)。共享计数不累加。
+
 2026-10-23，当前冻结alpha.56客户端已对原独立SSH服务器完成只读复验：实际daemon为alpha.37，原凭据/主机指纹认证、生产逐文件核验、两次非接管inspect通过；原daemon身份/PID、远端入口与本地连接配置保持，模型0。完整故障/升级矩阵与普通EXE联合流程仍未准出。[原始报告、脚本及来源](../../iterations/I08/current-ssh-readonly.md)。既有863/863为alpha.56交付证据，本轮不重复计数。
 
 2026-10-23，alpha.56本地候选：桌面全量863/863、零跳过；实际完整维护CLI读取超过旧8MiB的大目录并查询原unknown，原收据文件字节与真实合成daemon PID/daemonId不变。输入保真3/3与复用/查询传输26/26通过，完整命令保留所有版本，查询不改原持久意图。均为本地受控进程/传输，模型0，不是用户SSH或真实任务准出。[完整证据与边界](../../iterations/I08/maintenance-input-capacity.md)。

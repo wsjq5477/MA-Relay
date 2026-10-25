@@ -1,5 +1,19 @@
 # AgentBridge 整体功能设计
 
+alpha.62普通窗口生命周期五组与真实驱动退出码0已补验：旧脚本后续误选同进程无标题辅助窗，现绑定原主窗口并在关闭前核对归属/标题；三次正常关闭均原进程退出、包装码0，产品和EXE字节未改。未切换日常后台，模型0。[定位、修复与当前边界](iterations/I08/window-lifecycle-verifier.md)。
+
+2026-10-25冻结alpha.62已完成原实际SSH只读复验：保存凭据/主机指纹认证、alpha.37原清单1459项逐文件核对、两次非接管inspect三组通过，原PID/current.json/本地配置保持，模型0；未部署、hello或任务。完整故障/升级矩阵与普通EXE联合流程仍未准出。[当前证据](iterations/I08/alpha62-ssh-readonly.md)。
+
+本地alpha.62保留已失败管理操作清理，将实际桌面入口收敛为接入/小队设置、执行/会话审计和原操作恢复；日常提交、续聊、分工、报告、正文编辑与验收从原生Agent的MCP入口完成。小队收据补原operationId和完整内容指纹，丢回应、损坏或并发变化的本机意图只读核对，不换ID重发。普通EXE正常关闭/重开与完整中央重启五组已补验，原收据保持；公开alpha.60不变，模型0；[实现、分层验证与交付](iterations/I07/configuration-console.md)。
+
+WSL当前补验（2026-10-25）：公开alpha.60冻结HostConnection独立启动20/20，60条只读请求均在握手后发送、原进程退出已确认，模型0；但原始80次WSL探针仍有1次首条Linux入口标记前失败。没有产品修复可解释差异，发行版冷启动/持续连接/故障恢复与整体稳定性仍未准出；普通EXE图观察因窗口运行时拒绝WSL工作目录未执行。[本轮定位、全部样本与边界](iterations/I08/wsl-launch-origin.md)。
+
+公开alpha.60的十工具已完成原生客户端组件复验：Pi1.4.0在Linux/Windows、固定源码Hermes在Linux各7组通过，包含实际连接/断开、用户允许/拒绝、原ID/历史确认和缓存撤权，模型0。真实父模型、日常多主、托管scope和跨真实机器仍未准出。[当前证据与完整边界](iterations/I08/native-policy-components.md)。
+
+## 失败操作清理
+
+AB-F01/F02/F07：设置的“未确认操作”提供“清理已失败操作”，按原ID核对执行和管理结果，解除确定失败的占位并保留失败历史。旧OpenCode接入仅在原意图保存了完整启动拒绝、来源/指纹匹配且原收据缺失时结算本地接入失败；普通传输超时和任务unknown继续保留，独立节点仍可使用。源码及本地alpha.61候选，公开alpha.60状态不变；[完整设计、验证与交付](iterations/I08/failed-operation-cleanup.md)。
+
 alpha.56冻结包图管线诊断（2026-10-24）：默认渲染含tracing的完整20条PNG p95 363.722ms未达100ms，本地同步p95 1556ms通过；GPU提交停顿与部分慢样本重叠，软件渲染诊断仍112.902ms失败，不能据此关闭产品GPU或宣告准出。[本轮证据与限制](iterations/I06/alpha56-graph-pipeline.md)。
 
 当前冻结alpha.56客户端已对原独立SSH服务器完成只读复验：实际daemon为alpha.37，原凭据/主机指纹认证、生产逐文件核验、两次非接管inspect通过；原daemon身份/PID、远端入口与本地连接配置保持，模型0。完整故障/升级矩阵与普通EXE联合流程仍未准出。[实际证据与边界](iterations/I08/current-ssh-readonly.md)。
@@ -36,7 +50,7 @@ alpha.36包含 OpenCode 在 WSL/Linux 与 SSH daemon 中创建后台对象时的
 
 ## 1. 产品解决什么问题
 
-用户已经在不同机器上安装并配置了自己的 Agent。当前源码接入七种产品、十个执行入口：Claude Code、OpenCode、Codex、Hermes、Pi、DSH CLI（原生 CLI），以及DSH Windows Desktop与Linux/WSL Web、OpenDesk CLI HTTP与Windows Desktop设备网关。Hermes/Pi/DSH 为源码已实现，真实工具执行验收以[接入矩阵](agent-integration-matrix.md)为准。AgentBridge 把这些工具呈现为可观察的 Agent 节点，用户在一个客户端中发需求、看进度和读取结果；权限与协作能力按工具分别声明。
+用户已经在不同机器上安装并配置了自己的 Agent。当前源码接入七种产品、十个执行入口：Claude Code、OpenCode、Codex、Hermes、Pi、DSH CLI（原生 CLI），以及DSH Windows Desktop与Linux/WSL Web、OpenDesk CLI HTTP与Windows Desktop设备网关。Hermes/Pi/DSH 为源码已实现，真实工具执行验收以[接入矩阵](agent-integration-matrix.md)为准。AgentBridge 把这些工具呈现为可观察的 Agent 节点，用户从原生Agent提出需求，在Bridge配置接入与授权、看进度和读取结果；权限与协作能力按工具分别声明。
 
 中央后台管理连接与消息，不作为主 Agent 推理。主 Agent 是用户从已接入工具节点中指定的真实 Claude Code、OpenCode 或 Codex；它只能通过受限协作接口发现、委派和查询获准的子 Agent。
 
@@ -70,7 +84,7 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | AB-F05 主机信任与凭据 | 首次确认指纹；默认不保存秘密；可选 Windows 系统加密保存 | 源码与受控测试存在；Windows 密码/DPAPI 及加密私钥/隔离 agent 有实际证据；系统服务兼容专项保留 | [M04](modules/04-ssh-access/design.md) / [报告](modules/04-ssh-access/test-report.md) |
 | AB-F06 远端后台部署 | 用户确认安装摘要后自动部署用户态 daemon；无需第二终端 | 历史真实 Linux 验收保留；上传阶段/错误类别和明确失败后的重新检测入口已实现，保持原安装 ID；维护被拒但原后台仍在运行/已恢复时不再留置离线；新增**显式确认后越过未确认收据**（任务/Agent 门禁永不可越过，越过记录写入终态收据） | [M04](modules/04-ssh-access/design.md)、[M05](modules/05-linux-daemon/design.md) |
 | AB-F07 原生工具执行 | 沿用工具原有账号与配置，执行真实需求 | OpenCode/Claude 有历史真实证据，Codex 有环境限制；Hermes/Pi/DSH 及 DSH Desktop/Web 源码已实现，验证层级见矩阵；MCP配置可由Bridge管理的入口见AB-F02，配置写入不等于原生已加载 | [M06](modules/06-native-adapters/design.md) / [报告](modules/06-native-adapters/test-report.md) |
-| AB-F08 新会话与续聊 | 发起需求，原会话追问，每轮独立记录 | 已发布；能力取决于原生适配；SSH 同会话两轮已记录 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
+| AB-F08 新会话与续聊 | 从原生Agent发起需求与续聊，每轮独立记录 | alpha.62桌面只读审计；原生/CLI适配能力与旧Task/Session保留，公开alpha.60仍有旧日常表单 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
 | AB-F09 进度、回答与看板 | 看来源、状态、本轮回答、工具过程与最终结果 | 已发布；窗口通过轮询刷新，不是直接订阅原生 token | [M01](modules/01-desktop/design.md)、[M06](modules/06-native-adapters/design.md) |
 | AB-F10 权限、输入与取消 | 通过原任务处理原生等待；取消结果以原生确认判断 | 严格核对原控制收据、表单遮罩及恢复台账脱敏；原生支持范围分别记录 | [M06](modules/06-native-adapters/design.md)、[M07](modules/07-task-session/design.md) |
 | AB-F11 未确认请求与恢复 | 原 ID 查询，不重发 Prompt；保留历史和占位 | 历史功能已发布；Windows OpenCode 原记录恢复已修复；已观察历史跨重开保留，cursorGap 补偿通过验证；MCP配置操作丢失回应时同样先查原状态，配置重启恢复只重建私有端点、不写原生配置、不恢复已撤销授权 | [M07](modules/07-task-session/design.md) / [报告](modules/07-task-session/test-report.md) |
@@ -82,8 +96,8 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | AB-F17 发布与安装维护 | 源码、离线包、Windows EXE 一致，版本可验证 | 0.5.0 历史稳定；可信升级/回滚/停止/卸载源码与受控验证通过；维护收据新增 stopped/phase，停机未确认恢复保持 unknown 由原 ID 恢复；alpha.46已公开，包含越过未确认收据契约与两个只读门禁 RPC（历史指纹见[交付记录](iterations/I08/alpha38-delivery.md)，当前分发见[发布记录](iterations/I08/alpha46-release.md)）；正式 0.6.0 准出见当前报告 | [M10](modules/10-packaging/design.md) / [报告](modules/10-packaging/test-report.md) |
 | AB-F18 网页资料入口 | 当前用户功能/设计/使用页、六Agent章节与六方式/能力对照；搜索、主题和图表 | 源码已实现；仅发布doc/user许可页面，排除内部编号、测试、问题、过程与历史；独立于Agent控制 | [M11 设计](modules/11-documentation-portal/design.md) / [报告](modules/11-documentation-portal/test-report.md) |
 | AB-F19 智能体登记与小队 | 登记外部已有功能的智能体、说明职责/边界，组成小队和独立工作 | 已发布；不实现Skill/模型/目录或业务能力 | [M03](modules/03-machine-network/design.md)、[M08](modules/08-collaboration/design.md) |
-| AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | CT-04 索引/旧修订/桌面MD、CT-05 选材包与桌面选材/导出已实现；实际投递/收件证明及同步待开发，完整 I07C 未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[CT-04](iterations/I07/public-materials.md)、[CT-05](iterations/I07/context-packet.md)、[桌面选材](iterations/I07/context-packet-ui.md) |
-| AB-F21 小队任务与授权交接 | 分配/接手、依赖、精确产物版本、限额交接、返修历史与业务验收 | I07B 任务/授权交接基础保留；CT-05 桌面可选任务/历史产物生成核对副本，观察到任务/成员变化会使旧导出失效；不改变交接授权或证明接收 | [M07](modules/07-task-session/design.md)、[M08](modules/08-collaboration/design.md)、[I07B任务交接交付](iterations/I07/task-handoff.md) |
+| AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | CT-04 索引/旧修订/桌面MD和CT-05 选材/导出保留；原包持久传递、目标接入确认和桌面只读审计已随本地alpha.63交付；Pi/Hermes跨客户端组件已验；真实父模型消费及实体同步未准出，完整 I07C 未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[CT-04](iterations/I07/public-materials.md)、[CT-05](iterations/I07/context-packet.md)、[桌面选材](iterations/I07/context-packet-ui.md)、[原包传递](iterations/I07/context-delivery.md) |
+| AB-F21 小队任务与授权交接 | 分配/接手、依赖、精确产物版本、限额交接、返修历史与业务验收 | I07B 任务/授权交接基础保留；CT-05 桌面可选任务/历史产物生成核对副本，观察到任务/成员变化会使旧导出失效；不改变交接授权；新增[原包接收声明](iterations/I07/context-delivery.md)与业务验收分开 | [M07](modules/07-task-session/design.md)、[M08](modules/08-collaboration/design.md)、[I07B任务交接交付](iterations/I07/task-handoff.md) |
 | AB-F22 持续协调首批 | 用户授权自动成员与预算，重要事件激活、原会话续接、原生终态后验收 | 已随 alpha.23 分发；停止/撤权与原生终态核对已实现，真实 Claude 取消通过；其他接入/多原生角色/完整故障矩阵未准出 | [M02](modules/02-coordinator/design.md)、[M06](modules/06-native-adapters/design.md)、[I07C首批交付](iterations/I07/automation.md) |
 
 ## 4. 用户的完整操作路径

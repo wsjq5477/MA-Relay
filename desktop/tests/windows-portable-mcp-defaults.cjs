@@ -23,12 +23,14 @@ const report = {
   status: "running",
   checks: [],
   modelCalls: 0,
+  driverNode: process.version,
+  lifecycle: [],
   portable: {
     bytes: fs.statSync(exe).size,
     sha256: createHash("sha256").update(fs.readFileSync(exe)).digest("hex"),
   },
 };
-let wrapper, main, client;
+let wrapper, main, client, originalTeamReceipt, windowBinding, originalContextProof, nativeMcpLifecycle;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const ps = (command) =>
   new Promise((resolve, reject) =>
@@ -65,13 +67,16 @@ async function launch() {
         assert(!/remote-debugging|--inspect/.test(main.command));
         const next = new CoordinatorClient({ directory: profile, version });
         try {
+          windowBinding=await require('./windows-portable-window.cjs').bindPortableWindow(main.pid);
           await next.attach();
           client = next;
           assert.equal(client.info.version, version);
+          nativeMcpLifecycle?.windowOpened(main.command);
           return;
         } catch (error) {
           next.close();
-          if (!["ENOENT", "ECONNREFUSED"].includes(error.code)) throw error;
+          windowBinding?.dispose();windowBinding=null;
+          if (!["ENOENT", "ECONNREFUSED", "WINDOW_TARGET_CHANGED"].includes(error.code)) throw error;
         }
       }
     }
@@ -84,17 +89,24 @@ async function launch() {
 async function closeWindow() {
   if (!main) return;
   assert.equal(main.parent, wrapper.pid);
-  await ps(
-    `(Get-Process -Id ${main.pid} -ErrorAction Stop).CloseMainWindow() | Out-Null`,
-  );
+  const closeRequest=await windowBinding.close();
+  assert.equal(closeRequest.verified,true,"The original product window must still belong to the observed process and keep its product title");
+  report.lifecycle.push({closeRequest});
+  fs.writeFileSync(output,JSON.stringify(report,null,2)+"\n");
+  assert.equal(closeRequest.accepted,true,"Windows must accept normal close for the owned candidate window");
   const deadline = Date.now() + 30000;
   while (Date.now() < deadline && wrapper.exitCode === null) await delay(200);
+  const remaining=await ps(`Get-CimInstance Win32_Process | Where-Object {$_.ProcessId -in ${main.pid},${wrapper.pid}} | ForEach-Object {$_.ProcessId} | ConvertTo-Json -Compress`);
+  const remainingPids=remaining?[JSON.parse(remaining)].flat():[];report.lifecycle.push({mainProcessExited:!remainingPids.includes(main.pid),wrapperExitCode:wrapper.exitCode,remainingOwnedPids:remainingPids});
   assert.notEqual(
     wrapper.exitCode,
     null,
     "Normal close must exit the portable window wrapper",
   );
-  main = null;
+  assert.equal(wrapper.exitCode,0,'Normal close must return success');
+  assert.deepEqual(remainingPids,[],'Both original main and wrapper must be gone');
+  windowBinding?.dispose();windowBinding=null;main = null;
+  if(nativeMcpLifecycle)await nativeMcpLifecycle.windowClosed();
 }
 async function call(method, params = {}) {
   const reply = await client.request("call", { method, params });
@@ -158,7 +170,12 @@ async function call(method, params = {}) {
     content: "候选普通EXE保持原公共资料",
     notifyIds: [],
   });
+  if(process.env.AGENTBRIDGE_VERIFY_CONTEXT_PROOF==='1')originalContextProof=await require('./windows-context-transfer-proof.cjs').seed(call,run.runId,agent.agentId,process.env.AGENTBRIDGE_VERIFY_BRIDGE);
+  if(process.env.AGENTBRIDGE_VERIFY_NATIVE_MCP_ROOT){nativeMcpLifecycle=await require('./windows-native-mcp-lifecycle.cjs').open({call,runId:run.runId,agentId:agent.agentId,profile,nativeRoot:process.env.AGENTBRIDGE_VERIFY_NATIVE_MCP_ROOT});nativeMcpLifecycle.windowOpened(main.command);}
   async function checkOriginal() {
+    if(nativeMcpLifecycle)await nativeMcpLifecycle.verify('window_open');
+    if(originalContextProof)await require('./windows-context-transfer-proof.cjs').verify(call,originalContextProof);
+    if(process.env.AGENTBRIDGE_VERIFY_TEAM_PROOF==='1'){const receipt=await call("team.operation",{operationId:"ui-portable-message"});assert.equal(receipt.operationId,"ui-portable-message");assert.match(receipt.fingerprint,/^[a-f0-9]{64}$/);if(originalTeamReceipt)assert.deepEqual(receipt,originalTeamReceipt);else originalTeamReceipt=receipt;}
     const context = await call("team.context", { runId: run.runId });
     assert.equal(context.documents[0].title, "候选验证资料");
     assert(
@@ -179,6 +196,7 @@ async function call(method, params = {}) {
     "Production IPC and SQLite persist external member, team, public document and message without a model attempt",
   );
   await closeWindow();
+  if(nativeMcpLifecycle)await nativeMcpLifecycle.reopen();
   client.close();
   await launch();
   assert.equal(client.info.pid, firstPid);
@@ -204,7 +222,10 @@ async function call(method, params = {}) {
   report.checks.push(
     "Full isolated Coordinator restart keeps original public records and zero native execution",
   );
-  report.status = "passed";
+  if(process.env.AGENTBRIDGE_VERIFY_TEAM_PROOF==='1')report.checks.push("Original Team operation ID, durable fingerprint and original result remain exactly identical across ordinary window and full Coordinator restarts, without redispatch");
+  if(originalContextProof)report.checks.push("Original selected packet, recipient stdio acknowledgement/time and send receipt survive all ordinary window and full Coordinator restarts; user audit never receives the private proof");
+  if(nativeMcpLifecycle){report.nativeMcp=nativeMcpLifecycle.result();report.checks.push('Real native Pi MCP remains usable after GUI close and extraction removal, explicit native client reopen, three distinct portable extraction paths and full Coordinator restart with the same original identity/configuration');}
+  report.status = "checks_passed_cleanup_pending";
 })()
   .catch((error) => {
     report.status = "failed";
@@ -215,13 +236,24 @@ async function call(method, params = {}) {
     process.exitCode = 1;
   })
   .finally(async () => {
-    try {
-      await closeWindow();
-    } catch {}
+    const cleanupErrors=[];
+    try {await closeWindow();}catch{cleanupErrors.push('original_window_exit_unconfirmed');}
+    try {await nativeMcpLifecycle?.close();report.nativeClientClosed=true;}catch{cleanupErrors.push('native_client_exit_unconfirmed');}
+    if(nativeMcpLifecycle&&report.status==='checks_passed_cleanup_pending'&&!cleanupErrors.length)report.nativeMcp=nativeMcpLifecycle.result();
+    const originalCoordinatorPid=client?.info?.pid;
     try {
       await client?.request("shutdown");
-    } catch {}
-    client?.close();
+      if(originalCoordinatorPid){
+        const until=Date.now()+30000;let exited=false;
+        do{try{process.kill(originalCoordinatorPid,0);}catch(error){if(error.code==='ESRCH'){exited=true;break;}}await delay(100);}while(Date.now()<until);
+        report.finalCoordinatorExitConfirmed=exited;
+        if(!exited)cleanupErrors.push('original_coordinator_exit_unconfirmed');
+      }
+    }catch{cleanupErrors.push('original_coordinator_shutdown_unconfirmed');}
+    client?.close();windowBinding?.dispose();
+    if(wrapper&&wrapper.exitCode===null)cleanupErrors.push('original_portable_wrapper_exit_unconfirmed');
+    if(cleanupErrors.length){report.status='cleanup_pending';report.cleanupErrors=cleanupErrors;process.exitCode=1;}
+    else if(report.status==='checks_passed_cleanup_pending')report.status='passed';
     fs.mkdirSync(path.dirname(output), { recursive: true });
     fs.writeFileSync(output, JSON.stringify(report, null, 2) + "\n");
     console.log(

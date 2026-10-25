@@ -1,5 +1,9 @@
 # I08-MCP02：开放MCP接入、双向配置与原生可见性
 
+当前MCP02-T16子范围已补：[alpha.63普通EXE/原版Pi工作MCP生命周期](native-mcp-lifecycle.md)七组通过，三个实际解包目录删除后原生仍可读取，完整后台重启/原生重开后原身份和接收收据保持，WSL十五分钟180/180与重开/撤权六组也已完成，模型0。仅这些组件/环境通过，其他十入口/经典独立连接/跨版本/托管父模型与整体T01–T18仍未准出；下文的“待执行”保留对应历史版本时点。
+
+后续当前证据：[2026-10-25公开alpha.60原生十工具组件](native-policy-components.md)已完成Pi/Linux、Pi/Windows及固定源码Hermes/Linux各7组，涵盖T01/T04/T05/T07/T13/T15的协议/身份子项，模型0；逐入口真实父模型、托管归属和完整T01–T18仍未准出。下文保留原设计/交付时点。
+
 日期：2026-10-22（Asia/Shanghai）。当前本地候选为 **alpha.46**，本轮恢复修复、非GUI首次接入、工程验证与Windows交付见[后续开发记录](mcp-open-recovery.md)。§11–§14保留各次原始证据和版本边界；逐入口真实原生增删、真实主调用与托管归属仍未全部验收，完整MCP02未准出。公开版本仍为alpha.36。
 
 关联既有功能：AB-F02/F07/F08/F11/F12/F13；M01-F01/F02/F04/F05、M06-F02/F04/F05、M08-F01/F02/F03/F05/F06，并涉及M02/M03/M04/M05/M07/M10/M11。承接[独立MCP配置](../I07/mcp-installation.md)、[CT-06通用调用方规划](../I07/agent-centric-operations.md)与[OpenDesk前端门禁修复](opendesk-ui-admission.md)，不重编号既有功能，不取代完整I06C/I07C准出。

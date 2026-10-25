@@ -1,6 +1,8 @@
 # AgentBridge 使用文档
 
-AgentBridge 连接你已有的原生 Agent，让你在一个桌面入口查看机器、发起任务、继续会话，并允许获准的 Agent 调用其他 Agent。账号、模型、Skill 和业务执行仍由各个原生 Agent 管理。
+本页按本地alpha.62候选说明。公开alpha.60仍有桌面新建/续聊等旧入口；升级后日常需求从原生Agent会话发起。
+
+AgentBridge 连接你已有的原生 Agent，在桌面配置机器、授权与查看执行历史，让获准的 Agent 从自己的原生会话调用其他 Agent。账号、模型、Skill 和业务执行仍由各个原生 Agent 管理。
 
 从[快速开始](quickstart.md)完成第一条连接；在[产品功能](product.md)和[系统设计](architecture.md)了解整体工作方式。
 
@@ -23,7 +25,7 @@ AgentBridge 连接你已有的原生 Agent，让你在一个桌面入口查看�
 ## 按工作场景阅读
 
 - [机器与 Agent](machines.md)：本机、WSL、SSH 的发现与连接。
-- [任务与会话](sessions.md)：新建、续聊、结果、权限与取消。
+- [任务与会话](sessions.md)：原生需求入口、历史结果与原执行恢复。
 - [关系与协作](collaboration.md)：保存授权关系，让 Agent 委派任务。
 - [工作材料](materials.md)：阅读、选择与导出公共材料。
 - [MCP 与连接授权](connections.md)：给原生 Agent 配置 Bridge MCP，管理连接权限。

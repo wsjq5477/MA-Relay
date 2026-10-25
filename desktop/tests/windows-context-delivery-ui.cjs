@@ -1,0 +1,40 @@
+// Explicit headless production renderer, controlled Coordinator/SQLite; no model or physical desktop input.
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
+const {chromium,expect}=require('../node_modules/@playwright/test'),{graphFixture}=require('./i06b-ui-fixture.cjs');
+const [frontend,out,runtimeRoot]=process.argv.slice(2);
+const report={date:new Date().toISOString(),version:require('../package.json').version,scope:'Frozen production renderer and Coordinator, controlled member sessions and materials; Windows headless Edge; no native model or physical window',modelCalls:0,status:'running',checks:[],pageErrors:[]};
+let f,browser,server,page,space,release;
+(async()=>{
+ f=await graphFixture({runtimeRoot});let serial=0;
+ const call=async(method,p={})=>{const reply=await f.call('team.'+method,{operationId:'receipt-ui-setup-'+ ++serial,...p});assert.equal(reply.ok,true,reply.error?.code);return reply.result;};
+ const a=await call('registerAgent',{kind:'mcp',externalKey:'receipt-ui-a',name:'原包发送成员',purpose:'选材'}),b=await call('registerAgent',{kind:'mcp',externalKey:'receipt-ui-b',name:'原包接收成员',purpose:'收件'}),team=await call('createTeam',{name:'选材审计',leaderId:a.agentId,memberIds:[a.agentId,b.agentId]}),run=await call('createRun',{teamId:team.teamId,name:'原工作审计',goal:'核对原包',acceptance:'不等同于业务成功'}),other=await call('createRun',{teamId:team.teamId,name:'另一工作审计',goal:'丢弃旧响应',acceptance:'隔离'});
+ const doc=await call('writeDocument',{runId:run.runId,title:'选材文档',content:'SELECTED_BODY_MUST_NOT_ENTER_AUDIT',expectedRevision:0});
+ for(const x of [a,b])await call('connect',{runId:run.runId,agentId:x.agentId});
+ const {TeamSpace}=require(path.join(runtimeRoot,'desktop/electron/team-space.cjs')),{digest}=require(path.join(runtimeRoot,'desktop/electron/graph-layout.cjs'));space=new TeamSpace({directory:f.directory});
+ const sessions=space.read().sessions,sa=sessions.find(s=>s.agentId===a.agentId).sessionId,sb=sessions.find(s=>s.agentId===b.agentId).sessionId,selection={targetAgentId:b.agentId,selections:{documents:[{documentId:doc.documentId,revision:1}]}},packet=await space.tool(sa,'team_context_packet',selection);
+ let first;
+ for(let i=0;i<21;i++){const transfer=await space.tool(sa,'team_send_context',{operationId:'receipt-ui-transfer-'+i,packetId:packet.packetId,...selection});if(!i)first=transfer;}
+ const got=await space.tool(sb,'team_context_transfer',{transferId:first.transferId});await space.tool(sb,'team_ack_context',{operationId:'receipt-ui-ack',transferId:first.transferId,packetId:packet.packetId,deliveryProof:got.deliveryProof,contentSha256:digest(got.packet)});
+ const calls=[];let corrupt=false,hold=false;
+ const rpc=async(method,params={})=>{calls.push({method,runId:params.runId});const reply=await f.call(method,params);if(method==='team.contextTransfers'&&reply.ok){if(corrupt)reply.result.deliveryProof='FORGED_PRIVATE_FIELD';if(hold){hold=false;await new Promise(resolve=>{release=resolve;});}}return reply;};
+ server=http.createServer((req,res)=>{const file=path.resolve(frontend,decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/+/, '')||'index.html');if(!file.startsWith(frontend+path.sep))return res.writeHead(403).end();try{res.setHeader('content-type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync(file));}catch{res.writeHead(404).end();}});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ browser=await chromium.launch({executablePath:'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',headless:true});const context=await browser.newContext({viewport:{width:1440,height:1100}});await context.exposeFunction('bridgeCall',rpc);
+ await context.addInitScript(version=>{window.agentbridge={call:(m,p)=>window.bridgeCall(m,p),preferences:async()=>({version,theme:'light',platform:'win32'}),pending:async()=>[],recoverPending:async()=>({resolved:0,items:[]}),window:async()=>{},savePreferences:async p=>p};},report.version);
+ page=await context.newPage();page.on('pageerror',e=>report.pageErrors.push(e.message));await page.goto('http://127.0.0.1:'+server.address().port);
+ await page.getByRole('navigation',{name:'主导航'}).getByRole('button',{name:'小队设置',exact:true}).click();await page.getByLabel('当前工作',{exact:true}).selectOption(run.runId);
+ const audit=page.locator('.team-context-receipts');await expect(audit).toHaveCount(1);assert.equal(await audit.getAttribute('open'),null);assert.equal(calls.filter(c=>c.method==='team.contextTransfers').length,0);
+ await audit.locator('summary').first().click();assert.equal(calls.filter(c=>c.method==='team.contextTransfers').length,0);
+ await audit.getByRole('button',{name:'读取传递审计',exact:true}).click();await expect(audit.locator('article')).toHaveCount(20);await expect(audit.getByText(/目标接入已确认原包/)).toHaveCount(1);
+ report.checks.push('Audit stays collapsed and fetches no transfer data until explicit read; original receipt and pending states render from actual SQLite metadata');
+ await audit.getByRole('button',{name:'读取后续传递记录',exact:true}).click();await expect(audit.locator('article')).toHaveCount(21);await expect(audit.getByRole('button',{name:'读取后续传递记录',exact:true})).toHaveCount(0);
+ assert(!(await audit.innerText()).includes('SELECTED_BODY_MUST_NOT_ENTER_AUDIT'));assert(!(await audit.innerText()).includes(got.deliveryProof));assert(calls.filter(c=>c.method.startsWith('team.contextT')).every(c=>c.method==='team.contextTransfers'));
+ report.checks.push('Original forward cursor produces all 21 unique rows; UI never requests body/private proof or offers send/acknowledgement');
+ await call('revokeMember',{runId:run.runId,agentId:b.agentId,expectedRevision:1});await audit.getByRole('button',{name:'刷新传递审计',exact:true}).click();await expect(audit.getByText('目标成员当前没有这项工作的访问权；历史记录保留。',{exact:true})).toHaveCount(20);await expect(audit.getByText(/目标接入已确认原包/)).toHaveCount(1);
+ report.checks.push('Revocation changes current membership facts while preserving the original acknowledgement, without presenting business acceptance');
+ corrupt=true;await audit.getByRole('button',{name:'刷新传递审计',exact:true}).click();await expect(audit.getByRole('status')).toContainText('审计响应无法匹配');await expect(audit.locator('article')).toHaveCount(0);corrupt=false;
+ report.checks.push('Unexpected private/proof field rejects the complete audit response instead of showing unverified metadata');
+ hold=true;await audit.getByRole('button',{name:'读取传递审计',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByLabel('当前工作',{exact:true}).selectOption(other.runId);await expect(page.getByRole('heading',{name:'另一工作审计',exact:true})).toBeVisible();release();release=null;
+ const fresh=page.locator('.team-context-receipts');await fresh.locator('summary').first().click();await fresh.getByRole('button',{name:'读取传递审计',exact:true}).click();await expect(fresh.getByText('当前工作没有已保存的选材传递记录。',{exact:true})).toBeVisible();await expect(fresh.locator('article')).toHaveCount(0);
+ assert.equal(report.pageErrors.length,0);assert.equal(calls.filter(c=>['team.sendContext','team.ackContext','team.execute'].includes(c.method)).length,0);report.checks.push('Late old-work response is discarded after selecting another work; audit sends no mutation/execution calls');report.status='passed';
+ fs.mkdirSync(out,{recursive:true});await page.screenshot({path:path.join(out,'context-receipts.png'),fullPage:true});
+})().catch(e=>{report.status='failed';report.error={message:e.message,stack:e.stack};process.exitCode=1;}).finally(async()=>{release?.();await browser?.close();space?.close();f?.close();if(server)await new Promise(resolve=>server.close(resolve));fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'ui.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));});

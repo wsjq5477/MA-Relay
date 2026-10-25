@@ -742,6 +742,15 @@ test("settings keeps an unmatched recovery read-only and prevents duplicate quer
   assert.equal(buttonNamed(busy, "查询原请求").disabled, true);
 });
 
+test('settings offers failed-operation cleanup with history and uncertainty explanation and prevents concurrent cleanup',()=>{
+ const props=settingsProps({journal:[],managementRows:[{lane:'node',operationId:'original-startup',state:'unknown',params:{nodeId:'node-a',machineId:'machine-a',action:'attach'}}],onCleanup:noop});
+ const html=render(SettingsPage,props);assert.equal(buttonNamed(html,'清理已失败操作').disabled,false);
+ assert.match(plainText(html),/解除确定失败的占位并保留失败历史/);assert.match(plainText(html),/执行结果仍未知的操作继续保留/);
+ for(const override of [{busy:true},{managementQuerying:true}])assert.equal(buttonNamed(render(SettingsPage,{...props,...override}),'清理已失败操作').disabled,true);
+ assert.equal(buttonNamed(render(SettingsPage,{...props,querying:true}),'正在核对并清理…').disabled,true);
+ assert(!buttons(render(SettingsPage,{...props,managementRows:[]})).some(b=>b.text==='清理已失败操作'));
+});
+
 test("settings retains distinct window-close and backend-stop actions with lifecycle consequences", () => {
   const html = render(SettingsPage, settingsProps());
   assert.equal(buttonNamed(html, "仅关闭窗口").disabled, false);
@@ -818,3 +827,13 @@ test('incompatible OpenCode never appears connected or executable; safe history 
  for(const name of ['节点','机器','授权','布局'])assert(!buttonNamed(html,'查询原'+name+'操作').disabled);
  const loading=render(SettingsPage,settingsProps({managementRows:rows,managementQuerying:true}));assert.equal(buttons(loading).filter(b=>b.text==='正在查询原管理操作…'&&b.disabled).length,4);
  });
+
+test('configuration-only inventory removes execution controls while retaining node configuration',()=>{
+ const html=render(MachineInventory,inventoryProps({configurationOnly:true}));assert(!buttons(html).some(b=>b.text==='开始会话'));assert(buttons(html).some(b=>b.text==='配置'));assert.match(html,/可用于协作/);
+});
+test('execution audit cannot start a task and retains original results',()=>{
+ const html=render(TasksPage,{tasks:[task({status:'succeeded',result:{message:'retained result'}})],machineName:()=> 'controlled',nodeFor:()=>node(),onOpen:noop,auditOnly:true});assert.match(html,/执行审计/);assert(!buttons(html).some(b=>b.text==='新建任务'));assert.match(html,/原任务/);
+});
+test('conversation audit has no continuation form even when the original session can continue',()=>{
+ const html=render(ConversationsPage,conversationsProps({auditOnly:true}));assert.match(html,/会话审计/);assert.doesNotMatch(html,/aria-label="继续会话"/);assert(!buttons(html).some(b=>b.text==='新建会话'||b.text==='发送'));assert.match(html,/当前轮次|本轮|原会话|只读/);
+});

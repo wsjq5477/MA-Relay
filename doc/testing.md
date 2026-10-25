@@ -1,5 +1,19 @@
 # 整体测试与验收报告
 
+alpha.63 [原生MCP生命周期补验](iterations/I08/native-mcp-lifecycle.md)：普通无调试EXE与原版Pi客户端七组通过，三个实际解包目录关闭后删除，原传输/原身份/完整接收收据保持；最后原窗/客户端/Coordinator均确认退出。实际WSL十五分钟180/180及删除/重开/撤权/轮换六组也已通过，两个客户端/原宿主退出且残留0。模型0，其他入口/跨版本升级/托管父模型、WSL冷启动/历史故障与整体MCP02继续未准出。
+
+本地alpha.63已交付CT-05原包传递、目标接入收据和桌面只读审计：源码944/944、Core71/71；冻结Windows传递14/14、原收据4/4、关系37/37、兼容26/26，生产页面新5组/控制台6组、普通EXE6组通过，模型0。Pi→固定源码Hermes实际原生MCP组件7组通过；接收声明不代表模型理解、业务验收或文件可达，完整准出不变。[完整证据与边界](iterations/I07/context-delivery.md)。
+
+alpha.62普通窗口生命周期五组与真实驱动退出码0已补验：旧脚本后续误选同进程无标题辅助窗，现绑定原主窗口并在关闭前核对归属/标题；三次正常关闭均原进程退出、包装码0，产品和EXE字节未改。未切换日常后台，模型0。[定位、修复与当前边界](iterations/I08/window-lifecycle-verifier.md)。
+
+2026-10-25冻结alpha.62已完成原实际SSH只读复验：保存凭据/主机指纹认证、alpha.37原清单1459项逐文件核对、两次非接管inspect三组通过，原PID/current.json/本地配置保持，模型0；未部署、hello或任务。完整故障/升级矩阵与普通EXE联合流程仍未准出。[当前证据](iterations/I08/alpha62-ssh-readonly.md)。
+
+本地alpha.62保留已失败管理操作清理，将实际桌面入口收敛为接入/小队设置、执行/会话审计和原操作恢复；日常提交、续聊、分工、报告、正文编辑与验收从原生Agent的MCP入口完成。小队收据补原operationId和完整内容指纹，丢回应、损坏或并发变化的本机意图只读核对，不换ID重发。源码Core71/71、桌面928/928、Windows生产页面6组通过，模型0，公开alpha.60不变；普通EXE正常关闭/重开与完整中央重启五组已补验，原收据保持；[实现、分层验证与交付](iterations/I07/configuration-console.md)。
+
+WSL当前补验（2026-10-25）：公开alpha.60冻结HostConnection独立启动20/20，60条只读请求均在握手后发送、原进程退出已确认，模型0；但原始80次WSL探针仍有1次首条Linux入口标记前失败。没有产品修复可解释差异，发行版冷启动/持续连接/故障恢复与整体稳定性仍未准出；普通EXE图观察因窗口运行时拒绝WSL工作目录未执行。[本轮定位、全部样本与边界](iterations/I08/wsl-launch-origin.md)。
+
+公开alpha.60的十工具已完成原生客户端组件复验：Pi1.4.0在Linux/Windows、固定源码Hermes在Linux各7组通过，包含实际连接/断开、用户允许/拒绝、原ID/历史确认和缓存撤权，模型0。真实父模型、日常多主、托管scope和跨真实机器仍未准出。[当前证据与完整边界](iterations/I08/native-policy-components.md)。
+
 alpha.56冻结包图管线诊断（2026-10-24）：默认渲染含tracing的完整20条PNG p95 363.722ms未达100ms，本地同步p95 1556ms通过；GPU提交停顿与部分慢样本重叠，软件渲染诊断仍112.902ms失败，不能据此关闭产品GPU或宣告准出。[本轮证据与限制](iterations/I06/alpha56-graph-pipeline.md)。
 
 当前冻结alpha.56客户端已对原独立SSH服务器完成只读复验：实际daemon为alpha.37，原凭据/主机指纹认证、生产逐文件核验、两次非接管inspect通过；原daemon身份/PID、远端入口与本地连接配置保持，模型0。完整故障/升级矩阵与普通EXE联合流程仍未准出。[实际证据与边界](iterations/I08/current-ssh-readonly.md)。
@@ -15,7 +29,7 @@ alpha.53冻结包补验：自动保存画布位移0px通过；完整20次PNG帧�
 
 连接身份/节点管理修复已在公开 alpha.46 基线上完成隔离桌面回归 777/777，Windows 生产前端 10 组受控交互通过，原始三项故障在未修复基线上均复现。当前工作目录集成桌面817/817、核心68/68、Windows契约55/55及最终普通EXE5组通过，模型0；集成包验证单独记录，不把受控 IPC/临时配置结果当成真实 DSH/OpenDesk 或模型验收。[证据与边界](iterations/I08/connection-identity-node-scope.md)。
 
-最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
+原生现场历史证据（alpha.46）：已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
 alpha.46历史验证（2026-10-22）：WSL Node22.23.1根全量68/68、桌面758/758；最终JSON脱敏修复后CLI相关11/11、类型/lint/核心构建通过。已公开EXE130180760字节、SHA-256 `57f1af73f761af72d75121284b023a001dad05eb30c0c197e18851cc9a7e8c48`；包核验50后台模块/84核心文件/1698 Linux文件及四项一致性通过。Windows普通EXE、非GUI与生产前端的实际结果单列于[本轮专项](iterations/I08/mcp-open-recovery.md)，不将模拟、端点工具调用或历史原生模型混记为真实主Agent委派。未签名、已公开、未部署SSH；冻结提交9766eb4，匿名完整下载核验通过，[当前发布证据](iterations/I08/alpha46-release.md)。
 

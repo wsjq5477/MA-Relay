@@ -5,7 +5,7 @@ const { spawn } = require('node:child_process');
 const { randomUUID } = require('node:crypto');
 const { identity,endpoint,readLines,PROTOCOL } = require('./coordinator.cjs');
 const { coordinatorRuntime } = require('./coordinator-runtime.cjs');
-const {supportsCurrentCoordinator,supportsMcpOpenAccess,supportsMultiParentRelations,supportsAgentConnectionPolicy}=require('./runtime-capabilities.cjs');
+const {supportsTeamContextTransfer,supportsCurrentCoordinator,supportsMcpOpenAccess,supportsMultiParentRelations,supportsAgentConnectionPolicy}=require('./runtime-capabilities.cjs');
 class CoordinatorClient {
   constructor(options) {this.options=options;this.pending=new Map();this.socket=null;this.connecting=null;}
   async open() {
@@ -67,6 +67,7 @@ class CoordinatorClient {
     if(method==='call'&&(params?.method==='relations'||['collaboration','saveCollaboration'].includes(params?.method)&&Object.hasOwn(params.params||{},'relationId'))&&!supportsMultiParentRelations(this.info?.capabilities))
       throw Object.assign(new Error('当前后台不支持按身份的多主关系，请停止旧后台并打开新版 EXE；原关系和请求保留。'),{code:'RELATIONS_BACKEND_UPGRADE_REQUIRED'});
     if(method==='call'&&['connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation'].includes(params?.method)&&!supportsAgentConnectionPolicy(this.info?.capabilities))throw Object.assign(new Error('当前后台尚不支持连接策略与人工确认，请停止旧后台并打开新版；原记录保留。'),{code:'CONNECTION_POLICY_UPGRADE_REQUIRED'});
+    if(method==='call'&&['team.sendContext','team.contextTransfers','team.contextTransfer','team.ackContext'].includes(params?.method)&&!supportsTeamContextTransfer(this.info?.capabilities))throw Object.assign(new Error('当前中央后台不支持选材传递与接收收据，请停止旧后台并打开新版；原包和原操作保留。'),{code:'TEAM_CONTEXT_UPGRADE_REQUIRED'});
     const id=randomUUID(),socket=this.socket;
     return new Promise((resolve,reject)=>{
       if(this.pending.size>=64) return reject(Object.assign(new Error('后台正在处理较多请求，请稍后重试。'),{code:'COORDINATOR_BUSY'}));

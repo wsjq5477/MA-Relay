@@ -1,18 +1,21 @@
 # 系统设计
 
-AgentBridge 桌面提供统一操作入口；各机器的后台在本地调用原生 Agent。这样用户可以跨机器工作，而原生程序、凭据和目录仍留在执行环境中。
+AgentBridge桌面提供接入配置、用户授权、历史审计与原执行恢复；日常需求从原生Agent会话发起。各机器的后台在本地调用原生 Agent。这样用户可以跨机器工作，而原生程序、凭据和目录仍留在执行环境中。
 
 ## 执行与协作的方向
 
 ```mermaid
 flowchart LR
-  User[用户] --> Desktop[AgentBridge 桌面]
-  Desktop --> Host[目标机器后台]
+  User[用户] --> Desktop[Bridge配置与审计]
+  User --> Native[原生Agent会话]
+  Desktop -->|配置授权与只读核对| Bridge[Bridge协作入口]
+  Native -->|MCP获准调用| Bridge
+  Bridge --> Host[目标机器后台]
   Host --> CLI[原生 CLI]
   Host --> API[原生 HTTP 服务]
   CLI --> Agent[原生 Agent]
   API --> Agent
-  Agent -->|MCP 获准调用| Bridge[Bridge 协作入口]
+  Agent -->|MCP 获准调用| Bridge
   Bridge -->|路由委派| Host
 ```
 

@@ -66,7 +66,7 @@ export function executionRecoveryReason(rows:RecoveryRow[],machineId:string|unde
 }
 export function useGraphRecovery(directory:string){
  const [rows,setRows]=useState<RecoveryRow[]>([]),[loaded,setLoaded]=useState(false),[error,setError]=useState(false),[querying,setQuerying]=useState(false),[summary,setSummary]=useState<QuerySummary|null>(null),[outcomes,setOutcomes]=useState<Record<string,QueryOutcome>>({});
- const generation=useRef(0);const current=useRef(directory);current.current=directory;const readJob=useRef<Promise<void>|null>(null),manualJob=useRef<Promise<void>|null>(null);
+ const generation=useRef(0);const current=useRef(directory);current.current=directory;const readJob=useRef<Promise<void>|null>(null),manualJob=useRef<Promise<QuerySummary|undefined>|null>(null);
  const reload=async()=>{if(!directory)return;if(readJob.current)return readJob.current;const ticket=generation.current;
   const job=(async()=>{try{const value=await call<RecoveryRow[]>('graphPending');if(current.current!==directory||generation.current!==ticket)return;if(!Array.isArray(value)||value.some(row=>!row||!Object.hasOwn(queryMethods,row.lane)||typeof row.operationId!=='string'||!row.operationId||!row.params||typeof row.params!=='object'||Array.isArray(row.params)))throw Error('invalid');setRows(old=>JSON.stringify(old)===JSON.stringify(value)?old:value);setLoaded(true);setError(false);}catch{if(current.current===directory&&generation.current===ticket)setError(true);}})();readJob.current=job;try{await job;}finally{if(readJob.current===job)readJob.current=null;}
  };
@@ -89,8 +89,9 @@ export function useGraphRecovery(directory:string){
    if(current.current!==directory||generation.current!==ticket)return;
    if(manual){setSummary({...counts,at:new Date().toISOString()});setOutcomes(old=>({...old,...result}));}
    await reload();
+   return counts;
   })();if(manual)manualJob.current=job;
-  try{await job;}finally{if(manualJob.current===job){manualJob.current=null;if(current.current===directory)setQuerying(false);}}
+  try{return await job;}finally{if(manualJob.current===job){manualJob.current=null;if(current.current===directory)setQuerying(false);}}
  };
  return {rows,loaded,error,querying,summary,outcomes,reload,query};
 }

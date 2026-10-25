@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),asse
 const {spawn,execFile}=require('node:child_process'),{createHash}=require('node:crypto');
 const {CoordinatorClient}=require('../electron/coordinator-client.cjs');
 if(process.platform!=='win32')throw Error('Windows required');
-const version=require('../package.json').version,source=path.resolve(process.argv[2]),output=path.resolve(process.argv[3]);
+const version=require('../package.json').version,source=path.resolve(process.argv[2]),output=path.resolve(process.argv[3]),startup=process.argv[4]==='startup';
 const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-recovery-portable-')),exe=path.join(directory,path.basename(source));fs.copyFileSync(source,exe);
 const machineId='synthetic-machine',nodeId='synthetic-codex',agentId='current-agent',conversationId='orphan-conversation',stamp='2020-01-01T00:00:00Z';
 const write=(name,value)=>{const file=path.join(directory,name);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,JSON.stringify(value));};
@@ -12,7 +12,7 @@ const native={revision:1,agents:[{agentId,adapter:'codex',executable:'C:/synthet
 const originalUnknown={operationId:'synthetic-original-unknown',lane:'node',method:'manageNode',params:{operationId:'synthetic-original-unknown',nodeId:'retained-node',machineId,action:'attach'},state:'unknown',time:stamp,error:{code:'NATIVE_START_TIMEOUT',message:'original timeout'}};
 const {digest}=require('../electron/graph-layout.cjs');
 const hostParams={operationId:'synthetic-host-failure',nodeId:'synthetic-opencode',machineId,action:'attach'};
-const originalHost={operationId:hostParams.operationId,lane:'node',method:'manageNode',params:hostParams,fingerprint:digest(hostParams),state:'unknown',time:stamp,error:{code:'ADAPTER_HOST',message:'opencode must synchronously create a host with call() and close().'}};
+const originalHost={operationId:hostParams.operationId,lane:'node',method:'manageNode',params:hostParams,fingerprint:digest(hostParams),state:'unknown',time:stamp,error:startup?{code:'NATIVE_START_TIMEOUT',message:'OpenCode did not become ready within 20 seconds'}:{code:'ADAPTER_HOST',message:'opencode must synchronously create a host with call() and close().'}};
 write('desktop.json',{theme:'light',distribution:'',directory:'/tmp/'+path.basename(directory)});
 write('machines.json',{version:1,localMachineId:machineId,machines:[{machineId,name:'Synthetic Windows',kind:'windows',platform:'win32'}],connections:[],instances:[]});
 write('agent-network.json',{version:1,revision:0,nodes:[{nodeId,machineId,adapter:'codex',executable:'C:/synthetic/never-run.exe',connected:true,executionSupported:true}],collaboration:{leaderId:null,memberIds:[],revision:0},requests:[],delegations:[]});
@@ -52,7 +52,7 @@ async function checkExportedStdio(config){
  }finally{lines.close();child.kill();}
 }
 async function check(){
- const receipt=await call('nodeOperation',{operationId:originalHost.operationId});assert.equal(receipt.operationId,originalHost.operationId);assert.equal(receipt.state,'rejected');assert.equal(receipt.error.code,'ADAPTER_HOST');
+ const receipt=await call('nodeOperation',{operationId:originalHost.operationId});assert.equal(receipt.operationId,originalHost.operationId);assert.equal(receipt.state,'rejected');assert.equal(receipt.error.code,originalHost.error.code);
  const row=JSON.parse(fs.readFileSync(path.join(directory,'graph-pending.json'))).find(r=>r.operationId===originalHost.operationId);assert.deepEqual(row,{...originalHost,state:'rejected'});
 
  const old=await call('ipc',{op:'conversation',machineId,conversationId:machineId+'::'+conversationId});assert.equal(old.items.length,2);assert.equal(old.canContinue,false);assert.equal(old.items[0].native.sessionId,'original-native');

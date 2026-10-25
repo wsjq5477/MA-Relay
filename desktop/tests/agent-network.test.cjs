@@ -427,6 +427,21 @@ test('the coordinator retains a definitive node rejection for original receipt q
   const receipt=await service.call({method:'nodeOperation',params:{operationId:p.operationId}});assert.equal(receipt.result.state,'rejected');assert.equal(receipt.result.operationId,p.operationId);
   const forged=await service.call({method:'manageNode',params:{...p,operationId:'forged',action:'remove',machineId:'other'}});assert.equal(forged.error.code,'WRONG_MACHINE');assert(!f.router.node(node.nodeId).removed);
 });
+test('coordinator cleanup of historical exact startup failure preserves original execution unknown and permits explicit reattach',async t=>{
+ const f=await setup(t),node=f.nodes.find(n=>n.adapter==='opencode'),host=f.hosts.get(node.machineId),{digest}=require('../electron/graph-layout.cjs');
+ const params={nodeId:node.nodeId,machineId:node.machineId,operationId:'historical-startup',action:'attach'};
+ const row={lane:'node',method:'manageNode',operationId:params.operationId,params,fingerprint:digest(params),state:'unknown',time:timestamp,error:{code:'NATIVE_START_TIMEOUT',message:'OpenCode did not become ready within 20 seconds'}};
+ const taskUnknown=[{id:'unrelated-original-task',machineId:'other-machine',op:'submit',state:'unknown',time:timestamp,params:{requestId:'unrelated-original-task',message:'controlled original'}}];
+ const file=path.join(f.directory,'graph-pending.json'),executionFile=path.join(f.directory,'pending.json');fs.writeFileSync(file,JSON.stringify([row]));fs.writeFileSync(executionFile,JSON.stringify(taskUnknown));
+ const service=createCoordinatorService({directory:f.directory,platform:'win32',network:f.router,version:'test'});t.after(()=>service.close());
+ const before=structuredClone(f.router.network);assert.equal((await service.call({method:'graphPending',params:{}})).result.length,1);
+ const receipt=await service.call({method:'nodeOperation',params:{operationId:params.operationId}});assert.equal(receipt.ok,true);assert.equal(receipt.result.state,'rejected');
+ assert.deepEqual(JSON.parse(fs.readFileSync(file)),[{...row,state:'rejected'}]);assert.deepEqual(f.router.network,before,'cleanup changes only the original management journal');
+ assert.deepEqual(JSON.parse(fs.readFileSync(executionFile)),taskUnknown);assert.equal(host.executions,0);
+ assert.deepEqual((await service.call({method:'graphPending',params:{}})).result,[]);
+ assert.equal((await service.call({method:'manageNode',params:{...params,operationId:'explicit-after-cleanup'}})).result.state,'confirmed');
+ assert.equal(host.executions,0);assert.deepEqual(JSON.parse(fs.readFileSync(executionFile)),taskUnknown);
+});
 test('legacy imported instance ownership is rechecked after snapshot before native admission',async t=>{
   const f=await setup(t),node=f.nodes.find(n=>n.adapter==='claude');await f.router.call('manageNode',{nodeId:node.nodeId,operationId:'detach-import',action:'disconnect'});
   const instance=f.router.catalog.instances.find(i=>i.nodeId===node.nodeId);delete instance.nodeId;

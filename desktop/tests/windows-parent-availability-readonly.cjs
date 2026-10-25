@@ -1,0 +1,16 @@
+// Strict read-only original daily endpoint probe: no ensure/open, ACL change,
+// runtime startup, business RPC, model, relationship or intent creation.
+const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),net=require('node:net'),{createHash}=require('node:crypto');
+const output=process.argv[2];if(process.platform!=='win32'||!output)throw Error('Windows and output required');
+const directory=path.join(process.env.APPDATA,'agentbridge-desktop'),identityFile=path.join(directory,'coordinator-identity.json'),intentFile=path.join(os.tmpdir(),'agentbridge-opendesk-parent-delegation-20261022.private-plan.json');
+const report={date:new Date().toISOString(),scope:'Read original daily identity bytes and authenticated hello only; no ACL/identity/intent writes, runtime startup or business request',status:'running',nativeParentModel:false,parentSubmissions:0,childSubmissions:0,modelCalls:0,newIntentCreated:false,dailyStarted:false,relationshipsModified:false};
+(async()=>{
+ report.originalIntentExists=fs.existsSync(intentFile);if(report.originalIntentExists){try{const phase=JSON.parse(fs.readFileSync(intentFile)).phase;report.originalPhase=['new','attempted','accepted','final','submitted','observing','complete'].includes(phase)?phase:'present_unknown_phase';}catch{report.originalPhase='unreadable_preserved';}}
+ if(!fs.existsSync(identityFile)){report.status='original_identity_unavailable';return;}
+ const original=fs.readFileSync(identityFile),owner=JSON.parse(original);if(typeof owner.coordinatorId!=='string'||!/^[a-f0-9]{64}$/.test(owner.token))throw Object.assign(Error('Invalid original identity'),{code:'COORDINATOR_IDENTITY'});
+ const endpoint='\\\\.\\pipe\\agentbridge-coordinator-'+createHash('sha256').update(path.resolve(directory)).digest('hex').slice(0,32);
+ try{await new Promise((resolve,reject)=>{const socket=net.connect(endpoint);let pending='';const timer=setTimeout(()=>{socket.destroy();reject(Object.assign(Error('Original hello unconfirmed'),{code:'READONLY_HELLO_TIMEOUT'}));},5000);socket.once('error',e=>{clearTimeout(timer);reject(e);});socket.once('connect',()=>socket.write(JSON.stringify({protocol:2,coordinatorId:owner.coordinatorId,auth:owner.token})+'\n'));socket.on('data',chunk=>{pending+=chunk.toString();const end=pending.indexOf('\n');if(end<0)return;try{const value=JSON.parse(pending.slice(0,end));if(!value.hello||value.protocol!==2||value.coordinatorId!==owner.coordinatorId)throw Object.assign(Error('Original hello mismatch'),{code:'COORDINATOR_IDENTITY'});report.coordinatorVersion=value.version;report.status='original_coordinator_reachable';clearTimeout(timer);socket.end();resolve();}catch(e){clearTimeout(timer);socket.destroy();reject(e);}});});}
+ catch(e){report.status=['ENOENT','ECONNREFUSED'].includes(e.code)?'original_coordinator_unavailable':'original_hello_unconfirmed';report.errorCode=e.code||'READONLY_PROBE_ERROR';}
+ report.originalIdentityBytesUnchanged=fs.readFileSync(identityFile).equals(original);
+ report.targetEligibility='not_checked_by_hello_only';
+})().catch(e=>{report.status='read_only_probe_failed';report.errorCode=e.code||'ORIGINAL_STATE_UNREADABLE';}).finally(()=>{fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));});

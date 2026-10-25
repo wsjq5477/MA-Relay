@@ -1,5 +1,25 @@
 # M03 机器与 Agent 网络测试报告
 
+## alpha.63实际WSL持续连接（2026-10-25）
+
+原生产Windows→WSL HostConnection、实际Ubuntu/原生Codex0.162.1列表与Linux通用stdio客户端：15分钟180/180原宿主/驱动/connectionId保持，原生配置摘要不变，任务/委派/模型0；删除/宿主重开不补装、撤权、轮换、移除共六组通过。原Windows启动进程退出、两客户端停止和Linux残留0已确认；这是MCP组件，不是原生父模型，未停止/冷启动发行版或部署SSH。历史入口前失败和完整稳定性仍未准出，原有全量不相加。[实际样本、首次测试路径失败、清理及边界](../../iterations/I08/native-mcp-lifecycle.md)。
+
+2026-10-25后续：alpha.62普通EXE五组与真实驱动码0已通过，原主窗口三次正常关闭、重开和完整后台重启均保持原SQLite/收据。旧失败来自脚本重新枚举到无标题辅助窗，原报告保留；产品未改，模型0。[原窗口绑定、负向保护及分层证据](../../iterations/I08/window-lifecycle-verifier.md)。
+
+2026-10-25本地alpha.62配置/审计控制台：最终Core71/71、桌面928/928、原收据/审计专项78/78及Windows生产页面6组通过；pageErrors=0、新执行尝试0，模型0。覆盖原ID/完整指纹/页面重开/并发变更与损坏记录保护、默认只读/显式原任务恢复、权限变更正文保持。共享计数不相加；普通EXE与包交付状态统一见[本片分层证据](../../iterations/I07/configuration-console.md)。公开alpha.60及完整原生/图/WSL/SSH边界保持。
+
+## WSL当前启动与入口定位
+
+2026-10-25，公开alpha.60冻结资源真实Windows→WSL独立启动20/20；60条environment/snapshot均在原握手后发送，无重放，20个Windows启动进程退出0，事后Linux匹配宿主残留0，模型0。原8项就绪/关闭代次边界8/8；原始WSL四条件80条中1条在首写入口标记前失败，Windows/Linux直接观察80/80一致，未把该失败或历史9/20改成通过。未测试冷启动、持续原生连接、独立SSH或普通窗口图反馈；computer-use初始化仍被WSL路径元数据拒绝，窗口输入0。产品/包无改动，[全部证据、驱动首次失败与未准出](../../iterations/I08/wsl-launch-origin.md)。共享计数不累加。
+
+## alpha.60原生客户端连接策略复验
+
+2026-10-25，公开alpha.60冻结后台56份原摘要逐项一致：真实原生Pi1.4.0在Linux/Windows、固定源码Hermes在Linux各7组通过，含十工具schema、连接/断开、范围外明确允许/拒绝、原ID/历史确认与缓存撤权；临时Home与受控发现/宿主/用户RPC，模型/原生任务/委派0。原Task/Session生命周期、真实父模型和独立SSH未补验；Hermes不是正式安装版/Windows原生。本轮仅验收/夹具和文档，无产品或新包，37/37是共享夹具相关回归，不覆盖当前alpha.61全量。[完整证据、失败与边界](../../iterations/I08/native-policy-components.md)。
+
+## 失败操作清理
+
+T-M03-CLEANUP / M03-F02/F04/F05：2026-10-24 / alpha.61本地候选，WSL Node22.23.1。最终桌面921/921、核心71/71通过；清理新专项19项及生产中央专项为共享子集。Windows Node24.18.0 / Edge155.0.4283.62生产页面加实际GraphOperationJournal、隔离profile4组通过，pageErrors=0，模型0。覆盖原启动拒绝恢复/再次显式接入、普通丢回应和错来源/指纹仍unknown、真实收据优先、失败历史与原Task/Session保持、清理统计与重开。用户真实profile/WindowsApps1.2.22/真实模型/独立SSH未测；普通EXE及包证据见[当次完整记录](../../iterations/I08/failed-operation-cleanup.md)，不跨模块累加。
+
 2026-10-24，CT-08-A3/alpha.60：Agent连接3工具、v3预授权/用户明确确认及策略审计/原意图恢复页面已实现。源码900/900，最终相关25/25；Windows冻结包37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组与Downloads SHA均通过，真实模型0。交付结果及原始失败见[完整分层记录](../../iterations/I07/connection-policy.md)。真实原生消费/日常多主、图100ms/WSL及完整SSH仍未准出，原任务/unknown不重建。共享计数不累加。
 
 

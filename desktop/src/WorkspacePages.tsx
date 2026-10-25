@@ -166,7 +166,8 @@ export interface TasksPageProps extends SourceProps {
   tasks: Task[];
   scope?: ReactNode;
   onOpen: (task: Task) => void;
-  onNew: () => void;
+  onNew?: () => void;
+  auditOnly?: boolean;
 }
 
 export function TasksPage({
@@ -176,6 +177,7 @@ export function TasksPage({
   nodeFor,
   onOpen,
   onNew,
+  auditOnly = false,
 }: TasksPageProps) {
   const [search, setSearch] = useState("");
   const query = search.trim().toLocaleLowerCase();
@@ -195,13 +197,13 @@ export function TasksPage({
       <div className="page-heading workspace-page-heading">
         <div>
           <div className="eyebrow">WORKSPACE / TASKS</div>
-          <h1>任务看板</h1>
-          <p>从需求到结果，查看每次执行的进展。</p>
+          <h1>{auditOnly?"执行审计":"任务看板"}</h1>
+          <p>{auditOnly?"只读原任务、结果与状态；需求从原生 Agent 会话发起。":"从需求到结果，查看每次执行的进展。"}</p>
         </div>
-        <button className="btn primary" onClick={onNew}>
+        {!auditOnly&&onNew&&<button className="btn primary" onClick={onNew}>
           <Plus size={16} aria-hidden="true" />
           新建任务
-        </button>
+        </button>}
       </div>
       {scope != null && <div className="workspace-scope">{scope}</div>}
       <div className="workspace-toolbar">
@@ -228,7 +230,7 @@ export function TasksPage({
       )}
       {tasks.length === 0 ? (
         <EmptyState icon={LayoutGrid} title="还没有任务">
-          新建任务，选择已接入的 Agent，开始第一项工作。
+          {auditOnly?"原生 Agent 经已授权 MCP 发起的执行会显示在这里。":"新建任务，选择已接入的 Agent，开始第一项工作。"}
         </EmptyState>
       ) : (
         <div className="workspace-board network-board">
@@ -325,10 +327,11 @@ export interface ConversationsPageProps extends SourceProps {
   onShowChecks: (value: boolean) => void;
   onOpen: (conversation: Conversation) => void;
   onTask: (task: Task) => void;
-  onNew: () => void;
-  followup: string;
-  onFollowup: (value: string) => void;
-  onSend: () => void;
+  onNew?: () => void;
+  auditOnly?: boolean;
+  followup?: string;
+  onFollowup?: (value: string) => void;
+  onSend?: () => void;
   busy: boolean;
   executionLocked?: boolean;
   blocked: (machineId?: string, nodeId?: string) => boolean;
@@ -347,7 +350,8 @@ export function ConversationsPage({
   onOpen,
   onTask,
   onNew,
-  followup,
+  auditOnly = false,
+  followup = "",
   onFollowup,
   onSend,
   busy,
@@ -385,6 +389,7 @@ export function ConversationsPage({
   const detailUnavailable=!!read&&read.status!=="ready";
   const latest = selected?.items?.at(-1);
   const canSend =
+    !auditOnly && !!onSend &&
     !!selected &&
     !verification &&
     !selected.historical &&
@@ -427,13 +432,13 @@ export function ConversationsPage({
       <div className="page-heading workspace-page-heading">
         <div>
           <div className="eyebrow">WORKSPACE / CONVERSATIONS</div>
-          <h1>会话</h1>
-          <p>接着上次的上下文，与 Agent 继续工作。</p>
+          <h1>{auditOnly?"会话审计":"会话"}</h1>
+          <p>{auditOnly?"只读原会话和轮次；继续工作请回原生 Agent 入口。":"接着上次的上下文，与 Agent 继续工作。"}</p>
         </div>
-        <button className="btn primary" onClick={onNew}>
+        {!auditOnly&&onNew&&<button className="btn primary" onClick={onNew}>
           <Plus size={16} aria-hidden="true" />
           新建会话
-        </button>
+        </button>}
       </div>
       {scope != null && <div className="workspace-scope">{scope}</div>}
       <div className="workspace-conversation-layout conversation-layout">
@@ -503,7 +508,7 @@ export function ConversationsPage({
               >
                 {query
                   ? "试试其他关键词。"
-                  : "新建会话后，执行记录会保存在这里。"}
+                  : auditOnly?"原生 Agent 通过 Bridge 委派的会话会显示在这里。":"新建会话后，执行记录会保存在这里。"}
               </EmptyState>
             )}
           </div>
@@ -552,7 +557,7 @@ export function ConversationsPage({
                 {verification && (
                   <div className="workspace-inline-note">
                     <ShieldCheck size={16} aria-hidden="true" />
-                    <span>这是连接验证记录。请新建会话发送实际需求。</span>
+                    <span>{auditOnly?"这是保留的连接验证记录，不代表当前任务执行。":"这是连接验证记录。请新建会话发送实际需求。"}</span>
                   </div>
                 )}
                 <div className="workspace-turns turns">
@@ -632,12 +637,12 @@ export function ConversationsPage({
                   )}
                 </div>
               </div>
-              {!verification && (
+              {!auditOnly && !verification && (
                 <form
                   className="workspace-followup network-followup"
                   onSubmit={(event) => {
                     event.preventDefault();
-                    if (canSend) onSend();
+                    if (canSend) onSend?.();
                   }}
                 >
                   <label
@@ -654,7 +659,7 @@ export function ConversationsPage({
                     }
                     placeholder="继续当前会话…"
                     value={followup}
-                    onChange={(event) => onFollowup(event.target.value)}
+                    onChange={(event) => onFollowup?.(event.target.value)}
                     rows={3}
                   />
                   <div className="workspace-composer-footer">
@@ -673,8 +678,8 @@ export function ConversationsPage({
               )}
             </>
           ) : (
-            <EmptyState icon={MessageSquare} title="选择或新建一个会话">
-              从左侧继续之前的工作，或新建会话发送需求。
+            <EmptyState icon={MessageSquare} title={auditOnly?"选择原会话查看审计":"选择或新建一个会话"}>
+              {auditOnly?"这里保留已有会话和原生 Session 归属，不发起或续发需求。":"从左侧继续之前的工作，或新建会话发送需求。"}
             </EmptyState>
           )}
         </div>
@@ -698,6 +703,7 @@ export interface SettingsPageProps {
   managementSummary?:string;
   managementQuerying?:boolean;
   onQueryManagement?:(lane:ManagementLane)=>void;
+  onCleanup?:()=>void;
   machineName: (id?: string) => string;
   busy: boolean;
   managementLocked: boolean;
@@ -730,6 +736,7 @@ export function SettingsPage({
   managementReadError = '',
   recoveryItems,
   managementRows=[],managementOutcomes={},managementSummary='',managementQuerying=false,onQueryManagement,
+  onCleanup,
   machineName,
   busy,
   managementLocked,
@@ -905,6 +912,10 @@ export function SettingsPage({
             <span className="workspace-count">{journal.length + managementJournal.length + managementRows.length}</span>
           </div>
           {managementReadError && <p role="status">管理台账暂时无法读取：{managementReadError}。现有原操作继续保留。</p>}
+          {onCleanup && journal.length + managementJournal.length + managementRows.length > 0 && <div className="settings-card-footer">
+            <p>清理会核对原结果，解除确定失败的占位并保留失败历史。执行结果仍未知的操作继续保留，可查看下方原因。</p>
+            <button className="btn" disabled={busy || querying || managementQuerying} onClick={onCleanup}>{querying ? '正在核对并清理…' : '清理已失败操作'}</button>
+          </div>}
           {journal.length + managementJournal.length > 0 ? (
             <>
               <div className="settings-pending-list">

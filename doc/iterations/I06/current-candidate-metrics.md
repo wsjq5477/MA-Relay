@@ -1,5 +1,7 @@
 # alpha.50 当前包指标与 WSL 稳定性补验
 
+后续本地alpha.62控制台收敛与包交付见[当前分层记录](../I07/configuration-console.md)；本页alpha.50原图/WSL数据保持历史含义，不将源码/候选升级当作指标准出。
+
 日期：2026-10-23（Asia/Shanghai，原始JSON为UTC）。关联I06 §4状态/图指标、AB-F02/F07/F11、M01-F04/F09、M03-F02与I08 WSL就绪保护。本轮只修改显式验收脚本、规模夹具和资料；产品运行代码、协议、持久模型与EXE均未改动。公开仍alpha.46，当前本地包仍alpha.50。
 
 后续alpha.53冻结包已完成0px画布几何和完整20次PNG帧补验；PNG观测p95 388.932ms仍未准出，本地状态同步p95 1504ms通过。[新包独立证据](alpha53-current-metrics.md)。以下alpha.50原始结果不追改为通过。

@@ -1,8 +1,20 @@
 # M06 原生 Agent 适配器设计
 
+### CT-05原包传递与接收声明
+
+新增同工作原包持久传递、目标读取/匹配收据和桌面按需只读审计；小队MCP22项，经典10不变。原state版本3/receipts结构保持，独立SQLite表与写收据原子提交；无调度、任务或权限副作用。当前本地alpha.63已打包交付，Pi→固定源码Hermes原生组件传递7组已验；真实父模型消费待验。完整字段、当前身份/可见性、原ID恢复、容量/错误和源码见[原包传递设计](../../iterations/I07/context-delivery.md)。
+
+alpha.62的桌面配置/审计收敛不改变各适配器的执行、Session、权限或取消能力；原生/CLI与MCP沿原契约工作。实际原任务恢复仍须显式进入并核对来源，不能用桌面按钮替代原生能力判断。[本片范围](../../iterations/I07/configuration-console.md)。
+
+M06-F02/F05：当前经典十工具与连接策略已由原包Pi的Linux/Windows和固定源码Hermes的Linux原生MCP客户端各7组验证，模型0；托管scope/真实父模型能力不扩大。本轮无运行行为变化，[证据与未测项](../../iterations/I08/native-policy-components.md)。
+
+## 失败操作清理
+
+M06-F01：OpenCode有界协议协商保持：先短探测global/health，有效1.x完成全部元数据校验而不访问api/info，2.x保留原校验。接入准备阶段的历史完整启动失败仅证明本地接入授权未提交，可通过原管理ID核对解除该管理占位；不代表原生进程不存在、任务完成或任务取消。 [需求、证据与未测边界](../../iterations/I08/failed-operation-cleanup.md)。
+
 ## CT-08经典MCP连接工具
 
-M06-F01/F02/F05：经典MCP现10项，小队18项保持；新增list_connectable/connect_agent/disconnect_agent，连接操作绑定原父或独立connectionId与原operationId，不接收用户审批/身份参数。Claude/Codex在原托管临时允许项中加入新3项，reply_task原审批保持；MachineHost指引区分预授权/待确认和原授权收据。未改用户持久原生配置/模型/账号，原生客户端实际消费另验。 [完整契约、验证与边界](../../iterations/I07/connection-policy.md)。
+M06-F01/F02/F05：经典MCP现10项，小队当前22项（含本页原包传递增量）；新增list_connectable/connect_agent/disconnect_agent，连接操作绑定原父或独立connectionId与原operationId，不接收用户审批/身份参数。Claude/Codex在原托管临时允许项中加入新3项，reply_task原审批保持；MachineHost指引区分预授权/待确认和原授权收据。未改用户持久原生配置/模型/账号，原生客户端实际消费另验。 [完整契约、验证与边界](../../iterations/I07/connection-policy.md)。
 
 ## OpenCode 有界双协议发现
 
@@ -48,7 +60,7 @@ M06-F01/F02：Claude/Codex/OpenCode在原节点配置弹窗管理Bridge MCP；DS
 
 ## MCP连接视图契约
 
-M06-F02：经典list_agents保留items，增加schema/readOnly/view、relationRevision与安全caller字段；不接受身份/筛选参数。工具说明区分当前委派授权与目标在线/空闲，工具缺失/调用失败不解释为空关系。当前经典10/小队18工具；此只读视图本身不增加原生允许项，未新增原生协议或调用方能力。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
+M06-F02：经典list_agents保留items，增加schema/readOnly/view、relationRevision与安全caller字段；不接受身份/筛选参数。工具说明区分当前委派授权与目标在线/空闲，工具缺失/调用失败不解释为空关系。当前经典10/小队22工具；此只读视图本身不增加原生允许项，未新增原生协议或调用方能力。[完整字段、流程与范围](../../iterations/I07/agent-connections.md)。
 
 ## 安装提示与服务就绪
 
@@ -56,7 +68,7 @@ M06-F01/F02：DSH Desktop/Web未保存原生服务连接与程序启动失败分
 
 ## 经典MCP只读委派发现（M06-F02）
 
-本地alpha.60源码经典MCP现10项，含list_delegations与上方连接3工具，小队18项保持；服务按原父/connectionId核对并只读列表。Claude --allowedTools及Codex逐工具approval_mode加入该只读项，reply_task保持原审批边界；指引区分台账与实时结果。OpenCode按原MCP发现schema；不增加SDK/ACP，不因增加只读工具改变调用方能力；当前Pi/Hermes/DSH独立MCP声明另按原生配置适配核对，不改原生模型/账号/目录权限。原生实际调用与新EXE另验。[契约和受控证据](../../iterations/I07/delegation-list.md)。
+本地alpha.60源码经典MCP现10项，含list_delegations与上方连接3工具，小队当前22项（含本页原包传递增量）；服务按原父/connectionId核对并只读列表。Claude --allowedTools及Codex逐工具approval_mode加入该只读项，reply_task保持原审批边界；指引区分台账与实时结果。OpenCode按原MCP发现schema；不增加SDK/ACP，不因增加只读工具改变调用方能力；当前Pi/Hermes/DSH独立MCP声明另按原生配置适配核对，不改原生模型/账号/目录权限。原生实际调用与新EXE另验。[契约和受控证据](../../iterations/I07/delegation-list.md)。
 
 ## OpenCode 宿主生命周期
 
@@ -164,7 +176,7 @@ M06-F01：MachineHost按原身份选择后端时，缺少agentId/owner.targetAge
 
 | 功能 ID | 功能 | 当前状态 |
 | --- | --- | --- |
-| M06-F02 | 小队MCP接入与手动原生执行 | 已发布；小队基础行为继续适用 |
+| M06-F02 | 小队MCP接入与手动原生执行 | 公开基础保留；本地63小队22工具，Pi→固定源码Hermes客户端传递7组已验；托管scope/父模型/真实执行能力不因此扩大 |
 | M06-F03 | 任务作用域与版本报告工具 | 源码已实现；实际分层证据见本模块报告 |
 | M06-F04 | 原生会话能力分级与自动续接 | 源码已实现；证据层级见本模块报告 |
 
@@ -198,9 +210,9 @@ M06-F01/F02：OpenCode接受可识别的1.x与2.x，其他主版本在启动前�
 
 ### 小队材料MCP（M06-F02，CT-04/05）
 
-当前team-tools小队集合18项，新增只读team_context_packet；原生scope/权限注入机制不变，工具schema要求目标成员与明确四类版本引用，缺材料通过原工具回查。每类8项、总JSON/Markdown256 KiB；正文属于外部材料，不当作系统指令。调用不启动/续接/取消原生任务、不改原生配置，经典MCP工具与长期MCP分开；Hermes/Pi/DSH不因此获得小队能力。真实Claude2.1.303一次旧版包消费和重开只观察已验证，其他工具/Windows EXE/SSH未验。[完整当前契约](../../iterations/I07/context-packet.md)。下方CT-04记录保留原冻结范围。
+当前team-tools小队集合22项，新增只读team_context_packet；原生scope/权限注入机制不变，工具schema要求目标成员与明确四类版本引用，缺材料通过原工具回查。每类8项、总JSON/Markdown256 KiB；正文属于外部材料，不当作系统指令。调用不启动/续接/取消原生任务、不改原生配置，经典MCP工具与长期MCP分开；Hermes/Pi/DSH不因此获得小队能力。真实Claude2.1.303一次旧版包消费和重开只观察已验证，原生Pi→固定源码Hermes客户端传递与Windows EXE已补验，真实父模型/独立SSH未验。[完整当前契约](../../iterations/I07/context-packet.md)。下方CT-04记录保留原冻结范围。
 
-`team-tools.cjs` 通过 tools/list 公布小队工具，其中含只读 `team_materials`；`team_document` 支持可选正整数 revision。原生新scope沿原机制复制描述/指令和stdio MCP，经典主从六工具不变，未赋予Hermes/Pi/DSH小队MCP能力。成员先读短索引，再按文档ID/revision取正文；新字段须核对实际响应，旧后台忽略字段不能冒充历史读取。
+`team-tools.cjs` 通过 tools/list 公布小队工具，其中含只读 `team_materials`；`team_document` 支持可选正整数 revision。原生新scope沿原机制复制描述/指令和stdio MCP，经典主从当前10工具，未赋予Hermes/Pi/DSH小队MCP能力。成员先读短索引，再按文档ID/revision取正文；新字段须核对实际响应，旧后台忽略字段不能冒充历史读取。
 
 入口只读，不启动/续接/取消原生任务，不注入厂商SDK/模型配置。实际WSL Claude2.1.303一个Task成功调用两种新读取，其他原生工具和Windows/SSH尚未验；未构建新EXE。[契约与证据](../../iterations/I07/public-materials.md)。
 

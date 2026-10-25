@@ -1,3 +1,5 @@
+const TEAM_CONTEXT_TRANSFER_CAPABILITY='team-context-transfer-v1';
+const supportsTeamContextTransfer=capabilities=>Array.isArray(capabilities)&&capabilities.includes(TEAM_CONTEXT_TRANSFER_CAPABILITY);
 const RECOVERY_CAPABILITY='owned-object-controls-v1';
 const MCP_OPEN_ACCESS_CAPABILITY='mcp-open-access-v1';
 const AGENT_CONNECTION_POLICY_CAPABILITY='agent-connection-policy-v1';
@@ -8,7 +10,7 @@ const coordinatorCapabilities=[RECOVERY_CAPABILITY,'scoped-management-v1','openc
 // Advertised list: coordinator hello and daemon hello both spread this array, and
 // maintenance bundles stage this file verbatim.
 const runtimeCapabilities=[...coordinatorCapabilities,MCP_OPEN_ACCESS_CAPABILITY,'opendesk-mcp-lifecycle-v1'];
-const coordinatorRuntimeCapabilities=[...runtimeCapabilities,MULTI_PARENT_RELATIONS_CAPABILITY,AGENT_CONNECTION_POLICY_CAPABILITY];
+const coordinatorRuntimeCapabilities=[...runtimeCapabilities,TEAM_CONTEXT_TRANSFER_CAPABILITY,MULTI_PARENT_RELATIONS_CAPABILITY,AGENT_CONNECTION_POLICY_CAPABILITY];
 const supportsCurrentCoordinator=capabilities=>Array.isArray(capabilities)&&coordinatorCapabilities.every(capability=>capabilities.includes(capability));
 const supportsRecovery=capabilities=>Array.isArray(capabilities)&&capabilities.includes(RECOVERY_CAPABILITY);
 // Richer MCP status facts and revocation need this marker. Its absence means the
@@ -17,4 +19,4 @@ const supportsRecovery=capabilities=>Array.isArray(capabilities)&&capabilities.i
 const supportsMcpOpenAccess=capabilities=>Array.isArray(capabilities)&&capabilities.includes(MCP_OPEN_ACCESS_CAPABILITY);
 const supportsMultiParentRelations=capabilities=>Array.isArray(capabilities)&&capabilities.includes(MULTI_PARENT_RELATIONS_CAPABILITY);
 const supportsAgentConnectionPolicy=capabilities=>Array.isArray(capabilities)&&capabilities.includes(AGENT_CONNECTION_POLICY_CAPABILITY);
-module.exports={AGENT_CONNECTION_POLICY_CAPABILITY,supportsAgentConnectionPolicy,MULTI_PARENT_RELATIONS_CAPABILITY,supportsMultiParentRelations,coordinatorRuntimeCapabilities,RECOVERY_CAPABILITY,MCP_OPEN_ACCESS_CAPABILITY,coordinatorCapabilities,runtimeCapabilities,supportsRecovery,supportsCurrentCoordinator,supportsMcpOpenAccess};
+module.exports={TEAM_CONTEXT_TRANSFER_CAPABILITY,supportsTeamContextTransfer,AGENT_CONNECTION_POLICY_CAPABILITY,supportsAgentConnectionPolicy,MULTI_PARENT_RELATIONS_CAPABILITY,supportsMultiParentRelations,coordinatorRuntimeCapabilities,RECOVERY_CAPABILITY,MCP_OPEN_ACCESS_CAPABILITY,coordinatorCapabilities,runtimeCapabilities,supportsRecovery,supportsCurrentCoordinator,supportsMcpOpenAccess};

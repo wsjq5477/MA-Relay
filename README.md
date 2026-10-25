@@ -1,6 +1,8 @@
 # AgentBridge
 
-AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：在一个客户端里发需求、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
+当前本地候选alpha.63新增原选材包持久传递、目标接入收据和桌面只读审计，继承alpha.62配置控制台与alpha.61恢复出口；公开仍alpha.60。原生Pi→固定源码Hermes组件7组通过，模型0；[当前交付与完整边界](doc/iterations/I07/context-delivery.md)。
+
+AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：从原生Agent发起协作，在客户端配置连接、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
 
 ## 当前状态与下载
 

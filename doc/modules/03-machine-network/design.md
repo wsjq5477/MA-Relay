@@ -1,5 +1,13 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+M03-F01/F02/F04：本地alpha.62的机器/关系图改为配置入口，日常委派由原生Agent MCP发起；机器、节点、关系与原unknown资源锁不变，扫描/接入/配置/维护保留。[控制台范围与验证](../../iterations/I07/configuration-console.md)。
+
+M03-F02：原WSL就绪/代次/派发契约不变；公开60已补指定环境的20/20独立启动与60条握手后只读请求，但原始探针80条仍有1条首写标记前故障，完整稳定性/持续连接不作准出。[当前证据与边界](../../iterations/I08/wsl-launch-origin.md)。
+
+## 失败操作清理
+
+M03-F02/F04/F05：GraphOperationJournal 对原 manageNode/attach 的完整 NATIVE_START_TIMEOUT 启动拒绝应用接入提交前失败证明。仅原ID、非空机器/节点、params指纹均匹配且原 nodeOperation 返回同ID not_found 时，将本地管理意图记为rejected。真实匹配终态收据优先；查询错误、泛化超时、来源不足/错指纹和unknown收据不释放。新同类明确失败直接rejected；原网络/节点/安装/上下文和执行台账不改。 [需求、证据与未测边界](../../iterations/I08/failed-operation-cleanup.md)。
+
 ## CT-08连接授权与原子收据
 
 M03-F02/F04：ConnectionPolicy统一路由Agent连接和用户策略RPC，使用原来源身份与当前启用出站关系。预授权内只改该主成员，范围外持久待确认；用户撤权/节点或机器移除同时撤销预授权与原待确认，不恢复重授。GraphJournal原unknown与节点/机器锁继续互锁；所有策略/网络/收据同文件atomicWrite，写后丢回应按原收据恢复。中央独有agent-connection-policy-v1，daemon不声明。 [完整契约、验证与边界](../../iterations/I07/connection-policy.md)。

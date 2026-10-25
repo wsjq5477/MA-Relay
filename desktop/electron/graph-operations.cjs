@@ -7,15 +7,18 @@ const machineMethods=new Set(['machine.updateSsh','machine.remove','machine.rest
 const lane=method=>machineMethods.has(method)?'machine':['manageNode','nodeOperation'].includes(method)?'node':method==='saveCollaboration'||method==='collaborationOperation'?'relation':'layout';
 const query=kind=>kind==='machine'?'machine.operation':kind==='node'?'nodeOperation':kind==='relation'?'collaborationOperation':'graphLayoutOperation';
 const rejected=new Set(['INVALID_INPUT','NODE_NOT_FOUND','NODE_DISCONNECTED','REVISION_CONFLICT','LAYOUT_REVISION_CONFLICT','OPERATION_CONFLICT','OPERATION_LIMIT','AGENT_BUSY','MACHINE_OFFLINE','WRONG_MACHINE','AGENT_UNAVAILABLE','DISCOVERY_CHANGED','MACHINE_BUSY','MACHINE_REMOVED','MACHINE_NOT_FOUND','SSH_CONNECTION_NOT_FOUND','SSH_USER_CHANGE','SSH_ENDPOINT_CONFLICT','DESKTOP_UNCONFIRMED','INSTALL_PREVIEW_CHANGED','DAEMON_BUSY','DAEMON_STAGE_REJECTED','SSH_UPLOAD_FAILED','DAEMON_PERSIST_FAILED','SSH_PACKAGE_CHECKSUM','SSH_PACKAGE_EXTRACT']);
-// These exact original factory/readiness refusals precede the local attach
+// These exact original factory/readiness/startup refusals precede the local attach
 // authorization commit. Only the ORIGINAL durable dispatch error is evidence;
 // a later query error or missing receipt alone proves nothing about execution.
 function rejectedAttachAdmission(row){
  return row?.lane==='node'&&row.method==='manageNode'&&row.params?.action==='attach'
-  &&row.params.operationId===row.operationId&&typeof row.params.machineId==='string'&&!!row.params.machineId
-  &&typeof row.params.nodeId==='string'&&!!row.params.nodeId&&row.fingerprint===digest(row.params)
+  &&row.params.operationId===row.operationId&&typeof row.params.machineId==='string'&&!!row.params.machineId.trim()
+  &&typeof row.params.nodeId==='string'&&!!row.params.nodeId.trim()&&row.fingerprint===digest(row.params)
   &&(row.error?.code==='ADAPTER_HOST'&&/^[a-z][a-z0-9-]* must synchronously create a host with call\(\) and close\(\)\.$/.test(row.error.message)
-    ||row.error?.code==='AGENT_UNHEALTHY'&&row.error.message==='原生工具尚未就绪，未提交需求；请检查原生账号或等待服务就绪。');
+    ||row.error?.code==='AGENT_UNHEALTHY'&&row.error.message==='原生工具尚未就绪，未提交需求；请检查原生账号或等待服务就绪。'
+    // startNativeServer throws this before context() returns. manageNode has
+    // not committed local admission, even if a native context still exists.
+    ||row.error?.code==='NATIVE_START_TIMEOUT'&&row.error.message==='OpenCode did not become ready within 20 seconds');
 }
 function conflicts(kind,params,row,nodeConflict,relationConflict){
  if(kind==='layout'||row.lane==='layout')return kind===row.lane;

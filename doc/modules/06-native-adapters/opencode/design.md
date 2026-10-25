@@ -1,5 +1,9 @@
 # OpenCode 适配器设计
 
+## 接入启动失败的恢复
+
+M06-OC-F01：有界只读协议发现保持现有行为；历史接入意图保存完整原启动超时错误时，可在原来源/ID/指纹与原收据核对后结算本地接入失败。清理只解除该接入管理屏障，不停止原生进程、不删除上下文/原安装、不创建Session或重发Prompt；没有完整原错误证明的unknown继续保留。源码与本地alpha.61候选；[完整规则与验证](../../../iterations/I08/failed-operation-cleanup.md)。
+
 ## 有界协议发现
 
 M06-OC-F01：只读协议发现首先请求 `/global/health`，仅 healthy=true 且版本为有效 1.x 时直接进入 V1 元数据检查；保留 agent/config/providers/status/permission/question 全量校验，不再请求会在早期 1.x 上挂起的 `/api/info`。否则以短探测请求 `/api/info`，须为 2.x 并通过其 agent/model/config 契约。每个候选入口 700ms，整个发现含响应体与元数据最多 4000ms；启动调用还受剩余 20 秒预算限制。不缓存跨服务探测结果，失败复验清除内存协议选择。

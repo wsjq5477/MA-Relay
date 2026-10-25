@@ -1,5 +1,19 @@
 # 对象、身份与持久数据
 
+## CT-05原选材包传递
+
+team-space.sqlite新增独立context_transfers表（transfer_id主键、run_id/sender_id/target_id/body），state.version仍3、原receipts结构保持。body保存schema1不可变packet、发送元数据、完整内容摘要、仅目标读取可得的随机deliveryProof和可选确认时间/原Session；列表/操作收据不含证明。最多256条/8MiB UTF-8，容量失败回滚，不淘汰待确认。pending_receipt仅无确认；acknowledged仅目标接入声明，businessAccepted恒false。[完整接口、身份、原ID恢复与错误](iterations/I07/context-delivery.md)。
+
+## 配置台原意图与收据
+
+alpha.62沿用team-space.sqlite现有state/receipts同事务结构，存储格式与schema不变。receipts仍以actor/operation为键，fingerprint为去掉operationId、包含实际method和全部参数的规范JSON SHA-256；params根级method被拒绝，不能替代实际调用方法。team.operation确认投影增加operationId/fingerprint，读取已有收据不重写或重做。成员仍只能读取本身份的原收据，撤权后拒绝。
+
+本机agentbridge.team.pending.<原directory>保存原method/params/operationId，沿用旧键与原字节。缺失原ID/参数、损坏JSON、指纹不匹配、旧后台缺证明或核对期间被其他窗口更改时保留并暂停新写入。没有Task/Conversation/Session迁移、清空unknown或新增模型字段。[完整兼容行为](iterations/I07/configuration-console.md)。
+
+## 失败管理操作的核对边界
+
+设置清理复用现有原ID查询和recoverPending，不新增RPC/协议版本或存储字段。GraphOperationJournal只对完整原启动拒绝（NATIVE_START_TIMEOUT及源码固定原文）的manageNode/attach，核验非空machineId/nodeId、原operationId和params摘要后，接受同ID的not_found作为补充核对，将本地管理意图记为rejected；该组合证明接入授权提交前已失败，not_found本身不构成证明。真实匹配终态收据优先。原参数、ID、时间、错误及指纹保留；不触碰网络节点/原生进程/Task/Session/执行unknown，查询失败或其他unknown继续占位。[设计与证据](iterations/I08/failed-operation-cleanup.md)。
+
 ## CT-08连接策略与确认
 
 agent-network.json外层version1、索引relationsVersion3，每行增加必需envelope={version:1,revision,allowedNodeIds}；v1/v2仅继承原成员为范围，v1非selected仍disabled。新增connectionOperations/connectionPolicyOperations各最多4096条，原身份/ID/指纹/待确认及原用户收据与网络一次原子提交，旧历史不清理。成员须在范围内，v3未知/损坏拒绝保留原文件，alpha.59拒绝v3数据。用户页面localStorage保存原方法/参数/ID/指纹，非匹配收据不释放意图。 [完整契约与证据](iterations/I07/connection-policy.md)。

@@ -1,5 +1,7 @@
 # DSH
 
+本地alpha.62的Bridge桌面只提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派；公开alpha.60仍保留旧桌面入口。
+
 DeepSeek Harness（DSH）有 CLI、Windows Desktop 和 Linux / WSL Web 三个执行入口。Desktop / Web 连接已有原生服务，CLI 使用独立的 headless 程序；它们分别发现和配置。
 
 Desktop / Web 服务入口及本页Agent行配置流程已包含在公开预发布 `0.6.0-alpha.36`。切换程序前先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新程序并重新检测对应机器。
@@ -25,7 +27,7 @@ CLI 不自动继承 Desktop / Web 的账号或 profile。不能把服务版已�
 ## 连接 Windows Desktop
 
 1. 启动已安装的 DSH Desktop，确认原生界面能正常使用。
-2. 在“机器与 Agent”的 Windows 机器中找到 DSH Desktop，点击右侧“配置”。
+2. 在“接入配置”的 Windows 机器中找到 DSH Desktop，点击右侧“配置”。
 3. 弹窗已固定该机器和 Desktop 入口，填写原生服务的**根地址**及连接 token 并保存。已有地址会自动显示，token 不回填。
 4. 回到对应机器重新检测，选择 DSH Desktop 节点，再选择工作目录发起任务。
 
@@ -36,7 +38,7 @@ CLI 不自动继承 Desktop / Web 的账号或 profile。不能把服务版已�
 ## 连接 Linux / WSL Web
 
 1. 在目标 Linux 或 WSL 环境启动 DSH Web，确认服务与原生配置可用。
-2. 在“机器与 Agent”的该 Linux / WSL 机器中找到 DSH Web，点击右侧“配置”；弹窗固定该机器和 Web 入口。
+2. 在“接入配置”的该 Linux / WSL 机器中找到 DSH Web，点击右侧“配置”；弹窗固定该机器和 Web 入口。
 3. 填写服务根地址与连接 token，保存、验证，再重新检测该机器。
 4. 选择 DSH Web 节点发起会话。
 

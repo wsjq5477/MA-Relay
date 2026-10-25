@@ -1,8 +1,16 @@
 # 通信协议与接口
 
+## CT-05原选材包传递
+
+新增team.sendContext/contextTransfers/contextTransfer/ackContext（小队MCP对应team_send_context/team_context_transfers/team_context_transfer/team_ack_context），小队18→22，经典10保持。发送需原packetId+相同选择+稳定operationId，目标读取原transferId后以私有deliveryProof和完整包规范JSON摘要确认。列表默认20/最大50按原after分页；正文只在详情返回，证明仅目标成员取得。中央独有可选team-context-transfer-v1，旧中央只拒绝新四RPC，协议仍2。[完整接口、身份、原ID恢复与错误](iterations/I07/context-delivery.md)。
+
+## 失败管理操作的核对边界
+
+设置清理复用现有原ID查询和recoverPending，不新增RPC/协议版本或存储字段。GraphOperationJournal只对完整原启动拒绝（NATIVE_START_TIMEOUT及源码固定原文）的manageNode/attach，核验非空machineId/nodeId、原operationId和params摘要后，接受同ID的not_found作为补充核对，将本地管理意图记为rejected；该组合证明接入授权提交前已失败，not_found本身不构成证明。真实匹配终态收据优先。原参数、ID、时间、错误及指纹保留；不触碰网络节点/原生进程/Task/Session/执行unknown，查询失败或其他unknown继续占位。[设计与证据](iterations/I08/failed-operation-cleanup.md)。
+
 ## CT-08连接策略与确认
 
-新增经典list_connectable/connect_agent/disconnect_agent，连接变更传nodeId/operationId/queryOnly?，不接受源身份/关系或用户确认参数；经典10/小队18。用户侧新增connectionPolicies/saveConnectionPolicy/decideConnection/connectionPolicyOperation；保存关系/策略双修订CAS，决定绑定原approvalId，所有回应confirmed只描述原授权操作。中央hello独有agent-connection-policy-v1，新4RPC定向升级门禁，daemon不声明；daemon帧2/旧默认会话/Task身份不变。 [完整契约与证据](iterations/I07/connection-policy.md)。
+新增经典list_connectable/connect_agent/disconnect_agent，连接变更传nodeId/operationId/queryOnly?，不接受源身份/关系或用户确认参数；经典10/小队22。用户侧新增connectionPolicies/saveConnectionPolicy/decideConnection/connectionPolicyOperation；保存关系/策略双修订CAS，决定绑定原approvalId，所有回应confirmed只描述原授权操作。中央hello独有agent-connection-policy-v1，新4RPC定向升级门禁，daemon不声明；daemon帧2/旧默认会话/Task身份不变。 [完整契约与证据](iterations/I07/connection-policy.md)。
 
 ## OpenCode 协议协商时限
 
@@ -48,7 +56,7 @@ discover的DSH安装提示可携带errorCode=DSH_CONNECTION_REQUIRED，节点sna
 
 ## CT-07只读委派列表
 
-未发布源码经典MCP由六项扩为七项，新增list_delegations({limit?,after?})，readOnlyHint=true；小队18项不变，已公开alpha.34/35仍六项。limit安全整数1–50/默认20，after为本作用域原delegationId（非空≤128）；只接受两个参数，额外身份参数/外来游标报INVALID_INPUT。响应schema1/readOnly/source=delegation-ledger/liveTaskStatus=false及items/total/hasMore/next，每项仅原委派/请求/目标/已有任务会话ID、ledgerState、创建时间/规范错误码和taskQueryable。
+list_delegations({limit?,after?})属于当前经典10项工具中的只读入口，readOnlyHint=true；小队当前22项。历史工具表变化见该专项迭代。limit安全整数1–50/默认20，after为本作用域原delegationId（非空≤128）；只接受两个参数，额外身份参数/外来游标报INVALID_INPUT。响应schema1/readOnly/source=delegation-ledger/liveTaskStatus=false及items/total/hasMore/next，每项仅原委派/请求/目标/已有任务会话ID、ledgerState、创建时间/规范错误码和taskQueryable。
 
 身份来自原broker与来源机器校验。原生须同时匹配leader和原parentRequest/Task/Conversation，父终态拒绝、unknown仅只读；独立接入须enabled及原connectionId，parentTaskId必须明确null，缺/空身份不匹配。台账状态不是实时任务结果，已有taskId再调task_result；无taskId保留原requestId，不重发或换ID。无新中央/daemon帧、无迁移/连接管理或权限扩张，旧工具表缺工具时明确不可用。[完整字段、失败与验证](iterations/I07/delegation-list.md)。
 
@@ -70,15 +78,15 @@ alpha.34发布门禁：中央hello增加`opencode-dual-api-v1`与`team-context-m
 
 ## CT-05桌面消费约定
 
-不新增RPC/参数/schema；桌面用户复用team.contextPacket与team.messages。除原服务授权外，M01检查原工作/目标、精确引用与原材料、报告来源/状态、白名单及规范packetId，重算文档正文摘要；旧后台/损坏/过期响应拒绝且移除旧导出，不回退最新文档或旧包。Markdown不在packetId覆盖内，因此本机副本从核对后的结构化字段重新生成，JSON同存该本地视图。无自动投递/执行/收件合约，协议2及18项小队工具保持。[现行消费者规则](iterations/I07/context-packet-ui.md)。
+不新增RPC/参数/schema；桌面用户复用team.contextPacket与team.messages。除原服务授权外，M01检查原工作/目标、精确引用与原材料、报告来源/状态、白名单及规范packetId，重算文档正文摘要；旧后台/损坏/过期响应拒绝且移除旧导出，不回退最新文档或旧包。Markdown不在packetId覆盖内，因此本机副本从核对后的结构化字段重新生成，JSON同存该本地视图。预览/导出本身不发送；显式传递/接收见本页新契约，协议2及当前22项小队工具保持。[现行消费者规则](iterations/I07/context-packet-ui.md)。
 
 ## CT-05明确选择接口
 
 用户 `team.contextPacket({runId,targetAgentId,selections})`；成员MCP `team_context_packet({targetAgentId,selections})`，工作只取原scope。selections的documents为documentId/revision，tasks为workItemId/revision/round，messages为messageId/seq，artifacts为artifactId/version；每类最多8项，至少1项。数字为正安全整数，字符串非空/≤150；嵌套额外字段及重复ID拒绝。输出schema1结构化包、确定摘要和Markdown，整个UTF-8 JSON≤256 KiB；具体白名单见[字段与失败表](iterations/I07/context-packet.md)。
 
-先授权，再核对目标及本工作原引用：TEAM_CONTEXT_TARGET/REFERENCE/STALE/CAPACITY分别表示无效目标、无效引用、任务过期、包超限；非法选择TEAM_INPUT，缺文档修订TEAM_DOCUMENT_REVISION，scope失效TEAM_FORBIDDEN。不回退最新版，不发送、不执行、不确认已读或授予权限。小队tools/list现18项，经典6项不变；旧工具表/后台不支持时明确失败，没有替代包或自动降级。原daemon帧/IPC版本2与TeamSpace格式3不变。
+先授权，再核对目标及本工作原引用：TEAM_CONTEXT_TARGET/REFERENCE/STALE/CAPACITY分别表示无效目标、无效引用、任务过期、包超限；非法选择TEAM_INPUT，缺文档修订TEAM_DOCUMENT_REVISION，scope失效TEAM_FORBIDDEN。不回退最新版，不发送、不执行、不确认已读或授予权限。当前小队tools/list为22项，经典10项；旧工具表/后台不支持时明确失败，没有替代包或自动降级。原daemon帧/IPC版本2与TeamSpace格式3不变。
 
-当前整合保留alpha.32三项中央能力和SSH原对象路由能力；Classic MCP工具、小队18工具、独立MCP四方法及精确修订读取共存。没有新wire版本或跨厂家Session协议；旧后台不支持新方法时返回实际错误，不因版本名或manifest信任就扩大业务授权。[最终合约与实际边界](iterations/I07/integrated-source.md)。
+当前整合保留alpha.32三项中央能力和SSH原对象路由能力；经典10工具、小队22工具、独立MCP四方法及精确修订读取共存。没有新wire版本或跨厂家Session协议；旧后台不支持新方法时返回实际错误，不因版本名或manifest信任就扩大业务授权。[最终合约与实际边界](iterations/I07/integrated-source.md)。
 
 ## 按机器管理与版本准入
 
@@ -180,9 +188,11 @@ team.context/team.refresh新增stopSupported=true和可选stop汇总（requested
 | team.revokeMember / team.pause / team.closeRun | 撤权需工作原revision；暂停仅停新执行，归档须所有原尝试有明确终态 |
 | team.connect | 按工作成员生成本机MCP接入配置，不含明文令牌；撤权/归档即失效；不是启动外部Agent |
 | team.execute / team.refresh | 用户手动执行原生成员一轮/查询原请求；可选workItemId/expectedRevision绑定负责人及业务轮次；旧MachineHost缺teamCollaboration能力时拒绝本轮派发，不切换其他节点 |
-| team.operation | 查询原操作；执行返回原attempt；连接查询可恢复同一私有配置，不重复创建任务 |
+| team.operation | 按当前actor与原operationId查询；confirmed返回原operationId、SQLite持久fingerprint及data；执行data为原attempt，连接data恢复同一私有配置；not_found不证明未派发，不重复创建任务 |
 
 任务接口仍绑定runId；写入均需operationId，工作项变更需expectedRevision。授权/交接不能靠正文生效。
+
+alpha.62新增收据证明字段是可选向后兼容投影，IPC/SSH仍为2，数据库不迁移；新前端遇到旧后台缺ID/指纹继续保留原意图，要求升级后只读查询。指纹以实际method及全部原参数规范JSON求SHA-256，operationId作为独立键不进入摘要；params根级method拒绝TEAM_INPUT。查询仍先核对当前用户/原成员身份，撤权不能凭旧confirmed读回。桌面仅呈现配置/审计与显式原执行恢复；既有日常RPC/MCP能力未删除或扩权。[完整设计与兼容](iterations/I07/configuration-console.md)。
 
 | 新接口 | 当前契约 |
 | --- | --- |

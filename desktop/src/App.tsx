@@ -2569,6 +2569,7 @@ function InstanceModelDialog({
 }
 export function TaskDetail({
   task,
+  auditOnly = false,
   readState,
   adapter,
   name,
@@ -2580,6 +2581,7 @@ export function TaskDetail({
   onConversation,
 }: {
   task: Task;
+  auditOnly?: boolean;
   readState?: DetailRead | null;
   adapter?: Agent["adapter"];
   name: string;
@@ -2594,6 +2596,8 @@ export function TaskDetail({
   notify: (text: string, error?: boolean) => void;
   onConversation: () => void;
 }) {
+  const [recovering,setRecovering]=useState(false);
+  const canControl=!auditOnly||recovering;
   const drawerRef = useRef<HTMLElement>(null);
   const verification = isVerificationTask(task);
   const events = taskEvents(task, adapter);
@@ -2639,6 +2643,7 @@ export function TaskDetail({
     requestId: string,
     extra: Record<string, unknown>,
   ) {
+    if(!canControl)return;
     const operationId = crypto.randomUUID();
     await act("reply", async () => {
       const r = await invoke<Receipt>("reply", {
@@ -2730,6 +2735,7 @@ export function TaskDetail({
               </div>
             </div>
           )}
+          {auditOnly&&<div className="workspace-inline-note" role="status"><div><strong>{recovering?"原执行恢复":"只读执行审计"}</strong><p>日常授权与取消请在原生 Agent 会话处理。恢复仅作用于这条原任务，不会新建或重放执行。</p><button className="text-btn" onClick={()=>{setRecovering(!recovering);setCancelConfirm(false);}}>{recovering?"返回只读审计":"处理这条原执行"}</button></div></div>}
           {pendingError && (
             <p className="inline-error">暂时无法读取等待项：{pendingError}</p>
           )}
@@ -2750,7 +2756,7 @@ export function TaskDetail({
               <div className="permission-actions">
                 <button
                   className="btn small"
-                  disabled={busy || receipt?.state === "unknown"}
+                  disabled={!canControl || busy || receipt?.state === "unknown"}
                   onClick={() =>
                     void reply("permission", p.id, { decision: "reject" })
                   }
@@ -2759,7 +2765,7 @@ export function TaskDetail({
                 </button>
                 <button
                   className="btn primary small"
-                  disabled={busy || receipt?.state === "unknown"}
+                  disabled={!canControl || busy || receipt?.state === "unknown"}
                   onClick={() =>
                     void reply("permission", p.id, { decision: "once" })
                   }
@@ -2775,7 +2781,7 @@ export function TaskDetail({
               key={f.id}
               title={f.title}
               fields={f.fields}
-              busy={busy || receipt?.state === "unknown"}
+              busy={!canControl || busy || receipt?.state === "unknown"}
               submit={(answer) => reply("form", f.id, { answer })}
             />
           ))}
@@ -2931,9 +2937,9 @@ export function TaskDetail({
         <div className="drawer-footer">
           <button className="btn" onClick={onConversation}>
             <MessageSquare size={16} />
-            {isVerificationTask(task) ? "查看验证记录" : isTerminal(task) ? "进入会话 / 继续追问" : "进入会话"}
+            {auditOnly?"查看原会话审计":isVerificationTask(task) ? "查看验证记录" : isTerminal(task) ? "进入会话 / 继续追问" : "进入会话"}
           </button>
-          {!isTerminal(task) && task.status !== "unknown" && (
+          {canControl && !isTerminal(task) && task.status !== "unknown" && (
             <button
               className="btn danger-outline"
               disabled={busy}
@@ -2944,7 +2950,7 @@ export function TaskDetail({
             </button>
           )}
         </div>
-        {cancelConfirm && (
+        {canControl && cancelConfirm && (
           <Modal title="取消当前轮次？" onClose={() => setCancelConfirm(false)}>
             <div className="modal-body">
               <p>
@@ -2958,7 +2964,7 @@ export function TaskDetail({
               </button>
               <button
                 className="btn danger"
-                disabled={busy || receipt?.state === "unknown"}
+                disabled={!canControl || busy || receipt?.state === "unknown"}
                 onClick={() =>
                   void act("cancel", async () => {
                     const r = await invoke<Receipt>("cancel", {

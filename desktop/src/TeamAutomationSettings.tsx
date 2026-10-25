@@ -2,7 +2,7 @@ import {useState} from 'react';
 import type {TeamContext} from './team-types';
 type Act=(method:string,params:Record<string,unknown>,done?:()=>void)=>Promise<void>;
 const reasons:Record<string,string>={user_start:'用户启用',task_ready:'任务就绪',task_report:'任务报告',native_terminal:'原执行结束',attention:'明确请求协调',no_progress:'无进展检查'};
-export default function TeamAutomationSettings({context,act,disabled}:{context:TeamContext;act:Act;disabled:boolean}){
+export default function TeamAutomationSettings({context,act,disabled,policyOnly=false}:{context:TeamContext;act:Act;disabled:boolean;policyOnly?:boolean}){
  const data=context.automation,policy=data?.policy;
  const [selected,setSelected]=useState<string[]|null>(null);
  if(!data)return <p className="team-meta">当前后台尚不支持持续协作设置，请升级并重启后台。</p>;
@@ -22,7 +22,7 @@ export default function TeamAutomationSettings({context,act,disabled}:{context:T
    <button className="btn primary" disabled={disabled||!active||!data.capabilities.find(c=>c.agentId===context.run.leaderId)?.resume}>保存并启用持续协作</button>
    {policy?.enabled&&<button type="button" className="btn" disabled={disabled||!active} onClick={()=>void act('team.configureAutomation',{runId:context.run.runId,expectedRevision:context.run.revision,enabled:false})}>停止自动调度</button>}
   </form></details>
-  {policy?.enabled&&<details><summary>明确请求主智能体协调</summary><form onSubmit={e=>{e.preventDefault();const element=e.currentTarget,values=Object.fromEntries(new FormData(element));void act('team.wake',{runId:context.run.runId,reason:values.reason},()=>element.reset());}}><label>需要协调的事项<textarea aria-label="需要协调的事项" name="reason" maxLength={2000} required rows={2}/></label><button className="btn" disabled={disabled||!active}>保存协调请求</button></form></details>}
+  {!policyOnly&&policy?.enabled&&<details><summary>明确请求主智能体协调</summary><form onSubmit={e=>{e.preventDefault();const element=e.currentTarget,values=Object.fromEntries(new FormData(element));void act('team.wake',{runId:context.run.runId,reason:values.reason},()=>element.reset());}}><label>需要协调的事项<textarea aria-label="需要协调的事项" name="reason" maxLength={2000} required rows={2}/></label><button className="btn" disabled={disabled||!active}>保存协调请求</button></form></details>}
   <details><summary>最近激活事件</summary>{data.events.length?data.events.slice(-20).map(e=><p key={e.eventId}>{name(e.agentId)} · {reasons[e.kind]||e.kind} · {e.state==='pending'?'待处理':e.state==='consumed'?'已绑定原执行':e.state==='handled'?'任务已接手':'已过期'}</p>):<p>暂无激活事件。</p>}</details>
  </section>;
 }

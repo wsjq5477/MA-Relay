@@ -22,6 +22,7 @@ function ids(value, max = 30) {
 const { instructions } = require('./team-tools.cjs');
 const automation = require('./team-automation.cjs');
 const stopping = require('./team-stop.cjs');
+const contextTransfers = require('./team-context-transfers.cjs');
 const { taskMethods, applyTask, taskView, task: workItem, idle } = require('./team-work.cjs');
 
 class TeamSpace {
@@ -44,7 +45,7 @@ class TeamSpace {
         this.db.prepare('UPDATE state SET body=? WHERE id=1').run(JSON.stringify(s));
       }
       if(s.version===2&&['workItems','handoffGrants','handoffs'].every(k=>Array.isArray(s[k]))){s.version=3;s.activationEvents=[];this.db.prepare('UPDATE state SET body=? WHERE id=1').run(JSON.stringify(s));}
-      this.read(); this.db.exec('COMMIT');
+      this.read(); contextTransfers.initialize(this.db); this.db.exec('COMMIT');
     } catch (error) { this.db.exec('ROLLBACK'); this.db.close(); throw error; }
   }
   read() {
@@ -55,11 +56,11 @@ class TeamSpace {
       throw fail('TEAM_STATE', '小队记录格式不受支持。');
     return s;
   }
-  transaction(action) {
+  transaction(action, options = {}) {
     this.db.exec('BEGIN IMMEDIATE');
     try {
       const s = this.read(), result = action(s);
-      automation.sync(s);
+      if (options.sync !== false) automation.sync(s);
       const encoded = JSON.stringify(s);
       if (Buffer.byteLength(encoded) > 8 * 1024 * 1024) throw fail('TEAM_CAPACITY', '小队材料达到容量限制，请归档整理后再写入。未完成记录保留。');
       this.db.prepare('UPDATE state SET body=? WHERE id=1').run(encoded);
@@ -67,9 +68,9 @@ class TeamSpace {
       return copy(result);
     } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
-  mutate(actor, method, p, action) {
+  mutate(actor, method, p, action, options = {}) {
     text(p.operationId, 150);
-    const fingerprint = digest({ method, ...p, operationId: undefined });
+    const fingerprint = digest({ ...p, method, operationId: undefined });
     return this.transaction(s => {
       // Check the current identity even on receipt lookup: a revoked member may
       // not use an old operation ID to retrieve another copy of private data.
@@ -84,7 +85,7 @@ class TeamSpace {
       const result = action(s);
       this.db.prepare('INSERT INTO receipts VALUES (?,?,?,?)').run(actor.key, p.operationId, fingerprint, JSON.stringify(result));
       return result;
-    });
+    }, options);
   }
   agent(s, id) {
     const a = s.agents.find(a => a.agentId === id && !a.disabled);
@@ -128,25 +129,26 @@ class TeamSpace {
     return { stopSupported:true, identity: { agentId: actor.user ? 'user' : actor.agentId, role: actor.user ? 'user' : actor.agentId === r.leaderId ? 'leader' : 'member' }, run: { ...run, memberIds }, members: memberIds.map(id => ({ ...this.agent(s, id), role: id === r.leaderId ? 'leader' : 'member' })), documents: s.documents.filter(d => d.runId === runId), messages: s.messages.filter(m => m.runId === runId).slice(-100), hasOlderMessages: s.messages.filter(m => m.runId === runId).length > 100, deliveries: s.deliveries.filter(d => d.runId === runId), attempts: s.attempts.filter(a => a.runId === runId).map(a=>this.publicAttempt(a)), stop:stopping.view(s,r), ...taskView(s, r), automation: automation.view(s,r,this.options), permissions: { manageTasks: !!actor.user || actor.agentId === r.leaderId, configureHandoffs: !!actor.user, manageMembers: !!actor.user, writeOwnDocuments: true, automaticallyDispatch: !!r.automation?.enabled }, instructions };
   }
   async call(method, p = {}, actor = { user: true, key: 'user' }) {
-    if (!p || typeof p !== 'object' || Array.isArray(p)) throw fail('TEAM_INPUT', '小队请求不合法。');
-    if (!actor.user && !['team.contextPacket', 'team.materials', 'team.context', 'team.messages', 'team.postMessage', 'team.document', 'team.writeDocument', 'team.acknowledge', 'team.operation', 'team.tasks', 'team.wake', ...taskMethods].includes(method))
+    if (!p || typeof p !== 'object' || Array.isArray(p) || Object.hasOwn(p,'method')) throw fail('TEAM_INPUT', '小队请求不合法，不能覆盖原方法。');
+    if (!actor.user && ![...contextTransfers.methods, 'team.contextPacket', 'team.materials', 'team.context', 'team.messages', 'team.postMessage', 'team.document', 'team.writeDocument', 'team.acknowledge', 'team.operation', 'team.tasks', 'team.wake', ...taskMethods].includes(method))
       throw fail('TEAM_FORBIDDEN', '成员只能使用获准的小队协作操作。');
+    if (contextTransfers.methods.includes(method)) return contextTransfers.call(this, method, p, actor);
     if (method === 'team.snapshot') {
       const s = this.read();
       return { stage: 'I07C1', agents: s.agents, teams: s.teams, runs: s.runs, automaticCoordination: true };
     }
     if (method === 'team.operation') {
       this.authorize(this.read(), actor, p.runId);
-      const receipt = this.db.prepare('SELECT result FROM receipts WHERE actor=? AND operation=?').get(actor.key, text(p.operationId, 150));
+      const receipt = this.db.prepare('SELECT result,fingerprint FROM receipts WHERE actor=? AND operation=?').get(actor.key, text(p.operationId, 150));
       if (!receipt) return { state: 'not_found' };
-      const result = JSON.parse(receipt.result);
+      const result = JSON.parse(receipt.result),proof={operationId:p.operationId,fingerprint:receipt.fingerprint};
       if (result.kind === 'connection' && result.sessionId) {
         this.authorize(this.read(), { sessionId: result.sessionId }, result.runId);
         const {command,args,env}=await this.options.configure(result);
-        return { state: 'confirmed', data: { configuration: {command,args,env}, instructions, automaticExecution: false } };
+        return { ...proof,state: 'confirmed', data: { configuration: {command,args,env}, instructions, automaticExecution: false } };
       }
       const attempt = result.attemptId && this.read().attempts.find(a => a.attemptId === result.attemptId);
-      return { state: 'confirmed', data: attempt ? this.publicAttempt(attempt) : result };
+      return { ...proof,state: 'confirmed', data: attempt ? this.publicAttempt(attempt) : result };
     }
     if (method === 'team.tasks') { const s = this.read(); const r = this.authorize(s, actor, p.runId) || this.run(s, p.runId); return taskView(s, r); }
     if (method === 'team.context') return this.view(this.read(), p.runId, actor);
@@ -297,7 +299,7 @@ class TeamSpace {
     const actor = { sessionId }, s = this.read();
     const run = this.authorize(s, actor);
     actor.key = 'member:' + run.runId + ':' + actor.agentId;
-    const methods = { team_context_packet: 'team.contextPacket', team_materials: 'team.materials', team_request_attention: 'team.wake', team_retry_task: 'team.retryTask', team_tasks: 'team.tasks', team_operation: 'team.operation', team_create_task: 'team.createTask', team_claim_task: 'team.claimTask', team_report_task: 'team.reportTask', team_handoff_task: 'team.handoffTask', team_accept_task: 'team.acceptTask', team_accept_run: 'team.acceptRun', team_context: 'team.context', team_messages: 'team.messages', team_post_message: 'team.postMessage', team_document: 'team.document', team_update_document: 'team.writeDocument', team_acknowledge: 'team.acknowledge' };
+    const methods = { team_send_context: 'team.sendContext', team_context_transfers: 'team.contextTransfers', team_context_transfer: 'team.contextTransfer', team_ack_context: 'team.ackContext', team_context_packet: 'team.contextPacket', team_materials: 'team.materials', team_request_attention: 'team.wake', team_retry_task: 'team.retryTask', team_tasks: 'team.tasks', team_operation: 'team.operation', team_create_task: 'team.createTask', team_claim_task: 'team.claimTask', team_report_task: 'team.reportTask', team_handoff_task: 'team.handoffTask', team_accept_task: 'team.acceptTask', team_accept_run: 'team.acceptRun', team_context: 'team.context', team_messages: 'team.messages', team_post_message: 'team.postMessage', team_document: 'team.document', team_update_document: 'team.writeDocument', team_acknowledge: 'team.acknowledge' };
     if (!methods[name]) throw fail('TEAM_METHOD', '当前阶段不支持该协作操作。');
     if (p.runId && p.runId !== run.runId) throw fail('TEAM_FORBIDDEN', '不能访问其他工作。');
     if (['team_claim_task', 'team_report_task'].includes(name)) {

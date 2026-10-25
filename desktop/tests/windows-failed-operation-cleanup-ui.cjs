@@ -1,0 +1,36 @@
+// Production renderer and production management journal; isolated synthetic
+// profile/receipts, ordinary Edge input, no native tools or model requests.
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
+const {chromium,expect}=require('../node_modules/@playwright/test');
+const {GraphOperationJournal}=require('../electron/graph-operations.cjs'),{digest}=require('../electron/graph-layout.cjs');
+const output=path.resolve(process.argv[2]);fs.mkdirSync(output,{recursive:true});
+const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-cleanup-ui-')),journal=new GraphOperationJournal(directory),calls=[];
+const params={operationId:'original-startup',nodeId:'opencode',machineId:'local',action:'attach'};
+const original={lane:'node',method:'manageNode',operationId:params.operationId,params,fingerprint:digest(params),state:'unknown',time:'2026-10-19T08:23:00.000Z',error:{code:'NATIVE_START_TIMEOUT',message:'OpenCode did not become ready within 20 seconds'}};
+const uncertain={...original,operationId:'original-uncertain',params:{...params,operationId:'original-uncertain',machineId:'remote',nodeId:'remote-node'},error:{code:'DESKTOP_TRANSPORT',message:'ACK lost'}};uncertain.fingerprint=digest(uncertain.params);
+journal.update(original);journal.update(uncertain);let queryFails=true,browser,server,page;
+const report={date:new Date().toISOString(),level:'Windows Edge production renderer / real GraphOperationJournal / synthetic profile',modelCalls:0,checks:[],pageErrors:[]};
+function setup(){window.agentbridge={preferences:async()=>({theme:'dark',directory:'isolated-cleanup',platform:'win32',version:'test'}),savePreferences:async value=>value,pending:async()=>[],recoverPending:async()=>({resolved:0,items:[]}),call:async(method,params={})=>(await fetch('/rpc',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({method,params})})).json()};}
+const machine={machineId:'local',kind:'windows',name:'Local',online:true},remote={machineId:'remote',kind:'ssh',name:'Remote',online:true};
+const node={nodeId:'opencode',machineId:'local',adapter:'opencode',name:'OpenCode',executable:'controlled-original',version:'1.2.22.h0.r1',status:'connected',connected:true,online:true,healthy:true,available:true,executionSupported:true,busy:false};
+async function rpc(method,p){calls.push({method,params:p});
+ if(method==='snapshot')return {directory:'isolated-cleanup',configured:true,machines:[machine,remote],nodes:[node,{...node,nodeId:'remote-node',machineId:'remote',name:'Remote Agent'}],nodeManagement:true,machineManagement:true,status:{connected:true},agents:{items:[],revision:0},tasks:[],conversations:[],collaboration:{leaderId:null,memberIds:[],revision:0}};
+ if(method==='graphPending')return journal.pending().map(row=>({...row,blockedNodeIds:[row.params.nodeId]}));
+ if(method==='nodeOperation')return journal.lookup(method,p,async(_method,input)=>{if(queryFails)throw Object.assign(Error('controlled offline'),{code:'MACHINE_OFFLINE'});return {operationId:input.operationId,state:'not_found'};});
+ if(method==='graphLayout')return {version:1,layoutRevision:0,groups:{local:{x:0,y:0},remote:{x:440,y:0}},nodes:{opencode:{x:40,y:130},'remote-node':{x:40,y:130}},viewport:{x:0,y:0,zoom:1}};
+ if(method==='relations')return {schema:1,items:[]};
+ throw Object.assign(Error('Unexpected test method: '+method),{code:'UNEXPECTED_METHOD'});
+}
+(async()=>{
+ const dist=path.resolve(__dirname,'../dist');server=http.createServer(async(req,res)=>{
+  if(req.url==='/rpc'){let raw='';for await(const part of req)raw+=part;const {method,params}=JSON.parse(raw);res.setHeader('content-type','application/json');try{res.end(JSON.stringify({ok:true,result:await rpc(method,params)}));}catch(e){res.end(JSON.stringify({ok:false,error:{code:e.code,message:e.message}}));}return;}
+  const file=path.resolve(dist,decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\//,'')||'index.html');if(!file.startsWith(dist+path.sep)||!fs.existsSync(file))return res.writeHead(404).end();res.setHeader('content-type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync(file));
+ });await new Promise(r=>server.listen(0,'127.0.0.1',r));browser=await chromium.launch({channel:'msedge',headless:true});report.browser=browser.version();page=await browser.newPage({viewport:{width:1440,height:1050}});page.on('pageerror',e=>report.pageErrors.push(e.message));await page.addInitScript(setup);await page.goto('http://127.0.0.1:'+server.address().port);
+ await page.getByRole('button',{name:'设置',exact:true}).click();const recovery=page.locator('.settings-recovery');await expect(recovery.getByRole('button',{name:'清理已失败操作',exact:true})).toBeEnabled();
+ await recovery.getByRole('button',{name:'清理已失败操作',exact:true}).click();await expect(page.getByText(/清理完成：已解除 0 项/)).toBeVisible();assert.equal(journal.pending().length,2);report.checks.push('Query failure retains original occupancy and reports zero cleaned');
+ queryFails=false;await recovery.getByRole('button',{name:'清理已失败操作',exact:true}).click();await expect(page.getByText(/清理完成：已解除 1 项/)).toBeVisible();await expect(recovery).toContainText('节点 1 项');
+ assert.deepEqual(journal.read()[0],{...original,state:'rejected'});assert.deepEqual(journal.pending(),[uncertain]);report.checks.push('Cleanup releases exact failed attach, retains original ID/time/error/fingerprint and unresolved transport request');
+ await page.screenshot({path:path.join(output,'cleanup.png'),fullPage:true});await page.getByRole('button',{name:'机器与 Agent',exact:true}).click();const local=page.locator('.inventory-node').filter({has:page.getByRole('heading',{name:'OpenCode',exact:true})});await expect(local.getByRole('button',{name:'开始会话',exact:true})).toBeEnabled();report.checks.push('Original node can start another session after cleanup while independent unknown persists');
+ await page.reload();await page.getByRole('button',{name:'设置',exact:true}).click();await expect(recovery).toContainText('节点 1 项');assert.deepEqual(new GraphOperationJournal(directory).pending(),[uncertain]);report.checks.push('Reopen retains only unresolved original and preserves failed history on disk');
+ assert(!calls.some(call=>['manageNode','nodeRequest','ipc','saveCollaboration'].includes(call.method)));assert(calls.filter(call=>call.method==='nodeOperation').every(call=>[original.operationId,uncertain.operationId].includes(call.params.operationId)));assert.deepEqual(report.pageErrors,[]);report.calls=calls.map(({method,params})=>({method,...(method==='nodeOperation'?{operationId:params.operationId}:{})}));report.status='passed';
+})().catch(async e=>{report.status='failed';report.error=e.stack;report.calls=calls;report.body=await page?.locator('body').innerText();process.exitCode=1;try{await page?.screenshot({path:path.join(output,'failure.png'),fullPage:true});}catch{}}).finally(async()=>{await browser?.close();if(server)await new Promise(r=>server.close(r));fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2)+'\n');fs.rmSync(directory,{recursive:true,force:true});console.log(JSON.stringify({status:report.status,checks:report.checks.length,error:report.error}));});

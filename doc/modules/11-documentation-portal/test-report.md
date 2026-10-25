@@ -1,5 +1,9 @@
 # M11 文档网页测试报告
 
+2026-10-25后续：alpha.62普通EXE五组与真实驱动码0已通过，原主窗口三次正常关闭、重开和完整后台重启均保持原SQLite/收据。旧失败来自脚本重新枚举到无标题辅助窗，原报告保留；产品未改，模型0。[原窗口绑定、负向保护及分层证据](../../iterations/I08/window-lifecycle-verifier.md)。
+
+2026-10-25本地alpha.62配置/审计控制台：最终Core71/71、桌面928/928、原收据/审计专项78/78及Windows生产页面6组通过；pageErrors=0、新执行尝试0，模型0。覆盖原ID/完整指纹/页面重开/并发变更与损坏记录保护、默认只读/显式原任务恢复、权限变更正文保持。共享计数不相加；普通EXE与包交付状态统一见[本片分层证据](../../iterations/I07/configuration-console.md)。公开alpha.60及完整原生/图/WSL/SSH边界保持。
+
 T-M11-201 / M11-F01/F05：2026-10-23，alpha.52用户说明同步，docs:test 6/6、静态18页/19HTML构建与边界审计通过，内部页和证据导出均0。说明以当前原生能力为准，不增加原生/模型验收；[记录](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。

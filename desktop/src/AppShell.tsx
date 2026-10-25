@@ -22,27 +22,27 @@ import type { Preferences } from "./types";
 export const pages = [
   {
     id: "machines",
-    label: "机器与 Agent",
+    label: "接入配置",
     icon: Monitor,
-    description: "管理连接，开始工作",
+    description: "机器、原生 Agent 与 MCP",
   },
   {
     id: "teams",
-    label: "小队协作",
+    label: "小队设置",
     icon: GitBranch,
-    description: "组织智能体共同完成工作",
+    description: "成员、工作作用域与授权",
   },
   {
     id: "board",
-    label: "任务看板",
+    label: "执行审计",
     icon: LayoutGrid,
-    description: "跟进每一次执行",
+    description: "原任务、结果与恢复",
   },
   {
     id: "conversations",
-    label: "会话",
+    label: "会话审计",
     icon: MessageSquare,
-    description: "回到原来的上下文",
+    description: "只读原会话与历史轮次",
   },
   {
     id: "settings",
@@ -158,9 +158,9 @@ export default function AppShell({
         <div className="sidebar-guide">
           <CircleHelp size={16} />
           <span>
-            从机器接入 Agent，
+            配置已有 Agent，
             <br />
-            再交给小队协作。
+            从原生会话开始协作。
           </span>
         </div>
         <div className="sidebar-bottom">

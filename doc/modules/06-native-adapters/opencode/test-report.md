@@ -1,5 +1,9 @@
 # OpenCode 适配器测试报告
 
+## 原接入失败清理与协议复验
+
+T-M06-OC-CLEANUP / M06-OC-F01：2026-10-24，alpha.61本地候选；WSL Node22.23.1核心71/71、桌面921/921通过，共享不相加。包含1.x挂起info、2.x、明确协议/认证错误及启动/原Session/取消回归；清理只结算有完整原启动错误证明的本地attach，不修改执行unknown。Windows生产页面4组通过，模型0；真实1.2.22/原生模型/用户profile/独立SSH未测。普通EXE与最终包另列，见[完整证据](../../../iterations/I08/failed-operation-cleanup.md)。
+
 ## issue #21 有界协议协商验证
 
 2026-10-23，alpha.53 已公开；M06-OC-F01。共享桌面844/844、核心71/71通过；最终启动专项9/9、Windows生产前端2组与普通无调试EXE6组通过；包54后台/84Core/1702Linux及各类源码一致性通过，模型0。修复前挂起/启动失败对照、最终启动专项、包与普通EXE结果分层登记，不以合成1.2.22替代现场原生。[完整证据、命令、首次失败与未测边界](../../../iterations/I08/opencode-bounded-probe.md)。 已公开EXE与SHA256SUMS，全部字节匿名下载核验一致；[发布证据](../../../iterations/I08/alpha53-release.md)。

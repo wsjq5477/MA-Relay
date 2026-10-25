@@ -1,8 +1,22 @@
 # AgentBridge 整体架构
 
+## CT-05原选材包传递
+
+CT-05原包传递由中央TeamSpace持有同工作不可变包；四个显式RPC/MCP分别保存、列出、读取和目标确认，桌面仅按需读元数据。传递和原操作收据同SQLite事务，传递事务不运行自动事件同步；不新增模型API/远端部署/自动推送。中央可选team-context-transfer-v1仅定向门禁新RPC，daemon不声明。[完整接口、身份、原ID恢复与错误](iterations/I07/context-delivery.md)。
+
+## 配置与审计控制台
+
+本地alpha.62的实际前端入口仍为NetworkApp，负责配置、用户授权、只读审计和原操作恢复；原生Agent经独立MCP或获准工作MCP发起日常协作。桌面不再提供submit/continue、任务分配/业务验收、消息/文档正文编辑或手动执行表单。小队建立工作作用域仅保存目标与访问边界，不启动执行；成员、文档编辑者、预算、交接授权及停止/归档仍由用户配置。旧后台与CLI/原生接口保留，不以隐藏按钮替代后台授权。TaskDetail默认只读，显式进入“处理这条原执行”后按原Task来源处理等待/取消，切任务重置恢复态。
+
+小队配置写前保留原本机意图；team.operation从原SQLite收据返回原ID与持久指纹，前端核对完整方法/参数、当前原字节后才清理。异步摘要核对期间记录变化也保留并锁定。SQLite格式、原Task/Session与现有授权不变。[完整流程](iterations/I07/configuration-console.md)。
+
+## 失败管理操作的核对边界
+
+设置清理复用现有原ID查询和recoverPending，不新增RPC/协议版本或存储字段。GraphOperationJournal只对完整原启动拒绝（NATIVE_START_TIMEOUT及源码固定原文）的manageNode/attach，核验非空machineId/nodeId、原operationId和params摘要后，接受同ID的not_found作为补充核对，将本地管理意图记为rejected；该组合证明接入授权提交前已失败，not_found本身不构成证明。真实匹配终态收据优先。原参数、ID、时间、错误及指纹保留；不触碰网络节点/原生进程/Task/Session/执行unknown，查询失败或其他unknown继续占位。[设计与证据](iterations/I08/failed-operation-cleanup.md)。
+
 ## CT-08连接策略与确认
 
-原scope/独立接入身份 → 自己启用出站关系 → ConnectionPolicy核对用户envelope与原GraphJournal/节点机器锁 → 范围内连接或持久待用户确认；用户认证中央RPC明确决定后同文件atomicWrite授权/收据。Agent无用户审批接口；用户缩范围、节点/机器撤权同时清理重连权限。前端先保存原意图，丢回应只查询原收据，原ID/unknown与Task读控交集保持。经典10/小队18，中央扩展不冒充daemon能力。 [完整契约与证据](iterations/I07/connection-policy.md)。
+原scope/独立接入身份 → 自己启用出站关系 → ConnectionPolicy核对用户envelope与原GraphJournal/节点机器锁 → 范围内连接或持久待用户确认；用户认证中央RPC明确决定后同文件atomicWrite授权/收据。Agent无用户审批接口；用户缩范围、节点/机器撤权同时清理重连权限。前端先保存原意图，丢回应只查询原收据，原ID/unknown与Task读控交集保持。经典10/小队22，中央扩展不冒充daemon能力。 [完整契约与证据](iterations/I07/connection-policy.md)。
 
 ## OpenCode 就绪检查边界
 
@@ -36,7 +50,7 @@ OpenDesk的连接持有进程属于Bridge后台：CLI侧持有自己启动的现
 
 ## 调用方连接视图
 
-原MCP/broker身份 → 原来源机器/父scope或独立enabled连接检查 → 空参数校验 → 各主原snapshot → await后按原nodeId的当前启用关系纯投影。原父查询返回后为新委派读取当前关系；快照中节点状态和当前授权分别表达；撤权期间不沿旧关系返回目标。既有快照可能保存观察字段，新的投影不写数据、不触发执行。经典7工具/小队18项、关系模型与daemon协议不变。[完整契约](iterations/I07/agent-connections.md)。
+原MCP/broker身份 → 原来源机器/父scope或独立enabled连接检查 → 空参数校验 → 各主原snapshot → await后按原nodeId的当前启用关系纯投影。原父查询返回后为新委派读取当前关系；快照中节点状态和当前授权分别表达；撤权期间不沿旧关系返回目标。既有快照可能保存观察字段，新的投影不写数据、不触发执行。当前经典10工具/小队22项、关系模型与daemon协议不变。[完整契约](iterations/I07/agent-connections.md)。
 
 ## 扫描与原操作核对边界
 
@@ -44,7 +58,7 @@ OpenDesk的连接持有进程属于Bridge后台：CLI侧持有自己启动的现
 
 ## Agent侧原委派发现
 
-alpha.46源码链路：既有MCP/broker → 原来源机器与父scope或独立enabled连接校验 → AgentNetwork作用域分支 → delegation-list纯投影。新list_delegations不调用snapshot、子Agent或台账恢复/保存，仅找回原ID；实时结果继续task_result。经典7工具，小队18工具；Claude/Codex仅补该只读允许项，reply_task和原生账号/文件权限不变。关系模型、daemon协议2、JSON/SQLite版本不变。[实现、字段与冻结验证](iterations/I07/delegation-list.md)。
+alpha.46源码链路：既有MCP/broker → 原来源机器与父scope或独立enabled连接校验 → AgentNetwork作用域分支 → delegation-list纯投影。新list_delegations不调用snapshot、子Agent或台账恢复/保存，仅找回原ID；实时结果继续task_result。当前经典10工具，小队22工具；Claude/Codex仅补该只读允许项，reply_task和原生账号/文件权限不变。关系模型、daemon协议2、JSON/SQLite版本不变。[实现、字段与冻结验证](iterations/I07/delegation-list.md)。
 
 ## OpenCode 后台门面
 

@@ -47,7 +47,7 @@ async function graphFixture(options={}){
   router.save();let snapshot=await router.snapshot();
   for(const node of snapshot.nodes)await router.call('attachNode',{nodeId:node.nodeId});
   snapshot=await router.snapshot();
-  const service=runtimeService({directory,platform:'win32',network:router,version:require('../package.json').version});
+  const service=runtimeService({directory,platform:'win32',network:router,version:options.version||require('../package.json').version});
   let loseRelationAck=false,loseLayoutAck=false,hideReceipt=false,staleRelation=null;
   const calls=[];
   return {router,directory,calls,hosts,nodes:snapshot.nodes,

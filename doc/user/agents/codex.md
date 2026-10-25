@@ -1,10 +1,12 @@
 # Codex
 
+本地alpha.62的Bridge桌面只提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派；公开alpha.60仍保留旧桌面入口。
+
 ## 如何连接
 
 Bridge 使用 Codex 原生 CLI 的 exec / resume 与 JSON 输出，创建任务并在同一原生会话续聊。执行沿用该机器上的 Codex 登录和原生配置。
 
-在目标机器确认 Codex 可正常执行，再运行 Bridge 工具检测。选择 Codex、工作目录并提交任务。WSL 与 Windows 的 Codex 是各自环境中的安装，不能混用目录和配置。
+在目标机器确认 Codex 可正常执行，再运行 Bridge 工具检测。为Codex配置Bridge MCP，从Codex原生会话开始工作，或由获准主Agent委派给该节点。WSL 与 Windows 的 Codex 是各自环境中的安装，不能混用目录和配置。
 
 ## 支持的功能
 
@@ -14,7 +16,7 @@ Bridge 使用 Codex 原生 CLI 的 exec / resume 与 JSON 输出，创建任务�
 
 ## MCP 与协作
 
-“机器与 Agent”的 Codex 行右侧“配置”支持管理原生 MCP 连接；托管协作会话也可使用其获准的 Bridge MCP 通路。MCP 调用方能力与 CLI 执行能力分开管理。
+“接入配置”的 Codex 行右侧“配置”支持管理原生 MCP 连接；托管协作会话也可使用其获准的 Bridge MCP 通路。MCP 调用方能力与 CLI 执行能力分开管理。
 
 按[MCP 与连接授权](../connections.md)配置，再通过[关系与协作](../collaboration.md)选择允许委派的目标。
 

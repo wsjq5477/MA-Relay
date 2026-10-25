@@ -52,7 +52,8 @@ interface Props {
   machineManagementSupported: boolean;
   daemonManagementSupported: boolean;
   blocked: (machineId?: string, nodeId?: string) => boolean;
-  start: (node: AgentNode) => void;
+  start?: (node: AgentNode) => void;
+  configurationOnly?: boolean;
   attach: (id: string) => void;
   nodeAction: (node: AgentNode, action: NodeAction) => void;
   addAgent: (machine: Machine) => void;
@@ -408,7 +409,7 @@ export default function MachineInventory(props: Props) {
                   <article
                     className="inventory-node"
                     key={node.nodeId}
-                    aria-label={`${node.name} · ${role || "Agent"} · ${state.label}`}
+                    aria-label={`${node.name} · ${role || "Agent"} · ${props.configurationOnly&&state.label==='可开始会话'?'可用于协作':state.label}`}
                   >
                     <div
                       className="inventory-node-icon"
@@ -448,17 +449,17 @@ export default function MachineInventory(props: Props) {
                     </div>
                     <div className="inventory-node-status">
                       <span className="ui-status" data-tone={state.tone}>
-                        {state.label}
+                        {props.configurationOnly&&state.label==='可开始会话'?'可用于协作':state.label}
                       </span>
                       {resourceBlocked && <button className="text-btn" title={props.executionReason?.(node.machineId,node.nodeId) || metadataReason || '查看原操作与查询结果'} onClick={props.openSettings}>原操作待核对 · 查看</button>}
                     </div>
                     <div className="inventory-node-actions">
                       {(node.connected && node.status !== "needs_check") ? (
-                        <button
+                        !props.configurationOnly && <button
                           className="btn small inventory-start"
                           title={props.executionReason?.(node.machineId,node.nodeId)}
                           disabled={!canStart}
-                          onClick={() => props.start(node)}
+                          onClick={() => props.start?.(node)}
                         >
                           开始会话
                           <ArrowUpRight size={14} />
@@ -515,7 +516,7 @@ export default function MachineInventory(props: Props) {
                   <h3>这台机器还没有 Agent</h3>
                   <p>
                     {machine.online
-                      ? "扫描已安装的原生工具，接入后就可以开始会话。"
+                      ? "扫描已安装的原生工具，接入后配置 MCP，并从原生 Agent 会话发起工作。"
                       : "连接这台机器后，扫描已安装的原生工具。"}
                   </p>
                 </div>

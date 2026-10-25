@@ -1,5 +1,7 @@
 # M11 文档网页入口设计
 
+当前用户页同步alpha.62的配置/审计导航、原生需求入口、工作MCP及原执行恢复，并明确公开alpha.60仍有旧界面。仅发布doc/user白名单，不把内部迭代/报告加入站点。[本片记录](../../iterations/I07/configuration-console.md)。
+
 M11-F01/F05：OpenDesk用户页明确原生退出检查、断开原节点可添加、真实Node必需和无法自动核验原生列表；协作页说明独立节点unknown的资源边界。仅更新用户正文，不将内部迭代/测试证据发布到网站。[行为来源](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 M11-F01/F05：用户Pi/Hermes页与方式表按alpha.50本地候选说明原生管理、禁用/目录切换和重载；公开alpha.46只导出边界保留。调用方与托管scope分开；内部迭代/证据不发布。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
