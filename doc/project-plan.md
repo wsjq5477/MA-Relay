@@ -1,6 +1,6 @@
 # 迭代路线与当前交付
 
-当前源码完成 issue #25 的关系撤权与目标作用域修复；待可用Linux环境全量复验与新EXE验收后再评估交付，公开alpha.63保持。设主自动授权全部节点不纳入本修复。需求、实现、受控证据与未测项见[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
+issue #25修复已随alpha.64公开，Windows包/ASAR前端与普通EXE原收据、原profile重启/退出验证完成，匿名完整下载匹配。Linux全量/真实原生/冷启动/独立SSH与完整矩阵继续待验；设主自动授权全部节点不纳入本修复。[交付与限制](iterations/I08/alpha64-release.md)。
 
 alpha.63 [原生MCP生命周期补验](iterations/I08/native-mcp-lifecycle.md)：普通无调试EXE与原版Pi客户端七组通过，三个实际解包目录关闭后删除，原传输/原身份/完整接收收据保持；最后原窗/客户端/Coordinator均确认退出。实际WSL十五分钟180/180及删除/重开/撤权/轮换六组也已通过，两个客户端/原宿主退出且残留0。模型0，其他入口/跨版本升级/托管父模型、WSL冷启动/历史故障与整体MCP02继续未准出。
 
@@ -18,7 +18,7 @@ WSL当前补验（2026-10-25）：公开alpha.60冻结HostConnection独立启动
 
 当前本地alpha.61候选处理#24与失败后恢复出口：复用已发布有界协议协商，补历史原接入失败核对和设置清理入口。公开alpha.60不变，真实早期1.x/模型/独立SSH及原完整准出边界保留。[本轮交付](iterations/I08/failed-operation-cleanup.md)。
 
-当前公开预发布 **0.6.0-alpha.63**，标签冻结 `da60054`；EXE 130203473字节、SHA-256 `2ba100ea01ceee057bed3a03763b92a442c75bd4b094ed70873608f49157b40a`。180个产品/依赖文件与构建时冻结摘要逐项一致，源码、EXE和校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。未签名、未切换日常后台、未部署SSH；图100ms、父模型、冷启动和完整I06C/I07C/MCP02继续未准出。 [完整发布证据](iterations/I08/alpha63-release.md)。
+当前公开预发布 **0.6.0-alpha.64**，标签冻结 `c728234`；EXE 132227581字节、SHA-256 `86b8aad407400754d77012c9d873a19dd52a6576c59cc6c568a3f503705446dd`。204个产品/依赖输入与构建快照一致，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。未签名、未切换日常后台、未部署SSH；图100ms、父模型、冷启动与完整I06C/I07C/MCP02继续未准出。 [完整发布证据](iterations/I08/alpha64-release.md)。
 
 上一公开 alpha.53 承接 #19/#20，并修复 #21 的 OpenCode 有界协议协商、原安装复核与状态一致性；[实现与验证](iterations/I08/opencode-bounded-probe.md)、[发布核验](iterations/I08/alpha53-release.md)。
 
@@ -32,7 +32,7 @@ WSL当前补验（2026-10-25）：公开alpha.60冻结HostConnection独立启动
 
 原生现场历史证据（alpha.46）：已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
 
-当前公开版本承接alpha.46的[I08-MCP02](iterations/I08/mcp-open-integration.md)，完成[恢复与观测修复、非GUI首次接入](iterations/I08/mcp-open-recovery.md)。六项事实按配置绑定与60秒观测有效期核对，Linux重启恢复端点且不补装原生条目；根68/68、桌面758/758，最终JSON修复后CLI11/11与工程检查通过。未签名、已公开、未部署远端；逐入口真实原生增删、主Agent委派与托管归属仍未准出，当前公开版为0.6.0-alpha.63。
+当前公开版本承接alpha.46的[I08-MCP02](iterations/I08/mcp-open-integration.md)，完成[恢复与观测修复、非GUI首次接入](iterations/I08/mcp-open-recovery.md)。六项事实按配置绑定与60秒观测有效期核对，Linux重启恢复端点且不补装原生条目；根68/68、桌面758/758，最终JSON修复后CLI11/11与工程检查通过。未签名、已公开、未部署远端；逐入口真实原生增删、主Agent委派与托管归属仍未准出，当前公开版为0.6.0-alpha.64。
 
 当前发布已补齐OpenDesk前端能力门禁；[本轮交付](iterations/I08/opendesk-ui-admission.md)。当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。 当前Windows Desktop 0.3.9原实例真实执行、续聊和窗口重开通过；[现场验证范围](iterations/I08/opendesk-desktop-live.md)。
 

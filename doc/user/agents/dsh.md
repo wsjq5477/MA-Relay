@@ -1,6 +1,6 @@
 # DSH
 
-本地alpha.62的Bridge桌面只提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派；公开alpha.60仍保留旧桌面入口。
+当前alpha.64的Bridge桌面提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派。
 
 DeepSeek Harness（DSH）有 CLI、Windows Desktop 和 Linux / WSL Web 三个执行入口。Desktop / Web 连接已有原生服务，CLI 使用独立的 headless 程序；它们分别发现和配置。
 

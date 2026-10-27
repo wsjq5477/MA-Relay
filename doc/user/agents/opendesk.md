@@ -1,6 +1,6 @@
 # OpenDesk
 
-本地alpha.62的Bridge桌面只提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派；公开alpha.60仍保留旧桌面入口。
+当前alpha.64的Bridge桌面提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派。
 
 OpenDesk CLI和Windows桌面版分别接入，使用它们已有的接口，沿用原生账号、模型、Skills与工具。无需安装Bridge定制的OpenDesk。安装检查与网关连接成功不代表模型可用。
 

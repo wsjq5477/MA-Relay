@@ -1,6 +1,6 @@
 # M06 原生 Agent 适配器设计
 
-M06-F02/F05：关系图为新增成员检查execution/delegation，为新主检查execution/MCP调用资格；保存撤权时不要求被移除或未变化旧节点重新通过能力检查。原生实际执行/委派仍按当前节点能力与来源授权检查，保留MCP调用、原生配置管理、托管scope三个独立维度。无适配器、模型API、原生配置或真实任务变更。当前源码未发布，[关系撤权与目标作用域](../../iterations/I08/relation-revocation-scope.md)。
+M06-F02/F05：关系图为新增成员检查execution/delegation，为新主检查execution/MCP调用资格；保存撤权时不要求被移除或未变化旧节点重新通过能力检查。原生实际执行/委派仍按当前节点能力与来源授权检查，保留MCP调用、原生配置管理、托管scope三个独立维度。无适配器、模型API、原生配置或真实任务变更。已随alpha.64公开，[关系撤权与目标作用域](../../iterations/I08/relation-revocation-scope.md)。
 
 ### CT-05原包传递与接收声明
 

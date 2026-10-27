@@ -7,10 +7,11 @@ const {bindPortableWindow}=require('./windows-portable-window.cjs');
 const {digest}=require('../electron/graph-layout.cjs');
 if(process.platform!=='win32')throw Error('Windows required');
 const source=path.resolve(process.argv[2]),output=path.resolve(process.argv[3]),version=require('../package.json').version;
-const profile=fs.mkdtempSync(path.join(os.tmpdir(),'ab-revocation-portable-')),exe=path.join(profile,path.basename(source)),nativeHome=path.join(profile,'native-home');
-fs.copyFileSync(source,exe);fs.mkdirSync(nativeHome,{recursive:true});
+const resuming=!!process.argv[4],profile=resuming?path.resolve(process.argv[4]):fs.mkdtempSync(path.join(os.tmpdir(),'ab-revocation-portable-')),exe=path.join(profile,path.basename(source)),nativeHome=path.join(profile,'native-home');
+if(resuming){assert(profile.startsWith(path.resolve(os.tmpdir())+path.sep));assert(path.basename(profile).startsWith('ab-revocation-portable-'));assert.deepEqual(fs.readFileSync(exe),fs.readFileSync(source));}else fs.copyFileSync(source,exe);
+fs.mkdirSync(nativeHome,{recursive:true});
 const machineId='isolated-windows',time='2020-01-01T00:00:00Z';
-const write=(name,data)=>{const file=path.join(profile,name);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,JSON.stringify(data));};
+const write=(name,data)=>{if(resuming)return;const file=path.join(profile,name);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,JSON.stringify(data));};
 const node=(nodeId,adapter,extra={})=>({nodeId,machineId,adapter,name:'Controlled '+nodeId,executable:'C:/synthetic-never-run/'+nodeId+'.exe',managed:true,connected:true,executionSupported:true,...extra});
 write('desktop.json',{theme:'light',distribution:'',directory:'/tmp/'+path.basename(profile)});
 write('machines.json',{version:1,localMachineId:machineId,machines:[{machineId,name:'Controlled Windows',kind:'windows',platform:'win32'}],connections:[],instances:[]});
@@ -35,7 +36,12 @@ async function launch(){
   if(fs.existsSync(path.join(profile,'coordinator-status.json'))){
    const text=await ps(`Get-CimInstance Win32_Process | Where-Object {$_.ParentProcessId -eq ${wrapper.pid} -and $_.Name -eq 'AgentBridge.exe'} | ForEach-Object {@{pid=$_.ProcessId;parent=$_.ParentProcessId;command=$_.CommandLine;title=(Get-Process -Id $_.ProcessId).MainWindowTitle}} | ConvertTo-Json -Compress`);
    const rows=text?JSON.parse(text):[];main=(Array.isArray(rows)?rows:[rows]).find(row=>row.title==='AgentBridge');
-   if(main){assert.equal(main.parent,wrapper.pid);assert(!/remote-debugging|--inspect/.test(main.command));windowBinding=await bindPortableWindow(main.pid);client=new CoordinatorClient({directory:profile});await client.attach();assert.equal(client.info.version,version);coordinatorPid=client.info.pid;(report.startupDurationsMs||=[]).push(Date.now()-started);return;}
+   if(main){
+    assert.equal(main.parent,wrapper.pid);assert(!/remote-debugging|--inspect/.test(main.command));if(!windowBinding)windowBinding=await bindPortableWindow(main.pid);
+    const next=new CoordinatorClient({directory:profile});
+    try{await next.attach();assert.equal(next.info.version,version);client=next;coordinatorPid=next.info.pid;(report.startupDurationsMs||=[]).push(Date.now()-started);return;}
+    catch(e){next.close();if(!['ENOENT','ECONNREFUSED'].includes(e.code))throw e;}
+   }
   }
   await delay(500);
  }
@@ -58,6 +64,20 @@ async function retained(expected){
  assert.equal(state.relationOperations.filter(r=>r.operationId==='revoke-original').length,1);
 }
 (async()=>{
+ if(resuming){
+  const prior=JSON.parse(fs.readFileSync(path.resolve(process.argv[5])));assert.equal(prior.version,version);assert.equal(prior.status,'failed');assert.equal(prior.error.code,'ENOENT');assert.equal(prior.checks.length,5);assert.deepEqual(prior.portable,report.portable);
+  assert.deepEqual(fs.readFileSync(historyFile),Buffer.from(JSON.stringify(history)));assert.equal(JSON.parse(fs.readFileSync(path.join(profile,'machines.json'))).localMachineId,machineId);
+  report.priorPassedChecks=5;report.resumedSameProfile=true;report.checks.push(...prior.checks);checkpoint('resume same original profile');
+  let oldPid=JSON.parse(fs.readFileSync(path.join(profile,'coordinator-status.json'))).pid;assert(Number.isInteger(oldPid)&&oldPid>0);
+  const old=new CoordinatorClient({directory:profile});
+  try{await old.attach();oldPid=old.info.pid;assert.equal(old.info.version,version);await old.request('shutdown');}catch(e){if(!['ENOENT','ECONNREFUSED'].includes(e.code))throw e;}finally{old.close();}
+  await waitExit(oldPid);await launch();assert.notEqual(coordinatorPid,oldPid);
+  const expected={leaderId:'independent',memberIds:[],revision:6};await retained(expected);
+  const original=await call('collaborationOperation',{operationId:'revoke-original'});assert.equal(original.state,'confirmed');assert.deepEqual(original.data,{leaderId:'main',memberIds:[],revision:5});
+  report.checks.push('Same original profile completes full Coordinator restart; exact original revocation receipt, unknown and native history survive without replay');checkpoint('resume final shutdown');
+  const lastPid=coordinatorPid;await closeWindow();await client.request('shutdown');client.close();await waitExit(lastPid);client=null;
+  report.checks.push('Follow-up original window/wrapper exits normally and the explicitly restarted test Coordinator exits');report.status='passed';return;
+ }
  checkpoint('launch');await launch();const firstPid=coordinatorPid;
  const frozen=fs.readdirSync(path.join(profile,'coordinator/versions')).find(name=>name.startsWith(version+'-'));assert(frozen);
  for(const name of ['agent-network.cjs','relation-admission.cjs','graph-operations.cjs','coordinator-service.cjs','relation-state.cjs'])assert.equal(createHash('sha256').update(fs.readFileSync(path.join(profile,'coordinator/versions',frozen,'desktop/electron',name))).digest('hex'),createHash('sha256').update(fs.readFileSync(path.join(__dirname,'../electron',name))).digest('hex'));

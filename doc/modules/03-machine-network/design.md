@@ -1,6 +1,6 @@
 # M03 机器、Agent 节点与执行上下文设计
 
-M03-F02/F04/F05：中央GraphOperationJournal沿用Coordinator的可信relationManagementBlocks回调处理node与machine冲突。纯撤权无新增准入目标，不附加查询或结算原管理未知；显式relationId以该行原集合比较，其他行不变。布局lane独立；operationId/fingerprint、expectedRevision、原子关系/收据提交与未知不重放均保持。当前源码未发布，[关系撤权与目标作用域](../../iterations/I08/relation-revocation-scope.md)。
+M03-F02/F04/F05：中央GraphOperationJournal沿用Coordinator的可信relationManagementBlocks回调处理node与machine冲突。纯撤权无新增准入目标，不附加查询或结算原管理未知；显式relationId以该行原集合比较，其他行不变。布局lane独立；operationId/fingerprint、expectedRevision、原子关系/收据提交与未知不重放均保持。已随alpha.64公开，[关系撤权与目标作用域](../../iterations/I08/relation-revocation-scope.md)。
 
 M03-F01/F02/F04：本地alpha.62的机器/关系图改为配置入口，日常委派由原生Agent MCP发起；机器、节点、关系与原unknown资源锁不变，扫描/接入/配置/维护保留。[控制台范围与验证](../../iterations/I07/configuration-console.md)。
 
