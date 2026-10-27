@@ -1,5 +1,7 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+M08-F02/F03/F04/F05：保持主节点且提交严格更小的成员集合，或清空主节点与全部成员，属于纯撤权。它不重新准入移除/保留的旧角色，不因节点离线或能力失效而拒绝。其余保存只对新增成员与新主做准入；换主不会自动给其他节点授权。关系自身unknown、不可信台账和修订/原ID冲突保持；撤权不取消旧任务或迁移原父读控。当前源码未发布，[关系撤权与目标作用域](../../iterations/I08/relation-revocation-scope.md)。
+
 ### CT-05原包传递与接收声明
 
 新增同工作原包持久传递、目标读取/匹配收据和桌面按需只读审计；小队MCP22项，经典10不变。原state版本3/receipts结构保持，独立SQLite表与写收据原子提交；无调度、任务或权限副作用。当前本地alpha.63已打包交付，Pi→固定源码Hermes原生组件传递7组已验；真实父模型消费待验。完整字段、当前身份/可见性、原ID恢复、容量/错误和源码见[原包传递设计](../../iterations/I07/context-delivery.md)。
@@ -16,7 +18,7 @@ M08-F02/F03/F05：索引v3含envelope.version1/revision/allowedNodeIds；v1/v2�
 
 ## 当前 OpenDesk 生命周期与关系作用域
 
-M08-F02/F03/F04/F05：无关节点管理 unknown 不再全局禁用独立 MCP 主节点草稿；保存核对现有和新主/子节点的资源并集。原关系 unknown、机器 pending、原节点/同安装/共享目录及缺失来源/范围仍拒绝。设置草稿不写后台；保存使用一个原 operationId，同 ID 幂等，原 A 的参数、时间、错误与占用保留，不附加查询/重派。MCP客户端、托管scope、原生加载与工具事实仍独立。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+M08-F02/F03/F04/F05：无关节点管理 unknown 不再全局禁用独立 MCP 主节点草稿；保存只核对新增成员与新主的资源；未变化旧成员不重新准入。原关系 unknown及缺失来源/范围仍拒绝，可信node/machine未知仅在命中新目标的原节点/同安装/共享目录或机器范围时阻止。设置草稿不写后台；保存使用一个原 operationId，同 ID 幂等，原 A 的参数、时间、错误与占用保留，不附加查询/重派。MCP客户端、托管scope、原生加载与工具事实仍独立。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 M08-F01/F02/F05：十入口均有独立MCP客户端声明，OpenDesk CLI仍无Bridge原生写入适配；Pi/Hermes可按独立MCP维度作主，旧来源未知/false不放宽。托管scope/小队仅原三种工具；角色资格与原生父模型实测分开。原生禁用/删除不会自动撤销旧缓存授权，revoke/remove才撤权，原关系/台账保持。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
 
@@ -60,7 +62,7 @@ M08-F01：OpenCode 1.x 托管 scope 使用原生 mcp.agentbridge，不写 V2 cod
 
 ## 当前版本准入与管理作用域
 
-M08-F02/F03/F04：OpenCode版本不兼容时执行/委派能力关闭，关系与原历史保留。relation未知仍阻断非布局元数据；node管理未知按旧/新授权资源并集判断，machine与来源不明仍阻止授权编辑；原请求/派生ID及确定拒绝证明规则保持。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
+M08-F02/F03/F04：OpenCode版本不兼容时执行/委派能力关闭，关系与原历史保留。relation未知仍阻断非布局元数据；node/machine管理未知按新增成员与新主资源判断，来源不明仍阻止授权编辑；原请求/派生ID及确定拒绝证明规则保持。 [完整规则与证据](../../iterations/I07/version-management-recovery.md)。
 
 ## 独立 MCP 配置与运行契约
 
@@ -195,7 +197,7 @@ M08-F01/F02/F05：本轮把“能否调用Bridge MCP”和“能否把一次托�
 
 M08-F01/F02/F03/F05/F06：保存新关系要求主节点execution=true且具备MCP调用能力（`mcpClient`；旧快照的`bridgeMcp`为同一投影），子节点delegation=true；本机静态注册与明确元数据收窄共同决定。托管任务scope注入是独立维度（`hostManagedTask`），不再是作主的前提，见[主角色准入与托管scope注入的分离](#主角色准入与托管scope注入的分离)。经典delegate子任务使用collaboration:false，Hermes/Pi/DSH可被普通委派；Pi与DSH的独立MCP声明不等于小队注入，Hermes/Pi独立MCP调用方已声明但完整自主父模型未验。已有原操作/委派先查询，不让新能力检查阻断恢复；历史关系展示保留但不能据历史主身份新发协作任务。MCP list_agents追加能力/来源，不泄漏执行/模型/认证配置。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
 
-用户提交 operationId、expectedRevision、完整主/成员集合，指定其他关系时另带relationId并强制原operationId。后台先查原收据，同 ID 同内容返回原结果；改变内容返回 OPERATION_CONFLICT。新保存校验所有节点存在、已接入并支持执行、每行唯一主/启用主身份无重复、无重复成员/自连与该行期望修订，随后在 agent-network.json 同一次原子替换中提交关系 revision+1 和 relationOperations 收据。坐标/状态不能成为授权。过期修订返回 REVISION_CONFLICT，前端保留草稿；收据最多 4096 项，到限明确拒绝，不删除未确认历史来释放占位。兼容旧内部调用不带 operationId 时返回原 collaboration 形状；新图入口总使用稳定 ID 和中央图意图台账。
+用户提交 operationId、expectedRevision、完整主/成员集合，指定其他关系时另带relationId并强制原operationId。后台先查原收据，同 ID 同内容返回原结果；改变内容返回 OPERATION_CONFLICT。新保存校验新增成员/新主存在、已接入及各自执行/委派/MCP能力，同时校验每行唯一主/启用主身份无重复、无重复成员/自连与该行期望修订，随后在 agent-network.json 同一次原子替换中提交关系 revision+1 和 relationOperations 收据。坐标/状态不能成为授权。过期修订返回 REVISION_CONFLICT，前端保留草稿；收据最多 4096 项，到限明确拒绝，不删除未确认历史来释放占位。兼容旧内部调用不带 operationId 时返回原 collaboration 形状；新图入口总使用稳定 ID 和中央图意图台账。
 
 ```json
 {"method":"saveCollaboration","params":{"operationId":"relation-save-example","leaderId":"node-main","memberIds":["node-child-a","node-child-b"],"expectedRevision":3}}
@@ -314,7 +316,7 @@ broker 将 token 对应 scope 与业务参数分开，中央宿主/远端 relay 
 
 ## 节点生命周期对授权的影响
 
-配置入口合并到机器图同页。断开/移除节点撤销其在所有关系中的成员身份，并清空其所有出站授权；每条受影响关系的revision单独增一，并与节点状态和原操作收据原子提交。接回原节点不恢复已撤销权限。node/relation 未确认写入互锁，图位置不参与授权。节点必须空闲且来源可核对才能变更；任何原父对旧任务的读控仍按原账本及活跃 scope 校验，不转交给新主。详见 [节点管理说明](../../iterations/I06/node-management.md)。
+配置入口合并到机器图同页。断开/移除节点撤销其在所有关系中的成员身份，并清空其所有出站授权；每条受影响关系的revision单独增一，并与节点状态和原操作收据原子提交。接回原节点不恢复已撤销权限。relation未确认写入仍阻断节点管理，node未确认只阻断命中的新增授权角色；纯撤权独立，图位置不参与授权。节点必须空闲且来源可核对才能变更；任何原父对旧任务的读控仍按原账本及活跃 scope 校验，不转交给新主。详见 [节点管理说明](../../iterations/I06/node-management.md)。
 
 ## 当前机器管理与观察恢复
 

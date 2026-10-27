@@ -216,3 +216,15 @@ test('ordinary child nodes need execution/delegation capability without needing 
   const unknown = node('unregistered', {teamCollaboration: true});
   assert.match(connectionError(relation, [leader, unknown], leader.nodeId, unknown.nodeId), /能力|委派|执行/);
 });
+
+test('issue25: relation capability checks admit only new roles and never re-admit retained offline members on revocation',()=>{
+ const leader=node('claude',{connectionCapabilities:capabilities()}),member=node('codex',{connectionCapabilities:capabilities()}),added=node('opencode',{connectionCapabilities:capabilities()});
+ const base={leaderId:leader.nodeId,memberIds:[member.nodeId],revision:1};
+ const unavailable=[{...leader,connected:false},{...member,connected:false,executionSupported:false},added];
+ assert.equal(relationCapabilityError({...base,memberIds:[]},unavailable,base),'');
+ assert.equal(relationCapabilityError({...base,memberIds:[member.nodeId,added.nodeId]},unavailable,base),'');
+ assert.equal(relationCapabilityError({...base,leaderId:added.nodeId},unavailable,base),'');
+ assert(relationCapabilityError({...base,leaderId:member.nodeId,memberIds:[]},unavailable,base));
+ assert(relationCapabilityError({...base,memberIds:['unknown']},unavailable,base));
+ assert.match(relationCapabilityError({...base,memberIds:[leader.nodeId]},[leader,member],base),/不能连接自己/);
+});

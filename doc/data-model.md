@@ -1,5 +1,7 @@
 # 对象、身份与持久数据
 
+关系撤权修复保持collaboration、relations、revision、GraphReceipt和graph-pending格式不变。准入目标为新主（主ID改变时）与相对原行新增的成员；清主加空成员或同主缩小集合无新增目标。角色/成员无重复、自连、原ID和期望修订继续校验。原管理未知及历史不因撤权而清理。[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
+
 ## CT-05原选材包传递
 
 team-space.sqlite新增独立context_transfers表（transfer_id主键、run_id/sender_id/target_id/body），state.version仍3、原receipts结构保持。body保存schema1不可变packet、发送元数据、完整内容摘要、仅目标读取可得的随机deliveryProof和可选确认时间/原Session；列表/操作收据不含证明。最多256条/8MiB UTF-8，容量失败回滚，不淘汰待确认。pending_receipt仅无确认；acknowledged仅目标接入声明，businessAccepted恒false。[完整接口、身份、原ID恢复与错误](iterations/I07/context-delivery.md)。
@@ -22,7 +24,7 @@ agent-network.json外层version1、索引relationsVersion3，每行增加必需e
 
 持久格式不变。OpenCode 节点的 apiCompatibility 继续按原 executable、实际观察 version、compatible/error 记录；复验更新原安装的版本，失配或失败时快照投影 connected=false 与 needs_check，存储的原接入意图及 nodeId/context/Session/历史/unknown 保留。已保留所有者的原安装不因 PATH 改变而换绑。[完整规则与验证](iterations/I08/opencode-bounded-probe.md).
 
-McpStatus新增可选 nativeProbeSupported 与 lifecycle={phase,processState,safeToWrite,message,checkedAt?}，phase 为 exit_required/process_unknown/ready_to_write/reopen_required/running_unverified，processState 为 running/stopped/unknown；均为即时观测，不持久PID/命令行/进程明细。safeToWrite仅证明本次进程检查，文件归属/冲突另行校验；旧后台缺字段时前端禁用 OpenDesk 添加。graphPending、关系与请求持久格式不变；可信关系资源并集在中央实时解析，不接受IPC传入的放行范围。[合约与验证](iterations/I08/opendesk-lifecycle-relation-scope.md)。
+McpStatus新增可选 nativeProbeSupported 与 lifecycle={phase,processState,safeToWrite,message,checkedAt?}，phase 为 exit_required/process_unknown/ready_to_write/reopen_required/running_unverified，processState 为 running/stopped/unknown；均为即时观测，不持久PID/命令行/进程明细。safeToWrite仅证明本次进程检查，文件归属/冲突另行校验；旧后台缺字段时前端禁用 OpenDesk 添加。graphPending、关系与请求持久格式不变；可信新增成员/新主资源在中央基于当前关系实时解析，不接受IPC传入的放行范围；纯撤权不新增准入目标。[合约与验证](iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 ## DSH 节点选择
 

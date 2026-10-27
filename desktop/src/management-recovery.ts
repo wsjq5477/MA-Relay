@@ -41,7 +41,11 @@ export function relationRecoveryReason(rows:RecoveryRow[],nodes:AgentNode[],mach
  for(const row of rows){
   if(row.lane==='layout')continue;
   if(row.lane==='relation')return '原协作授权操作待核对，请在设置中查询原授权操作。';
-  if(row.lane==='machine')return '原机器管理或维护操作待核对，请先查询原操作。';
+  if(row.lane==='machine'){
+   const machineId=sourceMachine(row,machines);
+   if(!machineId||!machines.some(m=>m.machineId===machineId))return '原机器管理操作缺少可信来源，请在设置中查询原操作后再编辑授权。';
+   continue;
+  }
   if(!valid(row.params.machineId)||!valid(row.params.nodeId)||!machines.some(m=>m.machineId===row.params.machineId)||!nodes.some(n=>n.nodeId===row.params.nodeId&&n.machineId===row.params.machineId)||!Array.isArray(row.blockedNodeIds)||!row.blockedNodeIds.every(valid)||!row.blockedNodeIds.includes(row.params.nodeId as string))return '原节点管理操作缺少可信范围，请在设置中查询原操作后再编辑授权。';
  }
  return '';

@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+AB-F02/F03/F12/F16：当前源码已修复关系图撤权与目标管理范围。保持主节点并缩小成员集合，或清空主节点与全部成员，不重新准入旧节点；新增成员与换主只检查新目标/新主。无关节点或机器 unknown、布局不可用不再全局锁定授权编辑；关系自身未知、来源/台账不可读、草稿无法持久化和修订冲突仍保护。设主不自动增加成员。基于公开alpha.63，尚未打包发布；[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
+
 alpha.62普通窗口生命周期五组与真实驱动退出码0已补验：旧脚本后续误选同进程无标题辅助窗，现绑定原主窗口并在关闭前核对归属/标题；三次正常关闭均原进程退出、包装码0，产品和EXE字节未改。未切换日常后台，模型0。[定位、修复与当前边界](iterations/I08/window-lifecycle-verifier.md)。
 
 2026-10-25冻结alpha.62已完成原实际SSH只读复验：保存凭据/主机指纹认证、alpha.37原清单1459项逐文件核对、两次非接管inspect三组通过，原PID/current.json/本地配置保持，模型0；未部署、hello或任务。完整故障/升级矩阵与普通EXE联合流程仍未准出。[当前证据](iterations/I08/alpha62-ssh-readonly.md)。
@@ -26,7 +28,7 @@ alpha.56冻结包图管线诊断（2026-10-24）：默认渲染含tracing的完�
 
 当前公开预发布 **0.6.0-alpha.63**，标签冻结 `da60054`；EXE 130203473字节、SHA-256 `2ba100ea01ceee057bed3a03763b92a442c75bd4b094ed70873608f49157b40a`。180个产品/依赖文件与构建时冻结摘要逐项一致，源码、EXE和校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。未签名、未切换日常后台、未部署SSH；图100ms、父模型、冷启动和完整I06C/I07C/MCP02继续未准出。 [完整发布证据](iterations/I08/alpha63-release.md)。
 
-当前源码修复 DSH 服务连接保存后的目标选择与同机独立节点管理准入（AB-F01/AB-F02/AB-F06）。保存、刷新、重开和扫描始终核对原机器/节点的明确连接身份；节点管理 unknown 仅保护原节点、原安装或共享目录，机器管理/关系及缺失身份继续保守阻塞。已随0.6.0-alpha.51.recovery.2公开；[需求、实现与分层验证](iterations/I08/connection-identity-node-scope.md)。
+当前源码修复 DSH 服务连接保存后的目标选择与同机独立节点管理准入（AB-F01/AB-F02/AB-F06）。保存、刷新、重开和扫描始终核对原机器/节点的明确连接身份；节点管理 unknown 仅保护原节点、原安装或共享目录，机器管理按来源机器保护，关系自身未知及缺失身份继续保守阻塞。已随0.6.0-alpha.51.recovery.2公开；[需求、实现与分层验证](iterations/I08/connection-identity-node-scope.md)。
 
 AB-F02/F07/F11/F13：WSL宿主就绪前失败明确未派发，写入后失联保留unknown与原请求；历史启动9/20通过、11次就绪前退出，稳定性未准出。alpha.53自动保存画布位移0px通过；完整20次PNG帧观测p95 388.932ms未满足100ms，本地状态同步20次p95 1504ms通过。模型0、独立LAN未验，[当前包指标](iterations/I06/alpha53-current-metrics.md)、[原WSL证据](iterations/I06/current-candidate-metrics.md)。OpenDesk父模型指定Windows OpenCode验收已获授权，当前正式现场缺少该节点，未提交模型。
 

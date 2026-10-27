@@ -582,7 +582,7 @@ export default function NetworkApp() {
       )}
       {managementRows.some(row=>row.lane==='machine') && (
         <div className="notice-banner" role="status">
-          原机器管理操作待核对，相关机器的执行、管理与授权编辑继续受保护。
+          原机器管理操作待核对，相关机器的执行、管理及新增授权继续受保护；已有授权可单独撤销。
           <button
             className="text-btn"
             disabled={graphRecovery.querying} onClick={() => void queryManagement('machine')}
@@ -593,7 +593,7 @@ export default function NetworkApp() {
       )}
       {managementRows.some(row=>row.lane==='node') && (
         <div className="notice-banner" role="status">
-          原节点管理操作待核对，冲突节点、机器管理与授权编辑继续受保护；独立节点仍可接入和执行。
+          原节点管理操作待核对，冲突节点的执行、管理及新增授权继续受保护；独立节点仍可使用，已有授权可单独撤销。
           <button className="text-btn" disabled={graphRecovery.querying} onClick={() => void queryManagement('node')}>
             {graphRecovery.querying?'正在查询原管理操作…':'查询原节点操作'}
           </button>
@@ -784,7 +784,6 @@ export default function NetworkApp() {
           filter={machineFilter}
           online={!error && !loading}
           busy={busy}
-          metadataBusy={managementLocked}
                   managementReason={managementReason}
                   executionReason={executionReason}
           notify={setNotice}

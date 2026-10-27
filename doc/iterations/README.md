@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-10-27：[issue #25 关系撤权与目标作用域](I08/relation-revocation-scope.md)：源码修复纯撤权、目标级准入与布局隔离；生产前端/Coordinator受控12组通过，模型0。Windows全量平台失败与WSL服务不可用保留，未构建新EXE、未发布。
+
 - [alpha.63公开预发布](I08/alpha63-release.md)：全部产品/验证器已提交推送，冻结EXE及匿名完整下载已核验，未准出边界保留。
 - [alpha.63图指标失败与暂停边界](I06/alpha63-graph-baseline.md)：完整20条PNG p95 496.029ms，保持100ms门槛。
 

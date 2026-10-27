@@ -6,7 +6,7 @@ import {sshStageLabel} from './AddMachineDialog';
 import AgentIcon from './AgentIcon';
 import {PrimaryAgentButton} from './CollaborationChoice';
 import {bridgeCallerReason,canCallBridge,canExecuteNode,canReceiveDelegation,connectionCapabilitySummary} from './connection-capabilities';
-import {connectionError,relationCapabilityError,useGraphDraft} from './graph-state';
+import {connectionError,relationAdmissionTargets,relationCapabilityError,useGraphDraft} from './graph-state';
 import type {NodeAction} from './node-management';
 import type {AgentNode,Collaboration,Machine} from './types';
 import '@xyflow/react/dist/style.css';
@@ -17,7 +17,7 @@ type Data={
   machine?:Machine;node?:AgentNode;hostName?:string;count?:number;role?:string;
   machineName?:string;executionReason?:string;managementReason?:string;relationReason?:string;configure?:(node:AgentNode)=>void;
   keyboardTarget?:boolean;
-  relationLocked?:boolean;managementLocked?:boolean;browseLocked?:boolean;addAgent?:(m:Machine)=>void;nodeAction?:(n:AgentNode,a:NodeAction)=>void;
+  relationLocked?:boolean;sourceLocked?:boolean;managementLocked?:boolean;browseLocked?:boolean;addAgent?:(m:Machine)=>void;nodeAction?:(n:AgentNode,a:NodeAction)=>void;
   configurationOnly?:boolean;locked:boolean;start?:(n:AgentNode)=>void;setMain?:(id:string)=>void;attach?:(id:string)=>void;
   keyboard?:(id:string,type:'source'|'target',key:string)=>void;
   move?:(id:string,group:boolean,delta:Point)=>void;warning?:(s:string)=>void;
@@ -56,7 +56,7 @@ const ToolNode=memo(({data,id}:NodeProps<FlowNode>)=>{
       {n.connected&&<button className="text-btn" title={data.managementReason} disabled={data.managementLocked||!n.online||n.busy} onClick={()=>data.nodeAction?.(n,'disconnect')}>断开</button>}
       <button className="text-btn" title={data.managementReason} disabled={data.managementLocked||!n.online||n.busy} onClick={()=>data.nodeAction?.(n,'remove')}>移除</button>
     </div>
-    <Handle type="source" id="output" position={Position.Right} tabIndex={main&&caller?0:-1} aria-hidden={!main||!caller} isConnectable={main&&caller&&!data.relationLocked} role="button" aria-label={'从 '+n.name+' 允许委派'} className={'nodrag nopan graph-port '+(!main||!caller?'unused':'')}
+    <Handle type="source" id="output" position={Position.Right} tabIndex={main&&caller?0:-1} aria-hidden={!main||!caller} isConnectable={main&&caller&&!data.sourceLocked} role="button" aria-label={'从 '+n.name+' 允许委派'} className={'nodrag nopan graph-port '+(!main||!caller?'unused':'')}
       onPointerDown={()=>{if(!main)data.warning?.('只有主 Agent 的输出端点可以创建授权。');}}
       onKeyDown={e=>{e.stopPropagation();if(['Enter',' ','Escape','ArrowRight','ArrowLeft','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();data.keyboard?.(n.nodeId,'source',e.key);}}}/>
   </article>;
@@ -82,7 +82,7 @@ function ConnectionCancellation(){
 }
 interface Props{
   directory:string;machines:Machine[];nodes:AgentNode[];relation:Collaboration;
-  hidden:boolean;filter:string;online:boolean;busy:boolean;metadataBusy?:boolean;relationReason?:string;managementReason?:(machineId:string,nodeId?:string)=>string;
+  hidden:boolean;filter:string;online:boolean;busy:boolean;relationReason?:string;managementReason?:(machineId:string,nodeId?:string)=>string;
   notify:(s:string)=>void;configurationOnly?:boolean;start?:(n:AgentNode)=>void;attach:(id:string)=>void;
   machineAction:(m:Machine,action:'scan'|'reconnect'|'disconnect'|'details'|'edit'|'remove'|'daemon')=>void;
   daemonManagementSupported?:boolean;machineManagementSupported?:boolean;managementSupported:boolean;addAgent:(m:Machine)=>void;nodeAction:(n:AgentNode,a:NodeAction)=>void;
@@ -93,7 +93,7 @@ interface Props{
 }
 export default function AgentGraph(props:Props){
   const {machines,nodes,relation,notify}=props;
-  const metadataReasonFor=(id:string,nodeId?:string)=>props.managementReason?.(id,nodeId)??(props.metadataBusy?"原管理操作进行中或待核对。":"");
+  const metadataReasonFor=(id:string,nodeId?:string)=>props.managementReason?.(id,nodeId)??"";
   const editor=useGraphDraft(props.directory,relation,notify,props.online),{state}=editor;
   const [flow,setFlow]=useState<ReactFlowInstance<FlowNode>|null>(null),[selection,setSelection]=useState<string|null>(null),[edge,setEdge]=useState<string|null>(null),[keySource,setKeySource]=useState<string|null>(null),[keyTarget,setKeyTarget]=useState<string|null>(null);
   // React Flow uses measured dimensions to retain its DOM-derived handle
@@ -109,12 +109,12 @@ export default function AgentGraph(props:Props){
   const defaults=useRef<{groups:Record<string,Point>;nodes:Record<string,Point>}>({groups:{},nodes:{}});
   const executionLocked=!!state.relationPending||!props.online||props.busy;
   useEffect(()=>{props.onExecutionLockChange?.(executionLocked);},[executionLocked,props.onExecutionLockChange]);
-  const globalRelationReason=props.relationReason??(props.metadataBusy?'原管理操作待核对，请在设置中查询原操作。':'');
-  const relationReasonFor=(node:AgentNode|undefined)=>globalRelationReason||(!editor.layoutAvailable?'关系图状态尚未安全读取。':state.relationPending?'原授权保存待核对，请查询原授权操作。':!props.online?'后台当前离线。':props.busy?'操作进行中。':node?(node.busy?'目标节点仍有运行或待核对任务。':!node.connected?'目标节点尚未接入。':!canExecuteNode(node)?'目标节点当前不支持执行。':'')||metadataReasonFor(node.machineId,node.nodeId)||(props.blocked(node.machineId,node.nodeId)?'目标节点的原执行操作待核对，请在设置中查询。':''):'');
-  const locked=executionLocked||!!globalRelationReason||!editor.layoutAvailable;
+  const globalRelationReason=props.relationReason||'';
+  const relationReasonFor=(node:AgentNode|undefined)=>globalRelationReason||(editor.storageError?'本机无法持久保存授权草稿，请检查存储后重开。':state.relationPending?'原授权保存待核对，请查询原授权操作。':!props.online?'后台当前离线。':props.busy?'操作进行中。':node?metadataReasonFor(node.machineId,node.nodeId)||(props.blocked(node.machineId,node.nodeId)?'目标节点的原执行操作待核对，请在设置中查询。':'')||(node.busy?'目标节点仍有运行或待核对任务。':!node.connected?'目标节点尚未接入。':!canExecuteNode(node)?'目标节点当前不支持执行。':''):'');
+  const locked=!!relationReasonFor(undefined);
   const changeReason=(next=state.draft)=>{
     if(locked)return relationReasonFor(undefined)||'原授权操作进行中或待核对。';
-    for(const id of new Set([state.base.leaderId,...state.base.memberIds,next.leaderId,...next.memberIds].filter(Boolean))){const node=nodes.find(n=>n.nodeId===id);if(!node)return '原授权节点身份不完整，请刷新核对。';const reason=relationReasonFor(node);if(reason)return reason;}
+    for(const id of relationAdmissionTargets(state.base,next)){const node=nodes.find(n=>n.nodeId===id);if(!node)return '新授权节点身份不完整，请刷新核对。';const reason=relationReasonFor(node);if(reason)return reason;}
     return '';
   };
   const layoutLocked=!!state.layoutPending||!editor.loaded;
@@ -134,15 +134,15 @@ export default function AgentGraph(props:Props){
     if(!canCallBridge(node)){notify(bridgeCallerReason(node));return;}
     if(id===state.draft.leaderId)return;
     const removed=state.draft.memberIds.length;
-    editor.edit(r=>({...r,leaderId:id,memberIds:[]}));
+    if(!editor.edit(r=>({...r,leaderId:id,memberIds:[]})))return;
     if(removed)notify('主 Agent 已更改，旧的 '+removed+' 条授权将在保存后移除，请重新连线。');
   }
   function connect(source:string|null,target:string|null){
     if(locked)return;
-    const blocked=[source,target].map(id=>relationReasonFor(nodes.find(n=>n.nodeId===id))).find(Boolean);if(blocked){notify(blocked);return;}
+    const blocked=relationReasonFor(nodes.find(n=>n.nodeId===target));if(blocked){notify(blocked);return;}
     const reason=connectionError(state.draft,nodes,source,target);
     if(reason){notify(reason);return;}
-    editor.edit(r=>({...r,memberIds:[...r.memberIds,target!]}));notify('已增加授权草稿，保存后生效。');
+    if(editor.edit(r=>({...r,memberIds:[...r.memberIds,target!]})))notify('已增加授权草稿，保存后生效。');
   }
   function keyboard(id:string,type:'source'|'target',key:string){
     const source=keyLink.current.source,target=keyLink.current.target;
@@ -215,7 +215,7 @@ export default function AgentGraph(props:Props){
   // Coordinate updates must not replace every card's data and rerender all
   // machines/tools. Stable callbacks dispatch through the latest editor state.
   const machineData=useMemo(()=>new Map(machines.map(m=>[m.machineId,{machine:m,hostName:machineById(m.parentMachineId||'')?.name,count:nodes.filter(n=>n.machineId===m.machineId).length,browseLocked:props.busy,managementLocked:props.busy||!!metadataReasonFor(m.machineId)||!props.managementSupported||!m.online||props.blocked(m.machineId),machineName:metadataReasonFor(m.machineId),addAgent:(m:Machine)=>nodeActions.current.addAgent(m),locked:layoutLocked,move:(...args:Parameters<typeof move>)=>nodeActions.current.move(...args)}])),[machines,nodes,layoutLocked,props.managementReason,props.busy,props.managementSupported,props.blocked]);
-  const toolData=useMemo(()=>new Map(nodes.map(n=>[n.nodeId,{node:n,configurationOnly:props.configurationOnly,machineName:machineById(n.machineId)?.name,configure:(node:AgentNode)=>nodeActions.current.configure?.(node),executionReason:props.executionReason?.(n.machineId,n.nodeId),keyboardTarget:keyTarget===n.nodeId,role:n.nodeId===state.draft.leaderId?'主 Agent':state.draft.memberIds.includes(n.nodeId)?'子 Agent':'节点',locked:executionLocked||props.blocked(n.machineId,n.nodeId),managementReason:metadataReasonFor(n.machineId,n.nodeId),managementLocked:executionLocked||!!metadataReasonFor(n.machineId,n.nodeId)||!props.managementSupported||props.blocked(n.machineId,n.nodeId),nodeAction:(n:AgentNode,a:NodeAction)=>nodeActions.current.nodeAction(n,a),relationReason:relationReasonFor(n),relationLocked:!!relationReasonFor(n)||!canExecuteNode(n)||n.busy, start:(node:AgentNode)=>nodeActions.current.start?.(node),attach:(id:string)=>nodeActions.current.attach(id),setMain:(id:string)=>nodeActions.current.main(id),keyboard:(...args:Parameters<typeof keyboard>)=>nodeActions.current.keyboard(...args),move:(...args:Parameters<typeof move>)=>nodeActions.current.move(...args),warning:(message:string)=>nodeActions.current.warning(message)}])),[machines,nodes,state.draft,locked,executionLocked,keyTarget,props.blocked,props.managementSupported,props.metadataBusy,props.managementReason,props.executionReason,props.relationReason,props.configurationOnly,editor.layoutAvailable]);
+  const toolData=useMemo(()=>new Map(nodes.map(n=>[n.nodeId,{node:n,configurationOnly:props.configurationOnly,machineName:machineById(n.machineId)?.name,configure:(node:AgentNode)=>nodeActions.current.configure?.(node),executionReason:props.executionReason?.(n.machineId,n.nodeId),keyboardTarget:keyTarget===n.nodeId,role:n.nodeId===state.draft.leaderId?'主 Agent':state.draft.memberIds.includes(n.nodeId)?'子 Agent':'节点',locked:executionLocked||props.blocked(n.machineId,n.nodeId),managementReason:metadataReasonFor(n.machineId,n.nodeId),managementLocked:executionLocked||!!metadataReasonFor(n.machineId,n.nodeId)||!props.managementSupported||props.blocked(n.machineId,n.nodeId),nodeAction:(n:AgentNode,a:NodeAction)=>nodeActions.current.nodeAction(n,a),relationReason:relationReasonFor(n),sourceLocked:locked||!n.connected||!canCallBridge(n),relationLocked:!!relationReasonFor(n)||!canExecuteNode(n)||n.busy, start:(node:AgentNode)=>nodeActions.current.start?.(node),attach:(id:string)=>nodeActions.current.attach(id),setMain:(id:string)=>nodeActions.current.main(id),keyboard:(...args:Parameters<typeof keyboard>)=>nodeActions.current.keyboard(...args),move:(...args:Parameters<typeof move>)=>nodeActions.current.move(...args),warning:(message:string)=>nodeActions.current.warning(message)}])),[machines,nodes,state.draft,locked,executionLocked,keyTarget,props.blocked,props.managementSupported,props.managementReason,props.executionReason,props.relationReason,props.configurationOnly,editor.layoutAvailable]);
   const flowNodes=useMemo<FlowNode[]>(()=>[
     ...sortedMachines.map(m=>({id:'machine:'+m.machineId,type:'machine' as const,position:state.layout.groups[m.machineId]||defaultGroups[m.machineId]!,dragHandle:'.graph-machine',draggable:!layoutLocked,selectable:false,width,height:150+Math.max(1,nodes.filter(n=>n.machineId===m.machineId).length)*155,measured:measurements['machine:'+m.machineId],data:machineData.get(m.machineId)!})),
     ...nodes.filter(n=>machineById(n.machineId)).map(n=>({id:n.nodeId,type:'agent' as const,parentId:'machine:'+n.machineId,extent:'parent' as const,position:state.layout.nodes[n.nodeId]||defaultNodes[n.nodeId]!,draggable:!layoutLocked,selected:selection===n.nodeId,ariaLabel:machineById(n.machineId)?.name+' / '+n.name,width:nodeWidth,height:nodeHeight,measured:measurements[n.nodeId],data:toolData.get(n.nodeId)!}))
@@ -252,12 +252,12 @@ export default function AgentGraph(props:Props){
   useEffect(()=>{if(!flow||!editor.loaded||props.hidden||focusedFilter.current===props.filter)return;const first=focusedFilter.current===null;focusedFilter.current=props.filter;if(first&&(state.layout.layoutRevision>0||state.layoutDirty||state.layoutPending))return;const timer=setTimeout(()=>{if(props.filter==='all')void flow.fitView({padding:.12,maxZoom:1});else void flow.fitView({nodes:flowNodes.filter(n=>n.id==='machine:'+props.filter||n.parentId==='machine:'+props.filter),padding:.16,maxZoom:1});},50);return()=>clearTimeout(timer);},[flow,editor.loaded,props.filter,props.hidden]);
   useEffect(()=>{if(flow&&editor.loaded&&!state.layoutDirty&&!state.layoutPending&&JSON.stringify(flow.getViewport())!==JSON.stringify(state.layout.viewport))void flow.setViewport(state.layout.viewport);},[flow,editor.loaded,state.layout.layoutRevision,state.layoutPending,props.hidden]);
   const selectedNode=nodes.find(n=>n.nodeId===selection),selectedMachine=selectedNode?machineById(selectedNode.machineId):null,selectedEdge=edges.find(e=>e.id===edge);
-  const capabilityError=relationCapabilityError(state.draft,nodes);
-  function removeEdge(){if(!selectedEdge||changeReason())return;editor.edit(r=>({...r,memberIds:r.memberIds.filter(id=>id!==selectedEdge.target)}));setEdge(null);notify('已移除授权草稿，保存后生效。');}
+  const capabilityError=relationCapabilityError(state.draft,nodes,state.base);
+  function removeEdge(){if(!selectedEdge||locked||selectedEdge.data.removed)return;if(editor.edit(r=>({...r,memberIds:r.memberIds.filter(id=>id!==selectedEdge.target)}))){setEdge(null);notify('已移除授权草稿，保存后生效。');}}
   return <section className={'agent-graph-panel '+(props.hidden?'graph-hidden':'')} aria-label="机器分组节点图" data-key-source={keySource||''} data-key-target={keyTarget||''} data-draft-members={state.draft.memberIds.join(',')}>
     <div className="graph-toolbar">
       <div><strong>{state.draft.leaderId?nodes.find(n=>n.nodeId===state.draft.leaderId)?.name+' 为主 Agent':'点击节点设为主 Agent'}</strong><span>{confirmed.memberIds.length} 条已保存授权 · {editor.dirty?'草稿待保存':'与后台一致'}</span></div>
-      <button className="btn primary" title={changeReason()||capabilityError||undefined} disabled={!!changeReason()||!editor.dirty||editor.conflict||!!capabilityError} onClick={()=>{if(!changeReason()&&!relationCapabilityError(state.draft,nodes))void editor.saveRelation();}}>{state.relationPending?'正在核对原保存':'保存授权'}</button>
+      <button className="btn primary" title={changeReason()||(editor.conflict?'授权修订已变化，请保留草稿并重新校验。':'')||capabilityError||(!editor.dirty?'没有待保存的授权草稿。':undefined)} disabled={!!changeReason()||!editor.dirty||editor.conflict||!!capabilityError} onClick={()=>{if(!changeReason()&&!relationCapabilityError(state.draft,nodes,state.base))void editor.saveRelation();}}>{state.relationPending?'正在核对原保存':'保存授权'}</button>
       <button className="btn" disabled={locked||!editor.dirty} onClick={editor.discard}>放弃草稿</button>
       <button className="btn" title={changeReason({leaderId:null,memberIds:[],revision:state.draft.revision})||undefined} disabled={!!changeReason({leaderId:null,memberIds:[],revision:state.draft.revision})||!state.draft.leaderId} onClick={()=>editor.edit(r=>({...r,leaderId:null,memberIds:[]}))}>清除主节点</button>
     </div>
@@ -265,7 +265,7 @@ export default function AgentGraph(props:Props){
     {capabilityError&&<div className="graph-warning" role="status">{capabilityError} 已有关系及原任务记录保留；请调整授权草稿后保存。</div>}
     {editor.conflict&&<div className="graph-warning" role="alert">另一窗口已更新授权。当前保存：{nodes.find(n=>n.nodeId===relation.leaderId)?.name||'无主节点'}，{relation.memberIds.length} 条授权。草稿仍保留。<button className="text-btn" onClick={editor.rebase}>保留草稿，以最新版本重新校验</button><button className="text-btn" onClick={editor.discard}>载入后台关系</button></div>}
     {state.relationPending&&<div className="graph-warning">授权保存回应尚未确认。草稿保留，仅查询原操作。<button className="text-btn" onClick={()=>void editor.queryRelation()}>查询原授权保存</button></div>}
-    {editor.layoutError&&<div className="graph-warning" role="alert">后台暂不支持或无法读取图布局：{editor.layoutError}。{state.layoutPending?'原布局保存尚未确认，拖动保持锁定，仅查询原操作。':'画布、节点和机器仍可拖动，布局仅保存在本机。'}授权编辑需恢复支持图接口的后台；可在“设置 → 后台运行”停止旧后台后重新打开程序。<button className="text-btn" onClick={()=>void editor.reloadLayout()}>重新读取后台布局</button></div>}
+    {editor.layoutError&&<div className="graph-warning" role="alert">后台暂不支持或无法读取图布局：{editor.layoutError}。{state.layoutPending?'原布局保存尚未确认，拖动保持锁定，仅查询原操作。':'画布、节点和机器仍可拖动，布局仅保存在本机。'}授权编辑使用独立的关系台账与收据。<button className="text-btn" onClick={()=>void editor.reloadLayout()}>重新读取后台布局</button></div>}
     <div className="graph-view-tools">
       <button className="btn small" disabled={layoutLocked} onClick={()=>{editor.move(l=>({...l,groups:Object.fromEntries(Object.entries(arrangedGroups).filter(([id])=>!id.startsWith('draft-'))),nodes:arrangedNodes}));void flow?.fitView({padding:.12,maxZoom:1});}}><LayoutGrid size={14}/>自动整理</button>
       <button className="btn small" onClick={()=>void flow?.fitView({padding:.12,maxZoom:1})}><Maximize size={14}/>适配全图</button>
@@ -283,7 +283,7 @@ export default function AgentGraph(props:Props){
         onEdgeClick={(_,e)=>{setEdge(e.id);setSelection(null);}}
         onConnect={(c:Connection)=>connect(c.source,c.target)} onConnectStart={()=>{cancelled.current=false;}}
         onConnectEnd={(_,s)=>{if(!s.isValid&&!cancelled.current&&s.toNode)notify(connectionError(state.draft,nodes,s.fromNode?.id||null,s.toNode.id)||'请从主输出端点连接到子输入端点。');}}
-        isValidConnection={c=>!locked&&!cancelled.current&&![c.source,c.target].some(id=>relationReasonFor(nodes.find(n=>n.nodeId===id)))&&!connectionError(state.draft,nodes,c.source,c.target)&&c.sourceHandle==='output'&&c.targetHandle==='input'}
+        isValidConnection={c=>!locked&&!cancelled.current&&!relationReasonFor(nodes.find(n=>n.nodeId===c.target))&&!connectionError(state.draft,nodes,c.source,c.target)&&c.sourceHandle==='output'&&c.targetHandle==='input'}
         onMoveEnd={(_,v)=>viewport(v)} minZoom={.25} maxZoom={2} deleteKeyCode={null} nodesConnectable={!locked}
         panOnDrag={!layoutLocked} zoomOnScroll={!layoutLocked} zoomOnPinch={!layoutLocked} zoomOnDoubleClick={false} defaultViewport={state.layout.viewport}
         ariaLabelConfig={{'node.a11yDescription.default':'用方向键移动节点；端点回车开始连线，方向键选择目标，回车连接，Esc 取消。','edge.a11yDescription.default':'按 Delete 删除授权草稿，保存后生效。'}}>
@@ -292,7 +292,7 @@ export default function AgentGraph(props:Props){
       </ReactFlow>
     </div>
     <p className="graph-instructions" role="status">{keySource?'键盘连线中；当前目标 '+(nodes.find(n=>n.nodeId===keyTarget)?.name||'无')+'。回车连接，Esc 取消。':'左键拖动 Agent 卡片或机器组标题；中键拖动全图，滚轮缩放。自动整理会将主 Agent 所在机器放到左侧。端点连线后须保存授权。'}</p>
-    {selectedEdge&&<div className="graph-details"><strong>允许委派：{nodes.find(n=>n.nodeId===selectedEdge.source)?.name} → {nodes.find(n=>n.nodeId===selectedEdge.target)?.name}</strong><button className="btn" disabled={locked||selectedEdge.data.removed} onClick={removeEdge}>删除这条授权</button></div>}
+    {selectedEdge&&<div className="graph-details"><strong>允许委派：{nodes.find(n=>n.nodeId===selectedEdge.source)?.name} → {nodes.find(n=>n.nodeId===selectedEdge.target)?.name}</strong><button className="btn" title={relationReasonFor(undefined)||(selectedEdge.data.removed?'已进入待移除草稿，保存后生效。':'移除后形成草稿，保存后撤销授权。')} disabled={locked||selectedEdge.data.removed} onClick={removeEdge}>删除这条授权</button></div>}
     {selectedNode&&<div className="graph-details"><div><strong>{selectedMachine?.name} / {selectedNode.name}</strong><p>{graphNodeStatus(selectedNode)} · {selectedNode.version}</p><p>{connectionCapabilitySummary(selectedNode)}</p>{(selectedNode.error||selectedNode.lastError)&&<p role="status">{selectedNode.error||selectedNode.lastError?.message}</p>}<details><summary>安装位置</summary><code>{selectedNode.executable}</code></details></div><PrimaryAgentButton node={selectedNode} disabled={!!relationReasonFor(selectedNode)||!canExecuteNode(selectedNode)||selectedNode.busy} disabledReason={relationReasonFor(selectedNode)} onSelect={()=>main(selectedNode.nodeId)}/>{!props.configurationOnly&&<button className="btn primary" title={props.executionReason?.(selectedNode.machineId,selectedNode.nodeId)} disabled={!selectedNode.available||!canExecuteNode(selectedNode)||executionLocked||props.blocked(selectedNode.machineId,selectedNode.nodeId)} onClick={()=>props.start?.(selectedNode)}>开始会话</button>}<button className="btn" disabled={!props.configure} onClick={()=>props.configure?.(selectedNode)}><Pencil size={14}/>配置</button></div>}
     {<div className="graph-machine-controls">{machines.map(m=><div key={m.machineId}><strong>{m.name}</strong><span>{m.online?'在线':m.kind==='ssh'?sshStageLabel(m.connectionState):'离线'}</span><button className="text-btn" title="只检查已安装工具，不重发原请求" disabled={props.busy||!m.online} onClick={()=>props.machineAction(m,'scan')}><RefreshCw size={13}/>重新扫描</button>{m.kind==='ssh'&&<><button className="text-btn" title={metadataReasonFor(m.machineId)} disabled={props.busy||!!metadataReasonFor(m.machineId)||m.online&&!!m.busy} onClick={()=>props.machineAction(m,m.online?'disconnect':'reconnect')}>{m.online?'断开':m.connectionState==='needs_credentials'?'输入凭据':'重新连接'}</button><button className="text-btn" disabled={props.busy} onClick={()=>props.machineAction(m,'details')}>连接详情</button><button className="text-btn" title={metadataReasonFor(m.machineId)} disabled={props.busy||!!metadataReasonFor(m.machineId)||!props.machineManagementSupported||!m.online||m.busy||props.blocked(m.machineId)||nodes.some(n=>n.machineId===m.machineId&&n.busy)} onClick={()=>props.machineAction(m,'edit')}>编辑连接</button><button className="text-btn" title={metadataReasonFor(m.machineId)} disabled={props.busy||!!metadataReasonFor(m.machineId)||!props.machineManagementSupported||!m.online||m.busy||props.blocked(m.machineId)||nodes.some(n=>n.machineId===m.machineId&&n.busy)} onClick={()=>props.machineAction(m,'remove')}>移除机器</button><button className="text-btn" title={metadataReasonFor(m.machineId)} disabled={props.busy||!!metadataReasonFor(m.machineId)||!props.daemonManagementSupported||!m.online||m.busy||props.blocked(m.machineId)||nodes.some(n=>n.machineId===m.machineId&&n.busy)} onClick={()=>props.machineAction(m,'daemon')}>后台维护</button></>}</div>)}</div>}
   </section>;

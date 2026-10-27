@@ -1,5 +1,7 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+M03-F02/F04/F05：中央GraphOperationJournal沿用Coordinator的可信relationManagementBlocks回调处理node与machine冲突。纯撤权无新增准入目标，不附加查询或结算原管理未知；显式relationId以该行原集合比较，其他行不变。布局lane独立；operationId/fingerprint、expectedRevision、原子关系/收据提交与未知不重放均保持。当前源码未发布，[关系撤权与目标作用域](../../iterations/I08/relation-revocation-scope.md)。
+
 M03-F01/F02/F04：本地alpha.62的机器/关系图改为配置入口，日常委派由原生Agent MCP发起；机器、节点、关系与原unknown资源锁不变，扫描/接入/配置/维护保留。[控制台范围与验证](../../iterations/I07/configuration-console.md)。
 
 M03-F02：原WSL就绪/代次/派发契约不变；公开60已补指定环境的20/20独立启动与60条握手后只读请求，但原始探针80条仍有1条首写标记前故障，完整稳定性/持续连接不作准出。[当前证据与边界](../../iterations/I08/wsl-launch-origin.md)。
@@ -22,7 +24,7 @@ M03-F01/F02：OpenCode API 未核验或核验失败时投影 connected=false、e
 
 ## 当前 OpenDesk 生命周期与关系作用域
 
-M03-F04/F05：relationManagementBlocks 重用 managementBlocks 的原节点、同安装与 Windows/WSL 共享目录规则，校验来源身份后核对旧/新 leaderId 与 memberIds 并集。独立 B 新保存不附加查询或重派 A。仅 OpenDesk Desktop 的原节点 MCP 安装允许已断开状态，仍拒绝已移除/替代身份，原机器必须可用；不放宽普通执行或其他适配器。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
+M03-F04/F05：relationManagementBlocks 重用 managementBlocks 的原节点、同安装与 Windows/WSL 共享目录规则，校验来源身份后只核对新增成员与新主的资源；可信node/machine未知不阻止纯撤权，原relation未知与缺失来源仍保守阻塞。独立 B 新保存不附加查询或重派 A。仅 OpenDesk Desktop 的原节点 MCP 安装允许已断开状态，仍拒绝已移除/替代身份，原机器必须可用；不放宽普通执行或其他适配器。 [需求、流程与失败边界](../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 ## 连接身份与节点管理准入
 
