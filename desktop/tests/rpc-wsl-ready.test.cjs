@@ -38,11 +38,21 @@ test('WSL startup exit and old peers without readiness reject before dispatch an
     const rejected = assert.rejects(promise, error => error.code === 'WSL_HOST_NOT_READY' && error.executionNotDispatched === true);
     await tick(); assert.equal(f.writes.length, 0);
     if (kind === 'exit') f.child.emit('exit', 1, null);
-    if (kind === 'timeout') [...f.timers.values()].find(timer => timer.ms === 30000).fn();
+    if (kind === 'timeout') [...f.timers.values()].find(timer => timer.ms === 120000).fn();
     if (kind === 'malformed') f.child.stdout.write('not protocol\n');
     if (kind === 'close') f.host.close();
     await rejected; assert.equal(f.writes.length, 0);
   }
+});
+
+test('a slow WSL cold import retains a bounded startup wait without consuming or sending a business request', async t => {
+  const f=fixture(t), result=f.host.call('environment');
+  await tick();
+  assert.equal(f.writes.length,0);
+  assert.equal([...f.timers.values()].filter(timer=>timer.ms===120000).length,1);
+  assert.equal([...f.timers.values()].filter(timer=>timer.ms===30000).length,0);
+  f.ready();await tick();assert.equal(f.writes.length,1);
+  f.reply({platform:'linux'});assert.equal((await result).platform,'linux');
 });
 test('a response lost after readiness remains unknown and is never relabeled not dispatched', async t => {
   const f = fixture(t), promise = f.host.call('ipc', {op: 'submit', requestId: 'stable-original'});

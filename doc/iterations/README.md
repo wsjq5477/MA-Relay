@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-10-27：[alpha.67 Linux Hermes实际执行与WSL启动](I08/alpha67-hermes-linux-live.md)：修复冻结入口47秒超过旧30秒预算，补原生执行/续聊与发布验收。
+
 - 2026-10-27：[alpha.66 Linux Hermes CLI适配](I08/alpha66-hermes-linux.md)：专用安装目录/独立源码根/原生Profile发现，固定官方Linux安装版与原生执行协议的分层验证。
 
 - 2026-10-27：[alpha.65 Windows Hermes适配与发布](I08/alpha65-hermes-windows.md)：安装发现、原生网关参数/取消边界、心跳替换重试，真实0.22.5执行/续聊与原生MCP组件；发布与分层证据单列。

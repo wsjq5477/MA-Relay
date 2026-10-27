@@ -3,7 +3,7 @@ name: Hermes Linux CLI
 on:
   workflow_dispatch:
   push:
-    branches: [codex/hermes-linux]
+    branches: [codex/hermes-linux, codex/hermes-linux-live]
     paths:
       - .github/workflows/hermes-linux.yml
       - desktop/electron/**
@@ -56,7 +56,7 @@ jobs:
       - name: Linux native adapter regression
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: |
-          node --test desktop/tests/tool-discovery.test.cjs desktop/tests/hermes-linux-discovery.test.cjs desktop/tests/hermes-windows-discovery.test.cjs desktop/tests/mcp-hermes.test.cjs desktop/tests/native-cli-host.test.cjs desktop/tests/native-reconcile.test.cjs desktop/tests/native-delegation.test.cjs desktop/tests/connection-capabilities.test.cjs desktop/tests/discovery-isolation.test.cjs 2>&1 | tee artifacts/hermes-linux-ci/targeted.tap
+          node --test desktop/tests/tool-discovery.test.cjs desktop/tests/hermes-linux-discovery.test.cjs desktop/tests/hermes-windows-discovery.test.cjs desktop/tests/mcp-hermes.test.cjs desktop/tests/native-cli-host.test.cjs desktop/tests/native-reconcile.test.cjs desktop/tests/native-delegation.test.cjs desktop/tests/connection-capabilities.test.cjs desktop/tests/discovery-isolation.test.cjs desktop/tests/rpc-wsl-ready.test.cjs 2>&1 | tee artifacts/hermes-linux-ci/targeted.tap
       - name: Install pinned official Hermes CLI without account setup
         id: native_install
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}

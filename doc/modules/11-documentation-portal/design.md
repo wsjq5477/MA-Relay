@@ -1,5 +1,7 @@
 # M11 文档网页入口设计
 
+M11-F01：Hermes用户页维护当前Linux/WSL安装与原生配置要求；内部原始证据/私有检查点及凭据不进入用户网站。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
+
 M11-F01：Hermes用户页补Linux安装路径、独立源码根、最小PATH、原生Profile与取消边界；内部CI/证据与凭据不进入公开用户页面。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
 
 M11-F01：用户Hermes页面和Agent对照同步Windows发现、原生网关、原Session及取消边界；内部测试/配置/凭据不进入用户站。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。

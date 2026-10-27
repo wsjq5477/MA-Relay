@@ -123,7 +123,10 @@ class HostConnection {
         const timer = setTimeout(() => {
           this.rejectStartup('WSL 宿主未返回就绪握手，尚未发送请求。请核对 Node 与包内后台版本，不要重发原任务。');
           if (this.child === child) { this.child = null; child.kill(); }
-        }, 30000);
+        // Loading the frozen host from a Windows-mounted filesystem can exceed
+        // 30 s on a cold WSL instance. This bounded startup wait precedes all
+        // business-request timers; readiness still gates the very first write.
+        }, 120000);
         this.startup = {child, timer, resolve: resolveReady, reject: rejectReady};
       });
     }

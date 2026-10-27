@@ -1,5 +1,7 @@
 # M05 Linux daemon 测试报告
 
+2026-10-27 / alpha.67候选：WSL握手与Hermes发现受控22/22，实际alpha.66冻结入口47188ms后就绪；原30秒就绪失败两次，均未发模型请求，原报告保留。候选实际模型、包及发布结果待本轮验收；不复用历史通过数。[本轮环境与原始证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
+
 2026-10-27 / alpha.66公开：Windows Node24.12.0受控定向39/39；独立Ubuntu Node24.12.0适配100/100、Core71/71；本机Ubuntu22.04/WSL使用包内Node22.23.1及冻结后台，对正式Hermes0.22.5完成发现和原生MCP五组/十工具，独立Ubuntu原生组件亦通过。普通EXE七组通过，均模型0。WSL直连TLS仍有问题，临时安装通道已停止；普通doctor90秒未完成，pm doctor退出0且所有已安装运行组件通过。真实Linux模型、SSH、冷启动与完整矩阵未准出。[本轮环境、原始失败与证据](../../iterations/I08/alpha66-hermes-linux.md)。
 
 2026-10-27 / alpha.65：M05-F01/F02：离线alpha.65资源包含相同原生CLI宿主、保守Hermes终态和Windows替换重试实现；Linux运行时沿用原包，不自动部署SSH。Windows实测不能代替Linux正式Hermes/SSH准出。 [本轮构建、分层验证与限制](../../iterations/I08/alpha65-hermes-windows.md)。共享Hermes31/31与冻结Windows原生MCP五组通过；无本轮Linux正式安装版/SSH/父模型测试，普通EXE结果单列。

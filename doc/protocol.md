@@ -121,7 +121,7 @@ CT-04桌面消费者不新增RPC/参数/daemon帧。team.document返回须匹配
 
 机器路由：Windows本机与SSH机器经`MachineHost`；**Linux本机**在协调器进程内由本地MCP宿主处理上述六个方法（其他方法仍走原执行宿主，MCP失败不回落到执行）；WSL经HostConnection→Core stdio完整MachineHost，在原发行版处理同一六项`mcp.*`，不回落Windows本机。
 
-WSL启动：bootstrap设置`AGENTBRIDGE_HOST_READY=1`，Core安装stdin读取器后输出`{bridgeReady:1,protocol:'agentbridge-host-v1'}`，Windows收到后才发送业务帧；并发首次调用等待同一启动。close使内存启动代次失效；发行版枚举迟到返回时不得spawn或派发。新调用有独立启动Promise，原调用发送前绑定并复核原子进程；就绪后但尚未写入请求即关闭仍返回严格未派发证明，已写入请求仍保持未知语义。30秒无握手、就绪前退出/无效帧/关闭返回`WSL_HOST_NOT_READY`与`executionNotDispatched:true`。旧Core没有握手时有界拒绝，原生直连/旧启动器未设置该标志仍使用原回应流。请求已写入后断线/回应超时保持`DESKTOP_TRANSPORT`/`DESKTOP_TIMEOUT`未知结果，不携带未派发证明、不重发。无新增持久字段或SSH协议变化；[实现与当前实测限制](iterations/I08/wsl-host-readiness.md)。
+WSL启动：bootstrap设置`AGENTBRIDGE_HOST_READY=1`，Core安装stdin读取器后输出`{bridgeReady:1,protocol:'agentbridge-host-v1'}`，Windows收到后才发送业务帧；并发首次调用等待同一启动。close使内存启动代次失效；发行版枚举迟到返回时不得spawn或派发。新调用有独立启动Promise，原调用发送前绑定并复核原子进程；就绪后但尚未写入请求即关闭仍返回严格未派发证明，已写入请求仍保持未知语义。120秒无握手、就绪前退出/无效帧/关闭返回`WSL_HOST_NOT_READY`与`executionNotDispatched:true`。旧Core没有握手时有界拒绝，原生直连/旧启动器未设置该标志仍使用原回应流。120秒只限制启动阶段，业务帧发出后另起原65秒回应预算；调整依据见[本机冻结入口47秒实测](iterations/I08/alpha67-hermes-linux-live.md)。请求已写入后断线/回应超时保持`DESKTOP_TRANSPORT`/`DESKTOP_TIMEOUT`未知结果，不携带未派发证明、不重发。无新增持久字段或SSH协议变化；[实现与当前实测限制](iterations/I08/wsl-host-readiness.md)。
 
 Pi（alpha.51.recovery.2公开版）：同一六项方法管理用户`mcp.json`，路径来自`PI_CODING_AGENT_DIR`或`~/.pi/agent`；`nativeTarget`固定原目录，切换返回`nativeTargetChanged/currentConfigPath`并拒绝新写入。原生仅布尔enabled变化时保留归属，false投影config=disabled、installed=false，安装拒绝`MCP_NATIVE_DISABLED`；移除仍先撤权只清原目标。相对/损坏/链接目录`MCP_PI_TARGET`，未核对版本`NATIVE_VERSION`，当前安装准入1.4+的1.x正式版；导出/撤权/清理不因版本改变失效。原生探测用`pi mcp list --json`精确身份/用户scope/无项目覆盖及connected状态，输出安全摘要，项目覆盖保留未知、不写项目配置。[源码与实际验收边界](iterations/I08/pi-mcp-config.md)。
 

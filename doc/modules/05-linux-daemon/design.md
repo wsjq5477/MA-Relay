@@ -1,5 +1,7 @@
 # M05 Linux 机器后台设计
 
+M05-F01/F02：WSL原启动脚本、Node选择与就绪帧不改；Windows等待读取器就绪120秒，Linux/SSH协议与daemon原输入不变。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
+
 M05-F01/F02：Linux daemon/WSL/SSH宿主在自身环境发现Hermes，支持与HERMES_HOME分离的源码根及原生发布启动器；不依赖.bashrc/.profile、不继承Windows安装路径。离线包包含同一实现，升级和远端部署仍需原有操作，本轮不自动部署SSH。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
 
 M05-F01/F02：离线alpha.65资源包含相同原生CLI宿主、保守Hermes终态和Windows替换重试实现；Linux运行时沿用原包，不自动部署SSH。Windows实测不能代替Linux正式Hermes/SSH准出。 [本轮构建、分层验证与限制](../../iterations/I08/alpha65-hermes-windows.md)。

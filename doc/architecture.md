@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+Windows→WSL HostConnection仅就绪握手预算扩至120秒，以容纳Windows挂载盘上的冻结Core加载；收到原就绪帧后才发业务请求并启动独立65秒回应计时。共享并发启动、代次关闭、未派发/unknown与原请求恢复不改变；Linux原生与SSH通道不改。[启动实测与验证](iterations/I08/alpha67-hermes-linux-live.md)。
+
 Linux Hermes区分原生数据Home/Profile与源码安装目录，非交互daemon/WSL/SSH共用MachineHost发现和CLI宿主；不读取交互shell初始化、不引入模型API、不部署SSH。原生安装路径补齐与专用目录隔离见[本轮设计](iterations/I08/alpha66-hermes-linux.md)。
 
 Hermes沿用已安装CLI和原生网关、模型与账号，无新增模型API层。扫描补Windows原生安装目录；执行只消费stream-json及原Session，网关客户端退出/丢失结果不能证明后台任务终止。共享原生worker使用已有atomicWrite的Windows替换重试，心跳写入失败不崩溃重派；[当前实现与分层证据](iterations/I08/alpha65-hermes-windows.md)。

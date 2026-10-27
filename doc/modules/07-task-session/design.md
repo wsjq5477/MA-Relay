@@ -1,5 +1,7 @@
 # M07 任务、会话、交互控制与恢复设计
 
+M07-F01/F02/F04：WSL就绪前失败明确未派发；已提交请求通过原检查点查询，不能换ID或新上下文释放unknown。原Session续聊与Hermes取消false不变。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
+
 M07-F01/F02/F04：Hermes原Session续聊与原请求去重保留；stderr绑定不等于终态，原生网关无确认结果的退出保持unknown、占用与原ID查询。活动Hermes取消拒绝新意图，历史取消收据仍按原ID/任务/种类核对；不以进程退出结算网关取消。心跳写入失败不崩溃重派。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
 
 ### CT-05原包传递与接收声明
