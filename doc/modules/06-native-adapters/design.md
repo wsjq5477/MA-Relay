@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器设计
 
+M06-F01/F02/F04：Hermes CLI只使用共同stream-json/精确resume参数，移除网关拒绝的--no-restore-cwd。stderr原生Session行绑定身份，结果仍须正式result与退出码一致。缺终态/网关失联/输出截断保留unknown，cancellation=false且活动取消拒绝；原MCP配置、十工具和Profile绑定保留。原生worker采用共享atomicWrite重试，持续心跳故障不终止原观察器。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
+
 M06-F02/F05：关系图为新增成员检查execution/delegation，为新主检查execution/MCP调用资格；保存撤权时不要求被移除或未变化旧节点重新通过能力检查。原生实际执行/委派仍按当前节点能力与来源授权检查，保留MCP调用、原生配置管理、托管scope三个独立维度。无适配器、模型API、原生配置或真实任务变更。已随alpha.64公开，[关系撤权与目标作用域](../../iterations/I08/relation-revocation-scope.md)。
 
 ### CT-05原包传递与接收声明
@@ -201,7 +203,7 @@ M06-F01/F02：OpenCode接受可识别的1.x与2.x，其他主版本在启动前�
 | 功能 ID | 功能 | 当前设计与状态 | 详细设计 |
 | --- | --- | --- | --- |
 | M06-F01 | 原生配置继承与能力边界 | 源码已实现；六种工具静态注册；当前节点入口拒绝模型和供应商覆盖；能力按工具分别声明 | 本文及各子模块 |
-| M06-F05 | 三种原生扩展与自定义适配接口 | 源码已实现；Hermes/Pi/DSH 直接会话；代码内受校验注册、宿主接口与示例；未进入公开发布包 | 本文及[开发指南](../../custom-agent-development.md) |
+| M06-F05 | 三种原生扩展与自定义适配接口 | 源码已实现；Hermes/Pi/DSH 直接会话；代码内受校验注册、宿主接口与示例；现有公开包已包含，Windows Hermes网关本轮补齐 | 本文及[开发指南](../../custom-agent-development.md) |
 | M06-OC-F01 | OpenCode 真实执行 | 已发布；HTTP API 创建/续用原生会话，轮询输出、工具和等待；支持经证据确认的取消与恢复 | [OpenCode](opencode/design.md) |
 | M06-CC-F01 | Claude Code 真实执行 | 已发布；CLI `stream-json`、增量文本、工具许可、原生会话恢复和独立 worker | [Claude Code](claude/design.md) |
 | M06-CX-F01 | Codex 真实执行 | 已发布；CLI `exec --json`、完成项输出、原生 thread 绑定和独立 worker；真实续聊存在原生版本限制 | [Codex](codex/design.md) |
@@ -275,11 +277,11 @@ Codex 的快照当前声明 `resume: true`，表示已实现调用入口，不�
 
 | 工具 | 原生协议与绑定 | 完成证据与限制 |
 | --- | --- | --- |
-| Hermes | `chat --query-file - --format stream-json --no-restore-cwd`；原生 `session_id`，续聊传原 `--resume` | 原生 result 与进程退出共同核对；不指定模型/provider |
+| Hermes | `chat --query-file - --format stream-json`；原生 `session_id`，续聊传原 `--resume` | 原生 result 与进程退出共同核对；不指定模型/provider |
 | Pi | `--mode json --print --session-dir`；观察 session header ID，续聊先定位并核验唯一原会话文件，再传完整 `--session` 路径 | assistant 结果、原生轮次结束与退出共同核对；缺原文件不能静默创建替代会话 |
 | DSH | `--profile headless --json`；观察 `sessionId`，续聊使用原 `--session-id` | 该轮 completed、final 与退出共同核对；headless 使用原生环境/.env 配置，不搬运 web profile 凭据 |
 
-三个适配器共用持久 `NativeCliHost` 及独立 worker，使用不同事件解析器。首批声明续聊/取消能力，Bridge permissions/forms/verification/teamCollaboration 为 false；不支持的协作 scope 在派发前拒绝。取消收据与原任务终态分开，原生结束/取消与原进程退出必须核对。宿主重开只恢复原事件观察；原 worker/终态无法确认时保留 unknown 与占用，不重发。能力声明表示实现入口，真实原生版本及模型验收以报告为准。
+三个适配器共用持久 `NativeCliHost` 及独立 worker，使用不同事件解析器。均声明续聊；Pi/DSH保留取消，Hermes原生网关取消未适配且声明false，退出CLI不等于网关任务取消。Bridge permissions/forms/verification/teamCollaboration 为 false；不支持的协作 scope 在派发前拒绝。取消收据与原任务终态分开，原生结束/取消与原进程退出必须核对。宿主重开只恢复原事件观察；原 worker/终态无法确认时保留 unknown 与占用，不重发。能力声明表示实现入口，真实原生版本及模型验收以报告为准。
 
 原生协议错误、原 Session 不匹配、缺文件或配置不匹配不能伪造成新会话成功。原生工具自己的权限策略仍适用；没有 Bridge 许可表单不代表自动允许工具。
 

@@ -9,7 +9,7 @@ const { profiles, argumentsFor } = require('../electron/native-cli-protocols.cjs
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 const terminal = status => ['succeeded', 'failed', 'cancelled'].includes(status);
 async function done(host, taskId) {
-  for (let attempt = 0; attempt < 150; attempt++) { const task = await host.call('ipc', { op: 'task', taskId }); if (terminal(task.status)) return task; await delay(30); }
+  for (let attempt = 0; attempt < 150; attempt++) { const task = await host.call('ipc', { op: 'task', taskId }); if (terminal(task.status) || task.status === 'unknown') return task; await delay(30); }
   throw Error('native fixture timeout');
 }
 function fixture(t, adapter) {
@@ -20,7 +20,7 @@ const args = process.argv.slice(2), adapter = ${JSON.stringify(adapter)}, calls 
 if(args.includes('--version')) { console.log(adapter + ' 1.0.0'); process.exit(0); }
 let prompt = '';
 process.stdin.setEncoding('utf8'); process.stdin.on('data', part => prompt += part);
-process.stdin.on('end', () => {
+process.stdin.on('end', async () => {
   fs.appendFileSync(calls, JSON.stringify({args,prompt,cwd:process.cwd()}) + '\\n');
   let id = adapter + '-session';
   if(adapter === 'pi') {
@@ -39,6 +39,7 @@ process.stdin.on('end', () => {
   if(prompt === 'wait' || prompt === 'ignore-term') { if(prompt==='ignore-term') process.on('SIGTERM',()=>{}); setInterval(()=>{},1000); return; }
   if(prompt === 'malformed') process.stdout.write('not-json\\n');
   if(prompt === 'no-terminal') return;
+  if(prompt === 'heartbeat-lock') await new Promise(resolve=>setTimeout(resolve,2300));
   const answer = prompt + ' reply';
   if(adapter === 'hermes') {
     emit({type:'text',text:prompt}); emit({type:'text',text:' reply'});
@@ -61,7 +62,7 @@ process.stdin.on('end', () => {
 });
 `);
   const host = new NativeCliHost({ directory, executable, adapter });
-  t.after(async () => { try { const snapshot = await host.call('snapshot'); for (const task of snapshot.tasks.filter(item => !terminal(item.status))) { await host.call('ipc', {op:'cancel',taskId:task.taskId,operationId:'cleanup-'+task.taskId}); await done(host,task.taskId); } } finally { host.close(); fs.rmSync(directory,{recursive:true,force:true}); } });
+  t.after(async () => { try { const snapshot = await host.call('snapshot'); for (const task of snapshot.tasks.filter(item => !terminal(item.status) && item.status !== 'unknown')) { await host.call('ipc', {op:'cancel',taskId:task.taskId,operationId:'cleanup-'+task.taskId}); await done(host,task.taskId); } } finally { host.close(); fs.rmSync(directory,{recursive:true,force:true}); } });
   return { host, directory, executable, calls };
 }
 async function connected(f) { return f.host.call('connect', { workspace:f.directory }); }
@@ -80,22 +81,30 @@ for (const adapter of ['hermes','pi','dsh']) {
     const second = await done(reopened,next.taskId); assert.equal(second.native.sessionId,result.native.sessionId);
     const calls = callLog(f); assert.equal(calls.length,2); assert.equal(calls[0].prompt,message);
     assert(!calls.some(call=>call.args.some(arg=>['--model','--provider','--api-key','--yolo','--yes','--no-session'].includes(arg))));
-    if(adapter==='hermes') { assert.deepEqual(calls[0].args,['chat','--query-file','-','--format','stream-json','--no-restore-cwd']); assert(calls[1].args.includes('--resume')); assert(calls[1].args.includes(adapter+'-session')); }
+    if(adapter==='hermes') { assert.deepEqual(calls[0].args,['chat','--query-file','-','--format','stream-json']); assert(calls[1].args.includes('--resume')); assert(calls[1].args.includes(adapter+'-session')); }
     if(adapter==='pi') { assert(calls[0].args.includes('--mode')); const sessionFile=calls[1].args[calls[1].args.indexOf('--session')+1]; assert(path.isAbsolute(sessionFile)); assert.equal(JSON.parse(fs.readFileSync(sessionFile,'utf8').split('\n')[0]).id,result.native.sessionId); }
     if(adapter==='dsh') { assert.deepEqual(calls[0].args,['--profile','headless','--json','-']); assert(calls[1].args.includes('--session-id')); assert(calls[1].args.includes(adapter+'-session')); }
     assert.equal((await reopened.call('ipc',{op:'request',requestId:'one'})).taskId,first.taskId); assert.equal(callLog(f).length,2);
   });
   test(adapter + ' native error/malformed/absent completion/blank session cannot become success with process exit zero', async t => {
     const f=fixture(t,adapter),agent=await connected(f);
-    for(const message of ['fail','late-error','malformed','no-terminal','blank-session']) {
+    for(const message of ['fail','late-error','malformed',...(adapter==='hermes'?[]:['no-terminal']),'blank-session']) {
       const first=await f.host.call('ipc',{op:'submit',agentId:agent.agentId,requestId:message,message}); const result=await done(f.host,first.taskId);
       assert.equal(result.status,'failed',message); assert.equal(result.result,undefined);
       assert.equal((await f.host.call('ipc',{op:'request',requestId:message})).status,'failed');
     }
-    assert.equal(callLog(f).length,5);
+    assert.equal(callLog(f).length,adapter==='hermes'?4:5);
   });
   test(adapter + ' cancel receipt stays unknown until owned process exits; native success wins a natural exit race', async t => {
     const f=fixture(t,adapter),agent=await connected(f);
+    if (adapter === 'hermes') {
+      const task = await f.host.call('ipc', {op:'submit',agentId:agent.agentId,requestId:'natural',message:'cancel-race'});
+      await assert.rejects(f.host.call('ipc',{op:'cancel',taskId:task.taskId,operationId:'cancel'}),{code:'ADAPTER_UNSUPPORTED'});
+      assert.equal((await done(f.host,task.taskId)).status,'succeeded');
+      assert.equal((await f.host.call('snapshot')).agents.items[0].capabilities.cancellation,false);
+      await assert.rejects(f.host.call('ipc',{op:'operation',operationId:'cancel'}),{code:'NOT_FOUND'});
+      return;
+    }
     const first=await f.host.call('ipc',{op:'submit',agentId:agent.agentId,requestId:'wait',message:'wait'});
     while(!fs.existsSync(f.calls)) await delay(20);
     assert.equal((await f.host.call('ipc',{op:'conversation',conversationId:first.conversationId})).canContinue,false);
@@ -179,15 +188,34 @@ test('detached Pi execution survives observer close and SIGTERM-resistant proces
 });
 
 test('an active unrelated conversation keeps older native sessions unavailable for continuation', async t => {
-  const f=fixture(t,'hermes'),agent=await connected(f),first=await f.host.call('ipc',{op:'submit',agentId:agent.agentId,requestId:'one',message:'hello'});await done(f.host,first.taskId);
+  const f=fixture(t,'pi'),agent=await connected(f),first=await f.host.call('ipc',{op:'submit',agentId:agent.agentId,requestId:'one',message:'hello'});await done(f.host,first.taskId);
   const active=await f.host.call('ipc',{op:'submit',agentId:agent.agentId,requestId:'two',message:'wait'});
   const snapshot=await f.host.call('snapshot');assert(snapshot.conversations.every(item=>item.canContinue===false));
   await assert.rejects(f.host.call('ipc',{op:'continue',conversationId:first.conversationId,requestId:'three',message:'next'}),{code:'AGENT_BUSY'});
   await f.host.call('ipc',{op:'cancel',taskId:active.taskId,operationId:'cancel-active'});await done(f.host,active.taskId);
 });
 
-test('oversized protocol records terminate a SIGTERM-resistant owned process and retain an explicit failure', async t => {
+test('oversized Hermes records stop the viewer but preserve unknown gateway work', async t => {
   const f=fixture(t,'hermes'),agent=await connected(f),first=await f.host.call('ipc',{op:'submit',agentId:agent.agentId,requestId:'oversized',message:'oversized'});
-  const result=await done(f.host,first.taskId);assert.equal(result.status,'failed');assert.match(result.error.message,/4 MiB/);assert.equal(result.result,undefined);
+  const result=await done(f.host,first.taskId);assert.equal(result.status,'unknown');assert.match(result.lastSummary,/4 MiB/);assert.equal(result.result,undefined);
   assert.equal(callLog(f).length,1);
+});
+
+test('Hermes missing terminal result stays unknown, retains occupancy and never replays after observer restart', async t => {
+  const f=fixture(t,'hermes'),agent=await connected(f),params={op:'submit',agentId:agent.agentId,requestId:'original-no-terminal',message:'no-terminal'};
+  const first=await f.host.call('ipc',params);assert.equal((await done(f.host,first.taskId)).status,'unknown');
+  assert.equal((await f.host.call('ipc',params)).taskId,first.taskId);
+  await assert.rejects(f.host.call('ipc',{...params,requestId:'new-id'}),{code:'AGENT_BUSY'});
+  await assert.rejects(f.host.call('ipc',{op:'cancel',taskId:first.taskId,operationId:'unsupported-cancel'}),{code:'ADAPTER_UNSUPPORTED'});
+  f.host.close();const reopened=new NativeCliHost({directory:f.directory,executable:f.executable,adapter:'hermes'});t.after(()=>reopened.close());
+  assert.equal((await reopened.call('ipc',{op:'request',requestId:params.requestId})).status,'unknown');
+  assert.equal((await reopened.call('snapshot')).agents.items[0].busy,true);assert.equal(callLog(f).length,1);
+});
+
+test('a Windows heartbeat sharing violation does not abandon the original Hermes child', async t => {
+  const f=fixture(t,'hermes'),preload=path.join(f.directory,'heartbeat-preload.cjs');
+  fs.writeFileSync(preload,`const fs=require('node:fs'),original=fs.renameSync;let beats=0;fs.renameSync=function(from,to){if(String(to).endsWith('heartbeat.json')&&++beats>=2&&beats<=8)throw Object.assign(Error('controlled sharing violation'),{code:'EPERM'});return original.apply(this,arguments);};`);
+  f.host.environment={...process.env,NODE_OPTIONS:'--require '+JSON.stringify(preload)};
+  const agent=await connected(f),first=await f.host.call('ipc',{op:'submit',agentId:agent.agentId,requestId:'heartbeat-original',message:'heartbeat-lock'});
+  const result=await done(f.host,first.taskId);assert.equal(result.status,'succeeded');assert.equal(result.result.message,'heartbeat-lock reply');assert.equal(callLog(f).length,1);
 });

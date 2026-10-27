@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+Hermes新任务沿用chat --query-file - --format stream-json和精确--resume，不再发送--no-restore-cwd；工作目录由固定原上下文/原生Session保持。原生stderr的Session/session_id只作同一Session绑定，不作成功证明；非终态退出、网关断线或截断保持unknown。活动Hermes取消以ADAPTER_UNSUPPORTED拒绝，原历史取消/查询不改。无新增RPC或模型协议。[完整记录](iterations/I08/alpha65-hermes-windows.md)。
+
 saveCollaboration沿用原参数、指纹、收据与revision合约；纯撤权不重新检查旧角色能力，新增成员/新主仍按可信管理范围与各自能力准入。布局不可用只影响布局保存。关系未知、GRAPH_UNCONFIRMED、REVISION_CONFLICT与OPERATION_CONFLICT的恢复仍查询原操作或保留草稿显式校验，不添加重试写。[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
 
 ## CT-05原选材包传递

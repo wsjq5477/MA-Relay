@@ -1,5 +1,7 @@
 # M11 文档网页测试报告
 
+2026-10-27 / alpha.65 / Windows Node24.12.0：共享Hermes定向31/31，扩展73项72通过/1个Pi原基线失败，不能跨模块相加。已安装Hermes0.22.5、冻结Windows后台原生MCP五组通过（模型0）；真实执行/续聊两轮通过，但首轮参数拒绝、早期心跳EPERM及验收器原生配置字节比较失败均保留。普通EXE/发布状态按[专项](../../iterations/I08/alpha65-hermes-windows.md)逐项登记，不把源码结果当作EXE/父模型准出。
+
 ## alpha.64公开说明同步（2026-10-27）
 
 仅同步用户页的当前版本和已公开配置/审计操作面，不增加页面/导航或产品行为。18页/19HTML、内部页面/证据导出0，构建及发布边界审计见[本轮证据](../../../artifacts/alpha64-release/2026-10-27/docs-build-final.log)；docs:test和完整文档检查的原基线限制见[发布记录](../../iterations/I08/alpha64-release.md)。

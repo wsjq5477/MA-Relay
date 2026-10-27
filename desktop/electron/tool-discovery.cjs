@@ -90,7 +90,13 @@ async function scanTools(options={}) {
   else if(platform==='linux')folders.push(...managedLinuxFolders(home,env),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'hermes-agent/.hermes/bin'),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'hermes-agent/venv/bin'),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'venv/bin'));
   const result=[];
   await Promise.all(descriptors.filter(d => !['dsh-desktop', 'dsh-web', 'opendesk-desktop'].includes(d.id)).map(async({id:adapter,name,commands})=>{
-    const candidates=options.candidates?.[adapter]||[...new Set(folders)].flatMap(dir=>commands.flatMap(commandName=>(windows?[commandName+'.exe',commandName+'.cmd']:[commandName]).map(file=>path.resolve(dir,file))));
+    // Hermes' Windows installer publishes its native launcher under the data
+    // home's bin. A running desktop/daemon may predate the installer's PATH edit.
+    // Keep this fallback Hermes-only and after PATH; never execute a setup GUI.
+    const adapterFolders=windows&&adapter==='hermes'?[...folders,
+      ...(env.HERMES_HOME?[path.join(env.HERMES_HOME,'bin')]:[]),
+      path.join(env.LOCALAPPDATA||path.join(home,'AppData/Local'),'hermes','bin')]:folders;
+    const candidates=options.candidates?.[adapter]||[...new Set(adapterFolders)].flatMap(dir=>commands.flatMap(commandName=>(windows?[commandName+'.exe',commandName+'.cmd']:[commandName]).map(file=>path.resolve(dir,file))));
     const seen=new Set();
     let broken;
     for(const candidate of candidates){
@@ -98,7 +104,9 @@ async function scanTools(options={}) {
       const key=windows?executable.toLowerCase():executable;if(seen.has(key))continue;seen.add(key);
       try{
         const launch=command(executable,['--version'],env,platform);
-        const probe=await new Promise(resolve=>execFile(launch.executable,launch.args,{env:launch.env,cwd:home,windowsHide:true,timeout:5000,maxBuffer:65536},(error,stdout,stderr)=>resolve({error,stdout,stderr})));
+        // Hermes bootstraps its Python environment even for --version. Match the
+        // bounded native MCP probe budget without slowing other tools' failures.
+        const probe=await new Promise(resolve=>execFile(launch.executable,launch.args,{env:launch.env,cwd:home,windowsHide:true,timeout:adapter==='hermes'?20000:5000,maxBuffer:65536},(error,stdout,stderr)=>resolve({error,stdout,stderr})));
         // Debian's dsh is Distributed/Dancer's Shell, not DeepSeek Harness.
         // It prints its identity even when --version exits 1. A known foreign
         // command must not become an unhealthy Agent or hide an actual install.

@@ -1,5 +1,7 @@
 # AgentBridge 项目资料
 
+当前源码alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。公开版本仍按下表，发布后同步。
+
 当前源码修复关系授权撤销：无关管理 unknown 与布局故障不再阻断撤权，新增目标保留范围/能力检查。已随alpha.64公开；实现、受控验证和环境限制见[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
 
 alpha.63 [原生MCP生命周期补验](iterations/I08/native-mcp-lifecycle.md)：普通无调试EXE与原版Pi客户端七组通过，三个实际解包目录关闭后删除，原传输/原身份/完整接收收据保持；最后原窗/客户端/Coordinator均确认退出。实际WSL十五分钟180/180及删除/重开/撤权/轮换六组也已通过，两个客户端/原宿主退出且残留0。模型0，其他入口/跨版本升级/托管父模型、WSL冷启动/历史故障与整体MCP02继续未准出。

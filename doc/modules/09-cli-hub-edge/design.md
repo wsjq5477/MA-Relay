@@ -1,5 +1,7 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
+M09-F01：非GUI入口复用同一Hermes发现、stream-json宿主和独立MCP适配，不增加任意命令、供应商API或账号层。Windows补原生bin发现，活动Hermes任务在原生会话停止，CLI取消不模拟网关终止。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
+
 HostConnection关闭使用仅内存的启动代次和原子进程引用：枚举迟到不spawn，原请求不能落到新通道，未写关闭保留明确未派发、已写后失联仍按原ID查询。CLI/controller/Task/Session和持久协议均未改变。[关闭竞态修复](../../iterations/I08/wsl-close-and-graph-stability.md)。
 M09：现有六项mcp方法统一支持Pi/Hermes；Hermes新增独立YAML导出文件，profile只读回显，CLI不用新参数猜Profile。原生列表用安全摘要保留失败原因，不能把plain list当连接；原JSON脱敏和原请求查询保持。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
 

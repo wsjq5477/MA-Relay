@@ -1,5 +1,7 @@
 # M05 Linux 机器后台设计
 
+M05-F01/F02：离线alpha.65资源包含相同原生CLI宿主、保守Hermes终态和Windows替换重试实现；Linux运行时沿用原包，不自动部署SSH。Windows实测不能代替Linux正式Hermes/SSH准出。 [本轮构建、分层验证与限制](../../iterations/I08/alpha65-hermes-windows.md)。
+
 本地候选alpha.56的完整维护控制面输入采用有界64MiB字节流读取，保留全部版本描述和原fingerprint；Daemon RPC帧仍1MiB。原ID查询在线端副本省去不消费的releases，持久remoteInput及身份/操作ID不改，维护命令仍发送完整目录。新控制器由原已核验包暂存，旧控制器可继续接收小查询；不部署或改写既有运行实例。[实际缺陷、完整CLI与恢复验证](../../iterations/I08/maintenance-input-capacity.md)。
 
 本地候选alpha.56的可信旧daemon索引按原冻结EXE补齐46、51.recovery.2、52、53与本地54/55，原32份保持，现38项；解析/打包统一上限128，超过上限拒绝，逐文件SHA、原owner/profile/路径及未知版本拒绝规则保持。文件核验失败只发固定CHECKSUM诊断，沿原错误码返回，不回显大清单、不结算原unknown。协议2与持久格式不变；未部署远端。[实现与实际分层证据](../../iterations/I08/daemon-compatibility-refresh.md)。

@@ -70,6 +70,11 @@ for (const adapter of ['hermes', 'pi', 'dsh', 'codex']) {
     await assert.rejects(f.host.call('ipc', input('reconcile', f.terminal.taskId)), { code: 'REQUEST_CONFLICT' });
     await assert.rejects(f.host.call('ipc', input('cancel')), { code: 'REQUEST_CONFLICT' });
     await assert.rejects(f.host.call('ipc', input('operation', f.terminal.taskId)), { code: 'NOT_FOUND' });
+    if (adapter === 'hermes') {
+      await assert.rejects(f.host.call('ipc', input('cancel', f.task.taskId, 'original-cancel')), {code:'ADAPTER_UNSUPPORTED'});
+      assert.equal(f.host.state.operations.length, 1); assert.equal((await f.host.call('snapshot')).agents.items[0].busy, true);
+      return;
+    }
     const cancellation = await f.host.call('ipc', input('cancel', f.task.taskId, 'original-cancel'));
     assert.equal(cancellation.kind, 'cancel');
     assert.equal(cancellation.state, 'unknown');
@@ -86,8 +91,11 @@ for (const adapter of ['hermes', 'pi', 'dsh', 'codex']) {
   test(adapter + ' completes saved check and cancellation receipts only after observing the original terminal event', async t => {
     const f = fixture(t, adapter);
     await f.host.call('ipc', input('reconcile'));
-    await f.host.call('ipc', input('cancel', f.task.taskId, 'original-cancel'));
+    if (adapter === 'hermes') {
+      f.host.state.operations.push({operationId:'original-cancel',taskId:f.task.taskId,kind:'cancel',state:'unknown'}); f.host.save();
+    } else await f.host.call('ipc', input('cancel', f.task.taskId, 'original-cancel'));
     const job = path.join(f.directory, 'runs', f.task.taskId);
+    fs.mkdirSync(job,{recursive:true});
     fs.writeFileSync(path.join(job, 'events.jsonl'), JSON.stringify({ kind: 'terminal', status: 'succeeded', text: 'original completion' }) + '\n');
     const check = await f.host.call('ipc', input('operation'));
     assert.equal(check.state, 'confirmed');

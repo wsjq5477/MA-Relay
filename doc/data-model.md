@@ -1,5 +1,7 @@
 # 对象、身份与持久数据
 
+Hermes继续使用现有Task/Conversation/operationId/requestId与chat-stream-json-v1持久字段；不迁移或清除旧unknown。缺原生终态写已有unknown事件并保留占用；旧取消收据原ID仍可查询，不创建新网关取消意图。能力投影的cancellation对Hermes为false；未增加数据版本或字段。[行为与证据](iterations/I08/alpha65-hermes-windows.md)。
+
 关系撤权修复保持collaboration、relations、revision、GraphReceipt和graph-pending格式不变。准入目标为新主（主ID改变时）与相对原行新增的成员；清主加空成员或同主缩小集合无新增目标。角色/成员无重复、自连、原ID和期望修订继续校验。原管理未知及历史不因撤权而清理。[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
 
 ## CT-05原选材包传递

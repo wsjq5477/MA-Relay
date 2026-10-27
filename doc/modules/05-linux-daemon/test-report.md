@@ -1,5 +1,7 @@
 # M05 Linux daemon 测试报告
 
+2026-10-27 / alpha.65：M05-F01/F02：离线alpha.65资源包含相同原生CLI宿主、保守Hermes终态和Windows替换重试实现；Linux运行时沿用原包，不自动部署SSH。Windows实测不能代替Linux正式Hermes/SSH准出。 [本轮构建、分层验证与限制](../../iterations/I08/alpha65-hermes-windows.md)。共享Hermes31/31与冻结Windows原生MCP五组通过；无本轮Linux正式安装版/SSH/父模型测试，普通EXE结果单列。
+
 ## alpha.63实际WSL持续连接（2026-10-25）
 
 原生产Windows→WSL HostConnection、实际Ubuntu/原生Codex0.162.1列表与Linux通用stdio客户端：15分钟180/180原宿主/驱动/connectionId保持，原生配置摘要不变，任务/委派/模型0；删除/宿主重开不补装、撤权、轮换、移除共六组通过。原Windows启动进程退出、两客户端停止和Linux残留0已确认；这是MCP组件，不是原生父模型，未停止/冷启动发行版或部署SSH。历史入口前失败和完整稳定性仍未准出，原有全量不相加。[实际样本、首次测试路径失败、清理及边界](../../iterations/I08/native-mcp-lifecycle.md)。

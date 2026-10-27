@@ -1,5 +1,7 @@
 # M10 构建与发布测试报告
 
+2026-10-27 / alpha.65 / Windows Node24.12.0：共享Hermes定向31/31，扩展73项72通过/1个Pi原基线失败，不能跨模块相加。已安装Hermes0.22.5、冻结Windows后台原生MCP五组通过（模型0）；真实执行/续聊两轮通过，但首轮参数拒绝、早期心跳EPERM及验收器原生配置字节比较失败均保留。普通EXE/发布状态按[专项](../../iterations/I08/alpha65-hermes-windows.md)逐项登记，不把源码结果当作EXE/父模型准出。
+
 ## alpha.64构建与受控验收（2026-10-27）
 
 M10-F01/F02/F03/F05/F06；Windows Node24.12.0、Electron44.7.0、electron-builder26.15.3、Edge157.0.4341.16。公开EXE132227581字节，SHA-256 `86b8aad407400754d77012c9d873a19dd52a6576c59cc6c568a3f503705446dd`，58后台/84Core/1720Linux及ASAR/前端/bootstrap、实际EXE载荷一致。源码定向155/155；包内撤权14/14、关系37/37、传递14/14、收据4/4、兼容29/29，认证管道/重启另记录；图12组与控制台6组通过，模型0。普通EXE前五组及同一原profile重启/退出补验两组通过，两个附件uploaded且匿名HTTP200完整下载/摘要匹配。第三轮验证器提前attach的ENOENT已在master修正并接续补验，冻结产品/EXE字节未变。WSL服务不可用，未更新历史全量/原生/SSH准出；首次构建缓存EXDEV、ASAR路径误报、前端准备路径失败和普通启动120秒未就绪均保留。[完整原始证据、重试与未测项](../../iterations/I08/alpha64-release.md)。

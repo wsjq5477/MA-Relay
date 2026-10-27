@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+当前源码alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。公开版本仍按下表，发布后同步。
+
 AB-F02/F03/F12/F16：当前源码已修复关系图撤权与目标管理范围。保持主节点并缩小成员集合，或清空主节点与全部成员，不重新准入旧节点；新增成员与换主只检查新目标/新主。无关节点或机器 unknown、布局不可用不再全局锁定授权编辑；关系自身未知、来源/台账不可读、草稿无法持久化和修订冲突仍保护。设主不自动增加成员。已随alpha.64公开；[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
 
 alpha.62普通窗口生命周期五组与真实驱动退出码0已补验：旧脚本后续误选同进程无标题辅助窗，现绑定原主窗口并在关闭前核对归属/标题；三次正常关闭均原进程退出、包装码0，产品和EXE字节未改。未切换日常后台，模型0。[定位、修复与当前边界](iterations/I08/window-lifecycle-verifier.md)。

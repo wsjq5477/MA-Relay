@@ -1,5 +1,7 @@
 # M09 CLI、controller 与 Hub/Edge 测试报告
 
+2026-10-27 / alpha.65 / Windows Node24.12.0：共享Hermes定向31/31，扩展73项72通过/1个Pi原基线失败，不能跨模块相加。已安装Hermes0.22.5、冻结Windows后台原生MCP五组通过（模型0）；真实执行/续聊两轮通过，但首轮参数拒绝、早期心跳EPERM及验收器原生配置字节比较失败均保留。普通EXE/发布状态按[专项](../../iterations/I08/alpha65-hermes-windows.md)逐项登记，不把源码结果当作EXE/父模型准出。
+
 2026-10-23 / alpha.50未改包补验：本地20次落盘→DOM同步p95 1513ms通过；20组/60节点/59边的20次真实拖动观测上界p95 117.9ms未达到100ms门槛，未记录>500ms卡顿。WSL启动9/20通过/11次就绪前退出、失败写入0，原始WSL/PowerShell也复现；根因未定位。包与源码一致性重核通过，EXE未变；模型0，未重跑原全量，不替代独立LAN/SSH或原生模型。[本轮完整样本、失败、脚本与限制](../../iterations/I06/current-candidate-metrics.md)。
 2026-10-23 / alpha.50本地候选：共享桌面794/794、核心68/68，工程与最终包核验通过；Pi原生Linux/Windows各5组、Hermes固定官方源码原生组件5组、Windows生产前端5组/普通EXE4组通过，模型0。原生阶段/受控发现、首次YAML与验收脚本/受限socket失败分别保留；真实自主父模型、Hermes正式安装版/Windows原生、独立SSH及完整矩阵未准出。共享计数不相加。 [最终实现、原始证据与范围](../../iterations/I08/hermes-mcp-config.md)。
 

@@ -1,7 +1,7 @@
 // Explicit acceptance against original Hermes source/runtime; no model or parent.
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
 const assert = require('node:assert/strict'), {spawn} = require('node:child_process');
-const [bridge, nativeRoot, python, executable, output] = process.argv.slice(2);
+const [bridge, nativeRoot, python, executable, output, expectedTools = '10'] = process.argv.slice(2);
 if (!output) throw Error('Provide Bridge resources, Hermes source, Python, CLI and report');
 const {MachineHost} = require(path.join(bridge, 'desktop/electron/machine-host.cjs'));
 const {assertListArgs} = require(path.join(bridge, 'desktop/electron/agent-connections.cjs'));
@@ -10,10 +10,19 @@ const selected = path.join(root, 'profiles/research'), other = path.join(root, '
 for (const folder of [root, selected, other]) {fs.mkdirSync(folder, {recursive: true}); fs.writeFileSync(path.join(folder, 'config.yaml'), '# original native user configuration\n');}
 const active = path.join(root, 'active_profile'); fs.writeFileSync(active, 'Research\n');
 const environment = {...process.env, HERMES_HOME: root, HERMES_RUNTIME_DIR: path.join(directory, 'runtime'), HERMES_DISABLE_LAZY_INSTALLS: '1'};
+// Installed Hermes scopes dependency selection to its data root. Reuse the
+// original committed runtime through a fixture-only junction instead of asking
+// its installer to provision another environment for the disposable Profile.
+if (fs.existsSync(path.join(nativeRoot, 'install-stamp.json'))) {
+  const owner = path.dirname(nativeRoot);
+  fs.symlinkSync(path.join(owner, 'installs'), path.join(root, 'installs'), process.platform === 'win32' ? 'junction' : 'dir');
+  environment.HERMES_RUNTIME_DIR = path.join(owner, 'tools');
+}
 const candidates = Object.fromEntries(['claude', 'codex', 'opencode', 'hermes', 'pi', 'dsh'].map(id => [id, []])); candidates.hermes = [executable];
 const params = {nodeId: 'hermes-native-acceptance', adapter: 'hermes'}, calls = [], clients = [];
-const report = {date: new Date().toISOString(), bridgeVersion: '0.6.0-alpha.50', nativeSource: '484de065a821b4245697351d08327b465ffd41ba',
-  environment: 'unmodified official Hermes source and locked Python/MCP runtime / production MachineHost and broker / isolated native Profile / controlled parent', status: 'running', modelCalls: 0, checks: []};
+const stampFile = path.join(nativeRoot, 'install-stamp.json'), stamp = fs.existsSync(stampFile) ? JSON.parse(fs.readFileSync(stampFile, 'utf8')) : null;
+const report = {date: new Date().toISOString(), bridgeVersion: require('../package.json').version, nativeSource: stamp?.commit || 'external source (see supplied provenance)', nativeVersion: stamp?.displayVersion || 'unknown', expectedTools: Number(expectedTools),
+  environment: `${process.platform} / original Hermes source and installed Python/MCP runtime / production MachineHost and broker / isolated native Profile / controlled parent`, status: 'running', modelCalls: 0, checks: []};
 let host;
 const createHost = () => new MachineHost({directory: path.join(directory, 'bridge'), home: directory, environment, candidates, legacy: {close() {}},
   collaboration: async (scope, name, args) => {assert.equal(name, 'list_agents'); assertListArgs(args); calls.push(scope); return {items: []};}});
@@ -38,10 +47,10 @@ const invoke = async (client, args = {}) => client.call({action: 'call', args});
   assert.equal(installed.configPath, path.join(selected, 'config.yaml')); assert.equal(installed.profile, 'research');
   const probe = await host.call('mcp.probe', params); assert.equal(probe.facts.nativeLoad, 'loaded'); assert.equal(probe.facts.connection, 'unknown'); assert.equal(probe.facts.tools, 'available');
   report.checks.push('Original Hermes CLI follows the sticky native Profile and lists the Bridge-written entry; product status correctly leaves connection unconfirmed by a plain list');
-  const old = driver(selected), ready = await old.call({action: 'connect'}); assert.equal(ready.tools, 7); assert.equal(ready.configPath, installed.configPath);
+  const old = driver(selected), ready = await old.call({action: 'connect'}); assert.equal(ready.tools, Number(expectedTools)); assert.equal(ready.configPath, installed.configPath);
   assert.deepEqual(JSON.parse((await invoke(old)).content[0].text), {items: []}); assert.equal(calls.at(-1).nodeId, params.nodeId);
   const before = calls.length; assert.equal((await invoke(old, {nodeId: 'forged'})).isError, true); assert.equal(calls.length, before);
-  report.checks.push('Unmodified native MCPServerTask and actual SDK expose seven tools and call the production broker with original scope; forged arguments are rejected');
+  report.checks.push('Unmodified native MCPServerTask and actual SDK expose the expected classic tools and call the production broker with original scope; forged arguments are rejected');
   assert.equal((await old.call({action: 'disable'})).enabled, false); assert.equal((await host.call('mcp.status', params)).facts.config, 'disabled');
   await assert.rejects(host.call('mcp.install', params), {code: 'MCP_NATIVE_DISABLED'});
   assert.equal((await old.call({action: 'remove'})).removed, true); assert.equal((await host.call('mcp.status', params)).facts.config, 'absent');
@@ -50,11 +59,11 @@ const invoke = async (client, args = {}) => client.call({action: 'call', args});
   report.checks.push('Original native config writer disables and removes the entry; Bridge refuses re-enable and restart never reinstalls native deletion');
   await host.call('mcp.revoke', params); assert.match((await invoke(old)).content[0].text, /MCP_REVOKED/);
   fs.writeFileSync(active, 'review\n'); const fresh = await host.call('mcp.install', params); assert.notEqual(fresh.connectionId, installed.connectionId); assert.equal(fresh.configPath, path.join(other, 'config.yaml'));
-  const current = driver(other), next = await current.call({action: 'connect'}); assert.equal(next.tools, 7);
+  const current = driver(other), next = await current.call({action: 'connect'}); assert.equal(next.tools, Number(expectedTools));
   assert.deepEqual(JSON.parse((await invoke(current)).content[0].text), {items: []}); assert.match((await invoke(old)).content[0].text, /MCP_REVOKED/);
   report.checks.push('Explicit revoke rejects a cached native client; new native Profile binding rotates identity and only the fresh client remains authorized');
   await host.call('mcp.remove', params); assert.equal((await host.call('mcp.status', params)).facts.config, 'absent'); assert.match((await invoke(current)).content[0].text, /MCP_REVOKED/);
   report.checks.push('Removal clears only the new registered Profile and revokes its cached client, without a model task or replay');
   report.status = 'passed';
-})().catch(error => {report.status = 'failed'; report.error = {code: error.code || 'ACCEPTANCE_FAILED', message: error.code === 'ERR_ASSERTION' ? 'Original Hermes evidence did not meet the expected contract' : error.message}; process.exitCode = 1;})
+})().catch(error => {report.status = 'failed'; report.error = {code: error.code || 'ACCEPTANCE_FAILED', message: error.code === 'ERR_ASSERTION' ? 'Original Hermes evidence did not meet the expected contract' : error.message, location: error.stack?.split('\n').find(line => line.includes('hermes-native-mcp.cjs:'))?.trim()}; process.exitCode = 1;})
   .finally(async () => {for (const client of clients) {try {await client.close();} catch {report.cleanupPending = true;}} host?.close(); if (!report.cleanupPending) fs.rmSync(directory, {recursive: true, force: true, maxRetries: 8, retryDelay: 200}); fs.mkdirSync(path.dirname(output), {recursive: true}); fs.writeFileSync(output, JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify(report));});

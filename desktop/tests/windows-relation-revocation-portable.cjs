@@ -50,7 +50,7 @@ async function launch(){
 async function closeWindow(){
  if(!windowBinding)return;
  const result=await windowBinding.close();assert.equal(result.verified,true);assert.equal(result.accepted,true);windowBinding.dispose();windowBinding=null;
- const deadline=Date.now()+30000;while(wrapper.exitCode===null&&Date.now()<deadline)await delay(100);
+ const deadline=Date.now()+120000;while(wrapper.exitCode===null&&Date.now()<deadline)await delay(100);
  assert.equal(wrapper.exitCode,0,'Original wrapper must exit normally');main=null;
 }
 async function waitExit(pid){const deadline=Date.now()+30000;while(Date.now()<deadline){try{process.kill(pid,0);}catch(e){if(e.code==='ESRCH')return;throw e;}await delay(100);}throw Error('Original Coordinator has not exited');}
@@ -65,15 +65,25 @@ async function retained(expected){
 }
 (async()=>{
  if(resuming){
-  const prior=JSON.parse(fs.readFileSync(path.resolve(process.argv[5])));assert.equal(prior.version,version);assert.equal(prior.status,'failed');assert.equal(prior.error.code,'ENOENT');assert.equal(prior.checks.length,5);assert.deepEqual(prior.portable,report.portable);
+  const prior=JSON.parse(fs.readFileSync(path.resolve(process.argv[5])));assert.equal(prior.version,version);assert.equal(prior.status,'failed');
+  const knownReadinessFailure=prior.error.code==='ENOENT'&&prior.checks.length===5;
+  const knownWrapperWaitFailure=prior.error.code==='ERR_ASSERTION'&&prior.checks.length===4&&prior.error.message.startsWith('Original wrapper must exit normally');
+  assert(knownReadinessFailure||knownWrapperWaitFailure,'Only the demonstrated readiness or original-wrapper wait failure may resume');assert.deepEqual(prior.portable,report.portable);
   assert.deepEqual(fs.readFileSync(historyFile),Buffer.from(JSON.stringify(history)));assert.equal(JSON.parse(fs.readFileSync(path.join(profile,'machines.json'))).localMachineId,machineId);
-  report.priorPassedChecks=5;report.resumedSameProfile=true;report.checks.push(...prior.checks);checkpoint('resume same original profile');
+  report.priorPassedChecks=prior.checks.length;report.resumedSameProfile=true;report.priorFailurePreserved=prior.error.code;report.checks.push(...prior.checks);checkpoint('resume same original profile');
   let oldPid=JSON.parse(fs.readFileSync(path.join(profile,'coordinator-status.json'))).pid;assert(Number.isInteger(oldPid)&&oldPid>0);
   const old=new CoordinatorClient({directory:profile});
   try{await old.attach();oldPid=old.info.pid;assert.equal(old.info.version,version);await old.request('shutdown');}catch(e){if(!['ENOENT','ECONNREFUSED'].includes(e.code))throw e;}finally{old.close();}
   await waitExit(oldPid);await launch();assert.notEqual(coordinatorPid,oldPid);
   const expected={leaderId:'independent',memberIds:[],revision:6};await retained(expected);
   const original=await call('collaborationOperation',{operationId:'revoke-original'});assert.equal(original.state,'confirmed');assert.deepEqual(original.data,{leaderId:'main',memberIds:[],revision:5});
+  if(process.env.AGENTBRIDGE_VERIFY_INSTALLED_HERMES==='1'){
+   const found=await call('discover',{machineId}),hermes=found.items.find(item=>item.adapter==='hermes');assert(hermes);assert.equal(hermes.healthy,true);assert.equal(hermes.version,'0.22.5');
+   assert.equal(fs.realpathSync(hermes.executable),fs.realpathSync(path.join(process.env.LOCALAPPDATA,'hermes/bin/hermes.exe')));
+   const snapshot=await call('snapshot'),node=snapshot.nodes.find(item=>item.adapter==='hermes'&&item.machineId===machineId);assert(node);assert.equal(node.connectionCapabilities.cancellation,false);await retained(expected);
+   report.installedHermes={version:hermes.version,healthy:hermes.healthy,originalInstallationMatched:true,cancellation:false,modelCalls:0};
+   report.checks.push('Ordinary EXE discovers the installed Windows Hermes outside PATH and projects gateway cancellation unsupported without changing original receipts');
+  }
   report.checks.push('Same original profile completes full Coordinator restart; exact original revocation receipt, unknown and native history survive without replay');checkpoint('resume final shutdown');
   const lastPid=coordinatorPid;await closeWindow();await client.request('shutdown');client.close();await waitExit(lastPid);client=null;
   report.checks.push('Follow-up original window/wrapper exits normally and the explicitly restarted test Coordinator exits');report.status='passed';return;

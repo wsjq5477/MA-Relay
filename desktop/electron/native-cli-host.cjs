@@ -21,9 +21,7 @@ function read(file, fallback) {
 }
 function write(file, value) {
   fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
-  const temporary = file + '.' + randomUUID() + '.tmp';
-  fs.writeFileSync(temporary, JSON.stringify(value, null, 2), { mode: 0o600 });
-  fs.renameSync(temporary, file);
+  require('./graph-layout.cjs').atomicWrite(file, value);
 }
 class NativeCliHost {
   constructor(options) {
@@ -120,7 +118,7 @@ class NativeCliHost {
       return { agentId: agent.agentId };
     }
     if (method === 'snapshot') return {
-      agents: { items: this.state.agents.map(agent => { const active = this.state.tasks.find(task => task.targetAgent === agent.agentId && !terminal.has(task.status)); return { ...agent, online: true, healthy: true, busy: !!active, available: !active, default: false, nativeAgent: this.adapter, capabilities, ...(active ? { currentTask: { taskId: active.taskId, status: active.status, summary: active.lastSummary } } : {}) }; }), revision: this.state.revision, connected: true },
+      agents: { items: this.state.agents.map(agent => { const active = this.state.tasks.find(task => task.targetAgent === agent.agentId && !terminal.has(task.status)); return { ...agent, online: true, healthy: true, busy: !!active, available: !active, default: false, nativeAgent: this.adapter, capabilities: {...capabilities, ...(this.adapter === 'hermes' ? {cancellation: false} : {})}, ...(active ? { currentTask: { taskId: active.taskId, status: active.status, summary: active.lastSummary } } : {}) }; }), revision: this.state.revision, connected: true },
       tasks: this.state.tasks.map(task => this.publicTask(task)), conversations: this.state.conversations.map(item => this.conversationView(item)),
     };
     if (method !== 'ipc') throw fail('DESKTOP_METHOD', '不支持这个原生 Agent 操作。');
@@ -134,7 +132,10 @@ class NativeCliHost {
       if (!task) throw fail('TASK_NOT_FOUND', '任务不存在。'); if (!validIdentity(params.operationId)) throw fail('INVALID_INPUT', '取消需要操作 ID。');
       const old = this.existingOperation(task, params.operationId, 'cancel');
       if (old) return clone(old);
+      // Hermes chat is a gateway viewer: killing it does not cancel admitted
+      // work. Preserve existing receipts, but never mint a false cancellation.
       if (!terminal.has(task.status) && this.state.operations.some(item => item.taskId === task.taskId && item.state === 'unknown' && operationKind(item) === 'cancel')) throw fail('REQUEST_CLAIMED', '原取消操作尚待核对，请查询原 operationId，不换 ID 重复取消。');
+      if (this.adapter === 'hermes' && !terminal.has(task.status)) throw fail('ADAPTER_UNSUPPORTED', 'Hermes 网关任务请在原生会话停止；退出 CLI 不代表取消，原任务与请求保持。');
       const receipt = { operationId: params.operationId, taskId: task.taskId, kind: 'cancel', state: terminal.has(task.status) ? 'confirmed' : 'unknown' };
       this.state.operations.push(receipt); this.save(); if (receipt.state === 'unknown') write(path.join(this.directory, 'runs', task.taskId, 'cancel.json'), { operationId: params.operationId }); return clone(receipt);
     }
@@ -203,7 +204,10 @@ async function runWorker(directory) {
   if (['opendesk', 'opendesk-desktop'].includes(original?.adapter)) return require('./opendesk-worker.cjs').run(directory, {observe: process.argv.includes('--observe')});
   if (['dsh-desktop', 'dsh-web'].includes(original?.adapter)) return require('./dsh-worker.cjs').run(directory, {observe: process.argv.includes('--observe')});
   const job = read(path.join(directory, 'job.json'), null), emit = data => fs.appendFileSync(path.join(directory, 'events.jsonl'), JSON.stringify(data) + '\n', { mode: 0o600 });
-  const beat = () => write(path.join(directory, 'heartbeat.json'), { time: now(), pid: process.pid }); beat(); const heartbeat = setInterval(beat, 1000);
+  const beat = () => write(path.join(directory, 'heartbeat.json'), { time: now(), pid: process.pid }); beat();
+  // A persistent heartbeat write failure makes observers report unknown; it
+  // must not crash the owner and abandon a still-running native gateway turn.
+  const heartbeat = setInterval(() => {try {beat();} catch { /* Keep observing the original child; never submit again. */ }}, 1000);
   let child, cancelRequested = false, terminationSent = false, windowsKill, killDeadline = 0, ended = false, oversized = false, buffer = '', failure = '', diagnostics = '';
   const parser = createParser(job, event => emit({ ...event, ...(typeof event.text === 'string' ? { text: safe(event.text) } : {}) }));
   try {
@@ -225,7 +229,19 @@ async function runWorker(directory) {
     if (oversized || Buffer.byteLength(buffer) > 4 * 1024 * 1024) { oversized = true; failure = '原生事件超过 4 MiB 长度限制，回答未确认为完整。'; killDeadline = Date.now() + 3000; terminate(); }
   });
   // Keep diagnostics only; raw native reasoning/tool arguments are not copied.
-  child.stderr.on('data', chunk => { diagnostics = (diagnostics + safe(chunk)).slice(-12000); });
+  let diagnosticBuffer = '';
+  child.stderr.on('data', chunk => {
+    diagnostics = (diagnostics + safe(chunk)).slice(-12000);
+    if (job.adapter !== 'hermes') return;
+    diagnosticBuffer += chunk;
+    let end;
+    while ((end = diagnosticBuffer.indexOf('\n')) >= 0) {
+      const record = diagnosticBuffer.slice(0, end).trim(); diagnosticBuffer = diagnosticBuffer.slice(end + 1);
+      const match = record.match(/^(?:Session:|session_id:)\s+([\w-]{1,4096})$/);
+      if (match) parser.accept({type: 'system', subtype: 'init', session_id: match[1]});
+    }
+    diagnosticBuffer = diagnosticBuffer.slice(-12000);
+  });
   const cancel = setInterval(() => {
     if (ended) return;
     if (!cancelRequested && fs.existsSync(path.join(directory, 'cancel.json'))) { cancelRequested = true; killDeadline = Date.now() + 3000; terminate(); }
@@ -239,6 +255,10 @@ async function runWorker(directory) {
   const result = parser.finish(code);
   if (result.answer.length > 200000) failure = '原生回答超过保留长度限制，未将裁剪内容确认为完整结果。';
   const succeeded = result.succeeded && !failure;
+  if (job.adapter === 'hermes' && !succeeded && (result.uncertain || oversized || cancelRequested || signal)) {
+    emit({kind: 'unknown', text: safe((failure ? failure + '；' : '') + 'Hermes 原生网关尚无可确认的本轮终态；保留原请求与占用，请在原生会话核对，不重新提交。')});
+    return;
+  }
   // A cancellation receipt is not completion evidence. Natural successful exit
   // wins a cancel/exit race; otherwise require this worker's successful kill
   // plus the native process's termination exit/signal.

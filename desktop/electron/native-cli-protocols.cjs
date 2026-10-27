@@ -38,12 +38,15 @@ function argumentsFor(job) {
     return [];
   }
   if (job.adapter === 'opendesk' || job.adapter === 'opendesk-desktop') return [];
-  if (job.adapter === 'hermes') return ['chat', '--query-file', '-', '--format', 'stream-json', '--no-restore-cwd', ...(job.sessionId ? ['--resume', job.sessionId] : [])];
+  // The native gateway keeps the session's frozen cwd. The removed legacy
+  // --no-restore-cwd flag is rejected by installed Hermes 0.22.5; both native
+  // implementations accept the common stream-json and exact-resume contract.
+  if (job.adapter === 'hermes') return ['chat', '--query-file', '-', '--format', 'stream-json', ...(job.sessionId ? ['--resume', job.sessionId] : [])];
   if (job.adapter === 'dsh') return ['--profile', 'headless', '--json', ...(job.sessionId ? ['--session-id', job.sessionId] : []), '-'];
   return ['--mode', 'json', '--print', '--session-dir', job.sessionDirectory, ...(job.sessionId ? ['--session', piSessionFile(job.sessionDirectory, job.sessionId)] : [])];
 }
 function createParser(job, emit) {
-  let answer = '', sessionId = '', completed = false, failure = '', piError = '', piFinal = false, piEnded = false, dshEnded = false;
+  let answer = '', sessionId = '', completed = false, resultSeen = false, hermesDetached = false, failure = '', piError = '', piFinal = false, piEnded = false, dshEnded = false;
   function conflict(text) { failure = text; emit({ kind: 'binding_error', text }); }
   function bind(value) {
     if (!validIdentity(value)) return;
@@ -58,6 +61,8 @@ function createParser(job, emit) {
         if (event.type === 'system' && event.subtype === 'init') bind(event.session_id);
         if (event.type === 'text') output(event.text, true);
         if (event.type === 'result') {
+          resultSeen = true;
+          hermesDetached = event.exit_code === 130;
           bind(event.session_id); output(event.text);
           if (event.exit_code !== 0 || event.error) failure = String(event.error || 'Hermes 原生执行失败');
           completed = event.exit_code === 0 && typeof event.text === 'string';
@@ -89,7 +94,8 @@ function createParser(job, emit) {
     },
     finish(code) {
       const error = failure || (job.adapter === 'pi' ? piError || (!piFinal ? 'Pi 缺少本轮正常结束的 assistant 消息。' : '') : '') || (job.adapter === 'dsh' && !dshEnded ? 'DeepSeek Harness 缺少本轮 completed 终态。' : '');
-      return { sessionId, answer, succeeded: code === 0 && completed && !!sessionId && !error, error };
+      return { sessionId, answer, succeeded: code === 0 && completed && !!sessionId && !error, error,
+        ...(job.adapter === 'hermes' ? {uncertain: !resultSeen || hermesDetached || /Gateway connection\/read failed|Detached; accepted work|Unknown execution blocks/.test(error)} : {}) };
     },
   };
 }

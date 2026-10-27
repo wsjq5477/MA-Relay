@@ -23,7 +23,7 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   }
   assert.ok(methods.includes('| DSH CLI | ✓ | — | ✓ | — | — | — |'));
   // Independent client support remains separate from hosted task injection.
-  assert.ok(capabilities.includes('| Hermes | ✓ | ✓ | ✓ | ✓ | ✓ | — |'));
+  assert.ok(capabilities.includes('| Hermes | ✓ | ✓ | — | ✓ | ✓ | — |'));
   assert.ok(capabilities.includes('| Pi | ✓ | ✓ | ✓ | ✓ | ✓ | — |'));
   assert.ok(methods.includes('| Pi | ✓ | — | ✓ | — | — | — |'));
   assert.equal(methods.trim().split('\n').length, 12);

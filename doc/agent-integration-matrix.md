@@ -1,10 +1,12 @@
 # Agent 接入现状与后续目标
 
+当前源码alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。公开版本仍按下表，发布后同步。
+
 alpha.63 [原生MCP生命周期补验](iterations/I08/native-mcp-lifecycle.md)：普通无调试EXE与原版Pi客户端七组通过，三个实际解包目录关闭后删除，原传输/原身份/完整接收收据保持；最后原窗/客户端/Coordinator均确认退出。实际WSL十五分钟180/180及删除/重开/撤权/轮换六组也已通过，两个客户端/原宿主退出且残留0。模型0，其他入口/跨版本升级/托管父模型、WSL冷启动/历史故障与整体MCP02继续未准出。
 
 本地alpha.62只收敛实际桌面操作面：日常需求使用原生Agent及既有MCP，Bridge配置/审计与原执行恢复保留；下表的执行/续聊/取消等仍描述后台适配能力，不表示桌面有新建/续问表单。原生权限、模型和Session能力未扩展。[本片证据](iterations/I07/configuration-console.md)。
 
-当前alpha.60原生十工具组件：Pi1.4.0的Linux/Windows和固定源码Hermes的Linux各7组通过，真实配置/MCP客户端实际调用连接/断开、范围外确认、原ID/历史收据与撤权，模型0；[冻结包证据与限制](iterations/I08/native-policy-components.md)。Hermes正式安装版/Windows原生、真实父模型、生命周期和独立SSH仍未准出；原alpha.50五组证据保留在[配置专项](iterations/I08/hermes-mcp-config.md)。
+当前alpha.60原生十工具组件：Pi1.4.0的Linux/Windows和固定源码Hermes的Linux各7组通过，真实配置/MCP客户端实际调用连接/断开、范围外确认、原ID/历史收据与撤权，模型0；[冻结包证据与限制](iterations/I08/native-policy-components.md)。Hermes正式安装版0.22.5/Windows原生本轮执行与MCP组件见页首；真实父模型自主MCP、网关取消、完整生命周期和独立SSH仍未准出；原alpha.50五组证据保留在[配置专项](iterations/I08/hermes-mcp-config.md)。
 
 WSL配置按原nodeId路由至原发行版MachineHost，原有六项MCP管理方法在源码已存在；alpha.49增加就绪握手，最终包真实Windows→WSL MCP组件5组已通过（配置、原生Codex列表、Linux stdio调用、重开、撤权/轮换/清理），仍保留启动失败和原生父模型未测，不以工具组件代替模型自主调用。[当前范围与失败证据](iterations/I08/wsl-host-readiness.md)。
 
@@ -73,7 +75,7 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | Claude Code | 直接执行：已实现；MCP调用方：已实现，可作为主节点及小队成员；原生MCP配置：Bridge可管理（写`mcpServers.agentbridge`）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派均通过；三真实角色公共文档链及历史权限证据保留；结构化AskUserQuestion当前拒绝；2026-10-22受控profile下真实`claude`：Bridge写入后`claude mcp list`报Connected、工具目录7项（零模型，非用户profile） | 保持原通路，核验当前版本、跨机的发现/执行/等待/取消/恢复；按实际需求补输入类型 |
 | OpenCode | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（v1/v2两代布局）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派通过；permission/form及独立Linux与Windows Claude双向协作保留历史证据；原生版本契约有约束 | 作为Bridge通用ACP Client的首个目标Agent，比较现有HTTP路径的事件、权限与恢复效果 |
 | Codex | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（`mcp_servers.agentbridge`标记块）；托管scope注入：已实现；被委派：已实现并有真实证据，具体环境见报告 | 当前WSL0.163.0-alpha.10.2直接生命周期及双向普通委派通过；旧版本续聊、Windows原账号失败保留；Bridge权限/表单未适配 | 验证当前原生版本的执行/结果/取消/恢复；有实际控制缺口时比较原生交互接口和 ACP 生态包装器 |
-| Hermes Agent | 直接执行与普通被委派：源码已实现；独立MCP/原生Profile YAML：当前公开alpha.64已包含；托管scope/小队：未适配 | 固定官方源码484de065与锁定依赖的真实CLI/MCPServerTask在公开60冻结后台上7组通过，实际消费10工具和连接/确认/撤权；CLI版本戳unknown，不当作正式安装版或Windows原生，模型0 | 真实原生父模型/正式安装版生命周期、Windows原生Hermes与独立SSH待验，[证据与限制](iterations/I08/hermes-mcp-config.md) |
+| Hermes Agent | 直接执行、原Session续聊与普通被委派：已实现；alpha.65源码补Windows安装发现/网关兼容；独立MCP/Profile YAML已发布；托管scope/小队与网关取消未适配 | 本机正式0.22.5原生执行/同Session续聊两轮实际成功，冻结Windows后台原生MCP十工具五组通过，组件模型0；早期EPERM未知与原生文件字节比较失败保留 | 真实父模型自主MCP/跨Agent委派、原生网关取消、完整生命周期与SSH未准出，[本轮证据](iterations/I08/alpha65-hermes-windows.md) |
 | Pi | 直接执行与普通被委派：源码已实现；独立MCP/用户配置：当前公开alpha.64已包含；托管scope：未适配 | 官方Pi1.4.0原包Linux/Windows在公开60冻结后台上各7组通过，实际消费10工具和连接/确认/撤权，模型0；[当前原生组件证据](iterations/I08/native-policy-components.md) | 原Session文件规则保持；真实父模型/生命周期/SSH待验 |
 | DeepSeek Harness（DSH） | 直接执行：源码已实现；MCP调用方：已声明有MCP客户端（可独立配置）；原生MCP配置：**有，但需显式指定启动 profile**（`$DSH_HOME/profiles/<profile>/cordis.patch.yml` 单行`insert:`）；托管scope注入：未适配；被委派：同 Hermes | 使用 headless 自身原生配置，不搬运 web profile 凭据；profile 名称由用户提供并按单段目录校验（`MCP_DSH_PROFILE_REQUIRED` 拒绝非法/缺失值），未指定时只可导出；受控测试覆盖写入仅目标profile、status回显、remove只清理该profile；**真实 `dsh --profile acp` 启动观测到原生加载+`initialize`握手+`tools/list`（7工具，模型0，受控scratch profile）**；TUI/用户自建profile与真实用户profile未观测 | 在真实 `dsh` CLI 启动中核对指定 profile 是否加载该条目并列出工具；先验原生 headless 协议与真实模型 |
 | DSH Windows Desktop（dsh-desktop） | 直接执行：已随公开alpha.46实现；MCP调用方：已声明有MCP客户端；原生MCP配置：alpha.48候选按Desktop原生数据目录/Profile选择记录管理，保存原目标绑定，切换后先移除再添加（当前公开版已包含）；托管scope注入：未适配；被委派：可接收普通委派；方向能力为受控证据 | Windows社区Desktop2.0.18历史真实认证/Session接口及同Session两轮去重已观察，模型RATE_LIMIT；本轮已安装未修改Desktop原生配置组合器与MCP客户端5组/生产前端4组通过（模型0），[完整证据](iterations/I08/dsh-desktop-mcp.md) | 待原生限流解除后补成功回答/真实取消；[DSH原生证据](iterations/I07/dsh-exe-delivery.md) |
@@ -96,7 +98,7 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | 读取实际任务结果/错误 | 已实现 | 已实现 | 已实现 | 已实现 |
 | Bridge 权限回复 | 已实现，具体控制类型见报告 | 已实现，受原生版本契约限制 | 未适配 | 未适配 |
 | Bridge 结构化输入表单 | AskUserQuestion 当前拒绝 | 已实现受支持类型 | 未适配 | 未适配 |
-| 取消与终态核对 | 已实现，有限定真实证据 | 已实现，有限定真实证据 | 进程树/进程组控制已实现，覆盖见报告 | 已实现，仅受控证据 |
+| 取消与终态核对 | 已实现，有限定真实证据 | 已实现，有限定真实证据 | 进程树/进程组控制已实现，覆盖见报告 | Hermes网关取消未适配，false；Pi/DSH原实现与证据保留 |
 | 原请求持久查询与 unknown 保护 | 已实现 | 已实现 | 已实现 | 已实现 |
 | 当前内置 ACP 驱动 | 无 | 无 | 无 | 无 |
 

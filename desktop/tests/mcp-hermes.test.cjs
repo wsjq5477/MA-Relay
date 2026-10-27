@@ -7,7 +7,7 @@ const native = require('../electron/hermes-mcp-config.cjs');
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-hermes-config-')), home = path.join(root, 'user'), env = {};
   t.after(() => fs.rmSync(root, {recursive: true, force: true}));
-  const nativeRoot = path.join(home, '.hermes'), file = path.join(nativeRoot, 'config.yaml');
+  const nativeRoot = process.platform === 'win32' ? path.join(home, 'AppData/Local/hermes') : path.join(home, '.hermes'), file = path.join(nativeRoot, 'config.yaml');
   const write = (file, value) => {fs.mkdirSync(path.dirname(file), {recursive: true}); fs.writeFileSync(file, value);};
   const profile = (name, at = nativeRoot) => {const file = path.join(at, 'profiles', name, 'config.yaml'); write(file, '# profile comment\nmodel: unchanged\n'); return file;};
   const select = (name, at = nativeRoot) => write(path.join(at, 'active_profile'), name);
@@ -62,7 +62,7 @@ test('Hermes named custom profile must not be mistaken for a new custom root', a
 test('Hermes Windows layout, suffix, variable and tilde expansion follow the target environment', t => {
   const f = fixture(t), local = path.join(f.root, 'Local');
   assert.equal(native.currentTarget(f.home, {LOCALAPPDATA: local}, 'win32').home, path.join(local, 'hermes'));
-  assert.equal(native.currentTarget(f.home, {HERMES_DATA_DIR_SUFFIX: '-test'}).home, path.join(f.home, '.hermes-test'));
+  assert.equal(native.currentTarget(f.home, {HERMES_DATA_DIR_SUFFIX: '-test'}, 'linux').home, path.join(f.home, '.hermes-test'));
   assert.equal(native.currentTarget(f.home, {HERMES_HOME: '~/root'}).home, path.join(f.home, 'root'));
   assert.equal(native.currentTarget(f.home, {HERMES_HOME: '${ROOT}/hermes', ROOT: f.root}).home, path.join(f.root, 'hermes'));
   assert.equal(native.currentTarget(f.home, {HERMES_HOME: '%root%/hermes', ROOT: f.root}, 'win32').home, path.join(f.root, 'hermes'));

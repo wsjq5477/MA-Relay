@@ -61,7 +61,7 @@ const adapters = createAdapterRegistry([
     // DSH CLI keeps one native profile per launch argument, so Bridge can manage
     // its MCP entry only when the user names that profile explicitly (the MCP
     // status reports `MCP_DSH_PROFILE_REQUIRED` until then).
-    capabilities: { execution: true, delegation: true, mcpClient: true, nativeMcpConfig: true, hostManagedTask: false, resume: true, cancellation: true, permissions: false, forms: false, verification: false },
+    capabilities: { execution: true, delegation: true, mcpClient: true, nativeMcpConfig: true, hostManagedTask: false, resume: true, cancellation: definition.id !== 'hermes', permissions: false, forms: false, verification: false },
     createHost: options => new (require('./native-cli-host.cjs').NativeCliHost)({ ...options, adapter: definition.id }),
   })),
 ]);

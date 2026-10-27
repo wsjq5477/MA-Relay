@@ -1,5 +1,7 @@
 # Agent 接入方式、选型与快速接入
 
+Windows Hermes安装后无需为Bridge手动修改PATH：源码alpha.65按当前PATH、HERMES_HOME/bin与LOCALAPPDATA/hermes/bin发现原生CLI，Hermes版本探测上限20秒。现已核对真实0.22.5执行/续聊和十工具MCP组件。网关任务须在Hermes原生会话停止，Bridge不宣称能取消；旧unknown只查原ID。[实现与限制](iterations/I08/alpha65-hermes-windows.md)。
+
 WSL配置按原nodeId路由至原发行版MachineHost，原有六项MCP管理方法在源码已存在；alpha.49增加就绪握手，最终包真实Windows→WSL MCP组件5组已通过（配置、原生Codex列表、Linux stdio调用、重开、撤权/轮换/清理），仍保留启动失败和原生父模型未测，不以工具组件代替模型自主调用。[当前范围与失败证据](iterations/I08/wsl-host-readiness.md)。
 
 最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。

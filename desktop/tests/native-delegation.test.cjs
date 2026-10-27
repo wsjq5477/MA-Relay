@@ -173,6 +173,16 @@ for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary d
   assert.equal(invocations(f.calls).filter(item => item.adapter === adapter).length, 1, 'reopening/read/deduplication never starts the original prompt again');
   assert.equal(invocations(f.calls).find(item=>item.adapter===adapter).prompt,renderDelegation({contextVersion:1,message:args.message}));
 
+  if (adapter === 'hermes') {
+    const calls=invocations(f.calls).filter(item=>item.adapter===adapter);
+    assert.equal(calls.length,1);assert.equal(calls[0].cwd,f.workspace);
+    assert.deepEqual(calls[0].args,['chat','--query-file','-','--format','stream-json']);
+    assert.equal(fs.readFileSync(path.join(f.workspace,'native-settings.json'),'utf8'),f.config);
+    const nativeHost=f.network.host(f.network.machine(f.member.machineId));
+    const target=nativeHost.rows.find(item=>item.nodeId===f.member.nodeId);assert.equal(target.mcp,undefined);
+    assert.equal((await nativeHost.backend(target).call('snapshot')).agents.items[0].capabilities.cancellation,false);
+    return; // Gateway cancellation is unsupported; no synthetic process kill is presented as native cancellation.
+  }
   const held = await f.mcp('delegate', { ...args, requestId: 'held-child', message: 'hold' });
   await until(() => invocations(f.calls), values => values.some(item => item.adapter === adapter && item.prompt === renderDelegation({contextVersion:1,message:'hold'})));
   const cancellation = await f.mcp('cancel_task', { taskId: held.taskId, operationId: 'original-cancel' });
@@ -199,7 +209,6 @@ for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary d
   assert.equal(fs.readFileSync(path.join(f.workspace, 'native-settings.json'), 'utf8'), f.config);
   const target = f.network.host(f.network.machine(f.member.machineId)).rows.find(item => item.nodeId === f.member.nodeId);
   assert.equal(target.mcp, undefined, 'ordinary delegation does not require child MCP caller capability');
-  if (adapter === 'hermes') assert.deepEqual(calls[0].args, ['chat', '--query-file', '-', '--format', 'stream-json', '--no-restore-cwd']);
   if (adapter === 'pi') assert.deepEqual(calls[0].args.slice(0, 3), ['--mode', 'json', '--print']);
   if (adapter === 'dsh') assert.deepEqual(calls[0].args, ['--profile', 'headless', '--json', '-']);
 
