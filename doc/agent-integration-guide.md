@@ -1,18 +1,8 @@
 # Agent 接入方式、选型与快速接入
 
-alpha.66源码补齐Linux Hermes安装发现：原生数据目录bin、独立HERMES_INSTALL_DIR、固定Profile所属根与默认根、后缀/路径展开；Hermes专用运行时目录不再用于发现其他Agent。PATH原命令优先，原生模型/配置/Session与unknown不变。Windows受控Hermes39/39，Linux原生CI验证进行中；当前公开仍alpha.65。[本轮范围与证据](iterations/I08/alpha66-hermes-linux.md)。
+alpha.66候选已完成本轮验证，当前公开仍alpha.65：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
 
-Windows Hermes安装后无需为Bridge手动修改PATH：源码alpha.65按当前PATH、HERMES_HOME/bin与LOCALAPPDATA/hermes/bin发现原生CLI，Hermes版本探测上限20秒。现已核对真实0.22.5执行/续聊和十工具MCP组件。网关任务须在Hermes原生会话停止，Bridge不宣称能取消；旧unknown只查原ID。[实现与限制](iterations/I08/alpha65-hermes-windows.md)。
-
-WSL配置按原nodeId路由至原发行版MachineHost，原有六项MCP管理方法在源码已存在；alpha.49增加就绪握手，最终包真实Windows→WSL MCP组件5组已通过（配置、原生Codex列表、Linux stdio调用、重开、撤权/轮换/清理），仍保留启动失败和原生父模型未测，不以工具组件代替模型自主调用。[当前范围与失败证据](iterations/I08/wsl-host-readiness.md)。
-
-最新验收：alpha.46的已安装OpenDesk/DSH原生MCP组件正式授权、撤权和恢复通过；两条生产协作链各完成1个真实Claude子任务，原观察器重开保持原Session与请求，不重放。OpenDesk 日常原生父模型只读发现已通过，实际 list_agents 返回 7 个获准节点；[原生发现证据](iterations/I08/opendesk-mcp-diagnostic-repair.md)。父模型自主委派与原生页面仍未验；[组件层级与原始证据](iterations/I08/mcp-native-acceptance.md)。
-
-本地alpha.46已支持非GUI首次接入及原操作查询；MCP探测按配置绑定和60秒有效期核对。[实际交付范围](iterations/I08/mcp-open-recovery.md)。
-
-[I08-MCP02开放MCP与双向配置](iterations/I08/mcp-open-integration.md)已完成Bridge源码第一片：用户只管理一个AgentBridge MCP，可从Bridge或原生Agent增删；能力拆为MCP调用、原生配置管理、托管scope注入三问，状态拆为配置/原生加载/连接/工具/授权/归属六项事实。当前可管理原生MCP条目的入口是Claude、Codex、OpenCode（两代）、DSH Web 与 DSH CLI（CLI 需显式指定启动 profile；DSH Web 已在隔离 profile 的真实启动中完成原生握手并取到工具目录）；OpenDesk 两个入口不同：CLI 0.3.8 完全没有 MCP 管理面（插件清单与工具列表都无 MCP 入口、启动重写 `setting.json` 丢弃未识别 `applications` 段），只能导出片段；Desktop 的原生 MCP 条目已可用（写入前必须从托盘完全退出 OpenDesk，刷新核对后添加，再手动打开；原节点断开仍可配置，原生列表无法由Bridge核验；条目必须使用 PATH 中的真实 Node 启动器，Electron 运行时它在 mcpmgr 里启动不了），用户真实 Desktop 0.3.9 上已观察到“已连接 + 7 工具可见”，已完成原生组件正式授权调用（真实自主父模型委派仍未验）；DSH Desktop在alpha.48本地候选新增原生选择定位、绑定和精确清理（早期alpha.46仅导出）；Hermes/Pi原生管理已在alpha.50本地候选补齐并验证原生组件；早期alpha.46仅导出。逐入口真实原生可见性与主调用链仍待验收，因此不能用设计目标替代[接入矩阵](agent-integration-matrix.md)中的实际能力状态。
-
-关联 AB-F02/F07/F08/F10/F11/F12/F13、M03/M06/M07/M08/M10。本文是接入说明与后续开发建议，不修改运行代码、协议、存储或发布版本，也不调用模型。各 Agent **实际接入了哪些方式**，只以[当前接入矩阵](agent-integration-matrix.md#2-每个-agent-已接入的方式)为准；不能把本文的协议能力或推荐方案算作已交付功能。
+Bridge调用原生Agent与Agent调用Bridge是两个方向；模型、供应商与权限由原生工具管理。Windows Hermes使用原生bin启动器；Linux/WSL在目标环境安装并配置Hermes，先核对原生版本再扫描。网关任务在Hermes原生会话停止，关闭CLI不代表取消，旧unknown只查原ID。
 
 ## 1. 先明确连接方向
 

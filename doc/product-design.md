@@ -1,58 +1,8 @@
 # AgentBridge 整体功能设计
 
-alpha.66源码补齐Linux Hermes安装发现：原生数据目录bin、独立HERMES_INSTALL_DIR、固定Profile所属根与默认根、后缀/路径展开；Hermes专用运行时目录不再用于发现其他Agent。PATH原命令优先，原生模型/配置/Session与unknown不变。Windows受控Hermes39/39，Linux原生CI验证进行中；当前公开仍alpha.65。[本轮范围与证据](iterations/I08/alpha66-hermes-linux.md)。
+alpha.66候选已完成本轮验证，当前公开仍alpha.65：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
 
-当前公开alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。当前包已公开，继承能力与未准出边界按下表。
-
-AB-F02/F03/F12/F16：当前源码已修复关系图撤权与目标管理范围。保持主节点并缩小成员集合，或清空主节点与全部成员，不重新准入旧节点；新增成员与换主只检查新目标/新主。无关节点或机器 unknown、布局不可用不再全局锁定授权编辑；关系自身未知、来源/台账不可读、草稿无法持久化和修订冲突仍保护。设主不自动增加成员。已随alpha.64公开；[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
-
-alpha.62普通窗口生命周期五组与真实驱动退出码0已补验：旧脚本后续误选同进程无标题辅助窗，现绑定原主窗口并在关闭前核对归属/标题；三次正常关闭均原进程退出、包装码0，产品和EXE字节未改。未切换日常后台，模型0。[定位、修复与当前边界](iterations/I08/window-lifecycle-verifier.md)。
-
-2026-10-25冻结alpha.62已完成原实际SSH只读复验：保存凭据/主机指纹认证、alpha.37原清单1459项逐文件核对、两次非接管inspect三组通过，原PID/current.json/本地配置保持，模型0；未部署、hello或任务。完整故障/升级矩阵与普通EXE联合流程仍未准出。[当前证据](iterations/I08/alpha62-ssh-readonly.md)。
-
-本地alpha.62保留已失败管理操作清理，将实际桌面入口收敛为接入/小队设置、执行/会话审计和原操作恢复；日常提交、续聊、分工、报告、正文编辑与验收从原生Agent的MCP入口完成。小队收据补原operationId和完整内容指纹，丢回应、损坏或并发变化的本机意图只读核对，不换ID重发。普通EXE正常关闭/重开与完整中央重启五组已补验，原收据保持；公开alpha.60不变，模型0；[实现、分层验证与交付](iterations/I07/configuration-console.md)。
-
-WSL当前补验（2026-10-25）：公开alpha.60冻结HostConnection独立启动20/20，60条只读请求均在握手后发送、原进程退出已确认，模型0；但原始80次WSL探针仍有1次首条Linux入口标记前失败。没有产品修复可解释差异，发行版冷启动/持续连接/故障恢复与整体稳定性仍未准出；普通EXE图观察因窗口运行时拒绝WSL工作目录未执行。[本轮定位、全部样本与边界](iterations/I08/wsl-launch-origin.md)。
-
-公开alpha.60的十工具已完成原生客户端组件复验：Pi1.4.0在Linux/Windows、固定源码Hermes在Linux各7组通过，包含实际连接/断开、用户允许/拒绝、原ID/历史确认和缓存撤权，模型0。真实父模型、日常多主、托管scope和跨真实机器仍未准出。[当前证据与完整边界](iterations/I08/native-policy-components.md)。
-
-## 失败操作清理
-
-AB-F01/F02/F07：设置的“未确认操作”提供“清理已失败操作”，按原ID核对执行和管理结果，解除确定失败的占位并保留失败历史。旧OpenCode接入仅在原意图保存了完整启动拒绝、来源/指纹匹配且原收据缺失时结算本地接入失败；普通传输超时和任务unknown继续保留，独立节点仍可使用。源码及本地alpha.61候选，公开alpha.60状态不变；[完整设计、验证与交付](iterations/I08/failed-operation-cleanup.md)。
-
-alpha.56冻结包图管线诊断（2026-10-24）：默认渲染含tracing的完整20条PNG p95 363.722ms未达100ms，本地同步p95 1556ms通过；GPU提交停顿与部分慢样本重叠，软件渲染诊断仍112.902ms失败，不能据此关闭产品GPU或宣告准出。[本轮证据与限制](iterations/I06/alpha56-graph-pipeline.md)。
-
-当前冻结alpha.56客户端已对原独立SSH服务器完成只读复验：实际daemon为alpha.37，原凭据/主机指纹认证、生产逐文件核验、两次非接管inspect通过；原daemon身份/PID、远端入口与本地连接配置保持，模型0。完整故障/升级矩阵与普通EXE联合流程仍未准出。[实际证据与边界](iterations/I08/current-ssh-readonly.md)。
-
-公开**alpha.60**实现CT-08-A3连接管理：各主在用户预授权内自行连接/断开，范围外请求须用户明确确认；原ID/unknown和原父读控保持。源码900/900、Windows包内37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；[本片证据](iterations/I07/connection-policy.md)、[发布核验](iterations/I08/alpha60-release.md)。旧图仍编辑selected，完整真实原生多主/图100ms/WSL及SSH仍未准出；未切换日常后台/未部署SSH。
-
-上一公开预发布 **alpha.53**（AB-F01/F02/F07）：OpenCode 早期 1.x 用有界健康入口识别协议，避免错误 `/api/info` 首探占满启动预算；API状态一致、观察版本复核且原安装不换绑。原 unknown 与会话保留，未切换日常后台/未部署SSH。[实现与分层验收](iterations/I08/opencode-bounded-probe.md)。
-
-当前版本同时包含（AB-F01/F02/F06/F11/F13） OpenDesk 运行中 MCP 写入与退出覆盖，并将关系图设主/保存按旧新关系节点资源判断；原 unknown 和授权边界保留。EXE已公开并完成匿名完整下载核验；[完整行为与分层验证](iterations/I08/opendesk-lifecycle-relation-scope.md)。
-
-当前公开预发布 **0.6.0-alpha.65**，标签冻结 `47cba61`；EXE 132222581字节、SHA-256 `271c7e2884ad4b1e14f268687285723cc67cd3d9d7dadff17ff00e1f9e8d0ba9`。210个产品/依赖输入保持，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。Hermes定向31/31，原生执行/同Session续聊两轮、冻结Windows原生MCP五组及普通EXE原profile补验通过。未签名、未切换日常后台、未部署SSH；Hermes网关取消/父模型自主MCP、图100ms、冷启动与完整矩阵继续未准出。 [完整发布证据](iterations/I08/alpha65-hermes-windows.md)。
-
-当前源码修复 DSH 服务连接保存后的目标选择与同机独立节点管理准入（AB-F01/AB-F02/AB-F06）。保存、刷新、重开和扫描始终核对原机器/节点的明确连接身份；节点管理 unknown 仅保护原节点、原安装或共享目录，机器管理按来源机器保护，关系自身未知及缺失身份继续保守阻塞。已随0.6.0-alpha.51.recovery.2公开；[需求、实现与分层验证](iterations/I08/connection-identity-node-scope.md)。
-
-AB-F02/F07/F11/F13：WSL宿主就绪前失败明确未派发，写入后失联保留unknown与原请求；历史启动9/20通过、11次就绪前退出，稳定性未准出。alpha.53自动保存画布位移0px通过；完整20次PNG帧观测p95 388.932ms未满足100ms，本地状态同步20次p95 1504ms通过。模型0、独立LAN未验，[当前包指标](iterations/I06/alpha53-current-metrics.md)、[原WSL证据](iterations/I06/current-candidate-metrics.md)。OpenDesk父模型指定Windows OpenCode验收已获授权，当前正式现场缺少该节点，未提交模型。
-
-当前源码已落地（AB-F02/F07/F08/F11/F12/F13）：[I08-MCP02](iterations/I08/mcp-open-integration.md)支持从Bridge或原生Agent管理同一MCP，能力分为MCP调用/原生配置/托管scope，六项事实独立展示。继承的alpha.46基线进一步修复导出启动器、OpenCode数组探测、过期观测、Linux端点恢复及非GUI首次接入；共享根68/68、桌面758/758，最终JSON修复后CLI11/11；[当前包与Windows验证](iterations/I08/mcp-open-recovery.md)。直接配置支持Claude/Codex/OpenCode两代、DSH Web/显式profile CLI、OpenDesk Desktop；DSH两入口已有受控原生加载/握手/7工具证据，OpenDesk Desktop0.3.9已有诊断条目列表可见证据，已安装OpenDesk/DSH原生MCP组件已通过正式授权调用，并分别经生产协作链委派1个真实Claude子任务成功；OpenDesk 日常原生父模型只读 list_agents 已返回 7 个获准节点，见[现场恢复与发现](iterations/I08/opendesk-mcp-diagnostic-repair.md)；原生父模型自主委派、日常原生页面仍未验，见[原生组件验收](iterations/I08/mcp-native-acceptance.md)。OpenDesk CLI0.3.8无MCP管理面，仅可导出；当前公开0.6.0-alpha.65已包含DSH Desktop及Pi/Hermes原生配置，见[当前本地交付](iterations/I08/hermes-mcp-config.md)。发布包未签名、已公开、未部署远端，完整MCP02未准出。
-
-当前发布前端已补齐OpenDesk CLI/Desktop能力识别，健康且能力明确的节点可接入并开始会话；[修复与包验证](iterations/I08/opendesk-ui-admission.md)。当前OpenDesk接入只在Bridge侧适配现有CLI HTTP和桌面设备网关，不修改或构建OpenDesk。Bridge保存去重、派发围栏和原回应；断线证据不足保留unknown，Desktop原连接丢失后不可续聊。独立MCP支持增删与撤权，托管scope/小队及Bridge权限表单未开放。[实现与证据边界](iterations/I08/opendesk-existing-interfaces.md)。 当前Windows Desktop 0.3.9原实例真实执行、续聊和窗口重开通过，日常alpha.42后台已发现健康桌面节点；[现场验证范围](iterations/I08/opendesk-desktop-live.md)。
-
-当前源码：OpenCode 原生服务退出后，显式接入在原上下文恢复服务；接入准备失败原子保留 rejected 收据，历史精确健康拒绝按原操作核对收敛，原请求读取不进入本次新增启动路径，也不重放。现场 OOM 原服务已恢复、未发模型需求；详见[OpenCode OOM 恢复与接入拒绝收据](iterations/I08/opencode-oom-recovery.md)。
-
-适用：稳定历史0.5.0、当前公开预发布alpha.65。公开包范围与验证见[alpha.65交付](iterations/I08/alpha64-release.md)；alpha.60已实现[CT-08-A3连接策略](iterations/I07/connection-policy.md)，现有图仍编辑selected兼容视图。完整I06C/I07C/MCP02与真实原生多主继续未准出；历史见[发布登记](iterations/release-ledger.md)。
-
-alpha.36包含 OpenCode 在 WSL/Linux 与 SSH daemon 中创建后台对象时的 `ADAPTER_HOST` 修复；原会话与任务继续保留，公开 alpha.35 的冻结源码未包含此修复，alpha.36 已含并核对包内入口。见[宿主生命周期修复](iterations/I07/opencode-host-lifecycle.md)。
-
-当前源码补齐扫描/添加查看入口、设置中的原管理操作与查询失败展示，以及DSH“待配置服务连接”；严格核对原宿主接入拒绝后才解除管理锁。原执行unknown与历史保留。见[本轮修复与验证](iterations/I07/agent-management-recovery.md)。
-
-当前源码将Bridge MCP与DSH服务配置移至机器页各Agent行，在开始会话右侧打开固定目标的配置弹窗；全局设置保留应用级选项与原操作核对。[当前交互与验证](iterations/I07/agent-row-configuration.md)。
-
-当前源码修复后台维护终态：升级/回滚被拒但原后台仍在运行或已恢复（含早于持久收据端点的旧后台）时不再把机器留置为已断开；维护收据新增`stopped/phase`，并在“已停止但未确认切换/回滚”时保持`unknown`由原ID查询/恢复；维护拒绝原因经机器卡片与未确认操作可见。[本轮说明、实测与未测边界](iterations/I08/maintenance-offline/maintenance-offline.md)。
-
-当前源码补齐维护可观测性与未决回收：对话框与机器卡片显示“正在上传/解包/校验”进度，未决期间按1s/2s/4s/8s有界自动核对**原operationId**（不重做、不换ID），终态显示成功或失败原因；远端维护行在记录的执行进程已消失或从未记录（超过宽限期）时，原ID查询会收敛为终态，不再永久卡住维护准入。[切片说明、UI实测与未测边界](iterations/I08/maintenance-offline/maintenance-visibility.md)。
+关系缩权与清空不重新准入旧节点；新增/换主仅检查新目标，无关unknown不全局阻塞。未确认执行继续按原ID查询；“清理已失败操作”只结算有完整证据的确定失败，保留历史。MCP配置、原生加载、连接、工具、授权和归属分别展示；直接配置与托管scope能力独立，桌面保留配置/审计及原执行恢复，日常协作由原生Agent发起。模块与[接入矩阵](agent-integration-matrix.md)限定各入口实际能力，历史见[迭代目录](iterations/README.md)。
 
 ## 1. 产品解决什么问题
 
