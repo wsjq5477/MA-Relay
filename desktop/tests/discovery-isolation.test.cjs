@@ -20,6 +20,6 @@ test('production discovery still honors explicit DSH profile and desktop install
 test('OpenCode readiness and version-only discovery fixtures remain isolated from inherited DSH installation roots',async t=>{
  const f=fixture(t),files=['machine-host-readiness.test.cjs','tool-discovery.test.cjs'].map(name=>path.join(__dirname,name));
  const environment={...process.env,...f.environment};delete environment.NODE_TEST_CONTEXT;
- const result=await run(process.execPath,['--test','--test-concurrency=1','--test-name-pattern=prefixed native versions|installed OpenCode',...files],{cwd:path.join(__dirname,'../..'),env:environment,windowsHide:true,timeout:30000,maxBuffer:1024*1024}).catch(error=>{throw new Error('Child discovery assertions failed:\n'+(error.stdout||'')+(error.stderr||''));});
+ const result=await run(process.execPath,['--test','--test-reporter=tap','--test-concurrency=1','--test-name-pattern=prefixed native versions|installed OpenCode',...files],{cwd:path.join(__dirname,'../..'),env:environment,windowsHide:true,timeout:30000,maxBuffer:1024*1024}).catch(error=>{throw new Error('Child discovery assertions failed:\n'+(error.stdout||'')+(error.stderr||''));});
  assert.match(result.stdout,/# tests 3\b/);assert.match(result.stdout,/# pass 3\b/);assert.match(result.stdout,/# fail 0\b/);
 });

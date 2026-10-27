@@ -1,6 +1,6 @@
 # alpha.66 Linux Hermes CLI适配与发布
 
-日期：2026-10-27（Asia/Hong_Kong）。用户补充要求适配Linux Hermes CLI，继承上一轮代码、文档、验证及GitHub发布授权。基于公开alpha.65/a22a736；当前候选0.6.0-alpha.66，公开仍alpha.65。原生目标机器待用户指明，独立Linux CI先用于模型0组件验证，不访问/部署用户SSH。
+日期：2026-10-27（Asia/Hong_Kong）。用户补充要求适配Linux Hermes CLI，继承上一轮代码、文档、验证及GitHub发布授权。基于公开alpha.65/a22a736；当前候选0.6.0-alpha.66，公开仍alpha.65。用户随后指定先在本机WSL安装Hermes；独立Linux CI用于模型0组件验证，不访问/部署用户SSH。
 
 ## 需求与依据
 
@@ -26,8 +26,8 @@ Linux执行继续使用alpha.65的stream-json/精确--resume，继承原生账�
 ## 当前实际结果
 
 - Windows Node24.12.0受控Hermes定向39/39，模型0：[日志](../../../artifacts/hermes-linux/2026-10-27/targeted-windows.tap)。其中新增Linux路径测试是在Windows文件系统模拟Linux分支，不当作Linux真实CLI证明。
-- 本机Ubuntu-22.04已枚举，但启动返回HCS_E_SERVICE_NOT_AVAILABLE；没有启动原生Linux进程或模型，不据此重启/改写系统服务。
-- Linux CI及正式0.22.5组件验证待运行，完成后追加真实结果、失败和原始证据。
+- 本机Ubuntu-22.04早期启动返回HCS_E_SERVICE_NOT_AVAILABLE；用户后续运行WSL后已能启动，无重启/改写系统服务。用户安装遇到curl SSL超时，实测WSL对官网/GitHub/PyPI均TLS超时，而Windows访问正常。仅安装进程通过Windows临时回环HTTPS CONNECT通道下载，保留证书校验，不改全局代理、路由或用户模型配置。官方脚本固定源码0.22.5/bf0203，非交互CLI安装进行中。
+- [首轮Ubuntu CI](https://github.com/wsjq5477/MA-Relay/actions/runs/40469768580)的工作流状态为success，但下载原始附件发现适配回归99/100、原生安装验收失败；根Core71/71通过。默认shell的tee吞掉前段失败，已显式选择bash以启用pipefail；不把工作流绿色计为通过。隔离测试固定TAP reporter，消除终端默认reporter差异。官方POSIX便利包装器与源码包装器是两个不同文件，验收改为分别核对选中路径及原生已提交Python代次，保持原可执行身份，不把别名当新节点释放unknown。首轮原始证据保留，修正后待重跑。
 - 新EXE/离线资源、冻结提交、GitHub附件及匿名完整下载均待本轮验证；alpha.65旧标签/附件不动。
 
 未切换日常Bridge后台、未部署SSH；Hermes网关取消、真实Linux父模型/自主MCP与完整异常恢复仍按原矩阵分层验收。共享计数不跨模块相加；不以历史Linux固定源码组件成功冒充本轮正式安装版。

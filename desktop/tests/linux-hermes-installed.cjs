@@ -21,11 +21,17 @@ const run = (file, args, extra = {}) => execFileSync(file, args, {env: process.e
   report.checks.push('Actual Linux published wrapper passes the native --version probe and keeps the canonical original installation');
   const minimal = {...process.env, PATH: '/usr/bin:/bin'};
   const second = await scanTools({candidates, environment: minimal});
-  assert.equal(second[0].healthy, true); assert.equal(second[0].executable, expected);
-  report.checks.push('The same original installation remains discoverable with a detached daemon PATH and independent HERMES_INSTALL_DIR');
+  const detached = second.find(row => row.adapter === 'hermes'); assert(detached);
+  assert.equal(detached.healthy, true); assert.equal(detached.version, installed.version);
+  // The official POSIX installer writes distinct wrappers to ~/.local/bin and
+  // <source>/.hermes/bin. Preserve each selected executable's identity; prove
+  // shared ownership through the original launchers' committed environment.
+  assert.equal(detached.executable, fs.realpathSync(path.join(nativeRoot,'.hermes/bin/hermes')));
+  report.checks.push('A detached daemon PATH selects the original source-owned wrapper through independent HERMES_INSTALL_DIR');
   const resolver = "import json; from pathlib import Path; from pm.environments import committed_venv; print(json.dumps(str(committed_venv(Path("+JSON.stringify(nativeRoot)+")) / 'bin' / 'python')))";
   const python = JSON.parse(run(executable, ['--run-module','code','-c',resolver]).trim());
   assert(path.isAbsolute(python) && fs.statSync(python).isFile());
+  assert.equal(JSON.parse(run(detached.executable, ['--run-module','code','-c',resolver]).trim()), python);
   report.checks.push('The original launcher resolves its committed Python dependency generation without a provider API or an interpreter substitution');
   run(process.execPath, [path.join(__dirname,'hermes-native-mcp.cjs'),bridge,nativeRoot,python,executable,path.join(output,'native-mcp.json')], {timeout: 180000});
   const mcp = JSON.parse(fs.readFileSync(path.join(output,'native-mcp.json'),'utf8'));
