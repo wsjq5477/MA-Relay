@@ -28,11 +28,13 @@ const run = (file, args, extra = {}) => execFileSync(file, args, {env: process.e
   // shared ownership through the original launchers' committed environment.
   assert.equal(detached.executable, fs.realpathSync(path.join(nativeRoot,'.hermes/bin/hermes')));
   report.checks.push('A detached daemon PATH selects the original source-owned wrapper through independent HERMES_INSTALL_DIR');
-  const resolver = "import json; from pathlib import Path; from pm.environments import committed_venv; print(json.dumps(str(committed_venv(Path("+JSON.stringify(nativeRoot)+")) / 'bin' / 'python')))";
-  const python = JSON.parse(run(executable, ['--run-module','code','-c',resolver]).trim());
+  const runtime = JSON.parse(run(executable, ['--print-runtime-command','--','--version']).trim());
+  assert(Array.isArray(runtime) && path.isAbsolute(runtime[0]) && fs.statSync(runtime[0]).isFile());
+  assert.deepEqual(JSON.parse(run(detached.executable, ['--print-runtime-command','--','--version']).trim()), runtime);
+  const resolver = "import sys,json; sys.path.insert(0,"+JSON.stringify(nativeRoot)+"); from pathlib import Path; from pm.environments import committed_venv; print(json.dumps(str(committed_venv(Path("+JSON.stringify(nativeRoot)+")) / 'bin' / 'python')))";
+  const python = JSON.parse(run(runtime[0], ['-I','-c',resolver]).trim());
   assert(path.isAbsolute(python) && fs.statSync(python).isFile());
-  assert.equal(JSON.parse(run(detached.executable, ['--run-module','code','-c',resolver]).trim()), python);
-  report.checks.push('The original launcher resolves its committed Python dependency generation without a provider API or an interpreter substitution');
+  report.checks.push('Both original launchers resolve the same native runtime command; its declared Python resolves the committed dependency generation without a provider API or an interpreter substitution');
   run(process.execPath, [path.join(__dirname,'hermes-native-mcp.cjs'),bridge,nativeRoot,python,executable,path.join(output,'native-mcp.json')], {timeout: 180000});
   const mcp = JSON.parse(fs.readFileSync(path.join(output,'native-mcp.json'),'utf8'));
   assert.equal(mcp.status, 'passed'); assert.equal(mcp.expectedTools, 10); assert.equal(mcp.checks.length, 5); assert.equal(mcp.modelCalls, 0);
