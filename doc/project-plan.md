@@ -1,6 +1,6 @@
 # 迭代路线与当前交付
 
-alpha.67候选已完成本轮验收，当前公开仍alpha.66：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
+当前公开alpha.67：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
 
 当前实现、候选功能和未准出项分别登记；前序发布历史统一见[发布登记](iterations/release-ledger.md)。下一步仍为原生父模型、自主委派、异常恢复和冷启动等独立验收，不因CLI可见或MCP组件通过而关闭整体验收。
 
@@ -9,9 +9,9 @@ alpha.67候选已完成本轮验收，当前公开仍alpha.66：WSL就绪等待1
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | **0.6.0-alpha.66**，冻结13e6c49；源码/EXE/校验附件公开并经匿名完整下载核验；[交付与边界](iterations/I08/alpha66-hermes-linux.md) |
-| 上一公开预发布 | **0.6.0-alpha.65**：Windows Hermes安装与网关兼容；[发布记录](iterations/I08/alpha65-hermes-windows.md) |
-| 当前自动回归 | alpha.66 Linux适配100/100、Core71/71；Windows定向39/39、普通EXE七组，模型0；全量Windows基线失败与未测项保留 |
+| 最新 Windows 预发布 | **0.6.0-alpha.67**，冻结5de9be3；源码/EXE/SHA公开且匿名完整下载一致；[交付与边界](iterations/I08/alpha67-hermes-linux-live.md) |
+| 上一公开预发布 | **0.6.0-alpha.66**：Linux原安装发现与MCP组件；[发布记录](iterations/I08/alpha66-hermes-linux.md) |
+| 当前自动回归 | alpha.67 Linux适配109/109、Core71/71；Windows受控22/22、普通EXE七组；原生Linux成功两轮，旧失败和完整矩阵边界保留 |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
 | 当前发布范围与缺口 | 已包含DSH Desktop/Web、CT-07、OpenDesk、MCP02与#15/#16修复；完整准出继续按专项推进 |
 | I06A/I06B | 6A 候选已验收（见 [6A 验收](iterations/I06/acceptance.md)）；6B alpha.6 主要范围已验收（见 [实施报告](iterations/I06/graph-implementation.md)） |
@@ -41,7 +41,7 @@ alpha.36已按三方内容整合公开alpha.35独立修复与当前工作区，�
 
 | 顺序 | 目标 | 内容与前置 |
 | --- | --- | --- |
-| 1 | I07C 收尾 | 六工具真实覆盖（Hermes/Pi/DSH 真实直接执行与被委派验收）、DSH Desktop/Web 原实例验证、真实执行成员链与完整停止；[矩阵](agent-integration-matrix.md) §4 CT-02 行 |
+| 1 | I07C 收尾 | 六工具真实覆盖：Hermes补真实被委派/自主父模型，Pi/DSH补尚未覆盖的真实直接执行与被委派；DSH Desktop/Web 原实例、真实成员链与完整停止；[矩阵](agent-integration-matrix.md) §4 CT-02 行 |
 | 2 | CT-06 通用 MCP 调用方 / I08-MCP02 | **源码第一片完成**（能力三维、六项状态事实、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI CLI、Linux本机路由、`mcp-open-access-v1`升级错误）；下一步逐入口真实原生增删/列表/工具/主调用与托管归属验收，按实际产品变化准备后续候选。优先OpenDesk/DSH；不强制等待完整I07C完成，不将未实现能力批量翻真；旧[总体规划](iterations/I07/agent-centric-operations.md)保留历史 |
 | 3 | CT-07 Agent 侧连接操作面 | [委派列表](iterations/I07/delegation-list.md)、[当前连接视图](iterations/I07/agent-connections.md)、[子会话最小上下文](iterations/I07/delegation-context.md)均已源码/受控覆盖；最新667/667/Windows36/36，整合包与真实原生消费仍待验 |
 | 4 | CT-08 多主关系与连接管理 | [A3连接策略](iterations/I07/connection-policy.md)已公开60，Pi双平台/Hermes原生组件已补验；[alpha.62控制台](iterations/I07/configuration-console.md)收敛配置/审计与原执行恢复。旧图仍selected，下一步真实父模型/日常多主流程验收 |

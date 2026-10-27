@@ -1,6 +1,6 @@
 # AgentBridge 项目资料
 
-alpha.67候选已完成本轮验收，当前公开仍alpha.66：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
+当前公开alpha.67：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
 
 AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和结果，模型、账号与配置由原工具管理。用户入口是[使用文档](user/index.md)；本页及内部设计/原始证据不进入用户网站。逐轮历史统一在[迭代目录](iterations/README.md)。
 
@@ -9,10 +9,10 @@ AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前公开预发布 | **0.6.0-alpha.66**（冻结 `13e6c49`，EXE132220720字节，匿名完整下载核验通过） |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.66/AgentBridge-0.6.0-alpha.66-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.66/SHA256SUMS.txt)；未签名；[交付与边界](iterations/I08/alpha66-hermes-linux.md) |
-| 当前公开源码范围 | 完整源码标签 `v0.6.0-alpha.66`（13e6c49），master含后续发布说明 |
-| 当前已发布实现与验收边界 | Windows原生执行/续聊保持；Linux原安装发现、WSL/独立Ubuntu原生MCP十工具及普通EXE已验，真实Linux模型/父模型、网关取消与完整矩阵待验；[分层证据](iterations/I08/alpha66-hermes-linux.md) |
+| 当前公开预发布 | **0.6.0-alpha.67**（冻结 `5de9be3`，EXE132239342字节，匿名完整下载核验通过） |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.67/AgentBridge-0.6.0-alpha.67-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.67/SHA256SUMS.txt)；未签名；[交付与边界](iterations/I08/alpha67-hermes-linux-live.md) |
+| 当前公开源码范围 | 完整源码标签 `v0.6.0-alpha.67`（5de9be3），master含后续发布说明 |
+| 当前已发布实现与验收边界 | Linux Hermes原生两轮/去重/同Session续聊、MCP及普通EXE已验；网络条件与完整矩阵边界见[分层证据](iterations/I08/alpha67-hermes-linux-live.md) |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

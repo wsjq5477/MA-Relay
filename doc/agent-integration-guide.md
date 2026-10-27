@@ -1,6 +1,6 @@
 # Agent 接入方式、选型与快速接入
 
-alpha.67候选已完成本轮验收，当前公开仍alpha.66：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
+当前公开alpha.67：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
 
 Bridge调用原生Agent与Agent调用Bridge是两个方向；模型、供应商与权限由原生工具管理。Windows Hermes使用原生bin启动器；Linux/WSL在目标环境安装并配置Hermes，先核对原生版本再扫描。网关任务在Hermes原生会话停止，关闭CLI不代表取消，旧unknown只查原ID。
 
@@ -59,7 +59,7 @@ flowchart LR
 | Claude Code | 保留CLI执行＋MCP调用方 | 按当前原生版本验证需要的权限/输入类型、取消与恢复；有确切缺口再比较原生控制接口或SDK | 为了列数齐全改成SDK/插件；把生态ACP包装器算成当前官方原生接入 |
 | Codex | 保留exec/resume JSON＋MCP调用方 | 先验当前原生Session/取消/原请求恢复；若需要更强交互，比较原生交互API和ACP生态包装器的实际行为 | 用模型SDK重建用户Agent；用新Thread替代失败的原Session续聊 |
 | OpenCode | 保留CLI启动serve＋原生HTTP＋MCP | 作为CT-03的ACP候选，比较相同需求的输出、权限、取消、恢复，再用第二种Agent证明通用Client复用 | 先移除当前HTTP路径，或把ACP试点写成已实现 |
-| Hermes | 保留已有结构化CLI，先补真实执行与被委派验收 | 原生支持MCP时，独立核对配置格式、会话注入与撤权；需要多工具复用时再评估ACP | 图标/版本通过就开放未经实现的MCP、小队或权限能力 |
+| Hermes | 保留已有结构化CLI；正式Windows/Linux执行与续聊已验，继续补真实被委派 | 保留独立MCP，继续补自主父模型与完整恢复；托管scope仍未适配，需要多工具复用时再评估ACP | 图标/版本通过就开放未经实现的MCP、小队或权限能力 |
 | Pi | 保留JSON/print及原Session文件绑定 | 先补真实生命周期；需要双向交互时比较目标版本的原生RPC，按缺口决定是否开发 | 仅增加标志就假定RPC/ACP可用；原文件缺失时新建空Session冒充续聊 |
 | DSH CLI | 继续用于需要headless执行的场景 | 核对该profile自己的登录/配置、真实会话和取消；单独适配后才开放MCP调用方 | 把CLI已接入等同GUI/Web已接入，或复制GUI凭据来掩盖profile差异 |
 | DSH Desktop / Web | 保留原生认证API，与CLI分别归属 | 先连接当前用户原服务，补真实模型/原Session/取消/原请求恢复；需要MCP时另验原生支持与配置入口 | 为了统一界面切换成headless；将服务连接token当成模型密钥；把原生业务插件算作Bridge插件 |

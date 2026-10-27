@@ -1,6 +1,6 @@
 # 整体测试与验收报告
 
-alpha.67候选已完成本轮验收，当前公开仍alpha.66：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
+当前公开alpha.67：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
 
 本轮原始启动失败、首轮Core70/71及后续同源码71/71、真实原生两轮和普通EXE结果见[完整验收](iterations/I08/alpha67-hermes-linux-live.md)。Windows22/22与Ubuntu109/109为不同平台集，不相加；既有Windows全量与docs:test原5/6失败保留。文档原2243项历史材料缺失无新增，不声明完整工程矩阵全通过。
 
@@ -39,7 +39,7 @@ alpha.67候选已完成本轮验收，当前公开仍alpha.66：WSL就绪等待1
 | AB-F03 节点接入 | [M01 报告](modules/01-desktop/test-report.md)、M03 | 0.5.0 空格多选保留历史；节点动作接入与目标选择实测通过 |
 | AB-F04/05 SSH 与凭据 | [M04 报告](modules/04-ssh-access/test-report.md) | 密钥真实路径有记录；Windows 密码/DPAPI 与实际加密密钥/隔离 agent 通过；系统服务全兼容未测 |
 | AB-F06 安装与后台 | [M04](modules/04-ssh-access/test-report.md)、[M05](modules/05-linux-daemon/test-report.md) | 有系统 Node 的真实 Linux 安装通过；无 Node 实环境待测 |
-| AB-F07 原生执行 | [M06 报告](modules/06-native-adapters/test-report.md)及三个子报告 | Claude/OpenCode 有真实记录；Codex 账号/原生续接限制保留；Hermes/Pi/DSH 受控 |
+| AB-F07 原生执行 | [M06 报告](modules/06-native-adapters/test-report.md)及三个子报告 | Claude/OpenCode 有真实记录；Codex 账号/原生续接限制保留；Hermes Windows/Linux正式0.22.5真实执行与同Session续聊通过，Pi/DSH未完成范围按接入矩阵 |
 | AB-F08 会话 | [M07 报告](modules/07-task-session/test-report.md)与 M06 | 同会话续聊有证据；Windows SSH 两轮已有原生 Session ID 对比 |
 | AB-F09 过程与回答 | [M01](modules/01-desktop/test-report.md)、M06 | 输出来源与聚合有实现/模拟证据；不是统一 token push |
 | AB-F10 原生控制 | M06、M07 | 受控控制通过；各工具表单/许可能力不同 |
@@ -75,7 +75,7 @@ Linux JSON 两轮终态只保存 status/summary，脚本用原 conversationId �
 | 注销清理 / systemd 用户服务 | 未完整实现/验收 | 对实际服务器策略验证，不能承诺所有 logout 后存活 |
 | 20 样本状态延迟 p95 / 全退避时序 | 未完成本次测量 | 按 I06 定义保存样本、链路条件与计算 |
 | 忙时升级与失败回滚 | 源码及真实 daemon/process 受控验证通过 | 独立服务器与原生验收见 I06C 收尾 |
-| Hermes/Pi/DSH 真实工具执行 | 源码已实现，仅受控证据 | 真实安装环境执行与被委派验收（I07C 收尾） |
+| Hermes/Pi/DSH 真实工具执行 | 源码已实现；Hermes Windows/Linux正式安装版执行与续聊已有真实证据，Pi/DSH入口按接入矩阵分别记录 | 真实被委派/自主父模型与Pi/DSH未覆盖入口验收（I07C 收尾） |
 | DSH Desktop/Web 原实例 | 受控服务验证 | 连接用户原服务后的真实推理/续聊/取消验证 |
 
 ## 7. 可复现检查

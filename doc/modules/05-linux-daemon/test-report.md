@@ -1,6 +1,6 @@
 # M05 Linux daemon 测试报告
 
-2026-10-27 / alpha.67候选已验收：Windows受控22/22、独立Ubuntu适配109/109/Core71/71及正式Hermes0.22.5原生MCP五组通过。Windows→WSL Node24.13.0→Hermes两轮、原ID去重、通道重开/同Session续聊与配置字节保持通过；两原传输退出0。原生持久会话只读核对两用户/两助手消息、API2/工具0；临时网络通道已停止，WSL直连未修复。实际EXE七组模型0、212输入/58后台/84Core/1723Linux及载荷一致。首轮Core70/71、旧就绪失败及临时验收目录后续缺失如实保留，完整矩阵未准出。[全部分层证据与边界](../../iterations/I08/alpha67-hermes-linux-live.md)。
+2026-10-27 / alpha.67公开：Windows受控22/22、独立Ubuntu适配109/109/Core71/71及正式Hermes0.22.5原生MCP五组通过。Windows→WSL Node24.13.0→Hermes两轮、原ID去重、通道重开/同Session续聊与配置字节保持通过；两原传输退出0。原生持久会话只读核对两用户/两助手消息、API2/工具0；临时网络通道已停止，WSL直连未修复。实际EXE七组模型0、212输入/58后台/84Core/1723Linux及载荷一致。首轮Core70/71、旧就绪失败及临时验收目录后续缺失如实保留，完整矩阵未准出。[全部分层证据与边界](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 2026-10-27 / alpha.66公开：Windows Node24.12.0受控定向39/39；独立Ubuntu Node24.12.0适配100/100、Core71/71；本机Ubuntu22.04/WSL使用包内Node22.23.1及冻结后台，对正式Hermes0.22.5完成发现和原生MCP五组/十工具，独立Ubuntu原生组件亦通过。普通EXE七组通过，均模型0。WSL直连TLS仍有问题，临时安装通道已停止；普通doctor90秒未完成，pm doctor退出0且所有已安装运行组件通过。真实Linux模型、SSH、冷启动与完整矩阵未准出。[本轮环境、原始失败与证据](../../iterations/I08/alpha66-hermes-linux.md)。
 

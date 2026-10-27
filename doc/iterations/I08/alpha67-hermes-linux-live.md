@@ -1,6 +1,6 @@
 # alpha.67 Linux Hermes 实际执行与 WSL 启动修复
 
-日期：2026-10-27（Asia/Hong_Kong）。需求：在已安装并配置的 WSL Hermes CLI 上完成项目对接、代码与文档、实际验收和 GitHub 发布。承接公开 alpha.66；alpha.67候选已完成本轮验收，旧标签与附件保持。
+日期：2026-10-27（Asia/Hong_Kong）。需求：在已安装并配置的 WSL Hermes CLI 上完成项目对接、代码与文档、实际验收和 GitHub 发布。承接公开 alpha.66；当前公开 alpha.67 已完成本轮验收，旧标签与附件保持。
 
 ## 缺口与实现
 
@@ -32,6 +32,7 @@ WSL原生已配置模型凭据，但原配置HTTPS端点直连不可用；临时
 
 当次原Bridge状态只读核对完成后，后续复查发现Linux临时验收目录已不存在；没有重建目录/原任务或重发模型请求。当次成功报告、两条原传输退出和状态只读核对报告保留。随后仅查询Hermes原生持久SQLite：同一个原会话恰有两条用户消息、两条助手消息，上一轮记忆正确，原生API计数2、工具调用0；未导出原生身份、未新增模型调用：[原生会话只读补证](../../../artifacts/hermes-linux/2026-10-27/alpha67-native-history-verified.json)。这一限制不被写成原业务unknown已解除。
 
+
 ## 发布状态
 
-本轮代码和验收已提交，EXE附件待发布及匿名完整下载核验，尚不记为已公开。未签名，未切换日常Bridge后台，未部署SSH；完整父模型/异常恢复/升级和性能矩阵继续未准出。
+源码、EXE、SHA256SUMS.txt已公开，两个附件服务端size/digest及匿名HTTP200完整流式下载字节/摘要一致：[GitHub发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.67)、[下载证据](../../../artifacts/hermes-linux/2026-10-27/alpha67/github-download.json)。未签名，未切换日常Bridge后台，未部署SSH；完整父模型/异常恢复/升级和性能矩阵继续未准出。

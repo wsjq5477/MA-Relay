@@ -1,12 +1,12 @@
 # M10 构建、发布与持久运行资源设计
 
-M10-F01/F02/F03：alpha.67候选仅调整WSL握手预算，收录alpha.66原Linux manifest兼容pin；Windows挂载盘冻结入口47秒超过旧30秒，必须核对真实包与Linux执行证据。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
+M10-F01/F02/F03：alpha.67仅调整WSL握手预算，收录alpha.66原Linux manifest兼容pin；Windows挂载盘冻结入口47秒超过旧30秒，必须核对真实包与Linux执行证据。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 M10-F01/F02/F03：alpha.66包含Linux Hermes专用发现与alpha.65原daemon兼容pin；新增GitHub Ubuntu只读权限验证流程，固定官方0.22.5，不配置模型或SSH凭据。构建/发布状态按本轮证据登记，不以Windows受控测试替代Linux原生验证。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
 
 M10-F01/F02/F03：alpha.65包含Windows Hermes发现、原生网关CLI兼容、保守unknown与心跳替换重试；加入原alpha.64 Linux manifest兼容pin，运行时沿用已核验原包。Windows包包含相同后台与离线Linux资源，不自动切换日常后台或部署SSH。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
 
-## 当前alpha.65 Hermes交付
+## alpha.65 Windows Hermes交付记录
 
 M10-F01/F02/F03/F05/F06：公开alpha.65冻结47cba61，58后台/84Core/1721Linux资源、44份原兼容pin；原alpha.64 pin与原EXE载荷相同。Windows EXE、ASAR和全部资源逐文件SHA/字节一致，210个产品输入保持；源码/EXE/SHA文件已公开且匿名完整下载核验通过。Hermes31/31、冻结包正式Hermes MCP五组、真实两轮及普通EXE原profile补验通过，模型和取消边界分别保留；未签名、不切日常后台/部署SSH。[完整发布与原失败](../../iterations/I08/alpha65-hermes-windows.md)。
 

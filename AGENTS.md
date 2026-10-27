@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.66**，标签冻结13e6c49；EXE132220720字节、SHA-256 eac36223030837837c468b31dda5af94598b43b8242f6315bcf782fe18763999。211产品/依赖输入与冻结源码核对，源码、EXE、校验文件已公开且匿名HTTP200完整下载一致。Linux适配100/100、Core71/71、Windows定向39/39、普通EXE七组通过；本机WSL及独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。未签名、未切日常后台、未部署SSH；真实Linux模型/自主父模型、网关取消、图100ms、冷启动和完整矩阵继续未准出。见doc/iterations/I08/alpha66-hermes-linux.md。
+当前公开预发布 **0.6.0-alpha.67**，标签冻结5de9be3；EXE132239342字节、SHA-256 fa5fefd980e86fa5d5fd0d69097157ae574ea25f0a3f5d11d616e1553d992267。212产品/依赖输入与冻结源码/构建匹配，源码、EXE、SHA公开，匿名完整下载一致。Windows受控22/22、独立Ubuntu适配109/109/Core71/71、原生MCP五组及普通EXE七组通过；实际Windows→WSL→正式Hermes0.22.5成功两轮、原ID去重和原Session续聊，原配置字节保持。WSL就绪预算120秒；未签名/未切日常后台/未部署SSH。见doc/iterations/I08/alpha67-hermes-linux-live.md。
 
-本机WSL已安装官方Hermes0.22.5/Python3.14.9，zsh命令入口及pm doctor通过。WSL直连TLS仍有问题，临时安装通道已停止；普通doctor90秒未完成不记全健康。原unknown与历史失败保持，Windows扩展/Core/docs:test旧失败和原2243条历史材料缺失基线仍保留，无新增文档错误。
+WSL直连TLS仍有问题，两轮使用的临时CONNECT通道已停止。原生持久会话只读核对API2/工具0；原临时验收目录后续缺失未重建或重发，原报告与原生只读补证保留。首轮Core70/71控制器启动失败、旧30秒就绪失败及原unknown保持；docs:test原5/6、2243历史材料缺失基线不隐去，无新增文档错误。自主父模型MCP、网关取消、图100ms、冷启动与完整矩阵继续未准出。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 
