@@ -1,6 +1,6 @@
 # AgentBridge 项目资料
 
-alpha.66候选已完成本轮验证，当前公开仍alpha.65：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
+当前公开预发布alpha.66：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
 
 AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和结果，模型、账号与配置由原工具管理。用户入口是[使用文档](user/index.md)；本页及内部设计/原始证据不进入用户网站。逐轮历史统一在[迭代目录](iterations/README.md)。
 
@@ -9,10 +9,10 @@ AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前公开预发布 | **0.6.0-alpha.65**（冻结 `47cba61`，EXE132222581字节，匿名完整下载核验通过） |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.65/AgentBridge-0.6.0-alpha.65-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.65/SHA256SUMS.txt)；未签名；[交付与边界](iterations/I08/alpha65-hermes-windows.md) |
-| 当前公开源码范围 | 完整源码标签 `v0.6.0-alpha.65`（47cba61），master含后续发布说明 |
-| 当前已发布实现与验收边界 | Windows Hermes0.22.5原生执行/续聊、MCP十工具和EXE发现已验；原生网关取消、父模型自主MCP、其他入口完整矩阵仍待；[分层证据](iterations/I08/alpha65-hermes-windows.md) |
+| 当前公开预发布 | **0.6.0-alpha.66**（冻结 `13e6c49`，EXE132220720字节，匿名完整下载核验通过） |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.66/AgentBridge-0.6.0-alpha.66-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.66/SHA256SUMS.txt)；未签名；[交付与边界](iterations/I08/alpha66-hermes-linux.md) |
+| 当前公开源码范围 | 完整源码标签 `v0.6.0-alpha.66`（13e6c49），master含后续发布说明 |
+| 当前已发布实现与验收边界 | Windows原生执行/续聊保持；Linux原安装发现、WSL/独立Ubuntu原生MCP十工具及普通EXE已验，真实Linux模型/父模型、网关取消与完整矩阵待验；[分层证据](iterations/I08/alpha66-hermes-linux.md) |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

@@ -1,5 +1,9 @@
 # 历史发布登记：标签、EXE 与 SHA-256
 
+## 2026-10-27 alpha.66预发布
+
+标签v0.6.0-alpha.66冻结13e6c49b0b4cbabdcfd79c9d222d1de1535a3421；EXE132220720字节，SHA-256 eac36223030837837c468b31dda5af94598b43b8242f6315bcf782fe18763999。211产品/依赖输入、58后台/84Core/1672 Bridge/1722 Linux文件与实际EXE载荷匹配；源码/EXE/SHA公开且匿名完整下载一致。Linux适配100/100、Core71/71、Windows定向39/39、普通EXE七组；WSL及独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。原失败及unknown保留；未签名、未切日常后台/部署SSH；Linux真实模型/父模型、网关取消/完整矩阵与性能仍未准出。[完整发布](I08/alpha66-hermes-linux.md)。
+
 ## 2026-10-27 alpha.65预发布
 
 标签v0.6.0-alpha.65冻结47cba616919e3f508176e0ac965f1f3cc7e551bc；EXE132222581字节，SHA-256 `271c7e2884ad4b1e14f268687285723cc67cd3d9d7dadff17ff00e1f9e8d0ba9`。Hermes31/31、正式安装版原生MCP十工具五组、真实执行/同Session续聊两轮及普通EXE首四组/同profile补验三组通过，原失败保留。58后台/84Core/1672Windows Bridge文件/1721Linux资源与ASAR逐项匹配，210个产品输入保持；源码、EXE、SHA文件公开，服务端digest与匿名HTTP200完整下载一致。网关取消未适配，父模型/图100ms/冷启动/完整矩阵不准出；未签名、未切日常后台/部署SSH。[完整发布](I08/alpha65-hermes-windows.md)。

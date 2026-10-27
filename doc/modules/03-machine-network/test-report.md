@@ -1,6 +1,6 @@
 # M03 机器与 Agent 网络测试报告
 
-2026-10-27 / alpha.66候选：Windows Node24.12.0受控定向39/39；独立Ubuntu Node24.12.0适配100/100、Core71/71；本机Ubuntu22.04/WSL使用包内Node22.23.1及冻结后台，对正式Hermes0.22.5完成发现和原生MCP五组/十工具，独立Ubuntu原生组件亦通过。普通EXE七组通过，均模型0。WSL直连TLS仍有问题，临时安装通道已停止；普通doctor90秒未完成，pm doctor退出0且所有已安装运行组件通过。真实Linux模型、SSH、冷启动与完整矩阵未准出。[本轮环境、原始失败与证据](../../iterations/I08/alpha66-hermes-linux.md)。
+2026-10-27 / alpha.66公开：Windows Node24.12.0受控定向39/39；独立Ubuntu Node24.12.0适配100/100、Core71/71；本机Ubuntu22.04/WSL使用包内Node22.23.1及冻结后台，对正式Hermes0.22.5完成发现和原生MCP五组/十工具，独立Ubuntu原生组件亦通过。普通EXE七组通过，均模型0。WSL直连TLS仍有问题，临时安装通道已停止；普通doctor90秒未完成，pm doctor退出0且所有已安装运行组件通过。真实Linux模型、SSH、冷启动与完整矩阵未准出。[本轮环境、原始失败与证据](../../iterations/I08/alpha66-hermes-linux.md)。
 
 2026-10-27 / alpha.65 / Windows Node24.12.0：共享Hermes定向31/31，扩展73项72通过/1个Pi原基线失败，不能跨模块相加。已安装Hermes0.22.5、冻结Windows后台原生MCP五组通过（模型0）；真实执行/续聊两轮通过，但首轮参数拒绝、早期心跳EPERM及验收器原生配置字节比较失败均保留。普通EXE/发布状态按[专项](../../iterations/I08/alpha65-hermes-windows.md)逐项登记，不把源码结果当作EXE/父模型准出。
 

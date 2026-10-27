@@ -1,6 +1,6 @@
 # 迭代路线与当前交付
 
-alpha.66候选已完成本轮验证，当前公开仍alpha.65：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
+当前公开预发布alpha.66：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
 
 当前实现、候选功能和未准出项分别登记；前序发布历史统一见[发布登记](iterations/release-ledger.md)。下一步仍为原生父模型、自主委派、异常恢复和冷启动等独立验收，不因CLI可见或MCP组件通过而关闭整体验收。
 
@@ -9,8 +9,8 @@ alpha.66候选已完成本轮验证，当前公开仍alpha.65：Linux Hermes安�
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | **0.6.0-alpha.65**；alpha.66本轮已验证待发布 |
-| 上一公开预发布 | **0.6.0-alpha.64**：关系撤权与目标级准入；[发布记录](iterations/I08/alpha64-release.md) |
+| 最新 Windows 预发布 | **0.6.0-alpha.66**，冻结13e6c49；源码/EXE/校验附件公开并经匿名完整下载核验；[交付与边界](iterations/I08/alpha66-hermes-linux.md) |
+| 上一公开预发布 | **0.6.0-alpha.65**：Windows Hermes安装与网关兼容；[发布记录](iterations/I08/alpha65-hermes-windows.md) |
 | 当前自动回归 | alpha.66 Linux适配100/100、Core71/71；Windows定向39/39、普通EXE七组，模型0；全量Windows基线失败与未测项保留 |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
 | 当前发布范围与缺口 | 已包含DSH Desktop/Web、CT-07、OpenDesk、MCP02与#15/#16修复；完整准出继续按专项推进 |

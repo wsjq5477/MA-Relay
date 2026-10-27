@@ -1,6 +1,6 @@
 # Agent 接入现状与后续目标
 
-alpha.66候选已完成本轮验证，当前公开仍alpha.65：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
+当前公开预发布alpha.66：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
 
 Windows原生Hermes执行/同Session续聊证据保持alpha.65原日期；Linux本轮证明正式安装发现及原生MCP组件，没有提交Linux模型或部署独立SSH。具体入口的实际接入方式与证据边界以下表为准。
 
@@ -39,8 +39,8 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | Claude Code | 已接入：stream-json | 未接入 | 已接入 | 未接入 | 未接入 | 未接入 |
 | OpenCode | 已接入：启动serve | 已接入：HTTP执行/控制 | 已接入 | 未接入 | 未接入 | 未接入 |
 | Codex | 已接入：exec/resume JSON | 未接入 | 已接入 | 未接入 | 未接入 | 未接入 |
-| Hermes Agent | 已接入：stream-json | 未接入 | 已接入：原生Profile YAML（alpha.66候选包含） | 未接入 | 未接入 | 未接入 |
-| Pi | 已接入：JSON/print | 未接入 | 已接入：用户mcp.json（alpha.66候选包含） | 未接入 | 未接入 | 未接入 |
+| Hermes Agent | 已接入：stream-json | 未接入 | 已接入：原生Profile YAML（当前公开alpha.66） | 未接入 | 未接入 | 未接入 |
+| Pi | 已接入：JSON/print | 未接入 | 已接入：用户mcp.json（当前公开alpha.66） | 未接入 | 未接入 | 未接入 |
 | DSH CLI | 已接入：headless JSON | 未接入 | 已接入：原生显式profile补丁 | 未接入 | 未接入 | 未接入 |
 | DSH Windows Desktop | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生Profile补丁（alpha.48候选） | 未接入 | 未接入 | 未接入 |
 | DSH Linux / WSL Web | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生web Profile补丁 | 未接入 | 未接入 | 未接入 |
@@ -62,7 +62,7 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | OpenCode | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（v1/v2两代布局）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派通过；permission/form及独立Linux与Windows Claude双向协作保留历史证据；原生版本契约有约束 | 作为Bridge通用ACP Client的首个目标Agent，比较现有HTTP路径的事件、权限与恢复效果 |
 | Codex | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（`mcp_servers.agentbridge`标记块）；托管scope注入：已实现；被委派：已实现并有真实证据，具体环境见报告 | 当前WSL0.163.0-alpha.10.2直接生命周期及双向普通委派通过；旧版本续聊、Windows原账号失败保留；Bridge权限/表单未适配 | 验证当前原生版本的执行/结果/取消/恢复；有实际控制缺口时比较原生交互接口和 ACP 生态包装器 |
 | Hermes Agent | 直接执行、原Session续聊与普通被委派已实现；Windows/Linux原安装发现、独立MCP/Profile YAML已纳入本轮；托管scope/小队与网关取消未适配 | Windows原生执行/续聊沿用alpha.65证据；本轮WSL及独立Ubuntu正式0.22.5发现与原生MCP五组/十工具分别通过，组件模型0 | 真实Linux模型、父模型自主MCP/跨Agent委派、网关取消、完整生命周期与SSH未准出；[本轮证据](iterations/I08/alpha66-hermes-linux.md) |
-| Pi | 直接执行与普通被委派：源码已实现；独立MCP/用户配置：alpha.66候选已包含；托管scope：未适配 | 官方Pi1.4.0原包Linux/Windows在公开60冻结后台上各7组通过，实际消费10工具和连接/确认/撤权，模型0；[当前原生组件证据](iterations/I08/native-policy-components.md) | 原Session文件规则保持；真实父模型/生命周期/SSH待验 |
+| Pi | 直接执行与普通被委派：源码已实现；独立MCP/用户配置：当前公开alpha.66已包含；托管scope：未适配 | 官方Pi1.4.0原包Linux/Windows在公开60冻结后台上各7组通过，实际消费10工具和连接/确认/撤权，模型0；[当前原生组件证据](iterations/I08/native-policy-components.md) | 原Session文件规则保持；真实父模型/生命周期/SSH待验 |
 | DeepSeek Harness（DSH） | 直接执行：源码已实现；MCP调用方：已声明有MCP客户端（可独立配置）；原生MCP配置：**有，但需显式指定启动 profile**（`$DSH_HOME/profiles/<profile>/cordis.patch.yml` 单行`insert:`）；托管scope注入：未适配；被委派：同 Hermes | 使用 headless 自身原生配置，不搬运 web profile 凭据；profile 名称由用户提供并按单段目录校验（`MCP_DSH_PROFILE_REQUIRED` 拒绝非法/缺失值），未指定时只可导出；受控测试覆盖写入仅目标profile、status回显、remove只清理该profile；**真实 `dsh --profile acp` 启动观测到原生加载+`initialize`握手+`tools/list`（7工具，模型0，受控scratch profile）**；TUI/用户自建profile与真实用户profile未观测 | 在真实 `dsh` CLI 启动中核对指定 profile 是否加载该条目并列出工具；先验原生 headless 协议与真实模型 |
 | DSH Windows Desktop（dsh-desktop） | 直接执行：已随公开alpha.46实现；MCP调用方：已声明有MCP客户端；原生MCP配置：alpha.48候选按Desktop原生数据目录/Profile选择记录管理，保存原目标绑定，切换后先移除再添加（当前公开版已包含）；托管scope注入：未适配；被委派：可接收普通委派；方向能力为受控证据 | Windows社区Desktop2.0.18历史真实认证/Session接口及同Session两轮去重已观察，模型RATE_LIMIT；本轮已安装未修改Desktop原生配置组合器与MCP客户端5组/生产前端4组通过（模型0），[完整证据](iterations/I08/dsh-desktop-mcp.md) | 待原生限流解除后补成功回答/真实取消；[DSH原生证据](iterations/I07/dsh-exe-delivery.md) |
 | DSH Linux / WSL Web（dsh-web） | 直接执行：源码已实现，未进入公开发布包；MCP调用方：已声明（可独立配置）；原生MCP配置：**Bridge可管理且原生会加载**（`$DSH_HOME/profiles/web/cordis.patch.yml` 单行`insert:`，插件`@deepseek-ai/dsh-mcp-client`）；托管scope注入：未适配；被委派：同Desktop入口 | WSL真实Web认证/Session列表通过；生命周期/恢复为受控服务，模型0，独立SSH未验；2026-10-22受控profile下真实DSH `--profile web --dump-config` 组合出Bridge写入行，且真实启动后原生客户端完成 `initialize`/`tools/list` 握手、Bridge返回7个工具（模型0）；原生UI人工可见/删除与真实用户profile未验 | 保存对应机器连接后补模型/续聊/取消验证；[DSH原生证据与边界](iterations/I07/dsh-exe-delivery.md) |

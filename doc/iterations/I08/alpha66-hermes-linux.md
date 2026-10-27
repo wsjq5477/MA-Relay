@@ -1,6 +1,6 @@
 # alpha.66 Linux Hermes CLI适配与发布
 
-日期：2026-10-27（Asia/Hong_Kong）。用户补充要求适配Linux Hermes CLI，继承上一轮代码、文档、验证及GitHub发布授权。基于公开alpha.65/a22a736；候选0.6.0-alpha.66已完成下述验证，公开仍alpha.65。用户随后指定先在本机WSL安装Hermes；独立Linux CI用于模型0组件验证，不访问/部署用户SSH。
+日期：2026-10-27（Asia/Hong_Kong）。用户补充要求适配Linux Hermes CLI，继承上一轮代码、文档、验证及GitHub发布授权。基于公开alpha.65/a22a736；当前公开0.6.0-alpha.66已完成下述分层验证。用户随后指定先在本机WSL安装Hermes；独立Linux CI用于模型0组件验证，不访问/部署用户SSH。
 
 ## 需求与依据
 
@@ -38,6 +38,9 @@ Linux执行继续使用alpha.65的stream-json/精确--resume，继承原生账�
 
 未切换日常Bridge后台、未部署SSH；Hermes网关取消、真实Linux父模型/自主MCP与完整异常恢复仍按原矩阵分层验收。共享计数不跨模块相加；不以历史Linux固定源码组件成功冒充本轮正式安装版。
 
+
 ## 发布状态
 
-代码已推送master，正式附件待本轮发布及匿名完整下载核验；尚不宣称已公开。文档网站只发布18页用户材料/19 HTML，无内部页面或原始证据导出；docs:test原5/6失败与历史材料缺失基线保留，无新增文档错误。
+首次匿名下载尝试落盘，在6MiB处因工作盘空间不足失败，未计为完整下载；保留原失败日志，仅删除本轮不完整下载文件。随后不落盘、流式读取全部响应并逐块计数/计算SHA-256，两个附件HTTP200、完整字节及摘要均匹配；本地原始EXE与载荷校验报告保留。
+
+源码、Windows EXE与SHA256SUMS.txt已公开，服务端size/digest与匿名HTTP200完整下载逐项一致：[GitHub发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.66)、[附件与下载证据](../../../artifacts/hermes-linux/2026-10-27/github-download.json)。文档网站只发布18页用户材料/19 HTML，无内部页面或原始证据导出；docs:test原5/6失败与历史材料缺失基线保留，无新增文档错误。
