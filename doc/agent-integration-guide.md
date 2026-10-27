@@ -1,6 +1,6 @@
 # Agent 接入方式、选型与快速接入
 
-alpha.67候选修复本机WSL冻结入口实际47秒超过原30秒就绪预算：仅启动握手等待改为120秒，业务计时在握手后开始，原请求/unknown不重发；补实际Linux Hermes执行/原Session续聊验收。受控握手与发现22/22，真实候选及新包验收进行中；当前公开仍alpha.66。[本轮需求、实测与边界](iterations/I08/alpha67-hermes-linux-live.md)。
+alpha.67候选将WSL就绪预算改为120秒；Windows→WSL→正式Hermes0.22.5已完成真实两轮、原请求去重和通道重开后的精确Session续聊，原生配置字节保持。独立Ubuntu适配109/109、Core71/71与原生MCP五组通过，Windows受控22/22；原未派发启动失败与首轮Core启动失败保留。新包验收与发布收尾中，当前公开仍alpha.66。[本轮实测与完整边界](iterations/I08/alpha67-hermes-linux-live.md)。
 
 当前公开预发布alpha.66：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
 

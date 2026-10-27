@@ -31,6 +31,7 @@ function configuration(home) {
   return Object.fromEntries(roots.flatMap(([label,folder])=>['config.yaml','.env','auth.json','active_profile'].map(name=>{const file=unc(folder+'/'+name);return [label+'/'+name,fs.existsSync(file)?hash(file):null];})));
 }
 async function open() {
+  childExit=undefined;originalChild=null;
   host=new HostConnection(path.join(bridge,'dist/desktop-host.js'),{distribution,directory:state.linuxDirectory,bootstrapPath:bootstrapArg?path.resolve(bootstrapArg):packagedBootstrap});
   const starting=host.start();
   const track=()=>{if(!host?.child||originalChild===host.child)return;originalChild=host.child;const child=originalChild;childExit=child.exitCode!==null||child.signalCode!==null?Promise.resolve({code:child.exitCode,signal:child.signalCode}):new Promise(resolve=>child.once('exit',(code,signal)=>resolve({code,signal})));};
@@ -58,8 +59,9 @@ async function finish(task) {
   const deadline=Date.now()+180000;
   while(Date.now()<deadline) {
     const current=await host.call('ipc',{op:'task',taskId:task.taskId});
+    report.observedStatus=current.status;
     if(['succeeded','failed','cancelled'].includes(current.status))return current;
-    report.observedStatus=current.status;checkpoint();await delay(500);
+    checkpoint();await delay(500);
   }
   throw Error('Observation budget ended; query the original request, never replace or replay it');
 }

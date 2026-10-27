@@ -28,7 +28,7 @@ Windows会在PATH之外检查`%LOCALAPPDATA%/hermes/bin/hermes.exe`及`HERMES_HO
 
 切换Home/Profile后，先移除原接入再为当前目标添加。移除只清理原目标；原生禁用或删除不会被自动恢复，显式撤权后旧客户端的新调用被拒绝。不要重发状态未知的原任务。
 
-公开alpha.60有十个经典工具，包含预授权连接/断开。固定源码的Linux原生MCP组件已核对加载和调用；Windows正式安装版0.22.5已完成十工具MCP组件和真实模型执行/同Session续聊验证；模型自主MCP委派、原生网关取消与完整生命周期仍未准出。
+经典MCP提供十个工具，包含预授权连接/断开。Windows和Linux正式安装版Hermes 0.22.5均已核对原生MCP组件、实际执行与同Session续聊；网络与模型账号须在目标机器上可用。模型自主MCP委派、原生网关取消与完整生命周期仍未准出。
 
 ## Linux / WSL / SSH
 
