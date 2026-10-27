@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+关系写入以AgentNetwork当前行和请求集合比较准入目标；GraphJournal对node/machine沿用可信资源回调，纯撤权不查询无关管理未知。前端的全局关系锁、目标阻断与布局状态各自独立，不从IPC接收放行标志。[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
+
 ## CT-05原选材包传递
 
 CT-05原包传递由中央TeamSpace持有同工作不可变包；四个显式RPC/MCP分别保存、列出、读取和目标确认，桌面仅按需读元数据。传递和原操作收据同SQLite事务，传递事务不运行自动事件同步；不新增模型API/远端部署/自动推送。中央可选team-context-transfer-v1仅定向门禁新RPC，daemon不声明。[完整接口、身份、原ID恢复与错误](iterations/I07/context-delivery.md)。
@@ -22,7 +24,7 @@ CT-05原包传递由中央TeamSpace持有同工作不可变包；四个显式RPC
 
 OpenCode 协议协商位于 Core 的 OpenCodeClient/OpenCodeV1，只使用认证 GET，候选入口各 700ms、全套元数据总计 4000ms，并受托管启动剩余预算限制。有效 1.x 健康入口直接选 V1，其他候选按 2.x 契约核验；确定协议或认证错误从 native-server 快速返回，纯连接不可达才重试。节点层将该能力和原安装/观察版本共同投影到接入状态，不修改原操作台账。[需求与验证](iterations/I08/opencode-bounded-probe.md).
 
-OpenDesk 原生配置管理在来源 MachineHost 通过独立生命周期检查后才原子写入；进程不可核验默认拒绝，Bridge 不退出用户程序。关系写入通过中央可信旧/新关系资源并集核对，再持久原操作意图；前端仅消费可信范围并保持保守退路。仅 OpenDesk 安装允许已断开的原节点；执行仍需既有接入。[完整时序与边界](iterations/I08/opendesk-lifecycle-relation-scope.md)。
+OpenDesk 原生配置管理在来源 MachineHost 通过独立生命周期检查后才原子写入；进程不可核验默认拒绝，Bridge 不退出用户程序。关系写入通过中央可信新增成员/新主资源核对；纯撤权不重新准入旧角色，原关系未知与来源不明继续保护，再持久原操作意图；前端仅消费可信范围并保持保守退路。仅 OpenDesk 安装允许已断开的原节点；执行仍需既有接入。[完整时序与边界](iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 ## 连接身份与节点管理准入
 
@@ -311,7 +313,7 @@ SSH 恢复状态由 Coordinator 更新并持久化到机器目录，恢复成功
 
 图组件将React Flow的实际尺寸测量保留于当前挂载视图，坐标变化保留端点和授权边；角色及真实尺寸改变仍走原DOM重测。此界面状态不传中央、不落布局或草稿缓存。[实现与实际证据](iterations/I08/graph-measured-dimensions.md)。
 
-图组件只编辑本机草稿，通过原认证 IPC 提交。当前协作关系与其收据由 AgentNetwork 原子提交；布局由中央独立 GraphLayoutStore 保存，位置不参与执行路由。GraphOperationJournal 先写图意图并按 lane 查询原收据，任务 pending journal 保持独立。浏览器缓存用于保留草稿/原 ID，不能作为授权来源。后台布局读取失败时允许本机视图编辑，显示未同步并禁用需要图事务的新授权编辑；不发送旧式写入，不清除任何原 pending ID。后台可用后以原布局协议/修订同步，本机缓存不证明服务端已提交。
+图组件只编辑本机草稿，通过原认证 IPC 提交。当前协作关系与其收据由 AgentNetwork 原子提交；布局由中央独立 GraphLayoutStore 保存，位置不参与执行路由。GraphOperationJournal 先写图意图并按 lane 查询原收据，任务 pending journal 保持独立。浏览器缓存用于保留草稿/原 ID，不能作为授权来源。后台布局读取失败时允许本机视图编辑，显示未同步；授权编辑独立检查关系收据/管理台账，不依赖布局接口；不发送旧式写入，不清除任何原 pending ID。后台可用后以原布局协议/修订同步，本机缓存不证明服务端已提交。
 
 ```mermaid
 flowchart LR

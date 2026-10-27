@@ -22,7 +22,7 @@ function rejectedAttachAdmission(row){
 }
 function conflicts(kind,params,row,nodeConflict,relationConflict){
  if(kind==='layout'||row.lane==='layout')return kind===row.lane;
- if(kind==='relation'&&row.lane==='node'&&relationConflict)return relationConflict(params,row)!==false;
+ if(kind==='relation'&&['node','machine'].includes(row.lane)&&relationConflict)return relationConflict(params,row)!==false;
  if(kind==='relation'||row.lane==='relation')return true;
  if(kind==='node'&&row.lane==='node'&&nodeConflict){
   if(![params.machineId,params.nodeId,row.params?.machineId,row.params?.nodeId].every(value=>typeof value==='string'&&value.trim()))return true;

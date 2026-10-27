@@ -1,5 +1,13 @@
 # M06 原生 Agent 适配器测试报告
 
+## issue #25 关系撤权与目标作用域（2026-10-27）
+
+M06-F02/F05；基于公开alpha.63/8833d01的未发布源码，Windows Node24.12.0、Edge157.0.4341.16。新增成员需execution/delegation，新主需execution/MCP调用；撤权不重检旧角色。保留失效成员时新增或换主不反向阻断，新增目标失效仍拒绝。没有真实原生配置、模型或适配器执行变更。
+
+共享定向 **155/155**、生产前端与生产Coordinator受控 **12组通过**（pageErrors=0，模型0），不跨模块相加。原基线同一新增回归出现撤权失败。桌面构建、根构建/类型/lint通过；Windows全量959项872通过/86失败/1跳过，未修复基线也存在同型失败；根全量71项53通过/18失败。WSL启动因HCS服务不可用未执行，不能复用历史全量通过数。
+
+证据、全部失败/基线、复现命令与源码见[专项记录](../../iterations/I08/relation-revocation-scope.md)，[定向原始日志](../../../artifacts/issue25/2026-10-27/targeted-delivery.tap)、[Windows页面报告](../../../artifacts/issue25/2026-10-27/ui-delivery/report.json)。未构建新EXE、未接真实原生Agent/模型/独立SSH、未改真实用户profile或日常未知；完整图/WSL/父模型与I06C/I07C/MCP02准出保持。
+
 ## alpha.63实际WSL持续连接（2026-10-25）
 
 原生产Windows→WSL HostConnection、实际Ubuntu/原生Codex0.162.1列表与Linux通用stdio客户端：15分钟180/180原宿主/驱动/connectionId保持，原生配置摘要不变，任务/委派/模型0；删除/宿主重开不补装、撤权、轮换、移除共六组通过。原Windows启动进程退出、两客户端停止和Linux残留0已确认；这是MCP组件，不是原生父模型，未停止/冷启动发行版或部署SSH。历史入口前失败和完整稳定性仍未准出，原有全量不相加。[实际样本、首次测试路径失败、清理及边界](../../iterations/I08/native-mcp-lifecycle.md)。

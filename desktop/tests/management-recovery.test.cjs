@@ -17,6 +17,6 @@ test('recovery projection deduplicates originals and displays only a hashed oper
  const summary=querySummaryText({attempted:4,confirmed:1,rejected:1,unresolved:2,notFound:1,failed:1,at:'now'});assert.match(summary,/未找到原收据 1/);assert.match(summary,/查询失败 1/);assert.match(summary,/继续保留/);
 });
 
-test('relation recovery permits a trusted independent node range but keeps missing and global scopes protected',()=>{
- const row={...original,blockedNodeIds:['a']};assert.equal(relationRecoveryReason([row],nodes,machines),'');assert.equal(relationRecoveryReason([{...row,lane:'layout'}],nodes,machines),'');for(const changed of [{lane:'relation'},{lane:'machine'},{blockedNodeIds:undefined},{blockedNodeIds:[]},{blockedNodeIds:['a',null]},{params:{nodeId:'a'}},{params:{machineId:'local',nodeId:'missing'}}])assert(relationRecoveryReason([{...row,...changed}],nodes,machines));
+test('relation recovery permits trusted node and machine ranges but keeps missing sources and relation uncertainty protected',()=>{
+ const row={...original,blockedNodeIds:['a']};assert.equal(relationRecoveryReason([row],nodes,machines),'');assert.equal(relationRecoveryReason([{...row,lane:'layout'}],nodes,machines),'');assert.equal(relationRecoveryReason([{...row,lane:'machine'}],nodes,machines),'');assert.equal(relationRecoveryReason([{...row,lane:'machine',params:{connectionId:'remote-connection'}}],nodes,machines),'');for(const changed of [{lane:'relation'},{lane:'machine',params:{}},{lane:'machine',params:{machineId:'missing'}},{blockedNodeIds:undefined},{blockedNodeIds:[]},{blockedNodeIds:['a',null]},{params:{nodeId:'a'}},{params:{machineId:'local',nodeId:'missing'}}])assert(relationRecoveryReason([{...row,...changed}],nodes,machines));
 });

@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+saveCollaboration沿用原参数、指纹、收据与revision合约；纯撤权不重新检查旧角色能力，新增成员/新主仍按可信管理范围与各自能力准入。布局不可用只影响布局保存。关系未知、GRAPH_UNCONFIRMED、REVISION_CONFLICT与OPERATION_CONFLICT的恢复仍查询原操作或保留草稿显式校验，不添加重试写。[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
+
 ## CT-05原选材包传递
 
 新增team.sendContext/contextTransfers/contextTransfer/ackContext（小队MCP对应team_send_context/team_context_transfers/team_context_transfer/team_ack_context），小队18→22，经典10保持。发送需原packetId+相同选择+稳定operationId，目标读取原transferId后以私有deliveryProof和完整包规范JSON摘要确认。列表默认20/最大50按原after分页；正文只在详情返回，证明仅目标成员取得。中央独有可选team-context-transfer-v1，旧中央只拒绝新四RPC，协议仍2。[完整接口、身份、原ID恢复与错误](iterations/I07/context-delivery.md)。
@@ -16,7 +18,7 @@
 
 GET /global/health（700ms）有效 1.x → 完整 V1 元数据；否则 GET /api/info（700ms）及原 2.x 元数据。整次探测含响应体限 4000ms；已监听但两个契约均不可确认返回 OPENCODE_API_UNSUPPORTED，认证拒绝保持 OPENCODE_HTTP_401/403。两个候选均连接不可达保持 NATIVE_UNAVAILABLE，由托管启动在原 20 秒预算内重试。业务请求仍限 15 秒；无新增 RPC 或持久字段，不以探测成功/失败结算原 operationId。[流程与验证](iterations/I08/opencode-bounded-probe.md).
 
-OpenDesk Desktop mcp.install/mcp.remove 在来源后台检查退出与配置写回，新增 MCP_NATIVE_RUNNING / MCP_NATIVE_STATE_UNKNOWN / MCP_NATIVE_EXIT_PENDING / MCP_OPENDESK_NODE_REQUIRED；remove 已先撤权时以 revoked_config_pending+cleanupError 返回。mcp.probe 只读返回 unsupported，不探测 Bridge 端点冒充原生列表。hello 新增 scoped-relation-management-v1（中央必需）与 opendesk-mcp-lifecycle-v1（OpenDesk远端原生增删必需）；旧远端仍可读状态/撤权，未修改帧版本。saveCollaboration 的 relation/node 冲突由中央解析旧/新关系资源并集，原关系/机器及缺来源保守阻塞；无ID兼容调用同样经过日志准入，确认返回原关系数据。[完整合约](iterations/I08/opendesk-lifecycle-relation-scope.md)。
+OpenDesk Desktop mcp.install/mcp.remove 在来源后台检查退出与配置写回，新增 MCP_NATIVE_RUNNING / MCP_NATIVE_STATE_UNKNOWN / MCP_NATIVE_EXIT_PENDING / MCP_OPENDESK_NODE_REQUIRED；remove 已先撤权时以 revoked_config_pending+cleanupError 返回。mcp.probe 只读返回 unsupported，不探测 Bridge 端点冒充原生列表。hello 新增 scoped-relation-management-v1（中央必需）与 opendesk-mcp-lifecycle-v1（OpenDesk远端原生增删必需）；旧远端仍可读状态/撤权，未修改帧版本。saveCollaboration 的 relation/node/machine 冲突由中央解析新增成员与新主资源，纯撤权不冲突于可信管理范围；原关系未知及缺来源保守阻塞；无ID兼容调用同样经过日志准入，确认返回原关系数据。[完整合约](iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 ## DSH 选择与节点管理能力
 
