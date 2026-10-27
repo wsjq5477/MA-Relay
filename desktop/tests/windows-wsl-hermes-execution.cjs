@@ -7,10 +7,12 @@ const [bridgeArg, distribution, outputArg, bootstrapArg] = process.argv.slice(2)
 if (process.platform !== 'win32' || !outputArg) throw Error('Provide frozen Bridge resources, WSL distribution and output directory on Windows');
 const bridge = path.resolve(bridgeArg), output = path.resolve(outputArg);
 const {HostConnection} = require(path.join(bridge,'desktop/electron/rpc.cjs'));
-const manifest = JSON.parse(fs.readFileSync(path.join(bridge,'../linux-package/manifest.json')));
+const linuxBundle=fs.existsSync(path.join(bridge,'manifest.json'));
+const manifest = JSON.parse(fs.readFileSync(linuxBundle?path.join(bridge,'manifest.json'):path.join(bridge,'../linux-package/manifest.json')));
+const packagedBootstrap=path.join(bridge,linuxBundle?'desktop/electron/bootstrap.sh':'bootstrap.sh');
 const hash = file => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 for (const name of ['desktop/electron/rpc.cjs','desktop/electron/machine-host.cjs','desktop/electron/native-cli-host.cjs','desktop/electron/native-cli-protocols.cjs','desktop/electron/tool-discovery.cjs','dist/desktop-host.js','bootstrap.sh']) {
-  assert.equal(hash(path.join(bridge,name)),manifest.files.find(row=>row.path===(name==='bootstrap.sh'?'desktop/electron/bootstrap.sh':name))?.sha256,'Frozen runtime must match its packaged Linux manifest');
+  assert.equal(hash(name==='bootstrap.sh'?packagedBootstrap:path.join(bridge,name)),manifest.files.find(row=>row.path===(name==='bootstrap.sh'?'desktop/electron/bootstrap.sh':name))?.sha256,'Frozen runtime must match its packaged Linux manifest');
 }
 fs.mkdirSync(output,{recursive:true});
 const stateFile = path.join(output,'private-checkpoint.json'), reportFile = path.join(output,'report.json');
@@ -29,7 +31,7 @@ function configuration(home) {
   return Object.fromEntries(roots.flatMap(([label,folder])=>['config.yaml','.env','auth.json','active_profile'].map(name=>{const file=unc(folder+'/'+name);return [label+'/'+name,fs.existsSync(file)?hash(file):null];})));
 }
 async function open() {
-  host=new HostConnection(path.join(bridge,'dist/desktop-host.js'),{distribution,directory:state.linuxDirectory,bootstrapPath:bootstrapArg?path.resolve(bootstrapArg):path.join(bridge,'bootstrap.sh')});
+  host=new HostConnection(path.join(bridge,'dist/desktop-host.js'),{distribution,directory:state.linuxDirectory,bootstrapPath:bootstrapArg?path.resolve(bootstrapArg):packagedBootstrap});
   const starting=host.start();
   const track=()=>{if(!host?.child||originalChild===host.child)return;originalChild=host.child;const child=originalChild;childExit=child.exitCode!==null||child.signalCode!==null?Promise.resolve({code:child.exitCode,signal:child.signalCode}):new Promise(resolve=>child.once('exit',(code,signal)=>resolve({code,signal})));};
   const tracking=setInterval(track,10);
