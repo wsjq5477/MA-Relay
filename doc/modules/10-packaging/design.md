@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## alpha.64关系撤权候选
+
+M10-F01/F02/F03/F05/F06：合并PR #26后以0.6.0-alpha.64独立构建，包含58后台模块/84Core/1720Linux资源、43份原daemon兼容pin。新增alpha.63 pin及其Linux Node22.23.1/owned-stop来自完整SHA核验的原公开包；不自动部署SSH或替换日常后台。Windows ASAR校验使用平台路径，保持前端每个资源摘要核对。包内14项撤权、37项关系、14项传递、4项收据和29项兼容通过，实际ASAR前端图12组/控制台6组通过；普通EXE生命周期和发布核验另列，不复用旧版本结论。[本轮构建与验收](../../iterations/I08/alpha64-release.md)。
+
 ## CT-05原包传递候选
 
 M10-F01/F02/F03：本地alpha.63继承62配置/审计，新增同工作原包传递与接收收据、57后台模块和只读审计前端。alpha.61/62原EXE保留，公开仍60；新包须独立验证原包/接收收据在普通窗口与中央重启后保持，不能以历史包结果替代。180个产品/依赖文件构建前冻结，ASAR/前端/84Core/1715Linux逐项核对；不部署SSH、不切换日常后台。[交付、摘要与证据](../../iterations/I07/context-delivery.md)。
@@ -14,7 +18,7 @@ M10-F01/F02/F03：本地alpha.62承接alpha.61失败清理和alpha.60连接策�
 
 M10-F01/F02/F03：本地alpha.61候选包含失败清理界面及中央历史接入拒绝核对；公开alpha.60与旧EXE保留。新增的alpha.60兼容pin逐字取自其原冻结Linux manifest，不部署SSH。打包时核对ASAR、Windows中央、Core、前端和Linux离线资源；切换前必须在旧版停止后台并退出，候选本身不会替换已运行后台。 [需求、证据与未测边界](../../iterations/I08/failed-operation-cleanup.md)。
 
-当前公开alpha.60：CT-08-A3连接工具/预授权/用户确认与策略页面，41份原daemon清单；EXE130212267字节，SHA-256 `d74c711b8475e84834519c8509a12a63351c1864a5ed4c01559588dc1fdc9cf6`。56后台/84Core/1713Linux及ASAR/前端/bootstrap一致；源码900/900、Windows包内37/37和实际中央管道/重启、兼容26/26与9,665,523字节输入、生产页面4组、普通EXE4组及Downloads完整SHA通过，模型0。发布前142个产品/依赖文件与构建时冻结摘要逐项复核一致，EXE与校验附件已上传并经匿名完整下载核验；未签名、未切换日常后台/部署SSH；真实原生多主/图100ms/WSL和完整SSH仍未准出。[发布证据](../../iterations/I08/alpha60-release.md)、[完整交付与原始失败](../../iterations/I07/connection-policy.md)。
+历史alpha.60交付：CT-08-A3连接工具/预授权/用户确认与策略页面，41份原daemon清单；EXE130212267字节，SHA-256 `d74c711b8475e84834519c8509a12a63351c1864a5ed4c01559588dc1fdc9cf6`。56后台/84Core/1713Linux及ASAR/前端/bootstrap一致；源码900/900、Windows包内37/37和实际中央管道/重启、兼容26/26与9,665,523字节输入、生产页面4组、普通EXE4组及Downloads完整SHA通过，模型0。发布前142个产品/依赖文件与构建时冻结摘要逐项复核一致，EXE与校验附件已上传并经匿名完整下载核验；未签名、未切换日常后台/部署SSH；真实原生多主/图100ms/WSL和完整SSH仍未准出。[发布证据](../../iterations/I08/alpha60-release.md)、[完整交付与原始失败](../../iterations/I07/connection-policy.md)。
 
 ## 当前 OpenCode 协议修复候选
 
@@ -34,7 +38,7 @@ M10-F01/F02/F03：alpha.48候选承接alpha.47，并加入DSH Desktop目标解�
 
 alpha.47历史候选包含 OpenDesk MCP 默认字段归属兼容；后台、窗口 ASAR、Core、Linux离线包与生产前端必须一致。Windows隔离验收、文件摘要与切换步骤见[本轮交付](../../iterations/I08/opendesk-mcp-defaults.md)。公开alpha.46的标签和附件保留；客户端候选不自动升级日常后台或SSH。
 
-当前公开预发布0.6.0-alpha.51.recovery.2，标签冻结 `905b792`；源码、EXE与校验文件已公开，匿名完整下载130196014字节与SHA-256一致。包源码一致，未签名、未部署SSH；[当前完整交付](../../iterations/I08/alpha51-recovery2-release.md)。
+历史公开预发布0.6.0-alpha.51.recovery.2，标签冻结 `905b792`；源码、EXE与校验文件已公开，匿名完整下载130196014字节与SHA-256一致。包源码一致，未签名、未部署SSH；[当前完整交付](../../iterations/I08/alpha51-recovery2-release.md)。
 
 ## MCP02恢复与观测（2026-10-22）
 
@@ -151,12 +155,12 @@ M10-F01/F02/F03/F05/F06：本地候选从独立源码/配置/测试/素材清单
 
 | 功能 ID | 交付目标 | 当前状态 |
 | --- | --- | --- |
-| M10-F01 | 编译、类型检查、构建、自动化回归入口 | 源码已实现；当前冻结基线Core71/71、桌面944/944及类型/lint/构建通过；共享计数不跨模块相加，模型与正式准出独立 |
-| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | 当前公开alpha.63包含57后台/84Core/1715Linux资源，ASAR/前端/bootstrap一致，普通EXE六组、新审计页面五组/控制台六组通过；[当前交付](../../iterations/I07/context-delivery.md) |
-| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | 本地alpha.63含1715项、Linux Node22.23.1与42份原版本兼容清单；63仅受控兼容26/26，原实际alpha.37服务器只读复验仍是62的历史证据，未部署/升级63 |
+| M10-F01 | 编译、类型检查、构建、自动化回归入口 | 源码已实现；alpha.64源码定向155/155及类型/lint/构建通过，全量Windows存在已复现的基线平台失败；共享计数不跨模块相加，模型与正式准出独立 |
+| M10-F02 | Windows x64 便携 EXE 包含前端、后台、生产依赖和 Linux 离线包 | alpha.64候选包含58后台/84Core/1720Linux资源，ASAR/前端/bootstrap及实际EXE载荷一致；图12组/控制台6组通过，普通EXE见[当前交付](../../iterations/I08/alpha64-release.md) |
+| M10-F03 | Linux x64 离线包包含真实 Linux Node、后台/依赖及每文件摘要清单 | alpha.64候选含1720项、Linux Node22.23.1与43份原版本兼容清单；兼容29/29，原实际服务器证据不刷新；本轮未部署/升级SSH，WSL服务不可用 |
 | M10-F04 | 发布包坏路径/坏摘要拒绝安装，远端校验后原子激活版本 | 源码已实现；校验实现，受控安全检查及真实正常安装通过；破坏性故障矩阵未完成（部分验证） |
 | M10-F05 | 便携启动器清理临时文件后，后台/worker 使用用户目录持久副本 | 源码已实现并已发布；本地alpha.62普通窗口重开复用中央、完整中央重启及原资料/收据五组通过，后台使用持久自有副本；[当前证据](../../iterations/I08/window-lifecycle-verifier.md) |
-| M10-F06 | 发布报告记录版本、EXE 大小/SHA-256、实际验证环境和未测项 | 当前公开alpha.60与本地alpha.62的版本、字节、SHA及分层证据分别记录；[当前候选](../../iterations/I07/configuration-console.md)、[公开发布](../../iterations/I08/alpha60-release.md) |
+| M10-F06 | 发布报告记录版本、EXE 大小/SHA-256、实际验证环境和未测项 | alpha.64候选版本、EXE字节/SHA与分层证据集中记录；发布后需核对服务端digest与匿名完整下载；[当前交付](../../iterations/I08/alpha64-release.md) |
 | M10-F07 | 升级、回滚、旧配置迁移和安全删除有用户流程 | 源码已实现；部分历史配置兼容；可信升级/回滚/停止/卸载；旧中央直接降级仍不支持 |
 
 M10 管理可执行材料和一致性，不管理模型/账号，也不把远端原生 CLI 打进包。用户机器或 Linux 上仍须已有可用 OpenCode/Claude/Codex 及其原生认证。缺少这些时，安装 Bridge 成功不代表 Agent 能回答。

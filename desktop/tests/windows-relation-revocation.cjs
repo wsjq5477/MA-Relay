@@ -2,7 +2,8 @@
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
 const {chromium,expect}=require('../node_modules/@playwright/test');
 const {graphFixture}=require('./i06b-ui-fixture.cjs');
-const {GraphOperationJournal}=require('../electron/graph-operations.cjs');
+const runtimeRoot=process.argv[3]?path.resolve(process.argv[3]):undefined;
+const {GraphOperationJournal}=require(runtimeRoot?path.join(runtimeRoot,'desktop/electron/graph-operations.cjs'):'../electron/graph-operations.cjs');
 const {digest}=require('../electron/graph-layout.cjs');
 const out=path.resolve(process.argv[2]||'artifacts/issue25/2026-10-27/ui');
 const report={date:new Date().toISOString(),version:require('../package.json').version,environment:'Windows Edge / production renderer and Coordinator / controlled machines',modelCalls:0,checks:[],pageErrors:[]};
@@ -10,7 +11,7 @@ let server,browser,context,f,page;
 let mode='';
 const check=value=>{report.checks.push(value);console.log(value);};
 async function fresh(options={}){
- await context?.close();f?.close();mode=options.mode||'';f=await graphFixture();
+ await context?.close();f?.close();mode=options.mode||'';f=await graphFixture({runtimeRoot});
  const [leader,member,other]=f.nodes;
  await f.router.call('saveCollaboration',{operationId:'initial',leaderId:leader.nodeId,memberIds:[member.nodeId],expectedRevision:0});
  const target=options.target?member:other,lane=options.lane||'node',params={operationId:'original-intent',machineId:target.machineId,...(lane==='node'?{nodeId:target.nodeId,action:'attach'}:{})};
@@ -41,7 +42,7 @@ async function open(){
 const save=()=>page.getByRole('button',{name:'保存授权',exact:true});
 async function selectEdge(){await page.locator('.react-flow__edge-textbg').first().click();return page.getByRole('button',{name:'删除这条授权',exact:true});}
 (async()=>{
- fs.mkdirSync(out,{recursive:true});const directory=path.resolve(__dirname,'../dist');
+ fs.mkdirSync(out,{recursive:true});const directory=process.argv[4]?path.resolve(process.argv[4]):path.resolve(__dirname,'../dist');
  server=http.createServer((req,res)=>{try{const file=path.resolve(directory,decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\//,'')||'index.html');if(!file.startsWith(directory+path.sep))return res.writeHead(403).end();res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync(file));}catch{res.writeHead(404).end();}});await new Promise(r=>server.listen(0,'127.0.0.1',r));
  browser=await chromium.launch({channel:'msedge',headless:true});report.browser=browser.version();
  for(const options of [{},{target:true,unavailable:true},{lane:'machine'},{mode:'layout-unavailable'},{lane:'layout'}]){

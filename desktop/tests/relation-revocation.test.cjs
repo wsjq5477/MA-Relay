@@ -1,10 +1,12 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {graphFixture}=require('./i06b-ui-fixture.cjs');
-const {GraphOperationJournal}=require('../electron/graph-operations.cjs');
-const {digest}=require('../electron/graph-layout.cjs');
+const runtimeRoot=process.env.AGENTBRIDGE_VERIFY_RELATION_RUNTIME;
+const runtime=name=>require(runtimeRoot?path.join(runtimeRoot,'desktop/electron',name):path.join(__dirname,'../electron',name));
+const {GraphOperationJournal}=runtime('graph-operations.cjs');
+const {digest}=runtime('graph-layout.cjs');
 
 async function fixture(t){
- const f=await graphFixture();t.after(()=>f.close());
+ const f=await graphFixture({runtimeRoot});t.after(()=>f.close());
  const [leader,member,other]=f.nodes;
  await f.router.call('saveCollaboration',{operationId:'initial-grant',leaderId:leader.nodeId,memberIds:[member.nodeId,other.nodeId],expectedRevision:0});
  const journal=new GraphOperationJournal(f.directory);
