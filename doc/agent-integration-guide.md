@@ -1,5 +1,7 @@
 # Agent 接入方式、选型与快速接入
 
+alpha.66源码补齐Linux Hermes安装发现：原生数据目录bin、独立HERMES_INSTALL_DIR、固定Profile所属根与默认根、后缀/路径展开；Hermes专用运行时目录不再用于发现其他Agent。PATH原命令优先，原生模型/配置/Session与unknown不变。Windows受控Hermes39/39，Linux原生CI验证进行中；当前公开仍alpha.65。[本轮范围与证据](iterations/I08/alpha66-hermes-linux.md)。
+
 Windows Hermes安装后无需为Bridge手动修改PATH：源码alpha.65按当前PATH、HERMES_HOME/bin与LOCALAPPDATA/hermes/bin发现原生CLI，Hermes版本探测上限20秒。现已核对真实0.22.5执行/续聊和十工具MCP组件。网关任务须在Hermes原生会话停止，Bridge不宣称能取消；旧unknown只查原ID。[实现与限制](iterations/I08/alpha65-hermes-windows.md)。
 
 WSL配置按原nodeId路由至原发行版MachineHost，原有六项MCP管理方法在源码已存在；alpha.49增加就绪握手，最终包真实Windows→WSL MCP组件5组已通过（配置、原生Codex列表、Linux stdio调用、重开、撤权/轮换/清理），仍保留启动失败和原生父模型未测，不以工具组件代替模型自主调用。[当前范围与失败证据](iterations/I08/wsl-host-readiness.md)。

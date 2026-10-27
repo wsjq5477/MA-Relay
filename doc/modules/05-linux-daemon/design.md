@@ -1,5 +1,7 @@
 # M05 Linux 机器后台设计
 
+M05-F01/F02：Linux daemon/WSL/SSH宿主在自身环境发现Hermes，支持与HERMES_HOME分离的源码根及原生发布启动器；不依赖.bashrc/.profile、不继承Windows安装路径。离线包包含同一实现，升级和远端部署仍需原有操作，本轮不自动部署SSH。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
+
 M05-F01/F02：离线alpha.65资源包含相同原生CLI宿主、保守Hermes终态和Windows替换重试实现；Linux运行时沿用原包，不自动部署SSH。Windows实测不能代替Linux正式Hermes/SSH准出。 [本轮构建、分层验证与限制](../../iterations/I08/alpha65-hermes-windows.md)。
 
 本地候选alpha.56的完整维护控制面输入采用有界64MiB字节流读取，保留全部版本描述和原fingerprint；Daemon RPC帧仍1MiB。原ID查询在线端副本省去不消费的releases，持久remoteInput及身份/操作ID不改，维护命令仍发送完整目录。新控制器由原已核验包暂存，旧控制器可继续接收小查询；不部署或改写既有运行实例。[实际缺陷、完整CLI与恢复验证](../../iterations/I08/maintenance-input-capacity.md)。

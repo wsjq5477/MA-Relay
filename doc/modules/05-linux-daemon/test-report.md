@@ -1,5 +1,7 @@
 # M05 Linux daemon 测试报告
 
+2026-10-27 / alpha.66候选 / Windows Node24.12.0：Hermes路径与原能力定向39/39（受控，模型0）；本机WSL真实启动HCS_E_SERVICE_NOT_AVAILABLE，未将受控结果计为Linux原生通过。GitHub Ubuntu固定官方Hermes0.22.5的原生验证进行中。[本轮状态与日志](../../iterations/I08/alpha66-hermes-linux.md)。
+
 2026-10-27 / alpha.65：M05-F01/F02：离线alpha.65资源包含相同原生CLI宿主、保守Hermes终态和Windows替换重试实现；Linux运行时沿用原包，不自动部署SSH。Windows实测不能代替Linux正式Hermes/SSH准出。 [本轮构建、分层验证与限制](../../iterations/I08/alpha65-hermes-windows.md)。共享Hermes31/31与冻结Windows原生MCP五组通过；无本轮Linux正式安装版/SSH/父模型测试，普通EXE结果单列。
 
 ## alpha.63实际WSL持续连接（2026-10-25）

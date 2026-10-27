@@ -1,0 +1,79 @@
+name: Hermes Linux CLI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/hermes-linux]
+    paths:
+      - .github/workflows/hermes-linux.yml
+      - desktop/electron/**
+      - desktop/tests/**
+      - desktop/package*.json
+      - package*.json
+  pull_request:
+    paths:
+      - .github/workflows/hermes-linux.yml
+      - desktop/electron/**
+      - desktop/tests/**
+      - desktop/package*.json
+      - package*.json
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      HERMES_NATIVE_COMMIT: bf0203a794a07aac3ff764972ab9087baa4e4f4e
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.12.0
+          cache: npm
+      - name: Install Bridge dependencies
+        id: dependencies
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm ci --prefix desktop --ignore-scripts --no-audit --no-fund
+      - name: Build and validate Bridge
+        run: |
+          mkdir -p artifacts/hermes-linux-ci
+          npm run build 2>&1 | tee artifacts/hermes-linux-ci/build.log
+          npm run typecheck 2>&1 | tee artifacts/hermes-linux-ci/typecheck.log
+          npm run lint 2>&1 | tee artifacts/hermes-linux-ci/lint.log
+          npm test 2>&1 | tee artifacts/hermes-linux-ci/core.tap
+      - name: Linux native adapter regression
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: |
+          node --test desktop/tests/tool-discovery.test.cjs desktop/tests/hermes-linux-discovery.test.cjs desktop/tests/hermes-windows-discovery.test.cjs desktop/tests/mcp-hermes.test.cjs desktop/tests/native-cli-host.test.cjs desktop/tests/native-reconcile.test.cjs desktop/tests/native-delegation.test.cjs desktop/tests/connection-capabilities.test.cjs desktop/tests/discovery-isolation.test.cjs 2>&1 | tee artifacts/hermes-linux-ci/targeted.tap
+      - name: Install pinned official Hermes CLI without account setup
+        id: native_install
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        env:
+          HERMES_HOME: ${{ runner.temp }}/agentbridge-hermes-native
+        run: |
+          curl --fail --silent --show-error --location "https://raw.githubusercontent.com/NousResearch/hermes-agent/$HERMES_NATIVE_COMMIT/scripts/install.sh" --output "$RUNNER_TEMP/hermes-install.sh"
+          bash "$RUNNER_TEMP/hermes-install.sh" --commit "$HERMES_NATIVE_COMMIT" --hermes-home "$HERMES_HOME" --dir "$HERMES_HOME/hermes-agent" --non-interactive --skip-browser --skip-computer-use 2>&1 | tee artifacts/hermes-linux-ci/native-install.log
+      - name: Installed Linux Hermes discovery and MCP lifecycle
+        if: ${{ !cancelled() && steps.native_install.outcome == 'success' }}
+        env:
+          HERMES_HOME: ${{ runner.temp }}/agentbridge-hermes-native
+          HERMES_INSTALL_DIR: ${{ runner.temp }}/agentbridge-hermes-native/hermes-agent
+          HERMES_DISABLE_LAZY_INSTALLS: '1'
+        run: |
+          node desktop/tests/linux-hermes-installed.cjs "$PWD" "$HERMES_INSTALL_DIR" "$HOME/.local/bin/hermes" artifacts/hermes-linux-ci 2>&1 | tee artifacts/hermes-linux-ci/native.log
+      - name: Upload inspectable results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: hermes-linux-${{ github.sha }}
+          path: artifacts/hermes-linux-ci/
+          if-no-files-found: error
+          retention-days: 14

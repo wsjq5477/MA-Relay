@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器设计
 
+M06-F01/F02/F04：Linux Hermes安装布局和自定义源码目录已纳入专用发现。CLI执行、stream-json、原Session续聊、MCP Profile绑定/撤权与网关取消false保持alpha.65契约。目录/变量展开只作为路径数据，不调用shell；不添加模型/供应商覆盖。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
+
 M06-F01/F02/F04：Hermes CLI只使用共同stream-json/精确resume参数，移除网关拒绝的--no-restore-cwd。stderr原生Session行绑定身份，结果仍须正式result与退出码一致。缺终态/网关失联/输出截断保留unknown，cancellation=false且活动取消拒绝；原MCP配置、十工具和Profile绑定保留。原生worker采用共享atomicWrite重试，持续心跳故障不终止原观察器。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
 
 M06-F02/F05：关系图为新增成员检查execution/delegation，为新主检查execution/MCP调用资格；保存撤权时不要求被移除或未变化旧节点重新通过能力检查。原生实际执行/委派仍按当前节点能力与来源授权检查，保留MCP调用、原生配置管理、托管scope三个独立维度。无适配器、模型API、原生配置或真实任务变更。已随alpha.64公开，[关系撤权与目标作用域](../../iterations/I08/relation-revocation-scope.md)。

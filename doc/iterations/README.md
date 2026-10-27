@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-10-27：[alpha.66 Linux Hermes CLI适配](I08/alpha66-hermes-linux.md)：专用安装目录/独立源码根/原生Profile发现，固定官方Linux安装版与原生执行协议的分层验证。
+
 - 2026-10-27：[alpha.65 Windows Hermes适配与发布](I08/alpha65-hermes-windows.md)：安装发现、原生网关参数/取消边界、心跳替换重试，真实0.22.5执行/续聊与原生MCP组件；发布与分层证据单列。
 
 - 2026-10-27：[alpha.64构建、验收与发布](I08/alpha64-release.md)：包含已合并PR #26关系撤权修复；包/实际EXE载荷、Windows受控验收、普通窗口原五组与同profile补验两组及匿名完整下载核对完成；标签冻结c728234，模型0，冷启动/WSL/完整准出边界保持。

@@ -1,5 +1,7 @@
 # M09 CLI、controller 与 Hub/Edge 测试报告
 
+2026-10-27 / alpha.66候选 / Windows Node24.12.0：Hermes路径与原能力定向39/39（受控，模型0）；本机WSL真实启动HCS_E_SERVICE_NOT_AVAILABLE，未将受控结果计为Linux原生通过。GitHub Ubuntu固定官方Hermes0.22.5的原生验证进行中。[本轮状态与日志](../../iterations/I08/alpha66-hermes-linux.md)。
+
 2026-10-27 / alpha.65 / Windows Node24.12.0：共享Hermes定向31/31，扩展73项72通过/1个Pi原基线失败，不能跨模块相加。已安装Hermes0.22.5、冻结Windows后台原生MCP五组通过（模型0）；真实执行/续聊两轮通过，但首轮参数拒绝、早期心跳EPERM及验收器原生配置字节比较失败均保留。普通EXE/发布状态按[专项](../../iterations/I08/alpha65-hermes-windows.md)逐项登记，不把源码结果当作EXE/父模型准出。
 
 2026-10-23 / alpha.50未改包补验：本地20次落盘→DOM同步p95 1513ms通过；20组/60节点/59边的20次真实拖动观测上界p95 117.9ms未达到100ms门槛，未记录>500ms卡顿。WSL启动9/20通过/11次就绪前退出、失败写入0，原始WSL/PowerShell也复现；根因未定位。包与源码一致性重核通过，EXE未变；模型0，未重跑原全量，不替代独立LAN/SSH或原生模型。[本轮完整样本、失败、脚本与限制](../../iterations/I06/current-candidate-metrics.md)。

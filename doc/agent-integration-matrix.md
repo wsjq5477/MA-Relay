@@ -1,5 +1,7 @@
 # Agent 接入现状与后续目标
 
+alpha.66源码补齐Linux Hermes安装发现：原生数据目录bin、独立HERMES_INSTALL_DIR、固定Profile所属根与默认根、后缀/路径展开；Hermes专用运行时目录不再用于发现其他Agent。PATH原命令优先，原生模型/配置/Session与unknown不变。Windows受控Hermes39/39，Linux原生CI验证进行中；当前公开仍alpha.65。[本轮范围与证据](iterations/I08/alpha66-hermes-linux.md)。
+
 当前公开alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。当前包已公开，继承能力与未准出边界按下表。
 
 alpha.63 [原生MCP生命周期补验](iterations/I08/native-mcp-lifecycle.md)：普通无调试EXE与原版Pi客户端七组通过，三个实际解包目录关闭后删除，原传输/原身份/完整接收收据保持；最后原窗/客户端/Coordinator均确认退出。实际WSL十五分钟180/180及删除/重开/撤权/轮换六组也已通过，两个客户端/原宿主退出且残留0。模型0，其他入口/跨版本升级/托管父模型、WSL冷启动/历史故障与整体MCP02继续未准出。

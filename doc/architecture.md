@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+Linux Hermes区分原生数据Home/Profile与源码安装目录，非交互daemon/WSL/SSH共用MachineHost发现和CLI宿主；不读取交互shell初始化、不引入模型API、不部署SSH。原生安装路径补齐与专用目录隔离见[本轮设计](iterations/I08/alpha66-hermes-linux.md)。
+
 Hermes沿用已安装CLI和原生网关、模型与账号，无新增模型API层。扫描补Windows原生安装目录；执行只消费stream-json及原Session，网关客户端退出/丢失结果不能证明后台任务终止。共享原生worker使用已有atomicWrite的Windows替换重试，心跳写入失败不崩溃重派；[当前实现与分层证据](iterations/I08/alpha65-hermes-windows.md)。
 
 关系写入以AgentNetwork当前行和请求集合比较准入目标；GraphJournal对node/machine沿用可信资源回调，纯撤权不查询无关管理未知。前端的全局关系锁、目标阻断与布局状态各自独立，不从IPC接收放行标志。[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。

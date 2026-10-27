@@ -29,3 +29,11 @@ Windows公开alpha.65会在PATH之外检查`%LOCALAPPDATA%/hermes/bin/hermes.exe
 切换Home/Profile后，先移除原接入再为当前目标添加。移除只清理原目标；原生禁用或删除不会被自动恢复，显式撤权后旧客户端的新调用被拒绝。不要重发状态未知的原任务。
 
 公开alpha.60有十个经典工具，包含预授权连接/断开。固定源码的Linux原生MCP组件已核对加载和调用；Windows正式安装版0.22.5已完成十工具MCP组件和真实模型执行/同Session续聊验证；模型自主MCP委派、原生网关取消与完整生命周期仍未准出。
+
+## Linux / WSL / SSH
+
+在目标Linux机器安装并配置Hermes后，先确认原生`hermes --version`可工作，再在Bridge扫描该机器。账号、模型与Profile仍由那台机器上的Hermes管理，Windows安装与Linux安装独立。
+
+alpha.66源码补齐非交互环境发现：除了PATH和`~/.local/bin/hermes`，还会检查原生数据目录的`bin`、`hermes-agent/.hermes/bin`及旧`venv/bin`布局。若源码安装在独立位置，让目标机器的Bridge后台继承`HERMES_INSTALL_DIR`；它与`HERMES_HOME`（数据与配置目录）分开解析。支持`~`及已配置的环境变量，不执行shell初始化文件。
+
+切换Profile不会创建新Profile或自动迁移旧任务；状态未知的请求继续查询原ID。网关任务须在原生Hermes会话停止，关闭CLI不代表取消。新源码不会自动替换已运行的Linux/SSH后台。

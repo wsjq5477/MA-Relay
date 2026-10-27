@@ -1,5 +1,7 @@
 # M10 构建、发布与持久运行资源设计
 
+M10-F01/F02/F03：alpha.66候选包含Linux Hermes专用发现与alpha.65原daemon兼容pin；新增GitHub Ubuntu只读权限验证流程，固定官方0.22.5，不配置模型或SSH凭据。构建/发布状态按本轮证据登记，不以Windows受控测试替代Linux原生验证。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
+
 M10-F01/F02/F03：alpha.65包含Windows Hermes发现、原生网关CLI兼容、保守unknown与心跳替换重试；加入原alpha.64 Linux manifest兼容pin，运行时沿用已核验原包。Windows包包含相同后台与离线Linux资源，不自动切换日常后台或部署SSH。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
 
 ## 当前alpha.65 Hermes交付

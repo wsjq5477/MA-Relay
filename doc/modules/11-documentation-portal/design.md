@@ -1,5 +1,7 @@
 # M11 文档网页入口设计
 
+M11-F01：Hermes用户页补Linux安装路径、独立源码根、最小PATH、原生Profile与取消边界；内部CI/证据与凭据不进入公开用户页面。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
+
 M11-F01：用户Hermes页面和Agent对照同步Windows发现、原生网关、原Session及取消边界；内部测试/配置/凭据不进入用户站。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
 
 当前公开用户页按alpha.64维护版本与操作面：日常需求从原生Agent发起，Bridge提供配置/审计与原执行恢复；不再将已公开功能描述为本地候选。导航、18页白名单、搜索/资源边界与静态能力表生成规则保持，内部发布证据不进入用户站。

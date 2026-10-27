@@ -81,19 +81,49 @@ function managedLinuxFolders(home, env) {
   }
   return folders.filter(Boolean);
 }
+function linuxHermesFolders(home, env) {
+  // Installer options describe the code root separately from the active data
+  // home. Expand paths as data, never by sourcing an interactive shell.
+  const expand = value => {
+    if (typeof value !== 'string' || !value.trim()) return null;
+    let missing = false;
+    let result = value.trim().replace(/\$\{([^}]+)\}|\$([A-Za-z0-9_]+)/g, (_match, braced, plain) => {
+      const replacement = env[braced || plain];
+      if (typeof replacement !== 'string') {missing = true; return '';}
+      return replacement;
+    });
+    if (result === '~' || result.startsWith('~/')) result = path.join(home, result.slice(2));
+    return !missing && path.isAbsolute(result) && !/[\0\r\n]/.test(result) ? path.resolve(result) : null;
+  };
+  const install = expand(env.HERMES_INSTALL_DIR);
+  const sourceBins = root => [path.join(root, '.hermes/bin'), path.join(root, 'venv/bin')];
+  const suffix = env.HERMES_DATA_DIR_SUFFIX || '';
+  const standard = /[\0\r\n\\/]/.test(suffix) ? null : path.join(home, '.hermes' + suffix);
+  const selected = expand(env.HERMES_HOME);
+  const roots = [...new Set([selected,
+    selected && path.basename(path.dirname(selected)) === 'profiles' ? path.dirname(path.dirname(selected)) : null,
+    standard].filter(Boolean))];
+  return {
+    // A selected PATH command always wins; an explicit installer root precedes
+    // convenience fallbacks when the daemon did not inherit the user's PATH.
+    preferred: install ? sourceBins(install) : [],
+    fallback: roots.flatMap(root => [path.join(root, 'bin'), ...sourceBins(path.join(root, 'hermes-agent')), path.join(root, 'venv/bin')]),
+  };
+}
 async function scanTools(options={}) {
   const home=options.home||os.homedir(), env=options.environment||process.env;
   const platform=options.platform||process.platform,windows=platform==='win32';
   const pathFolders=((windows?env.Path||env.PATH:env.PATH)||'').split(windows?';':path.delimiter).filter(Boolean);
   const folders=[...pathFolders,path.join(home,'.local/bin'),path.join(home,'.opencode/bin'),path.join(home,'.npm-global/bin'),path.join(home,'.claude/local')];
   if(windows)folders.push(path.join(env.APPDATA||path.join(home,'AppData/Roaming'),'npm'),path.join(home,'scoop/shims'));
-  else if(platform==='linux')folders.push(...managedLinuxFolders(home,env),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'hermes-agent/.hermes/bin'),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'hermes-agent/venv/bin'),path.join(env.HERMES_HOME||path.join(home,'.hermes'),'venv/bin'));
+  else if(platform==='linux')folders.push(...managedLinuxFolders(home,env));
   const result=[];
   await Promise.all(descriptors.filter(d => !['dsh-desktop', 'dsh-web', 'opendesk-desktop'].includes(d.id)).map(async({id:adapter,name,commands})=>{
     // Hermes' Windows installer publishes its native launcher under the data
     // home's bin. A running desktop/daemon may predate the installer's PATH edit.
     // Keep this fallback Hermes-only and after PATH; never execute a setup GUI.
-    const adapterFolders=windows&&adapter==='hermes'?[...folders,
+    const hermesLinux=platform==='linux'&&adapter==='hermes'?linuxHermesFolders(home,env):null;
+    const adapterFolders=hermesLinux?[...pathFolders,...hermesLinux.preferred,...folders,...hermesLinux.fallback]:windows&&adapter==='hermes'?[...folders,
       ...(env.HERMES_HOME?[path.join(env.HERMES_HOME,'bin')]:[]),
       path.join(env.LOCALAPPDATA||path.join(home,'AppData/Local'),'hermes','bin')]:folders;
     const candidates=options.candidates?.[adapter]||[...new Set(adapterFolders)].flatMap(dir=>commands.flatMap(commandName=>(windows?[commandName+'.exe',commandName+'.cmd']:[commandName]).map(file=>path.resolve(dir,file))));

@@ -1,5 +1,7 @@
 # 整体测试与验收报告
 
+alpha.66源码补齐Linux Hermes安装发现：原生数据目录bin、独立HERMES_INSTALL_DIR、固定Profile所属根与默认根、后缀/路径展开；Hermes专用运行时目录不再用于发现其他Agent。PATH原命令优先，原生模型/配置/Session与unknown不变。Windows受控Hermes39/39，Linux原生CI验证进行中；当前公开仍alpha.65。[本轮范围与证据](iterations/I08/alpha66-hermes-linux.md)。
+
 当前公开alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。当前包已公开，继承能力与未准出边界按下表。
 
 当前公开alpha.65的Hermes定向31/31，扩展源码73项72通过/1个原Pi失败，Core16项13通过/3个原失败，docs:test5/6同基线；正式安装版执行/同Session续聊、冻结Windows MCP五组与普通EXE同profile补验通过。首次旧参数、心跳EPERM原unknown和包装进程30秒等待失败保留，未改写完整矩阵；[本轮完整证据](iterations/I08/alpha65-hermes-windows.md)。
