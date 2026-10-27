@@ -1,6 +1,6 @@
 # alpha.67 Linux Hermes 实际执行与 WSL 启动修复
 
-日期：2026-10-27（Asia/Hong_Kong）。需求：在已安装并配置的 WSL Hermes CLI 上完成项目对接、代码与文档、实际验收和 GitHub 发布。承接公开 alpha.66；当前候选 alpha.67，旧标签与附件保持。
+日期：2026-10-27（Asia/Hong_Kong）。需求：在已安装并配置的 WSL Hermes CLI 上完成项目对接、代码与文档、实际验收和 GitHub 发布。承接公开 alpha.66；alpha.67候选已完成本轮验收，旧标签与附件保持。
 
 ## 缺口与实现
 
@@ -22,10 +22,16 @@ WSL原生已配置模型凭据，但原配置HTTPS端点直连不可用；临时
 - [首轮CI](https://github.com/wsjq5477/MA-Relay/actions/runs/40491390054)适配109/109、原生MCP通过，但Core70/71，controller.test控制器启动超时，原日志保留。相同源码aef5abd的[独立复跑](https://github.com/wsjq5477/MA-Relay/actions/runs/40492533908)Core71/71，未修改Core或该测试；最终3d6d220[CI](https://github.com/wsjq5477/MA-Relay/actions/runs/40493412034)再次Core71/71、适配109/109和正式Hermes原生MCP五组通过。不能把复跑通过解释为已修复原控制器波动：[最终Core](../../../artifacts/hermes-linux/2026-10-27/alpha67/ci-final/core.tap)、[最终适配](../../../artifacts/hermes-linux/2026-10-27/alpha67/ci-final/targeted.tap)、[最终原生安装](../../../artifacts/hermes-linux/2026-10-27/alpha67/ci-final/installed.json)。
 - 临时网络通道已停止，事后原生网关进程核对为0；WSL直连TLS问题仍独立存在：[通道收尾](../../../artifacts/hermes-linux/2026-10-27/alpha67-network-cleanup.json)、[原生网关](../../../artifacts/hermes-linux/2026-10-27/alpha67-native-gateway-final.json)。
 - 构建在C盘隔离工作树进行。Node24.12在该目录的cpSync报EIO/Access denied，已有Node24.21（Electron run-as-node）执行相同stage脚本成功；直接用该模式跑builder CLI又因argv识别失败，故采用Node24.21暂存、普通Node24.12 builder/核验。依赖链接构建曾出现定位警告，最终发行只使用另一个真实npm ci依赖目录；旧候选即使后续完成也不公开。依赖锁与产品源码不因环境处理改写。清理旧构建进程/链接的操作被自动审批以blocked by policy拦截，未执行；旧构建后来正常结束，链接目录保留。
-- 普通EXE、实际EXE载荷、源码冻结、附件及匿名完整下载待本轮收尾后登记。
+- 普通无调试EXE实际七组通过，模型0，三个原窗/包装进程与两个原Coordinator正常退出，原synthetic unknown、关系撤权收据与历史保持：[完整报告](../../../artifacts/hermes-linux/2026-10-27/alpha67-portable.json)。三次启动实际261090/232037/218249ms，不作为冷启动性能准出。
+- 冻结5de9be32631c0f31f1de4c4c3af8166265f2415f；212个产品/依赖输入与实际全依赖构建和冻结Git blob一致，58后台/84Core/1672 Bridge文件/1723 Linux资源、46份兼容pin、ASAR/前端/bootstrap与实际EXE逐项字节/摘要匹配。alpha.66原pin保持，EXE132239342字节，SHA-256 fa5fefd980e86fa5d5fd0d69097157ae574ea25f0a3f5d11d616e1553d992267：[包核验](../../../artifacts/hermes-linux/2026-10-27/alpha67/package-check.json)、[EXE载荷与模型资源绑定](../../../artifacts/hermes-linux/2026-10-27/alpha67/exe-payload-check.json)、[源码输入](../../../artifacts/hermes-linux/2026-10-27/alpha67/build-source-manifest.json)。
+- 冻结提交自身[CI](https://github.com/wsjq5477/MA-Relay/actions/runs/40495771798)再次Core71/71、适配109/109与正式安装版原生MCP五组通过；[原报告](../../../artifacts/hermes-linux/2026-10-27/alpha67/ci-frozen/installed.json)。docs网站18页/19 HTML，无内部页/证据导出；docs:test原5/6同基线，文档原2243项缺失无新增。
 
 涉及M02/M05/M06/M07/M10/M11，整体设计、接入矩阵、协议和模块文档同步。检查data-model无持久字段/版本或身份变化，SSH协议、原Node/Task/Session/unknown及Hermes取消false保持；没有切换日常Bridge后台或部署SSH。
 
 ## 原始资料的后续可用性
 
 当次原Bridge状态只读核对完成后，后续复查发现Linux临时验收目录已不存在；没有重建目录/原任务或重发模型请求。当次成功报告、两条原传输退出和状态只读核对报告保留。随后仅查询Hermes原生持久SQLite：同一个原会话恰有两条用户消息、两条助手消息，上一轮记忆正确，原生API计数2、工具调用0；未导出原生身份、未新增模型调用：[原生会话只读补证](../../../artifacts/hermes-linux/2026-10-27/alpha67-native-history-verified.json)。这一限制不被写成原业务unknown已解除。
+
+## 发布状态
+
+本轮代码和验收已提交，EXE附件待发布及匿名完整下载核验，尚不记为已公开。未签名，未切换日常Bridge后台，未部署SSH；完整父模型/异常恢复/升级和性能矩阵继续未准出。

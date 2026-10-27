@@ -1,6 +1,6 @@
 # M02 中央协调后台测试报告
 
-2026-10-27 / alpha.67候选：Windows Node24.12.0受控22/22；独立Ubuntu Node24.12.0适配109/109、Core71/71及正式Hermes0.22.5原生MCP五组通过。实际Windows→WSL Node24.13.0→Hermes完成两轮、原ID去重、通道重开/同Session续聊，原配置字节保持，两原传输退出0。网络使用仅进程临时CONNECT通道，已停止；不是WSL直连或自主父模型验收。原30秒未派发启动失败与首轮CI Core70/71的控制器启动失败保留，未证明消除波动。[源码、环境、原始失败与结果](../../iterations/I08/alpha67-hermes-linux-live.md)。
+2026-10-27 / alpha.67候选已验收：Windows受控22/22、独立Ubuntu适配109/109/Core71/71及正式Hermes0.22.5原生MCP五组通过。Windows→WSL Node24.13.0→Hermes两轮、原ID去重、通道重开/同Session续聊与配置字节保持通过；两原传输退出0。原生持久会话只读核对两用户/两助手消息、API2/工具0；临时网络通道已停止，WSL直连未修复。实际EXE七组模型0、212输入/58后台/84Core/1723Linux及载荷一致。首轮Core70/71、旧就绪失败及临时验收目录后续缺失如实保留，完整矩阵未准出。[全部分层证据与边界](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 ## alpha.63普通窗口关闭后的原生MCP（2026-10-25）
 

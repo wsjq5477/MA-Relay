@@ -1,8 +1,6 @@
 # 迭代路线与当前交付
 
-alpha.67候选将WSL就绪预算改为120秒；Windows→WSL→正式Hermes0.22.5已完成真实两轮、原请求去重和通道重开后的精确Session续聊，原生配置字节保持。独立Ubuntu适配109/109、Core71/71与原生MCP五组通过，Windows受控22/22；原未派发启动失败与首轮Core启动失败保留。新包验收与发布收尾中，当前公开仍alpha.66。[本轮实测与完整边界](iterations/I08/alpha67-hermes-linux-live.md)。
-
-当前公开预发布alpha.66：Linux Hermes安装发现支持独立HERMES_INSTALL_DIR、原生数据Home/Profile根、后缀与路径展开，专用运行时目录不再提供其他Agent。Windows原生发现、stream-json、精确Session续聊、模型/账号配置和unknown恢复契约保持。Windows受控39/39，独立Ubuntu适配100/100及Core71/71，本机WSL和独立Ubuntu正式Hermes0.22.5原生MCP五组/十工具分别通过，模型0。普通EXE七组通过。网关取消、真实Linux模型/自主父模型、完整矩阵、图100ms与冷启动继续未准出；未切换日常后台或部署SSH。[本轮交付与分层证据](iterations/I08/alpha66-hermes-linux.md)。
+alpha.67候选已完成本轮验收，当前公开仍alpha.66：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
 
 当前实现、候选功能和未准出项分别登记；前序发布历史统一见[发布登记](iterations/release-ledger.md)。下一步仍为原生父模型、自主委派、异常恢复和冷启动等独立验收，不因CLI可见或MCP组件通过而关闭整体验收。
 
