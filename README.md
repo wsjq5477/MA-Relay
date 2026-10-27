@@ -1,6 +1,6 @@
 # AgentBridge
 
-当前公开alpha.64修复关系撤权与目标作用域：无关管理未知、成员失效和布局故障不再阻断纯撤权；新增成员与新主保留目标范围/能力检查，设主不自动授权全部节点。继承原包传递、接收收据与配置审计控制台；[当前交付与完整边界](doc/iterations/I08/alpha64-release.md)。
+当前公开alpha.65新增Windows Hermes原生安装发现、网关CLI兼容与保守unknown，原Session续聊、MCP十工具与实际EXE已分层核对；继承关系撤权/目标准入、原包传递和配置审计。Hermes网关取消须在原生会话完成；[当前交付与完整边界](doc/iterations/I08/alpha65-hermes-windows.md)。
 
 AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：从原生Agent发起协作，在客户端配置连接、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
 
@@ -9,14 +9,14 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0 |
-| 当前公开预发布 | **0.6.0-alpha.64**（冻结 `c728234`，EXE132227581字节，匿名完整下载核验通过） |
-| 本次内容 | #25关系撤权/目标范围修复；源码定向155/155、包内/ASAR前端及普通EXE分层验收通过，模型0；全量/WSL/冷启动限制见[发布记录](doc/iterations/I08/alpha64-release.md) |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.64/AgentBridge-0.6.0-alpha.64-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.64/SHA256SUMS.txt)；未签名；[交付与边界](doc/iterations/I08/alpha64-release.md) |
-| 上一公开预发布 | **0.6.0-alpha.63**：原包传递、目标接收收据与配置审计；[发布记录](doc/iterations/I08/alpha63-release.md) |
-| 当前公开源码范围 | 完整源码标签 `v0.6.0-alpha.64`（c728234），master含后续验收器/发布说明 |
-| 未准出 | 完整 I06C/I07C/MCP02；原生父模型自主MCP委派、原生页面增删；真实原生多主日常流程、图100ms、WSL稳定性；Hermes/Pi及DSH其他执行入口、独立 SSH |
+| 当前公开预发布 | **0.6.0-alpha.65**（冻结 `47cba61`，EXE132222581字节，匿名完整下载核验通过） |
+| 本次内容 | Windows Hermes0.22.5安装发现/网关兼容、原Session续聊、保守unknown与心跳EPERM修复；定向31/31、原生MCP十工具五组及普通EXE原profile补验通过；取消/全量/冷启动限制见[发布记录](doc/iterations/I08/alpha65-hermes-windows.md) |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.65/AgentBridge-0.6.0-alpha.65-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.65/SHA256SUMS.txt)；未签名；[交付与边界](doc/iterations/I08/alpha65-hermes-windows.md) |
+| 上一公开预发布 | **0.6.0-alpha.64**：关系撤权与目标级准入；[发布记录](doc/iterations/I08/alpha64-release.md) |
+| 当前公开源码范围 | 完整源码标签 `v0.6.0-alpha.65`（47cba61），master含后续发布说明 |
+| 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
-[下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.64/AgentBridge-0.6.0-alpha.64-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.64/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.64)。用户无需自行编译或安装 WSL/Node.js。
+[下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.65/AgentBridge-0.6.0-alpha.65-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.65/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.65)。用户无需自行编译或安装 WSL/Node.js。
 
 升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；SSH 原机器需在空闲时“后台维护 → 升级后台 → 确认升级”后重新扫描。原机器、节点、请求和历史保留；旧 unknown 只查原 ID，不重发。
 

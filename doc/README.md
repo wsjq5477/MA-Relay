@@ -1,6 +1,6 @@
 # AgentBridge 项目资料
 
-当前源码alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。公开版本仍按下表，发布后同步。
+当前公开alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。当前包已公开，继承能力与未准出边界按下表。
 
 当前源码修复关系授权撤销：无关管理 unknown 与布局故障不再阻断撤权，新增目标保留范围/能力检查。已随alpha.64公开；实现、受控验证和环境限制见[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
 
@@ -22,7 +22,7 @@ WSL当前补验（2026-10-25）：公开alpha.60冻结HostConnection独立启动
 
 上一公开 alpha.53 修复 OpenCode 早期 1.x 首探挂起及状态矛盾，保留原安装与 unknown。[需求、实现与分层验证](iterations/I08/opencode-bounded-probe.md)、[发布核验](iterations/I08/alpha53-release.md)。
 
-当前公开预发布 **0.6.0-alpha.64**，标签冻结 `c728234`；EXE 132227581字节、SHA-256 `86b8aad407400754d77012c9d873a19dd52a6576c59cc6c568a3f503705446dd`。204个产品/依赖输入与构建快照一致，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。未签名、未切换日常后台、未部署SSH；图100ms、父模型、冷启动与完整I06C/I07C/MCP02继续未准出。 [完整发布证据](iterations/I08/alpha64-release.md)。
+当前公开预发布 **0.6.0-alpha.65**，标签冻结 `47cba61`；EXE 132222581字节、SHA-256 `271c7e2884ad4b1e14f268687285723cc67cd3d9d7dadff17ff00e1f9e8d0ba9`。210个产品/依赖输入保持，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。Hermes定向31/31，原生执行/同Session续聊两轮、冻结Windows原生MCP五组及普通EXE原profile补验通过。未签名、未切换日常后台、未部署SSH；Hermes网关取消/父模型自主MCP、图100ms、冷启动与完整矩阵继续未准出。 [完整发布证据](iterations/I08/alpha65-hermes-windows.md)。
 
 当前连接配置与节点准入修复见[issue #15/#16 的实现、验证与交付](iterations/I08/connection-identity-node-scope.md)；保存的 DSH 地址具有明确节点选择，独立节点接入不再被同机其他安装的 unknown 误锁。已随0.6.0-alpha.51.recovery.2公开。
 
@@ -39,11 +39,11 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前 GitHub 预发布 | **0.6.0-alpha.64**，冻结 `c728234`；源码/附件与匿名完整下载核验通过；[发布与边界](iterations/I08/alpha64-release.md) |
-| 当前发布包 | **0.6.0-alpha.64**：#25关系撤权与新目标准入，继承原包传递/接收收据、配置审计和原连接策略；未签名、未切换日常后台/部署SSH；[发布证据](iterations/I08/alpha64-release.md) |
-| 当前公开源码范围 | 完整源码标签 `v0.6.0-alpha.64`（c728234），master含后续验收器/发布说明 |
-| 当前已发布实现与验收边界 | [I08-MCP02](iterations/I08/mcp-open-integration.md)与[恢复修复](iterations/I08/mcp-open-recovery.md)：三维能力、六项事实、双向增删/撤权、DSH显式profile、非GUI接入；桌面758/758、根68/68。DSH Desktop/Hermes/Pi配置已有分层证据；OpenDesk CLI0.3.8无MCP管理面、逐入口真实主调用仍为缺口 |
-| 未准出 | 完整 I06C/I07C；Hermes/Pi/DSH 真实工具执行验收；DSH 原实例推理；独立SSH |
+| 当前公开预发布 | **0.6.0-alpha.65**（冻结 `47cba61`，EXE132222581字节，匿名完整下载核验通过） |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.65/AgentBridge-0.6.0-alpha.65-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.65/SHA256SUMS.txt)；未签名；[交付与边界](iterations/I08/alpha65-hermes-windows.md) |
+| 当前公开源码范围 | 完整源码标签 `v0.6.0-alpha.65`（47cba61），master含后续发布说明 |
+| 当前已发布实现与验收边界 | Windows Hermes0.22.5原生执行/续聊、MCP十工具和EXE发现已验；原生网关取消、父模型自主MCP、其他入口完整矩阵仍待；[分层证据](iterations/I08/alpha65-hermes-windows.md) |
+| 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。
 

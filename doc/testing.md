@@ -1,8 +1,8 @@
 # 整体测试与验收报告
 
-当前源码alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。公开版本仍按下表，发布后同步。
+当前公开alpha.65补齐Windows已安装Hermes：扫描原生bin目录、20秒有界版本探测，stream-json不再传网关拒绝的旧参数；原Session续聊、退出不等于取消、缺终态保留unknown。Hermes的Bridge取消能力明确false，原生MCP独立保留。真实安装0.22.5的首轮及同Session续聊、包内原生MCP十工具已分层验证；[完整证据、失败和边界](iterations/I08/alpha65-hermes-windows.md)。当前包已公开，继承能力与未准出边界按下表。
 
-当前公开alpha.64包含issue #25修复：源码定向155/155、包内撤权14/14/关系37/37/传递14/14/收据4/4/兼容29/29、实际ASAR前端图12组/控制台6组通过。普通EXE原五组及同一profile完整重启/退出补验两组通过；首次启动120秒未就绪、重启验收器就绪竞态、基线全量失败和WSL不可用均保留。未提升冷启动/模型/完整矩阵准出；[本轮完整证据](iterations/I08/alpha64-release.md)。
+当前公开alpha.65的Hermes定向31/31，扩展源码73项72通过/1个原Pi失败，Core16项13通过/3个原失败，docs:test5/6同基线；正式安装版执行/同Session续聊、冻结Windows MCP五组与普通EXE同profile补验通过。首次旧参数、心跳EPERM原unknown和包装进程30秒等待失败保留，未改写完整矩阵；[本轮完整证据](iterations/I08/alpha65-hermes-windows.md)。
 
 alpha.63 [原生MCP生命周期补验](iterations/I08/native-mcp-lifecycle.md)：普通无调试EXE与原版Pi客户端七组通过，三个实际解包目录关闭后删除，原传输/原身份/完整接收收据保持；最后原窗/客户端/Coordinator均确认退出。实际WSL十五分钟180/180及删除/重开/撤权/轮换六组也已通过，两个客户端/原宿主退出且残留0。模型0，其他入口/跨版本升级/托管父模型、WSL冷启动/历史故障与整体MCP02继续未准出。
 
@@ -28,7 +28,7 @@ alpha.53冻结包补验：自动保存画布位移0px通过；完整20次PNG帧�
 
 alpha.53历史交付修复 #21：核心71/71、桌面844/844、启动专项9/9、Windows生产前端2组、普通EXE6组与包源码一致性通过，类型/lint/文档检查通过，用户站6/6及构建通过，模型0；原 unknown/安装/上下文保留。最终启动专项、包/普通EXE与工程检查按[本轮分层记录](iterations/I08/opencode-bounded-probe.md)登记，现场WindowsApps1.2.22及真实模型未复验，完整准出不变。
 
-当前公开预发布 **0.6.0-alpha.64**，标签冻结 `c728234`；EXE 132227581字节、SHA-256 `86b8aad407400754d77012c9d873a19dd52a6576c59cc6c568a3f503705446dd`。204个产品/依赖输入与构建快照一致，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。未签名、未切换日常后台、未部署SSH；图100ms、父模型、冷启动与完整I06C/I07C/MCP02继续未准出。 [完整发布证据](iterations/I08/alpha64-release.md)。
+当前公开预发布 **0.6.0-alpha.65**，标签冻结 `47cba61`；EXE 132222581字节、SHA-256 `271c7e2884ad4b1e14f268687285723cc67cd3d9d7dadff17ff00e1f9e8d0ba9`。210个产品/依赖输入保持，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。Hermes定向31/31，原生执行/同Session续聊两轮、冻结Windows原生MCP五组及普通EXE原profile补验通过。未签名、未切换日常后台、未部署SSH；Hermes网关取消/父模型自主MCP、图100ms、冷启动与完整矩阵继续未准出。 [完整发布证据](iterations/I08/alpha65-hermes-windows.md)。
 
 连接身份/节点管理修复已在公开 alpha.46 基线上完成隔离桌面回归 777/777，Windows 生产前端 10 组受控交互通过，原始三项故障在未修复基线上均复现。当前工作目录集成桌面817/817、核心68/68、Windows契约55/55及最终普通EXE5组通过，模型0；集成包验证单独记录，不把受控 IPC/临时配置结果当成真实 DSH/OpenDesk 或模型验收。[证据与边界](iterations/I08/connection-identity-node-scope.md)。
 

@@ -1,12 +1,12 @@
 # AgentBridge Windows
 
-当前公开alpha.64修复关系撤权与目标作用域：无关管理未知、成员失效和布局故障不再阻断纯撤权；新增成员与新主保留目标范围/能力检查，设主不自动授权全部节点。继承原包传递、接收收据与配置审计控制台；[当前交付与完整边界](../doc/iterations/I08/alpha64-release.md)。
+当前公开alpha.65新增Windows Hermes原生安装发现、网关CLI兼容与保守unknown，原Session续聊、MCP十工具与实际EXE已分层核对；继承关系撤权/目标准入、原包传递和配置审计。Hermes网关取消须在原生会话完成；[当前交付与完整边界](../doc/iterations/I08/alpha65-hermes-windows.md)。
 
 公开alpha.60实现按身份多主连接、用户预授权/明确确认和策略审计/原意图恢复页面，旧图仍selected。源码900/900、包内Windows37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；未切换日常后台，真实原生多主未验。[完整交付与边界](../doc/iterations/I07/connection-policy.md)、[发布核验](../doc/iterations/I08/alpha60-release.md)。
 
 ## 当前状态
 
-当前公开预发布 **0.6.0-alpha.64**，标签冻结 `c728234`；EXE 132227581字节、SHA-256 `86b8aad407400754d77012c9d873a19dd52a6576c59cc6c568a3f503705446dd`。204个产品/依赖输入与构建快照一致，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。未签名、未切换日常后台、未部署SSH；图100ms、父模型、冷启动与完整I06C/I07C/MCP02继续未准出。 [完整发布证据](../doc/iterations/I08/alpha64-release.md)。
+当前公开预发布 **0.6.0-alpha.65**，标签冻结 `47cba61`；EXE 132222581字节、SHA-256 `271c7e2884ad4b1e14f268687285723cc67cd3d9d7dadff17ff00e1f9e8d0ba9`。210个产品/依赖输入保持，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。Hermes定向31/31，原生执行/同Session续聊两轮、冻结Windows原生MCP五组及普通EXE原profile补验通过。未签名、未切换日常后台、未部署SSH；Hermes网关取消/父模型自主MCP、图100ms、冷启动与完整矩阵继续未准出。 [完整发布证据](../doc/iterations/I08/alpha65-hermes-windows.md)。
 
 升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；SSH 远端需在原机器空闲时确认升级，不自动重发原维护。
 

@@ -4,7 +4,7 @@ AgentBridge 支持七种产品，OpenDesk分为CLI和Windows桌面两个入口�
 
 ## 接入方式总览
 
-✓ 表示 Bridge 已适配该方式，— 表示尚未适配。MCP 列代表 Agent 主动调用 Bridge，其余执行方式列代表 Bridge 调用 Agent。两种方向要分别判断。当前公开alpha.64已包含Pi/Hermes原生MCP管理；alpha.65的Windows Hermes安装发现和网关兼容范围见Hermes页面。
+✓ 表示 Bridge 已适配该方式，— 表示尚未适配。MCP 列代表 Agent 主动调用 Bridge，其余执行方式列代表 Bridge 调用 Agent。两种方向要分别判断。当前公开alpha.65已包含Pi/Hermes原生MCP管理；alpha.65的Windows Hermes安装发现和网关兼容范围见Hermes页面。
 
 <!--@include: ../_generated/connection-table.md-->
 

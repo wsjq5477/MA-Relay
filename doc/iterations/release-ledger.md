@@ -1,5 +1,9 @@
 # 历史发布登记：标签、EXE 与 SHA-256
 
+## 2026-10-27 alpha.65预发布
+
+标签v0.6.0-alpha.65冻结47cba616919e3f508176e0ac965f1f3cc7e551bc；EXE132222581字节，SHA-256 `271c7e2884ad4b1e14f268687285723cc67cd3d9d7dadff17ff00e1f9e8d0ba9`。Hermes31/31、正式安装版原生MCP十工具五组、真实执行/同Session续聊两轮及普通EXE首四组/同profile补验三组通过，原失败保留。58后台/84Core/1672Windows Bridge文件/1721Linux资源与ASAR逐项匹配，210个产品输入保持；源码、EXE、SHA文件公开，服务端digest与匿名HTTP200完整下载一致。网关取消未适配，父模型/图100ms/冷启动/完整矩阵不准出；未签名、未切日常后台/部署SSH。[完整发布](I08/alpha65-hermes-windows.md)。
+
 ## 2026-10-27 alpha.64预发布
 
 标签v0.6.0-alpha.64冻结c7282344e729b1d7a2a363ad6638b90dfa6e988a；EXE132227581字节，SHA-256 `86b8aad407400754d77012c9d873a19dd52a6576c59cc6c568a3f503705446dd`。204个产品/依赖输入与构建快照一致，58后台/84Core/1720Linux、ASAR/前端/bootstrap及实际EXE载荷逐项匹配。源码定向155/155、包内14/37/14/4/29项、ASAR图12组/控制台6组、普通EXE前五组及同一profile完整重启/退出补验两组通过，模型0。源码、EXE与SHA文件已公开，服务端size/digest和匿名HTTP200完整下载一致；未签名/未切换日常后台/部署SSH。首次120秒未就绪、验收器提前attach及原基线失败保留，冷启动、WSL/父模型/图100ms与完整矩阵未准出。[完整发布证据](I08/alpha64-release.md)。

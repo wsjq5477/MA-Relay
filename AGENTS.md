@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.64**，标签冻结 `c728234`；EXE 132227581字节、SHA-256 `86b8aad407400754d77012c9d873a19dd52a6576c59cc6c568a3f503705446dd`。204个产品/依赖输入与构建快照一致，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。未签名、未切换日常后台、未部署SSH；图100ms、父模型、冷启动与完整I06C/I07C/MCP02继续未准出。见doc/iterations/I08/alpha64-release.md。
+当前公开预发布 **0.6.0-alpha.65**，标签冻结 `47cba61`；EXE 132222581字节、SHA-256 `271c7e2884ad4b1e14f268687285723cc67cd3d9d7dadff17ff00e1f9e8d0ba9`。210个产品/依赖输入保持，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。Hermes定向31/31，原生执行/同Session续聊两轮、冻结Windows原生MCP五组及普通EXE原profile补验通过。未签名、未切换日常后台、未部署SSH；Hermes网关取消/父模型自主MCP、图100ms、冷启动与完整矩阵继续未准出。见doc/iterations/I08/alpha65-hermes-windows.md。
 
-包含issue #25关系撤权与目标级准入，继承原包传递/接收收据与配置审计控制台。源码定向155/155，包内撤权14/14、关系37/37、传递14/14、收据4/4、兼容29/29，ASAR图12组/控制台6组通过；普通EXE前五组及同一原profile重启/退出补验两组通过，模型0。首轮120秒未就绪、重启就绪竞态、Windows全量基线失败与WSL不可用均保留；冷启动与完整矩阵未准出。
+本机Hermes0.22.5正式安装版已分层验证，原生组件模型0，本轮成功模型轮次共3；早期心跳失败的原unknown未清除/重发。普通EXE首四组及同一原profile补验三组通过，原包装进程30秒等待失败保留；Windows扩展/Core/文档基线失败与2243条原历史材料缺失继续如实记录。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

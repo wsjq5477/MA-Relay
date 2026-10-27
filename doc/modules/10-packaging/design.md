@@ -2,9 +2,9 @@
 
 M10-F01/F02/F03：alpha.65包含Windows Hermes发现、原生网关CLI兼容、保守unknown与心跳替换重试；加入原alpha.64 Linux manifest兼容pin，运行时沿用已核验原包。Windows包包含相同后台与离线Linux资源，不自动切换日常后台或部署SSH。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
 
-## 当前alpha.64关系撤权交付
+## 当前alpha.65 Hermes交付
 
-M10-F01/F02/F03/F05/F06：合并PR #26后以0.6.0-alpha.64独立构建，包含58后台模块/84Core/1720Linux资源、43份原daemon兼容pin。新增alpha.63 pin及其Linux Node22.23.1/owned-stop来自完整SHA核验的原公开包；不自动部署SSH或替换日常后台。Windows ASAR校验使用平台路径，保持前端每个资源摘要核对。包内14项撤权、37项关系、14项传递、4项收据和29项兼容通过，实际ASAR前端图12组/控制台6组通过；普通EXE前五组及同一原profile完整重启/退出补验两组通过，服务端摘要与匿名完整下载核对通过；首轮启动120秒未就绪与验收器就绪竞态保留，不提升冷启动性能。[本轮构建与验收](../../iterations/I08/alpha64-release.md)。
+M10-F01/F02/F03/F05/F06：公开alpha.65冻结47cba61，58后台/84Core/1721Linux资源、44份原兼容pin；原alpha.64 pin与原EXE载荷相同。Windows EXE、ASAR和全部资源逐文件SHA/字节一致，210个产品输入保持；源码/EXE/SHA文件已公开且匿名完整下载核验通过。Hermes31/31、冻结包正式Hermes MCP五组、真实两轮及普通EXE原profile补验通过，模型和取消边界分别保留；未签名、不切日常后台/部署SSH。[完整发布与原失败](../../iterations/I08/alpha65-hermes-windows.md)。
 
 ## CT-05原包传递候选
 
