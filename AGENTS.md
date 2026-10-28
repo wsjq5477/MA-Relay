@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.67**，标签冻结5de9be3；EXE132239342字节、SHA-256 fa5fefd980e86fa5d5fd0d69097157ae574ea25f0a3f5d11d616e1553d992267。212产品/依赖输入与冻结源码/构建匹配，源码、EXE、SHA公开，匿名完整下载一致。Windows受控22/22、独立Ubuntu适配109/109/Core71/71、原生MCP五组及普通EXE七组通过；实际Windows→WSL→正式Hermes0.22.5成功两轮、原ID去重和原Session续聊，原配置字节保持。WSL就绪预算120秒；未签名/未切日常后台/未部署SSH。见doc/iterations/I08/alpha67-hermes-linux-live.md。
+当前公开预发布 **0.6.0-alpha.68**，标签冻结38cd637；EXE132290374字节、SHA-256 ef2361f30f5e3ffce5c7e37a1506144077e30f89e00904e5c0e0a1d11cf71534。221产品输入、59后台/84Core/1725Linux及实际EXE3401资源匹配，源码/EXE/SHA公开，匿名完整下载一致。
 
-WSL直连TLS仍有问题，两轮使用的临时CONNECT通道已停止。原生持久会话只读核对API2/工具0；原临时验收目录后续缺失未重建或重发，原报告与原生只读补证保留。首轮Core70/71控制器启动失败、旧30秒就绪失败及原unknown保持；docs:test原5/6、2243历史材料缺失基线不隐去，无新增文档错误。自主父模型MCP、网关取消、图100ms、冷启动与完整矩阵继续未准出。
+当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。见doc/iterations/I08/alpha68-release.md。alpha.67原真实Hermes两轮/续聊和原失败证据保留在其迭代，不当作本轮重新实测。原unknown只查原ID；未切日常后台、未部署SSH，docs:test原5/6不隐去。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

@@ -1,5 +1,9 @@
 # 历史发布登记：标签、EXE 与 SHA-256
 
+## 2026-10-28 alpha.68预发布
+
+标签v0.6.0-alpha.68冻结38cd6372f9130bd91eb535046e96ac51e4d4caa2；EXE132290374字节，SHA-256 ef2361f30f5e3ffce5c7e37a1506144077e30f89e00904e5c0e0a1d11cf71534。221输入与冻结源码/构建匹配，59后台/84Core/1725Linux、实际EXE3401资源一致。源码/EXE/SHA公开，匿名完整下载一致。关系定向137/137、冻结16/16、Ubuntu71/71和110/110、普通EXE隔离恢复/完整重启通过；全量74失败、文档2243缺失、Zod 1项high保留。未签名、未切日常后台/部署SSH；[完整交付](I08/alpha68-release.md)。
+
 ## 2026-10-27 alpha.67预发布
 
 标签v0.6.0-alpha.67冻结5de9be32631c0f31f1de4c4c3af8166265f2415f；EXE132239342字节，SHA-256 fa5fefd980e86fa5d5fd0d69097157ae574ea25f0a3f5d11d616e1553d992267。212输入/58后台/84Core/1672 Bridge/1723 Linux资源与实际载荷一致，46份兼容pin；源码/EXE/SHA公开且匿名完整下载匹配。Windows22/22、Linux109/109/Core71/71、原生MCP五组与普通EXE七组，WSL正式Hermes真实两轮/去重/同Session续聊、原配置保持。旧失败保留、WSL直连TLS未修复；未签名/未切日常后台/部署SSH，父模型/取消/完整矩阵及性能未准出。[完整发布](I08/alpha67-hermes-linux-live.md)。

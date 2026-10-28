@@ -1,6 +1,6 @@
 # 整体测试与验收报告
 
-当前公开alpha.67：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
+当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
 
 本轮原始启动失败、首轮Core70/71及后续同源码71/71、真实原生两轮和普通EXE结果见[完整验收](iterations/I08/alpha67-hermes-linux-live.md)。Windows22/22与Ubuntu109/109为不同平台集，不相加；既有Windows全量与docs:test原5/6失败保留。文档原2243项历史材料缺失无新增，不声明完整工程矩阵全通过。
 
@@ -8,7 +8,7 @@
 
 当前未发布的[Taste/Impeccable桌面视觉调整](iterations/I08/taste-impeccable-ui.md)已通过105项相关渲染回归、生产前端隔离浏览器七组检查/19张最终截图；两主题、两种桌面尺寸、字体离线加载、焦点及执行只读入口已验。Taste入口页四宽度无发现，Impeccable机械扫描空结果；模型0，不刷新下表历史基线、普通EXE或图100ms准出结论。
 
-当前未发布源码的[启动边界](iterations/I08/native-start-boundary.md)、[Pi目录绑定](iterations/I08/pi-session-workspace.md)及[Hermes分离](iterations/I08/hermes-detached-input.md)，最新Windows启动/宿主/原核对/分离共享集64/64，类型/lint/生产构建通过，模型0。原Pi/Hermes组件与独立发现/MCP60项保持其原范围，不相加。完整Windows全量、真实原生等待/网关恢复与父模型仍未准出；下表历史基线及公开alpha.67证据保持。
+alpha.68已包含原生启动、Pi目录及Hermes分离保护；本次验证、历史证据和未准出项见[发布与完整边界](iterations/I08/alpha68-release.md)。
 
 下表保留早期资料整理的 87/43 基线与原路径，作为文档检查的持久对照；各轮实际计数见对应迭代专项，不能将旧表冒充当前源码重新运行。
 
@@ -107,4 +107,4 @@ Node ≥22.13；测试可能启动隔离后台/worker 并调用原生安装 `--v
 
 桌面资料站仅发布 `doc/user/` 用户Markdown；内部报告/历史/过程不参与路由、搜索和资源导出。网页构建、发布边界、搜索、目录、DSH章节、接入摘要、主题与Mermaid的实际结果在 [M11 报告](modules/11-documentation-portal/test-report.md)维护；不纳入核心测试计数，也不改变 Windows EXE 交付结论。按用户要求不做手机专项验收。
 
-关系冲突恢复为未发布源码受控验收：定向 137/137、生产构建及合成浏览器确认/取消/失败/成功反馈通过。桌面全量 926 通过、74 失败、1 跳过，未做变更前同工作区全量对比；未提升整体验收基线。[证据和未测环境](iterations/I08/relation-conflict-diagnostic.md)。
+alpha.68关系冲突恢复为分层受控验收：定向 137/137、生产构建及合成浏览器确认/取消/失败/成功反馈通过。桌面全量 926 通过、74 失败、1 跳过，未做变更前同工作区全量对比；未提升整体验收基线。[证据和未测环境](iterations/I08/relation-conflict-diagnostic.md)。

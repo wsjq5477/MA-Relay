@@ -1,5 +1,8 @@
 # M06 原生 Agent 适配器设计
 
+当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
+
+
 M06-F01/F02：Linux Hermes保留原生安装、模型与账号；真实Windows→WSL执行/去重/精确Session续聊按原请求验收，不使用替代模型API或托管scope。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 M06-F01/F02/F04：Linux Hermes安装布局和自定义源码目录已纳入专用发现。CLI执行、stream-json、原Session续聊、MCP Profile绑定/撤权与网关取消false保持alpha.65契约。目录/变量展开只作为路径数据，不调用shell；不添加模型/供应商覆盖。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。

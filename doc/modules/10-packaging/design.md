@@ -1,8 +1,11 @@
 # M10 构建、发布与持久运行资源设计
 
+当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
+
+
 ## 当前源码的离线字体资源
 
-M10-F01/F03：桌面界面内置IBM Plex Sans拉丁可变WOFF2（45712字节）与IBM Plex Mono拉丁400（14708字节），许可随[字体资源](../../../desktop/assets/fonts/OFL-IBM-Plex.txt)保存。Vite通过CSS相对资源引用产出本地带摘要文件名；现有dist/assets全目录校验覆盖字体，assets目录随既有files规则保留许可。没有Google Fonts运行时链接、额外字体服务或新运行时依赖；中文采用系统字体回退。本片仅证明生产前端资源构建与本地加载，未构建/核对新EXE；公开alpha.67原清单/字节不据此刷新。[来源、摘要与分层证据](../../iterations/I08/taste-impeccable-ui.md)。
+M10-F01/F03：桌面界面内置IBM Plex Sans拉丁可变WOFF2（45712字节）与IBM Plex Mono拉丁400（14708字节），许可随[字体资源](../../../desktop/assets/fonts/OFL-IBM-Plex.txt)保存。Vite通过CSS相对资源引用产出本地带摘要文件名；现有dist/assets全目录校验覆盖字体，assets目录随既有files规则保留许可。没有Google Fonts运行时链接、额外字体服务或新运行时依赖；中文采用系统字体回退。alpha.68已核对新EXE及本地字体载荷；alpha.67历史清单/字节保持原证据。[来源、摘要与分层证据](../../iterations/I08/taste-impeccable-ui.md)。
 
 M10-F01/F02/F03：alpha.67仅调整WSL握手预算，收录alpha.66原Linux manifest兼容pin；Windows挂载盘冻结入口47秒超过旧30秒，必须核对真实包与Linux执行证据。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 

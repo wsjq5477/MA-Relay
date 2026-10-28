@@ -1,5 +1,8 @@
 # M10 构建与发布测试报告
 
+当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
+
+
 ## 当前源码字体资源（2026-10-28）
 
 M10-F01/F03；本地alpha.68工作树，Windows Node24.12.0、Edge157.0.4341.16。TypeScript/Vite生产构建通过，两个WOFF2输出与原始资源逐字节摘要匹配，OFL许可已随源资源保存；生产浏览器实际加载Sans及展开路径后的Mono，外部HTTP请求0。仅为前端构建与加载证据，未构建/验证新EXE、ASAR或刷新公开alpha.67的产品输入清单。[字体产出核对](../../../artifacts/taste-impeccable/2026-10-28/font-output.json)、[构建日志](../../../artifacts/taste-impeccable/2026-10-28/build-verified.log)、[浏览器报告](../../../artifacts/taste-impeccable/2026-10-28/verified/report.json)；完整来源与限制见[迭代](../../iterations/I08/taste-impeccable-ui.md)。

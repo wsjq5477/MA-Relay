@@ -1,20 +1,20 @@
 # AgentBridge 项目资料
 
-当前公开alpha.67：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
+当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
 
 AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和结果，模型、账号与配置由原工具管理。用户入口是[使用文档](user/index.md)；本页及内部设计/原始证据不进入用户网站。逐轮历史统一在[迭代目录](iterations/README.md)。
 
 ## 当前状态
 
-当前源码另有未发布的[启动失败边界](iterations/I08/native-start-boundary.md)、[Hermes分离保护](iterations/I08/hermes-detached-input.md)与[Pi目录绑定](iterations/I08/pi-session-workspace.md)：明确未启动才可结算启动失败，已启动且结果不明保持unknown，续聊须保留原Session与目录。Windows受控及原生组件已验，不替代真实模型与完整生命周期。
+alpha.68已包含启动失败边界、Hermes分离保护及Pi目录绑定；真实模型与完整生命周期仍按各自验收边界保留。[发布与完整边界](iterations/I08/alpha68-release.md)。
 
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前公开预发布 | **0.6.0-alpha.67**（冻结 `5de9be3`，EXE132239342字节，匿名完整下载核验通过） |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.67/AgentBridge-0.6.0-alpha.67-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.67/SHA256SUMS.txt)；未签名；[交付与边界](iterations/I08/alpha67-hermes-linux-live.md) |
-| 当前公开源码范围 | 完整源码标签 `v0.6.0-alpha.67`（5de9be3），master含后续发布说明 |
-| 当前已发布实现与验收边界 | Linux Hermes原生两轮/去重/同Session续聊、MCP及普通EXE已验；网络条件与完整矩阵边界见[分层证据](iterations/I08/alpha67-hermes-linux-live.md) |
+| 当前公开预发布 | **0.6.0-alpha.68**，冻结 `38cd637`；EXE132290374字节，匿名完整下载一致；[发布记录](iterations/I08/alpha68-release.md) |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.68/AgentBridge-0.6.0-alpha.68-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.68/SHA256SUMS.txt)；未签名；[发布记录](iterations/I08/alpha68-release.md) |
+| 当前公开源码范围 | 标签 `v0.6.0-alpha.68`（38cd637），master含后续发布说明 |
+| 本次内容与边界 | 关系冲突证据恢复、原生会话保护与界面改进；分层验证和未测项见[发布记录](iterations/I08/alpha68-release.md) |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

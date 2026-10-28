@@ -1,5 +1,8 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
+
+
 M08-F01/F02：Hermes仍可接收collaboration=false的普通委派，独立MCP调用不变，hostManagedTask仍false。Hermes取消能力收窄为false；原任务失联保持unknown，不换ID、节点或目录重派。新增发现与原生网关兼容不扩大其他Agent或小队能力。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
 
 M08-F02/F03/F04/F05：保持主节点且提交严格更小的成员集合，或清空主节点与全部成员，属于纯撤权。它不重新准入移除/保留的旧角色，不因节点离线或能力失效而拒绝。其余保存只对新增成员与新主做准入；换主不会自动给其他节点授权。关系自身unknown、不可信台账和修订/原ID冲突保持；撤权不取消旧任务或迁移原父读控。已随alpha.64公开，[关系撤权与目标作用域](../../iterations/I08/relation-revocation-scope.md)。

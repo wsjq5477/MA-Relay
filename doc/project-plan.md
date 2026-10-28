@@ -1,6 +1,6 @@
 # 迭代路线与当前交付
 
-当前公开alpha.67：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
+当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
 
 当前实现、候选功能和未准出项分别登记；前序发布历史统一见[发布登记](iterations/release-ledger.md)。下一步仍为原生父模型、自主委派、异常恢复和冷启动等独立验收，不因CLI可见或MCP组件通过而关闭整体验收。
 
@@ -9,9 +9,9 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 最新 Windows 预发布 | **0.6.0-alpha.67**，冻结5de9be3；源码/EXE/SHA公开且匿名完整下载一致；[交付与边界](iterations/I08/alpha67-hermes-linux-live.md) |
-| 上一公开预发布 | **0.6.0-alpha.66**：Linux原安装发现与MCP组件；[发布记录](iterations/I08/alpha66-hermes-linux.md) |
-| 当前自动回归 | alpha.67 Linux适配109/109、Core71/71；Windows受控22/22、普通EXE七组；原生Linux成功两轮，旧失败和完整矩阵边界保留 |
+| 当前公开预发布 | **0.6.0-alpha.68**，冻结 `38cd637`；EXE132290374字节，匿名完整下载一致；[发布记录](iterations/I08/alpha68-release.md) |
+| 上一公开预发布 | alpha.67，WSL握手与Hermes真实执行；[历史发布](iterations/I08/alpha67-hermes-linux-live.md) |
+| 当前自动回归 | 关系定向137/137、冻结后台16/16；Ubuntu71/71与110/110；全量失败及其他分层见[发布记录](iterations/I08/alpha68-release.md) |
 | 未发布桌面外观 | Taste/Impeccable浅色框架与中性深色主题、本地IBM Plex字体；相关渲染105/105、隔离浏览器七组/19张截图，Taste四宽度无发现、Impeccable空结果；[范围和证据](iterations/I08/taste-impeccable-ui.md)，本片未构建新EXE |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
 | 当前发布范围与缺口 | 已包含DSH Desktop/Web、CT-07、OpenDesk、MCP02与#15/#16修复；完整准出继续按专项推进 |
@@ -60,4 +60,4 @@ CT-04 公共材料与 CT-05 选材包的源码已实现（见矩阵 §4 各行�
 - [整体测试报告](testing.md)：当前验收基线。
 - [同步维护规则](development-guide.md)：修改模块时同时更新当前设计与迭代。
 
-当前源码已补关系冲突的原收据提案、明确确认后备份/原子恢复与 v3 旧后台前置门禁；缺少机器/策略完整关系顺序时保持人工核对。真实 profile 和普通 EXE 未验，不改变公开 alpha.67 或完整矩阵范围。[当前范围](iterations/I08/relation-conflict-diagnostic.md)。
+alpha.68已包含关系冲突证据恢复；普通EXE隔离恢复和完整重启通过，真实profile未写入，完整矩阵不据此准出。[发布与完整边界](iterations/I08/alpha68-release.md)。

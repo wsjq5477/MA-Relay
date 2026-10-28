@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-28T09:44:22.557Z",
+  "status": "passed",
+  "version": "0.6.0-alpha.68",
+  "platform": "linux",
+  "node": "v24.12.0",
+  "modelCalls": 0,
+  "checks": [
+    "Actual Linux published wrapper passes the native --version probe and keeps the canonical original installation",
+    "A detached daemon PATH selects the original source-owned wrapper through independent HERMES_INSTALL_DIR",
+    "Both original launchers resolve the same native runtime command; its declared Python resolves the committed dependency generation without a provider API or an interpreter substitution",
+    "Original installed Linux Hermes CLI/config/MCPServerTask complete all five ten-tool lifecycle groups in disposable native Profiles"
+  ],
+  "nativeVersion": "0.22.5",
+  "nativeSource": "bf0203a794a07aac3ff764972ab9087baa4e4f4e"
+}

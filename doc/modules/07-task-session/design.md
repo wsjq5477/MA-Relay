@@ -1,5 +1,8 @@
 # M07 任务、会话、交互控制与恢复设计
 
+当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
+
+
 M07-F01/F04/F06/F07：三原生CLI启动器解析同步拒绝或实际ChildProcess在spawn前报error时，以原Task failed/NATIVE_START及nativeExited=false结算。原requestId去重与历史保持，原核对/取消confirmed只说明该原控制意图已核对，任务状态仍failed；已启动失联/旧unknown不能根据现安装缺失结算。[当前规则与验证](../../iterations/I08/native-start-boundary.md)。
 
 M07-F01/F02/F06/F07：Pi续聊除唯一Session文件/ID，还要求持久cwd与原上下文为同一可用真实目录。canContinue与实际派发共用检查，拒绝发生在请求/Task意图前；旧Task/Conversation/Session与原收据不迁移，恢复原文件后可沿原Session继续。worker在启动原生进程前复核，unknown占用不因目录变化解除。[规则、原生依据与证据](../../iterations/I08/pi-session-workspace.md)。
