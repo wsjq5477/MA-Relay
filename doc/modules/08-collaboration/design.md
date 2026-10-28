@@ -329,3 +329,6 @@ broker 将 token 对应 scope 与业务参数分开，中央宿主/远端 relay 
 协作 scope 与旧父归属不变，维护屏障也作用于 MCP 对目标机器的新原生准入，避免仅锁界面仍可委派。所属机器 maintenance unknown 时不换地址/节点绕过；其他来源机器的已有会话仍可执行。卸载明确确认后撤销当前新委派权限，历史父子任务与结果保留，控制 confirmed 不能替代子任务终态。
 
 实现入口：[agent-network.cjs](../../../desktop/electron/agent-network.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+
+M08-F02/F03/F05：关系冲突保持严格只读；新增连续原收据链核验、明确确认后的逐字节备份与原子恢复，selected/envelope 同步且历史不变。缺顺序的机器撤权收据不猜测恢复。[完整行为与边界](../../iterations/I08/relation-conflict-diagnostic.md)。

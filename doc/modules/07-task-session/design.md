@@ -1,5 +1,11 @@
 # M07 任务、会话、交互控制与恢复设计
 
+M07-F01/F04/F06/F07：三原生CLI启动器解析同步拒绝或实际ChildProcess在spawn前报error时，以原Task failed/NATIVE_START及nativeExited=false结算。原requestId去重与历史保持，原核对/取消confirmed只说明该原控制意图已核对，任务状态仍failed；已启动失联/旧unknown不能根据现安装缺失结算。[当前规则与验证](../../iterations/I08/native-start-boundary.md)。
+
+M07-F01/F02/F06/F07：Pi续聊除唯一Session文件/ID，还要求持久cwd与原上下文为同一可用真实目录。canContinue与实际派发共用检查，拒绝发生在请求/Task意图前；旧Task/Conversation/Session与原收据不迁移，恢复原文件后可沿原Session继续。worker在启动原生进程前复核，unknown占用不因目录变化解除。[规则、原生依据与证据](../../iterations/I08/pi-session-workspace.md)。
+
+M07-F01/F02/F04/F06/F07：Hermes原生等待审批/澄清时查看器退出3，或result.exit_code为3/130，均保持原Task/Session与unknown占用；实际进程退出3/130同样不能结算失败或取消。原ID查询/重开不重发，核对收据仍unknown；只有后续原执行终态证据才能结算。历史失败与旧unknown不迁移，取消仍false。[当前完整规则、实现与证据](../../iterations/I08/hermes-detached-input.md)。
+
 M07-F01/F02/F04：WSL就绪前失败明确未派发；已提交请求通过原检查点查询，不能换ID或新上下文释放unknown。原Session续聊与Hermes取消false不变。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 M07-F01/F02/F04：Hermes原Session续聊与原请求去重保留；stderr绑定不等于终态，原生网关无确认结果的退出保持unknown、占用与原ID查询。活动Hermes取消拒绝新意图，历史取消收据仍按原ID/任务/种类核对；不以进程退出结算网关取消。心跳写入失败不崩溃重派。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。

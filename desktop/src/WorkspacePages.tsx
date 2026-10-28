@@ -196,7 +196,6 @@ export function TasksPage({
     <section className="workspace-page workspace-tasks">
       <div className="page-heading workspace-page-heading">
         <div>
-          <div className="eyebrow">WORKSPACE / TASKS</div>
           <h1>{auditOnly?"执行审计":"任务看板"}</h1>
           <p>{auditOnly?"只读原任务、结果与状态；需求从原生 Agent 会话发起。":"从需求到结果，查看每次执行的进展。"}</p>
         </div>
@@ -431,7 +430,6 @@ export function ConversationsPage({
     <section className="workspace-page workspace-conversations">
       <div className="page-heading workspace-page-heading">
         <div>
-          <div className="eyebrow">WORKSPACE / CONVERSATIONS</div>
           <h1>{auditOnly?"会话审计":"会话"}</h1>
           <p>{auditOnly?"只读原会话和轮次；继续工作请回原生 Agent 入口。":"接着上次的上下文，与 Agent 继续工作。"}</p>
         </div>
@@ -762,7 +760,6 @@ export function SettingsPage({
     <section className="workspace-page workspace-settings">
       <div className="page-heading workspace-page-heading">
         <div>
-          <div className="eyebrow">WORKSPACE / SETTINGS</div>
           <h1>设置</h1>
           <p>让工作台按你的习惯运行。</p>
         </div>

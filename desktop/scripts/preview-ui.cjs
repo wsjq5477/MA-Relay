@@ -89,7 +89,7 @@ async function startPreview({ port = 4197, baseline } = {}) {
   let preferences = {
     theme: "light",
     platform: "win32",
-    version: "0.6.0-alpha.28 · UI 预览",
+    version: `${require("../package.json").version} · UI 预览`,
     directory: "C:/AgentBridge/Preview",
     distribution: "",
   };
@@ -139,6 +139,7 @@ async function startPreview({ port = 4197, baseline } = {}) {
           };
           reply = { ok: true, result: preferences };
         } else if (
+          method.startsWith("mcp.") ||
           method === "nodeRequest" ||
           (method === "ipc" && !["conversation", "task"].includes(params.op)) ||
           method === "team.execute" ||
@@ -148,7 +149,8 @@ async function startPreview({ port = 4197, baseline } = {}) {
             ok: false,
             error: {
               code: "PREVIEW_ONLY",
-              message: "这是隔离界面预览。请在桌面程序中发送真实需求。",
+              message:
+                "这是隔离界面预览，未连接真实原生配置，也不会执行真实需求。请在桌面程序中查看 MCP 状态。",
             },
           };
         else if (
@@ -213,7 +215,9 @@ async function startPreview({ port = 4197, baseline } = {}) {
             ? "text/javascript"
             : file.endsWith(".css")
               ? "text/css"
-              : "application/octet-stream",
+              : file.endsWith(".woff2")
+                ? "font/woff2"
+                : "application/octet-stream",
       );
       res.end(
         html

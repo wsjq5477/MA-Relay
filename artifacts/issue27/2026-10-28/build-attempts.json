@@ -1,0 +1,19 @@
+{
+  "version": "0.6.0-alpha.68",
+  "attempts": [
+    {
+      "mode": "normal npm dist:win",
+      "result": "failed",
+      "reason": "shared builder cache EXDEV while extracting 7zip"
+    },
+    {
+      "mode": "isolated cache prepackaged",
+      "result": "failed",
+      "reason": "relative prepackaged path resolved twice under desktop; ENOENT"
+    },
+    {
+      "mode": "isolated cache absolute prepackaged path",
+      "result": "passed"
+    }
+  ]
+}

@@ -99,7 +99,7 @@ export default function TeamWorkspace({ nodes, directory, settingsOnly = false }
   const disabled = busy || !!pending || storageError;
   const active = context?.run.state === 'active';
   return <section className="team-workspace">
-    <div className="page-heading"><div><div className="eyebrow">TEAMS</div><h1>{settingsOnly?'小队设置与审计':'小队协作'}</h1><p>{settingsOnly?'配置成员、工作作用域与用户预算；成员日常操作从原生 Agent 的工作 MCP 进行。':'连接已有智能体，共用约定、文档和群消息。'}</p></div></div>
+    <div className="page-heading"><div><h1>{settingsOnly?'小队设置与审计':'小队协作'}</h1><p>{settingsOnly?'配置成员、工作作用域与用户预算；成员日常操作从原生 Agent 的工作 MCP 进行。':'连接已有智能体，共用约定、文档和群消息。'}</p></div></div>
     <details className="team-stage"><summary><Info size={15}/>协作如何运行</summary><p>普通群消息和 @ 只负责沟通，不会启动执行。原生智能体可以手动执行，或在你授权的预算内按重要事件继续；外部 MCP 智能体从自己的入口工作。</p></details>
     <nav className="team-tabs" aria-label="小队导航">{([['work', settingsOnly?'工作范围与审计':'工作空间'], ['agents', '智能体'], ['teams', '小队设置']] as const).map(([value, label]) => <button key={value} aria-label={label} aria-current={tab===value?'page':undefined} className={'btn ' + (tab === value ? 'primary' : '')} onClick={() => setTab(value)}>{value==='work'?<FolderOpen size={15}/>:value==='agents'?<UserRound size={15}/>:<Users size={15}/>} {label}<span>{value==='work'?data.runs.length:value==='agents'?agents.length:data.teams.length}</span></button>)}</nav>
     {notice && <div className="notice-banner" role="status">{notice}<button className="text-btn" onClick={() => setNotice('')}>关闭提示</button></div>}

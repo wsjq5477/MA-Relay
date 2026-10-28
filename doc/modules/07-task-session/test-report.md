@@ -1,5 +1,7 @@
 # M07 任务、会话与恢复测试报告
 
+2026-10-28 / c40f45e派生未发布源码 / Windows Node24.12.0：最新共享启动/宿主/原核对/分离集64/64，含原44混合集、Pi目录与Hermes分离。启动专项8项证明明确未启动结算failed、原取消/核对收据confirmed而非取消成功、nativeExited=false及原ID重开不重派；已启动或历史unknown保持，模型0。[完整证据与原失败](../../iterations/I08/native-start-boundary.md)。Pi/Hermes原生组件和独立60项回归保持[Pi](../../iterations/I08/pi-session-workspace.md)、[Hermes](../../iterations/I08/hermes-detached-input.md)原范围，不相加或作为真实网关/模型恢复。
+
 2026-10-27 / alpha.67公开：Windows受控22/22、独立Ubuntu适配109/109/Core71/71及正式Hermes0.22.5原生MCP五组通过。Windows→WSL Node24.13.0→Hermes两轮、原ID去重、通道重开/同Session续聊与配置字节保持通过；两原传输退出0。原生持久会话只读核对两用户/两助手消息、API2/工具0；临时网络通道已停止，WSL直连未修复。实际EXE七组模型0、212输入/58后台/84Core/1723Linux及载荷一致。首轮Core70/71、旧就绪失败及临时验收目录后续缺失如实保留，完整矩阵未准出。[全部分层证据与边界](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 2026-10-27 / alpha.65 / Windows Node24.12.0：共享Hermes定向31/31，扩展73项72通过/1个Pi原基线失败，不能跨模块相加。已安装Hermes0.22.5、冻结Windows后台原生MCP五组通过（模型0）；真实执行/续聊两轮通过，但首轮参数拒绝、早期心跳EPERM及验收器原生配置字节比较失败均保留。普通EXE/发布状态按[专项](../../iterations/I08/alpha65-hermes-windows.md)逐项登记，不把源码结果当作EXE/父模型准出。

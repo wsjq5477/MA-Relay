@@ -10,7 +10,7 @@ const coordinatorCapabilities=[RECOVERY_CAPABILITY,'scoped-management-v1','openc
 // Advertised list: coordinator hello and daemon hello both spread this array, and
 // maintenance bundles stage this file verbatim.
 const runtimeCapabilities=[...coordinatorCapabilities,MCP_OPEN_ACCESS_CAPABILITY,'opendesk-mcp-lifecycle-v1'];
-const coordinatorRuntimeCapabilities=[...runtimeCapabilities,TEAM_CONTEXT_TRANSFER_CAPABILITY,MULTI_PARENT_RELATIONS_CAPABILITY,AGENT_CONNECTION_POLICY_CAPABILITY];
+const coordinatorRuntimeCapabilities=[...runtimeCapabilities,TEAM_CONTEXT_TRANSFER_CAPABILITY,MULTI_PARENT_RELATIONS_CAPABILITY,AGENT_CONNECTION_POLICY_CAPABILITY,'relation-index-sync-v1'];
 const supportsCurrentCoordinator=capabilities=>Array.isArray(capabilities)&&coordinatorCapabilities.every(capability=>capabilities.includes(capability));
 const supportsRecovery=capabilities=>Array.isArray(capabilities)&&capabilities.includes(RECOVERY_CAPABILITY);
 // Richer MCP status facts and revocation need this marker. Its absence means the

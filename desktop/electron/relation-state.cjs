@@ -77,11 +77,27 @@ function loadRelationState(record){
   // An older writer can retain unknown fields but edit collaboration alone.
   // Never pick either authority silently or overwrite the other relationship rows.
   if(!isDeepStrictEqual(current,projection(selected)))
-    throw fail('RELATION_STATE_CONFLICT','旧协作视图与关系索引不一致；可能被旧版程序修改，请保留原文件核对，未覆盖任何关系。');
+    throw Object.assign(fail('RELATION_STATE_CONFLICT','旧协作视图与关系索引不一致；可能被旧版程序修改，请保留原文件核对，未覆盖任何关系。'),{diagnostic:relationConflictDiagnostic(record,selected)});
   // Version 1 explicitly made every nonselected row inert. Never turn those
   // stored rows into new grants merely because a newer runtime can route them.
   const migrated=record.relationsVersion===3?record:{...record,relationsVersion:3,relations:record.relations.map(row=>({...row,enabled:record.relationsVersion===1?row.relationId===record.activeRelationId:row.enabled,envelope:{version:1,revision:0,allowedNodeIds:[...row.memberIds]}}))};
   uniqueLeaders(migrated.relations);return migrated;
+}
+// Deliberately omit identities, operation payloads and native session data.
+function relationConflictDiagnostic(record,selected){
+  const summary=row=>({revision:row.revision,memberCount:row.memberIds.length});
+  const receipts={};
+  for(const key of ['relationOperations','nodeOperations','machineOperations']){
+    const rows=Array.isArray(record[key])?record[key]:[];
+    receipts[key]={confirmed:rows.filter(row=>row?.state==='confirmed').length,
+      recentConfirmed:rows.filter(row=>row?.state==='confirmed').slice(-8).map(row=>{
+        const value=key==='relationOperations'?row.data:row.data?.collaboration;
+        return Number.isSafeInteger(value?.revision)&&Array.isArray(value?.memberIds)?{revision:value.revision,memberCount:value.memberIds.length}:{revision:null,memberCount:null};
+      }),
+      unresolved:rows.filter(row=>!['confirmed','rejected'].includes(row?.state)).length};
+  }
+  return {version:1,index:{...summary(selected),selected:true,enabled:selected.enabled===true},
+    collaboration:summary(record.collaboration),receipts,recoveryAvailable:false};
 }
 function syncSelectedRelation(record){
   const selected=index(record),current=projection(record.collaboration);

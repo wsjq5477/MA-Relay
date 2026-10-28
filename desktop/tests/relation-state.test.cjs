@@ -80,3 +80,20 @@ test('real node disconnect and machine removal keep the selected index synchroni
   f.router.finalizeMachine({operationId:'remove-original-machine',state:'confirmed',data:{machineId:leader.machineId,action:'remove'}});
   stored=JSON.parse(fs.readFileSync(f.router.networkFile));assert.equal(stored.collaboration.leaderId,null);assert.deepEqual(loadRelationState(stored),stored);
 });
+
+test('conflict diagnostic exposes only counts and revisions and leaves source unchanged',()=>{
+  const record=loadRelationState(legacy());record.collaboration.revision++;
+  record.collaboration.memberIds.push('private-new-node');
+  record.nodeOperations=[{operationId:'private-operation',state:'confirmed',data:{secret:'private-secret'}}];
+  const before=structuredClone(record);
+  assert.throws(()=>loadRelationState(record),error=>{
+    assert.equal(error.code,'RELATION_STATE_CONFLICT');
+    assert.deepEqual(error.diagnostic.index,{revision:7,memberCount:1,selected:true,enabled:true});
+    assert.deepEqual(error.diagnostic.collaboration,{revision:8,memberCount:2});
+    assert.equal(error.diagnostic.receipts.nodeOperations.confirmed,1);
+    assert.equal(error.diagnostic.receipts.relationOperations.unresolved,1);
+    assert.equal(error.diagnostic.recoveryAvailable,false);
+    assert.equal(JSON.stringify(error.diagnostic).includes('private'),false);return true;
+  });
+  assert.deepEqual(record,before);
+});

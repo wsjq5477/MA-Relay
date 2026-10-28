@@ -1,0 +1,8 @@
+.relation-conflict-panel { margin: 16px 0; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); font-size: 14px; line-height: 1.65; }
+.relation-conflict-panel h2 { margin: 20px 0 8px; font-size: 18px; }
+.relation-conflict-panel h3 { margin: 24px 0 8px; font-size: 16px; }
+.relation-conflict-panel p { margin: 10px 0; max-width: 72ch; }
+.relation-conflict-panel ul, .relation-conflict-panel ol { margin: 12px 0; padding-inline-start: 24px; }
+.relation-conflict-panel label { display: inline-flex; align-items: flex-start; gap: 8px; font-size: 14px; }
+.relation-conflict-panel input[type=checkbox] { width: 18px; height: 18px; flex: 0 0 auto; margin-top: 3px; }
+.relation-conflict-panel button { margin: 2px 0; }

@@ -99,7 +99,7 @@ class NativeCliHost {
       bound = owner?.instanceId === conversation.instanceId && owner?.connected === true && owner?.executable === this.executable;
     }
     if (bound && this.adapter === 'pi') {
-      try { piSessionFile(path.join(this.directory, 'native-sessions'), conversation.sessionId); }
+      try { piSessionFile(path.join(this.directory, 'native-sessions'), conversation.sessionId, this.state.agents.find(agent => agent.agentId === conversation.targetAgent)?.workspace); }
       catch (error) { if (error.code !== 'CONVERSATION_CONFIG') throw error; bound = false; }
     }
     return { ...result, kind: 'task', canContinue: !!bound && !!last && terminal.has(last.status) && !this.state.tasks.some(item => !terminal.has(item.status)) };
@@ -208,13 +208,13 @@ async function runWorker(directory) {
   // A persistent heartbeat write failure makes observers report unknown; it
   // must not crash the owner and abandon a still-running native gateway turn.
   const heartbeat = setInterval(() => {try {beat();} catch { /* Keep observing the original child; never submit again. */ }}, 1000);
-  let child, cancelRequested = false, terminationSent = false, windowsKill, killDeadline = 0, ended = false, oversized = false, buffer = '', failure = '', diagnostics = '';
+  let child, spawned = false, spawnFailed = false, cancelRequested = false, terminationSent = false, windowsKill, killDeadline = 0, ended = false, oversized = false, buffer = '', failure = '', diagnostics = '';
   const parser = createParser(job, event => emit({ ...event, ...(typeof event.text === 'string' ? { text: safe(event.text) } : {}) }));
   try {
     const launch = require('./tool-discovery.cjs').command(job.executable, argumentsFor(job));
     child = spawn(launch.executable, launch.args, { cwd: job.workspace, env: launch.env, windowsHide: true, detached: process.platform !== 'win32', stdio: ['pipe', 'pipe', 'pipe'] });
-  } catch (error) { clearInterval(heartbeat); emit({ kind: 'terminal', status: 'failed', code: 'NATIVE_START', text: safe(error.message) }); return; }
-  child.once('spawn', () => emit({ kind: 'started' }));
+  } catch (error) { clearInterval(heartbeat); emit({ kind: 'terminal', status: 'failed', code: 'NATIVE_START', text: safe(error.message), nativeExited: false }); return; }
+  child.once('spawn', () => { spawned = true; emit({ kind: 'started' }); });
   const terminate = (signal = 'SIGTERM') => {
     if (!child.pid || ended) return;
     if (process.platform === 'win32') { windowsKill = new Promise(resolve => execFile('taskkill.exe', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true }, error => { if (!error) terminationSent = true; resolve(); })); }
@@ -248,10 +248,17 @@ async function runWorker(directory) {
     if (killDeadline && Date.now() >= killDeadline) { killDeadline = 0; terminate('SIGKILL'); }
   }, 100);
   child.stdin.on('error', () => {}); child.stdin.end(job.message);
-  const { code, signal } = await new Promise(resolve => { child.once('error', error => { failure = safe(error.message); }); child.once('close', (code, signal) => resolve({ code, signal })); });
+  const { code, signal } = await new Promise(resolve => { child.once('error', error => { failure = safe(error.message); if (!spawned) spawnFailed = true; }); child.once('close', (code, signal) => resolve({ code, signal })); });
   ended = true; clearInterval(cancel); clearInterval(heartbeat);
   if (!oversized && buffer.trim()) line(buffer);
   if (windowsKill) await windowsKill;
+  // A real ChildProcess error before its spawn event proves the selected
+  // launcher never started. Missing results, exit codes or diagnostic text
+  // after spawn cannot establish that boundary (notably for Hermes gateways).
+  if (spawnFailed) {
+    emit({kind: 'terminal', status: 'failed', code: 'NATIVE_START', text: safe(names[job.adapter] + ' 原生任务未启动：' + failure), nativeExited: false});
+    return;
+  }
   const result = parser.finish(code);
   if (result.answer.length > 200000) failure = '原生回答超过保留长度限制，未将裁剪内容确认为完整结果。';
   const succeeded = result.succeeded && !failure;

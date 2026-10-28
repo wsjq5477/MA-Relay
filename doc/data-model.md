@@ -1,5 +1,11 @@
 # 对象、身份与持久数据
 
+三原生CLI明确未启动时，复用现有terminal事件status=failed/code=NATIVE_START，并写已有可选nativeExited=false。原Task与请求保留；原取消data为status=failed/nativeExited=false，原核对消息注明未派发，confirmed不改变任务为成功/取消。spawn边界为当次worker内存事实，不新增数据版本或恢复推断；历史unknown保持。[完整合约与验证](iterations/I08/native-start-boundary.md)。
+
+Pi沿用原Agent.workspace、Conversation.sessionId与原生JSONL头cwd做派发前绑定校验。没有新增字段/版本，旧记录不迁移；缺失或变化时canContinue=false，续聊以CONVERSATION_CONFIG拒绝且不新增持久请求/Task，不更改历史/unknown。[完整规则与验证](iterations/I08/pi-session-workspace.md)。
+
+Hermes查看器的result.exit_code或实际进程退出码3/130归入现有unknown事件，不写failed/finishedAt、不解除原请求占用、不确认原核对收据；后续原执行终态仍可沿原事件读取结算。无新增字段、版本或历史迁移，旧失败不会被本修复改写。[规则与证据](iterations/I08/hermes-detached-input.md)。
+
 Hermes继续使用现有Task/Conversation/operationId/requestId与chat-stream-json-v1持久字段；不迁移或清除旧unknown。缺原生终态写已有unknown事件并保留占用；旧取消收据原ID仍可查询，不创建新网关取消意图。能力投影的cancellation对Hermes为false；未增加数据版本或字段。[行为与证据](iterations/I08/alpha65-hermes-windows.md)。
 
 关系撤权修复保持collaboration、relations、revision、GraphReceipt和graph-pending格式不变。准入目标为新主（主ID改变时）与相对原行新增的成员；清主加空成员或同主缩小集合无新增目标。角色/成员无重复、自连、原ID和期望修订继续校验。原管理未知及历史不因撤权而清理。[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
@@ -400,3 +406,5 @@ pending.json 的原格式和状态不变；本地 pending IPC 的每条记录可
 自动attempt.resumeConversationId是原续接目标约束，首条观测写入conversationId之前就须匹配它；之后按既有绑定匹配。没有新增存储字段或版本，拒绝外来Conversation不改变原request/attempt/意图身份。[专项](iterations/I07/intended-conversation.md)。
 
 小队私有nativeSessionId仅从非空白字符串观测更新，原长度上限保持；空值不建立或清除已有绑定。字段仍可缺省，缺绑定不能自动续接；不trim原生身份或新增格式/迁移。见[专项](iterations/I07/blank-native-session.md)。
+
+关系冲突恢复仅在连续唯一原收据证明终点后更新 selected 行及 envelope；追加 relationRecoveryOperations，字段为 operationId/state/sourceDigest/backup/backupDigest，原 ID 与源摘要绑定。备份保留逐字节原文件，原收据及其他业务数据不改。[完整规则](iterations/I08/relation-conflict-diagnostic.md)。

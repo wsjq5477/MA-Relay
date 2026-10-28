@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-28",
+  "environment": "Windows controlled fixtures; no production profile writes",
+  "targeted": {"passed": 137, "failed": 0},
+  "desktopFullRun": {"total": 1001, "passed": 926, "failed": 74, "skipped": 1, "preChangeComparison": false},
+  "build": "passed with large chunk warning",
+  "docs": {"errors": 2243, "issue27LinkErrors": 0},
+  "nativeModelCalls": 0,
+  "productionRecovery": "not performed"
+}

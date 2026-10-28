@@ -1,5 +1,9 @@
 # M10 构建、发布与持久运行资源设计
 
+## 当前源码的离线字体资源
+
+M10-F01/F03：桌面界面内置IBM Plex Sans拉丁可变WOFF2（45712字节）与IBM Plex Mono拉丁400（14708字节），许可随[字体资源](../../../desktop/assets/fonts/OFL-IBM-Plex.txt)保存。Vite通过CSS相对资源引用产出本地带摘要文件名；现有dist/assets全目录校验覆盖字体，assets目录随既有files规则保留许可。没有Google Fonts运行时链接、额外字体服务或新运行时依赖；中文采用系统字体回退。本片仅证明生产前端资源构建与本地加载，未构建/核对新EXE；公开alpha.67原清单/字节不据此刷新。[来源、摘要与分层证据](../../iterations/I08/taste-impeccable-ui.md)。
+
 M10-F01/F02/F03：alpha.67仅调整WSL握手预算，收录alpha.66原Linux manifest兼容pin；Windows挂载盘冻结入口47秒超过旧30秒，必须核对真实包与Linux执行证据。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 M10-F01/F02/F03：alpha.66包含Linux Hermes专用发现与alpha.65原daemon兼容pin；新增GitHub Ubuntu只读权限验证流程，固定官方0.22.5，不配置模型或SSH凭据。构建/发布状态按本轮证据登记，不以Windows受控测试替代Linux原生验证。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。

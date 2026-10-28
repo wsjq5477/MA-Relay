@@ -47,7 +47,8 @@ function coordinatorRuntime(options) {
       }
       if (options.packageDirectory && fs.existsSync(options.packageDirectory))
         fs.cpSync(options.packageDirectory,path.join(stage,'linux-package'),{recursive:true});
-      fs.writeFileSync(path.join(stage,'coordinator-runtime.json'),JSON.stringify({version,createdAt:new Date().toISOString()}),{mode:0o600});
+      const capabilities=require(path.join(source,'desktop/electron/runtime-capabilities.cjs')).coordinatorRuntimeCapabilities;
+      fs.writeFileSync(path.join(stage,'coordinator-runtime.json'),JSON.stringify({version,capabilities,createdAt:new Date().toISOString()}),{mode:0o600});
       try { fs.renameSync(stage,target); }
       catch(error) { if (!fs.existsSync(manifest)) throw error; fs.rmSync(stage,{recursive:true,force:true}); }
     } catch(error) { fs.rmSync(stage,{recursive:true,force:true}); throw error; }

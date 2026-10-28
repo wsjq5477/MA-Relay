@@ -109,7 +109,7 @@ export default function AppShell({
           <Workflow size={14} />
           <span>AgentBridge</span>
         </div>
-        <div className="titlebar-center">连接你的 Agent，让工作流动起来</div>
+        <div className="titlebar-center">原生 Agent · 连接与协作</div>
         <div className="window-controls">
           <button aria-label="最小化" onClick={() => onWindow("minimize")}>
             <Minus size={15} />
@@ -151,7 +151,7 @@ export default function AppShell({
               >
                 <p.icon size={18} />
                 <span>{p.label}</span>
-                {!!counts[p.id] && <b>{counts[p.id]}</b>}
+                {p.id === "board" && !!counts[p.id] && <b>{counts[p.id]}</b>}
               </button>
             ))}
         </nav>
@@ -176,7 +176,8 @@ export default function AppShell({
           </button>
           <div
             className={
-              "connection-dot " + (!error && onlineCount ? "online" : "")
+              "connection-dot " +
+              (loading ? "is-loading" : !error && onlineCount ? "online" : "")
             }
           >
             <i />
@@ -225,9 +226,15 @@ export default function AppShell({
               <ChevronRight size={13} />
               <strong>{current.label}</strong>
             </span>
+            <span className="topbar-description">{current.description}</span>
           </div>
           <div className="topbar-actions">
-            <span className={"sync-status " + (error ? "has-error" : "")}>
+            <span
+              className={
+                "sync-status " +
+                (error ? "has-error" : loading ? "is-loading" : "")
+              }
+            >
               <i />
               {loading ? "正在同步" : error ? "同步中断" : "自动同步"}
             </span>

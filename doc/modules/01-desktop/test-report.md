@@ -1,5 +1,17 @@
 # M01 桌面交互测试报告
 
+## 当前源码：Taste/Impeccable精修（2026-10-28）
+
+T-M01-202 / M01-F01/F03/F06/F09/F14；验证时本地package为alpha.68、公开仍alpha.67，Windows Node24.12.0、Edge157.0.4341.16。相关渲染回归105/105；生产前端与一次性Coordinator、合成历史的浏览器七组检查/19张截图通过，pageErrors=0、外部HTTP请求0，两种IBM Plex字体均实际加载。1440×960/980×660页面与弹窗无横向溢出，八项代表性文字对比度最低6.42:1。Taste入口页1440/980/768/390四宽度最终无发现；Impeccable六个界面源文件机械扫描返回空数组。它们不等于完整无障碍、原生工具、普通EXE、触屏或图100ms验收。
+
+源码、前后截图、原失败/提醒及复现见[当前迭代](../../iterations/I08/taste-impeccable-ui.md)，原始结果见[105项TAP](../../../artifacts/taste-impeccable/2026-10-28/renderer-tests.tap)、[七组浏览器报告](../../../artifacts/taste-impeccable/2026-10-28/verified/report.json)、[Taste最终报告](../../../artifacts/taste-impeccable/2026-10-28/taste-final/report.json)、[Impeccable结果](../../../artifacts/taste-impeccable/2026-10-28/impeccable-detect.json)。下方保留前轮原版本与证据，当前外观以本节和设计正文为准。
+
+## 当前源码：工作台视觉与交互（2026-10-28）
+
+T-M01-201 / M01-F01/F03/F06/F09/F14；基于master `c40f45e`工作树，公开版本仍为alpha.67。Windows Node24.12.0、Edge157.0.4341.16，生产前端与一次性Coordinator/合成历史，模型0。桌面TypeScript/Vite构建通过（原大chunk提示保留），相关渲染/配置/状态回归105/105；浏览器六组检查、18张最终截图通过，pageErrors=0，1440×960与980×660无横向溢出；两主题八项代表性文字对比度最低5.08:1。搜索/清空焦点、折叠重开、配置弹窗Escape/焦点及执行只读入口已验。文档历史缺失基线与新差异分开记录；本轮没有真实Agent、普通EXE或图100ms指标验收。
+
+源码、逐项结果、最终截图、复现与未测边界见[本轮记录](../../iterations/I08/workbench-visual-refresh.md)，原始证据见[105项TAP](../../../artifacts/workbench-design/2026-10-28/renderer-tests-final.tap)、[浏览器报告](../../../artifacts/workbench-design/2026-10-28/verified/report.json)和[构建日志](../../../artifacts/workbench-design/2026-10-28/build-verified.log)。当前外观为未发布源码，原普通EXE和历史证据保持原版本。
+
 2026-10-27 / alpha.65：M01-F02/F04：Hermes节点沿用当前配置/审计入口，能力投影取消为false；用户从原生Hermes会话工作与停止网关任务，界面不以进程退出显示任务已取消。无新增页面/模型表单。 [本轮构建、分层验证与限制](../../iterations/I08/alpha65-hermes-windows.md)。共享Hermes31/31与冻结Windows原生MCP五组通过；无本轮Linux正式安装版/SSH/父模型测试，普通EXE结果单列。
 
 ## alpha.64发布复验（2026-10-27）
@@ -333,3 +345,5 @@ T-M01-120：基于alpha.23的未发布源码增量，WSL Linux / Node22.23.1。�
 2026-10-18最终补验：UI冻结源码全桌面381/381，原图真实鼠标/键盘10组、UI状态10组（无跳过、业务/模型0）通过；后两者与页面5组分别记录，不计为桌面单测数量。[最终桌面](../../../artifacts/ui-redesign/2026-10-18/desktop-tests-final.tap)、[状态](../../../artifacts/ui-redesign/2026-10-18/state/2026-10-18T00-48-05-809Z/ui.json)、[图](../../../artifacts/ui-redesign/2026-10-18/graph/ui.json)。原生EXE仍以[交付](../../iterations/I07/ui-redesign.md)实际字节为准。
 
 本轮候选冻结于2026-10-18 08:50前后。11:18以后共享工作区另有原生适配器/图标增量，不在这份候选或381项结果中；不能把当前目录后续变化当作已验证包。[最终普通EXE及源码边界](../../iterations/I07/ui-redesign.md)。
+
+2026-10-28 Windows：关系恢复定向受控回归、生产前端构建及合成 RPC 浏览器确认流程通过；全量仍有失败，不代表真实 profile 或普通 EXE 通过。[证据与边界](../../iterations/I08/relation-conflict-diagnostic.md)。

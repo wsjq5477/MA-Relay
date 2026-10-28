@@ -4,6 +4,8 @@
 
 关系缩权与清空不重新准入旧节点；新增/换主仅检查新目标，无关unknown不全局阻塞。未确认执行继续按原ID查询；“清理已失败操作”只结算有完整证据的确定失败，保留历史。MCP配置、原生加载、连接、工具、授权和归属分别展示；直接配置与托管scope能力独立，桌面保留配置/审计及原执行恢复，日常协作由原生Agent发起。模块与[接入矩阵](agent-integration-matrix.md)限定各入口实际能力，历史见[迭代目录](iterations/README.md)。
 
+当前源码的桌面外观按Taste/Impeccable采用浅色框架、白色工作面板及中性深色主题；统计为数字栏，机器/工具信息优先，设置按说明与操作分段，字体本地离线加载。关联AB-F01/09/16及M01-F14，尚未进入公开alpha.67的EXE；原生接入、授权、原ID恢复与业务状态口径保持。[当前设计、验收与源码](iterations/I08/taste-impeccable-ui.md)。
+
 ## 1. 产品解决什么问题
 
 用户已经在不同机器上安装并配置了自己的 Agent。当前源码接入七种产品、十个执行入口：Claude Code、OpenCode、Codex、Hermes、Pi、DSH CLI（原生 CLI），以及DSH Windows Desktop与Linux/WSL Web、OpenDesk CLI HTTP与Windows Desktop设备网关。Hermes/Pi/DSH 为源码已实现，真实工具执行验收以[接入矩阵](agent-integration-matrix.md)为准。AgentBridge 把这些工具呈现为可观察的 Agent 节点，用户从原生Agent提出需求，在Bridge配置接入与授权、看进度和读取结果；权限与协作能力按工具分别声明。
@@ -28,6 +30,14 @@
 WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机器身份按远端登录用户与 Bridge profile 绑定，不能把两个不同用户误合并为同一个可授权身份。完整对象定义见 [数据模型](data-model.md)。
 
 ## 3. 完整功能目录
+
+当前未发布源码增量（公开alpha.67尚未包含）：
+
+| 功能 | 当前行为 | 设计与证据 |
+| --- | --- | --- |
+| AB-F07/F10/F11 启动失败 | Hermes/Pi/DSH所选启动进程明确未启动时，以失败结束原请求，控制收据注明nativeExited=false；已启动失联/历史unknown不据此清理 | [启动边界](iterations/I08/native-start-boundary.md) |
+| AB-F08/F11 Pi续聊 | 唯一原Session文件cwd与原上下文须为同一可用真实目录，否则意图/派发前拒绝；历史与unknown保持 | [目录绑定](iterations/I08/pi-session-workspace.md) |
+| AB-F10/F11 Hermes分离 | 查看器退出3/130保持原unknown与占用；原生等待回复、网关恢复与取消仍未适配 | [分离保护](iterations/I08/hermes-detached-input.md) |
 
 `AB-Fxx` 是整体功能编号；模块内使用 `Mxx-Fxx` 等细化编号，测试报告再映射实际用例。整体状态不能代替具体工具能力与环境验证。
 
@@ -132,3 +142,6 @@ AgentBridge 不重写 Agent，不负责模型供应商配置，不调度编译�
 自研 Agent 可按 I07A/B 的本机 MCP 成员契约接入公共空间和任务板；当前另有[原生适配开发接口与指南](custom-agent-development.md)，开发者实现宿主、测试后静态注册并随包部署。它不是任意命令或 MCP 地址的自动执行器。Hermes/Pi/DSH 直接会话实现见[扩展专项](iterations/I07/native-agent-expansion.md)，新增三种不声明 Bridge 权限表单或小队成员 MCP 注入；各入口实际能力与真实未测边界见[接入矩阵](agent-integration-matrix.md)。通用执行接入方式由 CT-03 ACP 试点评估；调用方通用化与 Agent 侧连接操作按 [CT-06/07/08 规划](iterations/I07/agent-centric-operations.md) 推进。企业IM/Webhook、中央云端部署、多用户、文件同步与多层协作图保留历史候选记录，未纳入本轮后续目标。
 
 当前验收结论见 [整体验证报告](testing.md)；具体版本和进度见 [迭代路线](project-plan.md)。后续修改本功能目录时，按 [同步维护规则](development-guide.md) 同时更新模块与迭代材料。
+
+
+AB-F02/F12/F13/F16：未发布源码支持关系冲突只读检查、唯一原收据提案与用户明确确认后的备份/原子恢复；未知及缺来源保持只读，旧后台自动启动/复用须索引同步能力。[完整规则与验证](iterations/I08/relation-conflict-diagnostic.md)。

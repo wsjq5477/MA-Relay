@@ -8,8 +8,14 @@ const { coordinatorRuntime } = require('./coordinator-runtime.cjs');
 const {supportsTeamContextTransfer,supportsCurrentCoordinator,supportsMcpOpenAccess,supportsMultiParentRelations,supportsAgentConnectionPolicy}=require('./runtime-capabilities.cjs');
 class CoordinatorClient {
   constructor(options) {this.options=options;this.pending=new Map();this.socket=null;this.connecting=null;}
+  guardRelations(candidate) {
+    const file=path.join(this.options.directory,'agent-network.json');
+    if(!fs.existsSync(file)||JSON.parse(fs.readFileSync(file,'utf8')).relationsVersion!==3)return;
+    if(typeof candidate?.version!=='string'||!candidate.version||!supportsMultiParentRelations(candidate.capabilities)||!candidate.capabilities.includes('relation-index-sync-v1'))
+      throw Object.assign(Error('v3 关系数据不能交给旧后台写入。请停止旧后台并打开新版 EXE；请勿手动使用旧 EXE 打开此数据目录。'),{code:'RELATIONS_BACKEND_UPGRADE_REQUIRED'});
+  }
   async open() {
-    if(this.socket&&!this.socket.destroyed) return;
+    if(this.socket&&!this.socket.destroyed) {this.guardRelations(this.info);return;}
     if(this.connecting) return this.connecting;
     this.connecting=this.ensure().finally(()=>{this.connecting=null;});return this.connecting;
   }
@@ -24,6 +30,7 @@ class CoordinatorClient {
       readLines(socket,message=>{
         if(!ready) {
           if(!message.hello||message.protocol!==PROTOCOL||message.coordinatorId!==owner.coordinatorId) {socket.destroy();reject(Object.assign(new Error('中央后台身份不匹配。'),{code:'COORDINATOR_IDENTITY'}));return;}
+          try{this.guardRelations(message);}catch(error){clearTimeout(timer);socket.destroy();reject(error);return;}
           ready=true;clearTimeout(timer);this.info=message;this.socket=socket;done();return;
         }
         const job=this.pending.get(message.id);if(!job) return;
@@ -44,6 +51,7 @@ class CoordinatorClient {
       if(!['ENOENT','ECONNREFUSED'].includes(error.code)) throw error;
     }
     const runtime=coordinatorRuntime(this.options);
+    this.guardRelations(JSON.parse(fs.readFileSync(path.join(runtime.directory,'coordinator-runtime.json'),'utf8')));
     const log=fs.openSync(path.join(this.options.directory,'coordinator.log'),'a',0o600);
     const child=spawn(runtime.executable,[runtime.entry,'--directory',this.options.directory,'--version',this.options.version],{
       detached:true,windowsHide:true,stdio:['ignore',log,log],env:{...process.env,ELECTRON_RUN_AS_NODE:'1'}});

@@ -124,7 +124,7 @@ M06-F01/F04：Claude/Codex/OpenCode 2支持独立MCP接入的配置格式适配�
 | dsh-web | true | true | false |
 | dsh-desktop | false | true | false |
 | dsh | true（需显式 `profile`） | true | false |
-| hermes / pi | false | 未确认（null） | false |
+| hermes / pi | true（原生Profile YAML / 用户mcp.json） | true（独立MCP） | false |
 
 实现落点：[静态注册表](../../../desktop/electron/builtin-adapters.cjs#L71)（`connectionCapabilities`投影、`supportsTeamCollaboration`只看托管维度、`supportsIndependentMcp`只看调用维度）、[契约校验器](../../../desktop/electron/agent-adapter-contract.cjs#L45)。远端daemon能力只能收窄，不能启用；未知适配器全部为未知。
 
@@ -281,11 +281,17 @@ Codex 的快照当前声明 `resume: true`，表示已实现调用入口，不�
 
 | 工具 | 原生协议与绑定 | 完成证据与限制 |
 | --- | --- | --- |
-| Hermes | `chat --query-file - --format stream-json`；原生 `session_id`，续聊传原 `--resume` | 原生 result 与进程退出共同核对；不指定模型/provider |
-| Pi | `--mode json --print --session-dir`；观察 session header ID，续聊先定位并核验唯一原会话文件，再传完整 `--session` 路径 | assistant 结果、原生轮次结束与退出共同核对；缺原文件不能静默创建替代会话 |
+| Hermes | `chat --query-file - --format stream-json`；原生 `session_id`，续聊传原 `--resume` | 原生 result 与进程退出共同核对；result.exit_code或进程退出码3/130仅证明查看器分离，保留unknown；不指定模型/provider |
+| Pi | `--mode json --print --session-dir`；观察session header ID，续聊核验唯一原文件的ID及cwd与原上下文真实目录一致，再传完整`--session`路径 | assistant结果、原生轮次结束与退出共同核对；文件或原目录缺失/变化不能静默创建替代会话 |
 | DSH | `--profile headless --json`；观察 `sessionId`，续聊使用原 `--session-id` | 该轮 completed、final 与退出共同核对；headless 使用原生环境/.env 配置，不搬运 web profile 凭据 |
 
 三个适配器共用持久 `NativeCliHost` 及独立 worker，使用不同事件解析器。均声明续聊；Pi/DSH保留取消，Hermes原生网关取消未适配且声明false，退出CLI不等于网关任务取消。Bridge permissions/forms/verification/teamCollaboration 为 false；不支持的协作 scope 在派发前拒绝。取消收据与原任务终态分开，原生结束/取消与原进程退出必须核对。宿主重开只恢复原事件观察；原 worker/终态无法确认时保留 unknown 与占用，不重发。能力声明表示实现入口，真实原生版本及模型验收以报告为准。
+
+Hermes/Pi/DSH的所选启动进程在参数/启动器解析时同步拒绝，或ChildProcess在spawn事件前报告实际error，均可证明未启动；worker记录failed/NATIVE_START并显式nativeExited=false。原核对/旧取消收据可以confirmed，但data.status仍failed，不能解释成原生退出或取消。发生过spawn后的退出、stderr错误文案、缺result或当前文件缺失都不能用来补造该证明；Hermes原网关失联规则保持。历史unknown只读原ID，不自动回填未派发或重试。[完整边界与实际验证](../../iterations/I08/native-start-boundary.md)。
+
+Hermes有限查看器在原生审批/澄清等待、或已接收输入排在unknown任务后时，以退出码3关闭stream-json并不结算网关任务。解析器同时检查result.exit_code和实际进程退出码，不依赖英文错误文案；3/130均沿原Task/Session记录unknown、保持占用及核对收据，不开放续聊或新请求。0/1/2沿既有成功/失败与断线规则核验。本次仅新观察适用，不改写历史失败或unknown；Bridge尚不能回复这类原生等待，也没有新增网关重连/取消。[需求、源码与分层验证](../../iterations/I08/hermes-detached-input.md)。
+
+Pi原生SessionManager会采用会话文件中的cwd。`piSessionFile(directory,sessionId,workspace)`先核对唯一原ID，再核对header.cwd与原Agent上下文目录均为绝对路径、可解析到同一真实目录且是目录；相同真实目录的等价写法可用，缺失/相对/空/异目录或文件路径均拒绝。会话投影据此禁用canContinue，实际续聊在持久意图前检查，worker在spawn前再查；CONVERSATION_CONFIG不创建新请求/Task、不改原历史或修复原生文件。没有跨进程文件锁，最终检查后外部改写的竞态仍存在。[完整实现与验证](../../iterations/I08/pi-session-workspace.md)。
 
 原生协议错误、原 Session 不匹配、缺文件或配置不匹配不能伪造成新会话成功。原生工具自己的权限策略仍适用；没有 Bridge 许可表单不代表自动允许工具。
 

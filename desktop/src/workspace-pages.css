@@ -1,7 +1,7 @@
 /* Page presentation is scoped to the current desktop shell. Legacy classes remain for existing UI checks. */
 .workbench .workspace-page {
   min-width: 0;
-  font-size: 13px;
+  font-size: 14px;
 }
 .workbench .workspace-page-heading > div {
   min-width: 0;
@@ -42,7 +42,7 @@
   align-items: center;
   gap: 10px;
   color: var(--secondary);
-  font-size: 12px;
+  font-size: 13px;
   flex-wrap: wrap;
 }
 .workbench .workspace-toolbar-summary > svg {
@@ -57,19 +57,19 @@
   min-width: 0;
   padding: 0 10px;
   border: 1px solid var(--border);
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--card);
   color: var(--muted);
 }
 .workbench .workspace-search input[type="search"] {
   width: 100%;
   min-width: 0;
-  min-height: 35px;
+  min-height: 36px;
   padding: 7px 0;
   border: 0;
   border-radius: 0;
   background: transparent;
-  font-size: 12px;
+  font-size: 13px;
   outline: none;
 }
 .workbench .workspace-search:focus-within {
@@ -90,7 +90,7 @@
   margin-right: -4px;
 }
 .workbench .workspace-filter-result {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--secondary);
   margin: -8px 0 16px;
 }
@@ -109,7 +109,7 @@
 }
 .workbench .workspace-page > .ui-empty {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--card);
   min-height: 320px;
 }
@@ -125,7 +125,7 @@
 }
 .workbench .workspace-page .ui-empty p {
   max-width: 340px;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
   color: var(--secondary);
   margin: 0;
@@ -161,10 +161,10 @@
 }
 .workbench .workspace-column {
   min-width: 0;
-  min-height: 340px;
-  padding: 13px 11px 12px;
+  min-height: 280px;
+  padding: 15px 12px 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--subtle);
 }
 .workbench .workspace-column-heading {
@@ -208,16 +208,17 @@
 .workbench .workspace-task {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
   min-width: 0;
   margin: 0;
-  padding: 14px;
+  padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 9px;
   background: var(--card);
   color: var(--text);
   text-align: left;
+  box-shadow: var(--shadow-sm);
   transition:
     border-color 0.15s,
     background 0.15s;
@@ -236,7 +237,7 @@
   align-items: center;
   gap: 6px;
   min-width: 0;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
 }
 .workbench .workspace-task-source > span {
@@ -276,7 +277,7 @@
   max-height: none;
   overflow-wrap: anywhere;
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
   color: var(--secondary);
 }
@@ -287,9 +288,11 @@
   gap: 6px;
   flex-wrap: wrap;
   min-width: 0;
+  padding-top: 11px;
+  border-top: 1px solid var(--border);
 }
 .workbench .workspace-task-footer time {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -306,7 +309,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
 }
 .workbench .workspace-column-empty {
@@ -333,8 +336,9 @@
   min-height: 0;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--card);
+  box-shadow: var(--shadow-sm);
 }
 .workbench .workspace-conversation-list {
   display: flex;
@@ -392,10 +396,10 @@
   align-items: flex-start;
   gap: 10px;
   width: 100%;
-  padding: 12px 10px;
-  margin: 0 0 4px;
+  padding: 15px 12px;
+  margin: 0 0 6px;
   border: 1px solid transparent;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
   text-align: left;
   min-width: 0;
@@ -404,9 +408,9 @@
   background: var(--selected);
 }
 .workbench .workspace-conversation-choice.chosen {
-  background: var(--card);
-  border-color: var(--border);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.025);
+  background: var(--selected);
+  border-color: transparent;
+  box-shadow: none;
 }
 .workbench .workspace-conversation-choice-icon {
   display: grid;
@@ -432,7 +436,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
   font-weight: 550;
   color: var(--text);
@@ -442,14 +446,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.5;
   color: var(--secondary);
   margin: 4px 0 0;
 }
 .workbench .workspace-conversation-choice small {
   display: block;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.6;
   color: var(--muted);
   margin-top: 4px;
@@ -538,7 +542,7 @@
   border-radius: 7px;
   background: var(--warning-soft);
   color: var(--warning);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
@@ -575,18 +579,18 @@
   align-items: center;
   gap: 9px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.6;
 }
 .workbench .workspace-turn-label > span {
-  font-size: 10px;
+  font-size: 11px;
 }
 .workbench .workspace-turn-label > span:first-child {
   font-weight: 600;
   color: var(--secondary);
 }
 .workbench .workspace-question p {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.85;
   color: var(--text);
   margin: 7px 0 0;
@@ -608,7 +612,7 @@
   color: var(--muted);
 }
 .workbench .workspace-answer-meta strong {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -623,8 +627,8 @@
 }
 .workbench .workspace-answer-text.network-answer {
   font: inherit;
-  font-size: 13px;
-  line-height: 1.85;
+  font-size: 14px;
+  line-height: 1.9;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: normal;
@@ -632,7 +636,7 @@
   color: var(--text);
 }
 .workbench .workspace-answer > .workspace-answer-placeholder {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -699,10 +703,10 @@
   white-space: nowrap;
 }
 .workbench .settings-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 1152px;
   min-width: 0;
 }
 .workbench .settings-card {
@@ -711,8 +715,32 @@
   margin: 0;
   padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+.workbench .workspace-settings .settings-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr);
+  gap: 0 32px;
+  padding: 24px 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+}
+.workbench .workspace-settings .settings-card > .settings-card-heading {
+  grid-column: 1;
+  grid-row: 1 / span 20;
+  margin: 0;
+}
+.workbench .workspace-settings .settings-card > :not(.settings-card-heading) {
+  grid-column: 2;
+  margin: 0;
+}
+.workbench .workspace-settings .settings-card > .settings-row:nth-child(2) {
+  border-top: 0;
+  padding-top: 0;
 }
 .workbench .settings-card > .settings-card-heading {
   display: flex;
@@ -724,7 +752,7 @@
   border: 0;
 }
 .workbench .settings-card-heading > svg {
-  margin-top: 2px;
+  margin-top: 3px;
   color: var(--secondary);
 }
 .workbench .settings-card-heading > div {
@@ -738,7 +766,7 @@
   margin: 0;
 }
 .workbench .settings-card-heading p {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
   color: var(--secondary);
   margin-top: 4px;
@@ -787,7 +815,7 @@
 .workbench .settings-row span {
   display: block;
   color: var(--secondary);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
   margin-top: 4px;
   overflow-wrap: anywhere;
@@ -799,7 +827,7 @@
   width: 132px;
   min-height: 35px;
   flex: none;
-  font-size: 12px;
+  font-size: 13px;
   padding: 7px 9px;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -897,7 +925,7 @@
   color: var(--text);
 }
 .workbench .settings-pending-heading time {
-  font-size: 10px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
   white-space: nowrap;
@@ -910,7 +938,7 @@
   margin-top: 3px;
 }
 .workbench .settings-pending p {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
   color: var(--secondary);
   margin: 8px 0 0;
@@ -920,7 +948,7 @@
   display: inline-block;
   max-width: 100%;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.6;
   padding: 3px 6px;
   margin-top: 8px;
@@ -963,7 +991,7 @@
   margin-top: 2px;
 }
 .workbench .settings-clear-state strong {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text);
 }
@@ -978,7 +1006,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.6;
   color: var(--secondary);
   white-space: nowrap;
@@ -1056,6 +1084,17 @@
   }
 }
 @media (max-width: 800px) {
+  .workbench .workspace-settings .settings-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .workbench .workspace-settings .settings-card > .settings-card-heading {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .workbench .workspace-settings .settings-card > :not(.settings-card-heading) {
+    grid-column: 1;
+  }
   .workbench .settings-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1074,7 +1113,7 @@
     gap: 6px;
   }
   .workbench .workspace-answer-meta .text-btn {
-    font-size: 10px;
+    font-size: 11px;
   }
   .workbench .workspace-composer-footer {
     align-items: flex-start;
@@ -1187,12 +1226,45 @@
   flex-direction: column;
   overflow: hidden;
 }
-.workbench .agent-configuration .modal-head { flex: none; align-items: flex-start; }
-.workbench .agent-configuration .modal-head h2 { display: flex; align-items: center; gap: 10px; }
-.workbench .agent-configuration .modal-head p { margin: 7px 0 0; color: var(--secondary); font-size: 12px; overflow-wrap: anywhere; }
-.workbench .agent-configuration .modal-body { overflow-y: auto; min-height: 0; }
-.workbench .agent-configuration .settings-card { padding: 0; border: 0; border-radius: 0; background: transparent; min-width: 0; }
-.workbench .agent-configuration .ssh-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.workbench .agent-configuration code { overflow-wrap: anywhere; }
-.workbench .agent-native-configuration { font-size: 13px; line-height: 1.8; }
-.workbench .inventory-configure { color: var(--secondary); }
+.workbench .agent-configuration .modal-head {
+  flex: none;
+  align-items: flex-start;
+}
+.workbench .agent-configuration .modal-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.workbench .agent-configuration .modal-head p {
+  margin: 7px 0 0;
+  color: var(--secondary);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.workbench .agent-configuration .modal-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+.workbench .agent-configuration .settings-card {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  min-width: 0;
+  box-shadow: none;
+}
+.workbench .agent-configuration .ssh-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.workbench .agent-configuration code {
+  overflow-wrap: anywhere;
+}
+.workbench .agent-native-configuration {
+  font-size: 13px;
+  line-height: 1.8;
+}
+.workbench .inventory-configure {
+  color: var(--secondary);
+}

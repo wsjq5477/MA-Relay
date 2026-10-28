@@ -1,0 +1,27 @@
+✔ Hermes waiting for native approval or input cannot establish a gateway terminal state (4.745ms)
+✔ Hermes queued behind unknown work cannot establish a gateway terminal state (0.4961ms)
+✔ Hermes detached result without diagnostic text cannot establish a gateway terminal state (0.4007ms)
+✔ Hermes detached result despite mismatched process code cannot establish a gateway terminal state (0.3883ms)
+✔ Hermes detached process despite mismatched result code cannot establish a gateway terminal state (0.3965ms)
+✔ Hermes detached process after an apparent successful result cannot establish a gateway terminal state (0.4595ms)
+✔ Hermes interrupted viewer cannot establish a gateway terminal state (0.4426ms)
+✔ Hermes confirmed native failure and normal success retain their existing meanings (1.0803ms)
+✔ Hermes exit 3 (input) retains the original request and controls across observer restart (972.4285ms)
+✔ Hermes exit 3 (retained) retains the original request and controls across observer restart (898.899ms)
+✔ Hermes exit 3 (no-diagnostic) retains the original request and controls across observer restart (873.585ms)
+✔ hermes records a definite pre-spawn exe launch failure without claiming native exit or cancellation (565.6131ms)
+✔ hermes records a definite pre-spawn cmd launch failure without claiming native exit or cancellation (469.0371ms)
+✔ pi records a definite pre-spawn exe launch failure without claiming native exit or cancellation (479.9718ms)
+✔ pi records a definite pre-spawn cmd launch failure without claiming native exit or cancellation (466.4814ms)
+✔ dsh records a definite pre-spawn exe launch failure without claiming native exit or cancellation (490.9528ms)
+✔ dsh records a definite pre-spawn cmd launch failure without claiming native exit or cancellation (464.3941ms)
+✔ a spawned Hermes viewer that loses its result stays unknown even when stderr says ENOENT (786.7194ms)
+✔ historical unknown tasks cannot be cleared merely because the selected executable is now missing (70.1168ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4297.6712

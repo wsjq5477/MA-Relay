@@ -1,0 +1,51 @@
+✔ OpenDesk running install is refused before any endpoint or native write; old exit snapshot cannot erase a new entry (170.9814ms)
+✔ unknown OpenDesk process state keeps original bytes and does not create a false successful registration (10.0182ms)
+✔ OpenDesk starting during endpoint preparation refuses the final write and rolls back authorization (84.4145ms)
+✔ OpenDesk shutdown writeback must settle before any endpoint is prepared (15.5932ms)
+✔ OpenDesk removal revokes first while running and later removes only its own entry after exit (157.4561ms)
+✔ OpenDesk probe is read-only unsupported and never promotes a Bridge endpoint probe to native success (69.2386ms)
+✔ failed process observation is unknown and cannot authorize native writes (2.1226ms)
+▶ original exact health admission refusal can settle its attach; query errors or generic health codes retain unknown
+  ✔ original (25.2439ms)
+  ✔ generic-message (14.5736ms)
+  ✔ query-only (12.6982ms)
+  ✔ changed-input (14.7422ms)
+  ✔ foreign-receipt (14.2652ms)
+✔ original exact health admission refusal can settle its attach; query errors or generic health codes retain unknown (85.3587ms)
+✔ persisted original host factory refusal settles only its attach intent after an original receipt read, with no replay (25.1136ms)
+▶ host refusal recovery requires original durable error and fingerprint; bare query errors, wrong lane, changed inputs and foreign receipts retain uncertainty
+  ✔ no-original-error (12.6171ms)
+  ✔ different-error (13.1908ms)
+  ✔ bad-fingerprint (13.2928ms)
+  ✔ remove (12.3668ms)
+  ✔ wrong-lane (12.9487ms)
+  ✔ wrong-id (13.4546ms)
+  ✔ foreign-receipt (12.8519ms)
+  ✔ query-error (12.3001ms)
+✔ host refusal recovery requires original durable error and fingerprint; bare query errors, wrong lane, changed inputs and foreign receipts retain uncertainty (106.9708ms)
+✔ an actual original confirmed receipt takes priority over the historical host factory error (24.9259ms)
+✔ new attach host factory refusal is recorded as rejected without admitting any task or replaying attach (25.4097ms)
+✔ central graph uncertainty survives restart, blocks new IDs in its lane and only queries the original request (44.888ms)
+✔ graph intent must persist before dispatch; definite validation failure frees the lane while retaining original payload fingerprint (32.8001ms)
+✔ layout uncertainty does not block authorization and receipts atomically committed before lost ACK reconcile without another write (66.62ms)
+✔ node and authority writes share a safety barrier but layout remains independent; original node receipts are queried after lost ACK (85.5317ms)
+✔ an original local node unknown does not block another machine maintenance; same-machine and missing provenance still block (53.5786ms)
+✔ scope isolation preserves same-machine, missing-source and authority barriers despite unrelated query failure (54.5904ms)
+✔ original graph query never settles a foreign machine or changed content receipt (32.3045ms)
+✔ runtime capability negotiation marks MCP open access without changing ordinary coordinator requirements (0.7091ms)
+✔ coordinator-service accepts both new MCP methods and forwards them through the network to the host (51.1946ms)
+﹣ daemon advertises the capability, allows read-only probe during maintenance, and blocks revocation like other configuration mutations (0.3328ms) # Linux-only daemon contract; exercised on Linux
+✔ an old remote daemon without the capability yields an explicit upgrade error before any frame is sent (42.1481ms)
+✔ probe and revoke require a connected non-removed node while status keeps its existing contract (73.9217ms)
+✔ an offline remote machine refuses MCP methods before any capability or native read (0.8641ms)
+✔ an old coordinator without the capability is told to upgrade for MCP facts only (406.617ms)
+✔ OpenDesk native writes require the remote lifecycle marker while reads and revocation stay available (1.2193ms)
+✔ stopped OpenDesk original node can configure while disconnected without enabling other adapters or removed identities (33.3494ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 2295.7504

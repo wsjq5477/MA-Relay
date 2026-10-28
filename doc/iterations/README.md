@@ -1,5 +1,15 @@
 # 迭代资料目录
 
+- 2026-10-28：[Taste与Impeccable工作台精修](I08/taste-impeccable-ui.md)：固定两项目版本，应用framed-sheet方向、本地IBM Plex字体；相关渲染105项与浏览器七组/19张截图，Taste四宽度与Impeccable扫描分别记录；源码未发布、模型0。
+
+- 2026-10-28：[桌面工作台视觉调整](I08/workbench-visual-refresh.md)：石墨绿导航、暖白工作区、统计卡和深色主题；生产前端隔离截图与交互验证，未发布、模型0。
+
+- 2026-10-28：[原生CLI启动前失败边界](I08/native-start-boundary.md)：Hermes/Pi/DSH明确未启动时结算原失败与控制收据，已启动失联/历史unknown保持；Windows专项8项与共享64项，未发布、模型0。
+
+- 2026-10-28：[Pi续聊目录绑定与Windows测试器修正](I08/pi-session-workspace.md)：同ID会话cwd派发前核对、原状态/Session保持；Windows56项及原包SessionManager三组验证，模型0，未发布。
+
+- 2026-10-28：[Hermes等待输入时的查看器分离保护](I08/hermes-detached-input.md)：未发布源码修复退出3误结算，保留原unknown/占用；Windows回归与未修改原生组件验证，模型0。
+
 - 2026-10-27：[alpha.67 Linux Hermes实际执行与WSL启动](I08/alpha67-hermes-linux-live.md)：修复冻结入口47秒超过旧30秒预算，补原生执行/续聊与发布验收。
 
 - 2026-10-27：[alpha.66 Linux Hermes CLI适配](I08/alpha66-hermes-linux.md)：专用安装目录/独立源码根/原生Profile发现，固定官方Linux安装版与原生执行协议的分层验证。
@@ -339,3 +349,7 @@
 4. 测试运行范围、真实证据、失败/未测和发布包状态。
 
 不能只把新方案追加在迭代目录而让整体设计继续描述旧实现。同步规则见 [开发维护指南](../development-guide.md)。主文档（资料入口、整体设计、架构、数据、协议、测试、路线）只保留当前状态；逐轮历史写入本目录并在本页登记。
+
+- [I08 issue #27 关系冲突检查与人工恢复](I08/relation-conflict-diagnostic.md)
+
+- [I08 alpha.68 发布交付](I08/alpha68-release.md)

@@ -6,6 +6,10 @@
 
 ## 2. 资料整理时的历史持久基线
 
+当前未发布的[Taste/Impeccable桌面视觉调整](iterations/I08/taste-impeccable-ui.md)已通过105项相关渲染回归、生产前端隔离浏览器七组检查/19张最终截图；两主题、两种桌面尺寸、字体离线加载、焦点及执行只读入口已验。Taste入口页四宽度无发现，Impeccable机械扫描空结果；模型0，不刷新下表历史基线、普通EXE或图100ms准出结论。
+
+当前未发布源码的[启动边界](iterations/I08/native-start-boundary.md)、[Pi目录绑定](iterations/I08/pi-session-workspace.md)及[Hermes分离](iterations/I08/hermes-detached-input.md)，最新Windows启动/宿主/原核对/分离共享集64/64，类型/lint/生产构建通过，模型0。原Pi/Hermes组件与独立发现/MCP60项保持其原范围，不相加。完整Windows全量、真实原生等待/网关恢复与父模型仍未准出；下表历史基线及公开alpha.67证据保持。
+
 下表保留早期资料整理的 87/43 基线与原路径，作为文档检查的持久对照；各轮实际计数见对应迭代专项，不能将旧表冒充当前源码重新运行。
 
 | 检查 | 结果 | 持久记录 |
@@ -102,3 +106,5 @@ Node ≥22.13；测试可能启动隔离后台/worker 并调用原生安装 `--v
 ## 网页资料入口验收
 
 桌面资料站仅发布 `doc/user/` 用户Markdown；内部报告/历史/过程不参与路由、搜索和资源导出。网页构建、发布边界、搜索、目录、DSH章节、接入摘要、主题与Mermaid的实际结果在 [M11 报告](modules/11-documentation-portal/test-report.md)维护；不纳入核心测试计数，也不改变 Windows EXE 交付结论。按用户要求不做手机专项验收。
+
+关系冲突恢复为未发布源码受控验收：定向 137/137、生产构建及合成浏览器确认/取消/失败/成功反馈通过。桌面全量 926 通过、74 失败、1 跳过，未做变更前同工作区全量对比；未提升整体验收基线。[证据和未测环境](iterations/I08/relation-conflict-diagnostic.md)。

@@ -1,5 +1,11 @@
 # AgentBridge 整体架构
 
+共用原生CLI worker以实际ChildProcess的spawn/error事件区分“所选进程未启动”与“已启动后结果不明”；前者结束原Task并向原控制收据提供nativeExited=false，后者沿适配器原unknown规则。该证明只来自当次worker，不在恢复时根据文件/PID缺失推断，也不新增传输、模型层或取消能力。[启动边界与证据](iterations/I08/native-start-boundary.md)。
+
+Pi续聊的原生文件选择由共用解析器核对Session ID与cwd/原上下文真实目录；NativeCliHost在会话投影、续聊意图前及worker启动前复用检查。不会修复/迁移原文件，也不新建模型层、传输或Session；最终检查与原生打开间没有跨进程锁。[实现、竞态边界与证据](iterations/I08/pi-session-workspace.md)。
+
+Hermes原生等待输入时，有限CLI查看器退出3/130与网关任务终止是两个事实；NativeCliHost继续保存原unknown、Session与资源占用。该判断在共用原生解析器完成，本机/WSL/SSH不新增传输、模型层或网关控制；只读重开不重发Prompt。此为未发布源码修复，[完整流程与证据](iterations/I08/hermes-detached-input.md)。
+
 Windows→WSL HostConnection仅就绪握手预算扩至120秒，以容纳Windows挂载盘上的冻结Core加载；收到原就绪帧后才发业务请求并启动独立65秒回应计时。共享并发启动、代次关闭、未派发/unknown与原请求恢复不改变；Linux原生与SSH通道不改。[启动实测与验证](iterations/I08/alpha67-hermes-linux-live.md)。
 
 Linux Hermes区分原生数据Home/Profile与源码安装目录，非交互daemon/WSL/SSH共用MachineHost发现和CLI宿主；不读取交互shell初始化、不引入模型API、不部署SSH。原生安装路径补齐与专用目录隔离见[本轮设计](iterations/I08/alpha66-hermes-linux.md)。
@@ -390,3 +396,5 @@ Coordinator 负责原台账对账与准入，AgentNetwork 按持久请求/实例
 ## 用户文档发布边界
 
 文档站的源目录固定为 `doc/user/`，与内部实现设计和追踪材料分开。页面清单、链接/正文检查、独立构建审计共同约束导航、页面、全文搜索与静态资源；只复制明确许可的品牌图。接入表读取当前矩阵，能力表读取静态注册元数据，不执行Agent或模型。详见[M11设计](modules/11-documentation-portal/design.md)。该内容分层不改变业务协议、任务身份或存储格式。
+
+关系冲突恢复入口位于中央服务的 AgentNetwork 构造之前；检查不建立可变业务状态。恢复模块串行校验原收据与源摘要、备份并原子提交，再由正常加载器严格重读。当前启动器对 v3 数据前置检查后台版本与关系索引同步能力，不能隔离用户手动启动的旧 EXE。[流程与边界](iterations/I08/relation-conflict-diagnostic.md)。

@@ -11,7 +11,7 @@ const validIdentity = value => typeof value === 'string' && value.trim().length 
 const messageText = message => Array.isArray(message?.content)
   ? message.content.filter(block => block?.type === 'text' && typeof block.text === 'string').map(block => block.text).join('') : '';
 
-function piSessionFile(directory, sessionId) {
+function piSessionFile(directory, sessionId, workspace) {
   let entries;
   try { entries = fs.readdirSync(directory, { withFileTypes: true }); }
   catch (error) { if (error.code === 'ENOENT') throw fail('CONVERSATION_CONFIG', 'Pi 原生会话文件不存在，未重新提交。'); throw error; }
@@ -23,12 +23,24 @@ function piSessionFile(directory, sessionId) {
     try {
       fd = fs.openSync(file, 'r'); const bytes = Buffer.alloc(65536), count = fs.readSync(fd, bytes, 0, bytes.length, 0);
       const first = bytes.subarray(0, count).toString('utf8').split('\n')[0], header = JSON.parse(first);
-      if (header.type === 'session' && header.id === sessionId) matches.push(file);
+      if (header.type === 'session' && header.id === sessionId) matches.push({file, cwd: header.cwd});
     } catch (error) { if (error.code !== 'ENOENT' && !(error instanceof SyntaxError)) throw error; }
     finally { if (fd !== undefined) fs.closeSync(fd); }
   }
   if (matches.length !== 1) throw fail('CONVERSATION_CONFIG', 'Pi 原生会话文件缺失或不唯一，未重新提交；请保留原记录核对。');
-  return matches[0];
+  const match = matches[0];
+  // Native SessionManager.open restores cwd from the persisted header. Check
+  // it before dispatch, rather than discovering a changed workspace after the
+  // prompt has already reached the native process. Aliases of the same real
+  // directory are equivalent; missing/relative/foreign bindings are not.
+  let sameWorkspace = false;
+  try {
+    sameWorkspace = typeof match.cwd === 'string' && path.isAbsolute(match.cwd)
+      && typeof workspace === 'string' && path.isAbsolute(workspace)
+      && fs.realpathSync(match.cwd) === fs.realpathSync(workspace) && fs.statSync(workspace).isDirectory();
+  } catch { /* Unreadable or missing original directories cannot be rebound. */ }
+  if (!sameWorkspace) throw fail('CONVERSATION_CONFIG', 'Pi 原生会话目录与原上下文不符或不可用，未重新提交；请保留原记录核对。');
+  return match.file;
 }
 function argumentsFor(job) {
   if (!profiles[job.adapter] || job.profile !== profiles[job.adapter]) throw fail('CONVERSATION_CONFIG', '原生执行协议不匹配，原请求未重新提交。');
@@ -43,7 +55,7 @@ function argumentsFor(job) {
   // implementations accept the common stream-json and exact-resume contract.
   if (job.adapter === 'hermes') return ['chat', '--query-file', '-', '--format', 'stream-json', ...(job.sessionId ? ['--resume', job.sessionId] : [])];
   if (job.adapter === 'dsh') return ['--profile', 'headless', '--json', ...(job.sessionId ? ['--session-id', job.sessionId] : []), '-'];
-  return ['--mode', 'json', '--print', '--session-dir', job.sessionDirectory, ...(job.sessionId ? ['--session', piSessionFile(job.sessionDirectory, job.sessionId)] : [])];
+  return ['--mode', 'json', '--print', '--session-dir', job.sessionDirectory, ...(job.sessionId ? ['--session', piSessionFile(job.sessionDirectory, job.sessionId, job.workspace)] : [])];
 }
 function createParser(job, emit) {
   let answer = '', sessionId = '', completed = false, resultSeen = false, hermesDetached = false, failure = '', piError = '', piFinal = false, piEnded = false, dshEnded = false;
@@ -62,7 +74,11 @@ function createParser(job, emit) {
         if (event.type === 'text') output(event.text, true);
         if (event.type === 'result') {
           resultSeen = true;
-          hermesDetached = event.exit_code === 130;
+          // GatewayChatView._detach exits 3 when a finite viewer cannot keep
+          // waiting (for example, an approval/clarification is pending). Its
+          // result closes the viewer protocol, not the admitted gateway turn.
+          // Exit 130 likewise only proves that the viewer detached.
+          hermesDetached ||= event.exit_code === 3 || event.exit_code === 130;
           bind(event.session_id); output(event.text);
           if (event.exit_code !== 0 || event.error) failure = String(event.error || 'Hermes 原生执行失败');
           completed = event.exit_code === 0 && typeof event.text === 'string';
@@ -95,7 +111,7 @@ function createParser(job, emit) {
     finish(code) {
       const error = failure || (job.adapter === 'pi' ? piError || (!piFinal ? 'Pi 缺少本轮正常结束的 assistant 消息。' : '') : '') || (job.adapter === 'dsh' && !dshEnded ? 'DeepSeek Harness 缺少本轮 completed 终态。' : '');
       return { sessionId, answer, succeeded: code === 0 && completed && !!sessionId && !error, error,
-        ...(job.adapter === 'hermes' ? {uncertain: !resultSeen || hermesDetached || /Gateway connection\/read failed|Detached; accepted work|Unknown execution blocks/.test(error)} : {}) };
+        ...(job.adapter === 'hermes' ? {uncertain: !resultSeen || hermesDetached || code === 3 || code === 130 || /Gateway connection\/read failed|Detached; accepted work|Unknown execution blocks/.test(error)} : {}) };
     },
   };
 }

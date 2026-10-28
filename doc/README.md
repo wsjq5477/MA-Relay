@@ -6,6 +6,8 @@ AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和�
 
 ## 当前状态
 
+当前源码另有未发布的[启动失败边界](iterations/I08/native-start-boundary.md)、[Hermes分离保护](iterations/I08/hermes-detached-input.md)与[Pi目录绑定](iterations/I08/pi-session-workspace.md)：明确未启动才可结算启动失败，已启动且结果不明保持unknown，续聊须保留原Session与目录。Windows受控及原生组件已验，不替代真实模型与完整生命周期。
+
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |

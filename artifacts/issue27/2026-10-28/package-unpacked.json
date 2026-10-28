@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-28T09:36:13.259Z",
+  "status": "passed",
+  "version": "0.6.0-alpha.68",
+  "backendModules": 59,
+  "coreFiles": 84,
+  "coreBuildMatches": true,
+  "linuxBackendMatches": true,
+  "linuxFiles": 1725,
+  "linuxManifestDigest": "ac00383bcb2176c5751d7000f220164117d613c58245a49bf12d42c3cc9dd06b",
+  "appAsarSourceMatches": true,
+  "frontendMatches": true,
+  "bootstrapMatches": true
+}

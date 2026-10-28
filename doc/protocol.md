@@ -1,5 +1,11 @@
 # 通信协议与接口
 
+Hermes/Pi/DSH共用worker在启动器解析同步拒绝或真实ChildProcess spawn前error时，输出既有terminal failed/NATIVE_START及nativeExited=false；原核对/取消收据按原ID结算到failed。stderr文本、运行后非零退出或缺结果不是此类未派发证明；不添加RPC、取消或原生事件协议。[启动边界与验证](iterations/I08/native-start-boundary.md)。
+
+Pi续聊的`--session`仍只传唯一原文件完整路径，新增在参数构造前核对该文件cwd与原上下文真实目录；不符/不可用以既有CONVERSATION_CONFIG拒绝，不产生新执行意图。JSON/print事件、原请求查询、权限/取消和RPC不变。[原生依据与验证](iterations/I08/pi-session-workspace.md)。
+
+Hermes stream-json的result只表示CLI查看器已结束。result.exit_code或实际进程退出码为3/130时保持unknown，包含原生审批/澄清等待及排队受阻；不依赖英文诊断文本，也不把该退出转换成任务失败/取消。0/1/2继续按既有原生结果/断线规则核验。无新增RPC/状态或取消能力，当前公开alpha.67未包含本源码修复。[完整契约与验证](iterations/I08/hermes-detached-input.md)。
+
 Hermes新任务沿用chat --query-file - --format stream-json和精确--resume，不再发送--no-restore-cwd；工作目录由固定原上下文/原生Session保持。原生stderr的Session/session_id只作同一Session绑定，不作成功证明；非终态退出、网关断线或截断保持unknown。活动Hermes取消以ADAPTER_UNSUPPORTED拒绝，原历史取消/查询不改。无新增RPC或模型协议。[完整记录](iterations/I08/alpha65-hermes-windows.md)。
 
 saveCollaboration沿用原参数、指纹、收据与revision合约；纯撤权不重新检查旧角色能力，新增成员/新主仍按可信管理范围与各自能力准入。布局不可用只影响布局保存。关系未知、GRAPH_UNCONFIRMED、REVISION_CONFLICT与OPERATION_CONFLICT的恢复仍查询原操作或保留草稿显式校验，不添加重试写。[关系撤权与目标作用域](iterations/I08/relation-revocation-scope.md)。
@@ -428,3 +434,5 @@ recoverPending 保留 resolved/remaining/items；items 中 NOT_CONFIGURED 的固
 原生Task.native.sessionId为空/纯空白不构成小队会话绑定证据，不能开放自动续接，也不覆盖先前有效绑定；真实非空身份变化继续触发既有会话保护。Task终态与Session绑定能力分开，无RPC/帧版本变化。[专项](iterations/I07/blank-native-session.md)。
 
 小队业务验收须核对当前有效原生尝试的continuationError：工作项以当前轮最后一次执行为准，独立协调以每成员最后一次执行为准。原生succeeded不是身份异常报告的业务通过证明；直接验收和延后提议生效前都检查。历史轮次和被后续执行取代的异常保留，不永久阻塞。无新增接口/帧字段。[专项](iterations/I07/acceptance-native-binding.md)。
+
+中央桌面 call 新增 relationRecovery.inspect（空参数，只读诊断、blockedReason 或匿名 proposal）及 relationRecovery.confirm（operationId、sourceDigest、confirm:true）。只在业务网络未载入时恢复；重复成功 ID 返回原收据。歧义及摘要变化返回 RELATION_RECOVERY_BLOCKED。后台握手及启动 manifest 须声明版本、multi-parent-relations-v1、relation-index-sync-v1 才能用于 v3 文件。[字段、提案与失败边界](iterations/I08/relation-conflict-diagnostic.md)。

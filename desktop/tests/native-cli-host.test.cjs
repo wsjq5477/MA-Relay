@@ -9,7 +9,8 @@ const { profiles, argumentsFor } = require('../electron/native-cli-protocols.cjs
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 const terminal = status => ['succeeded', 'failed', 'cancelled'].includes(status);
 async function done(host, taskId) {
-  for (let attempt = 0; attempt < 150; attempt++) { const task = await host.call('ipc', { op: 'task', taskId }); if (terminal(task.status) || task.status === 'unknown') return task; await delay(30); }
+  const deadline = Date.now() + 15000;
+  while (Date.now() < deadline) { const task = await host.call('ipc', { op: 'task', taskId }); if (terminal(task.status) || task.status === 'unknown') return task; await delay(30); }
   throw Error('native fixture timeout');
 }
 function fixture(t, adapter) {
@@ -62,7 +63,7 @@ process.stdin.on('end', async () => {
 });
 `);
   const host = new NativeCliHost({ directory, executable, adapter });
-  t.after(async () => { try { const snapshot = await host.call('snapshot'); for (const task of snapshot.tasks.filter(item => !terminal(item.status) && item.status !== 'unknown')) { await host.call('ipc', {op:'cancel',taskId:task.taskId,operationId:'cleanup-'+task.taskId}); await done(host,task.taskId); } } finally { host.close(); fs.rmSync(directory,{recursive:true,force:true}); } });
+  t.after(async () => { try { const snapshot = await host.call('snapshot'); for (const task of snapshot.tasks.filter(item => !terminal(item.status) && item.status !== 'unknown')) { await host.call('ipc', {op:'cancel',taskId:task.taskId,operationId:'cleanup-'+task.taskId}); await done(host,task.taskId); } } finally { host.close(); await fs.promises.rm(directory,{recursive:true,force:true,maxRetries:8,retryDelay:100}); } });
   return { host, directory, executable, calls };
 }
 async function connected(f) { return f.host.call('connect', { workspace:f.directory }); }
@@ -138,11 +139,39 @@ test('Pi refuses a missing persisted native file before dispatch rather than cre
   fs.copyFileSync(original,duplicate);
   assert.equal((await f.host.call('ipc',{op:'conversation',conversationId:first.conversationId})).canContinue,false);
   await assert.rejects(f.host.call('ipc',{op:'continue',conversationId:first.conversationId,requestId:'duplicate',message:'next'}),{code:'CONVERSATION_CONFIG'});
-  fs.rmSync(duplicate);assert.equal((await f.host.call('ipc',{op:'conversation',conversationId:first.conversationId})).canContinue,true);
-  fs.rmSync(sessionDirectory,{recursive:true});
+  fs.unlinkSync(duplicate);assert.equal((await f.host.call('ipc',{op:'conversation',conversationId:first.conversationId})).canContinue,true);
+  await fs.promises.rm(sessionDirectory,{recursive:true});
   assert.equal((await f.host.call('snapshot')).conversations[0].canContinue,false);
   await assert.rejects(f.host.call('ipc',{op:'continue',conversationId:first.conversationId,requestId:'two',message:'next'}),{code:'CONVERSATION_CONFIG'});
   assert.equal(callLog(f).length,1);
+});
+
+test('Pi verifies the persisted session workspace before creating a continuation intent or starting a native process', async t => {
+  const f=fixture(t,'pi'),agent=await connected(f);
+  const first=await f.host.call('ipc',{op:'submit',agentId:agent.agentId,requestId:'original',message:'hello'});
+  assert.equal((await done(f.host,first.taskId)).status,'succeeded');
+  const file=path.join(f.directory,'native-sessions','session.jsonl');
+  const original=fs.readFileSync(file,'utf8'),header=JSON.parse(original.split('\n')[0]);
+  const foreign=path.join(f.directory,'foreign');fs.mkdirSync(foreign);
+  const originalState=fs.readFileSync(f.host.file,'utf8');
+  for (const [name,cwd] of [['foreign',foreign],['missing',path.join(f.directory,'missing')],['relative','.'],['blank',''],['absent',undefined],['file',f.executable]]) {
+    fs.writeFileSync(file,JSON.stringify({...header,cwd})+'\n');
+    assert.equal((await f.host.call('ipc',{op:'conversation',conversationId:first.conversationId})).canContinue,false,name);
+    await assert.rejects(f.host.call('ipc',{op:'continue',conversationId:first.conversationId,requestId:'rejected-'+name,message:'next'}),{code:'CONVERSATION_CONFIG'});
+    assert.equal(fs.readFileSync(f.host.file,'utf8'),originalState,name+' must not create a durable intent');
+    assert.equal(callLog(f).length,1,name+' must not dispatch');
+  }
+  // Equivalent spellings of the same existing directory retain the binding.
+  fs.writeFileSync(file,JSON.stringify({...header,cwd:f.directory+path.sep+'.'})+'\n');
+  assert.equal((await f.host.call('ipc',{op:'conversation',conversationId:first.conversationId})).canContinue,true);
+  f.host.close();const reopened=new NativeCliHost({directory:f.directory,executable:f.executable,adapter:'pi'});t.after(()=>reopened.close());
+  assert.equal((await reopened.call('ipc',{op:'request',requestId:'original'})).taskId,first.taskId);
+  fs.writeFileSync(file,original);
+  const params={op:'continue',conversationId:first.conversationId,requestId:'verified-next',message:'next'};
+  const next=await reopened.call('ipc',params),result=await done(reopened,next.taskId);
+  assert.equal(result.status,'succeeded');assert.equal(result.native.sessionId,header.id);
+  assert.equal((await reopened.call('ipc',params)).taskId,next.taskId);
+  assert.equal(callLog(f).length,2);
 });
 test('missing original worker evidence stays unknown, occupied and read-only across restart', async t => {
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-native-unknown-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));

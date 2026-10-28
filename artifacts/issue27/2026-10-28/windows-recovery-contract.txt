@@ -1,0 +1,34 @@
+✔ reopened incomplete context cannot hide an original request receipt during read-only recovery (574.1283ms)
+✔ missing original receipt stays unknown without querying an unfinished context or dispatching a prompt (8.9009ms)
+✔ unbound task and control lookups never select a context through two absent identities (11.2539ms)
+✔ an explicit agent and a bound original task still route to their owning context (7.9149ms)
+✔ OpenCode context observes native health before returning and never submits a prompt while warming (279.4254ms)
+✔ a new installation creates a separate context while the original backend remains queryable (46.0824ms)
+✔ installed OpenCode 3.x remains visible but cannot create a context or start a native backend (548.6565ms)
+✔ installed OpenCode 1.x reaches production context preparation instead of a 2.x rejection (507.3259ms)
+✔ explicit preparation restores an exited OpenCode service in the original context without reconnecting or submitting (25.1701ms)
+▶ restoration surfaces native startup errors and missing original owners without allocating another agent
+  ✔ startup-error (19.0488ms)
+  ✔ missing-owner (18.3125ms)
+✔ restoration surfaces native startup errors and missing original owners without allocating another agent (38.5962ms)
+✔ snapshot and original-request reads never restart an exited OpenCode service (3.9658ms)
+✔ accepted original request is confirmed by its receipt without sending a prompt (0.5203ms)
+✔ request receipt from another identity or source cannot clear the warning (0.5952ms)
+✔ missing ordinary submission stays unknown (0.3742ms)
+✔ missing legacy WSL verification continuation is rejected only after checking its exact immutable parent (0.6037ms)
+✔ missing receipt with normal, different, or incomplete parent remains unknown (0.8149ms)
+✔ verification parent rejection cannot be assumed for Windows or unknown host contracts (0.4606ms)
+✔ control receipts settle only confirmed or rejected original operation IDs (0.6364ms)
+✔ offline transport and missing machine provenance preserve all unknown records (0.5582ms)
+✔ a concurrent ledger update is not counted as a successful settlement (0.4371ms)
+✔ original durable unhealthy rejection settles the original request only; transport and absent receipts cannot (0.8286ms)
+✔ query results explain unresolved originals without leaking remote error messages or sending prompts (0.6331ms)
+✔ only matching original undispatched evidence can settle a legacy runtime rejection without a native lookup (0.7148ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2087.6498

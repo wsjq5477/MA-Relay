@@ -15,6 +15,7 @@ const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.resto
 const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview','machine.maintenanceBlockers','machine.queryBlockedOperation']);
 const methods = new Set(['dsh.status','dsh.configure','mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation','relations','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
 // SSH state is a complete observation: absent errors revoke cached failures.
+methods.add('relationRecovery.inspect');methods.add('relationRecovery.confirm');
 // A live transport must not hide a failed business snapshot (e.g. RPC timeout).
 function mergeSshState(machine, state, snapshot = false) {
   if (!state) return machine;
@@ -143,6 +144,8 @@ function hostPath() {
 function connection() {
   if (host) return host;
   if (options.network) return (host = options.network);
+  const networkFile=resolve(options.directory,'agent-network.json');
+  if(existsSync(networkFile))require('./relation-state.cjs').loadRelationState(JSON.parse(readFileSync(networkFile,'utf8')));
   const { SshManager } = require('./ssh-host.cjs');
   const register = machine => {
     const existing = host.catalog.machines.find(m => m.machineId === machine.machineId);
@@ -266,6 +269,15 @@ async function call(input) {
     )
       throw new Error("桌面请求不合法");
     if(input.method==='attachNode')input={...input,method:'manageNode',params:{...input.params,action:'attach',operationId:require('node:crypto').randomUUID()}};
+    if(['relationRecovery.inspect','relationRecovery.confirm'].includes(input.method)){
+      if(host){
+        const prior=host.network?.relationRecoveryOperations?.find(op=>op.operationId===input.params.operationId);
+        if(input.method==='relationRecovery.confirm'&&input.params.confirm===true&&prior?.sourceDigest===input.params.sourceDigest)return {ok:true,result:prior};
+        throw Object.assign(Error('网络已载入，请重新检查当前关系。'),{code:'RELATION_RECOVERY_BLOCKED'});
+      }
+      const recovery=require('./relation-recovery.cjs');
+      return {ok:true,result:input.method.endsWith('.inspect')?recovery.inspect(options.directory):recovery.recover(options.directory,input.params)};
+    }
     connection();
     connection().options??={};
     connection().options.teamTool=(scope,name,args,sourceMachine)=>teamService().nativeTool(scope,name,args,sourceMachine);

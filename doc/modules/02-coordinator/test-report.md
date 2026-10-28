@@ -275,3 +275,5 @@ alpha.20已公开预发布：[Windows EXE](https://github.com/wsjq5477/MA-Relay/
 ## 小队原生等待观察
 
 T-M02-120：基于alpha.23的未发布源码增量，WSL Linux / Node22.23.1。受控原执行与真实SQLite重启，模型0。小队自动化/公共空间/任务专项30/30（共享总数）通过，覆盖等待投影、脱敏、通知跨重启去重、unknown保留和终态清除，通知未增加执行；前端类型与构建通过。首次失败、完整TAP、复现和证据限制见[专项](../../iterations/I07/native-waiting.md)。未运行真实原生权限批准、Windows浏览器/EXE或独立SSH，未更新发布附件。
+
+2026-10-28 Windows：关系恢复定向受控回归、生产前端构建及合成 RPC 浏览器确认流程通过；全量仍有失败，不代表真实 profile 或普通 EXE 通过。[证据与边界](../../iterations/I08/relation-conflict-diagnostic.md)。

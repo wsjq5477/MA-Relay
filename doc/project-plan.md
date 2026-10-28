@@ -12,6 +12,7 @@
 | 最新 Windows 预发布 | **0.6.0-alpha.67**，冻结5de9be3；源码/EXE/SHA公开且匿名完整下载一致；[交付与边界](iterations/I08/alpha67-hermes-linux-live.md) |
 | 上一公开预发布 | **0.6.0-alpha.66**：Linux原安装发现与MCP组件；[发布记录](iterations/I08/alpha66-hermes-linux.md) |
 | 当前自动回归 | alpha.67 Linux适配109/109、Core71/71；Windows受控22/22、普通EXE七组；原生Linux成功两轮，旧失败和完整矩阵边界保留 |
+| 未发布桌面外观 | Taste/Impeccable浅色框架与中性深色主题、本地IBM Plex字体；相关渲染105/105、隔离浏览器七组/19张截图，Taste四宽度无发现、Impeccable空结果；[范围和证据](iterations/I08/taste-impeccable-ui.md)，本片未构建新EXE |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
 | 当前发布范围与缺口 | 已包含DSH Desktop/Web、CT-07、OpenDesk、MCP02与#15/#16修复；完整准出继续按专项推进 |
 | I06A/I06B | 6A 候选已验收（见 [6A 验收](iterations/I06/acceptance.md)）；6B alpha.6 主要范围已验收（见 [实施报告](iterations/I06/graph-implementation.md)） |
@@ -35,6 +36,8 @@
 
 ## 3. 后续目标与顺序
 
+源码已补[启动前失败边界](iterations/I08/native-start-boundary.md)、[Hermes等待输入分离保护](iterations/I08/hermes-detached-input.md)和[Pi续聊目录绑定](iterations/I08/pi-session-workspace.md)，均未发布。后续需冻结含三项修复的候选包，继续实际原生审批/澄清等待、网关恢复与取消、Pi真实生命周期、自主父模型及普通被委派验收；不能用组件或受控回归关闭缺口。
+
 alpha.36已按三方内容整合公开alpha.35独立修复与当前工作区，并已公开发布（标签`1fef25f`，EXE与校验附件通过匿名完整下载核验）；发布不替代真实模型、用户profile或独立SSH准出，完整I06C/I07C仍未准出。
 
 当前后续目标以"Agent 发现和操控其他 Agent 的通路"为核心；自动续接、多用户、模型管理、云平台不作为目标。连接类目标统一定义在 [接入矩阵](agent-integration-matrix.md) §4。
@@ -56,3 +59,5 @@ CT-04 公共材料与 CT-05 选材包的源码已实现（见矩阵 §4 各行�
 - [模块目录](module-plan.md)：长期职责与联动范围。
 - [整体测试报告](testing.md)：当前验收基线。
 - [同步维护规则](development-guide.md)：修改模块时同时更新当前设计与迭代。
+
+当前源码已补关系冲突的原收据提案、明确确认后备份/原子恢复与 v3 旧后台前置门禁；缺少机器/策略完整关系顺序时保持人工核对。真实 profile 和普通 EXE 未验，不改变公开 alpha.67 或完整矩阵范围。[当前范围](iterations/I08/relation-conflict-diagnostic.md)。

@@ -2,13 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { shareUnchanged } from "./poll-state";
 import {
   Monitor,
-  GitBranch,
-  LayoutGrid,
   Plus,
   X,
   ShieldCheck,
   Search,
-  Activity,
   List,
   Network,
 } from "lucide-react";
@@ -22,6 +19,7 @@ import AddMachineDialog from "./AddMachineDialog";
 import { useMachineManagement, type MachineAction } from "./machine-management";
 import AgentGraph from "./AgentGraph";
 import ConnectionPolicyPanel from "./ConnectionPolicyPanel";
+import RelationConflictPanel from './RelationConflictPanel';
 import AppShell, { type Page } from "./AppShell";
 import MachineInventory from "./MachineInventory";
 import AgentConfigurationDialog from './AgentConfigurationDialog';
@@ -560,6 +558,7 @@ export default function NetworkApp() {
           </button>
         </div>
       )}
+      {error && <RelationConflictPanel onRecovered={message=>{setNotice(message);void refresh();}}/>}
       {journal.length > 0 && (
         <div className="notice-banner">
           <ShieldCheck size={17} />
@@ -620,14 +619,19 @@ export default function NetworkApp() {
               <h1>接入配置</h1>
               <p>配置机器、原生 Agent 和 MCP；日常需求从原生 Agent 会话发起。</p>
             </div>
-            <button className="btn primary" onClick={() => setSshDialog({})}>
-              <Plus size={15} />
-              添加 Linux 机器
-            </button>
+            <div className="page-heading-actions">
+              <button className="btn" onClick={() => setPolicyOpen(true)}>
+                <ShieldCheck size={15} />
+                连接策略与确认
+              </button>
+              <button className="btn primary" onClick={() => setSshDialog({})}>
+                <Plus size={15} />
+                添加 Linux 机器
+              </button>
+            </div>
           </div>
           <div className="overview-summary" aria-label="当前机器范围概况">
             <div>
-              <Monitor size={18} />
               <div className="summary-copy">
                 <strong>
                   {
@@ -638,11 +642,10 @@ export default function NetworkApp() {
                     ).length
                   }
                 </strong>
-                <span>台机器</span>
+                <span>机器总数</span>
               </div>
             </div>
             <div>
-              <Activity size={18} />
               <div className="summary-copy">
                 <strong>
                   {
@@ -651,11 +654,10 @@ export default function NetworkApp() {
                     ).length
                   }
                 </strong>
-                <span>个 Agent 可用</span>
+                <span>可用 Agent</span>
               </div>
             </div>
             <div>
-              <LayoutGrid size={18} />
               <div className="summary-copy">
                 <strong>
                   {
@@ -664,18 +666,17 @@ export default function NetworkApp() {
                     ).length
                   }
                 </strong>
-                <span>项任务进行中</span>
+                <span>进行中任务</span>
               </div>
             </div>
             <div>
-              <GitBranch size={18} />
               <div className="summary-copy">
                 <strong>{data.relations?data.relations.filter(row=>row.enabled).reduce((sum,row)=>sum+row.memberIds.length,0):relationship.memberIds.length}</strong>
-                <span>条已保存授权</span>
+                <span>已保存授权</span>
               </div>
             </div>
           </div>
-          <div className="machine-filterbar"><button className="btn" onClick={()=>setPolicyOpen(true)}>连接策略与确认</button>
+          <div className="machine-filterbar">
             {filters}
             <div
               className="ui-segmented"
@@ -701,7 +702,10 @@ export default function NetworkApp() {
           {machineView === "overview" && (
             <>
               <div className="workspace-toolbar">
-                <span className="machine-count">按机器管理原生工具</span>
+                <div className="inventory-section-heading">
+                  <h2>机器与 Agent</h2>
+                  <span className="machine-count">按机器管理原生工具</span>
+                </div>
                 <label className="ui-search">
                   <Search size={15} />
                   <input

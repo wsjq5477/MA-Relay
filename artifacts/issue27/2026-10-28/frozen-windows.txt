@@ -1,0 +1,24 @@
+✔ 5→7→6 chain needs explicit confirmation, preserves exact backup, history and restart state; original ID is idempotent (51.9913ms)
+✔ missing, ambiguous, unknown, duplicate, bad fingerprint and unexplained revocation sources remain read-only (61.3721ms)
+✔ management unknown, source change and backup/write/rename failures cannot modify the original (52.4175ms)
+✔ service exposes recovery before normal mutable load (34.291ms)
+✔ v3 writer guard rejects old capability sets before use and permits declared sync runtime (13.9076ms)
+✔ old live coordinator handshake is refused before any business dispatch (390.0159ms)
+✔ backup mismatch blocks recovery and preserves original bytes (14.5317ms)
+✔ auto-start checks runtime manifest capabilities before spawning a writer (16.3985ms)
+✔ legacy migration retains exact relationship order, revisions and original unknown ownership without mutating the input (9.0584ms)
+✔ selected projection commits preserve inactive relation rows and do not mutate the previous state (2.4178ms)
+✔ partial, unknown, duplicate, missing-selection and conflicting stored indexes never silently migrate or overwrite either view (5.5036ms)
+✔ existing legacy file is read without a write, then the first normal atomic commit persists migration and all original receipts (76.7992ms)
+✔ an older writer changing only the legacy view causes a closed startup with original bytes retained (9.6333ms)
+✔ real relation save and original-ID idempotency atomically retain the index and unrelated unknowns; failed rename commits neither (575.2357ms)
+✔ real node disconnect and machine removal keep the selected index synchronized with revocation (535.3522ms)
+✔ conflict diagnostic exposes only counts and revisions and leaves source unchanged (1.9373ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1903.7155
