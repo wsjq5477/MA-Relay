@@ -1,6 +1,6 @@
 # M04 SSH 机器接入设计
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 本地候选alpha.56的完整维护控制面输入采用有界64MiB字节流读取，保留全部版本描述和原fingerprint；Daemon RPC帧仍1MiB。原ID查询在线端副本省去不消费的releases，持久remoteInput及身份/操作ID不改，维护命令仍发送完整目录。新控制器由原已核验包暂存，旧控制器可继续接收小查询；不部署或改写既有运行实例。[实际缺陷、完整CLI与恢复验证](../../iterations/I08/maintenance-input-capacity.md)。
 
@@ -274,6 +274,6 @@ M04-F06/F08：终态维护收据不再一律按“维护完成”结算。[daemo
 
 ## 当前源码：#27/#28 的观察与恢复边界
 
-M04-F04/F05/F06：[SshManager](../../../desktop/electron/ssh-host.cjs)每次 test 先清除旧 probe，显式重连重新探测；认证、清单/摘要/身份失败或 connect 失败后都清除。SSH_DAEMON_UPGRADE_REQUIRED 保持 disconnected、retryable=false，自动重试及中央重启不会重复 inspecting；用户主动重连可重新提供一次性凭据后重探。无安装、升级、停止或替换的自动补救。公开alpha.69原精确manifest仅在候选alpha.70打包中转为上一版本pin，不加入现场未登记版本；[准入](../../../desktop/electron/ssh-install.cjs)继续核对原清单、摘要、路径、owner、daemonId和profileId。
+M04-F04/F05/F06：[SshManager](../../../desktop/electron/ssh-host.cjs)每次 test 先清除旧 probe，显式重连重新探测；认证、清单/摘要/身份失败或 connect 失败后都清除。SSH_DAEMON_UPGRADE_REQUIRED 保持 disconnected、retryable=false，自动重试及中央重启不会重复 inspecting；用户主动重连可重新提供一次性凭据后重探。无安装、升级、停止或替换的自动补救。公开alpha.69原精确manifest仅在alpha.70预发布打包中转为上一版本pin，不加入现场未登记版本；[准入](../../../desktop/electron/ssh-install.cjs)继续核对原清单、摘要、路径、owner、daemonId和profileId。
 
 完整流程、受控反例与未测边界见[本轮记录](../../iterations/I08/issues27-28-current-state.md)。

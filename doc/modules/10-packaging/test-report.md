@@ -2,7 +2,7 @@
 
 2026-10-29源码组件验证：worker-runtime产品源码未改；测试以异步删除并断言原目录确实不存在，再核对缓存/历史manifest/修复目录，10/10通过。系统Node24.12.0的中文路径删除反例与Electron44.7.0/Node24.21.0对照分别保存；未打包或运行新普通EXE，原冻结包保持。[本轮证据与限制](../../iterations/I08/windows-regression-and-native-probes.md)。
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 
 ## 当前源码字体资源（2026-10-28）
@@ -459,4 +459,4 @@ T-M10-27 / M10-F01/F02/F03/F05/F06：2026-10-15，WSL Node22.23.1构建Windows x
 
 alpha.20已公开预发布：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/AgentBridge-0.6.0-alpha.20-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.20)。分发元数据和完整EXE下载摘要核验通过，源码标签9b2d5ea；不将分发成功扩大为用户故障或真实模型验收。[发布及证据](../../iterations/I06/pending-isolation.md)。
 
-2026-10-29 alpha.70候选：225项输入及实际EXE3405资源一致，60后台/84Core/1728Linux/ASAR/前端校验通过，EXE132301726字节。包内33/33、普通portable合成恢复/完整重启及实际恢复/SSH UI通过；未签名，真实profile及性能未准出。[原证据和失败](../../iterations/I08/alpha70-release.md)。
+2026-10-29 alpha.70预发布：225项输入及实际EXE3405资源一致，60后台/84Core/1728Linux/ASAR/前端校验通过，EXE132301726字节。包内33/33、普通portable合成恢复/完整重启及实际恢复/SSH UI通过；未签名，真实profile及性能未准出。[原证据和失败](../../iterations/I08/alpha70-release.md)。

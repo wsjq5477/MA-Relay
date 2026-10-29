@@ -1,0 +1,128 @@
+
+> agentbridge@0.1.0 test
+> npm run build && node --import tsx --test --test-concurrency=1 tests/*.test.ts
+
+
+> agentbridge@0.1.0 build
+> tsc -p tsconfig.json
+
+✔ installed CLI symlink invokes the command instead of silently exiting (210.023079ms)
+(node:2603) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ controller: concurrent startup, configuration conflicts, local apply, dedupe, forms and unknown resource protection (3572.756089ms)
+✔ foreign IPC server or POSIX socket-path file is never adopted, stopped or unlinked (6.596103ms)
+✔ in-place migration preserves old identity/history/unknown without native binding and refuses live storage (60.798198ms)
+✔ non-TTY default command is passive; terminal control sequences cannot rewrite display (185.308249ms)
+(node:2673) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ state machine rejects impossible events, unknown recovery and terminal overwrite (1.335387ms)
+✔ UTF-8 clipping never splits code points (0.728267ms)
+✔ credentials use fixed digest comparison and known secrets are redacted (0.411483ms)
+✔ config paths are anchored, credentials protected, unsafe URLs and identity collisions rejected (10.736035ms)
+✔ POSIX demo credentials and directory use owner-only mode bits (1.199632ms)
+✔ Hub transactions, serial reservation and restart history are durable (16.04404ms)
+✔ duplicate events, payload conflicts, illegal transitions and result target checks preserve facts (9.636952ms)
+✔ recovery distinguishes proven undispatched tasks and preserves unknown occupancy (9.935512ms)
+✔ bounded event and result text is marked; SQLite failure cannot save false confirmation (9.214939ms)
+✔ data lock prohibits duplicate service and newer schemas refuse startup (9.250596ms)
+✔ Edge journal rejects input conflicts, duplicate invocation and replay after restart (20.993534ms)
+✔ protocol rejects unsupported versions, source spoofing and missing event shape (3.000282ms)
+(node:2692) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ desktop: first snapshot is passive; the host rejects arbitrary control and executable changes (6.007056ms)
+✔ desktop: UI host and CLI share conversations, request dedupe, permission cancellation and history (691.278975ms)
+✔ OpenCode discovery cannot select a healthy DSH service even when both are installed (143.489412ms)
+✔ discovery honors the current PATH command, reports its failure, and uses native fallback only when absent (20.757598ms)
+✔ OpenCode revalidation uses the selected launcher outside PATH and never substitutes another installation (103.482239ms)
+✔ OpenCode secondary discovery honors Windows npm launcher resolution (9.869883ms)
+✔ Windows OpenCode npm shim resolves its exact package executable without a shell (3.52727ms)
+✔ enterprise 1.x selected installation reaches API validation instead of a contradictory second discovery (106.971716ms)
+(node:2813) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ an event ACK timeout yields to reconnect, preserves the original outbox and invokes its task only once (5661.915685ms)
+ℹ Original execution invoked once; contiguous event replay acknowledged after two transports.
+(node:2850) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ AC-F06-04: real Hub preserves truncated results and returns 503 on SQLite write failure (117.898883ms)
+✔ AC-F06-04: Edge write failure before execution sends no false ACK or invocation (26.657063ms)
+✔ an interrupted HTTP upload does not disable healthy Hub storage (93.890974ms)
+(node:2869) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ B01: three turns use one Session, isolate answers, preserve owner/config and dedupe (279.217402ms)
+✔ B02: cancel once across duplicate IDs, lost response and completion race (421.891868ms)
+✔ B03: Hub restart preserves observation and replays durable events without a new Prompt (335.019246ms)
+✔ B04: Edge rebuild restores waiting and completed original executions using reads only (245.866614ms)
+✔ B04: missing input, foreign steering and configuration mismatch retain unknown occupancy (137.038813ms)
+✔ B03: an ACK lost after Hub persistence replays the same seq once without invoking again (311.666248ms)
+(node:2887) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ I01 real cross-process CLI acceptance: baseline, auth, persistence, idempotency and crashes (48799.779659ms)
+(node:3907) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ mcp status renders facts and the native config path for an explicit adapter (23.616229ms)
+✔ headless discovery, explicit attach and original operation query never replay a lost attach (12.410654ms)
+✔ MCP CLI honors the same profile override as the desktop window (3.241058ms)
+✔ mcp resolves an omitted adapter from the coordinator snapshot and never guesses (6.029077ms)
+✔ mcp export and install print absolute fragment paths without leaking configuration or tokens (13.296766ms)
+✔ mcp remove distinguishes revocation from native cleanup (6.55331ms)
+✔ mcp revoke removes authorization only and reports retained or pending native entries (8.159412ms)
+✔ mcp probe reports native load, connection and tool counts without tool names or secrets (6.079842ms)
+✔ mcp maps backend refusal codes to exit 4 and unsupported install to 4 (6.418196ms)
+✔ mcp rejects missing and unknown options before contacting the backend (1.258279ms)
+✔ mcp fails with an actionable error when the desktop backend is not installed (0.851467ms)
+✔ OpenCode node inherits CLI recent preference after native config, reads updates, and never writes or invents a model (8.789072ms)
+✔ B05: owned native process is reused; wrong PID/start identity and unsafe file never adopt or signal a process (2578.66449ms)
+✔ B05: an unregistered live endpoint is left running with its credential untouched (4.096421ms)
+✔ B05: native diagnostic output after parent SIGKILL does not kill the adopted service (674.937092ms)
+(node:4015) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ controller installation check launches the exact selected cjs without shell or model calls (194.162168ms)
+✔ controller installation check launches the exact selected mjs without shell or model calls (98.670263ms)
+(node:4063) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ unsupported API versions reject independently of HTTP shape; OpenCode 2 still requires its contract (73.613181ms)
+✔ DesktopHost CLI 3.0.0, API compatible=true: validates the original installation before admission (349.81744ms)
+✔ DesktopHost CLI 3.1.0, API compatible=true: validates the original installation before admission (329.877482ms)
+✔ DesktopHost CLI 2.0.24, API compatible=true: validates the original installation before admission (924.212057ms)
+✔ DesktopHost CLI 2.0.24, API compatible=false: validates the original installation before admission (847.028749ms)
+✔ issue21: valid v1 skips permanently hanging api/info and only reads metadata (66.434614ms)
+✔ issue21: bounded candidate and metadata probes distinguish API, auth and offline errors (6134.490156ms)
+(node:4178) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v1 production Hub/Edge runs and continues one server-generated Session; restart only reads original IDs (266.868854ms)
+✔ v1 cancel receipt is separate from original-turn abort evidence, dedupes and recovers without reissuing (217.403793ms)
+✔ v1 permission and question replies use native request IDs and retain single-operation receipts (204.177809ms)
+✔ v1 lost prompt acknowledgement recovers original binding; lost session creation never sends a Prompt (30.431337ms)
+✔ v1 incomplete or tool-only output and missing inputs never release the original occupancy (82.091697ms)
+✔ saved OpenCode 3.x rejects before serve, credentials or native identity changes (51.664471ms)
+(node:4197) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a listening OpenCode 2 launcher reports API absence and auth failure without consuming the startup budget (945.067901ms)
+✔ production controller restores saved unsupported 3.x settings as an explicit version error without serve or changing the original Agent (519.868754ms)
+✔ issue21: managed early v1 starts despite hanging api/info; version check uses the original executable (176.170562ms)
+(node:4339) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ OpenCode v2 through Hub/Edge: ownership, waiting/reply, pagination, result, isolation, dedupe and restart (1892.063172ms)
+✔ native Driver distinguishes explicit rejection, model failure and ambiguous admission; bounds result (438.201476ms)
+(node:4399) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ import preserves limited operator ACL and hides foreign occupied task in offline summary (60.725498ms)
+✔ legacy unknown without native binding pins historical directory even when desired config changed (15.152813ms)
+(node:4423) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ atomic settings write refuses stale revision; storage failure preserves complete last version (18.031707ms)
+✔ missing credential and malformed import do not write authority or alter legacy files; repair can import (24.916279ms)
+(node:4451) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ TTY discovers OpenCode, space-selects and connects without configuration questions or model calls (1739.288503ms)
+✔ TTY exposes real native startup failure instead of reporting a connected Agent (1342.019719ms)
+✔ advanced setup can save an explicitly disabled draft without launching services (1093.661384ms)
+✔ Ctrl+C and EOF at TTY menu exit cleanly while the existing controller survives (1207.00432ms)
+ℹ tests 79
+ℹ suites 0
+ℹ pass 79
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 93423.811561

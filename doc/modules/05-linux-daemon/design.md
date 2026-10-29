@@ -1,6 +1,6 @@
 # M05 Linux 机器后台设计
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 M05-F01/F02：WSL原启动脚本、Node选择与就绪帧不改；Windows等待读取器就绪120秒，Linux/SSH协议与daemon原输入不变。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
@@ -278,6 +278,6 @@ daemon.quiesce 先建立内存准入门再读取任务与收据；非终态、�
 
 ## 当前源码：#27/#28 的观察与恢复边界
 
-M05：本次不修改 daemon 业务协议或远端持久记录。客户端的[SshInstaller.release/probe](../../../desktop/electron/ssh-install.cjs)继续严格按公开可信manifest准入，未登记版本在握手/安装前拒绝；本次只修正中央/SSH客户端的观察生命周期与错误优先级。候选alpha.70保留公开alpha.69的原可信manifest，不允许未知版本；新中央状态能力不要求升级已受信兼容daemon，也不触发上传、激活、停止或任务回放。
+M05：本次不修改 daemon 业务协议或远端持久记录。客户端的[SshInstaller.release/probe](../../../desktop/electron/ssh-install.cjs)继续严格按公开可信manifest准入，未登记版本在握手/安装前拒绝；本次只修正中央/SSH客户端的观察生命周期与错误优先级。alpha.70预发布保留公开alpha.69的原可信manifest，不允许未知版本；新中央状态能力不要求升级已受信兼容daemon，也不触发上传、激活、停止或任务回放。
 
 完整流程、受控反例与未测边界见[本轮记录](../../iterations/I08/issues27-28-current-state.md)。

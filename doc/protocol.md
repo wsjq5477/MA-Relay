@@ -441,4 +441,4 @@ recoverPending 保留 resolved/remaining/items；items 中 NOT_CONFIGURED 的固
 
 中央桌面 call 新增 relationRecovery.inspect（空参数，只读诊断、blockedReason 或匿名 proposal）及 relationRecovery.confirm（operationId、sourceDigest、confirm:true）。只在业务网络未载入时恢复；重复成功 ID 返回原收据。歧义及摘要变化返回 RELATION_RECOVERY_BLOCKED。后台握手及启动 manifest 须声明版本、multi-parent-relations-v1、relation-index-sync-v1 才能用于 v3 文件。[字段、提案与失败边界](iterations/I08/relation-conflict-diagnostic.md)。
 
-当前源码中央hello新增 relation-recovery-observations-v2、ssh-current-observation-v1。恢复调用缺前者返回RELATION_RECOVERY_BACKEND_UPGRADE_REQUIRED；SSH管理或已有SSH的snapshot缺后者返回SSH_STATE_BACKEND_UPGRADE_REQUIRED，提示停止旧中央重开。daemon信任清单及协议不变。[范围](iterations/I08/issues27-28-current-state.md)。
+alpha.70中央hello新增 relation-recovery-observations-v2、ssh-current-observation-v1。恢复调用缺前者返回RELATION_RECOVERY_BACKEND_UPGRADE_REQUIRED；SSH管理或已有SSH的snapshot缺后者返回SSH_STATE_BACKEND_UPGRADE_REQUIRED，提示停止旧中央重开。daemon信任清单及协议不变。[范围](iterations/I08/issues27-28-current-state.md)。

@@ -1,22 +1,12 @@
 # 整体测试与验收报告
 
-2026-10-29 Edge维护：ACK超时反例前0/1，修复后故障/恢复10/10；Windows全量68通过/11平台跳过，冻结alpha.69源码Linux全量76通过/3失败、无跳过或取消。v1取消/等待与协议探测失败保留，不能宣称完整矩阵全绿；健康刷新共享protocol竞态已在独立分支7491c47修复，Windows定向30通过/2平台跳过、Linux24/24；未合入冻结，不覆盖其全量失败。[原始结果、快照及边界](iterations/I08/edge-outbox-reconnect.md)。模型0，不刷新公开EXE或真实原生准出。
+当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha70-release.md)。
 
-2026-10-29未发布Core维护：原安装版本检查新专项前0/2、后2/2；Windows源码定向32通过/7平台跳过。原全量53通过/18失败与中间66通过/1失败/11跳过均保留；最终跨平台全量按[专项](iterations/I08/core-windows-installation-checks.md)实际登记，模型0、不刷新公开alpha.68或真实原生/EXE准出。
-
-2026-10-29未发布MCP配置维护：系统Node24.12.0中文profile失败临时文件专项修复前0/40、修复后扩展44/44；相关Windows118项117通过/1原Linux平台跳过，失败/取消0。Electron旧实现同40项通过、修复后44/44；不能推定公开EXE复现。模型0，不刷新上轮全量或真实原生准出。[分平台证据与工程结果](iterations/I08/mcp-config-temporary-cleanup.md)。
-
-2026-10-29未发布源码维护：Windows完整桌面1017项，976通过/失败0/41平台跳过；WSL隔离受控151/151，含Windows新增40项平台跳过的逐项通过核对；Electron组件7/7。修复SSH原密文清理和经典原生列表启动，首次失败与测试等待预算调整保留；[完整证据与限制](iterations/I08/windows-regression-and-native-probes.md)。模型0，未改公开alpha.68冻结包或真实原生/普通EXE准出。
-
-2026-10-29源码增量：Windows Node24.12.0，Pi目录事件/共享宿主60/60、原包SessionManager四组、Claude脚本与三条受控普通委派5/5；docs:test由本次复现5/6修至6/6，原反例与历史结果保留。模型0、未打包新EXE，不刷新alpha.68冻结全量/真实原生准出；[分层证据与限制](iterations/I08/pi-workspace-events-and-windows-validation.md)。
-
-当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha69-release.md)。
-
-本轮原始启动失败、首轮Core70/71及后续同源码71/71、真实原生两轮和普通EXE结果见[完整验收](iterations/I08/alpha67-hermes-linux-live.md)。Windows22/22与Ubuntu109/109为不同平台集，不相加；既有Windows全量与docs:test原5/6失败保留。文档原2243项历史材料缺失无新增，不声明完整工程矩阵全通过。
+构建、类型与lint通过；实际包内恢复及回环SSH/SFTP界面与普通portable生命周期分别验收。Ubuntu CI与WSL10/10分开记录，不以受控证据替代生产SSH或真实profile。原始失败与逐项要求见[本轮记录](iterations/I08/issues27-28-current-state.md)。
 
 ## 2. 资料整理时的历史持久基线
 
-当前未发布的[Taste/Impeccable桌面视觉调整](iterations/I08/taste-impeccable-ui.md)已通过105项相关渲染回归、生产前端隔离浏览器七组检查/19张最终截图；两主题、两种桌面尺寸、字体离线加载、焦点及执行只读入口已验。Taste入口页四宽度无发现，Impeccable机械扫描空结果；模型0，不刷新下表历史基线、普通EXE或图100ms准出结论。
+已随alpha.68发布的[Taste/Impeccable桌面视觉调整](iterations/I08/taste-impeccable-ui.md)已通过105项相关渲染回归、生产前端隔离浏览器七组检查/19张最终截图；两主题、两种桌面尺寸、字体离线加载、焦点及执行只读入口已验。Taste入口页四宽度无发现，Impeccable机械扫描空结果；模型0，不刷新下表历史基线、普通EXE或图100ms准出结论。
 
 alpha.68已包含原生启动、Pi目录及Hermes分离保护；本次验证、历史证据和未准出项见[发布与完整边界](iterations/I08/alpha68-release.md)。
 
@@ -119,4 +109,4 @@ Node ≥22.13；测试可能启动隔离后台/worker 并调用原生安装 `--v
 
 alpha.68关系冲突恢复为分层受控验收：定向 137/137、生产构建及合成浏览器确认/取消/失败/成功反馈通过。桌面全量 926 通过、74 失败、1 跳过，未做变更前同工作区全量对比；未提升整体验收基线。[证据和未测环境](iterations/I08/relation-conflict-diagnostic.md)。
 
-当前源码#27/#28：定向98/98、包内33/33；回环SSH与浏览器合成RPC已验。第二轮全量1030通过/1失败/41平台跳过，DSH竞态基线也有相同失败；不声明全量全绿，普通portable恢复/完整重启及实际包内恢复/SSH UI通过。[原始证据和未测项](iterations/I08/issues27-28-current-state.md)。
+alpha.70已发布#27/#28：定向98/98、包内33/33；回环SSH与浏览器合成RPC已验。第二轮全量1030通过/1失败/41平台跳过，DSH竞态基线也有相同失败；不声明全量全绿，普通portable恢复/完整重启及实际包内恢复/SSH UI通过。[原始证据和未测项](iterations/I08/issues27-28-current-state.md)。

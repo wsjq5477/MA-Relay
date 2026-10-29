@@ -1,6 +1,6 @@
 # M01 桌面界面与交互设计
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 
 M01-F02/F04：Hermes节点沿用当前配置/审计入口，能力投影取消为false；用户从原生Hermes会话工作与停止网关任务，界面不以进程退出显示任务已取消。无新增页面/模型表单。 [本轮构建、分层验证与限制](../../iterations/I08/alpha65-hermes-windows.md)。

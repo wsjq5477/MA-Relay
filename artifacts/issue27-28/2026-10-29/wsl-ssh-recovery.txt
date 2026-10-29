@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: TCP SSH reconnect drains real daemon cursorGap pages, restores original receipt and refuses changed machine host key before authentication
+ok 1 - TCP SSH reconnect drains real daemon cursorGap pages, restores original receipt and refuses changed machine host key before authentication
+  ---
+  duration_ms: 5728.6396
+  type: 'test'
+  ...
+# Subtest: session-capped maintenance preview recovers on one fresh connection, stages there and keeps the receipt unknown
+ok 2 - session-capped maintenance preview recovers on one fresh connection, stages there and keeps the receipt unknown
+  ---
+  duration_ms: 2286.854414
+  type: 'test'
+  ...
+# Subtest: maintenance preview retries transport rejection on the same connection first and never retries semantic rejection
+ok 3 - maintenance preview retries transport rejection on the same connection first and never retries semantic rejection
+  ---
+  duration_ms: 4157.071835
+  type: 'test'
+  ...
+# Subtest: pre-transmission maintenance rejection with missing retry credentials stays definitively not started across restart
+ok 4 - pre-transmission maintenance rejection with missing retry credentials stays definitively not started across restart
+  ---
+  duration_ms: 1056.033515
+  type: 'test'
+  ...
+# Subtest: a terminal maintenance receipt releases the reconnect hold unless the remote daemon was left stopped
+ok 5 - a terminal maintenance receipt releases the reconnect hold unless the remote daemon was left stopped
+  ---
+  duration_ms: 1512.046539
+  type: 'test'
+  ...
+# Subtest: maintenance retry open preserves the original transmission boundary and receipt
+ok 6 - maintenance retry open preserves the original transmission boundary and receipt
+  ---
+  duration_ms: 1168.281476
+  type: 'test'
+  ...
+# Subtest: maintenance retry stream preserves the original transmission boundary and receipt
+ok 7 - maintenance retry stream preserves the original transmission boundary and receipt
+  ---
+  duration_ms: 1385.215852
+  type: 'test'
+  ...
+# Subtest: maintenance retry timeout preserves the original transmission boundary and receipt
+ok 8 - maintenance retry timeout preserves the original transmission boundary and receipt
+  ---
+  duration_ms: 1408.03605
+  type: 'test'
+  ...
+# Subtest: maintenance blockers project tasks/agents/receipts read-only and original-ID queries never resend or mint an ID
+ok 9 - maintenance blockers project tasks/agents/receipts read-only and original-ID queries never resend or mint an ID
+  ---
+  duration_ms: 70.566093
+  type: 'test'
+  ...
+# Subtest: maintenance input carries the strict unresolved-receipt override and never a truthy lookalike
+ok 10 - maintenance input carries the strict unresolved-receipt override and never a truthy lookalike
+  ---
+  duration_ms: 1985.706106
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 24120.699177

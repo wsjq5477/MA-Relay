@@ -1,6 +1,6 @@
 # M04 SSH 接入测试报告
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 T-M04-213 / M04-F03/F08：2026-10-29，master10fdbb3及未发布工作树，Windows系统Node24.12.0。中文profile的原密文删除回归修复前0/2、最终2/2，并在Electron组件共享7/7与WSL共享151/151中通过；准确删除、替换/取消保存、缺失引用和非文件错误与机器编辑共享验证。合成加密输出，未读取用户凭据或重测真实DPAPI；本机Electron44.7.0/Node24.21.0对照未复现rmSync问题。[原始反例、最终结果与限制](../../iterations/I08/windows-regression-and-native-probes.md)。
 
@@ -221,4 +221,4 @@ T-M04-28 / M04-F08：2026-10-14 / WSL Ubuntu / Node 22.23.1，桌面 163/163，S
 
 2026-10-15 alpha.19 合并包复验：核心45/45、桌面181/181、lint/类型/构建通过；发布资源真实 Linux Codex0.162.1发现、Windows受控扫描/配置6组、普通EXE4组通过。最终包摘要和未测边界统一见 [Linux/合并包专项](../../iterations/I06/linux-cli-discovery.md)；未实测用户服务器或真实模型任务。
 
-2026-10-29 / alpha.70候选 / Windows：定向98/98、包内关系/SSH33/33、普通portable恢复与完整重启、实际包内恢复及真实回环SSH/SFTP界面流程通过，模型0。第二轮全量1030通过/1失败/41平台跳过，DSH同一竞态基线也有失败；各原失败及验收器收尾限制保留。不代表真实profile、生产SSH或完整矩阵准出。[证据与边界](../../iterations/I08/issues27-28-current-state.md)。
+2026-10-29 / alpha.70预发布 / Windows：定向98/98、包内关系/SSH33/33、普通portable恢复与完整重启、实际包内恢复及真实回环SSH/SFTP界面流程通过，模型0。第二轮全量1030通过/1失败/41平台跳过，DSH同一竞态基线也有失败；各原失败及验收器收尾限制保留。不代表真实profile、生产SSH或完整矩阵准出。[证据与边界](../../iterations/I08/issues27-28-current-state.md)。

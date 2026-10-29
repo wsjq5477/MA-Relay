@@ -4,7 +4,7 @@
 
 alpha.69源码补齐各原生MCP配置布局在并发修改/目标切换/原子替换失败后的准确临时文件清理；原生能力、加载/连接证据、授权及托管scope不扩大。系统Node与Electron旧实现结果分别记录，不把配置受控测试当成真实原生或EXE验收。[当前行为与运行时边界](iterations/I08/mcp-config-temporary-cleanup.md)。
 
-当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha69-release.md)。
+当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha70-release.md)。
 
 Windows原生执行证据保持原日期；本轮Linux正式安装版已完成两轮实际执行、原ID去重与同Session续聊，验收采用临时网络通道，原配置保持。没有部署独立SSH；各入口实际方式与证据边界以下表为准。
 

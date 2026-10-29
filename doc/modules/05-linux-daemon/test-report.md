@@ -1,6 +1,6 @@
 # M05 Linux daemon 测试报告
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 2026-10-29验证范围更新：40项涉及Linux daemon/Unix socket/UID/原生helper的跨模块用例在Windows逐项明确跳过；可跨平台帧与SSH通道仍执行。首次WSL Node22.23.1共42项39通过/2失败/1超时取消，后续隔离首轮151项149通过/1失败/1取消；实测源码进程18.377秒就绪后仅调整测试等待预算，最终隔离151/151、跳过0，新增40个平台跳过逐项在本组通过。产品daemon默认10秒保持，不能据此准出冷启动性能。生产daemon协议/权限门禁未改、无远端部署、模型0。[全部失败及最终分层证据](../../iterations/I08/windows-regression-and-native-probes.md)。
 
@@ -244,4 +244,4 @@ T-M05-16 / M05-F05/F06/F09：2026-10-14，WSL Ubuntu / Node 22.23.1，桌面受�
 
 T-M05-26 / M05-F01/F02：alpha.22源码工作区，WSL Linux / Node22.23.1。受控host、真实Unix socket/独立维护进程、模型0。新增回归修复前在bind返回时观察到0755而失败，修复后0600、调用者umask恢复及inspect身份通过；daemon与maintenance专项27/27通过，无跳过。[完整TAP](../../../artifacts/daemon-bind/2026-10-16/tests.tap)、[实现与限制](../../iterations/I07/daemon-bind.md)。未重建Windows包、未测独立服务器，历史低频DAEMON_OWNERSHIP的完整因果未确认。
 
-2026-10-29 / alpha.70候选 / Windows：定向98/98、包内关系/SSH33/33、普通portable恢复与完整重启、实际包内恢复及真实回环SSH/SFTP界面流程通过，模型0。第二轮全量1030通过/1失败/41平台跳过，DSH同一竞态基线也有失败；各原失败及验收器收尾限制保留。不代表真实profile、生产SSH或完整矩阵准出。[证据与边界](../../iterations/I08/issues27-28-current-state.md)。
+2026-10-29 / alpha.70预发布 / Windows：定向98/98、包内关系/SSH33/33、普通portable恢复与完整重启、实际包内恢复及真实回环SSH/SFTP界面流程通过，模型0。第二轮全量1030通过/1失败/41平台跳过，DSH同一竞态基线也有失败；各原失败及验收器收尾限制保留。不代表真实profile、生产SSH或完整矩阵准出。[证据与边界](../../iterations/I08/issues27-28-current-state.md)。

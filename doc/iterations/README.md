@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-10-29：[alpha.70修复预发布交付](I08/alpha70-release.md)：#27原收据观察恢复与#28 SSH当前probe/错误；冻结5c95b98，源码/EXE/SHA公开，匿名完整下载一致；独立Ubuntu CI通过，Windows全量1失败及未准出项保留。
+
 - 2026-10-29：[alpha.69维护预发布交付](I08/alpha69-release.md)：冻结04ee6fe，整合原生入口/目录、MCP配置/列表、SSH原密文及Core补传维护；源码/EXE/SHA公开并匿名完整下载一致，实际工程/普通EXE与未准出项分层记录。
 
 - 2026-10-29：[Edge事件确认超时后的补传恢复](I08/edge-outbox-reconnect.md)：Linux完整运行实际定位CPU自旋；Windows隔离反例前0/1、修复后相关10/10，原执行/事件序列保持，最终完整矩阵分平台记录，未发布、模型0。

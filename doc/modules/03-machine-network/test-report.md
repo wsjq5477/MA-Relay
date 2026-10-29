@@ -1,6 +1,6 @@
 # M03 机器与 Agent 网络测试报告
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 2026-10-29测试维护：Windows发现夹具采用宿主PATH分隔符，原选中安装权威断言保留；图崩溃夹具核对准确注入点与Windows真实退出码，生产网络/发现/身份/unknown未改。平台共享78项为38通过/40个Linux专属明确跳过，不跨模块相加。[完整源码基线与最终证据](../../iterations/I08/windows-regression-and-native-probes.md)。
 

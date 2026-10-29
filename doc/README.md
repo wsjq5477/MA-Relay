@@ -1,20 +1,20 @@
 # AgentBridge 项目资料
 
-当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha69-release.md)。
+当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha70-release.md)。
 
 AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和结果，模型、账号与配置由原工具管理。用户入口是[使用文档](user/index.md)；本页及内部设计/原始证据不进入用户网站。逐轮历史统一在[迭代目录](iterations/README.md)。
 
 ## 当前状态
 
-alpha.68已包含启动失败边界、Hermes分离保护及Pi目录绑定；真实模型与完整生命周期仍按各自验收边界保留。[发布与完整边界](iterations/I08/alpha68-release.md)。
+关系恢复须用户明确确认，版本拒绝不自动安装或升级远端；[当前行为与边界](iterations/I08/alpha70-release.md)。
 
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前公开预发布 | **0.6.0-alpha.69**，冻结 `04ee6fe`；EXE132300169字节，匿名完整下载一致；[发布记录](iterations/I08/alpha69-release.md) |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.69/AgentBridge-0.6.0-alpha.69-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.69/SHA256SUMS.txt)；未签名；[发布记录](iterations/I08/alpha68-release.md) |
-| 当前公开源码范围 | 标签 `v0.6.0-alpha.69`（04ee6fe），master含后续发布说明 |
-| 本次内容与边界 | 原生入口/目录、MCP配置/列表与Core事件补传维护；[分层验证与边界](iterations/I08/alpha69-release.md) |
+| 当前公开预发布 | **0.6.0-alpha.70**，冻结 `5c95b98`；EXE132301726字节，匿名完整下载一致；[发布记录](iterations/I08/alpha70-release.md) |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.70/AgentBridge-0.6.0-alpha.70-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.70/SHA256SUMS.txt)；未签名；[发布记录](iterations/I08/alpha70-release.md) |
+| 当前公开源码范围 | 标签 `v0.6.0-alpha.70`（5c95b98），master含后续发布说明 |
+| 本次内容与边界 | #27关系原收据恢复与#28 SSH当前观察；[分层验证与边界](iterations/I08/alpha70-release.md) |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

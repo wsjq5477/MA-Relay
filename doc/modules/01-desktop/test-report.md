@@ -1,6 +1,6 @@
 # M01 桌面交互测试报告
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 
 ## 当前源码：本机预览入口（2026-10-28）
@@ -357,4 +357,4 @@ T-M01-120：基于alpha.23的未发布源码增量，WSL Linux / Node22.23.1。�
 
 2026-10-28 Windows：关系恢复定向受控回归、生产前端构建及合成 RPC 浏览器确认流程通过；全量仍有失败，不代表真实 profile 或普通 EXE 通过。[证据与边界](../../iterations/I08/relation-conflict-diagnostic.md)。
 
-2026-10-29 / alpha.70候选 / Windows：定向98/98、包内关系/SSH33/33、普通portable恢复与完整重启、实际包内恢复及真实回环SSH/SFTP界面流程通过，模型0。第二轮全量1030通过/1失败/41平台跳过，DSH同一竞态基线也有失败；各原失败及验收器收尾限制保留。不代表真实profile、生产SSH或完整矩阵准出。[证据与边界](../../iterations/I08/issues27-28-current-state.md)。
+2026-10-29 / alpha.70预发布 / Windows：定向98/98、包内关系/SSH33/33、普通portable恢复与完整重启、实际包内恢复及真实回环SSH/SFTP界面流程通过，模型0。第二轮全量1030通过/1失败/41平台跳过，DSH同一竞态基线也有失败；各原失败及验收器收尾限制保留。不代表真实profile、生产SSH或完整矩阵准出。[证据与边界](../../iterations/I08/issues27-28-current-state.md)。

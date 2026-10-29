@@ -1,6 +1,6 @@
 # M10 构建、发布与持久运行资源设计
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 
 ## 当前源码的离线字体资源
@@ -361,6 +361,6 @@ Windows x64 portable 已从修复源码重建，逐文件核对窗口/后台/核
 
 发布附件上传后核对公开下载可用且完整 EXE 摘要匹配。完整验证与升级说明见上述专项。
 
-## alpha.70候选资源边界
+## alpha.70预发布资源边界
 
-当前候选包含60个CJS后台模块（含ssh-state）、84个Core文件和1728个Linux资源；同一代码须进入窗口ASAR、Windows中央和Linux资源。公开alpha.69的精确原manifest仅转为上一已受信版本pin，不能加入未登记daemon。普通portable与调试包内UI、回环SSH分开验收，原SDK/观察器失败保留，不切日常后台或部署远端。[完整构建与边界](../../iterations/I08/alpha70-release.md)。
+当前预发布包含60个CJS后台模块（含ssh-state）、84个Core文件和1728个Linux资源；同一代码须进入窗口ASAR、Windows中央和Linux资源。公开alpha.69的精确原manifest仅转为上一已受信版本pin，不能加入未登记daemon。普通portable与调试包内UI、回环SSH分开验收，原SDK/观察器失败保留，不切日常后台或部署远端。[完整构建与边界](../../iterations/I08/alpha70-release.md)。

@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.69**，标签冻结04ee6fe；EXE132300169字节、SHA-256 534642b1026057a40b99f56357b88625ce45bfe28e257ad397f597e0bff0d240。223产品输入及实际EXE资源匹配，源码/EXE/SHA公开，匿名完整下载一致。
+当前公开预发布 **0.6.0-alpha.70**，标签冻结5c95b98；EXE132301726字节、SHA-256 b284d076732c0189814818b588439171be6496e08c2218356ef859d0e1d1070d。225产品输入及实际EXE资源匹配，源码/EXE/SHA公开，匿名完整下载一致。
 
-当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](doc/iterations/I08/alpha69-release.md)。
+当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](doc/iterations/I08/alpha70-release.md)。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

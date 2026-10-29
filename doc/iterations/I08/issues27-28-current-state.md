@@ -1,6 +1,6 @@
 # I08：#27 关系恢复与 #28 SSH 当前观察修复
 
-日期：2026-10-29（Asia/Hong_Kong）；基线 master `7eceec8`、公开 alpha.69。本次工作分支 `codex/fix-issues-27-28`，候选alpha.70尚未发布，不改写 alpha.69 的发布证据。关联 AB-F02/F12/F13/F16，M01/M02/M04/M05/M08。
+日期：2026-10-29（Asia/Hong_Kong）；基线 master `7eceec8`、公开 alpha.69。本次工作分支 `codex/fix-issues-27-28`，alpha.70已公开，冻结5c95b98，不改写 alpha.69 的发布证据。关联 AB-F02/F12/F13/F16，M01/M02/M04/M05/M08。
 
 ## 最新 issue 与当前代码的差异
 
@@ -73,3 +73,7 @@ alpha.70候选EXE132301726字节，SHA-256 b284d076732c0189814818b588439171be649
 | 工程/文档/边界同步 | 构建/类型/lint、定向/包内、两轮全量与基线失败分别保留；主文档及M01/M02/M04/M05/M08/M10同步 |
 
 尚未把外部issue中提到的真实profile结果计为本轮证明，未写真实profile、未新增模型/取消/生产远端操作，未提升完整矩阵或性能结论。源码/包的正式公开状态按[alpha.70交付记录](alpha70-release.md)为准。
+
+## 冻结与公开分发完成
+
+2026-10-29：标签v0.6.0-alpha.70冻结5c95b98ed8865c6f601922f029a22708f374492c，master已包含修复；225项Git产品输入绑定一致。[独立Ubuntu CI](https://github.com/wsjq5477/MA-Relay/actions/runs/40839439603) Core79/79、原生适配111/111、#27/#28专项98/98，官方Hermes0.22.5原生MCP五组通过、模型0；WSL受控SSH恢复10/10另计。EXE与SHA附件已公开并匿名完整下载匹配，[最终发布记录](alpha70-release.md)含摘要、证据与未准出项。公开分发不等同于外部真实profile已经恢复。

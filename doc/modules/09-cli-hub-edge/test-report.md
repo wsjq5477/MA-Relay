@@ -1,6 +1,6 @@
 # M09 CLI、controller 与 Hub/Edge 测试报告
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 2026-10-29续办：T-M09-215最终共享Windows79项68通过/11平台跳过；冻结alpha.69源码Linux79项76通过/3失败、无跳过或取消。原Hub重开与ACK丢失恢复通过；v1取消unknown、等待和探测超时保留，独立诊断9/9不替代全量。完整快照/清理及共享protocol竞态后续按[当次证据](../../iterations/I08/edge-outbox-reconnect.md)，不跨模块相加。
 

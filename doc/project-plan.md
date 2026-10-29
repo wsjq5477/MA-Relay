@@ -1,6 +1,6 @@
 # 迭代路线与当前交付
 
-当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha69-release.md)。
+当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha70-release.md)。
 
 下一步仍为真实原生生命周期、自主父模型/多主、独立SSH故障与图性能验收；组件/受控或公开下载通过不替代完整准出。
 
@@ -9,9 +9,9 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 当前公开预发布 | **0.6.0-alpha.69**，冻结 `04ee6fe`；EXE132300169字节，匿名完整下载一致；[发布记录](iterations/I08/alpha69-release.md) |
-| 上一公开预发布 | alpha.68，关系冲突恢复与原生会话保护；[历史发布](iterations/I08/alpha68-release.md) |
-| 当前自动回归 | Windows桌面1020通过/41跳过；Core首轮及单独复验分别记录，[本轮证据](iterations/I08/alpha69-release.md) |
+| 当前公开预发布 | **0.6.0-alpha.70**，冻结 `5c95b98`；EXE132301726字节，匿名完整下载一致；[发布记录](iterations/I08/alpha70-release.md) |
+| 上一公开预发布 | alpha.69，原生入口、MCP与Core维护；[历史发布](iterations/I08/alpha69-release.md) |
+| 当前自动回归 | Windows定向98/98、包内33/33；独立Ubuntu79/79、111/111、98/98；Windows全量1失败保留，[本轮证据](iterations/I08/alpha70-release.md) |
 | 当前桌面外观 | Taste/Impeccable浅色框架、中性深色主题及离线字体已发布；[实现与证据](iterations/I08/taste-impeccable-ui.md) |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
 | 当前发布范围与缺口 | 已包含DSH Desktop/Web、CT-07、OpenDesk、MCP02与#15/#16修复；完整准出继续按专项推进 |
@@ -62,4 +62,4 @@ CT-04 公共材料与 CT-05 选材包的源码已实现（见矩阵 §4 各行�
 
 alpha.68已包含关系冲突证据恢复；普通EXE隔离恢复和完整重启通过，真实profile未写入，完整矩阵不据此准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
 
-#27/#28当前已进入alpha.70候选包验证：关系变更/观察与原确认核对、SSH probe新鲜度/当前错误/停止版本自动重试已实现；原公共未知版本仍拒绝。普通portable、实际包内恢复/SSH UI已验；正式发布按交付记录登记。[当前记录](iterations/I08/alpha70-release.md)。
+#27/#28已随alpha.70公开：关系变更/观察与原确认核对、SSH probe新鲜度/当前错误/停止版本自动重试已实现；未登记版本仍拒绝。普通portable、实际包内恢复/SSH UI及独立Ubuntu CI已验；[发布记录](iterations/I08/alpha70-release.md)。

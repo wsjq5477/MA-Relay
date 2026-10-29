@@ -1,16 +1,6 @@
 # AgentBridge 整体功能设计
 
-AB-F11/F15：未发布Core源码修复事件确认超时后的补传自旋；原事件留在SQLite，按原执行/序列在新运输确认，不重派任务。Windows确定性反例前0/1、修复后故障/恢复专项10/10，完整矩阵独立记录。[行为与证据](iterations/I08/edge-outbox-reconnect.md)。
-
-AB-F02/F15：未发布Core源码统一连接检查/高级向导的原安装版本启动，已选JS经Node、无shell或跨安装回退；安装可调用不代替API/模型证明。Windows与Linux验证器按实际IPC、权限、进程归属和PTY边界执行。[实现与分层证据](iterations/I08/core-windows-installation-checks.md)。
-
-AB-F05/F13：alpha.69源码修复中文profile下SSH原密文的准确删除；Claude/Codex/OpenCode原生MCP列表统一沿原安装解析启动，启动失败保持加载/连接未知，工具目录与授权独立。Windows平台回归与Linux范围分别统计。[实现、证据与限制](iterations/I08/windows-regression-and-native-probes.md)。
-
-AB-F13：alpha.69源码在MCP配置并发修改、原生目录切换或原子替换失败后准确删除本次临时文件，保留原配置与无关文件。系统Node24.12.0复现残留，Electron旧实现未复现；不据此声称公开EXE有同缺陷。[行为、运行时对照与限制](iterations/I08/mcp-config-temporary-cleanup.md)。
-
-AB-F03/F08/F11：alpha.69源码统一Pi派发与原生事件的真实目录核对，等价目录别名可沿原Session续聊，缺失/失效cwd不产生成功；Claude发现选中的JS入口由Node启动，保留原生配置与身份。AB-F18文档测试器修复Windows反例清理，发布范围不变。[实现、分层验证与限制](iterations/I08/pi-workspace-events-and-windows-validation.md)。
-
-当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha69-release.md)。
+当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha70-release.md)。
 
 关系缩权与清空不重新准入旧节点；新增/换主仅检查新目标，无关unknown不全局阻塞。未确认执行继续按原ID查询；“清理已失败操作”只结算有完整证据的确定失败，保留历史。MCP配置、原生加载、连接、工具、授权和归属分别展示；直接配置与托管scope能力独立，桌面保留配置/审计及原执行恢复，日常协作由原生Agent发起。模块与[接入矩阵](agent-integration-matrix.md)限定各入口实际能力，历史见[迭代目录](iterations/README.md)。
 
@@ -160,4 +150,4 @@ AB-F02/F12/F13/F16：alpha.68支持关系冲突只读检查、唯一原收据提
 
 ## 当前源码：关系恢复与 SSH 当前观察
 
-AB-F02/F12/F13/F16：关系恢复区分已核对的原关系变更和节点观察，丢回应只查询准确原持久收据，不改写 unknown。SSH 失败清除旧 probe，阶段与错误按当前中央投影显示；未登记版本稳定拒绝并停止自动重试，公共兼容范围不变。源码未发布，验证与剩余项见[本轮记录](iterations/I08/issues27-28-current-state.md)。
+AB-F02/F12/F13/F16：关系恢复区分已核对的原关系变更和节点观察，丢回应只查询准确原持久收据，不改写 unknown。SSH 失败清除旧 probe，阶段与错误按当前中央投影显示；未登记版本稳定拒绝并停止自动重试，公共兼容范围不变。已随alpha.70发布，验证与剩余项见[本轮记录](iterations/I08/issues27-28-current-state.md)。
