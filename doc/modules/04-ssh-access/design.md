@@ -1,5 +1,8 @@
 # M04 SSH 机器接入设计
 
+alpha.71候选承接明确确认替换，维护入口可在离线/unknown/任务忙时打开查看；实际版本切换仍核对原身份、空闲与收据，不绕过门禁。仅补公开alpha.70精确原pin以保持上一公开版本复用。[来源、包与界面验证](../../iterations/I08/issue29-maintenance-entry.md)。
+
+
 ## 不受支持后台的明确确认替换
 
 M04-F04/F05/F06：正常连接仍按精确清单复用。维护只读预览可读取未登记来源的版本、current/release与原owner/profile/UID/目录标记，不执行旧代码；摘要绑定源标记和已校验目标。只有replace+confirmReplacement:true才能暂存配套包并发出原维护意图，不依赖旧构建manifest；不可同时越过未确认收据。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。

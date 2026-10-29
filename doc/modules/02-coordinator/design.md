@@ -1,5 +1,8 @@
 # M02 中央协调后台设计
 
+维护弹窗只将原maintainDaemon意图标为维护pending，其他原操作的阻塞原因独立传入；只读入口不要求业务在线。后台写入、原ID查询和强制替换门禁继续按原契约。[入口收尾](../../iterations/I08/issue29-maintenance-entry.md)。
+
+
 ## 不受支持后台的明确确认替换
 
 M02-F03/F05：中央允许明确replace维护在机器版本拒绝离线时进入，继续核对来源机器、原图台账和任务/Agent阻塞；其他离线写入仍拒绝。新增中央能力ssh-daemon-replacement-v1，旧中央在新预览或replace派发前给出定向升级错误。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。

@@ -414,3 +414,5 @@ pending.json 的原格式和状态不变；本地 pending IPC 的每条记录可
 ## 明确确认替换的数据边界
 
 维护预览可返回replacementRequired:true及replacementTargetDigest；两者和原版本/摘要纳入previewId，不写入原节点或任务。原维护config新增action:replace、confirmReplacement:true；原remoteInput保存该确认及from版本/摘要，from不附未经信任的完整manifest；target/controller仍保存可信manifest。替换维护收据持久sourceProcess原PID/起始时间，便于崩溃后独立证明原进程结束；远端原维护收据新增DAEMON_REPLACEMENT_UNCONFIRMED，停机后未健康则保持unknown，查询不换ID。旧来源目录及previous标记保留但不据此自动执行。没有机器/任务/凭据或协议迁移。[实现与证据](iterations/I08/issue29-explicit-daemon-replacement.md)。
+
+维护弹窗blockedReason为当前展示投影；pending仅来自同连接原maintainDaemon意图或原维护unknown，不新增持久格式，不清理其他原操作。只读预览同时携带connectionId/machineId。[入口修复](iterations/I08/issue29-maintenance-entry.md)。

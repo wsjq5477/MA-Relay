@@ -1205,11 +1205,13 @@ export default function NetworkApp() {
             allMachines.find((m) => m.machineId === daemonDialog.machineId) ??
             daemonDialog
           }
-          pending={!!managementReason(daemonDialog.machineId)}
+          pending={machineManagement.pendingItems.some(i=>i.connectionId===daemonDialog.connectionId&&i.action==='maintainDaemon')||allMachines.find(m=>m.machineId===daemonDialog.machineId)?.daemonMaintenance?.state==='unknown'}
+          blockedReason={managementReason(daemonDialog.machineId)||executionReason(daemonDialog.machineId)||(allMachines.find(m=>m.machineId===daemonDialog.machineId)?.busy||(data.nodes||[]).some(n=>n.machineId===daemonDialog.machineId&&n.busy)?'来源机器仍有运行、等待或待核对的任务。':'')||(!data.daemonManagement?'当前中央后台未提供维护能力，请在设置中停止旧后台并打开新版。':'')}
           onClose={() => setDaemonDialog(null)}
+          onOpenOperations={() => {setDaemonDialog(null);showSettings('recovery');}}
           poll={async () => {
             const intent = machineManagement.pendingItems.find(
-              (i) => i.connectionId === daemonDialog.connectionId,
+              (i) => i.connectionId === daemonDialog.connectionId && i.action === 'maintainDaemon',
             );
             if (intent) await machineManagement.query(intent, false);
           }}

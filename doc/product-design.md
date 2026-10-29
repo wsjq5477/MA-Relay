@@ -1,5 +1,8 @@
 # AgentBridge 整体功能设计
 
+#29入口收尾：SSH“后台维护”现在始终可打开查看；离线、任务和unknown只限制具体写操作，弹窗提供重新检查和查看原操作。alpha.71候选正按实际EXE交付验证，公开alpha.70暂不变。[本轮记录](iterations/I08/issue29-maintenance-entry.md)。
+
+
 未发布源码已修复#29的维护入口闭锁：未登记后台仍不直接复用，但版本拒绝的离线机器可以打开维护，明确确认后替换为客户端自带的已校验后台。原身份、状态、收据与旧目录保留；不自动运行未校验旧版本回滚。[行为、实际验证与边界](iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 

@@ -364,7 +364,7 @@ test("inventory separates connection permission from existing node execution cap
   );
 });
 
-test("inventory disables attach and SSH maintenance actions while management is locked or unsupported", async (t) => {
+test("inventory blocks SSH writes while management is locked but keeps maintenance inspection available", async (t) => {
   for (const [scenario, overrides] of [
     ["metadata mutation in progress", { metadataBusy: true }],
     ["node management unsupported", { managementSupported: false }],
@@ -398,14 +398,14 @@ test("inventory disables attach and SSH maintenance actions while management is 
       daemonManagementSupported: false,
     }),
   );
-  for (const label of ["编辑连接", "移除机器", "后台维护"]) {
+  for (const label of ["编辑连接", "移除机器"]) {
     assert.equal(buttonNamed(unsupported, label).disabled, true, label);
   }
   const active = render(
     MachineInventory,
     inventoryProps({ machines: [machine({ busy: true })] }),
   );
-  for (const label of ["断开连接", "编辑连接", "移除机器", "后台维护"]) {
+  for (const label of ["断开连接", "编辑连接", "移除机器"]) {
     assert.equal(buttonNamed(active, label).disabled, true, label);
   }
 });
@@ -802,22 +802,23 @@ test('conversation details distinguish loading, missing and backend error while 
  });
 });
 
-test('scoped node or machine unknown blocks only the target machine maintenance and explains the blocker',()=>{
- const remote=machine({machineId:'remote'}),reason=id=>id==='local'?'本机节点接入原操作待核对。':'';
- const allowed=render(MachineInventory,inventoryProps({machines:[remote],metadataBusy:true,managementReason:reason}));
- assert.equal(buttonNamed(allowed,'后台维护').disabled,false);assert.equal(buttonNamed(allowed,'编辑连接').disabled,false);assert.equal(buttonNamed(allowed,'断开连接').disabled,false);
- const denied=render(MachineInventory,inventoryProps({machines:[remote],managementReason:()=> '原后台维护操作待核对。'}));
- const button=buttonNamed(denied,'后台维护');assert.equal(button.disabled,true);assert.match(button.attributes,/title="原后台维护操作待核对/);
- const busy=render(MachineInventory,inventoryProps({machines:[remote],nodes:[node({machineId:'remote',busy:true})],managementReason:()=>''}));assert.equal(buttonNamed(busy,'后台维护').disabled,true);
+test('maintenance remains readable through pending management, busy tasks, offline failures and missing capability',()=>{
+ const remote=machine({machineId:'remote',online:false,connectionId:'synthetic-ssh'});
+ const cases=[{}, {managementReason:()=> '原管理操作待核对。'}, {nodes:[node({machineId:'remote',busy:true})]}, {blocked:()=>true}, {daemonManagementSupported:false}, {busy:true,metadataBusy:true}, {machines:[{...remote,connectionError:{code:'SSH_AUTH_FAILED',message:'认证失败'}}]}];
+ for(const extra of cases){const props=inventoryProps({machines:[remote],nodes:[],...extra});assert.equal(buttonNamed(render(MachineInventory,props),'后台维护').disabled,false);}
+ const denied=render(MachineInventory,inventoryProps({machines:[remote],managementReason:()=> '原管理操作待核对。'}));
+ assert.equal(buttonNamed(denied,'编辑连接').disabled,true);
 });
 
-test('a version-refused offline SSH machine can open maintenance while unknown work and other offline errors still block',()=>{
- const remote=machine({machineId:'remote',online:false,connectionId:'synthetic-ssh',connectionState:'disconnected',connectionError:{code:'SSH_DAEMON_UPGRADE_REQUIRED',message:'unsupported'}});
- const props=inventoryProps({machines:[remote],nodes:[],managementReason:()=>''});
- assert.equal(buttonNamed(render(MachineInventory,props),'后台维护').disabled,false);
- assert.equal(buttonNamed(render(MachineInventory,{...props,blocked:()=>true}),'后台维护').disabled,true);
- assert.equal(buttonNamed(render(MachineInventory,{...props,machines:[{...remote,connectionError:{code:'SSH_AUTH_FAILED',message:'authentication'}}]}),'后台维护').disabled,true);
+test('maintenance dialog explains non-maintenance blockers without claiming another maintenance was sent',()=>{
+ const Dialog=requireTsx('../src/DaemonDialog.tsx',__filename).default;
+ const html=render(Dialog,{machine:machine({kind:'ssh',online:false}),pending:false,blockedReason:'原节点接入操作待核对。',run:async()=>false,onClose:noop});
+ assert.match(plainText(html),/原节点接入操作待核对/);assert.doesNotMatch(plainText(html),/已发送维护指令/);
+ assert.equal(buttonNamed(html,'重新检查维护状态').disabled,false);
+ const pending=render(Dialog,{machine:machine({kind:'ssh'}),pending:true,run:async()=>false,onClose:noop,poll:noop});
+ assert.equal(buttonNamed(pending,'查询原维护操作').disabled,false);assert.doesNotMatch(plainText(pending),/正在核对实际后台版本/);
 });
+
 test('incompatible OpenCode never appears connected or executable; safe history management remains',()=>{
  const n=node({adapter:'opencode',name:'Old OpenCode',version:'1.2.22',status:'version_incompatible',connected:false,executionSupported:false,available:false});
  const html=render(MachineInventory,inventoryProps({nodes:[n]})),article=nodeArticle(html,n.name);

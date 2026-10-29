@@ -17,7 +17,7 @@ import {
 import { sshStageLabel, sshTransferSize } from "./AddMachineDialog";
 import { time } from "./api";
 import AgentIcon from "./AgentIcon";
-import {sshNodeState,canPreviewSshDaemon} from './ssh-node-state';
+import {sshNodeState} from './ssh-node-state';
 import { toolLabel } from "./agent-tools";
 import {canExecuteNode,connectionCapabilitySummary} from "./connection-capabilities";
 import type { NodeAction } from "./node-management";
@@ -331,15 +331,8 @@ export default function MachineInventory(props: Props) {
                           编辑连接
                         </button>
                         <button
-                          disabled={
-                            props.busy ||
-                            !!metadataReason ||
-                            !props.daemonManagementSupported ||
-                            !canPreviewSshDaemon(machine) ||
-                            !!machine.busy || owned.some(node=>node.busy) || props.blocked(machine.machineId)
-                          }
                           onClick={() => props.machineAction(machine, "daemon")}
-                          title={metadataReason || (!canPreviewSshDaemon(machine)?"请先连接来源机器。":machine.busy||owned.some(node=>node.busy)||props.blocked(machine.machineId)?"来源机器仍有运行、等待或待核对的原执行。":!props.daemonManagementSupported?"当前后台不支持维护。":"预览来源后台版本，确认后才执行维护。 ")}
+                          title="查看后台版本、阻塞原因和原操作；确认后才执行维护。"
                         >
                           后台维护
                         </button>

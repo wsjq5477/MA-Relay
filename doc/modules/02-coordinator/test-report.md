@@ -1,5 +1,8 @@
 # M02 中央协调后台测试报告
 
+入口补验区分原执行unknown与维护pending；原请求保留、只读查看和重新检查不发维护指令，既有替换控制器未改。[本轮包验收](../../iterations/I08/issue29-maintenance-entry.md)。
+
+
 ## 不受支持后台替换专项
 
 T-M02-201 / M02-F03/F05：2026-10-29，基线1b7da57后的未发布源码。Windows专项134项133通过/1平台跳过；管理台账61/61（部分共享）；WSL Ubuntu22.04 / Node22.23.1实际隔离daemon进程与替换/回归29/29，最终分离替换及进程存活保护6/6（共享用例不相加）。生产renderer合成RPC的确认/取消/原ID等待及1440/980宽度通过，非生产SSH或真实EXE。本轮模型0、真实profile写入0，未重打EXE，不刷新原完整矩阵。[命令、原失败及全部证据](../../iterations/I08/issue29-explicit-daemon-replacement.md)。

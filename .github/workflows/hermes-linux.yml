@@ -61,6 +61,10 @@ jobs:
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: |
           node --test --test-concurrency=2 desktop/tests/relation-state.test.cjs desktop/tests/relation-recovery.test.cjs desktop/tests/ssh-state-recovery.test.cjs desktop/tests/ssh-compatibility.test.cjs desktop/tests/ssh-unsupported-state.test.cjs desktop/tests/coordinator.test.cjs desktop/tests/connection-ui.test.cjs desktop/tests/ssh-upload.test.cjs desktop/tests/machine-router.test.cjs 2>&1 | tee artifacts/hermes-linux-ci/issues27-28.tap
+      - name: Explicit daemon replacement and readable maintenance entry
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: |
+          node --test desktop/tests/daemon-maintenance.test.cjs desktop/tests/ssh-unsupported-replacement.test.cjs desktop/tests/ui-redesign.test.cjs 2>&1 | tee artifacts/hermes-linux-ci/issue29.tap
       - name: Install pinned official Hermes CLI without account setup
         id: native_install
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}

@@ -1,5 +1,8 @@
 # M05 Linux 机器后台设计
 
+alpha.71候选承接明确确认替换，维护入口可在离线/unknown/任务忙时打开查看；实际版本切换仍核对原身份、空闲与收据，不绕过门禁。仅补公开alpha.70精确原pin以保持上一公开版本复用。[来源、包与界面验证](../../iterations/I08/issue29-maintenance-entry.md)。
+
+
 ## 不受支持后台的明确确认替换
 
 M05-F01/F02：当前可信维护控制器新增replace，旧目录仅作为需保留的来源标记，不执行其中Node或代码。目标/controller仍严格逐文件校验，原daemonId、owner/profile、锁和进程起始时间核对后按任务/收据门禁停机并切换。失败后不运行未校验源代码回滚，保持unknown；原ID恢复只在原进程死亡证明或目标已健康时完成同一配套目标。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。

@@ -406,3 +406,5 @@ Coordinator 负责原台账对账与准入，AgentNetwork 按持久请求/实例
 ## 不受支持后台的明确确认替换
 
 正常连接与维护预览分开：未登记版本不能直接进入业务连接，但维护可只读核对原归属并提供replace提案。只有用户明确确认后才暂存当前可信控制器；控制器验证目标文件、原身份/进程及空闲条件，再切换current。失败不执行未登记源代码回滚；原ID恢复只完成已校验配套目标，旧目录与状态保留。[状态机与限制](iterations/I08/issue29-explicit-daemon-replacement.md)。
+
+SSH维护入口只负责进入只读查看；原执行/节点管理unknown不会被解释为维护已发送。弹窗写操作依赖独立阻塞原因和原维护pending，远端控制器门禁保持。[状态与交付](iterations/I08/issue29-maintenance-entry.md)。

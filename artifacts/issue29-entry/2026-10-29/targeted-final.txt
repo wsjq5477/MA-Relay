@@ -1,0 +1,690 @@
+TAP version 13
+# Subtest: original exact health admission refusal can settle its attach; query errors or generic health codes retain unknown
+    # Subtest: original
+    ok 1 - original
+      ---
+      duration_ms: 37.084
+      type: 'test'
+      ...
+    # Subtest: generic-message
+    ok 2 - generic-message
+      ---
+      duration_ms: 13.2125
+      type: 'test'
+      ...
+    # Subtest: query-only
+    ok 3 - query-only
+      ---
+      duration_ms: 13.0036
+      type: 'test'
+      ...
+    # Subtest: changed-input
+    ok 4 - changed-input
+      ---
+      duration_ms: 12.9073
+      type: 'test'
+      ...
+    # Subtest: foreign-receipt
+    ok 5 - foreign-receipt
+      ---
+      duration_ms: 12.095
+      type: 'test'
+      ...
+    1..5
+ok 1 - original exact health admission refusal can settle its attach; query errors or generic health codes retain unknown
+  ---
+  duration_ms: 92.7998
+  type: 'test'
+  ...
+# Subtest: persisted original host factory refusal settles only its attach intent after an original receipt read, with no replay
+ok 2 - persisted original host factory refusal settles only its attach intent after an original receipt read, with no replay
+  ---
+  duration_ms: 21.769
+  type: 'test'
+  ...
+# Subtest: host refusal recovery requires original durable error and fingerprint; bare query errors, wrong lane, changed inputs and foreign receipts retain uncertainty
+    # Subtest: no-original-error
+    ok 1 - no-original-error
+      ---
+      duration_ms: 12.4896
+      type: 'test'
+      ...
+    # Subtest: different-error
+    ok 2 - different-error
+      ---
+      duration_ms: 11.9939
+      type: 'test'
+      ...
+    # Subtest: bad-fingerprint
+    ok 3 - bad-fingerprint
+      ---
+      duration_ms: 11.9787
+      type: 'test'
+      ...
+    # Subtest: remove
+    ok 4 - remove
+      ---
+      duration_ms: 11.6649
+      type: 'test'
+      ...
+    # Subtest: wrong-lane
+    ok 5 - wrong-lane
+      ---
+      duration_ms: 10.7643
+      type: 'test'
+      ...
+    # Subtest: wrong-id
+    ok 6 - wrong-id
+      ---
+      duration_ms: 11.033
+      type: 'test'
+      ...
+    # Subtest: foreign-receipt
+    ok 7 - foreign-receipt
+      ---
+      duration_ms: 11.2228
+      type: 'test'
+      ...
+    # Subtest: query-error
+    ok 8 - query-error
+      ---
+      duration_ms: 9.2895
+      type: 'test'
+      ...
+    1..8
+ok 3 - host refusal recovery requires original durable error and fingerprint; bare query errors, wrong lane, changed inputs and foreign receipts retain uncertainty
+  ---
+  duration_ms: 92.9192
+  type: 'test'
+  ...
+# Subtest: an actual original confirmed receipt takes priority over the historical host factory error
+ok 4 - an actual original confirmed receipt takes priority over the historical host factory error
+  ---
+  duration_ms: 22.9137
+  type: 'test'
+  ...
+# Subtest: new attach host factory refusal is recorded as rejected without admitting any task or replaying attach
+ok 5 - new attach host factory refusal is recorded as rejected without admitting any task or replaying attach
+  ---
+  duration_ms: 30.242
+  type: 'test'
+  ...
+# Subtest: central graph uncertainty survives restart, blocks new IDs in its lane and only queries the original request
+ok 6 - central graph uncertainty survives restart, blocks new IDs in its lane and only queries the original request
+  ---
+  duration_ms: 43.3211
+  type: 'test'
+  ...
+# Subtest: graph intent must persist before dispatch; definite validation failure frees the lane while retaining original payload fingerprint
+ok 7 - graph intent must persist before dispatch; definite validation failure frees the lane while retaining original payload fingerprint
+  ---
+  duration_ms: 30.0003
+  type: 'test'
+  ...
+# Subtest: layout uncertainty does not block authorization and receipts atomically committed before lost ACK reconcile without another write
+ok 8 - layout uncertainty does not block authorization and receipts atomically committed before lost ACK reconcile without another write
+  ---
+  duration_ms: 61.9846
+  type: 'test'
+  ...
+# Subtest: node and authority writes share a safety barrier but layout remains independent; original node receipts are queried after lost ACK
+ok 9 - node and authority writes share a safety barrier but layout remains independent; original node receipts are queried after lost ACK
+  ---
+  duration_ms: 72.5873
+  type: 'test'
+  ...
+# Subtest: an original local node unknown does not block another machine maintenance; same-machine and missing provenance still block
+ok 10 - an original local node unknown does not block another machine maintenance; same-machine and missing provenance still block
+  ---
+  duration_ms: 46.9896
+  type: 'test'
+  ...
+# Subtest: scope isolation preserves same-machine, missing-source and authority barriers despite unrelated query failure
+ok 11 - scope isolation preserves same-machine, missing-source and authority barriers despite unrelated query failure
+  ---
+  duration_ms: 49.9461
+  type: 'test'
+  ...
+# Subtest: original graph query never settles a foreign machine or changed content receipt
+ok 12 - original graph query never settles a foreign machine or changed content receipt
+  ---
+  duration_ms: 31.9744
+  type: 'test'
+  ...
+# Subtest: current SSH transitions revoke stale probe/offline errors and version errors win for both machines and nodes
+ok 13 - current SSH transitions revoke stale probe/offline errors and version errors win for both machines and nodes
+  ---
+  duration_ms: 4.7602
+  type: 'test'
+  ...
+# Subtest: failed current probe clears cached success, version refusal halts auto-retry, and explicit reconnect re-probes
+ok 14 - failed current probe clears cached success, version refusal halts auto-retry, and explicit reconnect re-probes
+  ---
+  duration_ms: 118.5731
+  type: 'test'
+  ...
+# Subtest: SSH recovery clears persisted version errors without losing identity, nodes or history; a new failure remains visible
+ok 15 - SSH recovery clears persisted version errors without losing identity, nodes or history; a new failure remains visible
+  ---
+  duration_ms: 96.9587
+  type: 'test'
+  ...
+# Subtest: an authoritative SSH snapshot revokes stale errors but cannot make a failed RPC online
+ok 16 - an authoritative SSH snapshot revokes stale errors but cannot make a failed RPC online
+  ---
+  duration_ms: 0.6051
+  type: 'test'
+  ...
+# Subtest: old coordinator SSH snapshots and mutations require explicit backend upgrade before dispatch
+ok 17 - old coordinator SSH snapshots and mutations require explicit backend upgrade before dispatch
+  ---
+  duration_ms: 26.0528
+  type: 'test'
+  ...
+# Subtest: actual Coordinator snapshot projects current SSH phase and refusal over an offline cached business snapshot
+ok 18 - actual Coordinator snapshot projects current SSH phase and refusal over an offline cached business snapshot
+  ---
+  duration_ms: 545.8928
+  type: 'test'
+  ...
+# Subtest: unlisted suffix stays refused for normal connection but has a read-only replacement preview independent of old manifest pins
+ok 19 - unlisted suffix stays refused for normal connection but has a read-only replacement preview independent of old manifest pins
+  ---
+  duration_ms: 48.9157
+  type: 'test'
+  ...
+# Subtest: replacement preview checks original ownership, digest, current path and symlink parents without executing unlisted code
+ok 20 - replacement preview checks original ownership, digest, current path and symlink parents without executing unlisted code
+  ---
+  duration_ms: 47.7009
+  type: 'test'
+  ...
+# Subtest: an untrusted previous version does not prevent the explicit replacement route
+ok 21 - an untrusted previous version does not prevent the explicit replacement route
+  ---
+  duration_ms: 16.1568
+  type: 'test'
+  ...
+# Subtest: replacement confirmation, target CAS and original unknown intent survive manager restart without retransmission
+ok 22 - replacement confirmation, target CAS and original unknown intent survive manager restart without retransmission
+  ---
+  duration_ms: 65.6629
+  type: 'test'
+  ...
+# Subtest: old central backends get an explicit replacement capability error before dispatch
+ok 23 - old central backends get an explicit replacement capability error before dispatch
+  ---
+  duration_ms: 110.9614
+  type: 'test'
+  ...
+# Subtest: coordinator validates the replacement confirmation field and admits only idle offline maintenance without relaxing other writes
+ok 24 - coordinator validates the replacement confirmation field and admits only idle offline maintenance without relaxing other writes
+  ---
+  duration_ms: 87.2396
+  type: 'test'
+  ...
+# Subtest: an unresolved management intent permits scanning and browsing tools while actual attach and execution stay blocked
+ok 25 - an unresolved management intent permits scanning and browsing tools while actual attach and execution stay blocked
+  ---
+  duration_ms: 55.0915
+  type: 'test'
+  ...
+# Subtest: settings shows management originals even with an empty execution journal, including query failures and source
+ok 26 - settings shows management originals even with an empty execution journal, including query failures and source
+  ---
+  duration_ms: 11.9894
+  type: 'test'
+  ...
+# Subtest: unconfigured DSH service exposes configuration guidance rather than a tool failure or execution button
+ok 27 - unconfigured DSH service exposes configuration guidance rather than a tool failure or execution button
+  ---
+  duration_ms: 12.6352
+  type: 'test'
+  ...
+# Subtest: inventory keeps an unknown operation scoped to its node while an independent node remains usable
+ok 28 - inventory keeps an unknown operation scoped to its node while an independent node remains usable
+  ---
+  duration_ms: 17.5724
+  type: 'test'
+  ...
+# Subtest: inventory respects a shared coordination execution lock even when every node is available
+ok 29 - inventory respects a shared coordination execution lock even when every node is available
+  ---
+  duration_ms: 15.8965
+  type: 'test'
+  ...
+# Subtest: inventory does not expose a usable execution action when its prerequisite is missing
+    # Subtest: node offline
+    ok 1 - node offline
+      ---
+      duration_ms: 10.3881
+      type: 'test'
+      ...
+    # Subtest: tool unhealthy
+    ok 2 - tool unhealthy
+      ---
+      duration_ms: 12.6587
+      type: 'test'
+      ...
+    # Subtest: execution unsupported
+    ok 3 - execution unsupported
+      ---
+      duration_ms: 15.7682
+      type: 'test'
+      ...
+    # Subtest: node busy
+    ok 4 - node busy
+      ---
+      duration_ms: 15.3486
+      type: 'test'
+      ...
+    # Subtest: native permission or input waiting
+    ok 5 - native permission or input waiting
+      ---
+      duration_ms: 12.7492
+      type: 'test'
+      ...
+    # Subtest: unconfirmed execution count
+    ok 6 - unconfirmed execution count
+      ---
+      duration_ms: 11.7709
+      type: 'test'
+      ...
+    # Subtest: uncertain native execution
+    ok 7 - uncertain native execution
+      ---
+      duration_ms: 12.2546
+      type: 'test'
+      ...
+    # Subtest: not currently available
+    ok 8 - not currently available
+      ---
+      duration_ms: 11.0827
+      type: 'test'
+      ...
+    # Subtest: machine offline
+    ok 9 - machine offline
+      ---
+      duration_ms: 14.0179
+      type: 'test'
+      ...
+    # Subtest: global execution busy
+    ok 10 - global execution busy
+      ---
+      duration_ms: 11.1143
+      type: 'test'
+      ...
+    # Subtest: pending resource with no uncertainty projection
+    ok 11 - pending resource with no uncertainty projection
+      ---
+      duration_ms: 10.691
+      type: 'test'
+      ...
+    1..11
+ok 30 - inventory does not expose a usable execution action when its prerequisite is missing
+  ---
+  duration_ms: 141.6286
+  type: 'test'
+  ...
+# Subtest: inventory separates connection permission from existing node execution capability
+ok 31 - inventory separates connection permission from existing node execution capability
+  ---
+  duration_ms: 35.3231
+  type: 'test'
+  ...
+# Subtest: inventory blocks SSH writes while management is locked but keeps maintenance inspection available
+    # Subtest: metadata mutation in progress
+    ok 1 - metadata mutation in progress
+      ---
+      duration_ms: 12.2727
+      type: 'test'
+      ...
+    # Subtest: node management unsupported
+    ok 2 - node management unsupported
+      ---
+      duration_ms: 13.4372
+      type: 'test'
+      ...
+    # Subtest: resource pending
+    ok 3 - resource pending
+      ---
+      duration_ms: 11.8495
+      type: 'test'
+      ...
+    # Subtest: tool unhealthy
+    ok 4 - tool unhealthy
+      ---
+      duration_ms: 10.6879
+      type: 'test'
+      ...
+    # Subtest: execution unsupported
+    ok 5 - execution unsupported
+      ---
+      duration_ms: 23.1454
+      type: 'test'
+      ...
+    # Subtest: node offline
+    ok 6 - node offline
+      ---
+      duration_ms: 17.3982
+      type: 'test'
+      ...
+    # Subtest: node already busy
+    ok 7 - node already busy
+      ---
+      duration_ms: 17.9645
+      type: 'test'
+      ...
+    1..7
+ok 32 - inventory blocks SSH writes while management is locked but keeps maintenance inspection available
+  ---
+  duration_ms: 140.2829
+  type: 'test'
+  ...
+# Subtest: conversation continuation requires a current, settled, connected, supported original context
+    # Subtest: historical snapshot
+    ok 1 - historical snapshot
+      ---
+      duration_ms: 69.7038
+      type: 'test'
+      ...
+    # Subtest: queued turn
+    ok 2 - queued turn
+      ---
+      duration_ms: 9.2039
+      type: 'test'
+      ...
+    # Subtest: accepted turn
+    ok 3 - accepted turn
+      ---
+      duration_ms: 8.8715
+      type: 'test'
+      ...
+    # Subtest: running turn
+    ok 4 - running turn
+      ---
+      duration_ms: 9.9664
+      type: 'test'
+      ...
+    # Subtest: unknown turn
+    ok 5 - unknown turn
+      ---
+      duration_ms: 9.5303
+      type: 'test'
+      ...
+    # Subtest: backend rejects continuation
+    ok 6 - backend rejects continuation
+      ---
+      duration_ms: 10.472
+      type: 'test'
+      ...
+    # Subtest: continuation capability absent
+    ok 7 - continuation capability absent
+      ---
+      duration_ms: 10.743
+      type: 'test'
+      ...
+    # Subtest: missing original turn
+    ok 8 - missing original turn
+      ---
+      duration_ms: 12.6457
+      type: 'test'
+      ...
+    # Subtest: source node disconnected
+    ok 9 - source node disconnected
+      ---
+      duration_ms: 11.4438
+      type: 'test'
+      ...
+    # Subtest: source node removed
+    ok 10 - source node removed
+      ---
+      duration_ms: 12.2516
+      type: 'test'
+      ...
+    # Subtest: source node offline but still attached
+    ok 11 - source node offline but still attached
+      ---
+      duration_ms: 16.0824
+      type: 'test'
+      ...
+    # Subtest: source node missing
+    ok 12 - source node missing
+      ---
+      duration_ms: 12.5488
+      type: 'test'
+      ...
+    # Subtest: original resource pending
+    ok 13 - original resource pending
+      ---
+      duration_ms: 13.1483
+      type: 'test'
+      ...
+    # Subtest: backend or coordination execution locked
+    ok 14 - backend or coordination execution locked
+      ---
+      duration_ms: 11.8512
+      type: 'test'
+      ...
+    # Subtest: send already in progress
+    ok 15 - send already in progress
+      ---
+      duration_ms: 11.8648
+      type: 'test'
+      ...
+    # Subtest: empty followup
+    ok 16 - empty followup
+      ---
+      duration_ms: 11.9672
+      type: 'test'
+      ...
+    1..16
+ok 33 - conversation continuation requires a current, settled, connected, supported original context
+  ---
+  duration_ms: 246.279
+  type: 'test'
+  ...
+# Subtest: conversation continuation remains available after an actual terminal turn when backend allows it
+    # Subtest: succeeded
+    ok 1 - succeeded
+      ---
+      duration_ms: 10.144
+      type: 'test'
+      ...
+    # Subtest: failed
+    ok 2 - failed
+      ---
+      duration_ms: 11.5997
+      type: 'test'
+      ...
+    # Subtest: cancelled
+    ok 3 - cancelled
+      ---
+      duration_ms: 11.758
+      type: 'test'
+      ...
+    1..3
+ok 34 - conversation continuation remains available after an actual terminal turn when backend allows it
+  ---
+  duration_ms: 34.391
+  type: 'test'
+  ...
+# Subtest: conversation explains a shared execution lock and an offline source without inviting a resend
+ok 35 - conversation explains a shared execution lock and an offline source without inviting a resend
+  ---
+  duration_ms: 25.5214
+  type: 'test'
+  ...
+# Subtest: changing the machine scope hides the previous reader and composer while preserving the original conversation
+ok 36 - changing the machine scope hides the previous reader and composer while preserving the original conversation
+  ---
+  duration_ms: 19.0807
+  type: 'test'
+  ...
+# Subtest: hiding verification records also hides the selected reader without replacing its identity
+ok 37 - hiding verification records also hides the selected reader without replacing its identity
+  ---
+  duration_ms: 21.2145
+  type: 'test'
+  ...
+# Subtest: conversation explains recovery and capability restrictions instead of inviting a resend
+ok 38 - conversation explains recovery and capability restrictions instead of inviting a resend
+  ---
+  duration_ms: 22.9691
+  type: 'test'
+  ...
+# Subtest: verification records stay out of the normal list until explicitly included
+ok 39 - verification records stay out of the normal list until explicitly included
+  ---
+  duration_ms: 30.1016
+  type: 'test'
+  ...
+# Subtest: a selected verification record has no followup form even with terminal status and native continuation
+ok 40 - a selected verification record has no followup form even with terminal status and native continuation
+  ---
+  duration_ms: 17.5017
+  type: 'test'
+  ...
+# Subtest: task board preserves waiting and unknown execution without presenting receipt acceptance as completion
+ok 41 - task board preserves waiting and unknown execution without presenting receipt acceptance as completion
+  ---
+  duration_ms: 21.339
+  type: 'test'
+  ...
+# Subtest: settings matches original recovery identity across machines and retains its reason and code
+ok 42 - settings matches original recovery identity across machines and retains its reason and code
+  ---
+  duration_ms: 19.2652
+  type: 'test'
+  ...
+# Subtest: settings exposes the exact theme name separately from its help text
+ok 43 - settings exposes the exact theme name separately from its help text
+  ---
+  duration_ms: 16.6683
+  type: 'test'
+  ...
+# Subtest: settings keeps an unmatched recovery read-only and prevents duplicate queries
+ok 44 - settings keeps an unmatched recovery read-only and prevents duplicate queries
+  ---
+  duration_ms: 53.4703
+  type: 'test'
+  ...
+# Subtest: settings offers failed-operation cleanup with history and uncertainty explanation and prevents concurrent cleanup
+ok 45 - settings offers failed-operation cleanup with history and uncertainty explanation and prevents concurrent cleanup
+  ---
+  duration_ms: 90.6753
+  type: 'test'
+  ...
+# Subtest: settings retains distinct window-close and backend-stop actions with lifecycle consequences
+ok 46 - settings retains distinct window-close and backend-stop actions with lifecycle consequences
+  ---
+  duration_ms: 28.7014
+  type: 'test'
+  ...
+# Subtest: settings restores the original removed machine only with supported management and connection identity
+    # Subtest: management pending
+    ok 1 - management pending
+      ---
+      duration_ms: 18.5774
+      type: 'test'
+      ...
+    # Subtest: old backend without machine management
+    ok 2 - old backend without machine management
+      ---
+      duration_ms: 19.5125
+      type: 'test'
+      ...
+    # Subtest: missing original connection
+    ok 3 - missing original connection
+      ---
+      duration_ms: 16.5041
+      type: 'test'
+      ...
+    1..3
+ok 47 - settings restores the original removed machine only with supported management and connection identity
+  ---
+  duration_ms: 80.0632
+  type: 'test'
+  ...
+# Subtest: conversation details distinguish loading, missing and backend error while preserving independent compose
+    # Subtest: loading
+    ok 1 - loading
+      ---
+      duration_ms: 14.6843
+      type: 'test'
+      ...
+    # Subtest: missing
+    ok 2 - missing
+      ---
+      duration_ms: 11.5929
+      type: 'test'
+      ...
+    # Subtest: error
+    ok 3 - error
+      ---
+      duration_ms: 11.0575
+      type: 'test'
+      ...
+    1..3
+ok 48 - conversation details distinguish loading, missing and backend error while preserving independent compose
+  ---
+  duration_ms: 38.6044
+  type: 'test'
+  ...
+# Subtest: maintenance remains readable through pending management, busy tasks, offline failures and missing capability
+ok 49 - maintenance remains readable through pending management, busy tasks, offline failures and missing capability
+  ---
+  duration_ms: 92.0566
+  type: 'test'
+  ...
+# Subtest: maintenance dialog explains non-maintenance blockers without claiming another maintenance was sent
+ok 50 - maintenance dialog explains non-maintenance blockers without claiming another maintenance was sent
+  ---
+  duration_ms: 30.5741
+  type: 'test'
+  ...
+# Subtest: incompatible OpenCode never appears connected or executable; safe history management remains
+ok 51 - incompatible OpenCode never appears connected or executable; safe history management remains
+  ---
+  duration_ms: 15.3484
+  type: 'test'
+  ...
+# Subtest: local progress warning remains visible without claiming daemon activation
+ok 52 - local progress warning remains visible without claiming daemon activation
+  ---
+  duration_ms: 17.1731
+  type: 'test'
+  ...
+# Subtest: settings projects all management lanes with task totals and safe original identity
+ok 53 - settings projects all management lanes with task totals and safe original identity
+  ---
+  duration_ms: 38.9824
+  type: 'test'
+  ...
+# Subtest: configuration-only inventory removes execution controls while retaining node configuration
+ok 54 - configuration-only inventory removes execution controls while retaining node configuration
+  ---
+  duration_ms: 15.8466
+  type: 'test'
+  ...
+# Subtest: execution audit cannot start a task and retains original results
+ok 55 - execution audit cannot start a task and retains original results
+  ---
+  duration_ms: 15.1044
+  type: 'test'
+  ...
+# Subtest: conversation audit has no continuation form even when the original session can continue
+ok 56 - conversation audit has no continuation form even when the original session can continue
+  ---
+  duration_ms: 12.3893
+  type: 'test'
+  ...
+1..56
+# tests 112
+# suites 0
+# pass 112
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3437.1842

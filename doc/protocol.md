@@ -446,3 +446,5 @@ alpha.70中央hello新增 relation-recovery-observations-v2、ssh-current-observ
 ## 明确确认替换不受支持的后台
 
 machine.daemonPreview对未登记但归属可证明的版本返回replacementRequired:true、源/目标版本和previewId。machine.maintainDaemon沿用原operationId/expectedRevision/CAS，config.action新增replace并必须confirmReplacement===true，不允许allowUnresolved===true；目标只能是本客户端配套版本。新中央能力ssh-daemon-replacement-v1只约束该预览及replace，不要求旧daemon声明能力。正常probe及compatibleDaemons精确规则不变；协议2帧和任务/权限语义不变。未知维护只通过原ID查询，控制器死亡后的同意图恢复不得执行未校验旧版本。[完整流程](iterations/I08/issue29-explicit-daemon-replacement.md)。
+
+维护入口可打开不代表可执行写入；machine.daemonPreview、blockers和原operation查询与replace确认保持分离。本次入口收尾无新增RPC、协议号或取消/任务语义。[验证](iterations/I08/issue29-maintenance-entry.md)。
