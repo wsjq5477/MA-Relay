@@ -8,7 +8,7 @@
 T-M02-201 / M02-F03/F05：2026-10-29，基线1b7da57后的未发布源码。Windows专项134项133通过/1平台跳过；管理台账61/61（部分共享）；WSL Ubuntu22.04 / Node22.23.1实际隔离daemon进程与替换/回归29/29，最终分离替换及进程存活保护6/6（共享用例不相加）。生产renderer合成RPC的确认/取消/原ID等待及1440/980宽度通过，非生产SSH或真实EXE。本轮模型0、真实profile写入0，未重打EXE，不刷新原完整矩阵。[命令、原失败及全部证据](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 
 2026-10-27 / alpha.67公开：Windows受控22/22、独立Ubuntu适配109/109/Core71/71及正式Hermes0.22.5原生MCP五组通过。Windows→WSL Node24.13.0→Hermes两轮、原ID去重、通道重开/同Session续聊与配置字节保持通过；两原传输退出0。原生持久会话只读核对两用户/两助手消息、API2/工具0；临时网络通道已停止，WSL直连未修复。实际EXE七组模型0、212输入/58后台/84Core/1723Linux及载荷一致。首轮Core70/71、旧就绪失败及临时验收目录后续缺失如实保留，完整矩阵未准出。[全部分层证据与边界](../../iterations/I08/alpha67-hermes-linux-live.md)。

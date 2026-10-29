@@ -1,6 +1,6 @@
 # M05 Linux 机器后台设计
 
-alpha.71候选承接明确确认替换，维护入口可在离线/unknown/任务忙时打开查看；实际版本切换仍核对原身份、空闲与收据，不绕过门禁。仅补公开alpha.70精确原pin以保持上一公开版本复用。[来源、包与界面验证](../../iterations/I08/issue29-maintenance-entry.md)。
+alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/任务忙时打开查看；实际版本切换仍核对原身份、空闲与收据，不绕过门禁。仅补公开alpha.70精确原pin以保持上一公开版本复用。[来源、包与界面验证](../../iterations/I08/issue29-maintenance-entry.md)。
 
 
 ## 不受支持后台的明确确认替换
@@ -8,7 +8,7 @@ alpha.71候选承接明确确认替换，维护入口可在离线/unknown/任务
 M05-F01/F02：当前可信维护控制器新增replace，旧目录仅作为需保留的来源标记，不执行其中Node或代码。目标/controller仍严格逐文件校验，原daemonId、owner/profile、锁和进程起始时间核对后按任务/收据门禁停机并切换。失败后不运行未校验源代码回滚，保持unknown；原ID恢复只在原进程死亡证明或目标已健康时完成同一配套目标。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 M05-F01/F02：WSL原启动脚本、Node选择与就绪帧不改；Windows等待读取器就绪120秒，Linux/SSH协议与daemon原输入不变。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 

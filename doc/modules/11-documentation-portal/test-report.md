@@ -1,6 +1,6 @@
 # M11 文档网页测试报告
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 T-M11-202 / M11-F05/F06：2026-10-29，Windows Node24.12.0、VitePress2.0.0-alpha.20。本次复现docs:test 5/6后修复Windows反例清理，原拒绝断言保持且最终6/6；18页/19HTML构建与158份页面/搜索资源审计通过，内部页/证据导出0。Pi用户页版本/目录说明同步，最终构建及文档差异记录见[本轮专项](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。历史5/6不改写；不是浏览器、原生模型或EXE验收。
 

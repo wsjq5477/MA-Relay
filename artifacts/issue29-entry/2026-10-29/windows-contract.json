@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-29T14:15:53.417Z",
+  "version": "0.6.0-alpha.71",
+  "status": "passed",
+  "environment": "Shipped Windows Node / frozen packaged installer and pins / controlled SFTP fixtures; no SSH network or models",
+  "modelCalls": 0,
+  "checks": [
+    "Frozen Windows installer passes 26 strict reuse/index/identity/digest/query contracts with the exact packaged pins",
+    "Shipped Windows Node executes the frozen large-manifest verifier and emits the fixed eight-byte failure without echoing its source",
+    "Frozen maintenance input reader retains every field and fingerprint of the full catalogue above 8MiB"
+  ],
+  "installerSha256": "c90e0164f956d011f877ddb089bc07765e9bcd0b2919ce2e228dc658254151c2",
+  "packagedPins": 50,
+  "contractTestsPassed": 26,
+  "maintenanceInputBytes": 11941582
+}

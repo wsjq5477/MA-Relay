@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-29T14:15:15.213Z",
+  "version": "0.6.0-alpha.71",
+  "status": "failed",
+  "environment": "Shipped Windows Node / frozen packaged installer and pins / controlled SFTP fixtures; no SSH network or models",
+  "modelCalls": 0,
+  "checks": [],
+  "installerSha256": "c90e0164f956d011f877ddb089bc07765e9bcd0b2919ce2e228dc658254151c2",
+  "packagedPins": 50,
+  "error": {
+    "code": "ERR_ASSERTION",
+    "message": "Expected values to be strictly equal:\n\n1 !== 0\n"
+  }
+}

@@ -4,7 +4,7 @@ M06-F01/F02：独立MCP的Claude/Codex/OpenCode/Pi/Hermes原生列表统一通�
 
 M06-F01/F04、M06-CC-F01：alpha.68之后未发布源码统一Pi派发/事件目录规则，Claude已选JS/CJS/MJS入口经Node启动。原生配置、Session、权限与unknown规则保持。[完整行为、验证与边界](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 
 M06-F01/F02：Linux Hermes保留原生安装、模型与账号；真实Windows→WSL执行/去重/精确Session续聊按原请求验收，不使用替代模型API或托管scope。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。

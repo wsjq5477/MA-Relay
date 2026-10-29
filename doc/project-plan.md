@@ -1,12 +1,12 @@
 # 迭代路线与当前交付
 
-#29入口收尾：SSH“后台维护”现在始终可打开查看；离线、任务和unknown只限制具体写操作，弹窗提供重新检查和查看原操作。alpha.71候选正按实际EXE交付验证，公开alpha.70暂不变。[本轮记录](iterations/I08/issue29-maintenance-entry.md)。
+alpha.71的SSH维护只读入口始终可打开查看；具体替换/升级仍核对原操作与远端门禁。[入口与实际EXE验证](iterations/I08/issue29-maintenance-entry.md)。
 
 
-未发布源码已修复#29的维护入口闭锁：未登记后台仍不直接复用，但版本拒绝的离线机器可以打开维护，明确确认后替换为客户端自带的已校验后台。原身份、状态、收据与旧目录保留；不自动运行未校验旧版本回滚。[行为、实际验证与边界](iterations/I08/issue29-explicit-daemon-replacement.md)。
+alpha.71已修复#29的维护入口闭锁：未登记后台仍不直接复用，但版本拒绝的离线机器可以打开维护，明确确认后替换为客户端自带的已校验后台。原身份、状态、收据与旧目录保留；不自动运行未校验旧版本回滚。[行为、实际验证与边界](iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 
-当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha70-release.md)。
+当前公开alpha.71：SSH维护只读入口在离线、任务忙和unknown时仍可打开，明确确认后可替换未登记后台；实际写入门禁和原ID保留。源码/EXE/SHA公开，匿名完整下载匹配。Windows扩展147通过/1平台跳过、包内兼容26/26；独立Ubuntu Core79/79、适配111/111、关系/SSH98/98、替换/入口105/105。实际包内UI与普通portable启动/关窗分层验证；历史Windows全量DSH竞态1失败/41跳过、文档2243缺失和依赖high1保留，真实profile/生产SSH/完整矩阵及性能未准出。[完整交付](iterations/I08/alpha71-release.md)。
 
 下一步仍为真实原生生命周期、自主父模型/多主、独立SSH故障与图性能验收；组件/受控或公开下载通过不替代完整准出。
 
@@ -15,9 +15,9 @@
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 当前公开预发布 | **0.6.0-alpha.70**，冻结 `5c95b98`；EXE132301726字节，匿名完整下载一致；[发布记录](iterations/I08/alpha70-release.md) |
-| 上一公开预发布 | alpha.69，原生入口、MCP与Core维护；[历史发布](iterations/I08/alpha69-release.md) |
-| 当前自动回归 | Windows定向98/98、包内33/33；独立Ubuntu79/79、111/111、98/98；Windows全量1失败保留，[本轮证据](iterations/I08/alpha70-release.md) |
+| 当前公开预发布 | **0.6.0-alpha.71**，冻结 `1b2e371`；EXE132300845字节，匿名完整下载一致；[发布记录](iterations/I08/alpha71-release.md) |
+| 上一公开预发布 | alpha.70，#27/#28恢复与SSH观察；[历史发布](iterations/I08/alpha70-release.md) |
+| 当前自动回归 | Windows147通过/1跳过、包内26/26；独立Ubuntu79/79、111/111、98/98、105/105，[当前证据](iterations/I08/alpha71-release.md) |
 | 当前桌面外观 | Taste/Impeccable浅色框架、中性深色主题及离线字体已发布；[实现与证据](iterations/I08/taste-impeccable-ui.md) |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
 | 当前发布范围与缺口 | 已包含DSH Desktop/Web、CT-07、OpenDesk、MCP02与#15/#16修复；完整准出继续按专项推进 |

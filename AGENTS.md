@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.70**，标签冻结5c95b98；EXE132301726字节、SHA-256 b284d076732c0189814818b588439171be6496e08c2218356ef859d0e1d1070d。225产品输入及实际EXE资源匹配，源码/EXE/SHA公开，匿名完整下载一致。
+当前公开预发布 **0.6.0-alpha.71**，标签冻结1b2e371；EXE132300845字节、SHA-256 94a928b5a1bf894870b1c2e8ed9d18cecbe81588899bf99ea757c7da928c4e85。226产品输入与实际EXE3406资源一致，源码/EXE/SHA公开，匿名完整下载一致。
 
-当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](doc/iterations/I08/alpha70-release.md)。
+当前公开alpha.71：SSH维护只读入口在离线、任务忙和unknown时仍可打开，明确确认后可替换未登记后台；实际写入门禁和原ID保留。源码/EXE/SHA公开，匿名完整下载匹配。Windows扩展147通过/1平台跳过、包内兼容26/26；独立Ubuntu Core79/79、适配111/111、关系/SSH98/98、替换/入口105/105。实际包内UI与普通portable启动/关窗分层验证；历史Windows全量DSH竞态1失败/41跳过、文档2243缺失和依赖high1保留，真实profile/生产SSH/完整矩阵及性能未准出。[完整交付](doc/iterations/I08/alpha71-release.md)。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

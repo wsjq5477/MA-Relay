@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-29T14:20:56.814Z",
+  "status": "passed",
+  "scope": "close only the ordinary test window bound by its owned synthetic profile, authenticated coordinator and parent PID; no other application is touched",
+  "normalWindowClosed": true,
+  "ownedCoordinatorStopped": true
+}

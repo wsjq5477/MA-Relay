@@ -1,6 +1,6 @@
 # M03 机器、Agent 节点与执行上下文设计
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 M03-F01/F02：Linux Hermes保留PATH优先；显式HERMES_INSTALL_DIR下的原生启动器在非交互PATH缺失时优先于通用便利路径。数据Home/bin、原生Profile所属根、默认根/后缀与旧venv布局作为Hermes专用候选，不从中选择其他Agent。不创建Profile、不重绑原请求或安装。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
 

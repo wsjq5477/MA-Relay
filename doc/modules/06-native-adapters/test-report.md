@@ -8,7 +8,7 @@ T-M06-212 / M06-F01/F02：2026-10-29，master10fdbb3及未发布工作树，Wind
 
 T-M06-211 / M06-F01/F04：2026-10-29，master10fdbb3及未发布工作树、Windows Node24.12.0。Pi/宿主/原核对/Hermes分离60/60；Pi1.4.0未修改原包SessionManager四组通过，实际header别名与受控终态分开标明。Claude入口/完整三条普通委派5/5，失败反例及中间WindowsEFTYPE保留，模型0。不是新EXE、真实模型、Linux或独立SSH验收；历史全量与完整矩阵不变。[源码、日志与完整边界](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 
 2026-10-28 / c40f45e派生未发布源码 / Windows Node24.12.0：最新启动边界/宿主/核对/分离共享集64/64；启动专项8项含三个入口真实OS spawn错误、同步启动器拒绝、原收据nativeExited=false、原ID重开及启动后丢结果/历史unknown保持，模型0。[原失败、工程与完整证据](../../iterations/I08/native-start-boundary.md)。Pi原包SessionManager三组与Hermes原生组件/独立发现MCP60项保留原验证范围，见[Pi](../../iterations/I08/pi-session-workspace.md)、[Hermes](../../iterations/I08/hermes-detached-input.md)，不跨集合相加或宣称完整Windows/真实模型生命周期通过。

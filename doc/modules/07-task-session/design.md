@@ -2,7 +2,7 @@
 
 M07-F06/F07：未发布Core维护修复事件ACK超时后的运输自旋。立即退役当前原socket，原事件按同taskId/executionId/seq在新运输补传，原执行与Session不重建；相同原提交仍只调用一次。运输确认不代替任务终态，权限/取消及unknown占用保持。[实现与验证](../../iterations/I08/edge-outbox-reconnect.md)。
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 
 M07-F01/F04/F06/F07：三原生CLI启动器解析同步拒绝或实际ChildProcess在spawn前报error时，以原Task failed/NATIVE_START及nativeExited=false结算。原requestId去重与历史保持，原核对/取消confirmed只说明该原控制意图已核对，任务状态仍failed；已启动失联/旧unknown不能根据现安装缺失结算。[当前规则与验证](../../iterations/I08/native-start-boundary.md)。

@@ -1,12 +1,12 @@
 # AgentBridge 项目资料
 
-#29入口收尾：SSH“后台维护”现在始终可打开查看；离线、任务和unknown只限制具体写操作，弹窗提供重新检查和查看原操作。alpha.71候选正按实际EXE交付验证，公开alpha.70暂不变。[本轮记录](iterations/I08/issue29-maintenance-entry.md)。
+alpha.71的SSH维护只读入口始终可打开查看；具体替换/升级仍核对原操作与远端门禁。[入口与实际EXE验证](iterations/I08/issue29-maintenance-entry.md)。
 
 
-当前未发布源码新增不受支持后台的明确确认替换入口；公开alpha.70标签和EXE不变。[使用边界与本轮验收](iterations/I08/issue29-explicit-daemon-replacement.md)。
+alpha.71提供不受支持后台的明确确认替换及可进入的只读维护窗口。[当前行为与验证](iterations/I08/alpha71-release.md)。
 
 
-当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha70-release.md)。
+当前公开alpha.71：SSH维护只读入口在离线、任务忙和unknown时仍可打开，明确确认后可替换未登记后台；实际写入门禁和原ID保留。源码/EXE/SHA公开，匿名完整下载匹配。Windows扩展147通过/1平台跳过、包内兼容26/26；独立Ubuntu Core79/79、适配111/111、关系/SSH98/98、替换/入口105/105。实际包内UI与普通portable启动/关窗分层验证；历史Windows全量DSH竞态1失败/41跳过、文档2243缺失和依赖high1保留，真实profile/生产SSH/完整矩阵及性能未准出。[完整交付](iterations/I08/alpha71-release.md)。
 
 AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和结果，模型、账号与配置由原工具管理。用户入口是[使用文档](user/index.md)；本页及内部设计/原始证据不进入用户网站。逐轮历史统一在[迭代目录](iterations/README.md)。
 
@@ -17,10 +17,10 @@ AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前公开预发布 | **0.6.0-alpha.70**，冻结 `5c95b98`；EXE132301726字节，匿名完整下载一致；[发布记录](iterations/I08/alpha70-release.md) |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.70/AgentBridge-0.6.0-alpha.70-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.70/SHA256SUMS.txt)；未签名；[发布记录](iterations/I08/alpha70-release.md) |
-| 当前公开源码范围 | 标签 `v0.6.0-alpha.70`（5c95b98），master含后续发布说明 |
-| 本次内容与边界 | #27关系原收据恢复与#28 SSH当前观察；[分层验证与边界](iterations/I08/alpha70-release.md) |
+| 当前公开预发布 | **0.6.0-alpha.71**，冻结 `1b2e371`；EXE132300845字节，匿名完整下载一致；[发布记录](iterations/I08/alpha71-release.md) |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.71/AgentBridge-0.6.0-alpha.71-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.71/SHA256SUMS.txt)；未签名；[发布记录](iterations/I08/alpha71-release.md) |
+| 当前公开源码范围 | 标签 `v0.6.0-alpha.71`（1b2e371），master含后续发布说明 |
+| 本次内容与边界 | SSH只读维护入口与明确确认替换；[分层验证](iterations/I08/alpha71-release.md) |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-29T14:10:01.546Z",
+  "version": "0.6.0-alpha.71",
+  "status": "failed",
+  "scope": "actual packaged unpacked EXE UI with debugging transport, actual coordinator and loopback SSH/SFTP virtual files; no production remote or profile",
+  "modelCalls": 0,
+  "checks": [
+    "Actual packaged coordinator accepts its trusted public manifest as a fresh ready probe",
+    "Actual packaged snapshot and UI suppress old probe/offline errors during held inspecting"
+  ],
+  "error": {
+    "code": "VERIFY_FAILED",
+    "message": "locator.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '后台维护' }).getByRole('button', { name: '强制替换后台', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"btn\">强制替换后台</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    229 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m        - element is not enabled\u001b[22m\n\u001b[2m      - retrying click action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n"
+  }
+}

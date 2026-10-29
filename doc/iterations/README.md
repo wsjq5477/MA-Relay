@@ -1,6 +1,6 @@
 # 迭代资料目录
 
-- 2026-10-29：[#29灰色维护入口收尾](I08/issue29-maintenance-entry.md)：只读查看与实际写入门禁分离，明确原执行unknown和原维护pending；alpha.71构建与实际包验证另记。[发布记录](I08/alpha71-release.md)。
+- 2026-10-29：[#29灰色维护入口收尾](I08/issue29-maintenance-entry.md)：只读查看与实际写入门禁分离，明确原执行unknown和原维护pending；alpha.71已公开且匿名完整下载匹配，实际包/普通portable与独立CI验证另记。[发布记录](I08/alpha71-release.md)。
 
 
 - 2026-10-29：[#29 不受支持后台的明确确认替换](I08/issue29-explicit-daemon-replacement.md)：按用户最新要求解除旧清单对维护入口的锁定；运行中/未知任务仍阻止替换，原ID恢复只启动已校验目标；源码与受控进程/浏览器已验，未重打EXE、未部署远端。

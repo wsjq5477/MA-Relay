@@ -1,6 +1,6 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 M09-F01/F03：Core连接检查与高级向导只读版本检查共用原安装启动器；已选JS/CJS/MJS经Node，标准npm脚本沿原包解析，原生程序保持原路径。结构化参数、无shell、继承环境、10秒/64KiB/100字上限保持；检查不调用模型、不改账号/配置，也不回退别的安装。此为alpha.68之后未发布源码。[实现、反例与分平台验证](../../iterations/I08/core-windows-installation-checks.md)。
 

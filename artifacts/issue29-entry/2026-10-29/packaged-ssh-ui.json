@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-29T14:13:10.330Z",
+  "version": "0.6.0-alpha.71",
+  "status": "passed",
+  "scope": "actual packaged unpacked EXE UI with debugging transport, actual coordinator and loopback SSH/SFTP virtual files; no production remote or profile",
+  "modelCalls": 0,
+  "checks": [
+    "Actual packaged coordinator accepts its trusted public manifest as a fresh ready probe",
+    "Actual packaged snapshot and UI suppress old probe/offline errors during held inspecting",
+    "Actual packaged EXE opens maintenance while version-refused, then while original execution is unknown; controls block mutation inside the dialog, original ID/state are preserved, settings route is reachable"
+  ],
+  "remoteWrites": 0,
+  "nonProbeCommands": 0,
+  "probes": 4,
+  "pageErrors": 0
+}

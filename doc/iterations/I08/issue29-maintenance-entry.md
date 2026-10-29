@@ -17,3 +17,5 @@ Windows Node24.12.0：定向112/112；扩展148项147通过/1平台跳过，失�
 生产前端/根构建通过，原大chunk提示保留；根类型/lint与用户站测试分别记录。[构建](../../../artifacts/issue29-entry/2026-10-29/build-final.txt)、[上一公开pin来源](../../../artifacts/issue29-entry/2026-10-29/alpha70-pin-proof.json)。首次打包被原缓存EXDEV拒绝，改用本轮独立缓存后再构建，不改产品功能来绕过构建失败。
 
 实际包、普通portable、冻结输入、源码绑定、公开附件及匿名完整下载结果在[alpha.71交付](alpha71-release.md)集中登记。初始候选不视为已公开；历史Windows全量1失败/41跳过、文档2243缺失、依赖high1、未签名及真实profile/模型/生产SSH/完整矩阵/性能边界保留。
+
+本轮alpha.71已公开，实际包内窗口在保留原unknown时可打开，原ID/记录不变，写操作在窗内受限；设置原操作入口可达，远端写入0。普通portable和独立CI/公开下载分别取证。[最终交付](alpha71-release.md)。

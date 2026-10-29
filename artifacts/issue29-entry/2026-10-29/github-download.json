@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-29T14:25:41.575Z",
+  "url": "https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.71",
+  "assets": [
+    {
+      "name": "AgentBridge-0.6.0-alpha.71-Windows-x64.exe",
+      "status": 200,
+      "bytes": 132300845,
+      "sha256": "94a928b5a1bf894870b1c2e8ed9d18cecbe81588899bf99ea757c7da928c4e85",
+      "anonymous": true,
+      "localMatches": true
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "status": 200,
+      "bytes": 109,
+      "sha256": "333e64ed3de6cbc19cdacd101d49241b16ebf131fa589a222b2ec371bb8e9f47",
+      "anonymous": true,
+      "localMatches": true
+    }
+  ]
+}

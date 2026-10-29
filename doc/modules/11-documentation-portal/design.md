@@ -1,6 +1,6 @@
 # M11 文档网页入口设计
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 M11-F05/F06：Windows发布审计夹具以unlinkSync移除单文件、异步rm清理临时目录，逐项确认反例撤除后恢复19页通过；公开检查器、18页白名单、内部材料拒绝规则保持。Pi用户说明区分alpha.68目录前置检查与未发布事件一致性修复。[源码与证据](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
 

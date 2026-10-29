@@ -1,6 +1,6 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
-当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
+当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 
 M08-F01/F02：Hermes仍可接收collaboration=false的普通委派，独立MCP调用不变，hostManagedTask仍false。Hermes取消能力收窄为false；原任务失联保持unknown，不换ID、节点或目录重派。新增发现与原生网关兼容不扩大其他Agent或小队能力。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。

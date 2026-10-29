@@ -1,6 +1,6 @@
 # AgentBridge
 
-当前公开alpha.70：修复#27关系恢复的变更/观察判定及#28 SSH旧probe、阶段和错误投影；未登记daemon仍严格拒绝。源码/EXE/SHA公开，匿名完整下载匹配。Windows定向98/98、包内33/33；独立Ubuntu Core79/79、原生适配111/111、问题专项98/98。Windows全量1030通过/1失败/41平台跳过，DSH竞态在基线也复现，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](doc/iterations/I08/alpha70-release.md)。
+当前公开alpha.71：SSH维护只读入口在离线、任务忙和unknown时仍可打开，明确确认后可替换未登记后台；实际写入门禁和原ID保留。源码/EXE/SHA公开，匿名完整下载匹配。Windows扩展147通过/1平台跳过、包内兼容26/26；独立Ubuntu Core79/79、适配111/111、关系/SSH98/98、替换/入口105/105。实际包内UI与普通portable启动/关窗分层验证；历史Windows全量DSH竞态1失败/41跳过、文档2243缺失和依赖high1保留，真实profile/生产SSH/完整矩阵及性能未准出。[完整交付](doc/iterations/I08/alpha71-release.md)。
 
 AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：从原生Agent发起协作，在客户端配置连接、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
 
@@ -9,14 +9,14 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0 |
-| 当前公开预发布 | **0.6.0-alpha.70**，冻结 `5c95b98`；EXE132301726字节，匿名完整下载一致；[发布记录](doc/iterations/I08/alpha70-release.md) |
-| 本次内容与边界 | #27关系原收据恢复与#28 SSH当前观察；[分层验证与边界](doc/iterations/I08/alpha70-release.md) |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.70/AgentBridge-0.6.0-alpha.70-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.70/SHA256SUMS.txt)；未签名；[发布记录](doc/iterations/I08/alpha70-release.md) |
-| 上一公开预发布 | alpha.69，原生入口、MCP与Core维护；[历史发布](doc/iterations/I08/alpha69-release.md) |
-| 当前公开源码范围 | 标签 `v0.6.0-alpha.70`（5c95b98），master含后续发布说明 |
+| 当前公开预发布 | **0.6.0-alpha.71**，冻结 `1b2e371`；EXE132300845字节，匿名完整下载一致；[发布记录](doc/iterations/I08/alpha71-release.md) |
+| 本次内容与边界 | SSH只读维护入口与明确确认替换；[分层验证](doc/iterations/I08/alpha71-release.md) |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.71/AgentBridge-0.6.0-alpha.71-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.71/SHA256SUMS.txt)；未签名；[发布记录](doc/iterations/I08/alpha71-release.md) |
+| 上一公开预发布 | alpha.70，#27/#28恢复与SSH观察；[历史发布](doc/iterations/I08/alpha70-release.md) |
+| 当前公开源码范围 | 标签 `v0.6.0-alpha.71`（1b2e371），master含后续发布说明 |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
-[下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.70/AgentBridge-0.6.0-alpha.70-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.70/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.70)。用户无需自行编译或安装 WSL/Node.js。
+[下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.71/AgentBridge-0.6.0-alpha.71-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.71/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.71)。用户无需自行编译或安装 WSL/Node.js。
 
 升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE。可信兼容的SSH后台可继续使用；远端维护须空闲时由用户明确确认。原机器、节点、请求和历史保留；旧 unknown 只查原 ID，不重发。
 
