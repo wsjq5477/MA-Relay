@@ -1,5 +1,7 @@
 # Codex 适配器设计
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+
 M06-CX-F01：独立MCP只读列表使用共享command解析，Windows npm保持原JS安装身份并启动同包原生程序，不回退其他安装；列表启动错误不构成配置加载或连接证明。exec/resume、原thread、取消与模型配置未改。[实现与验证](../../../iterations/I08/windows-regression-and-native-probes.md)。
 
 原托管临时工具允许策略加入list_connectable/connect_agent/disconnect_agent，后端预授权与用户确认仍是唯一连接授予边界；reply_task审批、原账号/模型/持久原生配置不变。 [本片契约与证据](../../../iterations/I07/connection-policy.md)。

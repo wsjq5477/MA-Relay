@@ -1,5 +1,7 @@
 # OpenCode 适配器测试报告
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+
 T-M06-OC-215 / M06-OC-F01：2026-10-29，Windows Node24.12.0，Core生产controller加受控HTTP服务，新版本检查前0/2、后2/2。CJS/MJS只读入口与删除后不替代检查通过，模型0；Core定向32通过/7平台跳过，最终全量、Linux快照和运行限制见[专项](../../../iterations/I08/core-windows-installation-checks.md)。不是实际OpenCode安装、模型或普通EXE验收。
 
 T-M06-OC-214 / M06-OC-F01：2026-10-29，未发布源码；V1/V2两代布局在中文profile下添加/移除的并发修改和替换失败八项计入共享专项44/44，原JSONC及无关文件保持。相关Windows117通过/1平台跳过，Electron44/44；不是实际OpenCode服务、模型或普通EXE验收。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。

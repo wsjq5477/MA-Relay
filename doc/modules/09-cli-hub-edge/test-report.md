@@ -1,5 +1,9 @@
 # M09 CLI、controller 与 Hub/Edge 测试报告
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+
+2026-10-29续办：T-M09-215最终共享Windows79项68通过/11平台跳过；冻结alpha.69源码Linux79项76通过/3失败、无跳过或取消。原Hub重开与ACK丢失恢复通过；v1取消unknown、等待和探测超时保留，独立诊断9/9不替代全量。完整快照/清理及共享protocol竞态后续按[当次证据](../../iterations/I08/edge-outbox-reconnect.md)，不跨模块相加。
+
 T-M09-215 / M09-F05：2026-10-29，未发布源码、Windows Node24.12.0。新独立子进程ACK超时反例原0/1、修复后计入10/10故障/恢复专项；两运输、原seq连续补传、同原task.submit不再调用、SQLite单次执行和正常退出通过。Linux原自旋热点/准确停止与最终完整矩阵分别见[当次证据](../../iterations/I08/edge-outbox-reconnect.md)，不把本机受控测试当作真实原生/普通EXE验收。
 
 T-M09-214 / M09-F01/F03/F06：2026-10-29，10fdbb3派生未发布源码、Windows Node24.12.0。原安装CJS/MJS只读检查前0/2、后2/2，未调用模型；定向39项32通过/7明确平台跳过，原Windows全量53通过/18失败与中间66通过/1失败/11平台跳过均保留。最终全量及WSL快照结果按[当次记录](../../iterations/I08/core-windows-installation-checks.md)实际登记，不与旧基线相加、不冒充普通EXE或真实原生模型。

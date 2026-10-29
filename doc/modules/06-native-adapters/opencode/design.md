@@ -1,5 +1,7 @@
 # OpenCode 适配器设计
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+
 M06-OC-F01：独立MCP原生列表通过共享command沿选中JS/npm/原生入口启动，mcp/list与原配置继承不变；同步启动失败记探测error，不改serve/HTTP协议、Session或unknown。[本轮维护及验证](../../../iterations/I08/windows-regression-and-native-probes.md)。
 
 ## 接入启动失败的恢复

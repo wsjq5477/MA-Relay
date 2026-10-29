@@ -1,5 +1,7 @@
 # Codex 适配器测试报告
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+
 T-M06-CX-214 / M06-CX-F01：2026-10-29，未发布源码；中文profile的添加/移除在并发修改及替换失败后原TOML保持、准确临时文件消失。四项计入共享专项44/44与相关Windows117通过/1平台跳过，Electron44/44；不是本机真实Codex、模型或普通EXE验收。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
 
 T-M06-CX-213 / M06-CX-F01：2026-10-29，Windows Node24.12.0，未发布源码。受控宿主采用CJS入口，取消前等原生绑定并有界等待实际退出；首次22/23共享集中的取消超时保留。独立原生列表通过共享command，五项新增启动检查计入共享MCP38/38；不新增模型/权限参数，真实Codex安装/模型/新EXE未验。[最终检查与原始证据](../../../iterations/I08/windows-regression-and-native-probes.md)。

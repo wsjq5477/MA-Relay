@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.68**，标签冻结38cd637；EXE132290374字节、SHA-256 ef2361f30f5e3ffce5c7e37a1506144077e30f89e00904e5c0e0a1d11cf71534。221产品输入、59后台/84Core/1725Linux及实际EXE3401资源匹配，源码/EXE/SHA公开，匿名完整下载一致。
+当前公开预发布 **0.6.0-alpha.69**，标签冻结04ee6fe；EXE132300169字节、SHA-256 534642b1026057a40b99f56357b88625ce45bfe28e257ad397f597e0bff0d240。223产品输入及实际EXE资源匹配，源码/EXE/SHA公开，匿名完整下载一致。
 
-当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。见doc/iterations/I08/alpha68-release.md。alpha.67原真实Hermes两轮/续聊和原失败证据保留在其迭代，不当作本轮重新实测。原unknown只查原ID；未切日常后台、未部署SSH，docs:test原5/6不隐去。
+当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](doc/iterations/I08/alpha69-release.md)。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

@@ -1,6 +1,6 @@
 # M02 中央协调后台设计
 
-当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
 
 
 M02-F01/F03：WSL就绪预算120秒，握手后业务计时65秒；旧通道/代次不得写入新通道。原中央、任务和管理收据不因启动延迟改变。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。

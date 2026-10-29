@@ -1,6 +1,6 @@
 # AgentBridge 项目资料
 
-当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
+当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha69-release.md)。
 
 AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和结果，模型、账号与配置由原工具管理。用户入口是[使用文档](user/index.md)；本页及内部设计/原始证据不进入用户网站。逐轮历史统一在[迭代目录](iterations/README.md)。
 
@@ -11,10 +11,10 @@ alpha.68已包含启动失败边界、Hermes分离保护及Pi目录绑定；真�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前公开预发布 | **0.6.0-alpha.68**，冻结 `38cd637`；EXE132290374字节，匿名完整下载一致；[发布记录](iterations/I08/alpha68-release.md) |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.68/AgentBridge-0.6.0-alpha.68-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.68/SHA256SUMS.txt)；未签名；[发布记录](iterations/I08/alpha68-release.md) |
-| 当前公开源码范围 | 标签 `v0.6.0-alpha.68`（38cd637），master含后续发布说明 |
-| 本次内容与边界 | 关系冲突证据恢复、原生会话保护与界面改进；分层验证和未测项见[发布记录](iterations/I08/alpha68-release.md) |
+| 当前公开预发布 | **0.6.0-alpha.69**，冻结 `04ee6fe`；EXE132300169字节，匿名完整下载一致；[发布记录](iterations/I08/alpha69-release.md) |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.69/AgentBridge-0.6.0-alpha.69-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.69/SHA256SUMS.txt)；未签名；[发布记录](iterations/I08/alpha68-release.md) |
+| 当前公开源码范围 | 标签 `v0.6.0-alpha.69`（04ee6fe），master含后续发布说明 |
+| 本次内容与边界 | 原生入口/目录、MCP配置/列表与Core事件补传维护；[分层验证与边界](iterations/I08/alpha69-release.md) |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

@@ -1,5 +1,7 @@
 # Core Windows回归与原安装版本检查
 
+后续本片已随[alpha.69](alpha69-release.md)公开；下文保留原实施时点、失败和证据边界，不将发布包/新复验写成旧轮实测。
+
 关联AB-F02/F15、M09-F01/F03/F06及M06-OC-F01。2026-10-29，Windows11 Insider Preview 26220 / Node24.12.0，基于master `10fdbb3` 与原工作树的未发布维护；公开alpha.68冻结 `38cd637` 不变。本片接续[MCP临时文件清理](mcp-config-temporary-cleanup.md)，两片产品改动与计数分别记录。
 
 ## 产品缺口与实现

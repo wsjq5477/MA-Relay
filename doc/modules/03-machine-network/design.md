@@ -1,5 +1,7 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+
 M03-F01/F02：Linux Hermes保留PATH优先；显式HERMES_INSTALL_DIR下的原生启动器在非交互PATH缺失时优先于通用便利路径。数据Home/bin、原生Profile所属根、默认根/后缀与旧venv布局作为Hermes专用候选，不从中选择其他Agent。不创建Profile、不重绑原请求或安装。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
 
 M03-F01/F02：Windows Hermes发现保持PATH优先，只为Hermes补原生安装bin；配置中的Home/Profile不因发现而改写，当前PATH失败不切其他安装，原机器/节点/安装身份保持。Hermes版本探测20秒，其余仍5秒。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。

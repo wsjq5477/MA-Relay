@@ -1,5 +1,7 @@
 # MCP原生配置失败后的临时文件清理
 
+后续本片已随[alpha.69](alpha69-release.md)公开；下文保留原实施时点、失败和证据边界，不将发布包/新复验写成旧轮实测。
+
 关联AB-F13、M06-F02/F05及Claude/Codex/OpenCode/OpenDesk子适配。2026-10-29，基于master `10fdbb3` 与原未提交工作树的未发布源码维护；公开alpha.68冻结 `38cd637` 不变。延续[上轮Windows清理核查](windows-regression-and-native-probes.md)，本轮只修改共享MCP配置写入器与新增回归，不覆盖上轮Pi/Claude/凭据/列表或界面预览改动。
 
 ## 需求、复现与实现

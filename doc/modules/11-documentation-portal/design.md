@@ -1,5 +1,7 @@
 # M11 文档网页入口设计
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+
 M11-F05/F06：Windows发布审计夹具以unlinkSync移除单文件、异步rm清理临时目录，逐项确认反例撤除后恢复19页通过；公开检查器、18页白名单、内部材料拒绝规则保持。Pi用户说明区分alpha.68目录前置检查与未发布事件一致性修复。[源码与证据](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
 M11-F01：Hermes用户页维护当前Linux/WSL安装与原生配置要求；内部原始证据/私有检查点及凭据不进入用户网站。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。

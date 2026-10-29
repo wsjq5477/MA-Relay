@@ -1,5 +1,7 @@
 # Claude Code 适配器设计
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+
 M06-CC-F01：独立MCP只读列表经共享原安装启动解析器处理JS/npm入口，参数仍为mcp/list，继承原配置；启动错误只记探测失败，不影响原生会话、权限或unknown。stream-json执行协议未改。[实现与验证](../../../iterations/I08/windows-regression-and-native-probes.md)。
 
 M06-CC-F01：共享机器发现将npm shim解析到原JS入口后，宿主/worker统一通过Node执行该JS/CJS/MJS，参数保持独立数组、继承环境并设置ELECTRON_RUN_AS_NODE=1。原npm shim与原生程序路径保持；不改变已选安装身份、模型、账号、Session、权限或持久版本。该启动修复尚未进入alpha.68冻结包。[反例、完整受控委派与限制](../../../iterations/I08/pi-workspace-events-and-windows-validation.md)。

@@ -1,5 +1,8 @@
 # 全迭代开发与验收推进台账
 
+2026-10-29：[alpha.69](alpha69-release.md)已公开，当前维护源码、EXE及SHA-256完成对应与匿名完整下载核验；真实原生父模型、完整I06C/I07C/MCP02与性能/SSH仍未准出。下方历史事实保持原时点。
+
+
 2026-10-28：用户恢复“检查项目还有哪些没做的特性，继续推进，编码，验证”。目标进行中；当前公开alpha.67，未发布源码已补[启动前失败边界](native-start-boundary.md)、[Hermes分离保护](hermes-detached-input.md)与[Pi目录绑定](pi-session-workspace.md)，当前Windows启动/宿主/核对/分离64/64通过；Pi/Hermes原生组件与独立MCP60项保持其原范围，无新包/部署。下一步冻结整合候选并补实际原生生命周期，不能据受控结果关闭整体准出。下方历史事实保持，当前范围以[路线](../../project-plan.md)、[矩阵](../../agent-integration-matrix.md)及最新专项为准。
 
 历史暂停：用户于2026-10-25要求“先到这里，把当前改好的全部提交，exe也传到github”，当时暂停开发并完成[alpha.63提交/发布](alpha63-release.md)。源码与EXE/校验文件分发及匿名完整下载核验通过，原实际验收范围与未准出边界保持。完整目标未完成；[图20样本p95 496.029ms](../I06/alpha63-graph-baseline.md)仍未准出。

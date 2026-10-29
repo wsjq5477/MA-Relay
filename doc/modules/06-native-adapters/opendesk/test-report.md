@@ -1,5 +1,7 @@
 # OpenDesk 适配验证
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+
 T-M06-OD-214 / M06-F05：2026-10-29，未发布源码；Desktop布局中文profile添加/移除的并发修改和替换失败四项计入共享专项44/44，原setting.json及无关文件保持。相关Windows117通过/1平台跳过，Electron44/44；未写真实OpenDesk配置、未启停原生实例，不开放CLI安装。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
 
 ## #19/#20 修复验证

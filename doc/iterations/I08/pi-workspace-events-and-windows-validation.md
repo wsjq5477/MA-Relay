@@ -1,5 +1,7 @@
 # Pi目录事件一致性与Windows启动、验证器修复
 
+后续本片已随[alpha.69](alpha69-release.md)公开；下文保留原实施时点、失败和证据边界，不将发布包/新复验写成旧轮实测。
+
 日期：2026-10-29（Asia/Hong_Kong）。基线master `10fdbb3740641204a681bc123fcd3ccb172eff41`及已有工作树，公开版本仍为alpha.68。完成工作区未收尾的Pi目录事件修复，并处理验证中发现的Claude npm入口及Windows测试器问题。没有构建、替换或发布新EXE。
 
 ## 需求与验收

@@ -1,28 +1,18 @@
 # 迭代路线与当前交付
 
-当前未发布维护进一步修复Core事件ACK超时后的运输自旋，原事件/原执行保持；受控反例前0/1，恢复专项10/10，最终跨平台全量按[专项](iterations/I08/edge-outbox-reconnect.md)记录。原生父模型、普通EXE、冷启动与完整I06C/I07C/MCP02仍待独立准出。
+当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](iterations/I08/alpha69-release.md)。
 
-当前未发布Core维护统一check/高级向导的原安装版本启动，并修正Windows验证器的反例清理、IPC和平台边界；只读安装专项前0/2、后2/2，原失败与最终矩阵分别记录。[当次结果及后续](iterations/I08/core-windows-installation-checks.md)。不扩大原生托管、模型或发布准出范围。
-
-当前未发布维护补齐MCP原生配置失败后的准确临时文件清理；系统Node中文profile专项44/44、相关Windows117通过/1平台跳过，Electron旧实现40/40及修复后44/44分开记录。未构建新EXE或关闭真实父模型等准出。[需求、运行时差异、证据与后续](iterations/I08/mcp-config-temporary-cleanup.md)。
-
-当前维护增量补齐SSH密文单文件清理、经典原生MCP列表启动与Windows验证器平台边界；Windows976通过/失败0/41跳过，WSL隔离151/151并逐项覆盖新增40个Linux专属跳过，Electron组件7/7。[本轮原失败、最终检查与后续](iterations/I08/windows-regression-and-native-probes.md)。真实原生生命周期、父模型和普通EXE仍按原矩阵推进。
-
-当前未发布维护增量：Pi派发/事件同目录规则、Claude已选JS入口启动和Windows文档/委派验证器已修复；Windows共享60/60、原包组件四组、脚本/三条委派5/5及docs:test 6/6。[验收与后续](iterations/I08/pi-workspace-events-and-windows-validation.md)。下一步仍为真实原生生命周期、父模型和普通EXE，定向检查不关闭完整准出。
-
-当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
-
-当前实现、候选功能和未准出项分别登记；前序发布历史统一见[发布登记](iterations/release-ledger.md)。下一步仍为原生父模型、自主委派、异常恢复和冷启动等独立验收，不因CLI可见或MCP组件通过而关闭整体验收。
+下一步仍为真实原生生命周期、自主父模型/多主、独立SSH故障与图性能验收；组件/受控或公开下载通过不替代完整准出。
 
 ## 1. 当前基线
 
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 当前公开预发布 | **0.6.0-alpha.68**，冻结 `38cd637`；EXE132290374字节，匿名完整下载一致；[发布记录](iterations/I08/alpha68-release.md) |
-| 上一公开预发布 | alpha.67，WSL握手与Hermes真实执行；[历史发布](iterations/I08/alpha67-hermes-linux-live.md) |
-| 当前自动回归 | 关系定向137/137、冻结后台16/16；Ubuntu71/71与110/110；全量失败及其他分层见[发布记录](iterations/I08/alpha68-release.md) |
-| 未发布桌面外观 | Taste/Impeccable浅色框架与中性深色主题、本地IBM Plex字体；相关渲染105/105、隔离浏览器七组/19张截图，Taste四宽度无发现、Impeccable空结果；[范围和证据](iterations/I08/taste-impeccable-ui.md)，本片未构建新EXE |
+| 当前公开预发布 | **0.6.0-alpha.69**，冻结 `04ee6fe`；EXE132300169字节，匿名完整下载一致；[发布记录](iterations/I08/alpha69-release.md) |
+| 上一公开预发布 | alpha.68，关系冲突恢复与原生会话保护；[历史发布](iterations/I08/alpha68-release.md) |
+| 当前自动回归 | Windows桌面1020通过/41跳过；Core首轮及单独复验分别记录，[本轮证据](iterations/I08/alpha69-release.md) |
+| 当前桌面外观 | Taste/Impeccable浅色框架、中性深色主题及离线字体已发布；[实现与证据](iterations/I08/taste-impeccable-ui.md) |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |
 | 当前发布范围与缺口 | 已包含DSH Desktop/Web、CT-07、OpenDesk、MCP02与#15/#16修复；完整准出继续按专项推进 |
 | I06A/I06B | 6A 候选已验收（见 [6A 验收](iterations/I06/acceptance.md)）；6B alpha.6 主要范围已验收（见 [实施报告](iterations/I06/graph-implementation.md)） |

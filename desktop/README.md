@@ -1,12 +1,8 @@
 # AgentBridge Windows
 
-当前公开alpha.65新增Windows Hermes原生安装发现、网关CLI兼容与保守unknown，原Session续聊、MCP十工具与实际EXE已分层核对；继承关系撤权/目标准入、原包传递和配置审计。Hermes网关取消须在原生会话完成；[当前交付与完整边界](../doc/iterations/I08/alpha65-hermes-windows.md)。
+当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](../doc/iterations/I08/alpha69-release.md)。
 
-公开alpha.60实现按身份多主连接、用户预授权/明确确认和策略审计/原意图恢复页面，旧图仍selected。源码900/900、包内Windows37/37与实际中央管道/重启、兼容26/26、生产页面4组、普通EXE4组及Downloads SHA通过，模型0；未切换日常后台，真实原生多主未验。[完整交付与边界](../doc/iterations/I07/connection-policy.md)、[发布核验](../doc/iterations/I08/alpha60-release.md)。
-
-## 当前状态
-
-当前公开预发布 **0.6.0-alpha.65**，标签冻结 `47cba61`；EXE 132222581字节、SHA-256 `271c7e2884ad4b1e14f268687285723cc67cd3d9d7dadff17ff00e1f9e8d0ba9`。210个产品/依赖输入保持，源码、EXE与校验文件已公开，匿名HTTP200完整下载字节/摘要匹配。Hermes定向31/31，原生执行/同Session续聊两轮、冻结Windows原生MCP五组及普通EXE原profile补验通过。未签名、未切换日常后台、未部署SSH；Hermes网关取消/父模型自主MCP、图100ms、冷启动与完整矩阵继续未准出。 [完整发布证据](../doc/iterations/I08/alpha65-hermes-windows.md)。
+[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.69/AgentBridge-0.6.0-alpha.69-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.69/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.69)。冻结`04ee6fe`，EXE132300169字节。
 
 升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；SSH 远端需在原机器空闲时确认升级，不自动重发原维护。
 

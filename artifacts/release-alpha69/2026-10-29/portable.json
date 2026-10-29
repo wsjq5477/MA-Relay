@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-29T02:06:48.842Z",
+  "version": "0.6.0-alpha.69",
+  "environment": "Windows ordinary portable EXE / actual coordinator pipe / synthetic profile",
+  "modelCalls": 0,
+  "checks": [
+    {
+      "name": "ordinary-window-open",
+      "elapsedMs": 260738
+    },
+    "Original conflict file bytes retained by ordinary startup",
+    "Actual packaged coordinator performs backup, confirmed recovery and original-ID idempotency; original unknown and receipts retained",
+    {
+      "name": "ordinary-window-open",
+      "elapsedMs": 220060
+    },
+    "Ordinary window and full coordinator restart keep recovered relations and original unknown without replay"
+  ],
+  "status": "passed",
+  "portable": {
+    "bytes": 132300169,
+    "sha256": "534642b1026057a40b99f56357b88625ce45bfe28e257ad397f597e0bff0d240"
+  }
+}

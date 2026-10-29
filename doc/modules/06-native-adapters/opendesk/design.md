@@ -1,5 +1,7 @@
 # OpenDesk 原生适配设计
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+
 ## 当前 OpenDesk 生命周期与关系作用域
 
 M06-F05：Desktop共享配置写入器在并发修改或原子替换失败后准确删除本次临时文件，保留原setting.json及无关文件。此alpha.68之后未发布修复不开放CLI原生配置写入、不放宽Desktop退出核对。[当前行为与验证](../../../iterations/I08/mcp-config-temporary-cleanup.md)。

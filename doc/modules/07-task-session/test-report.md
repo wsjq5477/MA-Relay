@@ -1,12 +1,14 @@
 # M07 任务、会话与恢复测试报告
 
+2026-10-29续办：T-M07-214共享Windows全量68通过/11平台跳过，冻结alpha.69源码Linux全量76通过/3失败。原事件/原执行恢复通过；v1取消收据unknown、等待及协议探测失败保留，不能以定向12/12或诊断9/9关闭完整矩阵。快照/I01/清理及后续独立工作树见[最终结果](../../iterations/I08/edge-outbox-reconnect.md)。
+
 T-M07-214 / M07-F06/F07：2026-10-29，未发布Core源码，Windows独立子进程受控ACK丢失反例前0/1，修复后相关10/10。两条运输仅1次原执行，taskId/executionId与事件seq保持、ack_seq最终连续，原Hub重开/未知占用回归保留；模型0、非真实原生/EXE。[原失败、热点与完整矩阵](../../iterations/I08/edge-outbox-reconnect.md)。
 
 2026-10-29验证器维护：Claude/Codex受控CLI采用可跨平台入口，取消前观察原生绑定并有界等待退出；保留原request/Session/权限/unknown与重开断言，未修改产品任务/恢复协议。首次共享22/23及最终完整结果分别保留；Linux专属测试跳过不计通过，模型0。[本轮证据与限制](../../iterations/I08/windows-regression-and-native-probes.md)。
 
 T-M07-211 / M07-F01/F02/F06/F07：2026-10-29，master10fdbb3及未发布工作树、Windows Node24.12.0。共享60/60覆盖Pi等价目录别名重启续聊、原Session/文件字节、原请求去重与unknown保护；启动边界8项通过，Claude入口/三条受控委派5/5覆盖原任务/收据重开及实际退出后确认。Pi未修改原包组件四组单列，不跨模块相加，模型0；未验证用户profile、新EXE、真实生命周期或独立SSH。[原失败、分层证据与复现](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
-当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
 
 
 2026-10-28 / c40f45e派生未发布源码 / Windows Node24.12.0：最新共享启动/宿主/原核对/分离集64/64，含原44混合集、Pi目录与Hermes分离。启动专项8项证明明确未启动结算failed、原取消/核对收据confirmed而非取消成功、nativeExited=false及原ID重开不重派；已启动或历史unknown保持，模型0。[完整证据与原失败](../../iterations/I08/native-start-boundary.md)。Pi/Hermes原生组件和独立60项回归保持[Pi](../../iterations/I08/pi-session-workspace.md)、[Hermes](../../iterations/I08/hermes-detached-input.md)原范围，不相加或作为真实网关/模型恢复。

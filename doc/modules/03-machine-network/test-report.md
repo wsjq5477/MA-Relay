@@ -1,5 +1,7 @@
 # M03 机器与 Agent 网络测试报告
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+
 2026-10-29测试维护：Windows发现夹具采用宿主PATH分隔符，原选中安装权威断言保留；图崩溃夹具核对准确注入点与Windows真实退出码，生产网络/发现/身份/unknown未改。平台共享78项为38通过/40个Linux专属明确跳过，不跨模块相加。[完整源码基线与最终证据](../../iterations/I08/windows-regression-and-native-probes.md)。
 
 2026-10-27 / alpha.66公开：Windows Node24.12.0受控定向39/39；独立Ubuntu Node24.12.0适配100/100、Core71/71；本机Ubuntu22.04/WSL使用包内Node22.23.1及冻结后台，对正式Hermes0.22.5完成发现和原生MCP五组/十工具，独立Ubuntu原生组件亦通过。普通EXE七组通过，均模型0。WSL直连TLS仍有问题，临时安装通道已停止；普通doctor90秒未完成，pm doctor退出0且所有已安装运行组件通过。真实Linux模型、SSH、冷启动与完整矩阵未准出。[本轮环境、原始失败与证据](../../iterations/I08/alpha66-hermes-linux.md)。

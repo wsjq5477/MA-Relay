@@ -1,5 +1,7 @@
 # Claude Code 适配器测试报告
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+
 T-M06-CC-214 / M06-CC-F01：2026-10-29，未发布源码；中文profile的添加/移除在并发修改及替换失败后原配置保持、准确临时文件消失。四项计入共享专项44/44与相关Windows117通过/1平台跳过，Electron44/44；不是本机真实Claude、模型或普通EXE验收。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
 
 T-M06-CC-213 / M06-CC-F01：2026-10-29，Windows Node24.12.0，未发布源码。Claude受控生命周期改用可跨平台CJS入口及worker专用preload，原续聊/权限/取消/重开断言保留；原生列表共享38/38覆盖原入口、启动失败与授权/工具事实分离。真实Claude安装/模型与新EXE未验，模型0。[分层日志及首次失败](../../../iterations/I08/windows-regression-and-native-probes.md)。

@@ -1,5 +1,7 @@
 # M05 Linux 机器后台设计
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+
 M05-F01/F02：WSL原启动脚本、Node选择与就绪帧不改；Windows等待读取器就绪120秒，Linux/SSH协议与daemon原输入不变。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 M05-F01/F02：Linux daemon/WSL/SSH宿主在自身环境发现Hermes，支持与HERMES_HOME分离的源码根及原生发布启动器；不依赖.bashrc/.profile、不继承Windows安装路径。离线包包含同一实现，升级和远端部署仍需原有操作，本轮不自动部署SSH。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。

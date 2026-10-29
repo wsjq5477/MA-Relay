@@ -1,5 +1,7 @@
 # M05 Linux daemon 测试报告
 
+当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../iterations/I08/alpha69-release.md)。
+
 2026-10-29验证范围更新：40项涉及Linux daemon/Unix socket/UID/原生helper的跨模块用例在Windows逐项明确跳过；可跨平台帧与SSH通道仍执行。首次WSL Node22.23.1共42项39通过/2失败/1超时取消，后续隔离首轮151项149通过/1失败/1取消；实测源码进程18.377秒就绪后仅调整测试等待预算，最终隔离151/151、跳过0，新增40个平台跳过逐项在本组通过。产品daemon默认10秒保持，不能据此准出冷启动性能。生产daemon协议/权限门禁未改、无远端部署、模型0。[全部失败及最终分层证据](../../iterations/I08/windows-regression-and-native-probes.md)。
 
 2026-10-27 / alpha.67公开：Windows受控22/22、独立Ubuntu适配109/109/Core71/71及正式Hermes0.22.5原生MCP五组通过。Windows→WSL Node24.13.0→Hermes两轮、原ID去重、通道重开/同Session续聊与配置字节保持通过；两原传输退出0。原生持久会话只读核对两用户/两助手消息、API2/工具0；临时网络通道已停止，WSL直连未修复。实际EXE七组模型0、212输入/58后台/84Core/1723Linux及载荷一致。首轮Core70/71、旧就绪失败及临时验收目录后续缺失如实保留，完整矩阵未准出。[全部分层证据与边界](../../iterations/I08/alpha67-hermes-linux-live.md)。
