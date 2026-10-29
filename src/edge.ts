@@ -62,15 +62,22 @@ export async function startEdge(config: EdgeConfig, log: (message: string) => vo
     flush = (async () => {
       while (ready && !stopping) {
         const next = journal.outbox()[0]; if (!next) break;
+        const socket = ws;
         try {
           await sendConfirmed({ ...envelope(), type: 'task.event', taskId: next.taskId, executionId: next.executionId, payload: { seq: next.seq, event: next.event } });
           journal.acknowledge(next.executionId, next.seq);
         } catch (e) {
-          if (e instanceof BridgeError && ['DISCONNECTED', 'ACK_TIMEOUT'].includes(e.code)) { ws?.terminate(); break; }
+          if (e instanceof BridgeError && ['DISCONNECTED', 'ACK_TIMEOUT'].includes(e.code)) {
+            // terminate() closes asynchronously. Clear this transport's ready
+            // state now so finally cannot starve its close event with retries.
+            // A late failure from an old transport must not retire a new one.
+            if (ws === socket) loseConnection();
+            socket?.terminate(); break;
+          }
           fatal(e); break;
         }
       }
-    })().catch(fatal).finally(() => { flush = undefined; if (ready && !stopping && journal.outbox().length) flushOutbox(); });
+    })().catch(fatal).finally(() => { flush = undefined; if (ready && !stopping && ws?.readyState === WebSocket.OPEN && journal.outbox().length) flushOutbox(); });
   };
   const emit = (execution: Execution, event: TaskEvent) => {
     if (stopping) return;

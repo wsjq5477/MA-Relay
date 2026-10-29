@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, statSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, unlinkSync, statSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -8,7 +8,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { SettingsStore } from '../src/settings.js';
-import { ipc, ensureController, startController } from '../src/controller.js';
+import { ipc, ensureController, startController, socketPath } from '../src/controller.js';
 import { fixture } from './native-fixture.js';
 import type { Task } from '../src/core.js';
 import type { Operation } from '../src/storage/operations.js';
@@ -39,8 +39,10 @@ test('controller: concurrent startup, configuration conflicts, local apply, dedu
     assert.equal(new Set(states.map(s => s.pid)).size, 1);
     const stateAlias = resolve(root, 'state-alias'); symlinkSync(dir, stateAlias);
     await ensureController(stateAlias); assert.equal((await ipc<{ pid: number }>(stateAlias, { op: 'status' })).pid, states[0]!.pid);
-    assert.equal(statSync(resolve(dir, 'controller.sock')).mode & 0o777, 0o600);
-    assert.equal(statSync(dir).mode & 0o777, 0o700);
+    if (process.platform !== 'win32') {
+      assert.equal(statSync(socketPath(dir)).mode & 0o777, 0o600);
+      assert.equal(statSync(dir).mode & 0o777, 0o700);
+    } else assert.match(socketPath(dir), /^\\\\\.\\pipe\\agentbridge-/);
     for (const [id, native, workspace] of [['a', a, one], ['b', b, two]] as const) {
       const passwordFile = resolve(dir, id + '.password'); writeFileSync(passwordFile, native.password, { mode: 0o600 });
       await ipc(dir, { op: 'save', expectedRevision: (await list()).revision,
@@ -123,15 +125,19 @@ test('controller: concurrent startup, configuration conflicts, local apply, dedu
     await a.close(); await b.close(); rmSync(root, { recursive: true, force: true });
   }
 });
-test('foreign IPC server or regular file is never adopted, stopped or unlinked', async () => {
+test('foreign IPC server or POSIX socket-path file is never adopted, stopped or unlinked', async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'ab-foreign-')); new SettingsStore(root).initialize();
-  const path = resolve(root, 'controller.sock'); writeFileSync(path, 'foreign file');
+  const path = socketPath(root);
   try {
-    await assert.rejects(() => ensureController(root), /其他文件占用/); assert.equal(readFileSync(path, 'utf8'), 'foreign file');
-    rmSync(path); let mutations = 0;
+    if (process.platform !== 'win32') {
+      writeFileSync(path, 'foreign file');
+      await assert.rejects(() => ensureController(root), /其他文件占用/); assert.equal(readFileSync(path, 'utf8'), 'foreign file');
+      unlinkSync(path);
+    }
+    let mutations = 0;
     const server = createServer(socket => { socket.on('data', data => { const input = JSON.parse(data.toString()) as { op: string }; if (input.op !== 'status') mutations++; socket.end(JSON.stringify({ data: { pid: 1, directory: root } }) + '\n'); }); });
-    await new Promise<void>(done => server.listen(path, done)); const inode = statSync(path).ino;
-    try { await assert.rejects(() => ensureController(root), /无法确认的服务/); assert(server.listening); assert.equal(statSync(path).ino, inode); assert.equal(mutations, 0); }
+    await new Promise<void>(done => server.listen(path, done)); const inode = process.platform === 'win32' ? undefined : statSync(path).ino;
+    try { await assert.rejects(() => ensureController(root), /无法确认的服务/); assert(server.listening); if(inode !== undefined) assert.equal(statSync(path).ino, inode); assert.equal(mutations, 0); }
     finally { await new Promise<void>(done => server.close(() => done())); }
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

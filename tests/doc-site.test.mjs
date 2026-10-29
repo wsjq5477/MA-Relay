@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync} from 'node:fs';
+import {mkdtempSync, mkdirSync, writeFileSync, unlinkSync, readFileSync} from 'node:fs';
+import {rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {publishedFiles, repositoryRoot, validatePublicPage, validateUserDocs, connectionTable, capabilityTable} from '../scripts/doc-site-content.mjs';
@@ -39,7 +40,7 @@ test('正文拒绝内部编号、过程、仓库链接及未许可 include', () 
 test('HTML / 引用式链接不能绕过正文链接检查', () => {
   for (const text of ['<a href="/iterations/">内部</a>', '[资料][internal]\n[internal]: ../README.md', '<iframe src="/modules/06-native-adapters/design" />']) assert.throws(() => validatePublicPage('index.md', text));
 });
-test('发布审计对生成目录执行独立白名单与内容检查', () => {
+test('发布审计对生成目录执行独立白名单与内容检查', async () => {
   const folder = mkdtempSync(resolve(tmpdir(), 'agentbridge-public-docs-'));
   try {
     for (const file of [...publishedFiles].map(name => name.replace(/\.md$/, '.html')).concat('404.html')) {
@@ -54,19 +55,21 @@ test('发布审计对生成目录执行独立白名单与内容检查', () => {
     assert.equal(checkDocSite(folder).htmlPages, 19);
     writeFileSync(resolve(folder, 'assets/index.C2f-I31F.js'), 'M06-F01');
     assert.throws(() => checkDocSite(folder), /内部材料/);
-    rmSync(resolve(folder, 'assets/index.C2f-I31F.js')); rmSync(resolve(folder, 'assets/importer.js'));
+    unlinkSync(resolve(folder, 'assets/index.C2f-I31F.js')); unlinkSync(resolve(folder, 'assets/importer.js'));
 
     writeFileSync(resolve(folder, 'test-report.html'), '内部');
     assert.throws(() => checkDocSite(folder), /未登记页面/);
-    rmSync(resolve(folder, 'test-report.html'));
+    unlinkSync(resolve(folder, 'test-report.html'));
+    assert.equal(checkDocSite(folder).htmlPages, 19);
     mkdirSync(resolve(folder, 'assets'), {recursive: true});
     writeFileSync(resolve(folder, 'assets/search.js'), 'M06-F01');
     assert.throws(() => checkDocSite(folder), /搜索资源混入内部材料/);
-    rmSync(resolve(folder, 'assets/search.js'));
+    unlinkSync(resolve(folder, 'assets/search.js'));
+    assert.equal(checkDocSite(folder).htmlPages, 19);
     mkdirSync(resolve(folder, 'references'));
     writeFileSync(resolve(folder, 'references/raw.log'), 'internal');
     assert.throws(() => checkDocSite(folder), /非公开材料/);
-  } finally {rmSync(folder, {recursive: true, force: true});}
+  } finally {await rm(folder, {recursive: true, force: true, maxRetries: 8, retryDelay: 100});}
 });
 test('站点配置使用隔离源目录，资源准备不再扫描仓库引用', () => {
   const config = readFileSync(resolve(repositoryRoot, 'doc/.vitepress/config.mts'), 'utf8');

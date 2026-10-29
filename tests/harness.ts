@@ -67,7 +67,16 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
   const services: Service[] = [];
   const env = { ...process.env, NODE_NO_WARNINGS: '1' };
   const command = (args: string[], input?: string | Buffer): Promise<CommandResult> => new Promise((resolveResult, reject) => {
-    const child = spawn(process.execPath, [cliFile, ...args], { env, stdio: ['pipe', 'pipe', 'pipe'] });
+    let launchArgs = [cliFile, ...args];
+    if (process.platform === 'win32' && launchArgs.join(' ').length > 16000) {
+      // Windows cannot pass the 65537-character rejection case through CreateProcess.
+      // Construct that exact argv inside the child, then invoke the real CLI entry.
+      const driver = resolve(root,'cli-large-argv.mjs'), file = resolve(root,'argv-'+randomUUID()+'.json');
+      writeFileSync(driver,"import{readFileSync}from'node:fs';import{pathToFileURL}from'node:url';const [cli,...args]=JSON.parse(readFileSync(process.argv[2],'utf8'));process.argv=[process.execPath,cli,...args];await import(pathToFileURL(cli).href);",{mode:0o600});
+      writeFileSync(file,JSON.stringify(launchArgs),{mode:0o600});
+      launchArgs = [driver,file];
+    }
+    const child = spawn(process.execPath, launchArgs, { env, windowsHide:true, stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = ''; let stderr = '';
     child.stdout.on('data', b => { stdout += b.toString(); });
     child.stderr.on('data', b => { stderr += b.toString(); });
@@ -91,7 +100,15 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
     return result;
   };
   const interruptWatch = async (id: string) => {
-    const child = spawn(process.execPath, [cliFile, 'task', id, '--watch', '--json', '--config', config('client')], { env, stdio: ['ignore', 'pipe', 'pipe'] });
+    const flags:string[]=[];
+    if(process.platform === 'win32') {
+      // Windows kill(SIGINT) terminates a process instead of delivering the JS
+      // signal handler. Exercise that handler explicitly; real Ctrl+C stays POSIX.
+      const preload=resolve(root,'watch-interrupt.cjs');
+      writeFileSync(preload,"const write=process.stdout.write;let sent=false;process.stdout.write=function(chunk,...args){const result=write.call(this,chunk,...args);if(!sent&&String(chunk).includes('\\n')){sent=true;setImmediate(()=>process.emit('SIGINT'));}return result;};",{mode:0o600});
+      flags.push('--require',preload);
+    }
+    const child = spawn(process.execPath, [...flags,cliFile, 'task', id, '--watch', '--json', '--config', config('client')], { env, windowsHide:true, stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = ''; let stderr = '';
     child.stdout!.on('data', b => { stdout += b.toString(); });
     child.stderr!.on('data', b => { stderr += b.toString(); });
@@ -99,7 +116,7 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
     const timer = setTimeout(() => child.kill('SIGKILL'), 5000);
     try {
       await until(async () => stdout.includes('\n'), 'Watch initial JSON');
-      child.kill('SIGINT');
+      if(process.platform !== 'win32') child.kill('SIGINT');
       assert.equal(await exited, 130, stderr);
       stdout.trim().split('\n').forEach(line => JSON.parse(line));
       logs.push(stdout, stderr);
@@ -303,7 +320,7 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
     await edgeA.stop();
     const repeatOffline = await run('mock-a', 'same logical request', key);
     assert.equal(repeatOffline.taskId, repeated[0]!.taskId);
-    edit('edge-a', raw => { (raw.agents as { delayMs: number }[])[0]!.delayMs = 2000; });
+    edit('edge-a', raw => { (raw.agents as { delayMs: number }[])[0]!.delayMs = 8000; });
     edgeA = await launch('edge-a');
     const raceKeys = Array.from({ length: 6 }, () => randomUUID());
     const races = await Promise.all(raceKeys.map(id => http('/v1/tasks', { targetAgent: 'mock-a', message: 'reservation race', requestId: id })));
@@ -504,7 +521,7 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
     rmSync(root, { recursive: true, force: true });
   }
 }
-export function writeReport(report: AcceptanceReport): void {
-  mkdirSync(resolve('artifacts'), { recursive: true });
-  writeFileSync(resolve('artifacts/I01-acceptance.json'), JSON.stringify(report, null, 2) + '\n');
+export function writeReport(report: AcceptanceReport, destination = resolve('artifacts/I01-acceptance.json')): void {
+  mkdirSync(resolve(destination,'..'), { recursive: true });
+  writeFileSync(destination, JSON.stringify(report, null, 2) + '\n');
 }

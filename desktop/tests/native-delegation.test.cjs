@@ -93,8 +93,20 @@ async function fixture(t, adapter) {
   fs.mkdirSync(workspace); fs.mkdirSync(home);
   const config = JSON.stringify({ selection: 'native-default-' + adapter, untouched: true }) + '\n';
   fs.writeFileSync(path.join(workspace, 'native-settings.json'), config);
-  const calls = path.join(directory, 'calls.jsonl'), candidates = Object.fromEntries(['claude', 'opencode', 'codex', 'hermes', 'pi', 'dsh'].map(id => [id, []]));
-  for (const id of ['claude', adapter]) { const executable = path.join(directory, id); writeCli(executable, id, calls); candidates[id] = [executable]; }
+  const calls = path.join(directory, 'calls.jsonl'), candidates = Object.fromEntries(['claude', 'opencode', 'codex', 'hermes', 'pi', 'dsh', 'opendesk'].map(id => [id, []]));
+  for (const id of ['claude', adapter]) {
+    // Windows cannot execute an extensionless shebang fixture. Exercise the
+    // existing production launchers using a standard Claude npm layout and a
+    // Node script for the other adapters; Unix keeps its executable fixture.
+    const executable = path.join(directory, id + (process.platform === 'win32' ? id === 'claude' ? '.cmd' : '.cjs' : ''));
+    if (process.platform === 'win32' && id === 'claude') {
+      const script = path.join(directory, 'node_modules/@anthropic-ai/claude-code/cli.js');
+      fs.mkdirSync(path.dirname(script), {recursive:true});
+      writeCli(script, id, calls);
+      fs.writeFileSync(executable, 'controlled npm wrapper; must never execute through a shell');
+    } else writeCli(executable, id, calls);
+    candidates[id] = [executable];
+  }
   let loseNextResponse = false;
   const options = { directory, platform: process.platform, distributions: async () => [], createHost: () => {
     const host = new MachineHost({ directory: path.join(directory, 'machine'), home, candidates,
@@ -123,7 +135,7 @@ async function fixture(t, adapter) {
         await call('ipc', { op: 'cancel', machineId: task.machineId, taskId: task.taskId, operationId: 'cleanup-' + task.taskId });
         await until(() => call('ipc', { op: 'task', machineId: task.machineId, taskId: task.taskId }), value => terminal(value.status));
       }
-    } finally { service.close(); network.close(); fs.rmSync(directory, { recursive: true, force: true }); }
+    } finally { service.close(); network.close(); await fs.promises.rm(directory, { recursive: true, force: true, maxRetries:8, retryDelay:100 }); }
   });
   const snapshot = await call('snapshot'), leader = snapshot.nodes.find(node => node.adapter === 'claude'), member = snapshot.nodes.find(node => node.adapter === adapter);
   assert.ok(leader && member, 'production discovery found both fixture installations');
@@ -231,7 +243,7 @@ for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary d
       observedWorkerEvents: observedEvents,
       cancellation: { original: cancellation.state, terminal: cancelled.status, confirmed: confirmed.state, nativeExited: confirmed.data.nativeExited },
       checks: ['native protocol and original workspace/configuration', 'stable request deduplication and conflict', 'exact parent/machine ownership', 'empty permission/form pending', 'lost native dispatch reply recovered only through original request', 'observer reopen queries original request', 'cancel unknown before actual process exit', 'original operation confirmation after exit', 'natural success retained in cancellation race'],
-      fixtureSha256: createHash('sha256').update(fs.readFileSync(path.join(f.directory, adapter))).digest('hex'),
+      fixtureSha256: createHash('sha256').update(fs.readFileSync(path.join(f.directory, adapter + (process.platform === 'win32' ? '.cjs' : '')))).digest('hex'),
       sourceSha256: Object.fromEntries(['coordinator-service.cjs', 'agent-network.cjs', 'machine-host.cjs', 'native-cli-host.cjs', 'native-cli-protocols.cjs'].map(name => [name, createHash('sha256').update(fs.readFileSync(path.join(__dirname, '../electron', name))).digest('hex')])),
       status: 'passed', limitations: ['No real Hermes/Pi/DSH model or credentials', 'No Windows EXE', 'No independent SSH server'],
     }, null, 2) + '\n');

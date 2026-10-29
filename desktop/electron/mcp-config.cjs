@@ -411,7 +411,10 @@ class McpConfig {
       if (entry) this.assertCurrentTarget();
       fs.renameSync(tmp, this.file);
     } finally {
-      fs.rmSync(tmp, { force: true });
+      // This is one staged file, never a directory. Some Windows Node builds
+      // silently leave rmSync targets behind when their path contains Unicode.
+      try { fs.unlinkSync(tmp); }
+      catch (error) { if (error.code !== "ENOENT") throw error; }
     }
   }
 }

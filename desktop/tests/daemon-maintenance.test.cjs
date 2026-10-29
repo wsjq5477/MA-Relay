@@ -1,3 +1,4 @@
+const {linuxTest} = require('./platform-test.cjs');
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process'),{createHash}=require('node:crypto');
 const maintenance=require('../electron/remote-maintenance.cjs'),{inspectDaemon}=require('../electron/machine-daemon.cjs');
 const sha=b=>createHash('sha256').update(b).digest('hex');
@@ -17,7 +18,7 @@ async function fixture(t,modes={}){const root=fs.mkdtempSync(path.join(os.tmpdir
  t.after(async()=>{try{const lock=JSON.parse(fs.readFileSync(path.join(options.stateDirectory,'daemon.lock')));execFileSync(path.join(install,'versions',target.version,'runtime/owned-stop'),[String(lock.pid),String(lock.pidStart),String(process.getuid())],{stdio:'ignore'});}catch{}await new Promise(r=>setTimeout(r,200));fs.rmSync(root,{recursive:true,force:true});});
  const run=async(p=input,opts={})=>{const file=path.join(options.stateDirectory,'maintenance-operations.json');const rows=fs.existsSync(file)?JSON.parse(fs.readFileSync(file)):[];rows.push({operationId:p.operationId,state:'unknown',fingerprint:maintenance.digest(p)});fs.writeFileSync(file,JSON.stringify(rows),{mode:0o600});return maintenance.run(p,opts);};
  return {root,input,options,from,target,run,boot};}
-test('actual maintenance CLI reads the complete large catalogue and queries the original unknown without another action',async t=>{
+linuxTest('actual maintenance CLI reads the complete large catalogue and queries the original unknown without another action',async t=>{
  const f=await fixture(t),before=await inspectDaemon(f.options);
  const input={...f.input,...require('./maintenance-input-fixture.cjs').frozenCatalogueInput(),...f.options,action:'query',daemonId:before.daemonId,uid:process.getuid(),home:f.root,installPath:f.input.installPath};
  const row={operationId:input.operationId,state:'unknown',fingerprint:'original-fingerprint',phase:'waiting'};
@@ -27,40 +28,40 @@ test('actual maintenance CLI reads the complete large catalogue and queries the 
  assert.ifError(result.error);assert.equal(result.status,0,result.stderr);assert.deepEqual(JSON.parse(result.stdout),row);
  assert(fs.readFileSync(file).equals(saved));const after=await inspectDaemon(f.options);assert.equal(after.pid,before.pid);assert.equal(after.daemonId,before.daemonId);
 });
-test('real daemon version switch and rollback preserve identity/history, restart healthy, and original receipts never perform another switch',async t=>{
+linuxTest('real daemon version switch and rollback preserve identity/history, restart healthy, and original receipts never perform another switch',async t=>{
  const f=await fixture(t),id=(await inspectDaemon(f.options)).daemonId;const first=await f.run();assert.equal(first.state,'confirmed',JSON.stringify(first));assert.equal((await inspectDaemon(f.options)).version,f.target.version);assert.equal((await inspectDaemon(f.options)).daemonId,id);assert(fs.existsSync(path.join(f.options.stateDirectory,'synthetic-host.json')));
  const saved=maintenance.query({...f.input,action:'query'});assert.equal(saved.operationId,f.input.operationId);assert.equal(saved.state,'confirmed');
  const reverse={...f.input,from:f.target,target:f.from,action:'rollback',operationId:'reverse'};assert.equal((await f.run(reverse)).state,'confirmed');assert.equal((await inspectDaemon(f.options)).version,f.from.version);assert.equal((await inspectDaemon(f.options)).daemonId,id);
 });
-test('failed new health rolls back the exact old version without losing daemon identity or native history',async t=>{
+linuxTest('failed new health rolls back the exact old version without losing daemon identity or native history',async t=>{
  const f=await fixture(t),before=(await inspectDaemon(f.options)).daemonId;const row=await f.run(f.input,{failHealth:true});assert.equal(row.state,'rejected',JSON.stringify(row));assert(row.data.rolledBack);assert.equal((await inspectDaemon(f.options)).version,f.from.version);assert.equal((await inspectDaemon(f.options)).daemonId,before);
 });
-test('busy, waiting, unknown and original unresolved receipts refuse version switch before stopping; damaged files refuse execution',async t=>{
+linuxTest('busy, waiting, unknown and original unresolved receipts refuse version switch before stopping; damaged files refuse execution',async t=>{
  const f=await fixture(t),before=await inspectDaemon(f.options);
  for(const status of ['running','unknown','accepted']){fs.writeFileSync(path.join(f.options.stateDirectory,'synthetic-host.json'),JSON.stringify({tasks:[{taskId:'active',status}]}),{mode:0o600});const row=await f.run({...f.input,operationId:'busy-'+status});assert.equal(row.state,'rejected',JSON.stringify(row));assert.equal((await inspectDaemon(f.options)).pid,before.pid);}
  fs.writeFileSync(path.join(f.options.stateDirectory,'synthetic-host.json'),JSON.stringify({tasks:[]}),{mode:0o600});fs.appendFileSync(path.join(f.input.installPath,'versions',f.target.version,'package.json'),'changed');const row=await f.run({...f.input,operationId:'damaged'});assert.equal(row.state,'rejected');assert.equal((await inspectDaemon(f.options)).pid,before.pid);
 });
-test('owned stop checks a kernel process handle and original start time; another live process is never signalled',async t=>{
+linuxTest('owned stop checks a kernel process handle and original start time; another live process is never signalled',async t=>{
  const f=await fixture(t),live=await inspectDaemon(f.options),lock=JSON.parse(fs.readFileSync(path.join(f.options.stateDirectory,'daemon.lock')));assert.throws(()=>execFileSync(path.join(f.input.installPath,'versions',f.target.version,'runtime/owned-stop'),[String(live.pid),'wrong-start',String(process.getuid())],{stdio:'ignore'}));assert.equal((await inspectDaemon(f.options)).pid,lock.pid);
 });
-test('stop and uninstall preserve state/history; uninstall queries still find the original receipt after installation removal',async t=>{
+linuxTest('stop and uninstall preserve state/history; uninstall queries still find the original receipt after installation removal',async t=>{
  const f=await fixture(t);const stopped=await f.run({...f.input,action:'stop'});assert.equal(stopped.state,'confirmed');await assert.rejects(inspectDaemon(f.options),{code:'DAEMON_OFFLINE'});f.boot(f.from);
  const uninstalled=await f.run({...f.input,action:'uninstall',operationId:'uninstall'});assert.equal(uninstalled.state,'confirmed',JSON.stringify(uninstalled));assert(!fs.existsSync(f.input.installPath));assert(fs.existsSync(path.join(f.options.stateDirectory,'machine.json')));assert.equal(maintenance.query({...f.input,action:'query',operationId:'uninstall'}).state,'confirmed');
 });
 
-test('crash after activation reconciles by original maintenance record and rolls back without native replay',async t=>{
+linuxTest('crash after activation reconciles by original maintenance record and rolls back without native replay',async t=>{
  const f=await fixture(t);const p={...f.input,operationId:'crashed'},file=path.join(f.options.stateDirectory,'maintenance-operations.json');
  // Reproduce a durable activation with no living maintenance worker; original daemon is idle.
  fs.writeFileSync(file,JSON.stringify([{operationId:p.operationId,action:'upgrade',state:'unknown',phase:'activated'}]),{mode:0o600});fs.writeFileSync(path.join(f.options.stateDirectory,'maintenance.json'),JSON.stringify({operationId:p.operationId}),{mode:0o600});
  const row=await maintenance.recover(p);assert.equal(row.state,'rejected',JSON.stringify(row));assert(row.data.rolledBack);assert.equal((await inspectDaemon(f.options)).version,f.from.version);
 });
-test('ten original maintenance launches have one durable worker and receipt; repeated queries never repeat the switch',async t=>{
+linuxTest('ten original maintenance launches have one durable worker and receipt; repeated queries never repeat the switch',async t=>{
  const f=await fixture(t),replies=Array.from({length:10},()=>maintenance.launch(f.input));assert.equal(new Set(replies.map(r=>r.workerPid)).size,1);
  const deadline=Date.now()+30000;let row;do{await new Promise(r=>setTimeout(r,100));row=maintenance.query({...f.input,action:'query'});}while(row.state==='unknown'&&Date.now()<deadline);
  assert.equal(row.state,'confirmed',JSON.stringify(row));const live=await inspectDaemon(f.options);for(let i=0;i<10;i++)assert.equal(maintenance.query({...f.input,action:'query'}).state,'confirmed');assert.equal((await inspectDaemon(f.options)).pid,live.pid);assert.equal(JSON.parse(fs.readFileSync(path.join(f.options.stateDirectory,'maintenance-operations.json'))).length,1);
 });
 
-test('a remote daemon released before the maintenance protocol still upgrades, keeps identity/history, and the receipt reports it was stopped',async t=>{
+linuxTest('a remote daemon released before the maintenance protocol still upgrades, keeps identity/history, and the receipt reports it was stopped',async t=>{
  const f=await fixture(t,{legacyFrom:true}),id=(await inspectDaemon(f.options)).daemonId;
  // The legacy fixture has no quiesce/shutdown/releaseMaintenance and no durable
  // receipt endpoint: the local maintenance.json plus the controller's owned-stop
@@ -69,7 +70,7 @@ test('a remote daemon released before the maintenance protocol still upgrades, k
  const live=await inspectDaemon(f.options);assert.equal(live.version,f.target.version);assert.equal(live.daemonId,id);assert(fs.existsSync(path.join(f.options.stateDirectory,'synthetic-host.json')));
  assert.equal(maintenance.query({...f.input,action:'query'}).state,'confirmed');
 });
-test('a query reconciles an unknown row whose worker record is missing or dead, but honours a fresh-launch grace period',async t=>{
+linuxTest('a query reconciles an unknown row whose worker record is missing or dead, but honours a fresh-launch grace period',async t=>{
  const f=await fixture(t),id=(await inspectDaemon(f.options)).daemonId;
  const source=path.join(f.options.stateDirectory,'maintenance-input-'+maintenance.digest(f.input.operationId)+'.json');
  fs.writeFileSync(source,JSON.stringify(f.input),{mode:0o600});
@@ -93,7 +94,7 @@ test('a query reconciles an unknown row whose worker record is missing or dead, 
  assert.equal(row.state,'rejected',JSON.stringify(row));assert.equal(row.error.code,'DAEMON_RECOVERED_ROLLBACK');assert.equal(row.data.rolledBack,true);
  const restored=await inspectDaemon(f.options);assert.equal(restored.version,f.from.version);assert.equal(restored.daemonId,id);
 });
-test('a barrier left by an already terminal operation never wedges a later maintenance',async t=>{
+linuxTest('a barrier left by an already terminal operation never wedges a later maintenance',async t=>{
  const f=await fixture(t),id=(await inspectDaemon(f.options)).daemonId;
  // An earlier operation stopped the daemon and never got to release its barrier;
  // its receipt is terminal, so the barrier is stale and must not block this one.
@@ -103,7 +104,7 @@ test('a barrier left by an already terminal operation never wedges a later maint
  const row=await f.run();assert.equal(row.state,'confirmed',JSON.stringify(row));assert.equal((await inspectDaemon(f.options)).daemonId,id);
  assert(!fs.existsSync(path.join(f.options.stateDirectory,'maintenance.json')));
 });
-test('a live daemon holding a barrier from an already terminal operation releases it for the next maintenance',async t=>{
+linuxTest('a live daemon holding a barrier from an already terminal operation releases it for the next maintenance',async t=>{
  const f=await fixture(t);
  // Restart the fixture daemon with the stale barrier already on disk, so it holds
  // that barrier in memory too and would reject every later quiesce.
@@ -117,7 +118,7 @@ test('a live daemon holding a barrier from an already terminal operation release
  const row=await f.run();assert.equal(row.state,'confirmed',JSON.stringify(row));assert.equal((await inspectDaemon(f.options)).version,f.target.version);
  assert(!fs.existsSync(path.join(f.options.stateDirectory,'maintenance.json')));
 });
-test('an interrupted switch after the stop keeps the receipt unknown so the original-ID query restores the running daemon',async t=>{
+linuxTest('an interrupted switch after the stop keeps the receipt unknown so the original-ID query restores the running daemon',async t=>{
  const f=await fixture(t),id=(await inspectDaemon(f.options)).daemonId;
  // A directory at previous.json makes the activation write fail after the old
  // daemon is already stopped, with no switch and no in-run rollback.
@@ -137,7 +138,7 @@ test('socket reset during shutdown waits for original process exit; an offline s
 // so the gate must name it instead of silently refusing, and only an explicit
 // override may pass it while tasks/Agent work stay immovable.
 const unresolvedReceipt={key:'blocked-original',method:'ipc',op:'submit',target:{},fingerprint:'controlled-intent',state:'unknown',createdAt:'2026-10-21T00:00:00.000Z',updatedAt:'2026-10-21T00:00:00.000Z'};
-test('an unconfirmed receipt refuses the maintenance before anything is stopped and names the gate and receipt',async t=>{
+linuxTest('an unconfirmed receipt refuses the maintenance before anything is stopped and names the gate and receipt',async t=>{
  const f=await fixture(t,{receipts:[unresolvedReceipt]}),before=await inspectDaemon(f.options);
  const row=await f.run({...f.input,operationId:'receipt-blocked'});
  assert.equal(row.state,'rejected',JSON.stringify(row));
@@ -150,7 +151,7 @@ test('an unconfirmed receipt refuses the maintenance before anything is stopped 
  const live=await inspectDaemon(f.options);assert.equal(live.pid,before.pid);assert.equal(live.version,f.from.version);
  const ledger=JSON.parse(fs.readFileSync(path.join(f.options.stateDirectory,'daemon-receipts.json')));assert(ledger.some(r=>r.key==='blocked-original'&&r.state==='unknown'));
 });
-test('an explicitly confirmed unresolved receipt upgrades while the original unknown receipt stays durable',async t=>{
+linuxTest('an explicitly confirmed unresolved receipt upgrades while the original unknown receipt stays durable',async t=>{
  const f=await fixture(t,{receipts:[unresolvedReceipt]}),id=(await inspectDaemon(f.options)).daemonId;
  const row=await f.run({...f.input,operationId:'receipt-overridden',allowUnresolvedReceipts:true});
  assert.equal(row.state,'confirmed',JSON.stringify(row));
@@ -160,7 +161,7 @@ test('an explicitly confirmed unresolved receipt upgrades while the original unk
  const ledger=JSON.parse(fs.readFileSync(path.join(f.options.stateDirectory,'daemon-receipts.json')));assert(ledger.some(r=>r.key==='blocked-original'&&r.state==='unknown'),'the overridden receipt is never rewritten or deleted');
  assert.equal(maintenance.query({...f.input,action:'query',operationId:'receipt-overridden'}).state,'confirmed');
 });
-test('a non-terminal task or Agent is never overridden even when the receipt override is requested',async t=>{
+linuxTest('a non-terminal task or Agent is never overridden even when the receipt override is requested',async t=>{
  const f=await fixture(t,{receipts:[unresolvedReceipt]}),before=await inspectDaemon(f.options);
  fs.writeFileSync(path.join(f.options.stateDirectory,'synthetic-host.json'),JSON.stringify({tasks:[{taskId:'active-task',requestId:'active-request',status:'running'}]}),{mode:0o600});
  const row=await f.run({...f.input,operationId:'task-blocked',allowUnresolvedReceipts:true});
@@ -173,7 +174,7 @@ test('a non-terminal task or Agent is never overridden even when the receipt ove
 });
 
 
-test('a maintenance record lock released between exclusive-create and owner-read is retried without replay',async t=>{
+linuxTest('a maintenance record lock released between exclusive-create and owner-read is retried without replay',async t=>{
  const f=await fixture(t),lock=path.join(f.options.stateDirectory,'maintenance-operations.json.lock');
  const original=fs.writeFileSync;let collision=false;
  fs.writeFileSync=function(file,...args){

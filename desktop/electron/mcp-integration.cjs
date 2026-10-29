@@ -315,8 +315,15 @@ class McpIntegration {
       } catch { /* discovery failure leaves the probe unsupported, not guessed */ }
     }
     if (!list || !executable) return {kind: 'none'};
-    const launch = ['pi', 'hermes'].includes(adapter) ? command(executable, list.args, this.options.environment || process.env) : {executable, args: list.args, env: this.options.environment || process.env};
-    const result = await run(launch.executable, launch.args, {env: launch.env, ...(adapter === 'pi' ? {cwd: this.options.home || os.homedir()} : {})});
+    let result;
+    try {
+      const launch = command(executable, list.args, this.options.environment || process.env);
+      result = await run(launch.executable, launch.args, {env: launch.env, ...(adapter === 'pi' ? {cwd: this.options.home || os.homedir()} : {})});
+    } catch (error) {
+      // Unsupported npm shims and synchronous OS spawn failures are failed
+      // observations, not proof that the native product loaded or connected.
+      return {kind:'native-list', command:adapter + ' ' + list.args.join(' '), outcome:'error', detail:String(error.code || 'NATIVE_LAUNCH')};
+    }
     if (adapter === 'pi') return {kind: 'native-list', command: 'pi mcp list --json', ...require('./pi-mcp-config.cjs').parseNativeList(result.stdout)};
     if (adapter === 'hermes') return {kind: 'native-list', command: 'hermes mcp list', ...(result.error ? {outcome: 'error', detail: 'Hermes 原生列表命令未成功完成，未取得加载证明。'} : require('./hermes-mcp-config.cjs').parseNativeList(result.stdout))};
     const text = (result.stdout + '\n' + result.stderr).trim();

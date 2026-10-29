@@ -10,11 +10,11 @@ import { opencodeSchema } from '../src/config.js';
 import { startNativeServer } from '../src/native-server.js';
 import { identityPath, readNativeIdentity, processIdentity } from '../src/native-identity.js';
 import { OpenCodeClient } from '../src/drivers/opencode-client.js';
+import {unusedPort} from './unused-port.js';
 
-test('B05: owned native process is reused; wrong PID/start identity and unsafe file never adopt or signal a process', async () => {
+test('B05: owned native process is reused; wrong PID/start identity and unsafe file never adopt or signal a process', {skip:process.platform !== 'linux' && 'Requires production Linux /proc birth identity, UID and file permissions'}, async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'ab-native-ownership-'));
-  const socket = createServer(); await new Promise<void>(r => socket.listen(0, '127.0.0.1', r));
-  const port = (socket.address() as { port: number }).port; await new Promise<void>(r => socket.close(() => r()));
+  const port = await unusedPort();
   const executable = resolve(root, 'native');
   writeFileSync(executable, `#!/usr/bin/env node
 import {createServer} from 'node:http';
@@ -47,10 +47,9 @@ test('B05: an unregistered live endpoint is left running with its credential unt
   finally { await new Promise<void>(r => server.close(() => r())); rmSync(root, { recursive: true, force: true }); }
 });
 
-test('B05: native diagnostic output after parent SIGKILL does not kill the adopted service', async () => {
+test('B05: native diagnostic output after parent SIGKILL does not kill the adopted service', {skip:process.platform !== 'linux' && 'Requires Linux /proc ownership and orphan service adoption'}, async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'ab-native-parent-loss-'));
-  const socket = createServer(); await new Promise<void>(r => socket.listen(0, '127.0.0.1', r));
-  const port = (socket.address() as { port: number }).port; await new Promise<void>(r => socket.close(() => r()));
+  const port = await unusedPort();
   const executable = resolve(root, 'native.mjs');
   writeFileSync(executable, `#!/usr/bin/env node
 import{createServer}from'node:http';

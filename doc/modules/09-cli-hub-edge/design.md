@@ -1,5 +1,9 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
+M09-F01/F03：Core连接检查与高级向导只读版本检查共用原安装启动器；已选JS/CJS/MJS经Node，标准npm脚本沿原包解析，原生程序保持原路径。结构化参数、无shell、继承环境、10秒/64KiB/100字上限保持；检查不调用模型、不改账号/配置，也不回退别的安装。此为alpha.68之后未发布源码。[实现、反例与分平台验证](../../iterations/I08/core-windows-installation-checks.md)。
+
+Windows Core使用named pipe并支持已有本机服务的受控HTTP检查；原生托管服务的出生身份/接管实现依赖Linux `/proc` 与UID。POSIX终端测试和托管归属测试仅在Linux执行，不能用平台跳过证明Windows能力。桌面独立适配器能力按[M06](../06-native-adapters/design.md)与接入矩阵判断。
+
 M09-F01：非GUI Linux发现复用Hermes专用安装目录，支持最小PATH与独立安装根；已有MCP管理CLI、原模型配置和原请求恢复契约不变，不把CLI可见性作为模型/权限可用证明。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
 
 M09-F01：非GUI入口复用同一Hermes发现、stream-json宿主和独立MCP适配，不增加任意命令、供应商API或账号层。Windows补原生bin发现，活动Hermes任务在原生会话停止，CLI取消不模拟网关终止。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
@@ -128,6 +132,8 @@ WS v1 消息包含 protocolVersion、messageId、timestamp，按方向区分 age
 ACK 只是相应消息处理/持久化确认，不表示任务 succeeded。传输 ACK 不改变任务状态，业务状态来自被校验的 task.event。
 
 ## 7. 持久化、补传与故障
+
+M09-F05：每次补传绑定原socket；ACK超时/断开立即将仍为当前的原运输置为reconnecting，再终止该socket。旧运输迟到失败不退役新运输。finally只在当前socket确为OPEN、ready且未停止时继续；其余等待原close回调与重连退避。原outbox/seq保持，ACK后才连续推进ack_seq，不能因重连重建执行。[源码修复与验证](../../iterations/I08/edge-outbox-reconnect.md)。
 
 ```mermaid
 sequenceDiagram

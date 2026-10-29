@@ -69,7 +69,13 @@ class CredentialStore {
     } catch { throw problem('CREDENTIAL_STORE_UNAVAILABLE', '无法解密当前用户保存的 SSH 凭据，请重新输入。'); }
   }
   discard(connectionId) { clearTimeout(this.expiries.get(connectionId)); this.expiries.delete(connectionId); const previous = this.memory.get(connectionId); if (previous) previous.fill(0); this.memory.delete(connectionId); }
-  remove(ref) { if (/^credential-[a-f0-9-]+$/.test(ref)) fs.rmSync(path.join(this.directory, ref + '.json'), { force: true }); }
+  remove(ref) {
+    if (!/^credential-[a-f0-9-]+$/.test(ref)) return;
+    // This is one exact file, not a directory tree. unlink also removes it on
+    // Windows runtimes where rmSync silently leaves Unicode paths in place.
+    try { fs.unlinkSync(path.join(this.directory, ref + '.json')); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+  }
   close() { for (const id of this.memory.keys()) this.discard(id); }
 }
 module.exports = { CredentialStore, dpapi, dpapiScript };

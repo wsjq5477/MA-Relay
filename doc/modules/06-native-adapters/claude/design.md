@@ -1,5 +1,9 @@
 # Claude Code 适配器设计
 
+M06-CC-F01：独立MCP只读列表经共享原安装启动解析器处理JS/npm入口，参数仍为mcp/list，继承原配置；启动错误只记探测失败，不影响原生会话、权限或unknown。stream-json执行协议未改。[实现与验证](../../../iterations/I08/windows-regression-and-native-probes.md)。
+
+M06-CC-F01：共享机器发现将npm shim解析到原JS入口后，宿主/worker统一通过Node执行该JS/CJS/MJS，参数保持独立数组、继承环境并设置ELECTRON_RUN_AS_NODE=1。原npm shim与原生程序路径保持；不改变已选安装身份、模型、账号、Session、权限或持久版本。该启动修复尚未进入alpha.68冻结包。[反例、完整受控委派与限制](../../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
+
 原托管临时工具允许策略加入list_connectable/connect_agent/disconnect_agent，后端预授权与用户确认仍是唯一连接授予边界；reply_task审批、原账号/模型/持久原生配置不变。 [本片契约与证据](../../../iterations/I07/connection-policy.md)。
 
 ## 普通子任务的最小上下文
@@ -13,6 +17,8 @@ M06-CC-F01：作为普通委派目标时，中央v1固定说明+原始需求作�
 M06-CC-F01：Claude成员scope可发现并调用team_context_packet，明确选择同工作文档/任务/消息/产物版本；只是读取，不发送给目标或改变权限。真实WSL Claude2.1.303一个Task实际消费第1版（当前第2版）、最终正文一致及观察器重开不重放通过；未改驱动、原生配置或Session。[当前API及限定证据](../../../iterations/I07/context-packet.md)。
 
 ## 独立 MCP 接入
+
+M06-CC-F01：共享配置写入器在并发修改或原子替换失败后准确删除本次临时文件，保留原 `.claude.json` 与无关文件；中文profile清理修复尚未进入alpha.68冻结包。[当前实现与验证](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
 
 默认编辑用户.claude.json中的mcpServers.agentbridge，尊重CLAUDE_CONFIG_DIR；独立导出为agentbridge.mcp.json。真实2.1.303在隔离配置中添加、stdio连接和删除通过。托管任务原--mcp-config仍保持原任务授权范围。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
 

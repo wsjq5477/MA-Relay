@@ -42,8 +42,6 @@ test('config paths are anchored, credentials protected, unsafe URLs and identity
     initDemo(dir);
     const config = loadConfig(resolve(dir, 'edge-a.json'), 'edge');
     assert.equal(config.dataDir, resolve(dir, 'edge-a-data'));
-    assert.equal(statSync(resolve(dir, 'user.token')).mode & 0o777, 0o600);
-    assert.equal(statSync(dir).mode & 0o777, 0o700);
     const before = readFileSync(resolve(dir, 'hub.json'), 'utf8');
     assert.throws(() => initDemo(dir), /never overwritten/);
     assert.equal(readFileSync(resolve(dir, 'hub.json'), 'utf8'), before);
@@ -55,6 +53,14 @@ test('config paths are anchored, credentials protected, unsafe URLs and identity
     hub.connectors[1].allowedAgents = ['mock-a'];
     writeFileSync(resolve(dir, 'bad-hub.json'), JSON.stringify(hub));
     assert.throws(() => loadConfig(resolve(dir, 'bad-hub.json'), 'hub'), /unique/);
+  } finally { temp.clean(); }
+});
+test('POSIX demo credentials and directory use owner-only mode bits', {skip:process.platform === 'win32' && 'Windows mode bits do not describe an owner-only ACL'}, () => {
+  const temp = directory();
+  try {
+    const dir = resolve(temp.path, 'demo'); initDemo(dir);
+    assert.equal(statSync(resolve(dir,'user.token')).mode & 0o777, 0o600);
+    assert.equal(statSync(dir).mode & 0o777, 0o700);
   } finally { temp.clean(); }
 });
 test('Hub transactions, serial reservation and restart history are durable', () => {

@@ -1,5 +1,7 @@
 # OpenDesk 适配验证
 
+T-M06-OD-214 / M06-F05：2026-10-29，未发布源码；Desktop布局中文profile添加/移除的并发修改和替换失败四项计入共享专项44/44，原setting.json及无关文件保持。相关Windows117通过/1平台跳过，Electron44/44；未写真实OpenDesk配置、未启停原生实例，不开放CLI安装。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
+
 ## #19/#20 修复验证
 
 EXE与校验文件已公开，匿名完整下载HTTP200、130190265字节及SHA-256一致；[发布核验](../../../iterations/I08/alpha52-release.md)。

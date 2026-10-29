@@ -1,9 +1,10 @@
+const {linuxTest} = require('./platform-test.cjs');
 // Production MachineHost + daemon + framing + real TCP SSH + MachineRouter.
 // Isolated native snapshots only: no model, user profile or production server.
-const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),net=require('node:net');
+const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),net=require('node:net');
 const {generateKeyPairSync}=require('node:crypto'),{Server}=require('../../node_modules/ssh2');
 const {SshManager}=require('../electron/ssh-host.cjs'),{startDaemon}=require('../electron/machine-daemon.cjs'),{MachineHost}=require('../electron/machine-host.cjs'),{MachineRouter}=require('../electron/machine-router.cjs');
-test('SSH orphan Codex details use their actual backend; missing live records retain original historical turns without replay',async t=>{
+linuxTest('SSH orphan Codex details use their actual backend; missing live records retain original historical turns without replay',async t=>{
  let stripRecovery=false;
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-history-ssh-')),clients=new Set(),sockets=new Set(),calls=[];
  const snapshot={agents:{items:[{agentId:'original-agent',adapter:'codex'}]},tasks:[1,2].map(turn=>({taskId:'turn-'+turn,conversationId:'original-session',requestId:'request-'+turn,status:turn===1?'succeeded':'unknown',targetAgent:'old-agent',turn,native:{sessionId:'native-original'},result:{message:'saved answer '+turn}})),conversations:[{conversationId:'original-session',targetAgent:'old-agent',turns:2}]};

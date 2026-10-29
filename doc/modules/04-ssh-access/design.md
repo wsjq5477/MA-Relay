@@ -136,7 +136,7 @@ sequenceDiagram
 | 私钥文件 | 本地绝对路径，读文件并解析；最多 1 MiB；加密私钥可提供口令 | 原文件仍可读，所需口令仍可获得 |
 | ssh-agent | Windows `\\.\pipe\openssh-ssh-agent`；Linux `SSH_AUTH_SOCK` | 本机 agent 在线并能签名；无 agent forwarding |
 
-选择“保存”仅 Windows 支持，使用 DPAPI `CurrentUser`。固定 PowerShell 程序由编码脚本参数传入，秘密从 stdin 输入，stderr 不回显；系统保护失败就报错，没有明文回退。取消保存会移除原引用的密文。JavaScript 字符串及原生库内部副本无法保证全部清零，当前实现只清零自身管理的 Buffer，不宣称内存绝无秘密残留。
+选择“保存”仅 Windows 支持，使用 DPAPI `CurrentUser`。固定 PowerShell 程序由编码脚本参数传入，秘密从 stdin 输入，stderr 不回显；系统保护失败就报错，没有明文回退。替换保存、取消保存或更换认证/移除机器时，沿原合法引用准确删除对应密文文件；单文件使用unlink，仅ENOENT按已不存在处理，其他文件系统错误保留，不递归清理目录。配置与原机器收据仍先原子提交，DPAPI格式、身份和任务历史不变。[源码维护与验证](../../iterations/I08/windows-regression-and-native-probes.md)。JavaScript 字符串及原生库内部副本无法保证全部清零，当前实现只清零自身管理的 Buffer，不宣称内存绝无秘密残留。
 
 ## 5. 探测、安装与接入
 

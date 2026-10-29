@@ -1,5 +1,15 @@
 # 整体测试与验收报告
 
+2026-10-29未发布Edge维护：完整Linux探索实际发现事件ACK超时微任务自旋，CPU热点与原日志保留；Windows独立受控反例前0/1，修复后故障/恢复10/10。包含该修复的最终矩阵按[专项](iterations/I08/edge-outbox-reconnect.md)实际登记，不能借用前一片全量。模型0、不刷新公开EXE或真实原生准出。
+
+2026-10-29未发布Core维护：原安装版本检查新专项前0/2、后2/2；Windows源码定向32通过/7平台跳过。原全量53通过/18失败与中间66通过/1失败/11跳过均保留；最终跨平台全量按[专项](iterations/I08/core-windows-installation-checks.md)实际登记，模型0、不刷新公开alpha.68或真实原生/EXE准出。
+
+2026-10-29未发布MCP配置维护：系统Node24.12.0中文profile失败临时文件专项修复前0/40、修复后扩展44/44；相关Windows118项117通过/1原Linux平台跳过，失败/取消0。Electron旧实现同40项通过、修复后44/44；不能推定公开EXE复现。模型0，不刷新上轮全量或真实原生准出。[分平台证据与工程结果](iterations/I08/mcp-config-temporary-cleanup.md)。
+
+2026-10-29未发布源码维护：Windows完整桌面1017项，976通过/失败0/41平台跳过；WSL隔离受控151/151，含Windows新增40项平台跳过的逐项通过核对；Electron组件7/7。修复SSH原密文清理和经典原生列表启动，首次失败与测试等待预算调整保留；[完整证据与限制](iterations/I08/windows-regression-and-native-probes.md)。模型0，未改公开alpha.68冻结包或真实原生/普通EXE准出。
+
+2026-10-29源码增量：Windows Node24.12.0，Pi目录事件/共享宿主60/60、原包SessionManager四组、Claude脚本与三条受控普通委派5/5；docs:test由本次复现5/6修至6/6，原反例与历史结果保留。模型0、未打包新EXE，不刷新alpha.68冻结全量/真实原生准出；[分层证据与限制](iterations/I08/pi-workspace-events-and-windows-validation.md)。
+
 当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
 
 本轮原始启动失败、首轮Core70/71及后续同源码71/71、真实原生两轮和普通EXE结果见[完整验收](iterations/I08/alpha67-hermes-linux-live.md)。Windows22/22与Ubuntu109/109为不同平台集，不相加；既有Windows全量与docs:test原5/6失败保留。文档原2243项历史材料缺失无新增，不声明完整工程矩阵全通过。

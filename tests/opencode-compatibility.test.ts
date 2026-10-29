@@ -29,16 +29,16 @@ test('unsupported API versions reject independently of HTTP shape; OpenCode 2 st
  assert.equal(writes,0,'contract checks must not create sessions or send prompts');
 });
 
-test('DesktopHost refuses unsupported CLI before serve and preserves supported API contract checks',async t=>{
+for(const [version,compatible] of [['3.0.0',true],['3.1.0',true],['2.0.24',true],['2.0.24',false]] as const)
+test(`DesktopHost CLI ${version}, API compatible=${compatible}: validates the original installation before admission`,
+ {skip:version.startsWith('2.') && compatible && process.platform !== 'linux' && 'Successful managed service requires Linux /proc identity'},async t=>{
  const root=mkdtempSync(resolve(tmpdir(),'ab-enterprise-connect-'));const dirs:string[]=[];
  t.after(async()=>{for(const dir of dirs){try{await ipc(dir,{op:'stop'});}catch{} } await new Promise(r=>setTimeout(r,300));rmSync(root,{recursive:true,force:true});});
- for(const [version,compatible] of [['3.0.0',true],['3.1.0',true],['2.0.24',true],['2.0.24',false]] as const){
   const dir=resolve(root,'context-'+dirs.length);dirs.push(dir);const executable=resolve(root,'cli-'+dirs.length+'.cjs');
   writeFileSync(executable,`const fs=require('node:fs');if(process.argv.includes('--version')){console.log('opencode ${version}');process.exit(0);}const port=+process.argv[process.argv.indexOf('--port')+1];require('node:http').createServer((req,res)=>{if(req.method!=='GET')fs.appendFileSync(${JSON.stringify(resolve(root,'mutations'))},req.url);res.setHeader('content-type','application/json');if(!${compatible}){res.statusCode=404;res.end('{}');return;}const route=new URL(req.url,'http://localhost').pathname;res.end(JSON.stringify(route==='/api/info'?{version:'${version}'}:route==='/api/agent'?{data:[{id:'build'}]}:route==='/api/model'?{data:[{id:'native',providerID:'inherited'}]}:route==='/api/model/default'?{data:{id:'native',providerID:'inherited'}}:route==='/api/config'?[{info:{model:'inherited/native'}}]:{}));}).listen(port,'127.0.0.1');`,{mode:0o700});
   const host=new DesktopHost(dir),connect=()=>host.handle({id:'connect',method:'connect',params:{executable,workspace:root,inheritNativeCli:true}});
   if(!version.startsWith('2.'))await assert.rejects(connect(),{code:'NATIVE_VERSION'});
   else if(compatible){const result=await connect() as {agentId:string;check:{connection:string;nativeVersion:string}};assert(result.agentId);assert.equal(result.check.connection,'connected');assert.equal(result.check.nativeVersion,version);}
   else await assert.rejects(connect(),{code:'OPENCODE_API_UNSUPPORTED'});
- }
  const {existsSync}=await import('node:fs');assert.equal(existsSync(resolve(root,'mutations')),false);
 });

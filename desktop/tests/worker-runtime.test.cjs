@@ -7,7 +7,7 @@ const { workerRuntime } = require("../electron/worker-runtime.cjs");
 
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "bridge-runtime-"));
-  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  t.after(() => fs.promises.rm(root, { recursive: true, force: true, maxRetries:8, retryDelay:100 }));
   const source = path.join(root, "portable-extraction");
   const state = path.join(root, "profile");
   fs.mkdirSync(source);
@@ -16,19 +16,20 @@ function fixture(t) {
   return { root, source, state, options: { executable: path.join(source, "AgentBridge.exe"), electron: "fixture" } };
 }
 
-test("detached runtime survives portable extraction cleanup and retains license", t => {
+test("detached runtime survives portable extraction cleanup and retains license", async t => {
   const f = fixture(t);
   const executable = workerRuntime(f.state, f.options);
   assert.notEqual(path.dirname(executable), f.source);
   assert.equal(fs.readFileSync(path.join(path.dirname(executable), "icudtl.dat"), "utf8"), "icudtl.dat");
   assert.ok(fs.existsSync(path.join(path.dirname(executable), "LICENSE.electron.txt")));
-  fs.rmSync(f.source, { recursive: true });
+  await fs.promises.rm(f.source, { recursive: true });
+  assert.equal(fs.existsSync(f.source), false);
   assert.equal(workerRuntime(f.state, f.options), executable);
 });
 
 test("missing ICU or V8 resources reject startup before admitting a native task", t => {
   const f = fixture(t);
-  fs.rmSync(path.join(f.source, "icudtl.dat"));
+  fs.unlinkSync(path.join(f.source, "icudtl.dat"));
   assert.throws(() => workerRuntime(f.state, f.options), { code: "CLAUDE_RUNTIME_MISSING" });
   assert.equal(fs.existsSync(f.state), false);
 });
@@ -39,7 +40,7 @@ test("ordinary Node keeps using its existing executable", t => {
   assert.equal(fs.existsSync(f.state), false);
 });
 
-test('Coordinator to Windows runtime copies never track or copy their own manifest', t => {
+test('Coordinator to Windows runtime copies never track or copy their own manifest', async t => {
   const f = fixture(t);
   const coordinator = workerRuntime(path.join(f.state, 'coordinator'), f.options);
   const options = { ...f.options, executable: coordinator };
@@ -47,11 +48,12 @@ test('Coordinator to Windows runtime copies never track or copy their own manife
   const manifest = JSON.parse(fs.readFileSync(path.join(path.dirname(executable), 'runtime.json')));
   assert.equal(manifest.files.some(file => file.name === 'runtime.json'), false);
   assert.equal(workerRuntime(path.join(f.state, 'windows'), options), executable);
-  fs.rmSync(f.source, { recursive: true });
+  await fs.promises.rm(f.source, { recursive: true });
+  assert.equal(fs.existsSync(f.source), false);
   assert.equal(workerRuntime(path.join(f.state, 'windows'), options), executable);
 });
 
-test('alpha.9 self-referential manifests remain usable without changing their files', t => {
+test('alpha.9 self-referential manifests remain usable without changing their files', async t => {
   const f = fixture(t), executable = workerRuntime(f.state, f.options), destination = path.dirname(executable);
   const manifest = path.join(destination, 'runtime.json');
   const legacy = JSON.parse(fs.readFileSync(manifest));
@@ -59,12 +61,13 @@ test('alpha.9 self-referential manifests remain usable without changing their fi
   legacy.files = legacy.files.map(({ name, size }) => ({ name, size }));
   legacy.files.push({ name: 'runtime.json', size: 1 });
   const before = JSON.stringify(legacy);fs.writeFileSync(manifest, before);
-  fs.rmSync(f.source, { recursive: true });
+  await fs.promises.rm(f.source, { recursive: true });
+  assert.equal(fs.existsSync(f.source), false);
   assert.equal(workerRuntime(f.state, f.options), executable);
   assert.equal(fs.readFileSync(manifest, 'utf8'), before);
 });
 
-test('damaged runtime rebuilds into a validated sibling while preserving the old worker files', t => {
+test('damaged runtime rebuilds into a validated sibling while preserving the old worker files', async t => {
   const f = fixture(t), old = workerRuntime(f.state, f.options);
   const icu = path.join(path.dirname(old), 'icudtl.dat');
   fs.writeFileSync(icu, 'broken');
@@ -73,7 +76,8 @@ test('damaged runtime rebuilds into a validated sibling while preserving the old
   assert.equal(fs.readFileSync(icu, 'utf8'), 'broken');
   assert.equal(fs.readFileSync(path.join(path.dirname(repaired), 'icudtl.dat'), 'utf8'), 'icudtl.dat');
   assert.equal(workerRuntime(f.state, f.options), repaired);
-  fs.rmSync(f.source, { recursive: true });
+  await fs.promises.rm(f.source, { recursive: true });
+  assert.equal(fs.existsSync(f.source), false);
   assert.equal(workerRuntime(f.state, f.options), repaired);
 });
 

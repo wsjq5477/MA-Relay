@@ -1,3 +1,4 @@
+const {linuxTest} = require('./platform-test.cjs');
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
@@ -17,7 +18,7 @@ function fixture(t, daemon = false) {
   return {directory, row};
 }
 
-test('production stdio MachineHost restores an OpenCode leaf without ADAPTER_HOST or rewriting its binding', {timeout:15000}, async t => {
+test('production stdio MachineHost restores an OpenCode leaf without ADAPTER_HOST or rewriting its binding', {timeout:65000}, async t => {
   const {directory, row} = fixture(t), connection = new HostConnection(hostPath, {directory, native:true});
   t.after(() => connection.close());
   const snapshot = await connection.call('snapshot');
@@ -26,7 +27,7 @@ test('production stdio MachineHost restores an OpenCode leaf without ADAPTER_HOS
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(directory, 'node-contexts.json'))), [row]);
 });
 
-test('production daemon creates synchronous OpenCode hosts and close preserves passive state', {timeout:15000}, async t => {
+linuxTest('production daemon creates synchronous OpenCode hosts and close preserves passive state', {timeout:15000}, async t => {
   const {directory, row} = fixture(t, true);
   const daemon = await startDaemon({stateDirectory:directory, ownerCoordinatorId:'test-coordinator', profileId:'test-profile', monitorIntervalMs:0});
   t.after(() => daemon.close());

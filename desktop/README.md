@@ -31,6 +31,8 @@ Windows 目录使用原生 C:\、D:\ 路径；WSL 使用 Linux 路径或转换�
 
 ## 构建与测试
 
+仅查看界面可在仓库根双击 [preview-ui.cmd](../preview-ui.cmd)，或在终端运行 `npm run desktop:preview`。需要已安装 Node.js 和两层 npm 依赖；启动时构建 Core 与桌面前端，然后服务于 [本机预览](http://127.0.0.1:4197)。看到 `Isolated UI preview` 后打开地址，浏览期间保留终端，按 Ctrl+C 停止；终端关闭后地址不可用。预览使用一次性受控后台和合成历史，不连接日常 profile，也不执行原生 Agent 或模型。它与下方 Electron 启动/打包分别使用。
+
 从仓库根目录运行：
 
 ```bash

@@ -1,8 +1,10 @@
 # 通信协议与接口
 
+Core task.event的ACK超时只退役原运输，不确认/删除原事件，也不重派任务。新运输仍按原taskId/executionId/seq补传，ACK后连续推进ack_seq；异步关闭期间不进行立即循环重试，旧socket失败不能关闭新socket。帧、操作ID、状态枚举和生产ACK预算均不变。[实现与验证](iterations/I08/edge-outbox-reconnect.md)。
+
 Hermes/Pi/DSH共用worker在启动器解析同步拒绝或真实ChildProcess spawn前error时，输出既有terminal failed/NATIVE_START及nativeExited=false；原核对/取消收据按原ID结算到failed。stderr文本、运行后非零退出或缺结果不是此类未派发证明；不添加RPC、取消或原生事件协议。[启动边界与验证](iterations/I08/native-start-boundary.md)。
 
-Pi续聊的`--session`仍只传唯一原文件完整路径，新增在参数构造前核对该文件cwd与原上下文真实目录；不符/不可用以既有CONVERSATION_CONFIG拒绝，不产生新执行意图。JSON/print事件、原请求查询、权限/取消和RPC不变。[原生依据与验证](iterations/I08/pi-session-workspace.md)。
+Pi续聊的`--session`仍只传唯一原文件完整路径，在参数构造前核对该文件cwd与原上下文真实目录；不符/不可用以既有CONVERSATION_CONFIG拒绝，不产生新执行意图。原生session事件的cwd使用同一真实目录校验，等价别名可用，缺失/失效以既有binding_error拒绝成功；Session ID绑定不变。Claude已选JS入口改由Node承载，原CLI参数/事件/控制协议保持。没有新增原请求查询、权限/取消或RPC。[派发前契约](iterations/I08/pi-session-workspace.md)、[未发布事件/启动修复](iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
 Hermes stream-json的result只表示CLI查看器已结束。result.exit_code或实际进程退出码为3/130时保持unknown，包含原生审批/澄清等待及排队受阻；不依赖英文诊断文本，也不把该退出转换成任务失败/取消。0/1/2继续按既有原生结果/断线规则核验。无新增RPC/状态或取消能力，当前公开alpha.67未包含本源码修复。[完整契约与验证](iterations/I08/hermes-detached-input.md)。
 
@@ -123,7 +125,9 @@ CT-04桌面消费者不新增RPC/参数/daemon帧。team.document返回须匹配
 | `mcp.export` | `{nodeId}` | 只登记身份并生成标准片段（JSON/TOML/JSONC/OpenDesk JSON/DSH补丁YAML），不写原生配置 |
 | `mcp.remove` | `{nodeId}` | 先撤权再删可核对归属条目；仅 OpenDesk STDIO 空 `headers:{}` 与缺省等价，其他修改仍保留；清理失败返回`state:'revoked_config_pending'`与`cleanupError`，不恢复授权 |
 | `mcp.revoke` | `{nodeId}` | **只**持久撤销授权，绝不修改原生条目 |
-| `mcp.probe` | `{nodeId}` | 只读探测：该产品自身的MCP列表（仅`claude`/`codex`/`opencode`有）+ Bridge stdio工具目录；不写配置、不重装、不启动模型 |
+| `mcp.probe` | `{nodeId}` | 探测该产品自身的MCP列表（`claude`/`codex`/`opencode`/`pi`/`hermes`，证明范围按下文）及 Bridge stdio工具目录；不写原生配置、不重装、不启动模型 |
+
+五个原生列表入口统一沿原选中安装经共享启动解析器执行，保持原参数数组与环境；不支持的npm shim或同步OS启动失败返回`evidence.nativeProbe={kind:'native-list',outcome:'error',command,detail:错误码}`。本次加载/连接为unknown，不复用旧成功观测；`tools`与`authorization`继续独立核对，不新增RPC或结果枚举，也不据探测失败处理原任务unknown。[实现、平台回归与限制](iterations/I08/windows-regression-and-native-probes.md)。
 
 机器路由：Windows本机与SSH机器经`MachineHost`；**Linux本机**在协调器进程内由本地MCP宿主处理上述六个方法（其他方法仍走原执行宿主，MCP失败不回落到执行）；WSL经HostConnection→Core stdio完整MachineHost，在原发行版处理同一六项`mcp.*`，不回落Windows本机。
 

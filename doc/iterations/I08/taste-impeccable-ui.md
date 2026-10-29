@@ -79,3 +79,15 @@ node desktop/scripts/preview-ui.cjs
 最终check-docs仍返回失败：276份Markdown、原2243项历史材料缺失，新增0、消除0；[前后差异](../../../artifacts/taste-impeccable/2026-10-28/docs-delta.json)保留原失败。五个格式化源/脚本文件Prettier通过，本片所改已跟踪源码与文档的diff检查通过；未把工作树其他版本准备纳入本片检查结论。
 
 交付预览重新启动后HTTP200。独立后台Start-Process被自动审批拦截，工具仅返回blocked by policy；未更改审批或绕过限制，改用工具管理的前台会话。该地址不承诺跨会话存活，持久截图与上述本机启动命令同时保留。
+
+## 预览入口修复（2026-10-28）
+
+用户再次反馈预览打不开。此时alpha.68已公开，前述“本轮未发布”保留为当时验证状态；本节是发布后的开发工具增量，不修改冻结包。实际请求127.0.0.1:4197返回ECONNREFUSED，确认预览进程已停止。恢复工具管理的前台服务，并使用Playwright CLI在Edge有界面窗口打开；没有重新尝试此前被拒绝的独立后台启动。
+
+新增仓库根[preview-ui.cmd](../../../preview-ui.cmd)和 `npm run desktop:preview`。命令先构建Core与renderer再启动现有隔离预览，避免直接运行Vite缺少Electron桥接或使用缺失/过期构建；启动器从自身目录运行同一命令，失败时保留错误供查看。依赖须事先安装。看到 `Isolated UI preview` 后访问http://127.0.0.1:4197，浏览期间保留终端，Ctrl+C停止。需要其他端口可先设置 `AGENTBRIDGE_UI_PREVIEW_PORT`；启动器提示默认4197，实际地址以服务输出为准。用户自己打开的终端不依赖本次工具会话，工具管理的服务仍不承诺跨会话存活。
+
+本轮Windows Node24.12.0：新npm命令用4198实际运行，Core/renderer构建成功，原大chunk提示保留；默认4197与4198的首页、预览桥、生产JS/CSS均HTTP200，合成snapshot成功。Edge实际显示AgentBridge、接入配置和机器/关系图；初次favicon.ico 404保留，未将它写成零控制台错误。证据：[HTTP报告](../../../artifacts/ui-preview/2026-10-28/http.json)、[浏览器调用](../../../artifacts/ui-preview/2026-10-28/browser.log)、[实际截图](../../../artifacts/ui-preview/2026-10-28/page.png)。双击启动器未进行资源管理器实际点击验收；其调用命令已实测。未重复前轮105项、未打包EXE、未新增模型/原生执行。
+
+同步整体功能、M01设计/报告、桌面使用说明与迭代索引；开发启动入口不改变架构、数据、协议、发布或验收基线。
+
+本轮文档检查仍失败于原2243项材料缺失，新增0、消除0；[差异报告](../../../artifacts/ui-preview/2026-10-28/docs-delta.json)与[检查输出](../../../artifacts/ui-preview/2026-10-28/docs-after.json)保留，未把历史缺失写成通过。

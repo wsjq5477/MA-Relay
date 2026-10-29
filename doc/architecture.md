@@ -1,8 +1,10 @@
 # AgentBridge 整体架构
 
+Core Edge的事件补传按当前socket绑定运输；ACK超时/断开先退役当前原运输，再异步关闭，只在当前OPEN且就绪时继续补传。close回调驱动既有退避重连，旧运输失败不影响新运输；持久事件沿原execution/seq补传，不再调用驱动。此为未发布可靠性修复，数据/帧格式保持。[恢复时序与证据](iterations/I08/edge-outbox-reconnect.md)。
+
 共用原生CLI worker以实际ChildProcess的spawn/error事件区分“所选进程未启动”与“已启动后结果不明”；前者结束原Task并向原控制收据提供nativeExited=false，后者沿适配器原unknown规则。该证明只来自当次worker，不在恢复时根据文件/PID缺失推断，也不新增传输、模型层或取消能力。[启动边界与证据](iterations/I08/native-start-boundary.md)。
 
-Pi续聊的原生文件选择由共用解析器核对Session ID与cwd/原上下文真实目录；NativeCliHost在会话投影、续聊意图前及worker启动前复用检查。不会修复/迁移原文件，也不新建模型层、传输或Session；最终检查与原生打开间没有跨进程锁。[实现、竞态边界与证据](iterations/I08/pi-session-workspace.md)。
+Pi续聊的原生文件选择由共用解析器核对Session ID与cwd/原上下文真实目录；NativeCliHost在会话投影、续聊意图前及worker启动前复用检查，原生session事件也采用同一目录规则。Claude宿主/worker用Node启动共享发现已选中的JS入口，保留原安装身份与继承环境。不会修复/迁移原文件，也不新建模型层、传输或Session；最终检查与原生打开间没有跨进程锁。[派发前边界](iterations/I08/pi-session-workspace.md)、[未发布事件/启动修复](iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
 Hermes原生等待输入时，有限CLI查看器退出3/130与网关任务终止是两个事实；NativeCliHost继续保存原unknown、Session与资源占用。该判断在共用原生解析器完成，本机/WSL/SSH不新增传输、模型层或网关控制；只读重开不重发Prompt。此为未发布源码修复，[完整流程与证据](iterations/I08/hermes-detached-input.md)。
 

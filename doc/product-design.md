@@ -1,10 +1,22 @@
 # AgentBridge 整体功能设计
 
+AB-F11/F15：未发布Core源码修复事件确认超时后的补传自旋；原事件留在SQLite，按原执行/序列在新运输确认，不重派任务。Windows确定性反例前0/1、修复后故障/恢复专项10/10，完整矩阵独立记录。[行为与证据](iterations/I08/edge-outbox-reconnect.md)。
+
+AB-F02/F15：未发布Core源码统一连接检查/高级向导的原安装版本启动，已选JS经Node、无shell或跨安装回退；安装可调用不代替API/模型证明。Windows与Linux验证器按实际IPC、权限、进程归属和PTY边界执行。[实现与分层证据](iterations/I08/core-windows-installation-checks.md)。
+
+AB-F05/F13：未发布源码修复中文profile下SSH原密文的准确删除；Claude/Codex/OpenCode原生MCP列表统一沿原安装解析启动，启动失败保持加载/连接未知，工具目录与授权独立。Windows平台回归与Linux范围分别统计。[实现、证据与限制](iterations/I08/windows-regression-and-native-probes.md)。
+
+AB-F13：未发布源码在MCP配置并发修改、原生目录切换或原子替换失败后准确删除本次临时文件，保留原配置与无关文件。系统Node24.12.0复现残留，Electron旧实现未复现；不据此声称公开EXE有同缺陷。[行为、运行时对照与限制](iterations/I08/mcp-config-temporary-cleanup.md)。
+
+AB-F03/F08/F11：未发布源码统一Pi派发与原生事件的真实目录核对，等价目录别名可沿原Session续聊，缺失/失效cwd不产生成功；Claude发现选中的JS入口由Node启动，保留原生配置与身份。AB-F18文档测试器修复Windows反例清理，发布范围不变。[实现、分层验证与限制](iterations/I08/pi-workspace-events-and-windows-validation.md)。
+
 当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
 
 关系缩权与清空不重新准入旧节点；新增/换主仅检查新目标，无关unknown不全局阻塞。未确认执行继续按原ID查询；“清理已失败操作”只结算有完整证据的确定失败，保留历史。MCP配置、原生加载、连接、工具、授权和归属分别展示；直接配置与托管scope能力独立，桌面保留配置/审计及原执行恢复，日常协作由原生Agent发起。模块与[接入矩阵](agent-integration-matrix.md)限定各入口实际能力，历史见[迭代目录](iterations/README.md)。
 
 当前源码的桌面外观按Taste/Impeccable采用浅色框架、白色工作面板及中性深色主题；统计为数字栏，机器/工具信息优先，设置按说明与操作分段，字体本地离线加载。关联AB-F01/09/16及M01-F14，已进入公开alpha.68的EXE；原生接入、授权、原ID恢复与业务状态口径保持。[当前设计、验收与源码](iterations/I08/taste-impeccable-ui.md)。
+
+源码界面预览新增仓库根双击启动器和 `npm run desktop:preview`：先构建再提供本机合成预览，终端保持开启才可访问。该开发入口未修改公开alpha.68的包或业务协议。[启动与验证](iterations/I08/taste-impeccable-ui.md#预览入口修复2026-10-28)。
 
 ## 1. 产品解决什么问题
 
@@ -31,7 +43,7 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 
 ## 3. 完整功能目录
 
-当前未发布源码增量（公开alpha.67尚未包含）：
+当前公开alpha.68已包含的原生保护：
 
 | 功能 | 当前行为 | 设计与证据 |
 | --- | --- | --- |

@@ -1,5 +1,11 @@
 # M07 任务、会话与恢复测试报告
 
+T-M07-214 / M07-F06/F07：2026-10-29，未发布Core源码，Windows独立子进程受控ACK丢失反例前0/1，修复后相关10/10。两条运输仅1次原执行，taskId/executionId与事件seq保持、ack_seq最终连续，原Hub重开/未知占用回归保留；模型0、非真实原生/EXE。[原失败、热点与完整矩阵](../../iterations/I08/edge-outbox-reconnect.md)。
+
+2026-10-29验证器维护：Claude/Codex受控CLI采用可跨平台入口，取消前观察原生绑定并有界等待退出；保留原request/Session/权限/unknown与重开断言，未修改产品任务/恢复协议。首次共享22/23及最终完整结果分别保留；Linux专属测试跳过不计通过，模型0。[本轮证据与限制](../../iterations/I08/windows-regression-and-native-probes.md)。
+
+T-M07-211 / M07-F01/F02/F06/F07：2026-10-29，master10fdbb3及未发布工作树、Windows Node24.12.0。共享60/60覆盖Pi等价目录别名重启续聊、原Session/文件字节、原请求去重与unknown保护；启动边界8项通过，Claude入口/三条受控委派5/5覆盖原任务/收据重开及实际退出后确认。Pi未修改原包组件四组单列，不跨模块相加，模型0；未验证用户profile、新EXE、真实生命周期或独立SSH。[原失败、分层证据与复现](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
+
 当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
 
 

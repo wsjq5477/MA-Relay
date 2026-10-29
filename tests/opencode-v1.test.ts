@@ -66,10 +66,15 @@ test('v1 cancel receipt is separate from original-turn abort evidence, dedupes a
   }finally{await h.close();}
 });
 
-test('v1 permission and question replies use native request IDs and retain single-operation receipts',async()=>{
+test('v1 permission and question replies use native request IDs and retain single-operation receipts',async t=>{
   const h=await harness();try{
     for(const mode of ['permission','question']){
-      const task=await h.submit(mode),active=await until(async()=>{const t=await h.read(task.taskId);return t.waiting?t:false;});
+      const task=await h.submit(mode),active=await until(async()=>{const t=await h.read(task.taskId);return t.waiting?t:false;}).catch(async error=>{
+        const state=await h.read(task.taskId);
+        t.diagnostic(JSON.stringify({mode,status:state.status,waiting:!!state.waiting,errorCode:state.error?.code,nativeCounts:h.native.counts,
+          sessions:[...h.native.sessions.values()].map(session=>({mode:session.mode,done:session.done,messages:session.messages.length}))}));
+        throw error;
+      });
       const form=mode==='question';
       const input={taskId:task.taskId,executionId:task.executionId,action:form?'form':'permission',operationId:randomUUID(),requestId:active.waiting!.requestIds[0],...(form?{answer:{'0':'A'}}:{decision:'once'})};
       if(form){

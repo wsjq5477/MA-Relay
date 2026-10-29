@@ -1,5 +1,13 @@
 # M06 原生 Agent 适配器测试报告
 
+T-M06-215 / M06-F01：2026-10-29，未发布Core兼容入口版本检查；Windows CJS/MJS原安装受控回归前0/2、后2/2。准确参数、无shell、原API及删除后不换安装保持，模型0；本轮Core定向32通过/7平台跳过，最终跨平台结果和首次失败统一见[专项](../../iterations/I08/core-windows-installation-checks.md)。不刷新真实原生或EXE准出。
+
+T-M06-214 / M06-F02/F05：2026-10-29，10fdbb3派生未发布源码，Windows Node24.12.0。十种MCP布局添加/移除的并发修改与原子替换失败40项，修复前0/40、修复后40/40；补充原生目录切换与清理拒绝后专项44/44，相关集合118项117通过/1个原Linux平台跳过。Electron44.7.0/Node24.21.0旧实现同40项通过，修复版44/44，因此不推定公开EXE复现同缺陷。均为隔离配置/受控文件系统失败，模型0；Linux与最终工程结果见[专项记录](../../iterations/I08/mcp-config-temporary-cleanup.md)，不与上轮全量相加。
+
+T-M06-212 / M06-F01/F02：2026-10-29，master10fdbb3及未发布工作树，Windows Node24.12.0。受控脚本/原生列表/MCP集成38/38；中间35/38的EFTYPE/EINVAL保留。验证三个经典入口原参数/环境、无shell回退、启动失败不保留旧加载/连接证明、工具与授权独立。最终Windows完整976通过/失败0/41平台跳过，WSL隔离151/151且逐项覆盖新增40个平台跳过，Electron新组件7/7；共享子集不相加，模型0、非真实已安装Agent/EXE验收。[完整证据](../../iterations/I08/windows-regression-and-native-probes.md)。
+
+T-M06-211 / M06-F01/F04：2026-10-29，master10fdbb3及未发布工作树、Windows Node24.12.0。Pi/宿主/原核对/Hermes分离60/60；Pi1.4.0未修改原包SessionManager四组通过，实际header别名与受控终态分开标明。Claude入口/完整三条普通委派5/5，失败反例及中间WindowsEFTYPE保留，模型0。不是新EXE、真实模型、Linux或独立SSH验收；历史全量与完整矩阵不变。[源码、日志与完整边界](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
+
 当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
 
 

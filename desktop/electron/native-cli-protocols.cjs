@@ -11,6 +11,14 @@ const validIdentity = value => typeof value === 'string' && value.trim().length 
 const messageText = message => Array.isArray(message?.content)
   ? message.content.filter(block => block?.type === 'text' && typeof block.text === 'string').map(block => block.text).join('') : '';
 
+function sameWorkspace(cwd, workspace) {
+  try {
+    return typeof cwd === 'string' && path.isAbsolute(cwd)
+      && typeof workspace === 'string' && path.isAbsolute(workspace)
+      && fs.realpathSync(cwd) === fs.realpathSync(workspace) && fs.statSync(workspace).isDirectory();
+  } catch { return false; }
+}
+
 function piSessionFile(directory, sessionId, workspace) {
   let entries;
   try { entries = fs.readdirSync(directory, { withFileTypes: true }); }
@@ -33,13 +41,7 @@ function piSessionFile(directory, sessionId, workspace) {
   // it before dispatch, rather than discovering a changed workspace after the
   // prompt has already reached the native process. Aliases of the same real
   // directory are equivalent; missing/relative/foreign bindings are not.
-  let sameWorkspace = false;
-  try {
-    sameWorkspace = typeof match.cwd === 'string' && path.isAbsolute(match.cwd)
-      && typeof workspace === 'string' && path.isAbsolute(workspace)
-      && fs.realpathSync(match.cwd) === fs.realpathSync(workspace) && fs.statSync(workspace).isDirectory();
-  } catch { /* Unreadable or missing original directories cannot be rebound. */ }
-  if (!sameWorkspace) throw fail('CONVERSATION_CONFIG', 'Pi 原生会话目录与原上下文不符或不可用，未重新提交；请保留原记录核对。');
+  if (!sameWorkspace(match.cwd, workspace)) throw fail('CONVERSATION_CONFIG', 'Pi 原生会话目录与原上下文不符或不可用，未重新提交；请保留原记录核对。');
   return match.file;
 }
 function argumentsFor(job) {
@@ -85,7 +87,10 @@ function createParser(job, emit) {
         }
         if (event.type === 'tool_use' || event.type === 'tool_result') emit({ kind: 'progress', text: event.type + ' · ' + (event.name || 'tool') });
       } else if (job.adapter === 'pi') {
-        if (event.type === 'session') { bind(event.id); if (event.cwd && path.resolve(event.cwd) !== path.resolve(job.workspace)) conflict('Pi 返回了不同工作目录，保留原会话核对。'); }
+        // Apply the same real-directory rule as the pre-dispatch file check.
+        // The native session may preserve an equivalent symlink/junction path;
+        // missing or unavailable cwd still cannot establish a valid binding.
+        if (event.type === 'session') { bind(event.id); if (!sameWorkspace(event.cwd, job.workspace)) conflict('Pi 返回的工作目录与原上下文不符或不可用，保留原会话核对。'); }
         if (event.type === 'message_update' && event.assistantMessageEvent?.type === 'text_delta') output(event.assistantMessageEvent.delta, true);
         if (event.type === 'message_end' && event.message?.role === 'assistant') {
           output(messageText(event.message));

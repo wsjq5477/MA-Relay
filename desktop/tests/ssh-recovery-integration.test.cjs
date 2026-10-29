@@ -1,8 +1,9 @@
+const {linuxTest} = require('./platform-test.cjs');
 // Real TCP SSH + production daemon/frame protocol; isolated SSH endpoint/installer/native host.
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),net=require('node:net');
 const {generateKeyPairSync}=require('node:crypto'),{Server}=require('../../node_modules/ssh2');
 const {SshManager}=require('../electron/ssh-host.cjs'),{startDaemon}=require('../electron/machine-daemon.cjs'),{remoteExec}=require('../electron/ssh-install.cjs');
-test('TCP SSH reconnect drains real daemon cursorGap pages, restores original receipt and refuses changed machine host key before authentication',async t=>{
+linuxTest('TCP SSH reconnect drains real daemon cursorGap pages, restores original receipt and refuses changed machine host key before authentication',async t=>{
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-c-ssh-'));let submitted=0,authenticated=0;const items=[],seen=[],snapshots=[],clients=new Set(),sockets=new Set();
  const native={setCollaboration(){},close(){},async call(m,p){if(m==='snapshot')return {agents:{items:[]},tasks:items,conversations:[]};if(m==='ipc'&&p.op==='submit'){submitted++;const result={taskId:'task-original',conversationId:'session-original',requestId:p.requestId,status:'running'};items.push(result);return result;}if(m==='ipc'&&p.op==='request')return items.find(x=>x.requestId===p.requestId);throw Error(m);}};
  const daemon=await startDaemon({stateDirectory:path.join(directory,'state'),ownerCoordinatorId:'coordinator-test',profileId:'profile-test',monitorIntervalMs:0,hostFactory:()=>native});

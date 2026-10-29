@@ -7,10 +7,11 @@ const network=new AgentNetwork({directory,platform:'linux',createHost:()=>{throw
 network.network.nodes=[{nodeId:'known-node',machineId:network.catalog.localMachineId,adapter:'claude',connected:true,executionSupported:true}];network.saveNetwork();
 const target=lane==='relation'?network.networkFile:network.layoutStore.file;
 const rename=fs.renameSync;
+const crash=()=>{fs.writeFileSync(path.join(directory,'crash-point.json'),JSON.stringify({lane,phase}));process.kill(process.pid,'SIGKILL');};
 fs.renameSync=(a,b)=>{
-  if(b===target&&phase==='before')process.kill(process.pid,'SIGKILL');
+  if(b===target&&phase==='before')crash();
   const value=rename(a,b);
-  if(b===target&&phase==='after')process.kill(process.pid,'SIGKILL');
+  if(b===target&&phase==='after')crash();
   return value;
 };
 const params=lane==='relation'?{operationId:'crash-operation',expectedRevision:0,leaderId:'known-node',memberIds:[]}

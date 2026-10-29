@@ -118,6 +118,16 @@ function locationKey(file) {
   return process.platform === "win32" ? resolved.toLowerCase() : resolved;
 }
 function cliCommand(executable, args, environment = process.env) {
+  // Shared machine discovery resolves npm shims to their original JS entry.
+  // Launch that exact installation through Node, including in an Electron
+  // worker, rather than asking Windows to execute a JavaScript file directly.
+  if (/\.[cm]?js$/i.test(executable)) {
+    return {
+      executable: process.execPath,
+      args: [executable, ...args],
+      env: { ...environment, ELECTRON_RUN_AS_NODE: "1" },
+    };
+  }
   if (/\.(?:cmd|bat)$/i.test(executable)) {
     // npm's Windows shim is not a native executable. Invoke the installed JS
     // directly, keeping user messages and paths out of cmd.exe interpretation.

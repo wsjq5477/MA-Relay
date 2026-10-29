@@ -8,6 +8,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { SettingsStore } from '../src/settings.js';
 import { ipc, ensureController } from '../src/controller.js';
 import { safeTerminal } from '../src/terminal.js';
+const linuxPty = {skip:process.platform !== 'linux' && 'Requires Python POSIX pty and Linux /proc managed-service identity'};
 
 class Tty {
   output = ''; all = ''; pending = ''; code: number | undefined;
@@ -58,7 +59,7 @@ createServer((req,res)=>{
 }
 async function stop(dir: string) { try { await ipc(dir, { op: 'stop' }); await delay(400); } catch { /* no controller */ } }
 
-test('TTY discovers OpenCode, space-selects and connects without configuration questions or model calls', async () => {
+test('TTY discovers OpenCode, space-selects and connects without configuration questions or model calls', linuxPty, async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'ab-quick-')), dir = resolve(root, 'bridge'); const native = installed(root);
   let tty = new Tty(dir, root, [], native.env);
   try {
@@ -79,7 +80,7 @@ test('TTY discovers OpenCode, space-selects and connects without configuration q
     assert.equal((await ipc<{ pid: number }>(dir, { op: 'status' })).pid, before.pid);
   } finally { await tty.cleanup(); await stop(dir); rmSync(root, { recursive: true, force: true }); }
 });
-test('TTY exposes real native startup failure instead of reporting a connected Agent', async () => {
+test('TTY exposes real native startup failure instead of reporting a connected Agent', linuxPty, async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'ab-quick-fail-')), dir = resolve(root, 'bridge'); const native = installed(root, true);
   const tty = new Tty(dir, root, [], native.env);
   try {
@@ -88,7 +89,7 @@ test('TTY exposes real native startup failure instead of reporting a connected A
     assert.equal((await ipc<{ items: { startupError?: { code: string }; available: boolean }[] }>(dir, { op: 'agents' })).items[0]!.startupError?.code, 'NATIVE_EXITED');
   } finally { await tty.cleanup(); await stop(dir); rmSync(root, { recursive: true, force: true }); }
 });
-test('advanced setup can save an explicitly disabled draft without launching services', async () => {
+test('advanced setup can save an explicitly disabled draft without launching services', linuxPty, async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'ab-advanced-')), dir = resolve(root, 'bridge');
   const tty = new Tty(dir, root, ['setup', '--advanced']);
   try {
@@ -98,7 +99,7 @@ test('advanced setup can save an explicitly disabled draft without launching ser
     assert.equal((await ipc<{ connected: boolean }>(dir, { op: 'status' })).connected, false);
   } finally { await tty.cleanup(); await stop(dir); rmSync(root, { recursive: true, force: true }); }
 });
-test('Ctrl+C and EOF at TTY menu exit cleanly while the existing controller survives', async () => {
+test('Ctrl+C and EOF at TTY menu exit cleanly while the existing controller survives', linuxPty, async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'ab-tty-exit-')); const store = new SettingsStore(root); const s = store.initialize();
   store.write({ ...s, revision: s.revision + 1, agents: [store.normalize({ agentId: 'draft', name: 'Draft', adapter: 'opencode', workspace: root, executable: '/missing', passwordFile: 'native.password', serverUrl: 'http://127.0.0.1:4318', enabled: false }, s.deviceId)] }, s.revision);
   await ensureController(root); const pid = (await ipc<{ pid: number }>(root, { op: 'status' })).pid;

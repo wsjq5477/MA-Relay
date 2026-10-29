@@ -5,8 +5,6 @@ import { resolve, basename } from 'node:path';
 import { homedir } from 'node:os';
 import { randomUUID, randomBytes } from 'node:crypto';
 import { createServer } from 'node:net';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { setTimeout as delay } from 'node:timers/promises';
 import { BridgeError, idSchema, terminal, type Task, type StoredEvent, type Conversation } from './core.js';
 import { SettingsStore, stateDirectory } from './settings.js';
@@ -16,7 +14,7 @@ import type { NativePermission, NativeForm } from './drivers/opencode-client.js'
 import { fieldsSchema, visible, validateAnswer, type Answer } from './drivers/forms.js';
 import type { Operation } from './storage/operations.js';
 import { canonicalJSON } from './security.js';
-import { discoverOpenCode } from './discovery.js';
+import { discoverOpenCode, readOpenCodeVersion } from './discovery.js';
 
 export function safeTerminal(text: string): string {
   return text.replace(/\x1b\][\s\S]*?(?:\x07|\x1b\\)/g, '').replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '').replace(/[\x00-\x08\x0b-\x1f\x7f-\x9f]/g, '');
@@ -114,7 +112,7 @@ async function advancedWizard(directory: string, prompts: Prompts, old?: AgentVi
   }
   const installed = resolve(homedir(), '.opencode/bin/opencode');
   const executable = await prompts.ask('OpenCode 可执行文件', old?.executable || (existsSync(installed) ? installed : 'opencode'));
-  try { const result = await promisify(execFile)(executable, ['--version'], { timeout: 10000, maxBuffer: 65536 }); out('发现 OpenCode 版本: ' + result.stdout.trim().slice(0, 100)); }
+  try { out('发现 OpenCode 版本: ' + await readOpenCodeVersion(executable)); }
   catch { out('尚未发现可用可执行文件；可以保存草稿，修正路径后再连接。'); }
   const workspace = resolve(await prompts.ask('项目目录', old?.workspace || process.cwd()));
   const managed = (await prompts.ask('连接方式: 1 后台管理本机进程，2 已有本机服务', old && !old.managed ? '2' : '1')) !== '2';

@@ -3,6 +3,12 @@
 当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
 
 
+## 当前源码：本机预览入口（2026-10-28）
+
+T-M01-203 / M01-F14：公开alpha.68后的开发工具修复，Windows Node24.12.0、Edge。原4197端口实际ECONNREFUSED；重启工具管理的前台服务后HTTP200，并以Edge有界面窗口打开。新 `npm run desktop:preview` 在4198独立验证，Core与renderer构建完成，首页、注入脚本、JS/CSS均200，合成snapshot成功；默认4197同样通过。浏览器实际显示标题、接入配置和机器/关系图，截图与[HTTP报告](../../../artifacts/ui-preview/2026-10-28/http.json)、[浏览器调用记录](../../../artifacts/ui-preview/2026-10-28/browser.log)、[截图](../../../artifacts/ui-preview/2026-10-28/page.png)保留。初次浏览器有favicon.ico 404，不影响页面加载，未声明零控制台错误。
+
+仓库根双击启动器仅转到自身目录并调用上述已验证命令，未单独进行资源管理器双击实测。预览随前台终端运行，不承诺跨工具会话驻留；没有安装服务、绕过后台启动审批、接触日常profile或调用模型。只变更开发启动入口，不重新宣称前轮105项或已发布EXE已复测。[复现与限制](../../iterations/I08/taste-impeccable-ui.md#预览入口修复2026-10-28)。
+
 ## 当前源码：Taste/Impeccable精修（2026-10-28）
 
 T-M01-202 / M01-F01/F03/F06/F09/F14；验证时本地package为alpha.68、公开仍alpha.67，Windows Node24.12.0、Edge157.0.4341.16。相关渲染回归105/105；生产前端与一次性Coordinator、合成历史的浏览器七组检查/19张截图通过，pageErrors=0、外部HTTP请求0，两种IBM Plex字体均实际加载。1440×960/980×660页面与弹窗无横向溢出，八项代表性文字对比度最低6.42:1。Taste入口页1440/980/768/390四宽度最终无发现；Impeccable六个界面源文件机械扫描返回空数组。它们不等于完整无障碍、原生工具、普通EXE、触屏或图100ms验收。

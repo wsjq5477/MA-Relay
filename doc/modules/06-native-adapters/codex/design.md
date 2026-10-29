@@ -1,5 +1,7 @@
 # Codex 适配器设计
 
+M06-CX-F01：独立MCP只读列表使用共享command解析，Windows npm保持原JS安装身份并启动同包原生程序，不回退其他安装；列表启动错误不构成配置加载或连接证明。exec/resume、原thread、取消与模型配置未改。[实现与验证](../../../iterations/I08/windows-regression-and-native-probes.md)。
+
 原托管临时工具允许策略加入list_connectable/connect_agent/disconnect_agent，后端预授权与用户确认仍是唯一连接授予边界；reply_task审批、原账号/模型/持久原生配置不变。 [本片契约与证据](../../../iterations/I07/connection-policy.md)。
 
 ## 普通子任务的最小上下文
@@ -17,6 +19,8 @@ M06-CX-F01：作为普通委派目标时，中央v1固定说明+原始需求作�
 Codex宿主仍按原task/conversation ID读取持久轮次，不修改Session和终态。MachineHost在自身backend快照定位对象，不依赖历史targetAgent还能对应当前row；本实现不改Codex执行、取消或reconcile实现；[归属专项](../../../iterations/I07/history-detail-recovery.md)。
 
 ## 独立 MCP 接入
+
+M06-CX-F01：共享配置写入器在并发修改或原子替换失败后准确删除本次临时文件，保留原TOML、标记块与无关文件；中文profile清理修复尚未进入alpha.68冻结包。[当前实现与验证](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
 
 编辑CODEX_HOME/config.toml（默认~/.codex/config.toml）的自有mcp_servers.agentbridge标记块；导出agentbridge.codex.toml。保留其他设置/注释，外来条目或块内无关数据拒绝覆盖。真实0.162.1隔离用户配置增删与mcp list可见性通过，未通过模型调用该长期入口。原托管任务-c覆盖仍保留任务scope隔离。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
 

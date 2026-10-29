@@ -12,9 +12,9 @@ const {
 
 test("worker bootstrap exit is a failed unstarted task with persisted diagnostics", async t => {
   const f = fixture(t);
-  const executable = path.join(f.directory, "broken-runtime");
-  fs.writeFileSync(executable, `#!${process.execPath}\nconsole.error('bootstrap runtime unavailable');process.exit(42);\n`, { mode: 0o755 });
-  const host = new ClaudeHost({ directory: path.join(f.directory, "state"), candidates: [f.executable], workerRuntime: () => executable });
+  const hook = path.join(f.directory, "broken-runtime.cjs");
+  fs.writeFileSync(hook, "if(process.argv.includes('--worker')){console.error('bootstrap runtime unavailable');process.exit(42);}");
+  const host = new ClaudeHost({ directory: path.join(f.directory, "state"), candidates: [f.executable], environment: {...process.env, NODE_OPTIONS: `--require=${JSON.stringify(hook)}`} });
   t.after(() => host.close());
   const connected = await host.call("connect", { executable: f.executable, workspace: f.directory });
   const task = await host.call("ipc", { op: "submit", agentId: connected.agentId, requestId: "bootstrap-failure", message: "hello" });
@@ -47,7 +47,7 @@ function fixture(
   const directory = fs.mkdtempSync(
     path.join(os.tmpdir(), "agentbridge-claude-"),
   );
-  const executable = path.join(directory, "claude");
+  const executable = path.join(directory, "claude.cjs");
   const script = `#!${process.execPath}
 const fs = require('node:fs');
 const readline = require('node:readline');

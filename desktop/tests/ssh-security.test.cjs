@@ -1,3 +1,4 @@
+const {linuxTest} = require('./platform-test.cjs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -82,7 +83,7 @@ test('SFTP directory checks reject symlink parents and foreign UID before mutati
   await assert.rejects(privateDirectory(sftp, '/other/private', '/home/u', 1000), { code: 'REMOTE_DIRECTORY_UNSAFE' });
 });
 
-test('Linux maintenance helper keeps executable mode through the actual compressed installation archive', async t => {
+linuxTest('Linux maintenance helper keeps executable mode through the actual compressed installation archive', async t => {
   const {packArchive}=require('../electron/ssh-install.cjs'),{stageLinuxPackage}=require('../scripts/stage-linux-package.cjs'),{execFileSync}=require('node:child_process');
   const directory=temp(t),repo=path.join(directory,'repo'),runtime=path.join(directory,'runtime'),destination=path.join(directory,'linux');
   for(const p of [path.join(runtime,'node_modules'),path.join(runtime,'desktop/electron'),path.join(repo,'dist')])fs.mkdirSync(p,{recursive:true});

@@ -89,7 +89,7 @@ test('DSH Desktop unavailable/invalid targets fail without inventing profiles an
   }
   f.select('desktop');
   const selection = path.join(f.native, 'profile-selection', 'state.json');
-  fs.rmSync(selection); const destination = path.join(f.root, 'selection.json');
+  fs.unlinkSync(selection); const destination = path.join(f.root, 'selection.json');
   f.write(destination, {version: 2, active: 'desktop'}); fs.symlinkSync(destination, selection);
   assert.throws(() => desktopTarget(f.home, f.env), {code: 'MCP_DSH_DESKTOP_TARGET'});
 });

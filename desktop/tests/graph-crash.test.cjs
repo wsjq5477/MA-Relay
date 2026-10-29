@@ -4,9 +4,12 @@ const {AgentNetwork}=require('../electron/agent-network.cjs');
 const {GraphOperationJournal}=require('../electron/graph-operations.cjs');
 test('actual isolated process death before/after authority or layout rename preserves original receipt and never replays a write',async t=>{
   for(const lane of ['relation','layout'])for(const phase of ['before','after']){
-    const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-graph-crash-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));
+    const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-graph-crash-'));t.after(()=>fs.promises.rm(directory,{recursive:true,force:true,maxRetries:8,retryDelay:100}));
     const result=spawnSync(process.execPath,[path.join(__dirname,'graph-crash-child.cjs'),directory,lane,phase],{timeout:10000});
-    assert.equal(result.signal,'SIGKILL');
+    assert.ifError(result.error);
+    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(directory,'crash-point.json'),'utf8')),{lane,phase});
+    if(process.platform==='win32'){assert.equal(result.status,1);assert.equal(result.signal,null);}
+    else assert.equal(result.signal,'SIGKILL');
     const network=new AgentNetwork({directory,platform:'linux',createHost:()=>{throw Error('Native host forbidden');}});t.after(()=>network.close());
     const journal=new GraphOperationJournal(directory);
     assert.equal(journal.pending().length,1);

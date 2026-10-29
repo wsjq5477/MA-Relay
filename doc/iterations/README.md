@@ -1,6 +1,18 @@
 # 迭代资料目录
 
-- 2026-10-28：[Taste与Impeccable工作台精修](I08/taste-impeccable-ui.md)：固定两项目版本，应用framed-sheet方向、本地IBM Plex字体；相关渲染105项与浏览器七组/19张截图，Taste四宽度与Impeccable扫描分别记录；源码未发布、模型0。
+- 2026-10-29：[alpha.69维护预发布交付](I08/alpha69-release.md)：整合Pi/Claude入口、原生MCP配置/列表清理、SSH原密文及Core版本检查/事件补传修复；223项产品输入冻结，最终包与公开下载按实际验证更新。
+
+- 2026-10-29：[Edge事件确认超时后的补传恢复](I08/edge-outbox-reconnect.md)：Linux完整运行实际定位CPU自旋；Windows隔离反例前0/1、修复后相关10/10，原执行/事件序列保持，最终完整矩阵分平台记录，未发布、模型0。
+
+- 2026-10-29：[Core Windows回归与原安装版本检查](I08/core-windows-installation-checks.md)：Core check/高级向导复用原安装启动，CJS/MJS新专项前0/2、后2/2；原Windows53通过/18失败与后续平台/全量结果分别保留，未发布、模型0。
+
+- 2026-10-29：[MCP原生配置失败临时文件清理](I08/mcp-config-temporary-cleanup.md)：系统Node中文profile原40项全部复现、修复后扩展44/44，相关Windows117通过/1平台跳过；Electron旧实现40/40与修复后44/44分开记录，未发布、模型0。
+
+- 2026-10-29：[Windows回归、原生列表启动与SSH凭据清理](I08/windows-regression-and-native-probes.md)：修复中文profile原密文残留与经典MCP列表入口；Windows976通过/0失败/41跳过，Linux隔离151/151含新增40个跳过的逐项通过核对，Electron组件7/7，未发布、模型0。
+
+- 2026-10-29：[Pi目录事件与Windows启动、验证器修复](I08/pi-workspace-events-and-windows-validation.md)：完成Pi别名校验的源码收尾；共享60/60、原包组件四组、Claude脚本与三条普通委派5/5，文档测试由5/6修至6/6；未发布、模型0。
+
+- 2026-10-28：[Taste与Impeccable工作台精修](I08/taste-impeccable-ui.md)：固定两项目版本，应用framed-sheet方向、本地IBM Plex字体；相关渲染105项与浏览器七组/19张截图，Taste四宽度与Impeccable扫描分别记录；外观已随alpha.68发布。后续源码补充本机预览启动器，模型0。
 
 - 2026-10-28：[桌面工作台视觉调整](I08/workbench-visual-refresh.md)：石墨绿导航、暖白工作区、统计卡和深色主题；生产前端隔离截图与交互验证，未发布、模型0。
 

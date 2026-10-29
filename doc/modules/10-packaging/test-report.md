@@ -1,5 +1,7 @@
 # M10 构建与发布测试报告
 
+2026-10-29源码组件验证：worker-runtime产品源码未改；测试以异步删除并断言原目录确实不存在，再核对缓存/历史manifest/修复目录，10/10通过。系统Node24.12.0的中文路径删除反例与Electron44.7.0/Node24.21.0对照分别保存；未打包或运行新普通EXE，原冻结包保持。[本轮证据与限制](../../iterations/I08/windows-regression-and-native-probes.md)。
+
 当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
 
 

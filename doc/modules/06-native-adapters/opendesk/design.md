@@ -2,6 +2,8 @@
 
 ## 当前 OpenDesk 生命周期与关系作用域
 
+M06-F05：Desktop共享配置写入器在并发修改或原子替换失败后准确删除本次临时文件，保留原setting.json及无关文件。此alpha.68之后未发布修复不开放CLI原生配置写入、不放宽Desktop退出核对。[当前行为与验证](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
+
 M06-F05：OpenDesk Desktop 必须先从托盘完全退出，刷新状态后才能添加。Bridge 在准备端点前与最终写入前检测所有匹配 OpenDesk.exe / OpenDesk Desktop.exe 的进程，并以250ms静默窗口及文件摘要确认退出写回稳定；失败保留原文件，不自动退出/重启 OpenDesk。仅支持可核验的 Windows 进程快照，其他平台或查询失败保守拒绝。已断开的原节点仍可添加，缺 Node 拒绝；移除先撤权再安全清理。没有原生列表查询接口，mcp.probe只读返回unsupported，连接/工具保持未知；原生组件或历史人工成功不提升本次观测。 [需求、流程与失败边界](../../../iterations/I08/opendesk-lifecycle-relation-scope.md)。
 
 ## 连接身份与节点管理准入

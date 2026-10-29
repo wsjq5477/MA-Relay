@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {opencodeSchema} from '../src/config.js';
@@ -25,7 +25,7 @@ test('OpenCode node inherits CLI recent preference after native config, reads up
   configured=true;assert.equal((await client.check()).model?.id,'server-default');configured=false;
   writeFileSync(file,JSON.stringify({recent:[{providerID:'native',modelID:'server-default'}]}));assert.equal((await client.check()).model?.id,'server-default');
   writeFileSync(file,'invalid');await assert.rejects(client.check(),{code:'NATIVE_CLI_STATE'});
-  rmSync(file);assert.equal((await client.check()).model?.id,'server-default');
+  unlinkSync(file);assert.equal((await client.check()).model?.id,'server-default');
   writeFileSync(file,JSON.stringify(state));assert.equal((await new Client({...config,inheritNativeCli:undefined}).check()).model?.id,'server-default');
  }finally{if(previous===undefined)delete process.env.XDG_STATE_HOME;else process.env.XDG_STATE_HOME=previous;rmSync(directory,{recursive:true,force:true});}
 });

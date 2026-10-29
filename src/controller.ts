@@ -1,6 +1,5 @@
 import { createServer, createConnection } from 'node:net';
-import { spawn, execFile } from 'node:child_process';
-import { promisify } from 'node:util';
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { chmodSync, rmSync, openSync, closeSync, existsSync, statSync, lstatSync, readFileSync, mkdirSync, type Stats } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -20,6 +19,7 @@ import { OpenCodeClient } from './drivers/opencode-client.js';
 import { request } from './client.js';
 import { interactionSchema } from './protocol.js';
 import { redactor } from './security.js';
+import { readOpenCodeVersion } from './discovery.js';
 
 const ipcSchema = z.object({ op: z.enum(['status', 'start', 'stop', 'agents', 'save', 'default', 'check', 'verify', 'submit', 'task', 'tasks', 'pending', 'reply', 'operation', 'request', 'conversations', 'conversation', 'continue', 'cancel', 'reconcile']),
   conversationId: idSchema.optional(), agentId: idSchema.optional(), taskId: idSchema.optional(), operationId: idSchema.optional(), requestId: idSchema.optional(), message: z.string().max(65536).optional(),
@@ -222,8 +222,8 @@ export async function startController(directory: string): Promise<{ close(): Pro
       if (!a) throw new BridgeError('AGENT_NOT_FOUND', '连接不存在', 404);
       const report: Record<string, unknown> = { time: new Date().toISOString(), fingerprint: fingerprint(a), configuration: 'valid',
         connection: 'not_checked', authentication: 'not_checked', nativeAgentConfiguration: 'not_checked', modelConfiguration: 'not_checked', modelResponse: 'not_checked' };
-      try { const result = await promisify(execFile)(a.executable, ['--version'], { windowsHide: true, timeout: 10000, maxBuffer: 65536 });
-        report.installation = 'available'; report.version = result.stdout.trim().slice(0, 100); }
+      try { report.version = await readOpenCodeVersion(a.executable);
+        report.installation = 'available'; }
       catch { report.installation = 'unavailable'; }
       try { report.workspace = statSync(a.workspace).isDirectory() ? 'available' : 'unavailable'; } catch { report.workspace = 'unavailable'; }
       try {

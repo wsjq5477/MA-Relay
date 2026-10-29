@@ -1,5 +1,11 @@
 # OpenCode 适配器测试报告
 
+T-M06-OC-215 / M06-OC-F01：2026-10-29，Windows Node24.12.0，Core生产controller加受控HTTP服务，新版本检查前0/2、后2/2。CJS/MJS只读入口与删除后不替代检查通过，模型0；Core定向32通过/7平台跳过，最终全量、Linux快照和运行限制见[专项](../../../iterations/I08/core-windows-installation-checks.md)。不是实际OpenCode安装、模型或普通EXE验收。
+
+T-M06-OC-214 / M06-OC-F01：2026-10-29，未发布源码；V1/V2两代布局在中文profile下添加/移除的并发修改和替换失败八项计入共享专项44/44，原JSONC及无关文件保持。相关Windows117通过/1平台跳过，Electron44/44；不是实际OpenCode服务、模型或普通EXE验收。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
+
+T-M06-OC-213 / M06-OC-F01：2026-10-29，Windows Node24.12.0，未发布源码。共享MCP38/38含OpenCode已选CJS列表入口、准确参数/继承环境；daemon生命周期仅Linux执行，Windows显式跳过。首次WSL42项的两失败/一取消及隔离首轮149/151保留，调整源码测试等待后最终隔离151/151、跳过0；没有真实OpenCode模型、用户profile或新EXE验收。[完整结果](../../../iterations/I08/windows-regression-and-native-probes.md)。
+
 ## 原接入失败清理与协议复验
 
 T-M06-OC-CLEANUP / M06-OC-F01：2026-10-24，alpha.61本地候选；WSL Node22.23.1核心71/71、桌面921/921通过，共享不相加。包含1.x挂起info、2.x、明确协议/认证错误及启动/原Session/取消回归；清理只结算有完整原启动错误证明的本地attach，不修改执行unknown。Windows生产页面4组通过，模型0；真实1.2.22/原生模型/用户profile/独立SSH未测。普通EXE与最终包另列，见[完整证据](../../../iterations/I08/failed-operation-cleanup.md)。

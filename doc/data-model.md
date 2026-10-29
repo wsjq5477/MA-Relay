@@ -2,7 +2,7 @@
 
 三原生CLI明确未启动时，复用现有terminal事件status=failed/code=NATIVE_START，并写已有可选nativeExited=false。原Task与请求保留；原取消data为status=failed/nativeExited=false，原核对消息注明未派发，confirmed不改变任务为成功/取消。spawn边界为当次worker内存事实，不新增数据版本或恢复推断；历史unknown保持。[完整合约与验证](iterations/I08/native-start-boundary.md)。
 
-Pi沿用原Agent.workspace、Conversation.sessionId与原生JSONL头cwd做派发前绑定校验。没有新增字段/版本，旧记录不迁移；缺失或变化时canContinue=false，续聊以CONVERSATION_CONFIG拒绝且不新增持久请求/Task，不更改历史/unknown。[完整规则与验证](iterations/I08/pi-session-workspace.md)。
+Pi沿用原Agent.workspace、Conversation.sessionId与原生JSONL头cwd做派发前绑定校验；原生session事件按同一真实目录规则读取cwd，等价别名不改写原Session/文件，缺失或失效不能产生成功。没有新增字段/版本，旧记录不迁移；派发前缺失或变化时canContinue=false，续聊以CONVERSATION_CONFIG拒绝且不新增持久请求/Task，不更改历史/unknown。Claude脚本启动同样保持原安装路径与持久记录。[派发前规则](iterations/I08/pi-session-workspace.md)、[未发布修复与验证](iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
 Hermes查看器的result.exit_code或实际进程退出码3/130归入现有unknown事件，不写failed/finishedAt、不解除原请求占用、不确认原核对收据；后续原执行终态仍可沿原事件读取结算。无新增字段、版本或历史迁移，旧失败不会被本修复改写。[规则与证据](iterations/I08/hermes-detached-input.md)。
 

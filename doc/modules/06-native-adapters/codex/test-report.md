@@ -1,5 +1,9 @@
 # Codex 适配器测试报告
 
+T-M06-CX-214 / M06-CX-F01：2026-10-29，未发布源码；中文profile的添加/移除在并发修改及替换失败后原TOML保持、准确临时文件消失。四项计入共享专项44/44与相关Windows117通过/1平台跳过，Electron44/44；不是本机真实Codex、模型或普通EXE验收。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
+
+T-M06-CX-213 / M06-CX-F01：2026-10-29，Windows Node24.12.0，未发布源码。受控宿主采用CJS入口，取消前等原生绑定并有界等待实际退出；首次22/23共享集中的取消超时保留。独立原生列表通过共享command，五项新增启动检查计入共享MCP38/38；不新增模型/权限参数，真实Codex安装/模型/新EXE未验。[最终检查与原始证据](../../../iterations/I08/windows-regression-and-native-probes.md)。
+
 2026-10-25冻结alpha.63通过实际Windows→WSL的独立Codex0.162.1 MCP配置/自身列表核对；通用Linux stdio客户端连续15分钟180/180，原身份/宿主与配置保持，随后删除/重开/撤权/轮换/移除通过，模型0。这不是Codex模型或其父会话自主调用，也不扩展原托管/续聊能力；[分层结果与未准出](../../../iterations/I08/native-mcp-lifecycle.md)。
 
 2026-10-24，经典连接工具的允许项/托管指引进入900/900受控全量与最终25/25定向；没有运行真实codex模型或安装用户持久配置，不代表该原生客户端已实际消费10工具。 [本片契约与证据](../../../iterations/I07/connection-policy.md)。

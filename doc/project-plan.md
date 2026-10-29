@@ -1,5 +1,15 @@
 # 迭代路线与当前交付
 
+当前未发布维护进一步修复Core事件ACK超时后的运输自旋，原事件/原执行保持；受控反例前0/1，恢复专项10/10，最终跨平台全量按[专项](iterations/I08/edge-outbox-reconnect.md)记录。原生父模型、普通EXE、冷启动与完整I06C/I07C/MCP02仍待独立准出。
+
+当前未发布Core维护统一check/高级向导的原安装版本启动，并修正Windows验证器的反例清理、IPC和平台边界；只读安装专项前0/2、后2/2，原失败与最终矩阵分别记录。[当次结果及后续](iterations/I08/core-windows-installation-checks.md)。不扩大原生托管、模型或发布准出范围。
+
+当前未发布维护补齐MCP原生配置失败后的准确临时文件清理；系统Node中文profile专项44/44、相关Windows117通过/1平台跳过，Electron旧实现40/40及修复后44/44分开记录。未构建新EXE或关闭真实父模型等准出。[需求、运行时差异、证据与后续](iterations/I08/mcp-config-temporary-cleanup.md)。
+
+当前维护增量补齐SSH密文单文件清理、经典原生MCP列表启动与Windows验证器平台边界；Windows976通过/失败0/41跳过，WSL隔离151/151并逐项覆盖新增40个Linux专属跳过，Electron组件7/7。[本轮原失败、最终检查与后续](iterations/I08/windows-regression-and-native-probes.md)。真实原生生命周期、父模型和普通EXE仍按原矩阵推进。
+
+当前未发布维护增量：Pi派发/事件同目录规则、Claude已选JS入口启动和Windows文档/委派验证器已修复；Windows共享60/60、原包组件四组、脚本/三条委派5/5及docs:test 6/6。[验收与后续](iterations/I08/pi-workspace-events-and-windows-validation.md)。下一步仍为真实原生生命周期、父模型和普通EXE，定向检查不关闭完整准出。
+
 当前公开alpha.68：关系冲突只读诊断、连续原收据提案与明确确认后的备份/原子恢复，v3旧后台启动/复用门禁；原生启动、Hermes分离和Pi会话目录保护、离线字体与界面改进已收录。源码/EXE/SHA公开并匿名完整下载一致；定向137/137、冻结后台16/16、Ubuntu Core71/71与适配110/110、普通EXE隔离恢复与完整重启通过。桌面全量926通过/74失败/1跳过，文档2243缺失及Zod 1项high保留；未签名，真实profile、父模型/取消/性能和完整矩阵未准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
 
 当前实现、候选功能和未准出项分别登记；前序发布历史统一见[发布登记](iterations/release-ledger.md)。下一步仍为原生父模型、自主委派、异常恢复和冷启动等独立验收，不因CLI可见或MCP组件通过而关闭整体验收。
@@ -36,7 +46,7 @@
 
 ## 3. 后续目标与顺序
 
-源码已补[启动前失败边界](iterations/I08/native-start-boundary.md)、[Hermes等待输入分离保护](iterations/I08/hermes-detached-input.md)和[Pi续聊目录绑定](iterations/I08/pi-session-workspace.md)，均未发布。后续需冻结含三项修复的候选包，继续实际原生审批/澄清等待、网关恢复与取消、Pi真实生命周期、自主父模型及普通被委派验收；不能用组件或受控回归关闭缺口。
+alpha.68已包含[启动前失败边界](iterations/I08/native-start-boundary.md)、[Hermes等待输入分离保护](iterations/I08/hermes-detached-input.md)和[Pi续聊目录绑定](iterations/I08/pi-session-workspace.md)；后续源码另补[Pi事件/Claude脚本启动修复](iterations/I08/pi-workspace-events-and-windows-validation.md)，尚未进入冻结包。继续实际原生审批/澄清等待、网关恢复与取消、Pi真实生命周期、自主父模型及普通被委派验收；不能用组件或受控回归关闭缺口。
 
 alpha.36已按三方内容整合公开alpha.35独立修复与当前工作区，并已公开发布（标签`1fef25f`，EXE与校验附件通过匿名完整下载核验）；发布不替代真实模型、用户profile或独立SSH准出，完整I06C/I07C仍未准出。
 

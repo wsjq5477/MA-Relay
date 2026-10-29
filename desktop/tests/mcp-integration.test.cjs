@@ -12,7 +12,7 @@ const config = {
 };
 function fixture(t) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "ab-mcp-install-"));
-  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  t.after(() => fs.promises.rm(directory, { recursive: true, force: true, maxRetries:8, retryDelay:100 }));
   return directory;
 }
 for (const adapter of ["claude", "codex", "opencode"])
@@ -67,8 +67,8 @@ test("invalid, dual OpenCode and symlink configurations remain untouched", (t) =
     '{"mcp":{"servers":{"agentbridge":{"type":"local","command":["foreign"]}}}}',
   );
   assert.throws(() => target.inspect(), { code: "MCP_CONFIG_CONFLICT" });
-  fs.rmSync(target.file.slice(0, -1));
-  fs.rmSync(target.file);
+  fs.unlinkSync(target.file.slice(0, -1));
+  fs.unlinkSync(target.file);
   const linked = path.join(home, "linked.json");
   fs.writeFileSync(linked, "{}");
   fs.symlinkSync(linked, target.file);
@@ -482,9 +482,9 @@ test("DSH Web manages one insert row, preserves user comments and never reinstal
   assert.equal((await restarted.call("mcp.status", params)).state, "exported");
 });
 test("native list probe and bridge tool catalogue are reported as separate evidence", async (t) => {
-  const directory = fixture(t), home = path.join(directory, "home"), executable = path.join(directory, "claude");
+  const directory = fixture(t), home = path.join(directory, "home"), executable = path.join(directory, "claude.cjs");
   fs.mkdirSync(home, { recursive: true });
-  fs.writeFileSync(executable, "#!/bin/sh\necho 'agentbridge: /usr/bin/node /x/mcp-client.cjs /y/endpoint.json - ✓ Connected'\n", { mode: 0o700 });
+  fs.writeFileSync(executable, "console.log('agentbridge: /usr/bin/node /x/mcp-client.cjs /y/endpoint.json - ✓ Connected');", { mode: 0o700 });
   const machine = probeHost(directory, [], { claude: [executable] });
   t.after(() => machine.close());
   const params = { nodeId: "leader", adapter: "claude" };
@@ -499,12 +499,22 @@ test("native list probe and bridge tool catalogue are reported as separate evide
   assert.equal(probed.evidence.toolsProbe.outcome, "available");
   assert.ok(probed.evidence.toolsProbe.toolCount >= 1);
   // A read-only probe never rewrites the native configuration.
-  fs.writeFileSync(executable, "#!/bin/sh\necho 'agentbridge: /usr/bin/node /x/mcp-client.cjs - ✘ Failed to connect'\n", { mode: 0o700 });
+  fs.writeFileSync(executable, "console.log('agentbridge: /usr/bin/node /x/mcp-client.cjs - ✘ Failed to connect');", { mode: 0o700 });
   const failed = await machine.call("mcp.probe", params);
   assert.equal(failed.facts.nativeLoad, "loaded");
   assert.equal(failed.facts.connection, "disconnected");
   assert.equal(fs.readFileSync(machine.mcp.config("claude").file, "utf8"), before);
   assert.equal(failed.state, "installed");
+  const unsupported = path.join(directory, 'unsupported.cmd');
+  fs.writeFileSync(unsupported, 'must never execute through a shell');
+  machine.mcp.options.candidates.claude = [unsupported];
+  const launchFailure = await machine.call('mcp.probe', params);
+  assert.equal(launchFailure.evidence.nativeProbe.outcome, 'error');
+  assert.equal(launchFailure.facts.nativeLoad, 'unknown');
+  assert.equal(launchFailure.facts.connection, 'unknown');
+  assert.equal(launchFailure.facts.tools, 'available');
+  assert.equal(launchFailure.facts.authorization, 'valid');
+  assert.equal(fs.readFileSync(machine.mcp.config('claude').file, 'utf8'), before);
 });
 test("unnamed DSH CLI profiles stay export-only; the native entry is never written", async (t) => {
   const directory = fixture(t), machine = probeHost(directory);
@@ -533,9 +543,14 @@ test("unnamed DSH CLI profiles stay export-only; the native entry is never writt
 
 test("native list probe resolves the product executable without a caller-supplied candidate list", async (t) => {
   const directory = fixture(t), home = path.join(directory, "home"), config = path.join(directory, "claude");
-  const shim = path.join(directory, "bin", "claude");
+  const bin = path.join(directory, "bin"), shim = path.join(bin, process.platform === 'win32' ? 'claude.cmd' : 'claude');
   fs.mkdirSync(path.dirname(shim), { recursive: true });
-  fs.writeFileSync(shim, "#!/bin/sh\necho 'agentbridge: node /x/mcp-client.cjs /y/endpoint.json - \u2714 Connected'\n", { mode: 0o700 });
+  const script = `#!${process.execPath}\nconsole.log('agentbridge: node /x/mcp-client.cjs /y/endpoint.json - \u2714 Connected');\n`;
+  if (process.platform === 'win32') {
+    const entry = path.join(bin, 'node_modules/@anthropic-ai/claude-code/cli.js');
+    fs.mkdirSync(path.dirname(entry), {recursive:true}); fs.writeFileSync(entry, script);
+    fs.writeFileSync(shim, 'must never run through a shell');
+  } else fs.writeFileSync(shim, script, {mode:0o700});
   const previous = process.env.PATH;
   process.env.PATH = path.dirname(shim) + path.delimiter + (previous || "");
   t.after(() => { process.env.PATH = previous; });
@@ -704,8 +719,8 @@ test('OpenCode array command reaches the actual stdio tools probe', async t => {
 });
 
 test('probe observations expire and are invalidated by native deletion or profile changes', async t => {
-  const directory=fixture(t),exe=path.join(directory,'claude');
-  fs.writeFileSync(exe,"#!/bin/sh\necho 'agentbridge: Connected'\n",{mode:0o700});
+  const directory=fixture(t),exe=path.join(directory,'claude.cjs');
+  fs.writeFileSync(exe,"console.log('agentbridge: Connected');",{mode:0o700});
   const machine=probeHost(directory,[],{claude:[exe]});t.after(()=>machine.close());
   const params={nodeId:'stale-probe',adapter:'claude'};const installed=await machine.call('mcp.install',params);
   const probed=await machine.call('mcp.probe',params);assert.equal(probed.facts.connection,'connected');

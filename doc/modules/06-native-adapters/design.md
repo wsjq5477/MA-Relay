@@ -1,5 +1,9 @@
 # M06 原生 Agent 适配器设计
 
+M06-F01/F02：独立MCP的Claude/Codex/OpenCode/Pi/Hermes原生列表统一通过共享command解析选中安装，以结构化参数继承原环境；JS/npm入口不送shell。启动器拒绝或同步spawn失败保存native-list/error，不宣告原生加载/连接成功；Bridge工具目录和原授权独立核验，不影响原任务或unknown。[行为、验证与边界](../../iterations/I08/windows-regression-and-native-probes.md)。
+
+M06-F01/F04、M06-CC-F01：alpha.68之后未发布源码统一Pi派发/事件目录规则，Claude已选JS/CJS/MJS入口经Node启动。原生配置、Session、权限与unknown规则保持。[完整行为、验证与边界](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
+
 当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
 
 
@@ -28,6 +32,8 @@ M06-F01：OpenCode有界协议协商保持：先短探测global/health，有效1
 M06-F01/F02/F05：经典MCP现10项，小队当前22项（含本页原包传递增量）；新增list_connectable/connect_agent/disconnect_agent，连接操作绑定原父或独立connectionId与原operationId，不接收用户审批/身份参数。Claude/Codex在原托管临时允许项中加入新3项，reply_task原审批保持；MachineHost指引区分预授权/待确认和原授权收据。未改用户持久原生配置/模型/账号，原生客户端实际消费另验。 [完整契约、验证与边界](../../iterations/I07/connection-policy.md)。
 
 ## OpenCode 有界双协议发现
+
+M06-F01：Core兼容入口的连接检查/高级向导与发现、serve共用原安装启动解析，JS版本检查通过Node，不再因直接执行脚本误报不可用。原生API契约和模型可用性仍分别核验，未新增执行能力；此为未发布维护。[源码、反例与验证](../../iterations/I08/core-windows-installation-checks.md)。
 
 M06-F01：启动、恢复和执行前的只读检查先探 `/global/health`，有效 1.x 直接校验其完整元数据契约，跳过 `/api/info`；其他结果在短预算内检查 2.x。候选端点各 700ms，整次协议/元数据 4000ms，并受剩余启动预算约束。已响应但无兼容契约或探测超时报告 OPENCODE_API_UNSUPPORTED；认证、Agent、配置错误分别保留，未监听才继续启动重试。普通业务请求和原 Session/取消/恢复规则不变。[完整设计与证据](../../iterations/I08/opencode-bounded-probe.md).
 
@@ -110,6 +116,8 @@ M06-F01：OpenCode接受可识别的1.x与2.x，其他主版本在启动前拒�
 M06-F01/F02：原生adapter不新建模型/API层；历史task/conversation由MachineHost确认实际backend后只读原ID，空/旧targetAgent不把Codex/Claude读误导到根OpenCode。原生Session、返回轮次、取消和原请求规则不变。 [设计、兼容与实际证据](../../iterations/I07/history-detail-recovery.md)。
 
 ## 独立 MCP 配置与运行契约
+
+M06-F02/F05：原生配置的添加/移除先在原文件旁以独占创建写入临时文件，复核原文与原生目标后原子替换；并发修改、目标切换或替换失败时，只删除本次准确临时文件，不递归清理目录、不删除其他临时文件。清理仅忽略文件已不存在，其他文件系统错误继续报告。此清理修复为alpha.68之后未发布源码；十种布局及运行时边界见[专项记录](../../iterations/I08/mcp-config-temporary-cleanup.md)。
 
 M06-F01/F04：Claude/Codex/OpenCode 2支持独立MCP接入的配置格式适配。Claude改mcpServers.agentbridge，Codex改mcp_servers.agentbridge标记块，OpenCode 2改mcp.servers.agentbridge；尊重各自配置目录变量，仅修改自己拥有的条目。生成JSON/TOML/JSONC独立文件，模型/登录配置保持；当前另有DSH三入口与OpenDesk Desktop适配；Pi/Hermes原生配置已随alpha.50本地候选交付。Bridge托管任务仍用任务scope覆盖同名MCP，长期入口面向外部会话。[配置/数据/失败流程与源码](../../iterations/I07/mcp-installation.md)。
 
@@ -294,7 +302,7 @@ Hermes/Pi/DSH的所选启动进程在参数/启动器解析时同步拒绝，或
 
 Hermes有限查看器在原生审批/澄清等待、或已接收输入排在unknown任务后时，以退出码3关闭stream-json并不结算网关任务。解析器同时检查result.exit_code和实际进程退出码，不依赖英文错误文案；3/130均沿原Task/Session记录unknown、保持占用及核对收据，不开放续聊或新请求。0/1/2沿既有成功/失败与断线规则核验。本次仅新观察适用，不改写历史失败或unknown；Bridge尚不能回复这类原生等待，也没有新增网关重连/取消。[需求、源码与分层验证](../../iterations/I08/hermes-detached-input.md)。
 
-Pi原生SessionManager会采用会话文件中的cwd。`piSessionFile(directory,sessionId,workspace)`先核对唯一原ID，再核对header.cwd与原Agent上下文目录均为绝对路径、可解析到同一真实目录且是目录；相同真实目录的等价写法可用，缺失/相对/空/异目录或文件路径均拒绝。会话投影据此禁用canContinue，实际续聊在持久意图前检查，worker在spawn前再查；CONVERSATION_CONFIG不创建新请求/Task、不改原历史或修复原生文件。没有跨进程文件锁，最终检查后外部改写的竞态仍存在。[完整实现与验证](../../iterations/I08/pi-session-workspace.md)。
+Pi原生SessionManager会采用会话文件中的cwd。`piSessionFile(directory,sessionId,workspace)`先核对唯一原ID，再核对header.cwd与原Agent上下文目录均为绝对路径、可解析到同一真实目录且是目录；相同真实目录的等价写法可用，缺失/相对/空/异目录或文件路径均拒绝。会话投影据此禁用canContinue，实际续聊在持久意图前检查，worker在spawn前再查；CONVERSATION_CONFIG不创建新请求/Task、不改原历史或修复原生文件。原生session事件使用同一真实目录规则，保留junction/symlink等价写法，缺cwd或失效绑定即使收到正常终态也不能成功，已发生的绑定错误保持。目录事件一致性为alpha.68之后未发布修复。没有跨进程文件锁，最终检查后外部改写的竞态仍存在。[派发前规则](../../iterations/I08/pi-session-workspace.md)、[事件一致性与验证](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
 原生协议错误、原 Session 不匹配、缺文件或配置不匹配不能伪造成新会话成功。原生工具自己的权限策略仍适用；没有 Bridge 许可表单不代表自动允许工具。
 

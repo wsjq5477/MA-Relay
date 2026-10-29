@@ -1,11 +1,13 @@
 # M07 任务、会话、交互控制与恢复设计
 
+M07-F06/F07：未发布Core维护修复事件ACK超时后的运输自旋。立即退役当前原socket，原事件按同taskId/executionId/seq在新运输补传，原执行与Session不重建；相同原提交仍只调用一次。运输确认不代替任务终态，权限/取消及unknown占用保持。[实现与验证](../../iterations/I08/edge-outbox-reconnect.md)。
+
 当前公开alpha.68已收录本模块本轮改动；冻结38cd637，EXE与源码/实际载荷匹配，普通EXE独立合成profile恢复及整个后台重启通过。源码受控、真实原生组件与普通EXE结果分别记录，未进行真实用户profile恢复或新增模型轮次。[发布、证据和未准出项](../../iterations/I08/alpha68-release.md)。
 
 
 M07-F01/F04/F06/F07：三原生CLI启动器解析同步拒绝或实际ChildProcess在spawn前报error时，以原Task failed/NATIVE_START及nativeExited=false结算。原requestId去重与历史保持，原核对/取消confirmed只说明该原控制意图已核对，任务状态仍failed；已启动失联/旧unknown不能根据现安装缺失结算。[当前规则与验证](../../iterations/I08/native-start-boundary.md)。
 
-M07-F01/F02/F06/F07：Pi续聊除唯一Session文件/ID，还要求持久cwd与原上下文为同一可用真实目录。canContinue与实际派发共用检查，拒绝发生在请求/Task意图前；旧Task/Conversation/Session与原收据不迁移，恢复原文件后可沿原Session继续。worker在启动原生进程前复核，unknown占用不因目录变化解除。[规则、原生依据与证据](../../iterations/I08/pi-session-workspace.md)。
+M07-F01/F02/F06/F07：Pi续聊除唯一Session文件/ID，还要求持久cwd与原上下文为同一可用真实目录。canContinue与实际派发共用检查，拒绝发生在请求/Task意图前；旧Task/Conversation/Session与原收据不迁移，恢复原文件后可沿原Session继续。worker在启动原生进程前复核；原生session事件也按同一规则接受等价目录别名，缺失/失效/异目录事件不能成功，绑定错误不被后续正确事件清除。unknown占用不因目录别名或变化解除。[派发前规则](../../iterations/I08/pi-session-workspace.md)、[未发布事件修复与证据](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
 M07-F01/F02/F04/F06/F07：Hermes原生等待审批/澄清时查看器退出3，或result.exit_code为3/130，均保持原Task/Session与unknown占用；实际进程退出3/130同样不能结算失败或取消。原ID查询/重开不重发，核对收据仍unknown；只有后续原执行终态证据才能结算。历史失败与旧unknown不迁移，取消仍false。[当前完整规则、实现与证据](../../iterations/I08/hermes-detached-input.md)。
 

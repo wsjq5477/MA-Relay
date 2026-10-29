@@ -1,11 +1,12 @@
+const {linuxTest} = require('./platform-test.cjs');
 // Real TCP SSH, authentication, daemon disk ledger and Coordinator recovery.
 // The isolated native host rejects before task creation; no model/CLI is run.
-const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),net=require('node:net');
+const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),net=require('node:net');
 const {generateKeyPairSync,createHash}=require('node:crypto'),{Server}=require('../../node_modules/ssh2');
 const {SshManager}=require('../electron/ssh-host.cjs'),{startDaemon}=require('../electron/machine-daemon.cjs');
 const {FramedStream}=require('../electron/machine-protocol.cjs');
 const {AgentNetwork}=require('../electron/agent-network.cjs'),{createCoordinatorService}=require('../electron/coordinator-service.cjs');
-test('lost rejection response survives real daemon restart and TCP SSH reconnect; recovery releases only original intent',async t=>{
+linuxTest('lost rejection response survives real daemon restart and TCP SSH reconnect; recovery releases only original intent',async t=>{
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-reject-ssh-')),clients=new Set(),sockets=new Set();
  let nativeCalls=0,drop=true,discarded=0;
  const native={setCollaboration(){},close(){},async call(method,p){

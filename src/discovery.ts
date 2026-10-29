@@ -1,4 +1,6 @@
 import { createRequire } from 'node:module';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 
 export interface DetectedAgent { executable: string; version: string; name: string }
 interface DiscoveryEnvironment {
@@ -10,11 +12,21 @@ interface DiscoveryEnvironment {
 }
 interface ScannedTool extends DetectedAgent { adapter: string; healthy: boolean }
 import { BridgeError } from './core.js';
-const { scanTools, openCodeCompatibility } = createRequire(import.meta.url)('../desktop/electron/tool-discovery.cjs') as {
+const { scanTools, openCodeCompatibility, command } = createRequire(import.meta.url)('../desktop/electron/tool-discovery.cjs') as {
+  command(executable:string, args:string[], environment:NodeJS.ProcessEnv): {executable:string;args:string[];env:NodeJS.ProcessEnv};
   openCodeCompatibility(version: unknown): {supported:boolean;code?:string;message?:string};
   scanTools(options: { home?: string; platform: NodeJS.Platform; environment: NodeJS.ProcessEnv;
     candidates: { claude: string[]; codex: string[]; hermes: string[]; pi: string[]; dsh: string[]; opencode?: string[] } }): Promise<ScannedTool[]>;
 };
+
+/** Read only the chosen installation's version, using the same launcher as serve. */
+export async function readOpenCodeVersion(executable:string):Promise<string> {
+  const launch = command(executable, ['--version'], process.env);
+  const result = await promisify(execFile)(launch.executable, launch.args, {
+    env:launch.env, shell:false, windowsHide:true, timeout:10000, maxBuffer:65536,
+  });
+  return result.stdout.trim().slice(0,100);
+}
 
 /** Read-only discovery and exact selected-installation checks. No service or model calls. */
 export async function discoverOpenCode(options: DiscoveryEnvironment = {}): Promise<DetectedAgent[]> {

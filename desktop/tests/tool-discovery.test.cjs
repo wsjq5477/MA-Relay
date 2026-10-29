@@ -44,7 +44,7 @@ test('PATH selection stays authoritative and broken newer managed installations 
   const f=managedFixture(t),base=path.join(f.home,'.nvm/versions/node');
   f.install(path.join(base,'v22.10.0/bin'),'0.163.0',true);const fallback=f.install(path.join(base,'v22.9.0/bin'));
   let items=await f.scan();assert.equal(items[0].executable,fallback);
-  const preferred=f.install(path.join(f.home,'selected bin'),'0.160.0');f.environment.PATH=path.dirname(preferred)+':'+f.environment.PATH;
+  const preferred=f.install(path.join(f.home,'selected bin'),'0.160.0');f.environment.PATH=path.dirname(preferred)+path.delimiter+f.environment.PATH;
   items=await f.scan();assert.equal(items[0].executable,preferred);assert.equal(items[0].version,'0.160.0');
 });
 

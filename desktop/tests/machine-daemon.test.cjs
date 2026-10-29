@@ -1,3 +1,4 @@
+const {linuxTest} = require('./platform-test.cjs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -86,7 +87,7 @@ test('frame decoder rejects oversized headers before allocation, malformed UTF-8
   assert.throws(() => encodeFrame({ result: 'x'.repeat(MAX_FRAME_BYTES) }), { code: 'PROTOCOL_LIMIT' });
 });
 
-test('private daemon identity rejects symlinks, conflicting profile and ordinary socket files', async t => {
+linuxTest('private daemon identity rejects symlinks, conflicting profile and ordinary socket files', async t => {
   const opts = setup(t), host = hostFixture(), daemon = await startDaemon({ ...opts, hostFactory: () => host }); t.after(() => daemon.close());
   await assert.rejects(startDaemon({ ...opts, ownerCoordinatorId: 'different', hostFactory: () => host }), { code: 'DAEMON_OWNER_CONFLICT' });
   const target = path.join(path.dirname(opts.stateDirectory), 'linked'); fs.symlinkSync(opts.stateDirectory, target);
@@ -96,7 +97,7 @@ test('private daemon identity rejects symlinks, conflicting profile and ordinary
   assert.equal(fs.readFileSync(socketPathFor(another.stateDirectory), 'utf8'), 'unrelated file');
 });
 
-test('daemon socket is private at bind time and restores the caller umask', async t => {
+linuxTest('daemon socket is private at bind time and restores the caller umask', async t => {
   const opts = setup(t), originalListen = net.Server.prototype.listen;
   const previousMask = process.umask(0o022);
   let boundMode;
@@ -113,7 +114,7 @@ test('daemon socket is private at bind time and restores the caller umask', asyn
   assert.equal((await inspectDaemon(opts)).daemonId, daemon.info.daemonId);
 });
 
-test('daemon handshake binds owner, daemon identity and protocol before exposing native calls', async t => {
+linuxTest('daemon handshake binds owner, daemon identity and protocol before exposing native calls', async t => {
   const opts = setup(t), host = hostFixture(), daemon = await startDaemon({ ...opts, hostFactory: () => host }); t.after(() => daemon.close());
   const info = await inspectDaemon(opts); assert.equal(info.daemonId, daemon.info.daemonId); assert.equal(info.uid, process.getuid());
   await assert.rejects(client(t, opts, { protocolVersion: 1 }), { code: 'PROTOCOL_MISMATCH' });
@@ -125,7 +126,7 @@ test('daemon handshake binds owner, daemon identity and protocol before exposing
   assert.equal(host.executions, 0);
 });
 
-test('one daemon per profile owns its socket and short paths safely support long user homes', async t => {
+linuxTest('one daemon per profile owns its socket and short paths safely support long user homes', async t => {
   const opts = setup(t, { stateDirectory: path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ab-long-')), 'a'.repeat(100), 'profile') });
   const host = hostFixture(), daemon = await startDaemon({ ...opts, hostFactory: () => host });
   t.after(async () => { await daemon.close(); fs.rmSync(path.dirname(path.dirname(opts.stateDirectory)), { recursive: true, force: true }); fs.rmSync(path.dirname(daemon.info.socketPath), { recursive: true, force: true }); });
@@ -134,7 +135,7 @@ test('one daemon per profile owns its socket and short paths safely support long
   assert.equal((await inspectDaemon(opts)).daemonId, daemon.info.daemonId);
 });
 
-test('ten same-ID requests invoke native submit once and changed content cannot reuse an ID', async t => {
+linuxTest('ten same-ID requests invoke native submit once and changed content cannot reuse an ID', async t => {
   const opts = setup(t), host = hostFixture(), daemon = await startDaemon({ ...opts, hostFactory: () => host }); t.after(() => daemon.close());
   const connection = await client(t, opts), params = { op: 'submit', requestId: 'single-submit', agentId: 'agent', message: '执行需求' };
   const results = await Promise.all(Array.from({ length: 10 }, () => connection.call('ipc', params)));
@@ -145,7 +146,7 @@ test('ten same-ID requests invoke native submit once and changed content cannot 
   assert.equal(host.executions, 1);
 });
 
-test('closing a relay preserves running tasks and reconnect continuation uses the original native session', async t => {
+linuxTest('closing a relay preserves running tasks and reconnect continuation uses the original native session', async t => {
   const opts = setup(t), host = hostFixture(), daemon = await startDaemon({ ...opts, hostFactory: () => host }); t.after(() => daemon.close());
   const input = new PassThrough(), output = new PassThrough(), frames = [], decoder = new FrameDecoder();
   decoder.on('error', () => {}); decoder.on('frame', f => frames.push(f)); output.on('data', b => decoder.push(b));
@@ -161,7 +162,7 @@ test('closing a relay preserves running tasks and reconnect continuation uses th
   assert.equal(continued.conversationId, original.conversationId); assert.equal(host.executions, 2);
 });
 
-test('restart keeps daemon ID and receipts; missing backend receipt remains unknown without replay', async t => {
+linuxTest('restart keeps daemon ID and receipts; missing backend receipt remains unknown without replay', async t => {
   const opts = setup(t), host = hostFixture(), first = await startDaemon({ ...opts, hostFactory: () => host });
   const connection = await client(t, opts), original = await connection.call('ipc', { op: 'submit', requestId: 'retained', message: 'start' });
   const daemonId = first.info.daemonId; connection.channel.close(); await first.close();
@@ -174,7 +175,7 @@ test('restart keeps daemon ID and receipts; missing backend receipt remains unkn
   assert.equal(host.executions, 1);
 });
 
-test('inspect never fences a live coordinator; new hello fences stale callbacks and event cursors survive restart', async t => {
+linuxTest('inspect never fences a live coordinator; new hello fences stale callbacks and event cursors survive restart', async t => {
   const opts = setup(t), host = hostFixture(), daemon = await startDaemon({ ...opts, hostFactory: () => host });
   const first = await client(t, opts), pending = host.callback({ nodeId: 'leader', parentRequestId: 'parent' }, 'list_agents', {}, 'native-call');
   const rejection = assert.rejects(pending, { code: 'COLLABORATION_OFFLINE' });
@@ -192,7 +193,7 @@ test('inspect never fences a live coordinator; new hello fences stale callbacks 
   assert.equal(history.items[0].name, 'task.changed'); assert.equal(restarted.emitEvent('task.changed', {}).cursor, event.cursor + 1);
 });
 
-test('production daemon loads built DesktopHost and real MachineHost without creating native tasks', { skip: !fs.existsSync(path.join(__dirname, '../../dist/desktop-host.js')) }, async t => {
+linuxTest('production daemon loads built DesktopHost and real MachineHost without creating native tasks', { skip: !fs.existsSync(path.join(__dirname, '../../dist/desktop-host.js')) }, async t => {
   const opts = setup(t), daemon = await startDaemon(opts); t.after(() => daemon.close());
   const connection = await client(t, opts, {}, 15000), environment = await connection.call('environment');
   assert.equal(environment.platform, 'linux'); assert.equal(environment.directory, opts.stateDirectory);
@@ -206,7 +207,7 @@ test('production daemon loads built DesktopHost and real MachineHost without cre
   }
 });
 
-test('uncertain cancellation recovery retains original task identity', async t => {
+linuxTest('uncertain cancellation recovery retains original task identity', async t => {
   const opts = setup(t), calls = [], host = { close() {}, async call(method, params) {
     calls.push({ method, params });
     if (params.op === 'cancel') throw failure('DESKTOP_TRANSPORT');
@@ -220,7 +221,7 @@ test('uncertain cancellation recovery retains original task identity', async t =
   assert.equal(calls.filter(call => call.params.op === 'cancel').length, 1);
 });
 
-test('blocked transport rejects excess queued bytes and daemon rejects request 65', async t => {
+linuxTest('blocked transport rejects excess queued bytes and daemon rejects request 65', async t => {
   const stream = new Duplex({ highWaterMark: 16, read() {}, write() {} }), channel = new FramedStream(stream, { maxQueueBytes: 100 });
   channel.on('error', () => {}); channel.send({ result: 'x'.repeat(40) });
   assert.throws(() => channel.send({ result: 'y'.repeat(40) }), { code: 'PROTOCOL_BACKPRESSURE' }); channel.close();
@@ -231,8 +232,10 @@ test('blocked transport rejects excess queued bytes and daemon rejects request 6
   resolves.forEach(resolve => resolve({ agents: { items: [] }, tasks: [], conversations: [] })); await Promise.all(requests);
 });
 
-test('real detached ensure calls reuse one verified daemon and it survives its bootstrap parent', { skip: !fs.existsSync(path.join(__dirname, '../../dist/desktop-host.js')) }, async t => {
-  const opts = setup(t), ensured = await Promise.all([ensureDaemon(opts), ensureDaemon(opts)]);
+linuxTest('real detached ensure calls reuse one verified daemon and it survives its bootstrap parent', { skip: !fs.existsSync(path.join(__dirname, '../../dist/desktop-host.js')) }, async t => {
+  // The source checkout can take over 10s to import from a Windows-mounted WSL
+  // filesystem. Bound this fixture explicitly; production defaults are unchanged.
+  const opts = setup(t, {startTimeoutMs:60000}), ensured = await Promise.all([ensureDaemon(opts), ensureDaemon(opts)]);
   assert.equal(ensured[0].daemonId, ensured[1].daemonId); assert.equal(ensured[0].pid, ensured[1].pid);
   const pid = ensured[0].pid;
   t.after(async () => {
@@ -247,7 +250,7 @@ test('real detached ensure calls reuse one verified daemon and it survives its b
   connection.channel.close(); await wait(25); assert.equal((await inspectDaemon(opts)).pid, pid);
 });
 
-test('native unhealthy is a stable pre-execution rejection; same ID and original query never execute again', async t => {
+linuxTest('native unhealthy is a stable pre-execution rejection; same ID and original query never execute again', async t => {
   const opts=setup(t);let submits=0;
   const host={close(){},async call(method,p){if(method==='ipc'&&p.op==='submit'){submits++;throw failure('AGENT_UNHEALTHY');}throw failure('NOT_FOUND');}};
   const first=await startDaemon({...opts,hostFactory:()=>host}),peer=await client(t,opts),params={op:'submit',requestId:'not-ready',agentId:'agent',message:'same message'};
@@ -260,7 +263,7 @@ test('native unhealthy is a stable pre-execution rejection; same ID and original
   assert.equal(submits,1);
 });
 
-test('original read reconciles only durable unhealthy rejection; missing native receipts remain unknown', async t => {
+linuxTest('original read reconciles only durable unhealthy rejection; missing native receipts remain unknown', async t => {
   const opts=setup(t);identity(opts);
   const rows=[{key:'old-unhealthy',method:'ipc',op:'submit',state:'unknown',error:{code:'AGENT_UNHEALTHY',message:'Agent is unhealthy'}},{key:'transport-unknown',method:'ipc',op:'submit',state:'unknown',error:{code:'DESKTOP_TRANSPORT',message:'reply lost'}}];
   fs.writeFileSync(path.join(opts.stateDirectory,'daemon-receipts.json'),JSON.stringify(rows),{mode:0o600});
@@ -274,7 +277,7 @@ test('original read reconciles only durable unhealthy rejection; missing native 
   assert.equal(queries,1);assert.equal(submits,0);
 });
 
-test('unknown native control receipt remains unknown through daemon restart; original query confirms it without another cancellation',async t=>{
+linuxTest('unknown native control receipt remains unknown through daemon restart; original query confirms it without another cancellation',async t=>{
  const opts=setup(t),calls=[];let confirmed=false;
  const host={close(){},setCollaboration(){},async call(method,p){calls.push(p?.op||method);if(method==='snapshot')return {agents:{items:[]},tasks:[],conversations:[]};if(p.op==='cancel'||p.op==='operation')return {operationId:p.operationId,taskId:'original-task',state:confirmed?'confirmed':'unknown'};throw failure('NOT_FOUND');}};
  let daemon=await startDaemon({...opts,hostFactory:()=>host});const first=await client(t,opts);
@@ -285,7 +288,7 @@ test('unknown native control receipt remains unknown through daemon restart; ori
  assert.equal((await second.call('daemon.quiesce',{operationId:'maintenance'})).quiescent,true);await assert.rejects(second.call('ipc',{op:'submit',requestId:'blocked',message:'blocked'}),{code:'DAEMON_MAINTENANCE'});assert.equal((await second.call('daemon.releaseMaintenance',{operationId:'maintenance'})).released,true);
 });
 
-test('permission and form lost acknowledgements query original receipts after restart and cannot read a foreign task operation',async t=>{
+linuxTest('permission and form lost acknowledgements query original receipts after restart and cannot read a foreign task operation',async t=>{
  const opts=setup(t),effects=new Map();let received=0;
  const host={close(){},setCollaboration(){},async call(method,p){if(p.op==='reply'){received++;const r={operationId:p.reply.operationId,taskId:p.taskId,state:'confirmed'};effects.set(r.operationId,r);throw failure('DESKTOP_TRANSPORT');}if(p.op==='operation'){if(!effects.has(p.operationId))throw failure('NOT_FOUND');return effects.get(p.operationId);}throw failure('ADAPTER_UNSUPPORTED');}};
  let daemon=await startDaemon({...opts,hostFactory:()=>host}),one=await client(t,opts);
@@ -295,14 +298,14 @@ test('permission and form lost acknowledgements query original receipts after re
  for(const action of ['permission','form'])assert.equal((await two.call('ipc',{op:'operation',operationId:'original-'+action,taskId:'owned-task'})).state,'confirmed');assert.equal(received,2);
  const journal=fs.readFileSync(path.join(opts.stateDirectory,'daemon-receipts.json'),'utf8');assert(!journal.includes('synthetic'));
 });
-test('foreign native control receipt IDs never confirm the original action and rejected original controls remain readable',async t=>{
+linuxTest('foreign native control receipt IDs never confirm the original action and rejected original controls remain readable',async t=>{
  const opts=setup(t);let effect=0,queryState='rejected';
  const host={close(){},async call(_m,p){if(p.op==='cancel'){effect++;return {operationId:'foreign',state:'confirmed'};}if(p.op==='operation')return {operationId:p.operationId,state:queryState,taskId:'owned'};throw failure('NOT_FOUND');}};
  const d=await startDaemon({...opts,hostFactory:()=>host});t.after(()=>d.close());const c=await client(t,opts);assert.equal((await c.call('ipc',{op:'cancel',taskId:'owned',operationId:'original'})).state,'unknown');
  assert.equal((await c.call('ipc',{op:'operation',taskId:'owned',operationId:'original'})).state,'rejected');assert.equal((await c.call('ipc',{op:'operation',taskId:'owned',operationId:'original'})).state,'rejected');assert.equal(effect,1);
 });
 
-test('authenticated daemon exposes MCP configuration methods and blocks configuration writes during maintenance',async t=>{
+linuxTest('authenticated daemon exposes MCP configuration methods and blocks configuration writes during maintenance',async t=>{
  const opts=setup(t),host=hostFixture(),original=host.call.bind(host),calls=[];
  host.call=async(method,params)=>{if(method.startsWith('mcp.')){calls.push(method);return {nodeId:params.nodeId,state:'absent'};}return original(method,params);};
  const daemon=await startDaemon({...opts,hostFactory:()=>host});t.after(()=>daemon.close());const connection=await client(t,opts);

@@ -1,5 +1,7 @@
 # M11 文档网页入口设计
 
+M11-F05/F06：Windows发布审计夹具以unlinkSync移除单文件、异步rm清理临时目录，逐项确认反例撤除后恢复19页通过；公开检查器、18页白名单、内部材料拒绝规则保持。Pi用户说明区分alpha.68目录前置检查与未发布事件一致性修复。[源码与证据](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
+
 M11-F01：Hermes用户页维护当前Linux/WSL安装与原生配置要求；内部原始证据/私有检查点及凭据不进入用户网站。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 M11-F01：Hermes用户页补Linux安装路径、独立源码根、最小PATH、原生Profile与取消边界；内部CI/证据与凭据不进入公开用户页面。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。

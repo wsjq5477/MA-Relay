@@ -1,5 +1,9 @@
 # M09 CLI、controller 与 Hub/Edge 测试报告
 
+T-M09-215 / M09-F05：2026-10-29，未发布源码、Windows Node24.12.0。新独立子进程ACK超时反例原0/1、修复后计入10/10故障/恢复专项；两运输、原seq连续补传、同原task.submit不再调用、SQLite单次执行和正常退出通过。Linux原自旋热点/准确停止与最终完整矩阵分别见[当次证据](../../iterations/I08/edge-outbox-reconnect.md)，不把本机受控测试当作真实原生/普通EXE验收。
+
+T-M09-214 / M09-F01/F03/F06：2026-10-29，10fdbb3派生未发布源码、Windows Node24.12.0。原安装CJS/MJS只读检查前0/2、后2/2，未调用模型；定向39项32通过/7明确平台跳过，原Windows全量53通过/18失败与中间66通过/1失败/11平台跳过均保留。最终全量及WSL快照结果按[当次记录](../../iterations/I08/core-windows-installation-checks.md)实际登记，不与旧基线相加、不冒充普通EXE或真实原生模型。
+
 2026-10-27 / alpha.66公开：Windows Node24.12.0受控定向39/39；独立Ubuntu Node24.12.0适配100/100、Core71/71；本机Ubuntu22.04/WSL使用包内Node22.23.1及冻结后台，对正式Hermes0.22.5完成发现和原生MCP五组/十工具，独立Ubuntu原生组件亦通过。普通EXE七组通过，均模型0。WSL直连TLS仍有问题，临时安装通道已停止；普通doctor90秒未完成，pm doctor退出0且所有已安装运行组件通过。真实Linux模型、SSH、冷启动与完整矩阵未准出。[本轮环境、原始失败与证据](../../iterations/I08/alpha66-hermes-linux.md)。
 
 2026-10-27 / alpha.65 / Windows Node24.12.0：共享Hermes定向31/31，扩展73项72通过/1个Pi原基线失败，不能跨模块相加。已安装Hermes0.22.5、冻结Windows后台原生MCP五组通过（模型0）；真实执行/续聊两轮通过，但首轮参数拒绝、早期心跳EPERM及验收器原生配置字节比较失败均保留。普通EXE/发布状态按[专项](../../iterations/I08/alpha65-hermes-windows.md)逐项登记，不把源码结果当作EXE/父模型准出。

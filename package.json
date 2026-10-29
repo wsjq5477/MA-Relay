@@ -23,6 +23,7 @@
     "acceptance:continuous": "npm run build && node --import tsx scripts/i03b-acceptance.ts",
     "contract:continuous": "node --import tsx scripts/opencode-i03b-contract.ts",
     "desktop:build": "npm run build && npm run build --prefix desktop",
+    "desktop:preview": "npm run desktop:build && node desktop/scripts/preview-ui.cjs",
     "desktop:pack": "npm run desktop:build && npm run pack:win --prefix desktop",
     "desktop:dist": "npm run desktop:build && npm run dist:win --prefix desktop",
     "acceptance:desktop": "node --import tsx scripts/i04-desktop-acceptance.ts",

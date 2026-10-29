@@ -23,10 +23,10 @@ let prompt = '';
 process.stdin.setEncoding('utf8'); process.stdin.on('data', part => prompt += part);
 process.stdin.on('end', async () => {
   fs.appendFileSync(calls, JSON.stringify({args,prompt,cwd:process.cwd()}) + '\\n');
-  let id = adapter + '-session';
+  let id = adapter + '-session', sessionCwd = process.cwd();
   if(adapter === 'pi') {
     const directory = args[args.indexOf('--session-dir') + 1]; fs.mkdirSync(directory, {recursive:true});
-    if(args.includes('--session')) id = JSON.parse(fs.readFileSync(args[args.indexOf('--session')+1], 'utf8').split('\\n')[0]).id;
+    if(args.includes('--session')) { const header = JSON.parse(fs.readFileSync(args[args.indexOf('--session')+1], 'utf8').split('\\n')[0]); id = header.id; sessionCwd = header.cwd; }
     else fs.writeFileSync(path.join(directory, 'session.jsonl'), JSON.stringify({type:'session', id, cwd:process.cwd()})+'\\n');
   } else if(adapter === 'hermes' && args.includes('--resume')) id = args[args.indexOf('--resume')+1];
   else if(adapter === 'dsh' && args.includes('--session-id')) id = args[args.indexOf('--session-id')+1];
@@ -34,7 +34,7 @@ process.stdin.on('end', async () => {
   if(prompt === 'blank-session') id = '   ';
   const emit = event => process.stdout.write(JSON.stringify(event) + '\\n');
   if(adapter === 'hermes') emit({type:'system',subtype:'init',session_id:id});
-  if(adapter === 'pi') emit({type:'session',version:3,id,cwd:process.cwd()});
+  if(adapter === 'pi') emit({type:'session',version:3,id,cwd:sessionCwd});
   if(adapter === 'dsh') emit({type:'session',sessionId:id,cwd:process.cwd()});
   if(prompt === 'oversized') { process.on('SIGTERM',()=>{}); process.stdout.write('x'.repeat(4*1024*1024+1)); setInterval(()=>{},1000); return; }
   if(prompt === 'wait' || prompt === 'ignore-term') { if(prompt==='ignore-term') process.on('SIGTERM',()=>{}); setInterval(()=>{},1000); return; }
@@ -173,6 +173,30 @@ test('Pi verifies the persisted session workspace before creating a continuation
   assert.equal((await reopened.call('ipc',params)).taskId,next.taskId);
   assert.equal(callLog(f).length,2);
 });
+test('Pi resumes an original session with an equivalent persisted directory alias across host restart', async t => {
+  const f = fixture(t, 'pi'), agent = await connected(f);
+  const first = await f.host.call('ipc', {op:'submit',agentId:agent.agentId,requestId:'original',message:'hello'});
+  assert.equal((await done(f.host,first.taskId)).status,'succeeded');
+  const alias = path.join(f.directory,'workspace-alias');
+  fs.symlinkSync(f.directory,alias,process.platform === 'win32' ? 'junction' : 'dir');
+  t.after(() => fs.promises.rm(alias,{force:true,recursive:true}));
+  const file = path.join(f.directory,'native-sessions','session.jsonl');
+  const header = JSON.parse(fs.readFileSync(file,'utf8').split('\n')[0]);
+  fs.writeFileSync(file,JSON.stringify({...header,cwd:alias})+'\n');
+  const originalFile = fs.readFileSync(file,'utf8');
+  assert.equal((await f.host.call('ipc',{op:'conversation',conversationId:first.conversationId})).canContinue,true);
+  f.host.close();
+  const reopened = new NativeCliHost({directory:f.directory,executable:f.executable,adapter:'pi'});t.after(()=>reopened.close());
+  const params = {op:'continue',conversationId:first.conversationId,requestId:'alias-next',message:'next'};
+  const next = await reopened.call('ipc',params), result = await done(reopened,next.taskId);
+  assert.equal(result.status,'succeeded'); assert.equal(result.native.sessionId,header.id);
+  assert.equal((await reopened.call('ipc',{op:'conversation',conversationId:first.conversationId})).canContinue,true);
+  assert.equal((await reopened.call('ipc',params)).taskId,next.taskId);
+  assert.equal((await reopened.call('ipc',{op:'request',requestId:'original'})).taskId,first.taskId);
+  assert.equal(fs.readFileSync(file,'utf8'),originalFile);
+  assert.equal(callLog(f).length,2);
+});
+
 test('missing original worker evidence stays unknown, occupied and read-only across restart', async t => {
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-native-unknown-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));
   const task={taskId:'original-task',executionId:'original-exec',requestId:'original',conversationId:'original-conversation',targetAgent:'pi-agent',status:'unknown',createdAt:'2000-01-01T00:00:00.000Z',updatedAt:'2000-01-01T00:00:00.000Z',lastSeq:1,events:[{seq:1,event:{kind:'accepted'}}],offset:0};

@@ -23,7 +23,7 @@ const hash = file => createHash('sha256').update(fs.readFileSync(file)).digest('
   assert.equal(candidates.length, 1, 'Require the exact original SessionManager export');
   const moduleFile = candidates[0], before = hash(moduleFile);
   const { SessionManager } = await import(pathToFileURL(moduleFile).href);
-  const { piSessionFile, argumentsFor, profiles } = require(path.join(bridge, 'desktop/electron/native-cli-protocols.cjs'));
+  const { piSessionFile, argumentsFor, profiles, createParser } = require(path.join(bridge, 'desktop/electron/native-cli-protocols.cjs'));
   const workspace = path.join(root, 'original'), foreign = path.join(root, 'foreign'), sessions = path.join(root, 'sessions');
   for (const directory of [workspace, foreign, sessions]) fs.mkdirSync(directory);
   const file = path.join(sessions, 'original.jsonl');
@@ -52,6 +52,25 @@ const hash = file => createHash('sha256').update(fs.readFileSync(file)).digest('
   assert.equal(manager.getCwd(), workspace);
   assert.equal(hash(moduleFile), before);
   report.checks.push('Restoring the original header and an equivalent directory spelling preserve the original session without replacement');
+  const alias = path.join(root, 'workspace-alias');
+  fs.symlinkSync(workspace, alias, process.platform === 'win32' ? 'junction' : 'dir');
+  write(alias); content = fs.readFileSync(file, 'utf8');
+  manager = SessionManager.open(file, sessions);
+  assert.equal(manager.getCwd(), alias);
+  assert.equal(manager.getSessionId(), header.id);
+  assert.equal(piSessionFile(sessions, header.id, workspace), file);
+  // Print mode emits SessionManager.getHeader() unchanged before prompting.
+  const nativeHeader = manager.getHeader(), events = [];
+  assert.equal(nativeHeader.cwd, alias);
+  const parser = createParser({adapter: 'pi', workspace, sessionId: header.id}, event => events.push(event));
+  parser.accept(nativeHeader);
+  parser.accept({type:'message_end',message:{role:'assistant',content:[{type:'text',text:'controlled terminal'}],stopReason:'stop'}});
+  parser.accept({type:'agent_end',willRetry:false});
+  assert.equal(parser.finish(0).succeeded, true);
+  assert.equal(events.some(event => event.kind === 'binding_error'), false);
+  assert.equal(fs.readFileSync(file, 'utf8'), content);
+  assert.equal(hash(moduleFile), before);
+  report.checks.push('The original native header preserves a directory alias; Bridge accepts that actual header using the same real-directory check as dispatch (terminal events controlled, no prompt)');
   report.nativeVersion = '1.4.0'; report.nativeModuleSha256 = before; report.nativeSourceUnchanged = true;
   report.status = 'passed';
 })().catch(error => {

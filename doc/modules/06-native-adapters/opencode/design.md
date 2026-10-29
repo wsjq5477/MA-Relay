@@ -1,5 +1,7 @@
 # OpenCode 适配器设计
 
+M06-OC-F01：独立MCP原生列表通过共享command沿选中JS/npm/原生入口启动，mcp/list与原配置继承不变；同步启动失败记探测error，不改serve/HTTP协议、Session或unknown。[本轮维护及验证](../../../iterations/I08/windows-regression-and-native-probes.md)。
+
 ## 接入启动失败的恢复
 
 M06-OC-F01：有界只读协议发现保持现有行为；历史接入意图保存完整原启动超时错误时，可在原来源/ID/指纹与原收据核对后结算本地接入失败。清理只解除该接入管理屏障，不停止原生进程、不删除上下文/原安装、不创建Session或重发Prompt；没有完整原错误证明的unknown继续保留。源码与本地alpha.61候选；[完整规则与验证](../../../iterations/I08/failed-operation-cleanup.md)。
@@ -42,7 +44,11 @@ M06-OC-F01：新接入与旧配置恢复都在启动 `serve` 前复验；原生 
 
 ## 独立 MCP 接入
 
-仅支持V2的mcp.servers.agentbridge、local command数组/environment/codemode=false；尊重OPENCODE_CONFIG_DIR/XDG目录，保留既有JSONC。独立导出agentbridge.opencode.jsonc。真实2.0.24添加、stdio连接、删除通过；原生常驻服务异步加载/删除，列表可能延后，必要时重启其后台。V1布局或双配置同名冲突拒绝。测试使用WSL隔离配置、无模型调用；Windows生产界面为受控机器，非该工具真实Windows/EXE/独立SSH验证。[完整流程、源码和证据](../../../iterations/I07/mcp-installation.md)。
+M06-OC-F01：Core兼容层的check和高级向导版本检查使用共享readOpenCodeVersion，沿选中安装解析启动。已选JS经Node、无shell/跨安装回退，不改原生配置、API或Session；该修复未进入alpha.68冻结包。[实现与验证](../../../iterations/I08/core-windows-installation-checks.md)。
+
+当前源码按原生版本选择V1的mcp.agentbridge或V2的mcp.servers.agentbridge；均使用local command数组/environment，codemode=false仅用于V2。尊重OPENCODE_CONFIG_DIR/XDG目录，保留既有JSONC；跨代同名条目或双配置同名冲突拒绝。独立导出agentbridge.opencode.jsonc。真实2.0.24添加、stdio连接、删除通过；原生常驻服务异步加载/删除，列表可能延后，必要时重启其后台。历史测试使用WSL隔离配置、无模型调用；不是当前Windows/EXE/独立SSH重验。[原流程与证据](../../../iterations/I07/mcp-installation.md)、[V1源码受控回归](../../../iterations/I08/windows-regression-and-native-probes.md)。
+
+M06-OC-F01：两代布局共用配置写入器；并发修改或原子替换失败后准确删除本次临时文件，保留原JSONC与无关文件。中文profile清理修复尚未进入alpha.68冻结包。[当前实现与验证](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
 
 Windows 启动 OpenCode serve、Core Controller 与显式版本检查时设置 windowsHide，避免后台控制台干扰桌面。安装发现改为首次使用或明确扫描，执行前仍核验原安装。[空闲黑窗专项](../../../iterations/I07/desktop-polling.md)。
 

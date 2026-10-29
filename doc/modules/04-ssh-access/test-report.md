@@ -1,5 +1,7 @@
 # M04 SSH 接入测试报告
 
+T-M04-213 / M04-F03/F08：2026-10-29，master10fdbb3及未发布工作树，Windows系统Node24.12.0。中文profile的原密文删除回归修复前0/2、最终2/2，并在Electron组件共享7/7与WSL共享151/151中通过；准确删除、替换/取消保存、缺失引用和非文件错误与机器编辑共享验证。合成加密输出，未读取用户凭据或重测真实DPAPI；本机Electron44.7.0/Node24.21.0对照未复现rmSync问题。[原始反例、最终结果与限制](../../iterations/I08/windows-regression-and-native-probes.md)。
+
 2026-10-25：冻结alpha.62对原真实SSH只读三组通过，认证/指纹、原37清单1459项、两次非接管检查及原PID/配置保持，模型0；完整故障/版本切换与普通EXE联合流程仍未准出。产品无变更，[当前证据](../../iterations/I08/alpha62-ssh-readonly.md)。
 
 2026-10-23，当前冻结alpha.56客户端已对原独立SSH服务器完成只读复验：实际daemon为alpha.37，原凭据/主机指纹认证、生产逐文件核验、两次非接管inspect通过；原daemon身份/PID、远端入口与本地连接配置保持，模型0。完整故障/升级矩阵与普通EXE联合流程仍未准出。[原始报告、脚本及来源](../../iterations/I08/current-ssh-readonly.md)。既有863/863为alpha.56交付证据，本轮不重复计数。

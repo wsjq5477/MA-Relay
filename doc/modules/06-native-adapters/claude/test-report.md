@@ -1,5 +1,11 @@
 # Claude Code 适配器测试报告
 
+T-M06-CC-214 / M06-CC-F01：2026-10-29，未发布源码；中文profile的添加/移除在并发修改及替换失败后原配置保持、准确临时文件消失。四项计入共享专项44/44与相关Windows117通过/1平台跳过，Electron44/44；不是本机真实Claude、模型或普通EXE验收。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
+
+T-M06-CC-213 / M06-CC-F01：2026-10-29，Windows Node24.12.0，未发布源码。Claude受控生命周期改用可跨平台CJS入口及worker专用preload，原续聊/权限/取消/重开断言保留；原生列表共享38/38覆盖原入口、启动失败与授权/工具事实分离。真实Claude安装/模型与新EXE未验，模型0。[分层日志及首次失败](../../../iterations/I08/windows-regression-and-native-probes.md)。
+
+T-M06-CC-12 / M06-CC-F01：2026-10-29，master10fdbb3及未发布工作树、Windows Node24.12.0，模型0。两个脚本入口反例修复前均失败；修复后与三条完整受控委派共5/5，失败/跳过0。实际Node进程验证JS/CJS/MJS的原参数和环境，npm发现返回的同一个cli.js可启动，原生程序/权限与Session契约保持。中间夹具EFTYPE保留；未验证用户Claude安装、真实模型、Linux或新EXE。[日志与限制](../../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
+
 2026-10-24，经典连接工具的允许项/托管指引进入900/900受控全量与最终25/25定向；没有运行真实claude模型或安装用户持久配置，不代表该原生客户端已实际消费10工具。 [本片契约与证据](../../../iterations/I07/connection-policy.md)。
 
 ## 普通子任务上下文输入
