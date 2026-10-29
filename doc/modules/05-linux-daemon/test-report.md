@@ -1,5 +1,10 @@
 # M05 Linux daemon 测试报告
 
+## 不受支持后台替换专项
+
+T-M05-154 / M05-F01/F02：2026-10-29，基线1b7da57后的未发布源码。Windows专项134项133通过/1平台跳过；管理台账61/61（部分共享）；WSL Ubuntu22.04 / Node22.23.1实际隔离daemon进程与替换/回归29/29，最终分离替换及进程存活保护6/6（共享用例不相加）。生产renderer合成RPC的确认/取消/原ID等待及1440/980宽度通过，非生产SSH或真实EXE。本轮模型0、真实profile写入0，未重打EXE，不刷新原完整矩阵。[命令、原失败及全部证据](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
+
+
 当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 2026-10-29验证范围更新：40项涉及Linux daemon/Unix socket/UID/原生helper的跨模块用例在Windows逐项明确跳过；可跨平台帧与SSH通道仍执行。首次WSL Node22.23.1共42项39通过/2失败/1超时取消，后续隔离首轮151项149通过/1失败/1取消；实测源码进程18.377秒就绪后仅调整测试等待预算，最终隔离151/151、跳过0，新增40个平台跳过逐项在本组通过。产品daemon默认10秒保持，不能据此准出冷启动性能。生产daemon协议/权限门禁未改、无远端部署、模型0。[全部失败及最终分层证据](../../iterations/I08/windows-regression-and-native-probes.md)。

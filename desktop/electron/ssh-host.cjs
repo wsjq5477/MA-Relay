@@ -327,7 +327,11 @@ class SshManager {
    * once on a fresh connection; nothing is resent or re-executed. */
   async maintenanceEntry(connection){
     const online=connection.stage==='online';
-    const preview=async()=>this.installer.maintenancePreview(await this.authenticate(connection));
+    const preview=async()=>{
+      const result=await this.installer.maintenancePreview(await this.authenticate(connection));
+      if(result.replacementRequired){delete connection.probe;this.state(connection,'disconnected',problem('SSH_DAEMON_UPGRADE_REQUIRED','远端后台版本不受当前客户端支持，可在后台维护中确认强制替换；尚未替换或启动。'));}
+      return result;
+    };
     try{return await preview();}
     catch(error){
       if(error?.code!=='SSH_EXEC_FAILED')throw error;
@@ -350,22 +354,24 @@ class SshManager {
     if(prior){if(prior.fingerprint!==fingerprint)throw problem('OPERATION_CONFLICT','原维护 ID 内容变化。');return this.publicOperation(prior);}
     const c=this.find(params);if(c.revision!==params.expectedRevision)throw problem('REVISION_CONFLICT','机器连接修订已变化。');
     if(this.jobs.has(c.connectionId)||c.maintenance?.state==='unknown')throw problem('MACHINE_BUSY','原机器维护/连接尚未完成。');
-    const config=params.config;if(!config||!['upgrade','rollback','stop','uninstall'].includes(config.action)||Object.keys(config).some(k=>!['action','previewId','expectedVersion','targetVersion','allowUnresolved'].includes(k)))throw problem('INVALID_INPUT','后台维护动作不合法。');
+    const config=params.config;if(!config||!['upgrade','rollback','stop','uninstall','replace'].includes(config.action)||Object.keys(config).some(k=>!['action','previewId','expectedVersion','targetVersion','allowUnresolved','confirmReplacement'].includes(k)))throw problem('INVALID_INPUT','后台维护动作不合法。');
+    if(config.action==='replace'&&(config.confirmReplacement!==true||config.allowUnresolved===true||!c.daemonId))throw problem('SSH_REPLACEMENT_CONFIRMATION_REQUIRED','强制替换须明确确认并保留原后台身份，不能越过未确认操作。');
     // Strict boolean only: the unresolved-receipt override can never be implied.
     const allowUnresolvedReceipts=config.allowUnresolved===true;
     return this.serial(c,'maintenance',async()=>{
       const probe=await this.maintenanceEntry(c);
+      if(!!probe.replacementRequired!==(config.action==='replace'))throw problem('SSH_REPLACEMENT_CONFIRMATION_REQUIRED','未登记版本只能通过明确确认的强制替换更新；请重新检查维护摘要。');
       if(config.previewId!==probe.previewId||config.expectedVersion!==probe.daemonVersion)throw problem('INSTALL_PREVIEW_CHANGED','维护摘要已变化，请重新检查。');
-      const targetVersion=config.action==='upgrade'?probe.targetVersion:config.action==='rollback'?probe.rollbackVersion:undefined;
-      if(['upgrade','rollback'].includes(config.action)&&(!targetVersion||config.targetVersion!==targetVersion))throw problem('INSTALL_PREVIEW_CHANGED','目标版本不符合当前可信摘要。');
+      const targetVersion=['upgrade','replace'].includes(config.action)?probe.targetVersion:config.action==='rollback'?probe.rollbackVersion:undefined;
+      if(['upgrade','rollback','replace'].includes(config.action)&&(!targetVersion||config.targetVersion!==targetVersion))throw problem('INSTALL_PREVIEW_CHANGED','目标版本不符合当前可信摘要。');
       c.autoReconnect=false;clearTimeout(this.reconnectTimers.get(c.connectionId));this.reconnectTimers.delete(c.connectionId);delete c.progressNotice;delete c.progressWarning;try{this.save();}catch(error){throw this.persistenceFailure(error,c,'preparing');}
       const client=await this.authenticate(c);
       const staged=await this.installer.stageMaintenance(client,probe,params.operationId,progress=>this.progress(c,progress));
       if(staged.progressWarning)c.progressWarning ||= staged.progressWarning;
       // Verify the current file tree once for this input; compatibility release()
       // still reads and authenticates each pinned manifest against that tree.
-      const bundle=this.installer.bundle(),from=this.installer.release(probe.daemonVersion,bundle),target=targetVersion?this.installer.release(targetVersion,bundle):null;
-      const input={action:config.action,operationId:params.operationId,home:probe.home,installPath:probe.installPath,stateDirectory:probe.stateDirectory,ownerCoordinatorId:this.options.coordinatorId,profileId:probe.profileId,daemonId:c.daemonId,uid:probe.uid,allowUnresolvedReceipts,from:{version:from.manifest.version,digest:from.digest,manifest:from.manifest},target:target?{version:target.manifest.version,digest:target.digest,manifest:target.manifest}:null,controller:staged.release,releases:[staged.release,...(bundle.manifest.compatibleDaemons||[]).map(pin=>{const r=this.installer.release(pin.version,bundle);return {version:r.manifest.version,digest:r.digest,manifest:r.manifest};})]};
+      const bundle=this.installer.bundle(),from=config.action==='replace'?{manifest:{version:probe.daemonVersion},digest:probe.manifestDigest}:this.installer.release(probe.daemonVersion,bundle),target=targetVersion?this.installer.release(targetVersion,bundle):null;
+      const input={action:config.action,operationId:params.operationId,home:probe.home,installPath:probe.installPath,stateDirectory:probe.stateDirectory,ownerCoordinatorId:this.options.coordinatorId,profileId:probe.profileId,daemonId:c.daemonId,uid:probe.uid,allowUnresolvedReceipts,...(config.action==='replace'?{confirmReplacement:true}:{}),from:{version:from.manifest.version,digest:from.digest,manifest:from.manifest},target:target?{version:target.manifest.version,digest:target.digest,manifest:target.manifest}:null,controller:staged.release,releases:[staged.release,...(bundle.manifest.compatibleDaemons||[]).map(pin=>{const r=this.installer.release(pin.version,bundle);return {version:r.manifest.version,digest:r.digest,manifest:r.manifest};})]};
       const row={operationId:params.operationId,state:'unknown',remoteLaunched:false,fingerprint,remoteInput:input,controller:staged.directory,data:{action:'maintainDaemon',remoteAction:config.action,machineId:c.machineId,connectionId:c.connectionId,revision:c.revision+1}};
       // Progress is optional, but both catalogs and the original intent must be
       // durable before any maintenance input can reach the remote controller.

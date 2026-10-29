@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: explicit replacement of an unlisted source uses only verified target code and preserves original identity, history and source directory
+ok 1 - explicit replacement of an unlisted source uses only verified target code and preserves original identity, history and source directory
+  ---
+  duration_ms: 8573.969324
+  type: 'test'
+  ...
+# Subtest: replacement requires strict consent and cannot bypass active tasks or unresolved receipts
+ok 2 - replacement requires strict consent and cannot bypass active tasks or unresolved receipts
+  ---
+  duration_ms: 1227.524504
+  type: 'test'
+  ...
+# Subtest: failed replacement remains unknown and original recovery completes verified target instead of executing unlisted rollback code
+ok 3 - failed replacement remains unknown and original recovery completes verified target instead of executing unlisted rollback code
+  ---
+  duration_ms: 2092.75642
+  type: 'test'
+  ...
+# Subtest: changed source ownership/current or damaged target rejects replacement before stopping original daemon
+ok 4 - changed source ownership/current or damaged target rejects replacement before stopping original daemon
+  ---
+  duration_ms: 1122.556779
+  type: 'test'
+  ...
+# Subtest: replacement preserves unresolved receipts byte for byte and refuses to stop their original daemon
+ok 5 - replacement preserves unresolved receipts byte for byte and refuses to stop their original daemon
+  ---
+  duration_ms: 1175.925892
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14561.635426

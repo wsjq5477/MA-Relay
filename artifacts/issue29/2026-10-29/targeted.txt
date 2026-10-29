@@ -1,0 +1,274 @@
+TAP version 13
+# Subtest: a newer client reuses its pinned compatible daemon without upload, activation or remote state writes
+ok 1 - a newer client reuses its pinned compatible daemon without upload, activation or remote state writes
+  ---
+  duration_ms: 46.1392
+  type: 'test'
+  ...
+# Subtest: 33 individually pinned releases still verify and reuse the original daemon without mutations
+ok 2 - 33 individually pinned releases still verify and reuse the original daemon without mutations
+  ---
+  duration_ms: 172.691
+  type: 'test'
+  ...
+# Subtest: the compatibility index remains bounded and rejects 129 entries before any remote command
+ok 3 - the compatibility index remains bounded and rejects 129 entries before any remote command
+  ---
+  duration_ms: 355.6945
+  type: 'test'
+  ...
+# Subtest: the full 128-entry bound accepts every individually hashed pin including its last entry
+ok 4 - the full 128-entry bound accepts every individually hashed pin including its last entry
+  ---
+  duration_ms: 465.2866
+  type: 'test'
+  ...
+# Subtest: same protocol alone never authorizes unknown versions, changed digests or directory aliases
+ok 5 - same protocol alone never authorizes unknown versions, changed digests or directory aliases
+  ---
+  duration_ms: 25.7151
+  type: 'test'
+  ...
+# Subtest: compatible reuse refuses changed installation, foreign ownership and symbolic parents before execution
+ok 6 - compatible reuse refuses changed installation, foreign ownership and symbolic parents before execution
+  ---
+  duration_ms: 31.1548
+  type: 'test'
+  ...
+# Subtest: tampered local pins and failed remote file verification reject reuse without mutations
+ok 7 - tampered local pins and failed remote file verification reject reuse without mutations
+  ---
+  duration_ms: 26.5773
+  type: 'test'
+  ...
+# Subtest: maintenance preview reads probe markers and previous version over one shared SFTP session
+ok 8 - maintenance preview reads probe markers and previous version over one shared SFTP session
+  ---
+  duration_ms: 23.489
+  type: 'test'
+  ...
+# Subtest: remoteExec reports the channel rejection reason and the remote exit code
+ok 9 - remoteExec reports the channel rejection reason and the remote exit code
+  ---
+  duration_ms: 1.3292
+  type: 'test'
+  ...
+# Subtest: maintenance query preserves the original intent while sending only the required catalogue
+ok 10 - maintenance query preserves the original intent while sending only the required catalogue
+  ---
+  duration_ms: 671.0783
+  type: 'test'
+  ...
+# Subtest: maintenance upgrade preserves the original intent while sending only the required catalogue
+ok 11 - maintenance upgrade preserves the original intent while sending only the required catalogue
+  ---
+  duration_ms: 662.2191
+  type: 'test'
+  ...
+# Subtest: a verified maintenance bundle still rejects a compatibility manifest changed before input construction
+ok 12 - a verified maintenance bundle still rejects a compatibility manifest changed before input construction
+  ---
+  duration_ms: 17.4185
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.24 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 13 - frozen 0.6.0-alpha.24 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 129.855
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.25 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 14 - frozen 0.6.0-alpha.25 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 118.5668
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.26 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 15 - frozen 0.6.0-alpha.26 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 126.3541
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.27 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 16 - frozen 0.6.0-alpha.27 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 122.8533
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.29 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 17 - frozen 0.6.0-alpha.29 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 143.4022
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.30 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 18 - frozen 0.6.0-alpha.30 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 114.6007
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.31 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 19 - frozen 0.6.0-alpha.31 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 118.8622
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.32 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 20 - frozen 0.6.0-alpha.32 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 132.3677
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.46 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 21 - frozen 0.6.0-alpha.46 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 143.7098
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.51.recovery.2 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 22 - frozen 0.6.0-alpha.51.recovery.2 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 141.1932
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.52 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 23 - frozen 0.6.0-alpha.52 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 142.3457
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.53 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 24 - frozen 0.6.0-alpha.53 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 139.2247
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.54 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 25 - frozen 0.6.0-alpha.54 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 138.324
+  type: 'test'
+  ...
+# Subtest: frozen 0.6.0-alpha.55 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+ok 26 - frozen 0.6.0-alpha.55 reconnects and previews upgrade using its exact frozen manifest without replacing the daemon
+  ---
+  duration_ms: 139.2951
+  type: 'test'
+  ...
+# Subtest: current SSH transitions revoke stale probe/offline errors and version errors win for both machines and nodes
+ok 27 - current SSH transitions revoke stale probe/offline errors and version errors win for both machines and nodes
+  ---
+  duration_ms: 3.6035
+  type: 'test'
+  ...
+# Subtest: failed current probe clears cached success, version refusal halts auto-retry, and explicit reconnect re-probes
+ok 28 - failed current probe clears cached success, version refusal halts auto-retry, and explicit reconnect re-probes
+  ---
+  duration_ms: 119.476
+  type: 'test'
+  ...
+# Subtest: SSH recovery clears persisted version errors without losing identity, nodes or history; a new failure remains visible
+ok 29 - SSH recovery clears persisted version errors without losing identity, nodes or history; a new failure remains visible
+  ---
+  duration_ms: 89.3331
+  type: 'test'
+  ...
+# Subtest: an authoritative SSH snapshot revokes stale errors but cannot make a failed RPC online
+ok 30 - an authoritative SSH snapshot revokes stale errors but cannot make a failed RPC online
+  ---
+  duration_ms: 0.6519
+  type: 'test'
+  ...
+# Subtest: old coordinator SSH snapshots and mutations require explicit backend upgrade before dispatch
+ok 31 - old coordinator SSH snapshots and mutations require explicit backend upgrade before dispatch
+  ---
+  duration_ms: 27.1016
+  type: 'test'
+  ...
+# Subtest: actual Coordinator snapshot projects current SSH phase and refusal over an offline cached business snapshot
+ok 32 - actual Coordinator snapshot projects current SSH phase and refusal over an offline cached business snapshot
+  ---
+  duration_ms: 452.2605
+  type: 'test'
+  ...
+# Subtest: unlisted suffix stays refused for normal connection but has a read-only replacement preview independent of old manifest pins
+not ok 33 - unlisted suffix stays refused for normal connection but has a read-only replacement preview independent of old manifest pins
+  ---
+  duration_ms: 43.1914
+  type: 'test'
+  location: 'D:\\LLM\\MA-Relay\\desktop\\tests\\ssh-unsupported-replacement.test.cjs:22:1'
+  failureType: 'testCodeFailure'
+  error: '远端安装标记文件类型或大小不正确。'
+  code: 'REMOTE_DIRECTORY_UNSAFE'
+  stack: |-
+    problem (D:\LLM\MA-Relay\desktop\electron\ssh-known-hosts.cjs:6:65)
+    readJson (D:\LLM\MA-Relay\desktop\electron\ssh-install.cjs:104:77)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async SshInstaller.maintenancePreview (D:\LLM\MA-Relay\desktop\electron\ssh-install.cjs:330:16)
+    async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-unsupported-replacement.test.cjs:25:10)
+    async Test.run (node:internal/test_runner/test:1113:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+  ...
+# Subtest: replacement preview checks original ownership, digest, current path and symlink parents without executing unlisted code
+not ok 34 - replacement preview checks original ownership, digest, current path and symlink parents without executing unlisted code
+  ---
+  duration_ms: 39.3848
+  type: 'test'
+  location: 'D:\\LLM\\MA-Relay\\desktop\\tests\\ssh-unsupported-replacement.test.cjs:31:1'
+  failureType: 'testCodeFailure'
+  error: '远端安装标记文件类型或大小不正确。'
+  code: 'REMOTE_DIRECTORY_UNSAFE'
+  stack: |-
+    problem (D:\LLM\MA-Relay\desktop\electron\ssh-known-hosts.cjs:6:65)
+    readJson (D:\LLM\MA-Relay\desktop\electron\ssh-install.cjs:104:77)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async SshInstaller.maintenancePreview (D:\LLM\MA-Relay\desktop\electron\ssh-install.cjs:330:16)
+    async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-unsupported-replacement.test.cjs:43:14)
+    async Test.run (node:internal/test_runner/test:1113:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: an untrusted previous version does not prevent the explicit replacement route
+ok 35 - an untrusted previous version does not prevent the explicit replacement route
+  ---
+  duration_ms: 19.4104
+  type: 'test'
+  ...
+# Subtest: replacement confirmation, target CAS and original unknown intent survive manager restart without retransmission
+not ok 36 - replacement confirmation, target CAS and original unknown intent survive manager restart without retransmission
+  ---
+  duration_ms: 17.5742
+  type: 'test'
+  location: 'D:\\LLM\\MA-Relay\\desktop\\tests\\ssh-unsupported-replacement.test.cjs:51:1'
+  failureType: 'testCodeFailure'
+  error: '远端安装标记文件类型或大小不正确。'
+  code: 'REMOTE_DIRECTORY_UNSAFE'
+  stack: |-
+    problem (D:\LLM\MA-Relay\desktop\electron\ssh-known-hosts.cjs:6:65)
+    readJson (D:\LLM\MA-Relay\desktop\electron\ssh-install.cjs:104:77)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async SshInstaller.maintenancePreview (D:\LLM\MA-Relay\desktop\electron\ssh-install.cjs:330:16)
+    async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-unsupported-replacement.test.cjs:54:10)
+    async Test.run (node:internal/test_runner/test:1113:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: old central backends get an explicit replacement capability error before dispatch
+ok 37 - old central backends get an explicit replacement capability error before dispatch
+  ---
+  duration_ms: 103.1949
+  type: 'test'
+  ...
+# Subtest: real loopback SSH authentication and production probe reject an unlisted daemon without stale evidence or remote writes
+ok 38 - real loopback SSH authentication and production probe reject an unlisted daemon without stale evidence or remote writes
+  ---
+  duration_ms: 380.4958
+  type: 'test'
+  ...
+1..38
+# tests 38
+# suites 0
+# pass 35
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4719.8122

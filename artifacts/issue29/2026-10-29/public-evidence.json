@@ -1,0 +1,30 @@
+{
+  "files": [
+    "artifacts/issue29/2026-10-29/baseline-replacement.txt",
+    "artifacts/issue29/2026-10-29/targeted.txt",
+    "artifacts/issue29/2026-10-29/targeted-final.txt",
+    "artifacts/issue29/2026-10-29/replacement-final.txt",
+    "artifacts/issue29/2026-10-29/regression-complete.txt",
+    "artifacts/issue29/2026-10-29/management.txt",
+    "artifacts/issue29/2026-10-29/linux-maintenance.txt",
+    "artifacts/issue29/2026-10-29/linux-final.txt",
+    "artifacts/issue29/2026-10-29/linux-detached-replacement.txt",
+    "artifacts/issue29/2026-10-29/build-complete.txt",
+    "artifacts/issue29/2026-10-29/typecheck.txt",
+    "artifacts/issue29/2026-10-29/lint.txt",
+    "artifacts/issue29/2026-10-29/syntax.json",
+    "artifacts/issue29/2026-10-29/docs-delta.json",
+    "artifacts/issue29/2026-10-29/docs-test.txt",
+    "artifacts/issue29/2026-10-29/design-check.json",
+    "artifacts/issue29/2026-10-29/ui-check.cjs",
+    "artifacts/issue29/2026-10-29/ui-final.txt",
+    "artifacts/issue29/2026-10-29/ui-first-selector.txt",
+    "artifacts/issue29/2026-10-29/ui-repeat-preserved-intent.txt",
+    "artifacts/issue29/2026-10-29/replacement-confirm-1440.png",
+    "artifacts/issue29/2026-10-29/replacement-confirm-980.png",
+    "artifacts/issue29/2026-10-29/linux-detached-replacement-final.txt"
+  ],
+  "credentialPatternFlags": [],
+  "containsProfiles": false,
+  "containsCredentials": false
+}

@@ -1,5 +1,10 @@
 # M02 中央协调后台设计
 
+## 不受支持后台的明确确认替换
+
+M02-F03/F05：中央允许明确replace维护在机器版本拒绝离线时进入，继续核对来源机器、原图台账和任务/Agent阻塞；其他离线写入仍拒绝。新增中央能力ssh-daemon-replacement-v1，旧中央在新预览或replace派发前给出定向升级错误。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
+
+
 当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 

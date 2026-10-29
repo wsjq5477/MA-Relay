@@ -410,3 +410,7 @@ pending.json 的原格式和状态不变；本地 pending IPC 的每条记录可
 关系冲突恢复仅在连续唯一原收据证明终点后更新 selected 行及 envelope；追加 relationRecoveryOperations，字段为 operationId/state/sourceDigest/backup/backupDigest，原 ID 与源摘要绑定。备份保留逐字节原文件，原收据及其他业务数据不改。[完整规则](iterations/I08/relation-conflict-diagnostic.md)。
 
 当前源码新增只读节点投影 connectionState/errorCode，供SSH阶段及版本拒绝展示；不写入原节点身份或任务历史。probe仍为内存观察，失败即移除。原图unknown与原管理收据保持原值，恢复只读核对准确原确认。[字段与恢复规则](iterations/I08/issues27-28-current-state.md)。
+
+## 明确确认替换的数据边界
+
+维护预览可返回replacementRequired:true及replacementTargetDigest；两者和原版本/摘要纳入previewId，不写入原节点或任务。原维护config新增action:replace、confirmReplacement:true；原remoteInput保存该确认及from版本/摘要，from不附未经信任的完整manifest；target/controller仍保存可信manifest。替换维护收据持久sourceProcess原PID/起始时间，便于崩溃后独立证明原进程结束；远端原维护收据新增DAEMON_REPLACEMENT_UNCONFIRMED，停机后未健康则保持unknown，查询不换ID。旧来源目录及previous标记保留但不据此自动执行。没有机器/任务/凭据或协议迁移。[实现与证据](iterations/I08/issue29-explicit-daemon-replacement.md)。

@@ -1,0 +1,9 @@
+### Error
+Error: locator.click: Error: strict mode violation: locator('section.inventory-machine').filter({ hasText: 'Synthetic replacement target' }).locator('summary') resolved to 3 elements:
+    1) <summary aria-label="Synthetic replacement target 的更多操作">…</summary> aka getByLabel('Synthetic replacement target 的更多操作')
+    2) <summary>安装位置</summary> aka getByRole('region', { name: 'Synthetic replacement target' }).getByText('安装位置')
+    3) <summary aria-label="Synthetic replacement target / OpenCode 的更多操作">…</summary> aka getByLabel('Synthetic replacement target / OpenCode 的更多操作')
+
+Call log:
+[2m  - waiting for locator('section.inventory-machine').filter({ hasText: 'Synthetic replacement target' }).locator('summary')[22m
+

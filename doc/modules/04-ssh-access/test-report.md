@@ -1,5 +1,10 @@
 # M04 SSH 接入测试报告
 
+## 不受支持后台替换专项
+
+T-M04-214 / M04-F04/F05/F06：2026-10-29，基线1b7da57后的未发布源码。Windows专项134项133通过/1平台跳过；管理台账61/61（部分共享）；WSL Ubuntu22.04 / Node22.23.1实际隔离daemon进程与替换/回归29/29，最终分离替换及进程存活保护6/6（共享用例不相加）。生产renderer合成RPC的确认/取消/原ID等待及1440/980宽度通过，非生产SSH或真实EXE。本轮模型0、真实profile写入0，未重打EXE，不刷新原完整矩阵。[命令、原失败及全部证据](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
+
+
 当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。
 
 T-M04-213 / M04-F03/F08：2026-10-29，master10fdbb3及未发布工作树，Windows系统Node24.12.0。中文profile的原密文删除回归修复前0/2、最终2/2，并在Electron组件共享7/7与WSL共享151/151中通过；准确删除、替换/取消保存、缺失引用和非文件错误与机器编辑共享验证。合成加密输出，未读取用户凭据或重测真实DPAPI；本机Electron44.7.0/Node24.21.0对照未复现rmSync问题。[原始反例、最终结果与限制](../../iterations/I08/windows-regression-and-native-probes.md)。

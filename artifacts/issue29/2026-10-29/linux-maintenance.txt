@@ -1,0 +1,160 @@
+TAP version 13
+# Subtest: actual maintenance CLI reads the complete large catalogue and queries the original unknown without another action
+ok 1 - actual maintenance CLI reads the complete large catalogue and queries the original unknown without another action
+  ---
+  duration_ms: 7212.246378
+  type: 'test'
+  ...
+# Subtest: real daemon version switch and rollback preserve identity/history, restart healthy, and original receipts never perform another switch
+ok 2 - real daemon version switch and rollback preserve identity/history, restart healthy, and original receipts never perform another switch
+  ---
+  duration_ms: 3767.007257
+  type: 'test'
+  ...
+# Subtest: explicit replacement of an unlisted source uses only verified target code and preserves original identity, history and source directory
+ok 3 - explicit replacement of an unlisted source uses only verified target code and preserves original identity, history and source directory
+  ---
+  duration_ms: 2483.19051
+  type: 'test'
+  ...
+# Subtest: replacement requires strict consent and cannot bypass active tasks or unresolved receipts
+ok 4 - replacement requires strict consent and cannot bypass active tasks or unresolved receipts
+  ---
+  duration_ms: 1400.205016
+  type: 'test'
+  ...
+# Subtest: failed replacement remains unknown and original recovery completes verified target instead of executing unlisted rollback code
+not ok 5 - failed replacement remains unknown and original recovery completes verified target instead of executing unlisted rollback code
+  ---
+  duration_ms: 1910.650657
+  type: 'test'
+  location: '/mnt/d/LLM/MA-Relay/desktop/tests/platform-test.cjs:5:10'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"operationId":"original","state":"unknown","fingerprint":"48889b38c2ba6b17c3cd17b4fef248c7b3f12ba64cb779a9d05ea63a48610c86","phase":"activated","updatedAt":"2026-10-29T12:09:35.698Z","data":{"action":"replace","rolledBack":false,"stopped":true,"phase":"activated","version":"0.6.0-test-old","historyPreserved":true},"error":{"code":"DAEMON_REPLACEMENT_UNCONFIRMED","message":"配套后台替换尚未确认，请查询原操作；原目录与历史保留，不自动执行未校验的旧版本。"}}
+    + actual - expected
+    
+    + 'unknown'
+    - 'confirmed'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'confirmed'
+  actual: 'unknown'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/mnt/d/LLM/MA-Relay/desktop/tests/daemon-maintenance.test.cjs:62:58)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: changed source ownership/current or damaged target rejects replacement before stopping original daemon
+ok 6 - changed source ownership/current or damaged target rejects replacement before stopping original daemon
+  ---
+  duration_ms: 1027.605977
+  type: 'test'
+  ...
+# Subtest: failed new health rolls back the exact old version without losing daemon identity or native history
+ok 7 - failed new health rolls back the exact old version without losing daemon identity or native history
+  ---
+  duration_ms: 1960.671755
+  type: 'test'
+  ...
+# Subtest: busy, waiting, unknown and original unresolved receipts refuse version switch before stopping; damaged files refuse execution
+ok 8 - busy, waiting, unknown and original unresolved receipts refuse version switch before stopping; damaged files refuse execution
+  ---
+  duration_ms: 1546.327765
+  type: 'test'
+  ...
+# Subtest: owned stop checks a kernel process handle and original start time; another live process is never signalled
+ok 9 - owned stop checks a kernel process handle and original start time; another live process is never signalled
+  ---
+  duration_ms: 1068.374864
+  type: 'test'
+  ...
+# Subtest: stop and uninstall preserve state/history; uninstall queries still find the original receipt after installation removal
+ok 10 - stop and uninstall preserve state/history; uninstall queries still find the original receipt after installation removal
+  ---
+  duration_ms: 2362.367144
+  type: 'test'
+  ...
+# Subtest: crash after activation reconciles by original maintenance record and rolls back without native replay
+ok 11 - crash after activation reconciles by original maintenance record and rolls back without native replay
+  ---
+  duration_ms: 1869.615585
+  type: 'test'
+  ...
+# Subtest: ten original maintenance launches have one durable worker and receipt; repeated queries never repeat the switch
+ok 12 - ten original maintenance launches have one durable worker and receipt; repeated queries never repeat the switch
+  ---
+  duration_ms: 3620.821839
+  type: 'test'
+  ...
+# Subtest: a remote daemon released before the maintenance protocol still upgrades, keeps identity/history, and the receipt reports it was stopped
+ok 13 - a remote daemon released before the maintenance protocol still upgrades, keeps identity/history, and the receipt reports it was stopped
+  ---
+  duration_ms: 2072.989356
+  type: 'test'
+  ...
+# Subtest: a query reconciles an unknown row whose worker record is missing or dead, but honours a fresh-launch grace period
+ok 14 - a query reconciles an unknown row whose worker record is missing or dead, but honours a fresh-launch grace period
+  ---
+  duration_ms: 3347.391836
+  type: 'test'
+  ...
+# Subtest: a barrier left by an already terminal operation never wedges a later maintenance
+ok 15 - a barrier left by an already terminal operation never wedges a later maintenance
+  ---
+  duration_ms: 1978.130049
+  type: 'test'
+  ...
+# Subtest: a live daemon holding a barrier from an already terminal operation releases it for the next maintenance
+ok 16 - a live daemon holding a barrier from an already terminal operation releases it for the next maintenance
+  ---
+  duration_ms: 2794.034623
+  type: 'test'
+  ...
+# Subtest: an interrupted switch after the stop keeps the receipt unknown so the original-ID query restores the running daemon
+ok 17 - an interrupted switch after the stop keeps the receipt unknown so the original-ID query restores the running daemon
+  ---
+  duration_ms: 2097.201994
+  type: 'test'
+  ...
+# Subtest: socket reset during shutdown waits for original process exit; an offline socket alone never confirms stop
+ok 18 - socket reset during shutdown waits for original process exit; an offline socket alone never confirms stop
+  ---
+  duration_ms: 403.129299
+  type: 'test'
+  ...
+# Subtest: an unconfirmed receipt refuses the maintenance before anything is stopped and names the gate and receipt
+ok 19 - an unconfirmed receipt refuses the maintenance before anything is stopped and names the gate and receipt
+  ---
+  duration_ms: 1122.658297
+  type: 'test'
+  ...
+# Subtest: an explicitly confirmed unresolved receipt upgrades while the original unknown receipt stays durable
+ok 20 - an explicitly confirmed unresolved receipt upgrades while the original unknown receipt stays durable
+  ---
+  duration_ms: 2494.66021
+  type: 'test'
+  ...
+# Subtest: a non-terminal task or Agent is never overridden even when the receipt override is requested
+ok 21 - a non-terminal task or Agent is never overridden even when the receipt override is requested
+  ---
+  duration_ms: 1034.464012
+  type: 'test'
+  ...
+# Subtest: a maintenance record lock released between exclusive-create and owner-read is retried without replay
+ok 22 - a maintenance record lock released between exclusive-create and owner-read is retried without replay
+  ---
+  duration_ms: 994.784708
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 21
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 49017.418415

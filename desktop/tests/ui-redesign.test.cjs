@@ -810,6 +810,14 @@ test('scoped node or machine unknown blocks only the target machine maintenance 
  const button=buttonNamed(denied,'后台维护');assert.equal(button.disabled,true);assert.match(button.attributes,/title="原后台维护操作待核对/);
  const busy=render(MachineInventory,inventoryProps({machines:[remote],nodes:[node({machineId:'remote',busy:true})],managementReason:()=>''}));assert.equal(buttonNamed(busy,'后台维护').disabled,true);
 });
+
+test('a version-refused offline SSH machine can open maintenance while unknown work and other offline errors still block',()=>{
+ const remote=machine({machineId:'remote',online:false,connectionId:'synthetic-ssh',connectionState:'disconnected',connectionError:{code:'SSH_DAEMON_UPGRADE_REQUIRED',message:'unsupported'}});
+ const props=inventoryProps({machines:[remote],nodes:[],managementReason:()=>''});
+ assert.equal(buttonNamed(render(MachineInventory,props),'后台维护').disabled,false);
+ assert.equal(buttonNamed(render(MachineInventory,{...props,blocked:()=>true}),'后台维护').disabled,true);
+ assert.equal(buttonNamed(render(MachineInventory,{...props,machines:[{...remote,connectionError:{code:'SSH_AUTH_FAILED',message:'authentication'}}]}),'后台维护').disabled,true);
+});
 test('incompatible OpenCode never appears connected or executable; safe history management remains',()=>{
  const n=node({adapter:'opencode',name:'Old OpenCode',version:'1.2.22',status:'version_incompatible',connected:false,executionSupported:false,available:false});
  const html=render(MachineInventory,inventoryProps({nodes:[n]})),article=nodeArticle(html,n.name);

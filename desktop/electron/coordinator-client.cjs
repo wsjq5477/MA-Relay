@@ -65,6 +65,8 @@ class CoordinatorClient {
   }
   async request(method,params) {
     await this.open();
+    if(method==='call'&&(params?.method==='machine.daemonPreview'||params?.method==='machine.maintainDaemon'&&params.params?.config?.action==='replace')&&!this.info?.capabilities?.includes('ssh-daemon-replacement-v1'))
+      throw Object.assign(Error('当前中央后台尚不支持强制替换未登记版本。请在设置中停止后台并退出，再打开新版；原后台与任务保留。'),{code:'SSH_REPLACEMENT_BACKEND_UPGRADE_REQUIRED'});
     if(method==='call'&&['relationRecovery.inspect','relationRecovery.confirm'].includes(params?.method)&&!this.info?.capabilities?.includes('relation-recovery-observations-v2'))
       throw Object.assign(Error('当前后台仍使用旧关系恢复逻辑。请在设置中停止后台并退出，再打开新版；原关系、收据和未知操作保留。'),{code:'RELATION_RECOVERY_BACKEND_UPGRADE_REQUIRED'});
     if(method==='call'&&!this.info?.capabilities?.includes('ssh-current-observation-v1')){

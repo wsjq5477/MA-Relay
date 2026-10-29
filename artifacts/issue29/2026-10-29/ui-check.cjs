@@ -1,0 +1,38 @@
+async page=>{
+ await page.unrouteAll();
+ await page.evaluate(()=>{for(const key of Object.keys(localStorage))if(key.startsWith('agentbridge-machine-operation:'))localStorage.removeItem(key);});
+ const errors=[],writes=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/rpc',async route=>{
+  const input=route.request().postDataJSON();
+  if(input.method==='machine.daemonPreview')return route.fulfill({json:{ok:true,result:{daemonVersion:'0.6.0-alpha.46-synthetic.4',targetVersion:'0.6.0-test-client',replacementRequired:true,previewId:'synthetic-preview',installPath:'/synthetic/install',stateDirectory:'/synthetic/state'}}});
+  if(input.method==='machine.maintenanceBlockers')return route.fulfill({json:{ok:true,result:{available:false,reason:'未登记后台尚未连接'}}});
+  if(input.method==='machine.maintainDaemon'){writes.push(input.params);return route.fulfill({json:{ok:true,result:{operationId:input.params.operationId,state:'unknown',data:{action:'maintainDaemon',machineId:input.params.machineId,connectionId:input.params.connectionId}}}});}
+  if(input.method==='machine.operation')return route.fulfill({json:{ok:true,result:{operationId:input.params.operationId,state:'unknown'}}});
+  if(input.method!=='snapshot')return route.continue();
+  const response=await route.fetch(),body=await response.json();if(!body.ok)throw Error('preview failed');
+  body.result.daemonManagement=true;body.result.machineManagement=true;
+  const machine=body.result.machines.find(m=>m.kind==='ssh');if(!machine)throw Error('no synthetic SSH machine');
+  machine.name='Synthetic replacement target';machine.connectionId='synthetic-connection';machine.online=false;machine.busy=false;machine.connectionState='disconnected';machine.stage='disconnected';machine.connectionError={code:'SSH_DAEMON_UPGRADE_REQUIRED',message:'远端后台版本不受当前客户端支持'};machine.error=machine.connectionError.message;
+  body.result.tasks=[];body.result.pending=[];
+  for(const node of body.result.nodes.filter(n=>n.machineId===machine.machineId)){node.online=false;node.busy=false;node.unconfirmed=false;node.uncertain=false;node.available=false;node.connectionState='disconnected';node.errorCode='SSH_DAEMON_UPGRADE_REQUIRED';}
+  for(const instance of body.result.instances||[]){instance.busy=false;delete instance.currentTask;}
+  await route.fulfill({json:body});
+ });
+ await page.setViewportSize({width:1440,height:1000});await page.goto('http://127.0.0.1:4209');
+ const card=page.locator('section.inventory-machine').filter({hasText:'Synthetic replacement target'});
+ await card.waitFor();await card.getByLabel('Synthetic replacement target 的更多操作',{exact:true}).click();await card.getByRole('button',{name:'后台维护',exact:true}).click();
+ let dialog=page.getByRole('dialog',{name:'后台维护'});await dialog.getByRole('button',{name:'强制替换后台',exact:true}).click();
+ if(!await dialog.getByRole('button',{name:'确认替换',exact:true}).isDisabled())throw Error('missing explicit confirmation gate');
+ await dialog.getByRole('button',{name:'返回',exact:true}).click();await dialog.getByRole('button',{name:'关闭后台维护',exact:true}).click();
+ if(writes.length)throw Error('cancel mutated backend');
+ await card.getByLabel('Synthetic replacement target 的更多操作',{exact:true}).click();await card.getByRole('button',{name:'后台维护',exact:true}).click();
+ dialog=page.getByRole('dialog',{name:'后台维护'});await dialog.getByRole('button',{name:'强制替换后台',exact:true}).click();
+ await page.screenshot({path:'artifacts/issue29/2026-10-29/replacement-confirm-1440.png',fullPage:true});
+ await page.setViewportSize({width:980,height:700});if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('overflow');
+ await page.screenshot({path:'artifacts/issue29/2026-10-29/replacement-confirm-980.png',fullPage:true});
+ await dialog.getByRole('checkbox',{name:'我确认将远端后台替换为本程序配套版本'}).check();await dialog.getByRole('button',{name:'确认替换',exact:true}).click();
+ await page.waitForTimeout(700);
+ if(writes.length!==1||writes[0].config.action!=='replace'||writes[0].config.confirmReplacement!==true||writes[0].config.allowUnresolved)throw Error('wrong or repeated mutation');
+ if(errors.length)throw Error('browser errors '+errors.join(';'));
+ return {scope:'production renderer / synthetic RPC, no real profile or SSH writes',offlineMaintenanceReachable:true,cancelWrites:0,uncheckedSubmitDisabled:true,explicitReplacementRequests:1,originalOperationIdRetained:!!writes[0].operationId,unknownNotResubmitted:true,pageErrors:0,horizontalOverflow:false};
+}

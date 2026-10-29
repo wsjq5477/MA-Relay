@@ -1,0 +1,110 @@
+TAP version 13
+# Subtest: unlisted suffix stays refused for normal connection but has a read-only replacement preview independent of old manifest pins
+not ok 1 - unlisted suffix stays refused for normal connection but has a read-only replacement preview independent of old manifest pins
+  ---
+  duration_ms: 24.5118
+  type: 'test'
+  location: 'D:\\LLM\\MA-Relay\\desktop\\tests\\ssh-unsupported-replacement.test.cjs:22:1'
+  failureType: 'testCodeFailure'
+  error: '远端后台版本不受当前客户端支持，未列入公共兼容清单。请更新远端后台，或使用明确列出该版本的可信客户端；本次未升级或替换远端后台。'
+  code: 'SSH_DAEMON_UPGRADE_REQUIRED'
+  stack: |-
+    problem (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-known-hosts.cjs:6:65)
+    SshInstaller.release (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:262:138)
+    SshInstaller.probe (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:296:39)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async SshInstaller.maintenancePreview (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:313:13)
+    async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-unsupported-replacement.test.cjs:25:10)
+    async Test.run (node:internal/test_runner/test:1113:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+  ...
+# Subtest: replacement preview checks original ownership, digest, current path and symlink parents without executing unlisted code
+not ok 2 - replacement preview checks original ownership, digest, current path and symlink parents without executing unlisted code
+  ---
+  duration_ms: 11.3432
+  type: 'test'
+  location: 'D:\\LLM\\MA-Relay\\desktop\\tests\\ssh-unsupported-replacement.test.cjs:31:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The validation function is expected to return "true". Received false
+    
+    Caught error:
+    
+    Error: 远端后台版本不受当前客户端支持，未列入公共兼容清单。请更新远端后台，或使用明确列出该版本的可信客户端；本次未升级或替换远端后台。
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: [Function (anonymous)]
+  actual:
+  error: '远端后台版本不受当前客户端支持，未列入公共兼容清单。请更新远端后台，或使用明确列出该版本的可信客户端；本次未升级或替换远端后台。'
+  code: 'SSH_DAEMON_UPGRADE_REQUIRED'
+  stack: |-
+    problem (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-known-hosts.cjs:6:65)
+    SshInstaller.release (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:262:138)
+    SshInstaller.probe (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:296:39)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async SshInstaller.maintenancePreview (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:313:13)
+    async waitForActual (node:assert:646:5)
+    async strict.rejects (node:assert:769:25)
+    async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-unsupported-replacement.test.cjs:40:3)
+    async Test.run (node:internal/test_runner/test:1113:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  operator: 'rejects'
+  stack: |-
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-unsupported-replacement.test.cjs:40:3)
+    async Test.run (node:internal/test_runner/test:1113:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: an untrusted previous version does not prevent the explicit replacement route
+not ok 3 - an untrusted previous version does not prevent the explicit replacement route
+  ---
+  duration_ms: 9.4477
+  type: 'test'
+  location: 'D:\\LLM\\MA-Relay\\desktop\\tests\\ssh-unsupported-replacement.test.cjs:47:1'
+  failureType: 'testCodeFailure'
+  error: '远端后台版本不受当前客户端支持，未列入公共兼容清单。请更新远端后台，或使用明确列出该版本的可信客户端；本次未升级或替换远端后台。'
+  code: 'SSH_DAEMON_UPGRADE_REQUIRED'
+  stack: |-
+    problem (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-known-hosts.cjs:6:65)
+    SshInstaller.release (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:262:138)
+    SshInstaller.probe (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:296:39)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async SshInstaller.maintenancePreview (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:313:13)
+    async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-unsupported-replacement.test.cjs:49:16)
+    async Test.run (node:internal/test_runner/test:1113:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: replacement confirmation, target CAS and original unknown intent survive manager restart without retransmission
+not ok 4 - replacement confirmation, target CAS and original unknown intent survive manager restart without retransmission
+  ---
+  duration_ms: 11.9071
+  type: 'test'
+  location: 'D:\\LLM\\MA-Relay\\desktop\\tests\\ssh-unsupported-replacement.test.cjs:51:1'
+  failureType: 'testCodeFailure'
+  error: '远端后台版本不受当前客户端支持，未列入公共兼容清单。请更新远端后台，或使用明确列出该版本的可信客户端；本次未升级或替换远端后台。'
+  code: 'SSH_DAEMON_UPGRADE_REQUIRED'
+  stack: |-
+    problem (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-known-hosts.cjs:6:65)
+    SshInstaller.release (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:262:138)
+    SshInstaller.probe (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:296:39)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async SshInstaller.maintenancePreview (D:\LLM\MA-Relay\artifacts\issue29\2026-10-29\baseline\ssh-install.cjs:313:13)
+    async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-unsupported-replacement.test.cjs:54:10)
+    async Test.run (node:internal/test_runner/test:1113:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: old central backends get an explicit replacement capability error before dispatch
+ok 5 - old central backends get an explicit replacement capability error before dispatch
+  ---
+  duration_ms: 63.4757
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 1
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 139.9498

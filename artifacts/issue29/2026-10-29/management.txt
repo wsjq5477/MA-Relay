@@ -1,0 +1,379 @@
+TAP version 13
+# Subtest: historical original startup failure releases only local admission and allows a later explicit attach after restart
+ok 1 - historical original startup failure releases only local admission and allows a later explicit attach after restart
+  ---
+  duration_ms: 65.36
+  type: 'test'
+  ...
+# Subtest: a new exact startup refusal becomes rejected immediately rather than blocking all later attaches
+ok 2 - a new exact startup refusal becomes rejected immediately rather than blocking all later attaches
+  ---
+  duration_ms: 22.3745
+  type: 'test'
+  ...
+# Subtest: cleanup retains uncertainty without exact original startup proof, identity, fingerprint and original not_found
+    # Subtest: missing-error
+    ok 1 - missing-error
+      ---
+      duration_ms: 12.049
+      type: 'test'
+      ...
+    # Subtest: generic-timeout
+    ok 2 - generic-timeout
+      ---
+      duration_ms: 10.9526
+      type: 'test'
+      ...
+    # Subtest: transport
+    ok 3 - transport
+      ---
+      duration_ms: 11.2024
+      type: 'test'
+      ...
+    # Subtest: query-timeout
+    ok 4 - query-timeout
+      ---
+      duration_ms: 9.7481
+      type: 'test'
+      ...
+    # Subtest: fingerprint
+    ok 5 - fingerprint
+      ---
+      duration_ms: 11.1743
+      type: 'test'
+      ...
+    # Subtest: changed-node
+    ok 6 - changed-node
+      ---
+      duration_ms: 10.6193
+      type: 'test'
+      ...
+    # Subtest: changed-machine
+    ok 7 - changed-machine
+      ---
+      duration_ms: 11.498
+      type: 'test'
+      ...
+    # Subtest: changed-id
+    ok 8 - changed-id
+      ---
+      duration_ms: 11.1054
+      type: 'test'
+      ...
+    # Subtest: disconnect
+    ok 9 - disconnect
+      ---
+      duration_ms: 11.1615
+      type: 'test'
+      ...
+    # Subtest: other-method
+    ok 10 - other-method
+      ---
+      duration_ms: 11.6905
+      type: 'test'
+      ...
+    # Subtest: other-lane
+    ok 11 - other-lane
+      ---
+      duration_ms: 10.6847
+      type: 'test'
+      ...
+    # Subtest: missing-source
+    ok 12 - missing-source
+      ---
+      duration_ms: 10.8246
+      type: 'test'
+      ...
+    # Subtest: foreign-receipt
+    ok 13 - foreign-receipt
+      ---
+      duration_ms: 10.1033
+      type: 'test'
+      ...
+    # Subtest: unknown-receipt
+    ok 14 - unknown-receipt
+      ---
+      duration_ms: 10.2132
+      type: 'test'
+      ...
+    # Subtest: pending-receipt
+    ok 15 - pending-receipt
+      ---
+      duration_ms: 9.8343
+      type: 'test'
+      ...
+    1..15
+ok 3 - cleanup retains uncertainty without exact original startup proof, identity, fingerprint and original not_found
+  ---
+  duration_ms: 168.516
+  type: 'test'
+  ...
+# Subtest: a matching actual receipt wins over historical startup error and a foreign source cannot release it
+ok 4 - a matching actual receipt wins over historical startup error and a foreign source cannot release it
+  ---
+  duration_ms: 21.3756
+  type: 'test'
+  ...
+# Subtest: original exact health admission refusal can settle its attach; query errors or generic health codes retain unknown
+    # Subtest: original
+    ok 1 - original
+      ---
+      duration_ms: 29.5054
+      type: 'test'
+      ...
+    # Subtest: generic-message
+    ok 2 - generic-message
+      ---
+      duration_ms: 12.2784
+      type: 'test'
+      ...
+    # Subtest: query-only
+    ok 3 - query-only
+      ---
+      duration_ms: 11.6495
+      type: 'test'
+      ...
+    # Subtest: changed-input
+    ok 4 - changed-input
+      ---
+      duration_ms: 12.9666
+      type: 'test'
+      ...
+    # Subtest: foreign-receipt
+    ok 5 - foreign-receipt
+      ---
+      duration_ms: 11.328
+      type: 'test'
+      ...
+    1..5
+ok 5 - original exact health admission refusal can settle its attach; query errors or generic health codes retain unknown
+  ---
+  duration_ms: 81.306
+  type: 'test'
+  ...
+# Subtest: persisted original host factory refusal settles only its attach intent after an original receipt read, with no replay
+ok 6 - persisted original host factory refusal settles only its attach intent after an original receipt read, with no replay
+  ---
+  duration_ms: 20.2494
+  type: 'test'
+  ...
+# Subtest: host refusal recovery requires original durable error and fingerprint; bare query errors, wrong lane, changed inputs and foreign receipts retain uncertainty
+    # Subtest: no-original-error
+    ok 1 - no-original-error
+      ---
+      duration_ms: 12.2263
+      type: 'test'
+      ...
+    # Subtest: different-error
+    ok 2 - different-error
+      ---
+      duration_ms: 11.5185
+      type: 'test'
+      ...
+    # Subtest: bad-fingerprint
+    ok 3 - bad-fingerprint
+      ---
+      duration_ms: 11.4924
+      type: 'test'
+      ...
+    # Subtest: remove
+    ok 4 - remove
+      ---
+      duration_ms: 10.6105
+      type: 'test'
+      ...
+    # Subtest: wrong-lane
+    ok 5 - wrong-lane
+      ---
+      duration_ms: 10.1184
+      type: 'test'
+      ...
+    # Subtest: wrong-id
+    ok 6 - wrong-id
+      ---
+      duration_ms: 10.4878
+      type: 'test'
+      ...
+    # Subtest: foreign-receipt
+    ok 7 - foreign-receipt
+      ---
+      duration_ms: 9.9807
+      type: 'test'
+      ...
+    # Subtest: query-error
+    ok 8 - query-error
+      ---
+      duration_ms: 12.3182
+      type: 'test'
+      ...
+    1..8
+ok 7 - host refusal recovery requires original durable error and fingerprint; bare query errors, wrong lane, changed inputs and foreign receipts retain uncertainty
+  ---
+  duration_ms: 91.5459
+  type: 'test'
+  ...
+# Subtest: an actual original confirmed receipt takes priority over the historical host factory error
+ok 8 - an actual original confirmed receipt takes priority over the historical host factory error
+  ---
+  duration_ms: 24.4779
+  type: 'test'
+  ...
+# Subtest: new attach host factory refusal is recorded as rejected without admitting any task or replaying attach
+ok 9 - new attach host factory refusal is recorded as rejected without admitting any task or replaying attach
+  ---
+  duration_ms: 25.9998
+  type: 'test'
+  ...
+# Subtest: central graph uncertainty survives restart, blocks new IDs in its lane and only queries the original request
+ok 10 - central graph uncertainty survives restart, blocks new IDs in its lane and only queries the original request
+  ---
+  duration_ms: 35.5971
+  type: 'test'
+  ...
+# Subtest: graph intent must persist before dispatch; definite validation failure frees the lane while retaining original payload fingerprint
+ok 11 - graph intent must persist before dispatch; definite validation failure frees the lane while retaining original payload fingerprint
+  ---
+  duration_ms: 28.3239
+  type: 'test'
+  ...
+# Subtest: layout uncertainty does not block authorization and receipts atomically committed before lost ACK reconcile without another write
+ok 12 - layout uncertainty does not block authorization and receipts atomically committed before lost ACK reconcile without another write
+  ---
+  duration_ms: 54.8504
+  type: 'test'
+  ...
+# Subtest: node and authority writes share a safety barrier but layout remains independent; original node receipts are queried after lost ACK
+ok 13 - node and authority writes share a safety barrier but layout remains independent; original node receipts are queried after lost ACK
+  ---
+  duration_ms: 59.7142
+  type: 'test'
+  ...
+# Subtest: an original local node unknown does not block another machine maintenance; same-machine and missing provenance still block
+ok 14 - an original local node unknown does not block another machine maintenance; same-machine and missing provenance still block
+  ---
+  duration_ms: 38.7277
+  type: 'test'
+  ...
+# Subtest: scope isolation preserves same-machine, missing-source and authority barriers despite unrelated query failure
+ok 15 - scope isolation preserves same-machine, missing-source and authority barriers despite unrelated query failure
+  ---
+  duration_ms: 42.1521
+  type: 'test'
+  ...
+# Subtest: original graph query never settles a foreign machine or changed content receipt
+ok 16 - original graph query never settles a foreign machine or changed content receipt
+  ---
+  duration_ms: 24.8028
+  type: 'test'
+  ...
+# Subtest: machine edit atomically retains identity and original receipt, rejects foreign user and endpoint aliases, invalidates only changed authentication
+ok 17 - machine edit atomically retains identity and original receipt, rejects foreign user and endpoint aliases, invalidates only changed authentication
+  ---
+  duration_ms: 330.5961
+  type: 'test'
+  ...
+# Subtest: machine removal revokes related authority, preserves history through restart and restore uses original node without reauthorization
+ok 18 - machine removal revokes related authority, preserves history through restart and restore uses original node without reauthorization
+  ---
+  duration_ms: 331.0361
+  type: 'test'
+  ...
+# Subtest: all nonterminal work, original unknown intent, context admission, offline state and config revision prevent dangerous machine changes
+ok 19 - all nonterminal work, original unknown intent, context admission, offline state and config revision prevent dangerous machine changes
+  ---
+  duration_ms: 537.3908
+  type: 'test'
+  ...
+# Subtest: machine local commit failure changes neither config nor credentials, query never replays an absent operation
+ok 20 - machine local commit failure changes neither config nor credentials, query never replays an absent operation
+  ---
+  duration_ms: 130.5403
+  type: 'test'
+  ...
+# Subtest: original receipt completes interrupted local revocation once, blocks other lanes until reconciled and never repeats transport mutation
+ok 21 - original receipt completes interrupted local revocation once, blocks other lanes until reconciled and never repeats transport mutation
+  ---
+  duration_ms: 203.3084
+  type: 'test'
+  ...
+# Subtest: reconnect is observation recovery while native intent is unknown; an online reconnect does not drop active transport
+ok 22 - reconnect is observation recovery while native intent is unknown; an online reconnect does not drop active transport
+  ---
+  duration_ms: 153.3612
+  type: 'test'
+  ...
+# Subtest: machine source forgery, changed payload and concurrent 10 identical requests retain one original operation
+ok 23 - machine source forgery, changed payload and concurrent 10 identical requests retain one original operation
+  ---
+  duration_ms: 160.9203
+  type: 'test'
+  ...
+# Subtest: event replay compensates cursorGap and drains all pages without a task mutation or invented cursor
+ok 24 - event replay compensates cursorGap and drains all pages without a task mutation or invented cursor
+  ---
+  duration_ms: 31.6809
+  type: 'test'
+  ...
+# Subtest: querying an old reconnect receipt cannot undo a later manual disconnect and secret fields cannot enter the machine journal
+ok 25 - querying an old reconnect receipt cannot undo a later manual disconnect and secret fields cannot enter the machine journal
+  ---
+  duration_ms: 169.1854
+  type: 'test'
+  ...
+# Subtest: observed older tasks survive later paged snapshots and remain readable after removal and Coordinator restart
+ok 26 - observed older tasks survive later paged snapshots and remain readable after removal and Coordinator restart
+  ---
+  duration_ms: 238.6034
+  type: 'test'
+  ...
+# Subtest: progress observer EPERM cannot abort an acknowledged SFTP upload
+ok 27 - progress observer EPERM cannot abort an acknowledged SFTP upload
+  ---
+  duration_ms: 34.8941
+  type: 'test'
+  ...
+# Subtest: machine catalog retries sharing violations atomically and removes only its own temp on failure
+ok 28 - machine catalog retries sharing violations atomically and removes only its own temp on failure
+  ---
+  duration_ms: 368.3138
+  type: 'test'
+  ...
+# Subtest: high-frequency maintenance progress is memory-only, throttled and best effort, final state still saves
+ok 29 - high-frequency maintenance progress is memory-only, throttled and best effort, final state still saves
+  ---
+  duration_ms: 65.059
+  type: 'test'
+  ...
+# Subtest: final failFinal failure never sends maintenance and retains local diagnostics
+ok 30 - final failFinal failure never sends maintenance and retains local diagnostics
+  ---
+  duration_ms: 34.3194
+  type: 'test'
+  ...
+# Subtest: final failReceipt failure never sends maintenance and retains local diagnostics
+ok 31 - final failReceipt failure never sends maintenance and retains local diagnostics
+  ---
+  duration_ms: 33.388
+  type: 'test'
+  ...
+# Subtest: SFTP upload errors survive the maintenance pre-send guard without generic stage replacement
+ok 32 - SFTP upload errors survive the maintenance pre-send guard without generic stage replacement
+  ---
+  duration_ms: 24.4793
+  type: 'test'
+  ...
+# Subtest: a rejected original checkpoint survives journal restart with safe details and never resends
+ok 33 - a rejected original checkpoint survives journal restart with safe details and never resends
+  ---
+  duration_ms: 77.9413
+  type: 'test'
+  ...
+1..33
+# tests 61
+# suites 0
+# pass 61
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3203.9025

@@ -20,16 +20,28 @@ function mutateRows(file,change){
  while(!acquired){try{fs.writeFileSync(lock,JSON.stringify({pid:process.pid,pidStart:processStart(process.pid)}),{flag:'wx',mode:0o600});acquired=true;}catch(e){if(e.code!=='EEXIST')throw e;let owner;try{owner=read(lock);}catch(error){if(error.code==='ENOENT')continue;throw error;}if(owner.pidStart&&processStart(owner.pid)!==owner.pidStart){fs.unlinkSync(lock);continue;}if(Date.now()>=deadline)throw fail('DAEMON_MAINTENANCE','原维护记录正在提交，请查询原操作。');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,5);}}
  try{const rows=fs.existsSync(file)?read(file):[],result=change(rows);atomic(file,rows);return result;}finally{if(read(lock).pid===process.pid)fs.unlinkSync(lock);}
 }
-function commitRow(file,row){return mutateRows(file,rows=>{const current=rows.find(r=>r.operationId===row.operationId);if(!current)throw fail('OPERATION_NOT_FOUND','原维护记录缺失。');for(const key of ['state','phase','updatedAt','data','error','quarantine'])if(row[key]!==undefined)current[key]=row[key];return current;});}
+function commitRow(file,row){return mutateRows(file,rows=>{const current=rows.find(r=>r.operationId===row.operationId);if(!current)throw fail('OPERATION_NOT_FOUND','原维护记录缺失。');for(const key of ['state','phase','updatedAt','data','error','quarantine','sourceProcess'])if(row[key]!==undefined)current[key]=row[key];return current;});}
 function read(file){inspectFile(file,'file');return JSON.parse(fs.readFileSync(file,'utf8'));}
 function opts(input){
- if(!['upgrade','rollback','stop','uninstall','query'].includes(input.action)||typeof input.operationId!=='string'||!/^[a-zA-Z0-9_.:-]{1,128}$/.test(input.operationId))throw fail('INVALID_INPUT','维护需要合法动作与原操作 ID。');
+ if(!['upgrade','rollback','stop','uninstall','replace','query'].includes(input.action)||typeof input.operationId!=='string'||!/^[a-zA-Z0-9_.:-]{1,128}$/.test(input.operationId))throw fail('INVALID_INPUT','维护需要合法动作与原操作 ID。');
+ if(input.action==='replace'&&(input.confirmReplacement!==true||input.allowUnresolvedReceipts===true))throw fail('SSH_REPLACEMENT_CONFIRMATION_REQUIRED','强制替换需要明确确认，不能越过未确认操作。');
  const value={stateDirectory:input.stateDirectory,ownerCoordinatorId:input.ownerCoordinatorId,profileId:input.profileId};const info=identity(value,false);
  if(info.daemonId!==input.daemonId||info.uid!==input.uid)throw fail('DAEMON_IDENTITY_CHANGED','维护来源身份不匹配。');
  if(input.action==='query'&&!fs.existsSync(input.installPath))return {info,value,file:path.join(info.stateDirectory,'maintenance-operations.json'),lease:path.join(info.stateDirectory,'remote-maintenance.lock')};
  const install=fs.realpathSync(input.installPath);if(install!==input.installPath||!install.startsWith(fs.realpathSync(input.home)+'/'))throw fail('REMOTE_DIRECTORY_UNSAFE','安装目录必须位于原用户 HOME。');inspectFile(install,'directory');
  const marker=read(path.join(install,'install.json'));if(marker.kind!=='agentbridge-install'||marker.ownerCoordinatorId!==input.ownerCoordinatorId||marker.profileId!==input.profileId)throw fail('DAEMON_OWNER_CONFLICT','安装不属于原中央与 profile。');
  return {info,value,file:path.join(info.stateDirectory,'maintenance-operations.json'),lease:path.join(info.stateDirectory,'remote-maintenance.lock')};
+}
+// An unlisted source is an owned directory to preserve, never executable code.
+function replacementSource(input){
+ const source=input.from;
+ if(input.confirmReplacement!==true||!source||!/^[a-zA-Z0-9.-]{1,80}$/.test(source.version)||['.','..'].includes(source.version)||!/^[a-f0-9]{64}$/.test(source.digest))throw fail('SSH_VERSION_CONFLICT','原后台版本标记无效。');
+ const directory=path.join(input.installPath,'versions',source.version);
+ if(fs.realpathSync(directory)!==directory)throw fail('REMOTE_DIRECTORY_UNSAFE','原后台版本路径不规范。');
+ inspectFile(directory,'directory');
+ const marker=read(path.join(directory,'.bridge-release.json'));
+ if(marker.ownerCoordinatorId!==input.ownerCoordinatorId||marker.digest!==source.digest)throw fail('DAEMON_OWNER_CONFLICT','原后台版本不属于当前中央。');
+ return {version:source.version,digest:source.digest,versionPath:directory};
 }
 function version(input,release){
  if(!release||!/^[a-zA-Z0-9.-]+$/.test(release.version))throw fail('SSH_PACKAGE_INVALID','版本描述无效。');
@@ -136,12 +148,13 @@ async function run(input,options={}){
  let gate={tasks:[],agents:[],receipts:[],overridden:false};
  try{
   if(fs.existsSync(o.lease))throw fail('DAEMON_MAINTENANCE','另一条维护尚在运行，原意图保留。');fs.writeFileSync(o.lease,JSON.stringify({operationId:input.operationId,pid:process.pid,pidStart:processStart(process.pid)}),{flag:'wx',mode:0o600});acquired=true;
-  from=version(input,input.from);const current=read(path.join(input.installPath,'current.json'));if(digest(current)!==digest(from))throw fail('INSTALL_PREVIEW_CHANGED','原版本在批准后发生变化。');
-  const target=['upgrade','rollback'].includes(input.action)?version(input,input.target):null;
+  from=input.action==='replace'?replacementSource(input):version(input,input.from);const current=read(path.join(input.installPath,'current.json'));if(digest(current)!==digest(from))throw fail('INSTALL_PREVIEW_CHANGED','原版本在批准后发生变化。');
+  const target=['upgrade','rollback','replace'].includes(input.action)?version(input,input.target):null;
+  if(input.action==='replace'&&target.version===from.version)throw fail('INSTALL_PREVIEW_CHANGED','强制替换需要不同的配套后台版本。');
   const helper=path.join(version(input,input.controller).versionPath,'runtime/owned-stop');
   // All installed directories must be trusted before removing any installation.
   if(input.action==='uninstall'){for(const name of fs.readdirSync(input.installPath))if(!['install.json','current.json','previous.json','versions'].includes(name))throw fail('REMOTE_DIRECTORY_UNSAFE','安装含未核对文件，保留目录。');for(const v of fs.readdirSync(path.join(input.installPath,'versions'))){const descriptor=input.releases.find(r=>r.version===v);if(!descriptor)throw fail('SSH_PACKAGE_CHECKSUM','安装含未知版本，保留目录。');version(input,descriptor);}}
-  checkpoint('validated');const p=await peer(input);try{gate=await stop(input,p,helper,{allowUnresolvedReceipts});}finally{p.close();}stopped=true;checkpoint('stopped');
+  checkpoint('validated');const p=await peer(input);try{if(input.action==='replace'){if(p.info.version!==from.version)throw fail('INSTALL_PREVIEW_CHANGED','实际后台版本在确认后发生变化。');const lock=read(path.join(input.stateDirectory,'daemon.lock'));if(lock.daemonId!==input.daemonId||lock.pid!==p.info.pid||!lock.pidStart)throw fail('DAEMON_OWNERSHIP','原进程无法核对。');row.sourceProcess={pid:lock.pid,pidStart:lock.pidStart};write();}gate=await stop(input,p,helper,{allowUnresolvedReceipts});}finally{p.close();}stopped=true;checkpoint('stopped');
   if(input.action==='uninstall'){row.quarantine=path.join(path.dirname(input.installPath),'.uninstalled-'+digest(input.operationId));if(fs.existsSync(row.quarantine))throw fail('REMOTE_DIRECTORY_UNSAFE','隔离回收路径已存在。');checkpoint('uninstalling');fs.renameSync(input.installPath,row.quarantine);checkpoint('uninstalled');}
   if(target){atomic(path.join(input.installPath,'previous.json'),from);atomic(path.join(input.installPath,'current.json'),target);switched=true;checkpoint('activated');if(options.failHealth)throw fail('TEST_HEALTH','受控健康失败。');await start(input,target);await release(input);checkpoint('healthy');}
   else await release(input);
@@ -149,23 +162,43 @@ async function run(input,options={}){
  }catch(error){
   if(!acquired&&error.code==='DAEMON_MAINTENANCE')return read(o.file).find(r=>r.operationId===input.operationId);
   let rolledBack=false;
-  if(switched&&from){try{try{const p=await peer(input);try{await stop(input,p,path.join(input.installPath,'versions',input.controller.version,'runtime/owned-stop'));}finally{p.close();}}catch(e){if(!['DAEMON_OFFLINE','ECONNREFUSED','ENOENT'].includes(e.code))throw e;}atomic(path.join(input.installPath,'current.json'),from);await start(input,from);await release(input);rolledBack=true;}catch{row.state='unknown';row.error={code:'DAEMON_ROLLBACK_UNCONFIRMED',message:'原维护及回滚尚未确认，请查询原操作。'};row.data={action:input.action,rolledBack:false,stopped:true,phase:row.phase,version:from.version,historyPreserved:true};write();return row;}}
+  if(switched&&from&&input.action!=='replace'){try{try{const p=await peer(input);try{await stop(input,p,path.join(input.installPath,'versions',input.controller.version,'runtime/owned-stop'));}finally{p.close();}}catch(e){if(!['DAEMON_OFFLINE','ECONNREFUSED','ENOENT'].includes(e.code))throw e;}atomic(path.join(input.installPath,'current.json'),from);await start(input,from);await release(input);rolledBack=true;}catch{row.state='unknown';row.error={code:'DAEMON_ROLLBACK_UNCONFIRMED',message:'原维护及回滚尚未确认，请查询原操作。'};row.data={action:input.action,rolledBack:false,stopped:true,phase:row.phase,version:from.version,historyPreserved:true};write();return row;}}
   else if(!stopped&&acquired){try{await release(input);}catch{}}
   // A terminal rejection may only be written when the original daemon is still
   // running or was restored. Once it was stopped without a confirmed switch or
   // rollback the receipt stays unknown, so the original-ID query can restore it
   // instead of the desktop treating the machine as finished and leaving it down.
-  const restorePending=stopped&&!rolledBack&&['upgrade','rollback'].includes(input.action);
+  const restorePending=stopped&&!rolledBack&&['upgrade','rollback','replace'].includes(input.action);
   row.state=restorePending||['DAEMON_MAINTENANCE','DAEMON_STOP_TIMEOUT'].includes(error.code)?'unknown':'rejected';
   // A named gate keeps its own wording and blocker detail; the generic wrapper only
   // replaces failures that carry no user-facing explanation of their own.
   const details=error?.details&&['tasks','receipts'].includes(error.details.gate)?error.details:undefined;
-  row.error=restorePending?{code:'DAEMON_ROLLBACK_UNCONFIRMED',message:'后台已停止但原版本未确认恢复（'+safeCode(error)+'）；请查询原操作。'}:{code:error.code||'DAEMON_MAINTENANCE_FAILED',message:details&&error.message?error.message:error.code?'后台维护未执行或未完成（'+safeCode(error)+'）；原版本与历史保留。':'后台维护失败，请查询原操作。',...(details?{details}:{})};
+  row.error=restorePending?{code:input.action==='replace'?'DAEMON_REPLACEMENT_UNCONFIRMED':'DAEMON_ROLLBACK_UNCONFIRMED',message:input.action==='replace'?'配套后台替换尚未确认，请查询原操作；原目录与历史保留，不自动执行未校验的旧版本。':'后台已停止但原版本未确认恢复（'+safeCode(error)+'）；请查询原操作。'}:{code:error.code||'DAEMON_MAINTENANCE_FAILED',message:details&&error.message?error.message:error.code?'后台维护未执行或未完成（'+safeCode(error)+'）；原版本与历史保留。':'后台维护失败，请查询原操作。',...(details?{details}:{})};
   row.data={action:input.action,rolledBack,stopped,phase:row.phase,version:from?.version,historyPreserved:true,...overridden()};write();
  }finally{if(acquired&&fs.existsSync(o.lease)&&read(o.lease).operationId===input.operationId)fs.unlinkSync(o.lease);}
  return row;
 }
 function processStart(pid){try{return fs.readFileSync('/proc/'+pid+'/stat','utf8').replace(/^.*\) /,'').split(' ')[19];}catch{return null;}}
+async function recoverReplacement(input,row){
+ const from=replacementSource(input),target=version(input,input.target),current=read(path.join(input.installPath,'current.json'));
+ if(![digest(from),digest(target)].includes(digest(current)))throw fail('INSTALL_PREVIEW_CHANGED','版本来源已变化，保留原维护。');
+ let live;
+ try{live=await inspectDaemon({stateDirectory:input.stateDirectory,ownerCoordinatorId:input.ownerCoordinatorId,profileId:input.profileId});}
+ catch(error){if(!['DAEMON_OFFLINE','ECONNREFUSED','ENOENT'].includes(error.code))throw error;}
+ if(live){
+  if(live.daemonId!==input.daemonId||live.version!==target.version||digest(current)!==digest(target))throw fail('DAEMON_REPLACEMENT_UNCONFIRMED','原后台仍在运行或版本尚未核对，保留原操作。');
+  const p=await peer(input);try{const ping=await p.call('ping',{nonce:'health'});if(ping.nonce!=='health')throw fail('DAEMON_PROTOCOL','健康检查不匹配。');await p.call('snapshot');}finally{p.close();}
+ }else{
+  const source=row.sourceProcess;if(!source||!Number.isInteger(source.pid)||!source.pidStart||processStart(source.pid)===source.pidStart)throw fail('DAEMON_OWNERSHIP','未确认原进程结束，保留原维护。');
+  const lockFile=path.join(input.stateDirectory,'daemon.lock');
+  if(fs.existsSync(lockFile)){const lock=read(lockFile);if(lock.daemonId!==input.daemonId||lock.ownerCoordinatorId!==input.ownerCoordinatorId||lock.profileId!==input.profileId||!lock.pidStart||processStart(lock.pid)===lock.pidStart)throw fail('DAEMON_OWNERSHIP','未确认原进程结束，保留原维护。');}
+  // Finish the same durable replacement with verified target code only. Never
+  // restart an unlisted source during recovery or manufacture another action.
+  if(digest(current)===digest(from))atomic(path.join(input.installPath,'previous.json'),from);
+  atomic(path.join(input.installPath,'current.json'),target);await start(input,target);
+ }
+ await release(input);row.phase='healthy';row.state='confirmed';row.error=null;row.data={action:'replace',version:target.version,stopped:true,rolledBack:false,historyPreserved:true};
+}
 async function recover(input){
  const o=opts({...input,action:'query'}),rows=read(o.file),row=rows.find(r=>r.operationId===input.operationId);if(!row||row.state!=='unknown')return row;
  const lease=fs.existsSync(o.lease)?read(o.lease):null;
@@ -176,6 +209,7 @@ async function recover(input){
   const exists=fs.existsSync(input.installPath);
   if(['uninstalled','uninstalling'].includes(row.phase)&&!exists){row.state='confirmed';row.data={action:'uninstall',stopped:true,historyPreserved:true};}
   else if(row.action==='stop'&&row.phase==='stopped'){await release(input);row.state='confirmed';row.data={action:'stop',version:input.from.version,stopped:true,historyPreserved:true};}
+  else if(row.action==='replace'&&row.phase!=='intent'){await recoverReplacement(input,row);}
   else if(row.phase==='healthy'){
    const current=read(path.join(input.installPath,'current.json')),live=await inspectDaemon(o.value);if(live.version!==input.target.version||current.version!==input.target.version)throw fail('DAEMON_VERSION_CONFLICT','实际版本未确认。');row.state='confirmed';row.data={action:row.action,version:live.version,stopped:true,rolledBack:false,historyPreserved:true};
   }else if(row.phase==='intent'){row.state='rejected';row.error={code:'DAEMON_NOT_STARTED',message:'原维护未到版本或进程变更阶段。'};}

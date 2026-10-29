@@ -16,7 +16,7 @@ async function fixture(t,modes={}){const root=fs.mkdtempSync(path.join(os.tmpdir
  const boot=v=>execFileSync(path.join(install,'versions',v.version,'runtime/node'),[path.join(install,'versions',v.version,'desktop/electron/machine-daemon.cjs'),'--state-directory',options.stateDirectory,'--owner','owner','--profile','profile'],{timeout:30000,stdio:'pipe'});
  boot(from);const input={action:'upgrade',operationId:'original',home:root,installPath:install,...options,daemonId:info.daemonId,uid:process.getuid(),from,target,controller:target,releases:[from,target]};
  t.after(async()=>{try{const lock=JSON.parse(fs.readFileSync(path.join(options.stateDirectory,'daemon.lock')));execFileSync(path.join(install,'versions',target.version,'runtime/owned-stop'),[String(lock.pid),String(lock.pidStart),String(process.getuid())],{stdio:'ignore'});}catch{}await new Promise(r=>setTimeout(r,200));fs.rmSync(root,{recursive:true,force:true});});
- const run=async(p=input,opts={})=>{const file=path.join(options.stateDirectory,'maintenance-operations.json');const rows=fs.existsSync(file)?JSON.parse(fs.readFileSync(file)):[];rows.push({operationId:p.operationId,state:'unknown',fingerprint:maintenance.digest(p)});fs.writeFileSync(file,JSON.stringify(rows),{mode:0o600});return maintenance.run(p,opts);};
+ const run=async(p=input,opts={})=>{const file=path.join(options.stateDirectory,'maintenance-operations.json');const rows=fs.existsSync(file)?JSON.parse(fs.readFileSync(file)):[];rows.push({operationId:p.operationId,action:p.action,state:'unknown',fingerprint:maintenance.digest(p)});fs.writeFileSync(file,JSON.stringify(rows),{mode:0o600});return maintenance.run(p,opts);};
  return {root,input,options,from,target,run,boot};}
 linuxTest('actual maintenance CLI reads the complete large catalogue and queries the original unknown without another action',async t=>{
  const f=await fixture(t),before=await inspectDaemon(f.options);
@@ -32,6 +32,55 @@ linuxTest('real daemon version switch and rollback preserve identity/history, re
  const f=await fixture(t),id=(await inspectDaemon(f.options)).daemonId;const first=await f.run();assert.equal(first.state,'confirmed',JSON.stringify(first));assert.equal((await inspectDaemon(f.options)).version,f.target.version);assert.equal((await inspectDaemon(f.options)).daemonId,id);assert(fs.existsSync(path.join(f.options.stateDirectory,'synthetic-host.json')));
  const saved=maintenance.query({...f.input,action:'query'});assert.equal(saved.operationId,f.input.operationId);assert.equal(saved.state,'confirmed');
  const reverse={...f.input,from:f.target,target:f.from,action:'rollback',operationId:'reverse'};assert.equal((await f.run(reverse)).state,'confirmed');assert.equal((await inspectDaemon(f.options)).version,f.from.version);assert.equal((await inspectDaemon(f.options)).daemonId,id);
+});
+
+linuxTest('explicit replacement of an unlisted source uses only verified target code and preserves original identity, history and source directory',async t=>{
+ const f=await fixture(t),before=await inspectDaemon(f.options),saved=fs.readFileSync(path.join(f.options.stateDirectory,'synthetic-host.json'));
+ // The source has no trusted manifest. Its Node becomes a trap after the live
+ // daemon has started: replacement and recovery must never execute this file.
+ const oldNode=path.join(f.input.installPath,'versions',f.from.version,'runtime/node');
+ fs.writeFileSync(oldNode,'#!/bin/sh\necho UNTRUSTED_SOURCE_EXECUTED >&2\nexit 93\n',{mode:0o700});
+ const source=fs.readFileSync(oldNode),input={...f.input,action:'replace',confirmReplacement:true,from:{version:f.from.version,digest:f.from.digest}};
+ const launches=Array.from({length:3},()=>maintenance.launch(input));assert.equal(new Set(launches.map(r=>r.workerPid)).size,1);
+ let row;const deadline=Date.now()+30000;do{await new Promise(r=>setTimeout(r,100));row=maintenance.query({...input,action:'query'});}while(row.state==='unknown'&&Date.now()<deadline);
+ assert.equal(row.state,'confirmed',JSON.stringify(row));assert.equal(row.data.action,'replace');
+ const live=await inspectDaemon(f.options);assert.equal(live.version,f.target.version);assert.equal(live.daemonId,before.daemonId);assert.notEqual(live.pid,before.pid);
+ assert(fs.readFileSync(oldNode).equals(source));assert(fs.readFileSync(path.join(f.options.stateDirectory,'synthetic-host.json')).equals(saved));
+ const pid=live.pid;assert.equal(maintenance.query({...input,action:'query'}).state,'confirmed');assert.equal(maintenance.launch(input).state,'confirmed');assert.equal((await inspectDaemon(f.options)).pid,pid);
+ assert.equal(JSON.parse(fs.readFileSync(path.join(f.options.stateDirectory,'maintenance-operations.json'))).length,1);
+});
+
+linuxTest('replacement requires strict consent and cannot bypass active tasks or unresolved receipts',async t=>{
+ const f=await fixture(t),before=await inspectDaemon(f.options),input={...f.input,action:'replace',from:{version:f.from.version,digest:f.from.digest}};
+ for(const confirmReplacement of [undefined,false,'true'])await assert.rejects(f.run({...input,confirmReplacement}),{code:'SSH_REPLACEMENT_CONFIRMATION_REQUIRED'});
+ await assert.rejects(f.run({...input,confirmReplacement:true,allowUnresolvedReceipts:true}),{code:'SSH_REPLACEMENT_CONFIRMATION_REQUIRED'});
+ fs.writeFileSync(path.join(f.options.stateDirectory,'synthetic-host.json'),JSON.stringify({tasks:[{taskId:'original',status:'unknown'}]}),{mode:0o600});
+ const blocked=await f.run({...input,confirmReplacement:true,operationId:'replace-busy'});assert.equal(blocked.state,'rejected');assert.equal(blocked.error.code,'DAEMON_BUSY');assert.equal((await inspectDaemon(f.options)).pid,before.pid);
+});
+
+linuxTest('failed replacement remains unknown and original recovery completes verified target instead of executing unlisted rollback code',async t=>{
+ const f=await fixture(t),before=await inspectDaemon(f.options),input={...f.input,action:'replace',confirmReplacement:true,from:{version:f.from.version,digest:f.from.digest}};
+ const oldNode=path.join(f.input.installPath,'versions',f.from.version,'runtime/node');fs.writeFileSync(oldNode,'#!/bin/sh\nexit 93\n',{mode:0o700});
+ const row=await f.run(input,{failHealth:true});assert.equal(row.state,'unknown');assert.equal(row.error.code,'DAEMON_REPLACEMENT_UNCONFIRMED');assert.equal(row.data.rolledBack,false);
+ const recovered=await maintenance.recover(input);assert.equal(recovered.state,'confirmed',JSON.stringify(recovered));assert.equal((await inspectDaemon(f.options)).daemonId,before.daemonId);assert.equal((await inspectDaemon(f.options)).version,f.target.version);
+});
+
+linuxTest('changed source ownership/current or damaged target rejects replacement before stopping original daemon',async t=>{
+ const f=await fixture(t),before=await inspectDaemon(f.options),input={...f.input,action:'replace',confirmReplacement:true,from:{version:f.from.version,digest:'0'.repeat(64)}};
+ const wrong=await f.run(input);assert.equal(wrong.state,'rejected');assert.equal((await inspectDaemon(f.options)).pid,before.pid);
+ fs.appendFileSync(path.join(f.input.installPath,'versions',f.target.version,'package.json'),'tamper');
+ const damaged=await f.run({...input,operationId:'replace-tampered',from:{version:f.from.version,digest:f.from.digest}});assert.equal(damaged.state,'rejected');assert.equal((await inspectDaemon(f.options)).pid,before.pid);
+});
+
+linuxTest('replacement recovery never infers process exit from a missing socket or lock',async t=>{
+ const f=await fixture(t),before=await inspectDaemon(f.options),input={...f.input,action:'replace',confirmReplacement:true,from:{version:f.from.version,digest:f.from.digest}};
+ const lockFile=path.join(f.options.stateDirectory,'daemon.lock'),lock=JSON.parse(fs.readFileSync(lockFile)),socket=require('../electron/machine-daemon.cjs').identity(f.options).socketPath;
+ const ledger=path.join(f.options.stateDirectory,'maintenance-operations.json'),current=path.join(f.input.installPath,'current.json'),saved=fs.readFileSync(current);
+ fs.writeFileSync(ledger,JSON.stringify([{operationId:input.operationId,action:'replace',state:'unknown',phase:'stopped',sourceProcess:{pid:lock.pid,pidStart:lock.pidStart}}]),{mode:0o600});
+ fs.renameSync(socket,socket+'.controlled-hidden');fs.renameSync(lockFile,lockFile+'.controlled-hidden');
+ try{assert.equal((await maintenance.recover(input)).state,'unknown');assert(fs.readFileSync(current).equals(saved));}
+ finally{fs.renameSync(socket+'.controlled-hidden',socket);fs.renameSync(lockFile+'.controlled-hidden',lockFile);}
+ assert.equal((await inspectDaemon(f.options)).pid,before.pid);
 });
 linuxTest('failed new health rolls back the exact old version without losing daemon identity or native history',async t=>{
  const f=await fixture(t),before=(await inspectDaemon(f.options)).daemonId;const row=await f.run(f.input,{failHealth:true});assert.equal(row.state,'rejected',JSON.stringify(row));assert(row.data.rolledBack);assert.equal((await inspectDaemon(f.options)).version,f.from.version);assert.equal((await inspectDaemon(f.options)).daemonId,before);
@@ -138,6 +187,11 @@ test('socket reset during shutdown waits for original process exit; an offline s
 // so the gate must name it instead of silently refusing, and only an explicit
 // override may pass it while tasks/Agent work stay immovable.
 const unresolvedReceipt={key:'blocked-original',method:'ipc',op:'submit',target:{},fingerprint:'controlled-intent',state:'unknown',createdAt:'2026-10-21T00:00:00.000Z',updatedAt:'2026-10-21T00:00:00.000Z'};
+linuxTest('replacement preserves unresolved receipts byte for byte and refuses to stop their original daemon',async t=>{
+ const f=await fixture(t,{receipts:[unresolvedReceipt]}),before=await inspectDaemon(f.options),file=path.join(f.options.stateDirectory,'daemon-receipts.json'),saved=fs.readFileSync(file);
+ const row=await f.run({...f.input,action:'replace',confirmReplacement:true,from:{version:f.from.version,digest:f.from.digest}});
+ assert.equal(row.state,'rejected');assert.equal(row.error.code,'DAEMON_BUSY');assert.equal(row.error.details.gate,'receipts');assert.equal((await inspectDaemon(f.options)).pid,before.pid);assert(fs.readFileSync(file).equals(saved));
+});
 linuxTest('an unconfirmed receipt refuses the maintenance before anything is stopped and names the gate and receipt',async t=>{
  const f=await fixture(t,{receipts:[unresolvedReceipt]}),before=await inspectDaemon(f.options);
  const row=await f.run({...f.input,operationId:'receipt-blocked'});

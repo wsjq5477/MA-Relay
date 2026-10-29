@@ -259,7 +259,7 @@ class SshInstaller {
   release(version, bundle = this.bundle()) {
     if (!version || version === bundle.manifest.version) return bundle;
     const pin = bundle.manifest.compatibleDaemons?.find(row => row.version === version);
-    if (!pin || !bundle.manifest.files.some(file => file.path === pin.manifestPath) || !/^[a-f0-9]{64}$/.test(pin.manifestDigest)) throw problem('SSH_DAEMON_UPGRADE_REQUIRED', '远端后台版本不受当前客户端支持，未列入公共兼容清单。请更新远端后台，或使用明确列出该版本的可信客户端；本次未升级或替换远端后台。');
+    if (!pin || !bundle.manifest.files.some(file => file.path === pin.manifestPath) || !/^[a-f0-9]{64}$/.test(pin.manifestDigest)) throw problem('SSH_DAEMON_UPGRADE_REQUIRED', '远端后台版本不受当前客户端支持，未列入公共兼容清单。可在“后台维护”中明确确认强制替换为本程序配套后台，或使用支持该版本的客户端；本次未升级或替换远端后台。');
     let manifest;
     try { manifest = JSON.parse(fs.readFileSync(path.join(this.options.packageDirectory, pin.manifestPath), 'utf8')); } catch { throw problem('SSH_PACKAGE_INVALID', '客户端缺少兼容后台的校验清单。'); }
     validateManifest(manifest);
@@ -267,7 +267,7 @@ class SshInstaller {
     if (manifest.version !== version || digest !== pin.manifestDigest) throw problem('SSH_PACKAGE_CHECKSUM', '兼容后台清单摘要或版本不符，连接已停止。');
     return { manifest, digest };
   }
-  async probe(client, sharedSftp = null) {
+  async probe(client, sharedSftp = null, options = {}) {
     const output = await remoteExec(client, '/bin/sh -s', probeScript);
     const lines = output.replace(/\n$/, '').split('\n');
     if (lines.length !== 12 || lines[0] !== 'AGENTBRIDGE_PROBE_V2' || lines.at(-1) !== 'END_AGENTBRIDGE_PROBE') throw problem('SSH_BOOTSTRAP_OUTPUT', '非交互 SSH 启动脚本输出污染了检测结果，请移除后台登录时的欢迎文本。');
@@ -293,13 +293,29 @@ class SshInstaller {
         current = await readJson(sftp, path.posix.join(installPath, 'current.json'));
       }
     } finally { if (!shared) sftp.end(); }
-    const { manifest, digest } = this.release(current?.version, bundle);
+    let selected, replacementRequired = false;
+    try { selected = this.release(current?.version, bundle); }
+    catch (error) {
+      if (error.code !== 'SSH_DAEMON_UPGRADE_REQUIRED' || options.replacementPreview !== true) throw error;
+      // Only an explicit maintenance preview may inspect an unlisted source.
+      // It is never selected for execution or added to the trusted catalogue.
+      if (!current || !/^[a-zA-Z0-9.-]{1,80}$/.test(current.version) || ['.','..'].includes(current.version) || !/^[a-f0-9]{64}$/.test(current.digest) || current.versionPath !== path.posix.join(installPath,'versions',current.version)) throw problem('SSH_VERSION_CONFLICT','原后台版本路径或标记无效，不能替换。');
+      const sourceSftp = sharedSftp || await sftpOpen(client);
+      try {
+        for (const dir of [installPath,stateDirectory,current.versionPath]) await existingPrivateDirectory(sourceSftp,dir,home,uid);
+        const source = await readJson(sourceSftp,path.posix.join(current.versionPath,'.bridge-release.json'));
+        if (source?.ownerCoordinatorId !== this.options.coordinatorId || source.digest !== current.digest) throw problem('REMOTE_DIRECTORY_UNSAFE','原后台归属或版本标记不匹配，不能替换。');
+      } finally { if (!sharedSftp) sourceSftp.end(); }
+      selected = {manifest:{...bundle.manifest,version:current.version},digest:current.digest};
+      replacementRequired = true;
+    }
+    const { manifest, digest } = selected;
     const versionPath = path.posix.join(installPath, 'versions', manifest.version);
     if (current && (current.digest !== digest || current.versionPath !== versionPath)) throw problem('SSH_VERSION_CONFLICT', '已安装后台的版本路径或摘要与可信发布清单不符，保留旧目录并停止连接。');
     const installNeeded = !(current?.version === manifest.version && current?.digest === digest && current?.versionPath === versionPath);
     const totalBytes = manifest.files.reduce((sum, file) => sum + file.size, 0);
-    if (installNeeded && diskAvailable < totalBytes * 2 + 32 * 1024 * 1024) throw problem('SSH_DISK_SPACE', '远端可用空间不足，请释放用户目录空间后再连接。');
-    const probe = { home, platform: 'linux', arch: 'x64', uid, username, glibcVersion: libcVersion[1] + '.' + libcVersion[2], nodePath, nodeVersion, runtimeNeeded: !sufficientNode(nodeVersion), installNeeded, installPath, stateDirectory, versionPath, diskAvailable, packageBytes: totalBytes, daemonVersion: manifest.version, clientDaemonVersion: bundle.manifest.version, reuseCompatible: manifest.version !== bundle.manifest.version, protocolVersion: 2, profileId: this.profileId, manifestDigest: digest };
+    if ((installNeeded || replacementRequired) && diskAvailable < totalBytes * 2 + 32 * 1024 * 1024) throw problem('SSH_DISK_SPACE', '远端可用空间不足，请释放用户目录空间后再连接。');
+    const probe = { home, platform: 'linux', arch: 'x64', uid, username, glibcVersion: libcVersion[1] + '.' + libcVersion[2], nodePath, nodeVersion, runtimeNeeded: !sufficientNode(nodeVersion), installNeeded, installPath, stateDirectory, versionPath, diskAvailable, packageBytes: totalBytes, daemonVersion: manifest.version, clientDaemonVersion: bundle.manifest.version, reuseCompatible: !replacementRequired && manifest.version !== bundle.manifest.version, protocolVersion: 2, profileId: this.profileId, manifestDigest: digest,...(replacementRequired?{replacementRequired:true,replacementTargetDigest:bundle.digest}:{}) };
     // Free space fluctuates with ordinary use; it is checked separately at
     // install time and must not invalidate the summary a user confirmed.
     const stable = {...probe}; delete stable.diskAvailable;
@@ -310,11 +326,11 @@ class SshInstaller {
   async maintenancePreview(client){
     const sftp=await sftpOpen(client);let probe,previous;
     try{
-      probe=await this.probe(client,sftp);
-      previous=await readJson(sftp,path.posix.join(probe.installPath,'previous.json'));
+      probe=await this.probe(client,sftp,{replacementPreview:true});
+      if(!probe.replacementRequired)previous=await readJson(sftp,path.posix.join(probe.installPath,'previous.json'));
     }finally{sftp.end();}
     let rollbackVersion;
-    if(previous){const release=this.release(previous.version);if(previous.digest!==release.digest||previous.versionPath!==path.posix.join(probe.installPath,'versions',previous.version))throw problem('SSH_VERSION_CONFLICT','旧版本回退路径或摘要不可验证。');rollbackVersion=previous.version;}
+    if(previous&&!probe.replacementRequired){const release=this.release(previous.version);if(previous.digest!==release.digest||previous.versionPath!==path.posix.join(probe.installPath,'versions',previous.version))throw problem('SSH_VERSION_CONFLICT','旧版本回退路径或摘要不可验证。');rollbackVersion=previous.version;}
     return {...probe,targetVersion:this.bundle().manifest.version,rollbackVersion};
   }
   async stageMaintenance(client,probe,operationId,onProgress){

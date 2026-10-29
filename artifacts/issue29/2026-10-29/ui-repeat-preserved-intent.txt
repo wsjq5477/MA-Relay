@@ -1,0 +1,19 @@
+### Error
+TimeoutError: locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('section.inventory-machine').filter({ hasText: 'Synthetic replacement target' }).getByRole('button', { name: '后台维护', exact: true })[22m
+[2m    - locator resolved to <button disabled title="Synthetic replacement target：原机器管理操作待核对（操作 #5907280e），请在设置中查询原操作。">后台维护</button>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not enabled[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not enabled[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    58 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is not enabled[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+

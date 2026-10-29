@@ -1,0 +1,26 @@
+
+> agentbridge@0.1.0 docs:test
+> node scripts/prepare-doc-site.mjs && node tests/doc-site.test.mjs
+
+{
+  "ok": true,
+  "pages": 18,
+  "generatedTables": 2,
+  "publicAssets": 1,
+  "internalPagesPublished": 0,
+  "evidenceFilesExported": 0
+}
+✔ 公开页面只包含用户文档，七种产品均有独立章节 (56.776ms)
+✔ 接入方式和能力表分别保持方向及 DSH 服务边界 (14.2077ms)
+✔ 正文拒绝内部编号、过程、仓库链接及未许可 include (3.2998ms)
+✔ HTML / 引用式链接不能绕过正文链接检查 (0.5017ms)
+✔ 发布审计对生成目录执行独立白名单与内容检查 (350.8877ms)
+✔ 站点配置使用隔离源目录，资源准备不再扫描仓库引用 (2.461ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 442.6221

@@ -1,5 +1,10 @@
 # M10 构建与发布测试报告
 
+## 不受支持后台替换专项
+
+T-M10-202 / M10-F01/F02/F03：2026-10-29，基线1b7da57后的未发布源码。Windows专项134项133通过/1平台跳过；管理台账61/61（部分共享）；WSL Ubuntu22.04 / Node22.23.1实际隔离daemon进程与替换/回归29/29，最终分离替换及进程存活保护6/6（共享用例不相加）。生产renderer合成RPC的确认/取消/原ID等待及1440/980宽度通过，非生产SSH或真实EXE。本轮模型0、真实profile写入0，未重打EXE，不刷新原完整矩阵。[命令、原失败及全部证据](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
+
+
 2026-10-29源码组件验证：worker-runtime产品源码未改；测试以异步删除并断言原目录确实不存在，再核对缓存/历史manifest/修复目录，10/10通过。系统Node24.12.0的中文路径删除反例与Electron44.7.0/Node24.21.0对照分别保存；未打包或运行新普通EXE，原冻结包保持。[本轮证据与限制](../../iterations/I08/windows-regression-and-native-probes.md)。
 
 当前公开alpha.70已包含#27/#28修复，标签冻结5c95b98。225项产品输入与实际EXE3405资源匹配，源码/EXE/SHA公开且匿名完整下载一致。普通EXE合成恢复/完整重启、实际包内恢复和回环SSH UI已验；真实用户profile与完整矩阵仍按各自边界。[本轮发布与分层验收](../../iterations/I08/alpha70-release.md)。

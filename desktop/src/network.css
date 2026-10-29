@@ -17,3 +17,5 @@
 @media(max-width:800px){.network-machine-actions{align-items:flex-start}.ssh-auth-options{flex-wrap:wrap}.ssh-auth-options label{min-width:120px}.ssh-dialog dl{grid-template-columns:1fr;gap:5px}.ssh-dialog dd{margin-bottom:8px}.ssh-actions{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.ssh-spinner{animation:none}}
 .ssh-progress{height:7px;border-radius:8px;background:var(--border);overflow:hidden}.ssh-progress i{display:block;height:100%;background:var(--orange);border-radius:8px}.ssh-upload{max-width:330px;margin:20px auto}.ssh-upload p{font-variant-numeric:tabular-nums;font-size:12px}.ssh-machine-progress{margin:0 20px 16px;color:var(--secondary);font-size:12px}.ssh-machine-progress .ssh-progress{margin-top:8px}
+.modal-body label.daemon-replacement-confirm{display:flex;align-items:flex-start;gap:8px;line-height:1.6;font-size:13px}
+.modal-body .daemon-replacement-confirm input[type=checkbox]{width:16px;height:16px;flex:0 0 16px;padding:0;margin:3px 0 0}

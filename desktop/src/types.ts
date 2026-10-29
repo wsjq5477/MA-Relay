@@ -222,6 +222,7 @@ export interface Machine {
   distribution?: string;
   online: boolean;
   error?: string;
+  connectionError?:{code?:string;message?:string;retryable?:boolean};
   lastSyncedAt?:string;
   lastSeenAt?:string;
   home?: string;

@@ -442,3 +442,7 @@ recoverPending 保留 resolved/remaining/items；items 中 NOT_CONFIGURED 的固
 中央桌面 call 新增 relationRecovery.inspect（空参数，只读诊断、blockedReason 或匿名 proposal）及 relationRecovery.confirm（operationId、sourceDigest、confirm:true）。只在业务网络未载入时恢复；重复成功 ID 返回原收据。歧义及摘要变化返回 RELATION_RECOVERY_BLOCKED。后台握手及启动 manifest 须声明版本、multi-parent-relations-v1、relation-index-sync-v1 才能用于 v3 文件。[字段、提案与失败边界](iterations/I08/relation-conflict-diagnostic.md)。
 
 alpha.70中央hello新增 relation-recovery-observations-v2、ssh-current-observation-v1。恢复调用缺前者返回RELATION_RECOVERY_BACKEND_UPGRADE_REQUIRED；SSH管理或已有SSH的snapshot缺后者返回SSH_STATE_BACKEND_UPGRADE_REQUIRED，提示停止旧中央重开。daemon信任清单及协议不变。[范围](iterations/I08/issues27-28-current-state.md)。
+
+## 明确确认替换不受支持的后台
+
+machine.daemonPreview对未登记但归属可证明的版本返回replacementRequired:true、源/目标版本和previewId。machine.maintainDaemon沿用原operationId/expectedRevision/CAS，config.action新增replace并必须confirmReplacement===true，不允许allowUnresolved===true；目标只能是本客户端配套版本。新中央能力ssh-daemon-replacement-v1只约束该预览及replace，不要求旧daemon声明能力。正常probe及compatibleDaemons精确规则不变；协议2帧和任务/权限语义不变。未知维护只通过原ID查询，控制器死亡后的同意图恢复不得执行未校验旧版本。[完整流程](iterations/I08/issue29-explicit-daemon-replacement.md)。

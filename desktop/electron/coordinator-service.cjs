@@ -324,7 +324,7 @@ async function call(input) {
           const machine=state.machines.find(m=>m.machineId===machineId);
           const busy=state.tasks.some(t=>t.machineId===machineId&&!['succeeded','failed','cancelled'].includes(t.status))||state.nodes.some(n=>n.machineId===machineId&&(n.busy||n.unconfirmed||connection().nodeJobs.has(n.nodeId)))||state.instances.some(i=>i.machineId===machineId&&(i.busy||i.currentTask&&!['succeeded','failed','cancelled'].includes(i.currentTask.status)))||connection().catalog.instances.some(i=>i.machineId===machineId&&(connection().nodeJobs.has(i.nodeId)||connection().locks.has(require('./machine-router.cjs').workspaceKey(machine,i.workspace||''))));
           if(busy)throw Object.assign(Error('机器有运行、等待或未知任务，请先核对原执行。'),{code:'MACHINE_BUSY'});
-          if(!machine.online)throw Object.assign(Error('先重新连接并核对原执行，再编辑或移除机器。'),{code:'MACHINE_OFFLINE'});
+          if(!machine.online&&!(method==='machine.maintainDaemon'&&params.config?.action==='replace'))throw Object.assign(Error('先重新连接并核对原执行，再编辑或移除机器。'),{code:'MACHINE_OFFLINE'});
         }
         const receipt=await ssh.call(method,params);const result=connection().finalizeMachine(receipt);
         if(result.data?.action==='reconnect')await ssh.resumeConnection(result.data.connectionId,result.data.revision);
@@ -342,7 +342,7 @@ async function call(input) {
         if(!config||typeof config!=='object'||Object.keys(config).some(k=>!['name','host','port','username','authKind','keyPath'].includes(k)))throw Object.assign(Error('连接配置只接受地址、用户和认证方式；凭据请使用专用入口。'),{code:'INVALID_INPUT'});
         input={...input,params:{...input.params,config:require('./ssh-host.cjs').validateDraft(config)}};
       }
-      if(input.method==='machine.maintainDaemon'){const config=input.params.config;if(!config||Object.keys(config).some(k=>!['action','previewId','expectedVersion','targetVersion','allowUnresolved'].includes(k)))throw Object.assign(Error('后台维护只接受动作与可信版本摘要。'),{code:'INVALID_INPUT'});}else if(input.method!=='machine.updateSsh'&&input.params.config)throw Object.assign(Error('该机器操作不接受配置字段。'),{code:'INVALID_INPUT'});
+      if(input.method==='machine.maintainDaemon'){const config=input.params.config;if(!config||Object.keys(config).some(k=>!['action','previewId','expectedVersion','targetVersion','allowUnresolved','confirmReplacement'].includes(k)))throw Object.assign(Error('后台维护只接受动作与可信版本摘要。'),{code:'INVALID_INPUT'});}else if(input.method!=='machine.updateSsh'&&input.params.config)throw Object.assign(Error('该机器操作不接受配置字段。'),{code:'INVALID_INPUT'});
       const params={...input.params,connectionId:c.connectionId,...(c.machineId?{machineId:c.machineId}:{}),operationId:input.params.operationId||require('node:crypto').randomUUID(),expectedRevision:input.params.expectedRevision??c.revision};
       return {ok:true,result:await graphJournal.save(input.method,params,graphDispatch)};
     }

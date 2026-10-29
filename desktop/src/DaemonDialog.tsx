@@ -3,7 +3,7 @@ import {X} from 'lucide-react';
 import {call} from './api';
 import {sshTransferSize} from './AddMachineDialog';
 import type {Machine} from './types';
-type Preview={daemonVersion:string;targetVersion:string;rollbackVersion?:string;previewId:string;installPath:string;stateDirectory:string};
+type Preview={daemonVersion:string;targetVersion:string;rollbackVersion?:string;previewId:string;installPath:string;stateDirectory:string;replacementRequired?:boolean};
 export interface BlockerTask{taskId?:string;requestId?:string;executionId?:string;conversationId?:string;status?:string;adapter?:string;agentId?:string;nodeId?:string;busy?:boolean;currentTask?:BlockerTask}
 export interface BlockerReceipt{key:string;op:string;state:string;updatedAt?:string}
 export interface MaintenanceBlockers{available:boolean;reason?:string;code?:string;tasks?:BlockerTask[];agents?:BlockerTask[];receipts?:BlockerReceipt[];receiptsSupported?:boolean}
@@ -18,6 +18,7 @@ const terminalText=(machine:Machine)=>{
 };
 export default function DaemonDialog({machine,pending,onClose,run,poll,blockers,queryBlocked}:Props){
  const [preview,setPreview]=useState<Preview|null>(null),[error,setError]=useState(''),[action,setAction]=useState(''),[working,setWorking]=useState(false);
+ const [confirmReplacement,setConfirmReplacement]=useState(false);
  useEffect(()=>{let alive=true;void call<Preview>('machine.daemonPreview',{connectionId:machine.connectionId}).then(p=>{if(alive)setPreview(p);},e=>{if(alive)setError(e.message);});return(()=>{alive=false;});},[machine.connectionId]);
  // Bounded auto-query while the original receipt stays unconfirmed: 1s/2s/4s/8s backoff, one call in flight,
  // cleared on unmount or as soon as the original operation is settled. The original operationId is never replaced.
@@ -49,7 +50,7 @@ export default function DaemonDialog({machine,pending,onClose,run,poll,blockers,
   catch(reason){const failure=reason as Error;setQueryResults(old=>({...old,[receipt.key]:'查询失败（'+(failure.message||'未知原因')+'）；原记录保留，不会重发或更换 ID。'}));}
   finally{setQueryingKey('');setReloadToken(value=>value+1);}
  }
- async function confirm(){if(!preview||!action)return;setWorking(true);try{const ok=await run({action,previewId:preview.previewId,expectedVersion:preview.daemonVersion,...(['upgrade','rollback'].includes(action)?{targetVersion:action==='upgrade'?preview.targetVersion:preview.rollbackVersion}:{})});if(ok)onClose();}finally{setWorking(false);}}
+ async function confirm(){if(!preview||!action||action==='replace'&&!confirmReplacement)return;setWorking(true);try{const ok=await run({action,previewId:preview.previewId,expectedVersion:preview.daemonVersion,...(['upgrade','rollback','replace'].includes(action)?{targetVersion:action==='rollback'?preview.rollbackVersion:preview.targetVersion}:{}),...(action==='replace'?{confirmReplacement:true}:{})});if(ok)onClose();}finally{setWorking(false);}}
  async function overrideUpgrade(){if(!preview||!allowUnresolved)return;setWorking(true);try{const ok=await run({action:'upgrade',previewId:preview.previewId,expectedVersion:preview.daemonVersion,targetVersion:preview.targetVersion,allowUnresolved:true});if(ok)onClose();}finally{setWorking(false);}}
  const progress=machine.installProgress,percent=progress?Math.min(100,Math.round(progress.completedBytes/Math.max(1,progress.totalBytes)*100)):0,terminal=terminalText(machine);
  // types.ts is outside this change's write scope: read `details` structurally and ask
@@ -64,7 +65,7 @@ export default function DaemonDialog({machine,pending,onClose,run,poll,blockers,
  // Only a real switch/verification failure (stop timeout, health check, ownership) stays red.
  const historyCode=machine.daemonMaintenance?.error?.code,gateRefusal=historyCode==='DAEMON_BUSY';
  const upToDate=!!preview&&preview.daemonVersion===preview.targetVersion,historyAlert=machine.daemonMaintenance?.state==='rejected'&&!upToDate&&!gateRefusal;
- const canOverride=!!preview&&!upToDate&&!pending&&!working&&!workBlocked&&blockedReceipts.length>0;
+ const canOverride=!!preview&&!preview.replacementRequired&&!upToDate&&!pending&&!working&&!workBlocked&&blockedReceipts.length>0;
  return <div className="modal-overlay"><section className="modal" role="dialog" aria-modal="true" aria-label="后台维护"><div className="modal-head"><h2>后台维护 · {machine.name}</h2><button className="icon-btn" aria-label="关闭后台维护" disabled={working} onClick={onClose}><X size={18}/></button></div><div className="modal-body">
  {error&&<p role="alert">{error}</p>}{!preview&&!error&&<p>正在核对实际后台版本与可信安装…</p>}
  {progress&&<div className="ssh-upload"><div className="ssh-progress" role="progressbar" aria-label="后台维护进度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}><i style={{width:percent+'%'}}/></div><p>{phaseNames[progress.phase]||'正在上传'} {sshTransferSize(progress.completedBytes)} / {sshTransferSize(progress.totalBytes)}</p></div>}
@@ -80,8 +81,8 @@ export default function DaemonDialog({machine,pending,onClose,run,poll,blockers,
  {gateError&&<p className="ssh-note" role="status">维护前置门禁明细暂不可读（{gateError}）；维护仍按远端门禁执行。</p>}
  {canOverride&&<div className="ssh-note" role="group" aria-label="越过未确认收据"><label><input type="checkbox" checked={allowUnresolved} onChange={event=>setAllowUnresolved(event.target.checked)}/> 我已确认这些操作不会再运行（其原生会话已不存在）</label><p><button className="btn primary" disabled={!allowUnresolved||working||pending} onClick={()=>void overrideUpgrade()}>确认升级（保留未确认收据）</button></p></div>}
  {workBlocked&&<p className="inventory-machine-error">任务或 Agent 仍在运行、等待或未知，维护前置门禁不可越过。请先完成或按原 ID 核对这些操作。</p>}
- {preview&&<><p>实际版本：{preview.daemonVersion} · 本程序版本：{preview.targetVersion}</p><p>所有操作保留原机器身份、任务与会话历史，以及原生 Agent 的安装和配置。运行、等待、未知或未确认操作会阻止维护。</p><div className="ssh-actions"><button className="btn" disabled={working||pending||preview.daemonVersion===preview.targetVersion} onClick={()=>setAction('upgrade')}>升级后台</button><button className="btn" disabled={working||pending||!preview.rollbackVersion} onClick={()=>setAction('rollback')}>回滚到 {preview.rollbackVersion||'无可用旧版本'}</button><button className="btn" disabled={working||pending} onClick={()=>setAction('stop')}>停止后台</button><button className="btn" disabled={working||pending} onClick={()=>setAction('uninstall')}>卸载 Bridge 后台</button></div>
- {action&&<div role="status"><p>{action==='upgrade'?'新包通过校验后才切换；启动或健康检查失败会回到原版本。':action==='rollback'?'切换回已校验的原版本；不迁移或重发任务。':action==='stop'?'停止这份机器后台并暂停自动重连；稍后可重新连接启动。':'仅移除本 profile 的已核对 Bridge 安装；保留历史，撤销相关协作授权。'}</p><button className="btn" disabled={working} onClick={()=>setAction('')}>返回</button> <button className="btn primary" disabled={working||pending} onClick={()=>void confirm()}>确认{action==='upgrade'?'升级':action==='rollback'?'回滚':action==='stop'?'停止':'卸载'}</button></div>}</>}
+ {preview&&<><p>实际版本：{preview.daemonVersion} · 本程序版本：{preview.targetVersion}</p><p>所有操作保留原机器身份、任务与会话历史，以及原生 Agent 的安装和配置。运行、等待、未知或未确认操作会阻止维护。</p>{preview.replacementRequired?<section className="ssh-note" aria-label="替换不受支持的后台"><p>该后台未列入兼容清单，无法直接连接。可以将它替换为本程序配套的后台；原版本目录、机器身份和任务历史保留。</p><p>替换会短暂中断连接。运行、等待、未知任务或未确认收据会阻止替换。若启动失败，保留原操作供查询，不自动运行未校验的旧版本。</p><button className="btn" disabled={working||pending||workBlocked||blockedReceipts.length>0} onClick={()=>{setAction('replace');setConfirmReplacement(false);}}>强制替换后台</button></section>:<div className="ssh-actions"><button className="btn" disabled={working||pending||preview.daemonVersion===preview.targetVersion} onClick={()=>setAction('upgrade')}>升级后台</button><button className="btn" disabled={working||pending||!preview.rollbackVersion} onClick={()=>setAction('rollback')}>回滚到 {preview.rollbackVersion||'无可用旧版本'}</button><button className="btn" disabled={working||pending} onClick={()=>setAction('stop')}>停止后台</button><button className="btn" disabled={working||pending} onClick={()=>setAction('uninstall')}>卸载 Bridge 后台</button></div>}
+ {action&&<div role="status"><p>{action==='replace'?'将替换为 '+preview.targetVersion+'，不会直接连接或自动回滚到当前未校验版本。':action==='upgrade'?'新包通过校验后才切换；启动或健康检查失败会回到原版本。':action==='rollback'?'切换回已校验的原版本；不迁移或重发任务。':action==='stop'?'停止这份机器后台并暂停自动重连；稍后可重新连接启动。':'仅移除本 profile 的已核对 Bridge 安装；保留历史，撤销相关协作授权。'}</p><>{action==='replace'&&<p><label className="daemon-replacement-confirm"><input type="checkbox" checked={confirmReplacement} onChange={event=>setConfirmReplacement(event.target.checked)}/> 我确认将远端后台替换为本程序配套版本</label></p>}</><button className="btn" disabled={working} onClick={()=>{setAction('');setConfirmReplacement(false);}}>返回</button> <button className="btn primary" disabled={working||pending||action==='replace'&&(!confirmReplacement||workBlocked||blockedReceipts.length>0)} onClick={()=>void confirm()}>确认{action==='replace'?'替换':action==='upgrade'?'升级':action==='rollback'?'回滚':action==='stop'?'停止':'卸载'}</button></div>}</>}
  {pending&&<p role="status">已发送维护指令，等待远端切换（原操作已保留，不会重做）。关闭此窗口不会重做维护；也可以稍后在机器页面查询原操作。</p>}
  {!pending&&machine.daemonMaintenance?.state==='unknown'&&<p role="status">远端正在报告后台切换中；原操作与历史保留，完成后显示核对结果。</p>}
  </div></section></div>;
