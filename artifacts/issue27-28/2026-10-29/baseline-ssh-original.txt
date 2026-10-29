@@ -1,0 +1,84 @@
+✖ current SSH transitions revoke stale probe/offline errors and version errors win for both machines and nodes (6.0374ms)
+✖ failed current probe clears cached success, version refusal halts auto-retry, and explicit reconnect re-probes (40.9996ms)
+✔ SSH recovery clears persisted version errors without losing identity, nodes or history; a new failure remains visible (91.5275ms)
+✔ an authoritative SSH snapshot revokes stale errors but cannot make a failed RPC online (0.574ms)
+✖ old coordinator SSH snapshots and mutations require explicit backend upgrade before dispatch (27.282ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1070.9227
+
+✖ failing tests:
+
+test at desktop\tests\ssh-state-recovery.test.cjs:13:1
+✖ current SSH transitions revoke stale probe/offline errors and version errors win for both machines and nodes (6.0374ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'old offline'
+  - undefined
+  
+      at TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-state-recovery.test.cjs:17:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'old offline',
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at desktop\tests\ssh-state-recovery.test.cjs:27:1
+✖ failed current probe clears cached success, version refusal halts auto-retry, and explicit reconnect re-probes (40.9996ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   previewId: 'old'
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-state-recovery.test.cjs:37:10)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { previewId: 'old' },
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at desktop\tests\ssh-state-recovery.test.cjs:104:1
+✖ old coordinator SSH snapshots and mutations require explicit backend upgrade before dispatch (27.282ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    Comparison {
+  +   code: 'COORDINATOR_UPGRADE_REQUIRED'
+  -   code: 'SSH_STATE_BACKEND_UPGRADE_REQUIRED'
+    }
+  
+      at async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-state-recovery.test.cjs:108:81)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: 当前中央后台缺少本版本的安全读取、版本检查或分机器管理能力。请在设置 → 后台运行中停止后台并退出，再打开新版 EXE；原任务和历史保留。
+        at CoordinatorClient.request (D:\LLM\MA-Relay\artifacts\issue27-28\2026-10-29\baseline-original\desktop\electron\coordinator-client.cjs:69:27)
+        at async waitForActual (node:assert:646:5)
+        at async strict.rejects (node:assert:769:25)
+        at async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-state-recovery.test.cjs:108:81)
+        at async Test.run (node:internal/test_runner/test:1113:7)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:788:7),
+    expected: { code: 'SSH_STATE_BACKEND_UPGRADE_REQUIRED' },
+    operator: 'rejects',
+    diff: 'simple'
+  }

@@ -365,3 +365,7 @@
 - [I08 issue #27 关系冲突检查与人工恢复](I08/relation-conflict-diagnostic.md)
 
 - [I08 alpha.68 发布交付](I08/alpha68-release.md)
+
+- [I08 #27关系观察恢复与#28 SSH当前状态修复](I08/issues27-28-current-state.md)
+
+- [I08 alpha.70 #27/#28候选交付](I08/alpha70-release.md)

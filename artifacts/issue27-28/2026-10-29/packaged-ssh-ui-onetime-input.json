@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-29T07:49:06.700Z",
+  "version": "0.6.0-alpha.70",
+  "status": "failed",
+  "scope": "actual packaged unpacked EXE UI with debugging transport, actual coordinator and loopback SSH/SFTP virtual files; no production remote or profile",
+  "modelCalls": 0,
+  "checks": [
+    "Actual packaged coordinator accepts its trusted public manifest as a fresh ready probe"
+  ],
+  "error": {
+    "code": "VERIFY_FAILED",
+    "message": "Second probe did not reach inspecting"
+  }
+}

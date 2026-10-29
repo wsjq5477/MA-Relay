@@ -1,0 +1,41 @@
+✔ 5→7→6 chain needs explicit confirmation, preserves exact backup, history and restart state; original ID is idempotent (114.9292ms)
+✔ a confirmed old attach observes revision 14 without becoming a second relationship mutation (37.4981ms)
+✔ an attach observation contradicting its original revision never authorizes recovery (17.3128ms)
+✔ missing, ambiguous, unknown, duplicate, bad fingerprint and unexplained revocation sources remain read-only (115.533ms)
+✔ management unknown, source change and backup/write/rename failures cannot modify the original (101.8816ms)
+✔ service exposes recovery before normal mutable load (48.7445ms)
+✔ v3 writer guard rejects old capability sets before use and permits declared sync runtime (15.1745ms)
+✔ old live coordinator handshake is refused before any business dispatch (995.9308ms)
+✔ backup mismatch blocks recovery and preserves original bytes (47.2441ms)
+✔ auto-start checks runtime manifest capabilities before spawning a writer (23.056ms)
+✔ a confirmed unrelated disconnect at an observed revision is not a duplicate mutation (13.1943ms)
+✔ lost observer acknowledgement is checked against the exact original durable receipt without rewriting unknowns (68.4974ms)
+✔ a mismatched original journal fingerprint or ID cannot release an unknown placeholder (36.2894ms)
+✔ new recovery window cannot silently call an older index-sync coordinator (10.9714ms)
+✔ confirmed policy and connection history already covered by the selected baseline does not block later old-writer recovery (44.8139ms)
+✔ a later or unbound policy decision cannot be hidden as baseline history (34.6858ms)
+✔ an observer payload with extra unproven parameters cannot borrow a matching subset receipt (33.1028ms)
+✔ a contradictory removed-but-connected receipt cannot justify automatic recovery (18.8612ms)
+✔ legacy migration retains exact relationship order, revisions and original unknown ownership without mutating the input (28.4119ms)
+✔ selected projection commits preserve inactive relation rows and do not mutate the previous state (4.6613ms)
+✔ partial, unknown, duplicate, missing-selection and conflicting stored indexes never silently migrate or overwrite either view (15.1908ms)
+✔ existing legacy file is read without a write, then the first normal atomic commit persists migration and all original receipts (151.6116ms)
+✔ an older writer changing only the legacy view causes a closed startup with original bytes retained (11.5614ms)
+✔ real relation save and original-ID idempotency atomically retain the index and unrelated unknowns; failed rename commits neither (1526.2855ms)
+✔ real node disconnect and machine removal keep the selected index synchronized with revocation (743.9412ms)
+✔ conflict diagnostic exposes only counts and revisions and leaves source unchanged (2.2416ms)
+✔ current SSH transitions revoke stale probe/offline errors and version errors win for both machines and nodes (10.5485ms)
+✔ failed current probe clears cached success, version refusal halts auto-retry, and explicit reconnect re-probes (230.8529ms)
+✔ SSH recovery clears persisted version errors without losing identity, nodes or history; a new failure remains visible (301.1502ms)
+✔ an authoritative SSH snapshot revokes stale errors but cannot make a failed RPC online (0.7844ms)
+✔ old coordinator SSH snapshots and mutations require explicit backend upgrade before dispatch (38.0446ms)
+✔ actual Coordinator snapshot projects current SSH phase and refusal over an offline cached business snapshot (811.0121ms)
+✔ real loopback SSH authentication and production probe reject an unlisted daemon without stale evidence or remote writes (824.661ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3736.9166

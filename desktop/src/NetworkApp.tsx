@@ -42,6 +42,7 @@ import type {
   RecoveryItem,
 } from "./types";
 import "./network.css";
+import {sshNodeState} from './ssh-node-state';
 const empty: Snapshot = {
   configured: false,
   directory: "",
@@ -52,6 +53,7 @@ const empty: Snapshot = {
   conversations: [],
 };
 const nodeStatus = (n: AgentNode) =>
+  sshNodeState(n) || (
   n.status === "offline"
     ? "机器离线"
     : n.status === "upgrade_required" ? "后台需要升级"
@@ -72,7 +74,7 @@ const nodeStatus = (n: AgentNode) =>
                 ? "正在工作"
                 : n.lastError
                   ? "最近执行失败"
-                  : "已接入";
+                  : "已接入");
 export default function NetworkApp() {
   const [data, setData] = useState(empty),
     [page, setPage] = useState<Page>("machines"),

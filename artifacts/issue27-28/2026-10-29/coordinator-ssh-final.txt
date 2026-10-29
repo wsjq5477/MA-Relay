@@ -1,0 +1,14 @@
+✔ current SSH transitions revoke stale probe/offline errors and version errors win for both machines and nodes (2.5775ms)
+✔ failed current probe clears cached success, version refusal halts auto-retry, and explicit reconnect re-probes (61.3515ms)
+✔ SSH recovery clears persisted version errors without losing identity, nodes or history; a new failure remains visible (67.9668ms)
+✔ an authoritative SSH snapshot revokes stale errors but cannot make a failed RPC online (0.4487ms)
+✔ old coordinator SSH snapshots and mutations require explicit backend upgrade before dispatch (19.1491ms)
+✔ actual Coordinator snapshot projects current SSH phase and refusal over an offline cached business snapshot (407.5472ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1125.2862

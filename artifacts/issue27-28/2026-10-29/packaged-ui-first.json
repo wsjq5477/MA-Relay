@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-29T07:25:03.819Z",
+  "version": "0.6.0-alpha.70",
+  "status": "failed",
+  "scope": "actual packaged unpacked EXE UI with Playwright debugging transport; isolated synthetic profile; separate ordinary portable test has no debugging",
+  "modelCalls": 0,
+  "checks": [
+    "Actual packaged UI: read-only proposal, disabled submit, cancellation preserves bytes, explicit checkbox/submit restores 13→15 and 5→7→6 without regranting removed member",
+    "Actual backup bytes, original task unknown, all original receipts and other relationship retained"
+  ],
+  "pageErrors": 0,
+  "error": {
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"path\" argument must be of type string. Received undefined"
+  }
+}

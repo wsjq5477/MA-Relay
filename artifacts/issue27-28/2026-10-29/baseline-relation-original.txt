@@ -1,0 +1,142 @@
+✔ 5→7→6 chain needs explicit confirmation, preserves exact backup, history and restart state; original ID is idempotent (47.3151ms)
+✖ a confirmed old attach observes revision 14 without becoming a second relationship mutation (9.8722ms)
+✔ an attach observation contradicting its original revision never authorizes recovery (8.8784ms)
+✔ missing, ambiguous, unknown, duplicate, bad fingerprint and unexplained revocation sources remain read-only (52.4381ms)
+✔ management unknown, source change and backup/write/rename failures cannot modify the original (41.5822ms)
+✔ service exposes recovery before normal mutable load (31.1807ms)
+✔ v3 writer guard rejects old capability sets before use and permits declared sync runtime (10.8948ms)
+✔ old live coordinator handshake is refused before any business dispatch (359.8647ms)
+✔ backup mismatch blocks recovery and preserves original bytes (13.4561ms)
+✔ auto-start checks runtime manifest capabilities before spawning a writer (14.2128ms)
+✖ a confirmed unrelated disconnect at an observed revision is not a duplicate mutation (7.2951ms)
+✖ lost observer acknowledgement is checked against the exact original durable receipt without rewriting unknowns (10.1591ms)
+✔ a mismatched original journal fingerprint or ID cannot release an unknown placeholder (20.0005ms)
+✖ new recovery window cannot silently call an older index-sync coordinator (8.393ms)
+✖ confirmed policy and connection history already covered by the selected baseline does not block later old-writer recovery (7.7854ms)
+✔ a later or unbound policy decision cannot be hidden as baseline history (19.6365ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 11
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1245.5762
+
+✖ failing tests:
+
+test at desktop\tests\relation-recovery.test.cjs:36:1
+✖ a confirmed old attach observes revision 14 without becoming a second relationship mutation (9.8722ms)
+  AssertionError [ERR_ASSERTION]: 收据修订跳号或存在多个候选结果。
+  
+  undefined !== 15
+  
+      at TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\relation-recovery.test.cjs:40:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 15,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at desktop\tests\relation-recovery.test.cjs:106:1
+✖ a confirmed unrelated disconnect at an observed revision is not a duplicate mutation (7.2951ms)
+  AssertionError [ERR_ASSERTION]: 收据修订跳号或存在多个候选结果。
+  
+  undefined !== 15
+  
+      at TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\relation-recovery.test.cjs:109:79)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 15,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at desktop\tests\relation-recovery.test.cjs:112:1
+✖ lost observer acknowledgement is checked against the exact original durable receipt without rewriting unknowns (10.1591ms)
+  AssertionError [ERR_ASSERTION]: 原管理台账存在未知占位，须先核对原操作。
+  
+  undefined !== 15
+  
+      at TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\relation-recovery.test.cjs:117:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 15,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at desktop\tests\relation-recovery.test.cjs:128:1
+✖ new recovery window cannot silently call an older index-sync coordinator (8.393ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    Comparison {
+  +   code: 'COORDINATOR_UPGRADE_REQUIRED'
+  -   code: 'RELATION_RECOVERY_BACKEND_UPGRADE_REQUIRED'
+    }
+  
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\relation-recovery.test.cjs:130:79)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: 当前中央后台缺少本版本的安全读取、版本检查或分机器管理能力。请在设置 → 后台运行中停止后台并退出，再打开新版 EXE；原任务和历史保留。
+        at CoordinatorClient.request (D:\LLM\MA-Relay\artifacts\issue27-28\2026-10-29\baseline-original\desktop\electron\coordinator-client.cjs:69:27)
+        at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at async waitForActual (node:assert:646:5)
+        at async strict.rejects (node:assert:769:25)
+        at async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\relation-recovery.test.cjs:130:79)
+        at async Test.run (node:internal/test_runner/test:1113:7)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:788:7),
+    expected: { code: 'RELATION_RECOVERY_BACKEND_UPGRADE_REQUIRED' },
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at desktop\tests\relation-recovery.test.cjs:133:1
+✖ confirmed policy and connection history already covered by the selected baseline does not block later old-writer recovery (7.7854ms)
+  AssertionError [ERR_ASSERTION]: 连接或策略收据缺少完整授权结果顺序，须人工核对。
+  
+  undefined !== 15
+  
+      at TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\relation-recovery.test.cjs:137:79)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 15,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

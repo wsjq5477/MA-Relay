@@ -356,3 +356,5 @@ T-M01-120：基于alpha.23的未发布源码增量，WSL Linux / Node22.23.1。�
 本轮候选冻结于2026-10-18 08:50前后。11:18以后共享工作区另有原生适配器/图标增量，不在这份候选或381项结果中；不能把当前目录后续变化当作已验证包。[最终普通EXE及源码边界](../../iterations/I07/ui-redesign.md)。
 
 2026-10-28 Windows：关系恢复定向受控回归、生产前端构建及合成 RPC 浏览器确认流程通过；全量仍有失败，不代表真实 profile 或普通 EXE 通过。[证据与边界](../../iterations/I08/relation-conflict-diagnostic.md)。
+
+2026-10-29 / alpha.70候选 / Windows：定向98/98、包内关系/SSH33/33、普通portable恢复与完整重启、实际包内恢复及真实回环SSH/SFTP界面流程通过，模型0。第二轮全量1030通过/1失败/41平台跳过，DSH同一竞态基线也有失败；各原失败及验收器收尾限制保留。不代表真实profile、生产SSH或完整矩阵准出。[证据与边界](../../iterations/I08/issues27-28-current-state.md)。

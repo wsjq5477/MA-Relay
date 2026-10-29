@@ -40,7 +40,7 @@ test('open and close rejection, channel closure and idle timeout all terminate p
 });
 test('known upload rejection permits explicit retry on the original installation ID; later unknown failures remain unknown',async t=>{
   const f=fixture(t);let code='SSH_UPLOAD_FAILED';
-  const manager=new SshManager({directory:f.directory,installer:{async install(){throw Object.assign(Error('controlled'),{code});}}});t.after(()=>manager.close());
+  const manager=new SshManager({directory:f.directory,installer:{async probe(){return {previewId:'fixed',installNeeded:true};},async install(){throw Object.assign(Error('controlled'),{code});}}});t.after(()=>manager.close());
   const c={connectionId:'original',revision:1,authKind:'agent',stage:'ready',probe:{previewId:'fixed',installNeeded:true}};
   manager.connections.push(c);
   const ready=()=>manager.clients.set(c.connectionId,{ready:true,client:{end(){}}});

@@ -61,3 +61,5 @@ CT-04 公共材料与 CT-05 选材包的源码已实现（见矩阵 §4 各行�
 - [同步维护规则](development-guide.md)：修改模块时同时更新当前设计与迭代。
 
 alpha.68已包含关系冲突证据恢复；普通EXE隔离恢复和完整重启通过，真实profile未写入，完整矩阵不据此准出。[发布与完整边界](iterations/I08/alpha68-release.md)。
+
+#27/#28当前已进入alpha.70候选包验证：关系变更/观察与原确认核对、SSH probe新鲜度/当前错误/停止版本自动重试已实现；原公共未知版本仍拒绝。普通portable、实际包内恢复/SSH UI已验；正式发布按交付记录登记。[当前记录](iterations/I08/alpha70-release.md)。

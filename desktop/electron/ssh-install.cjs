@@ -259,7 +259,7 @@ class SshInstaller {
   release(version, bundle = this.bundle()) {
     if (!version || version === bundle.manifest.version) return bundle;
     const pin = bundle.manifest.compatibleDaemons?.find(row => row.version === version);
-    if (!pin || !bundle.manifest.files.some(file => file.path === pin.manifestPath) || !/^[a-f0-9]{64}$/.test(pin.manifestDigest)) throw problem('SSH_DAEMON_UPGRADE_REQUIRED', '远端后台版本未列入本客户端已验证的兼容范围；保留原后台，请使用对应客户端。');
+    if (!pin || !bundle.manifest.files.some(file => file.path === pin.manifestPath) || !/^[a-f0-9]{64}$/.test(pin.manifestDigest)) throw problem('SSH_DAEMON_UPGRADE_REQUIRED', '远端后台版本不受当前客户端支持，未列入公共兼容清单。请更新远端后台，或使用明确列出该版本的可信客户端；本次未升级或替换远端后台。');
     let manifest;
     try { manifest = JSON.parse(fs.readFileSync(path.join(this.options.packageDirectory, pin.manifestPath), 'utf8')); } catch { throw problem('SSH_PACKAGE_INVALID', '客户端缺少兼容后台的校验清单。'); }
     validateManifest(manifest);

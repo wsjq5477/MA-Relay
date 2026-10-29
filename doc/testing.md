@@ -118,3 +118,5 @@ Node ≥22.13；测试可能启动隔离后台/worker 并调用原生安装 `--v
 桌面资料站仅发布 `doc/user/` 用户Markdown；内部报告/历史/过程不参与路由、搜索和资源导出。网页构建、发布边界、搜索、目录、DSH章节、接入摘要、主题与Mermaid的实际结果在 [M11 报告](modules/11-documentation-portal/test-report.md)维护；不纳入核心测试计数，也不改变 Windows EXE 交付结论。按用户要求不做手机专项验收。
 
 alpha.68关系冲突恢复为分层受控验收：定向 137/137、生产构建及合成浏览器确认/取消/失败/成功反馈通过。桌面全量 926 通过、74 失败、1 跳过，未做变更前同工作区全量对比；未提升整体验收基线。[证据和未测环境](iterations/I08/relation-conflict-diagnostic.md)。
+
+当前源码#27/#28：定向98/98、包内33/33；回环SSH与浏览器合成RPC已验。第二轮全量1030通过/1失败/41平台跳过，DSH竞态基线也有相同失败；不声明全量全绿，普通portable恢复/完整重启及实际包内恢复/SSH UI通过。[原始证据和未测项](iterations/I08/issues27-28-current-state.md)。

@@ -65,6 +65,14 @@ class CoordinatorClient {
   }
   async request(method,params) {
     await this.open();
+    if(method==='call'&&['relationRecovery.inspect','relationRecovery.confirm'].includes(params?.method)&&!this.info?.capabilities?.includes('relation-recovery-observations-v2'))
+      throw Object.assign(Error('当前后台仍使用旧关系恢复逻辑。请在设置中停止后台并退出，再打开新版；原关系、收据和未知操作保留。'),{code:'RELATION_RECOVERY_BACKEND_UPGRADE_REQUIRED'});
+    if(method==='call'&&!this.info?.capabilities?.includes('ssh-current-observation-v1')){
+      const file=path.join(this.options.directory,'ssh-connections.json');
+      const hasSsh=fs.existsSync(file)&&JSON.parse(fs.readFileSync(file,'utf8')).connections?.length>0;
+      if(params?.method?.startsWith('machine.')||params?.method==='snapshot'&&hasSsh)
+        throw Object.assign(Error('当前后台缺少本版本的 SSH 探测状态保护。请在设置中停止后台并退出，再打开新版；远端后台和原任务不变。'),{code:'SSH_STATE_BACKEND_UPGRADE_REQUIRED'});
+    }
     if(!supportsCurrentCoordinator(this.info?.capabilities)&&!['preferences','runtimes','shutdown'].includes(method))
       throw Object.assign(new Error('当前中央后台缺少本版本的安全读取、版本检查或分机器管理能力。请在设置 → 后台运行中停止后台并退出，再打开新版 EXE；原任务和历史保留。'),{code:'COORDINATOR_UPGRADE_REQUIRED'});
     // The richer MCP facts and the persisted revocation are separate new backend

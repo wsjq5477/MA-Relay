@@ -1,0 +1,32 @@
+✔ SSH filesystem paths never alias local Windows or WSL drives (5.473ms)
+✔ idle status polls never relaunch inventory probes; manual scan refreshes tools and WSL environments (193.7832ms)
+✔ failed startup discovery stays quiet until manual retry without hiding live machine state (84.6091ms)
+✔ concurrent initial status reads share one WSL enumeration (17.8469ms)
+✔ new native adapters retain their names and identities when snapshots are imported (83.1085ms)
+✔ imports old instances and history with stable machine IDs without rewriting raw or native IDs (111.7137ms)
+✔ same raw IDs route tasks, conversations, requests, replies and operations to their source machine (157.9395ms)
+✔ keeps Windows paths native and maps only the selected WSL distribution (1.153ms)
+✔ shared Windows and WSL projects reject new work while either instance is busy (77.2164ms)
+✔ shared occupancy includes an active instance outside the first 100 displayed tasks (84.7276ms)
+✔ reopening with an offline shared source retains occupancy but independent projects still run (116.5508ms)
+✔ idempotent retries reach the original backend contract before shared project occupancy (72.7798ms)
+✔ changing the selected machine preserves other hosts and their running work (143.7471ms)
+✔ one failed source keeps healthy results and marks only cached active tasks uncertain (62.2245ms)
+✔ empty machines exist before instances and connecting a tool does not ask for a project (56.7408ms)
+✔ an unavailable legacy preferred WSL retains its identity instead of falling back to another distro (52.2234ms)
+✔ a never-ending WSL snapshot times out without blocking Windows or spawning repeated jobs (130.4663ms)
+✔ instance model overrides and inheritance resets retain source routing and revision contracts (44.677ms)
+✔ real loopback SSH authentication and production probe reject an unlisted daemon without stale evidence or remote writes (424.3832ms)
+✔ upload handles reordered/split WRITE acknowledgements without recycling active buffers and waits for remote CLOSE (41.2341ms)
+✔ failed WRITE counts only acknowledged bytes and exposes a safe permission/storage diagnostic (100.3658ms)
+✔ open and close rejection, channel closure and idle timeout all terminate pre-activation upload (137.0611ms)
+✔ known upload rejection permits explicit retry on the original installation ID; later unknown failures remain unknown (99.111ms)
+✔ real TCP SSH/SFTP upload validates bytes with split WRITEs, reordered server ACKs and delayed CLOSE (372.3584ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1894.2903

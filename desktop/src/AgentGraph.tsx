@@ -1,4 +1,5 @@
 import {memo,useEffect,useMemo,useRef,useState} from 'react';
+import {sshNodeState} from './ssh-node-state';
 import {ReactFlow,Background,BaseEdge,Handle,Position,MarkerType,getSmoothStepPath,useStoreApi,useUpdateNodeInternals,type EdgeProps,type Node,type NodeProps,type ReactFlowInstance,type Connection,type NodeChange,type Viewport} from '@xyflow/react';
 import {Crown,Monitor,Terminal,Plus,Minus,Maximize,LayoutGrid,RefreshCw,Pencil} from 'lucide-react';
 import {routeAroundNodes,type Obstacle} from './graph-routing';
@@ -11,7 +12,7 @@ import type {NodeAction} from './node-management';
 import type {AgentNode,Collaboration,Machine} from './types';
 import '@xyflow/react/dist/style.css';
 import './graph.css';
-export const graphNodeStatus=(n:AgentNode)=>!n.online?'机器离线':n.status==='upgrade_required'?'后台需要升级':n.status==='version_incompatible'?'版本不兼容，需要 OpenCode 2.x':n.status==='needs_check'?'需要检查原生 API':n.status==='configuration_required'?'待配置服务连接':n.status==='tool_error'?'工具检查异常':!n.executionSupported?'尚未支持执行':!n.connected?'已发现，待接入':n.unconfirmed||n.uncertain?'执行待核对':n.waiting?'等待你处理':n.busy?'正在工作':n.lastError?'最近执行失败':'已接入';
+export const graphNodeStatus=(n:AgentNode)=>sshNodeState(n)||(!n.online?'机器离线':n.status==='upgrade_required'?'后台需要升级':n.status==='version_incompatible'?'版本不兼容，需要 OpenCode 2.x':n.status==='needs_check'?'需要检查原生 API':n.status==='configuration_required'?'待配置服务连接':n.status==='tool_error'?'工具检查异常':!n.executionSupported?'尚未支持执行':!n.connected?'已发现，待接入':n.unconfirmed||n.uncertain?'执行待核对':n.waiting?'等待你处理':n.busy?'正在工作':n.lastError?'最近执行失败':'已接入');
 type Point={x:number;y:number};
 type Data={
   machine?:Machine;node?:AgentNode;hostName?:string;count?:number;role?:string;

@@ -9,6 +9,7 @@ const { SshInstaller, quote, remoteExec, progressFailure } = require('./ssh-inst
 const { FramedStream } = require('./machine-protocol.cjs');
 const {rejectedError}=require('./daemon-rejection.cjs');
 const {supportsRecovery,supportsMcpOpenAccess}=require('./runtime-capabilities.cjs');
+const {versionRefusal}=require('./ssh-state.cjs');
 
 const SSH_METHODS = new Set(['machine.createSshDraft', 'credential.provide', 'machine.testSsh', 'machine.trustHost', 'machine.connectSsh', 'machine.reconnect', 'machine.disconnect', 'machine.maintenanceBlockers', 'machine.queryBlockedOperation']);
 const {digest,operationId,atomicWrite}=require('./graph-layout.cjs');
@@ -178,7 +179,7 @@ class SshManager {
   }
   state(connection, stage, error) {
     connection.stage = stage; connection.online = stage === 'online';
-    if (error) connection.error = { code: error.code || 'SSH_CONNECTION_FAILED', message: error.message, retryable: !fatal.has(error.code) }; else delete connection.error;
+    if (error) connection.error = { code: error.code || 'SSH_CONNECTION_FAILED', message: error.message, retryable: !fatal.has(error.code)&&!versionRefusal(error.code) }; else delete connection.error;
     this.save(); this.options.onChange?.(this.publicState(connection));
   }
   touch(connection) { connection.lastSeenAt = new Date().toISOString(); }
@@ -529,6 +530,7 @@ class SshManager {
     });
   }
   async test(connection) {
+    delete connection.probe;
     try {
       const client = await this.authenticate(connection); this.state(connection, 'inspecting');
       connection.probe = await this.installer.probe(client);
@@ -539,6 +541,7 @@ class SshManager {
       return { ...this.publicState(connection), probe: connection.probe, saveSupported: this.credentials.saveSupported };
     } catch (error) {
       const failure = safeFailure(error);
+      delete connection.probe;
       if (failure.code === 'SSH_HOST_TRUST_REQUIRED') {
         this.state(connection, 'awaiting_host_trust'); const { record, expiresAt, ...challenge } = this.challenges.get(connection.connectionId);
         return { ...this.publicState(connection), trustChallenge: challenge };
@@ -553,7 +556,7 @@ class SshManager {
     const prior = this.operations[input.operationId];
     if (prior && prior.connectionId !== connection.connectionId) throw problem('REQUEST_CONFLICT', '此操作 ID 已用于另一条机器连接。');
     try {
-      if (!this.clients.get(connection.connectionId)?.ready || !connection.probe) {
+      if (reconnect || !this.clients.get(connection.connectionId)?.ready || !connection.probe) {
         const tested = await this.test(connection); if (tested.status !== 'ready') return tested;
       }
       const client = this.clients.get(connection.connectionId).client, probe = connection.probe;
@@ -595,6 +598,7 @@ class SshManager {
       this.options.onMachine?.(connection.identity); host.startHeartbeat(); return this.publicState(connection);
     } catch (error) {
       const failure = safeFailure(error); const operation = this.operations[input.operationId]; if (operation?.status === 'pending') { operation.status = failure.code === 'SSH_UPLOAD_FAILED' ? 'rejected' : 'unknown'; operation.errorCode = failure.code; }
+      delete connection.probe;
       if (['SSH_UPLOAD_FAILED','SSH_INSTALL_CONFIRMATION_REQUIRED'].includes(failure.code)) {
         connection.autoReconnect = false;
         clearTimeout(this.reconnectTimers.get(connection.connectionId)); this.reconnectTimers.delete(connection.connectionId);
@@ -636,13 +640,14 @@ class SshManager {
   }
   scheduleReconnect(connection, immediately = false) {
     if (this.closed || connection.removed || connection.autoReconnect === false || this.reconnectTimers.has(connection.connectionId)) return;
+    if(versionRefusal(connection.error?.code))return;
     if (connection.authKind === 'password' && !connection.credentialRef&&!this.clients.get(connection.connectionId)?.ready) { this.state(connection, 'needs_credentials', problem('SSH_AUTH_REQUIRED', '请输入 SSH 密码以恢复原机器连接。')); return; }
     connection.reconnectCount = immediately ? 0 : (connection.reconnectCount || 0) + 1;
     const delay = immediately ? 0 : Math.min(8000, 1000 * 2 ** (connection.reconnectCount - 1)) * (0.8 + Math.random() * 0.2);
     const timer = setTimeout(() => {
       this.reconnectTimers.delete(connection.connectionId); if (this.closed || connection.removed || connection.autoReconnect === false) return;
       this.state(connection, 'reconnecting');
-      void this.serial(connection, 'connect', () => this.connect(connection, { operationId: 'reconnect-' + randomUUID(), installIfNeeded: false }, true)).then(result => { if (result.status === 'online') connection.reconnectCount = 0; }).catch(error => { if (!fatal.has(error.code) && !['SSH_AUTH_REQUIRED', 'SSH_AUTH_FAILED'].includes(error.code)) this.scheduleReconnect(connection); });
+      void this.serial(connection, 'connect', () => this.connect(connection, { operationId: 'reconnect-' + randomUUID(), installIfNeeded: false }, true)).then(result => { if (result.status === 'online') connection.reconnectCount = 0; }).catch(error => { if (!fatal.has(error.code) && !versionRefusal(error.code) && !['SSH_AUTH_REQUIRED', 'SSH_AUTH_FAILED'].includes(error.code)) this.scheduleReconnect(connection); });
     }, delay); timer.unref?.(); this.reconnectTimers.set(connection.connectionId, timer);
   }
   manualDisconnect(connection) {

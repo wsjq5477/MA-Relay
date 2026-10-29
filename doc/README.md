@@ -84,3 +84,5 @@ flowchart TD
 在仓库根执行 `npm run docs:dev` 打开 `http://localhost:4188`；构建静态站点用 `npm run docs:build`。网页只发布 `doc/user/` 的当前用户说明；内部设计/报告/问题/迭代不进入导航、搜索、路由或下载。使用方法见 [网页说明](web-reading.md)。
 
 远端源码、私有运行状态及本地验收材料的范围见 [远端源码范围](repository-sync.md)；逐版本的标签、EXE 与 SHA-256 对照见 [历史发布登记](iterations/release-ledger.md)。
+
+当前未发布alpha.70候选修正关系观察/原收据恢复和SSH当前探测状态；公开alpha.69不据此刷新。见[修复与分层验证](iterations/I08/issues27-28-current-state.md)及[候选交付](iterations/I08/alpha70-release.md)。

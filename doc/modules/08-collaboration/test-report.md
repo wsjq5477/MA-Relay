@@ -306,3 +306,5 @@ T-M08-120：基于alpha.23的未发布源码增量，WSL Linux / Node22.23.1。�
 
 
 2026-10-28 Windows 受控：关系冲突定向回归通过，涵盖 5→7→6、备份/替换失败、幂等和原历史保全；全量仍有失败，真实 profile 未恢复。[证据与未测项](../../iterations/I08/relation-conflict-diagnostic.md)。
+
+2026-10-29 / alpha.70候选 / Windows：定向98/98、包内关系/SSH33/33、普通portable恢复与完整重启、实际包内恢复及真实回环SSH/SFTP界面流程通过，模型0。第二轮全量1030通过/1失败/41平台跳过，DSH同一竞态基线也有失败；各原失败及验收器收尾限制保留。不代表真实profile、生产SSH或完整矩阵准出。[证据与边界](../../iterations/I08/issues27-28-current-state.md)。

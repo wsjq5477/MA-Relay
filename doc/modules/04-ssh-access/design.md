@@ -271,3 +271,9 @@ M04-F06/F08：终态维护收据不再一律按“维护完成”结算。[daemo
 ## 同次可信输入校验复用
 
 构造原维护输入时只完整校验一次当前 bundle，将该已验证对象传入 from/target 与全部兼容 release()；每份兼容清单仍按固定摘要/格式核验，远端暂存和逐文件校验保持。复用仅限同一次构造，未新增跨操作缓存或改变未知操作恢复规则。理由、实际测量与测试见 [交付说明](../../iterations/I06/maintenance-launch-recovery.md)。
+
+## 当前源码：#27/#28 的观察与恢复边界
+
+M04-F04/F05/F06：[SshManager](../../../desktop/electron/ssh-host.cjs)每次 test 先清除旧 probe，显式重连重新探测；认证、清单/摘要/身份失败或 connect 失败后都清除。SSH_DAEMON_UPGRADE_REQUIRED 保持 disconnected、retryable=false，自动重试及中央重启不会重复 inspecting；用户主动重连可重新提供一次性凭据后重探。无安装、升级、停止或替换的自动补救。公开alpha.69原精确manifest仅在候选alpha.70打包中转为上一版本pin，不加入现场未登记版本；[准入](../../../desktop/electron/ssh-install.cjs)继续核对原清单、摘要、路径、owner、daemonId和profileId。
+
+完整流程、受控反例与未测边界见[本轮记录](../../iterations/I08/issues27-28-current-state.md)。

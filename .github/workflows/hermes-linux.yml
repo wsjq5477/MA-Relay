@@ -57,6 +57,10 @@ jobs:
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: |
           node --test desktop/tests/tool-discovery.test.cjs desktop/tests/hermes-linux-discovery.test.cjs desktop/tests/hermes-windows-discovery.test.cjs desktop/tests/mcp-hermes.test.cjs desktop/tests/native-cli-host.test.cjs desktop/tests/native-reconcile.test.cjs desktop/tests/native-delegation.test.cjs desktop/tests/connection-capabilities.test.cjs desktop/tests/discovery-isolation.test.cjs desktop/tests/rpc-wsl-ready.test.cjs 2>&1 | tee artifacts/hermes-linux-ci/targeted.tap
+      - name: Relation recovery and SSH current-observation regression
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: |
+          node --test --test-concurrency=2 desktop/tests/relation-state.test.cjs desktop/tests/relation-recovery.test.cjs desktop/tests/ssh-state-recovery.test.cjs desktop/tests/ssh-compatibility.test.cjs desktop/tests/ssh-unsupported-state.test.cjs desktop/tests/coordinator.test.cjs desktop/tests/connection-ui.test.cjs desktop/tests/ssh-upload.test.cjs desktop/tests/machine-router.test.cjs 2>&1 | tee artifacts/hermes-linux-ci/issues27-28.tap
       - name: Install pinned official Hermes CLI without account setup
         id: native_install
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}

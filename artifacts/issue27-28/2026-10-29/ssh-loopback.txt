@@ -1,0 +1,26 @@
+✖ real loopback SSH authentication and production probe reject an unlisted daemon without stale evidence or remote writes (684.0094ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1897.0902
+
+✖ failing tests:
+
+test at desktop\tests\ssh-unsupported-state.test.cjs:6:1
+✖ real loopback SSH authentication and production probe reject an unlisted daemon without stale evidence or remote writes (684.0094ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\ssh-unsupported-state.test.cjs:37:3)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { code: 'SSH_DAEMON_UPGRADE_REQUIRED' },
+    operator: 'rejects',
+    diff: 'simple'
+  }

@@ -296,3 +296,9 @@ Coordinator 以原台账、AgentNetwork 请求意图和持久实例归属解析�
 上下文准备及续聊读取/协作 scope 准备失败，在发送原生调用之前保存 preparationRejection。原 requestId、输入指纹、最终有效指纹、来源和未派发状态匹配，且无任务/会话绑定和在途节点 job 时，可把原 unknown 对账为 rejected；落盘前重查证据。已拒绝请求的同 ID 重试返回原拒绝，修好配置后由用户新建请求。仅该次查询报错不产生拒绝证明。[需求与验证](../../iterations/I06/pending-isolation.md)。
 
 alpha.68关系冲突流程：错误区可只读检查，连续唯一原收据生成匿名提案；明确勾选确认后备份与原子恢复，再重新连接。中央在业务网络构造前处理检查/确认，旧后台缺关系索引同步能力则拒绝自动启动和复用。[完整设计](../../iterations/I08/relation-conflict-diagnostic.md)。
+
+## 当前源码：#27/#28 的观察与恢复边界
+
+M02-F03/F04：[mergeSshState/projectSshNodes](../../../desktop/electron/coordinator-service.cjs)将 SSH 当前状态作为完整观察：撤销缺失的旧 probe，过渡期丢弃旧业务离线错误；当前 connectionError 优先，运输在线但 RPC 失败仍保持业务失败。节点状态只派生显示与可用性，不重写持久身份/任务。hello 新增 relation-recovery-observations-v2 和 ssh-current-observation-v1；[客户端](../../../desktop/electron/coordinator-client.cjs)在恢复调用、SSH管理及已有SSH连接的snapshot派发前要求对应能力，旧后台需显式停止并重开，不能用新窗口静默复用旧逻辑。
+
+完整流程、受控反例与未测边界见[本轮记录](../../iterations/I08/issues27-28-current-state.md)。

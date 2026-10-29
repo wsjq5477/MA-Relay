@@ -228,3 +228,14 @@ test('issue25: relation capability checks admit only new roles and never re-admi
  assert(relationCapabilityError({...base,memberIds:['unknown']},unavailable,base));
  assert.match(relationCapabilityError({...base,memberIds:[leader.nodeId]},[leader,member],base),/不能连接自己/);
 });
+
+test('SSH node status renders the current inspection or version refusal instead of generic offline',()=>{
+  const {sshNodeState}=requireTsx('../src/ssh-node-state.ts',__filename);
+  const machine={machineId:'machine',name:'Synthetic SSH',kind:'ssh',platform:'linux',online:false,stage:'inspecting'};
+  const input=node('claude',{online:false,available:false,status:'offline',connectionState:'inspecting',lastError:{message:'obsolete offline reason'}});
+  const props={machines:[machine],nodes:[input],relation:{leaderId:null,memberIds:[],revision:0},filter:'all',query:'',busy:false,metadataBusy:false,managementSupported:true,machineManagementSupported:true,daemonManagementSupported:true,blocked:()=>false,start:noop,attach:noop,nodeAction:noop,addAgent:noop,machineAction:noop};
+  assert.equal(sshNodeState(input),'正在检查远端环境');const html=render(MachineInventory,props);assert.match(html,/正在检查远端环境/);assert.doesNotMatch(html,/obsolete offline reason/);
+  const refused={...input,connectionState:'disconnected',errorCode:'SSH_DAEMON_UPGRADE_REQUIRED',error:'远端后台版本不受当前客户端支持'};
+  assert.match(render(MachineInventory,{...props,nodes:[refused]}),/远端后台版本不受当前客户端支持/);
+  assert.equal(sshNodeState(node('claude')),undefined);
+});

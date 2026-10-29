@@ -458,3 +458,5 @@ alpha.15 发布复核：源码提交 `15b7c9ea9c3d53802797b655e0cffaf365658574` 
 T-M10-27 / M10-F01/F02/F03/F05/F06：2026-10-15，WSL Node22.23.1构建Windows x64 portable，28个CJS/78个核心文件/1385个Linux清单项与源码匹配。EXE 129,856,325字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。核心45/45、桌面串行188/188、lint/类型/构建/包校验通过；初轮并行维护测试ENOENT及专项8/8复验均保留。Windows普通无调试EXE/合成NOT_CONFIGURED恢复及关闭重开4组、Edge生产前端/受控API4组通过，模型0。发布/下载证据与未测项见[专项](../../iterations/I06/pending-isolation.md)。不宣称用户故障已复现或完整I06C准出。
 
 alpha.20已公开预发布：[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/AgentBridge-0.6.0-alpha.20-Windows-x64.exe)、[SHA256SUMS.txt](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/SHA256SUMS.txt)、[预发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.20)。分发元数据和完整EXE下载摘要核验通过，源码标签9b2d5ea；不将分发成功扩大为用户故障或真实模型验收。[发布及证据](../../iterations/I06/pending-isolation.md)。
+
+2026-10-29 alpha.70候选：225项输入及实际EXE3405资源一致，60后台/84Core/1728Linux/ASAR/前端校验通过，EXE132301726字节。包内33/33、普通portable合成恢复/完整重启及实际恢复/SSH UI通过；未签名，真实profile及性能未准出。[原证据和失败](../../iterations/I08/alpha70-release.md)。

@@ -17,6 +17,7 @@ import {
 import { sshStageLabel, sshTransferSize } from "./AddMachineDialog";
 import { time } from "./api";
 import AgentIcon from "./AgentIcon";
+import {sshNodeState} from './ssh-node-state';
 import { toolLabel } from "./agent-tools";
 import {canExecuteNode,connectionCapabilitySummary} from "./connection-capabilities";
 import type { NodeAction } from "./node-management";
@@ -72,6 +73,7 @@ const machineKind = (machine: Machine) =>
         : "Linux 本机";
 
 function nodeState(node: AgentNode): { label: string; tone: Tone } {
+  const ssh=sshNodeState(node);if(ssh)return {label:ssh,tone:node.errorCode?'warning':'neutral'};
   if (!node.online) return { label: "机器离线", tone: "neutral" };
   if (node.status === "upgrade_required") return {label:"后台需要升级",tone:"warning"};
   if (node.status === "version_incompatible") return {label:"版本不兼容，需要 OpenCode 2.x",tone:"danger"};
@@ -441,7 +443,7 @@ export default function MachineInventory(props: Props) {
                         <summary>安装位置</summary>
                         <code>{node.executable || "未提供安装位置"}</code>
                       </details>
-                      {(node.error || node.lastError) && (
+                      {(node.error || !sshNodeState(node) && node.lastError) && (
                         <p className="inventory-node-error" role="status">
                           {node.error || node.lastError?.message}
                         </p>

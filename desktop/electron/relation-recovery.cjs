@@ -6,11 +6,28 @@ const {loadRelationState,projection,humanRelation,revokeNodes}=require('./relati
 const {digest,atomicWrite,operationId}=require('./graph-layout.cjs');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const fail=message=>Object.assign(Error(message),{code:'RELATION_RECOVERY_BLOCKED'});
-function assertJournal(directory){
+function originalReceiptConfirms(record,row){
+  const p=row.params;
+  if(!p||row.operationId!==p.operationId||row.fingerprint!==digest(p))return false;
+  const allowed=row.lane==='relation'?['operationId','expectedRevision','leaderId','memberIds','relationId']:['operationId','nodeId','machineId','action'];
+  if(Object.keys(p).some(key=>!allowed.includes(key)))return false;
+  if(row.lane==='relation'&&row.method==='saveCollaboration'){
+    const input={leaderId:p.leaderId,memberIds:p.memberIds,expectedRevision:p.expectedRevision,...(Object.hasOwn(p,'relationId')?{relationId:p.relationId}:{})};
+    const op=(record.relationOperations||[]).find(op=>op.operationId===row.operationId);
+    return op?.state==='confirmed'&&op.fingerprint===digest(input)&&equal(op.data,{leaderId:p.leaderId,memberIds:p.memberIds,revision:p.expectedRevision+1,...(Object.hasOwn(p,'relationId')?{relationId:p.relationId,enabled:true}:{})});
+  }
+  if(row.lane==='node'&&row.method==='manageNode'){
+    const op=(record.nodeOperations||[]).find(op=>op.operationId===row.operationId),node=op?.data?.node;
+    return op?.state==='confirmed'&&op.fingerprint===digest({nodeId:p.nodeId,machineId:p.machineId,action:p.action})&&node?.nodeId===p.nodeId&&(!p.machineId||node.machineId===p.machineId)
+      &&['attach','remove','disconnect'].includes(p.action)&&node.connected===(p.action==='attach')&&node.removed===(p.action==='remove');
+  }
+  return false;
+}
+function assertJournal(directory,record){
   const file=path.join(directory,'graph-pending.json');
   if(!fs.existsSync(file))return;
   const rows=JSON.parse(fs.readFileSync(file,'utf8'));
-  if(!Array.isArray(rows)||rows.some(r=>r.lane!=='layout'&&!['confirmed','rejected'].includes(r.state)))throw fail('原管理台账存在未知占位，须先核对原操作。');
+  if(!Array.isArray(rows)||rows.some(r=>!r||r.lane!=='layout'&&!['confirmed','rejected'].includes(r.state)&&!originalReceiptConfirms(record,r)))throw fail('原管理台账存在缺少原确认收据的未知占位，须先核对原操作。');
 }
 function derive(record){
   // Validate all original format constraints, including nonselected rows.
@@ -20,16 +37,31 @@ function derive(record){
   loadRelationState({...record,collaboration:projection(selected)});
   const target=projection(record.collaboration);
   if(target.revision<=selected.revision||target.revision-selected.revision>4096)throw fail('修订顺序不能由原收据唯一证明。');
-  const seen=new Set(),events=[];
+  const seen=new Set(),events=[],observations=[];
   for(const key of ['relationOperations','nodeOperations','machineOperations','connectionOperations','connectionPolicyOperations']){
     if(record[key]!==undefined&&!Array.isArray(record[key]))throw fail('原收据结构不完整。');
     for(const op of record[key]||[]){
       if(!op||typeof op.operationId!=='string'||!op.operationId||!['confirmed','rejected'].includes(op.state))throw fail('存在未知占位或缺少原操作身份。');
-      const identity=op.operationId;
+      const identity=key==='connectionOperations'?'connection:'+op.operationKey:op.operationId;
       if(seen.has(identity))throw fail('存在重复原操作 ID，需人工核对。');seen.add(identity);
       if(op.state!=='confirmed')continue;
       if(!/^[a-f0-9]{64}$/.test(op.fingerprint||''))throw fail('原收据指纹缺失。');
-      if(['connectionOperations','connectionPolicyOperations'].includes(key))throw fail('连接或策略收据缺少完整授权结果顺序，须人工核对。');
+      if(key==='connectionOperations'){
+        const baseline=record.relations.find(row=>row.relationId===op.relationId);
+        if(op.operationKey!==digest({owner:op.owner,operationId:op.operationId})||op.fingerprint!==digest({action:op.action,nodeId:op.nodeId})||!baseline||!Number.isSafeInteger(op.relationRevision)||op.relationRevision<0||op.relationRevision>baseline.revision)throw fail('连接收据未落在已确认索引基线内，须人工核对。');
+        continue;
+      }
+      if(key==='connectionPolicyOperations'){
+        const data=op.data,baseline=record.relations.find(row=>row.relationId===data?.relationId);
+        if(baseline&&Number.isSafeInteger(data.revision)&&data.revision>=0&&data.revision<=baseline.revision&&Number.isSafeInteger(data.policyRevision)&&data.policyRevision>=0&&data.policyRevision<=baseline.envelope.revision)continue;
+        const approvals=(record.connectionOperations||[]).filter(row=>row.approvalId===data?.approvalId);
+        if(typeof data?.approvalId==='string'&&approvals.length===1){
+          if(data.decision==='reject'&&approvals[0].state==='rejected')continue;
+          const approved=approvals[0],base=record.relations.find(row=>row.relationId===approved.relationId);
+          if(data.decision==='allow'&&approved.state==='confirmed'&&base&&Number.isSafeInteger(approved.relationRevision)&&approved.relationRevision<=base.revision)continue;
+        }
+        throw fail('策略收据缺少索引基线内的完整授权顺序，须人工核对。');
+      }
       if(key==='relationOperations'){
         if(op.data?.relationId&&op.data.relationId!==record.activeRelationId)continue;
         const result=projection(op.data);
@@ -37,16 +69,31 @@ function derive(record){
       }else if(key==='nodeOperations'){
         if(!op.data?.node||!op.data?.collaboration)throw fail('节点收据缺少关系结果。');
         const result=projection(op.data.collaboration);
-        if(result.revision>selected.revision)events.push({op,key,result});
+        const node=op.data.node,current=record.nodes.find(n=>n.nodeId===node.nodeId);
+        const action=node.removed===true?'remove':node.connected===false?'disconnect':node.connected===true?'attach':null;
+        const fingerprints=[undefined,node.machineId].map(machineId=>digest({nodeId:node.nodeId,machineId,action}));
+        if(typeof node.nodeId!=='string'||!node.nodeId||typeof node.machineId!=='string'||!node.machineId||!action||action==='remove'&&node.connected!==false||!current||current.machineId!==node.machineId||!fingerprints.includes(op.fingerprint))throw fail('节点收据缺少可信原操作来源。');
+        if(result.revision>selected.revision){
+          // An attach is an observation of the current relation, not another
+          // relationship mutation at that revision. Do not count it as a fork.
+          (action==='attach'?observations:events).push({op,key,result,action});
+        }
       }else if(key==='machineOperations'&&['remove','uninstall'].includes(op.data?.remoteAction||op.data?.action)){
         // Old machine receipts have no relationship revision: do not invent order.
         throw fail('机器移除收据缺少关系修订顺序，须人工核对。');
       }
     }
   }
-  let row=structuredClone(selected);const chain=[];
+  let row=structuredClone(selected);const chain=[],states=new Map([[selected.revision,projection(selected)]]);
   for(let revision=selected.revision+1;revision<=target.revision;revision++){
-    const matches=events.filter(e=>e.result.revision===revision);
+    const matches=events.filter(e=>{
+      if(e.result.revision!==revision)return false;
+      if(e.key==='nodeOperations'){
+        const revoked=revokeNodes({...record,relations:[row],activeRelationId:row.relationId},new Set([e.op.data.node.nodeId])).relations[0];
+        if(!equal(projection(revoked),e.result)){observations.push(e);return false;}
+      }
+      return true;
+    });
     if(matches.length!==1)throw fail('收据修订跳号或存在多个候选结果。');
     const {op,key,result}=matches[0];
     if(key==='relationOperations'){
@@ -64,6 +111,12 @@ function derive(record){
       if(!equal(projection(row),result))throw fail('节点撤权不能解释下一关系修订。');
     }
     chain.push({kind:key,revision,memberCount:row.memberIds.length});
+    states.set(revision,projection(row));
+  }
+  for(const observation of observations){
+    const state=states.get(observation.result.revision);
+    if(!equal(state,observation.result))throw fail('节点观察与原关系修订链不一致。');
+    if(observation.action!=='attach'&&(state.leaderId===observation.op.data.node.nodeId||state.memberIds.includes(observation.op.data.node.nodeId)))throw fail('节点撤权观察未能证明原成员已移除。');
   }
   if(events.some(e=>e.result.revision>target.revision)||!equal(projection(row),target))throw fail('最终关系与完整收据链不一致。');
   const next={...record,relations:record.relations.map(r=>r===selected?row:r)};
@@ -76,7 +129,7 @@ function inspect(directory){
   catch(error){if(error.code!=='RELATION_STATE_CONFLICT')throw error;
     const diagnostic=error.diagnostic;
     try{
-      assertJournal(directory);
+      assertJournal(directory,record);
       const {selected,row,chain}=derive(record);
       const ids=[...new Set([...selected.memberIds,...row.memberIds])].sort();
       return {conflict:true,diagnostic:{...diagnostic,recoveryAvailable:true},proposal:{sourceDigest:hash(bytes),revisionFrom:selected.revision,revisionTo:row.revision,
@@ -93,7 +146,7 @@ function recover(directory,params){
   const previous=(record.relationRecoveryOperations||[]).find(op=>op.operationId===params.operationId);
   if(previous){if(previous.sourceDigest!==params.sourceDigest)throw fail('原恢复 ID 已用于其他提案。');return previous;}
   if(hash(bytes)!==params.sourceDigest)throw fail('原文件已变化，请重新检查。');
-  assertJournal(directory);
+  assertJournal(directory,record);
   const {next}=derive(record);
   const backup=path.basename(file)+'.before-recovery-'+randomUUID()+'.bak',backupFile=path.join(directory,backup);
   const fd=fs.openSync(backupFile,'wx',0o600);

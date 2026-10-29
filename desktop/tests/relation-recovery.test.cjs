@@ -33,6 +33,18 @@ test('5→7→6 chain needs explicit confirmation, preserves exact backup, histo
   for(const key of Object.keys(record).filter(k=>k!=='relations'))assert.deepEqual(next[key],record[key]);assert.deepEqual(next.relations[1],record.relations[1]);
   assert.deepEqual(loadRelationState(next),next);const after=fs.readFileSync(file);assert.deepEqual(recover(directory,params),receipt);assert.deepEqual(fs.readFileSync(file),after);
 });
+test('a confirmed old attach observes revision 14 without becoming a second relationship mutation',t=>{
+  const record=fixture(),collaboration=record.relationOperations[0].data;
+  record.nodeOperations.unshift({operationId:'attach-observation',state:'confirmed',fingerprint:digest({nodeId:'f',machineId:'machine',action:'attach'}),data:{node:{nodeId:'f',machineId:'machine',connected:true,removed:false},collaboration}});
+  const {directory,file,bytes}=setup(t,record),view=inspect(directory);
+  assert.equal(view.proposal?.revisionTo,15,view.blockedReason);assert.deepEqual(fs.readFileSync(file),bytes);
+  const receipt=recover(directory,{operationId:'recover-with-observation',sourceDigest:view.proposal.sourceDigest,confirm:true});
+  const after=JSON.parse(fs.readFileSync(file));assert.equal(after.relations[0].memberIds.length,6);assert.deepEqual(after.nodeOperations,record.nodeOperations);assert.equal(receipt.state,'confirmed');
+});
+test('an attach observation contradicting its original revision never authorizes recovery',t=>{
+  const record=fixture();record.nodeOperations.push({operationId:'contradictory-attach',state:'confirmed',fingerprint:digest({nodeId:'f',action:'attach'}),data:{node:{nodeId:'f',machineId:'machine',connected:true},collaboration:{...record.relationOperations[0].data,memberIds:['other']}}});
+  const {directory,file,bytes}=setup(t,record);assert.equal(inspect(directory).proposal,undefined);assert.deepEqual(fs.readFileSync(file),bytes);
+});
 test('missing, ambiguous, unknown, duplicate, bad fingerprint and unexplained revocation sources remain read-only',t=>{
   for(const mutate of [r=>r.relationOperations=[],r=>r.nodeOperations[0].state='unknown',r=>r.relationOperations.push({...r.relationOperations[0]}),r=>r.nodeOperations[0].data.node.nodeId='missing',r=>r.relationOperations[0].fingerprint='a'.repeat(64),r=>r.machineOperations.push({operationId:'machine-remove',state:'confirmed',fingerprint:'a'.repeat(64),data:{action:'remove',machineId:'machine'}}),r=>r.relations.push({...r.relations[0]})]){
     const record=fixture();mutate(record);const {directory,file,bytes}=setup(t,record);
@@ -89,4 +101,53 @@ test('auto-start checks runtime manifest capabilities before spawning a writer',
     client.attach=async()=>{throw Object.assign(Error('absent'),{code:'ENOENT'});};
     await assert.rejects(client.ensure(),{code:'RELATIONS_BACKEND_UPGRADE_REQUIRED'});assert.equal(fs.existsSync(path.join(directory,'coordinator.log')),false);assert.deepEqual(fs.readFileSync(file),bytes);
   }finally{runtimeModule.coordinatorRuntime=original;require.cache[clientPath]=cached;}
+});
+
+test('a confirmed unrelated disconnect at an observed revision is not a duplicate mutation',t=>{
+  const record=fixture();record.nodes.push({nodeId:'unrelated',machineId:'other-machine',connected:false});
+  record.nodeOperations.unshift({operationId:'unrelated-disconnect',state:'confirmed',fingerprint:digest({nodeId:'unrelated',action:'disconnect'}),data:{node:{nodeId:'unrelated',machineId:'other-machine',connected:false,removed:false},collaboration:record.relationOperations[0].data}});
+  const {directory,file,bytes}=setup(t,record),view=inspect(directory);assert.equal(view.proposal?.revisionTo,15,view.blockedReason);assert.deepEqual(fs.readFileSync(file),bytes);
+});
+
+test('lost observer acknowledgement is checked against the exact original durable receipt without rewriting unknowns',t=>{
+  const {directory,file}=setup(t),record=fixture(),op=record.relationOperations[0];
+  const params={operationId:op.operationId,expectedRevision:13,leaderId:op.data.leaderId,memberIds:op.data.memberIds};
+  const journal=[{lane:'relation',method:'saveCollaboration',operationId:op.operationId,state:'unknown',params,fingerprint:digest(params)}],journalFile=path.join(directory,'graph-pending.json');
+  fs.writeFileSync(journalFile,JSON.stringify(journal));const bytes=fs.readFileSync(journalFile),view=inspect(directory);
+  assert.equal(view.proposal?.revisionTo,15,view.blockedReason);recover(directory,{operationId:'recover-original-receipt',sourceDigest:view.proposal.sourceDigest,confirm:true});
+  assert.deepEqual(fs.readFileSync(journalFile),bytes);assert.deepEqual(JSON.parse(fs.readFileSync(file)).relationOperations,record.relationOperations);
+});
+test('a mismatched original journal fingerprint or ID cannot release an unknown placeholder',t=>{
+  for(const changed of ['fingerprint','operationId']){
+    const {directory,file,bytes}=setup(t),record=fixture(),op=record.relationOperations[0],params={operationId:op.operationId,expectedRevision:13,leaderId:op.data.leaderId,memberIds:op.data.memberIds};
+    const row={lane:'relation',method:'saveCollaboration',operationId:op.operationId,state:'unknown',params,fingerprint:digest(params)};row[changed]='mismatch';
+    fs.writeFileSync(path.join(directory,'graph-pending.json'),JSON.stringify([row]));assert.equal(inspect(directory).proposal,undefined);assert.deepEqual(fs.readFileSync(file),bytes);
+  }
+});
+
+test('new recovery window cannot silently call an older index-sync coordinator',async t=>{
+  const {directory}=setup(t),client=new CoordinatorClient({directory});client.open=async()=>{};client.info={capabilities:['relation-index-sync-v1','multi-parent-relations-v1']};
+  for(const method of ['relationRecovery.inspect','relationRecovery.confirm'])await assert.rejects(client.request('call',{method,params:{}}),{code:'RELATION_RECOVERY_BACKEND_UPGRADE_REQUIRED'});
+});
+
+test('confirmed policy and connection history already covered by the selected baseline does not block later old-writer recovery',t=>{
+  const record=fixture(),owner={nodeId:'leader',requestId:'synthetic-parent',conversationId:'synthetic-session'};
+  record.connectionOperations=[{operationId:'connect-at-baseline',operationKey:digest({owner,operationId:'connect-at-baseline'}),owner,action:'connect',nodeId:'b',relationId:'selected',relationRevision:12,state:'confirmed',fingerprint:digest({action:'connect',nodeId:'b'})}];
+  record.connectionPolicyOperations=[{operationId:'policy-at-baseline',state:'confirmed',fingerprint:'a'.repeat(64),data:{relationId:'selected',revision:11,policyRevision:2}}];
+  const {directory,file,bytes}=setup(t,record),view=inspect(directory);assert.equal(view.proposal?.revisionTo,15,view.blockedReason);assert.deepEqual(fs.readFileSync(file),bytes);
+  recover(directory,{operationId:'recover-with-baseline-policy',sourceDigest:view.proposal.sourceDigest,confirm:true});const after=JSON.parse(fs.readFileSync(file));assert.deepEqual(after.connectionOperations,record.connectionOperations);assert.deepEqual(after.connectionPolicyOperations,record.connectionPolicyOperations);
+});
+test('a later or unbound policy decision cannot be hidden as baseline history',t=>{
+  for(const data of [{relationId:'selected',revision:14,policyRevision:4},{relationId:'selected',revision:10,policyRevision:9},{approvalId:'missing',decision:'allow'}]){
+    const record=fixture();record.connectionPolicyOperations=[{operationId:'unproven-policy',state:'confirmed',fingerprint:'a'.repeat(64),data}];const {directory,file,bytes}=setup(t,record);assert.equal(inspect(directory).proposal,undefined);assert.deepEqual(fs.readFileSync(file),bytes);
+  }
+});
+
+test('an observer payload with extra unproven parameters cannot borrow a matching subset receipt',t=>{
+ const {directory}=setup(t),record=fixture(),op=record.relationOperations[0],params={operationId:op.operationId,leaderId:op.data.leaderId,memberIds:op.data.memberIds,expectedRevision:13,foreignScope:'unproven'};
+ fs.writeFileSync(path.join(directory,'graph-pending.json'),JSON.stringify([{lane:'relation',method:'saveCollaboration',operationId:op.operationId,state:'unknown',params,fingerprint:digest(params)}]));assert.equal(inspect(directory).proposal,undefined);
+});
+
+test('a contradictory removed-but-connected receipt cannot justify automatic recovery',t=>{
+ const record=fixture();record.nodeOperations[0].data.node.connected=true;const {directory,file,bytes}=setup(t,record);assert.equal(inspect(directory).proposal,undefined);assert.deepEqual(fs.readFileSync(file),bytes);
 });

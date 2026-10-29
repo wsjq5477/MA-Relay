@@ -1,0 +1,9 @@
+{
+  "source": "published alpha.69 EXE",
+  "exeSha256": "534642b1026057a40b99f56357b88625ce45bfe28e257ad397f597e0bff0d240",
+  "manifestBytesSha256": "436423ebb30cc6ab1b06583324235dd2f6de24b8640f47745e365616143705bc",
+  "manifestDigest": "3631d250f1003bd11f8be9c951bbd30748610b5c6a5a9b6d0144874a0995a6d5",
+  "payloadFiles": 1726,
+  "exactManifestCopied": true,
+  "unknownVersionsAdded": 0
+}

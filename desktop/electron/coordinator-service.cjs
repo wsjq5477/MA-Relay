@@ -9,6 +9,7 @@ const { workerRuntime } = require('./worker-runtime.cjs');
 const { recoverJournal } = require('./pending-journal.cjs');
 const {digest}=require('./graph-layout.cjs');
 const { GraphOperationJournal } = require('./graph-operations.cjs');
+const {isSshTransition}=require('./ssh-state.cjs');
 const { supportsTeamCollaboration, connectionCapabilities, isCollaborationCapabilityRejection } = require('./builtin-adapters.cjs');
 const teamMethods=new Set([...require('./team-context-transfers.cjs').methods,'team.contextPacket','team.materials','team.stopRun','team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
@@ -20,17 +21,30 @@ methods.add('relationRecovery.inspect');methods.add('relationRecovery.confirm');
 function mergeSshState(machine, state, snapshot = false) {
   if (!state) return machine;
   const snapshotOnline = machine.online;
-  const snapshotError = snapshot && snapshotOnline === false ? machine.error : undefined;
+  const snapshotError = snapshot && snapshotOnline === false && !isSshTransition(state.stage) ? machine.error : undefined;
+  delete machine.probe;
   Object.assign(machine, state);
   delete machine.error;
   if(typeof state.objectRoutingSupported==='boolean')machine.objectRoutingSupported=state.objectRoutingSupported;
   delete machine.connectionError;
   if(!state.installProgress)delete machine.installProgress;
   if(!state.progressWarning)delete machine.progressWarning;
-  if (state.error || snapshotError) machine.error = state.error || snapshotError;
+  if (state.connectionError?.message || state.error || snapshotError) machine.error = state.connectionError?.message || state.error || snapshotError;
   if (state.connectionError) machine.connectionError = state.connectionError;
   if (snapshot) machine.online = state.online && snapshotOnline;
   return machine;
+}
+function projectSshNodes(nodes,machines){
+  return nodes.map(node=>{
+    const machine=machines.find(m=>m.machineId===node.machineId);
+    if(machine?.kind!=='ssh')return node;
+    const connectionState=machine.stage||machine.connectionState;
+    if(isSshTransition(connectionState)||machine.connectionError){
+      return {...node,online:false,available:false,connectionState,error:machine.error,
+        errorCode:machine.connectionError?.code,status:machine.connectionError?.code==='SSH_DAEMON_UPGRADE_REQUIRED'?'upgrade_required':'offline'};
+    }
+    return node;
+  });
 }
 // On a Linux desktop the coordinator process itself runs beside the native
 // products, so the local machine can manage MCP configuration directly. The core
@@ -391,6 +405,7 @@ async function call(input) {
         const states = ssh.states();
         result.machines = result.machines.map(machine => ({...mergeSshState({...machine}, states.find(s => s.machineId === machine.machineId), true),busy:result.tasks.some(t=>t.machineId===machine.machineId&&!['succeeded','failed','cancelled'].includes(t.status))||result.nodes.some(n=>n.machineId===machine.machineId&&n.busy)||read('pending.json',[]).some(r=>['pending','unknown'].includes(r.state)&&(!r.machineId||r.machineId===machine.machineId))}));
         for (const draft of states.filter(s => !s.machineId)) result.machines.push({...draft, machineId: 'draft-' + draft.connectionId, kind:'ssh', platform:'linux', online:false});
+        result.nodes=projectSshNodes(result.nodes||[],result.machines);
       }
       if (input.method === "snapshot") {
         result.teamSpaceSupported=true;
@@ -555,4 +570,4 @@ return { call, pending: () => read('pending.json', []).filter(r => ['pending','u
   }, close() { clearInterval(teamTimer);teamEngine?.close();teamBroker?.close();teams?.close();ssh?.close(); host?.close(); }
 };
 }
-module.exports = {createCoordinatorService, mergeSshState, localMcpHost, localMcpMethods};
+module.exports = {createCoordinatorService, mergeSshState, projectSshNodes, localMcpHost, localMcpMethods};

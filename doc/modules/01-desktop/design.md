@@ -360,3 +360,9 @@ alpha.9 角色变化后显式刷新保留的隐藏端点几何，待移除的原
 实现入口：[DaemonDialog.tsx](../../../desktop/src/DaemonDialog.tsx)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
 
 alpha.68关系冲突流程：错误区可只读检查，连续唯一原收据生成匿名提案；明确勾选确认后备份与原子恢复，再重新连接。中央在业务网络构造前处理检查/确认，旧后台缺关系索引同步能力则拒绝自动启动和复用。[完整设计](../../iterations/I08/relation-conflict-diagnostic.md)。
+
+## 当前源码：#27/#28 的观察与恢复边界
+
+M01-F01/F03/F06/F14：当前源码由[ssh-node-state.ts](../../../desktop/src/ssh-node-state.ts)统一机器清单、关系图与节点详情的 SSH 阶段文案。connectionState 在过渡期优先于 offline；SSH_DAEMON_UPGRADE_REQUIRED 优先显示客户端不支持远端版本。阶段内不展示旧任务错误为当前连接故障，但原 lastError 数据不删除；执行仍受 online/available 和原未知占位限制。关系恢复 UI 继续只读检查、取消不写入、明确勾选后提交，原请求 ID 不变。
+
+完整流程、受控反例与未测边界见[本轮记录](../../iterations/I08/issues27-28-current-state.md)。

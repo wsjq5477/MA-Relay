@@ -360,3 +360,7 @@ Windows x64 EXE 已作为 GitHub 预发布附件提供，例如[下载程序](ht
 Windows x64 portable 已从修复源码重建，逐文件核对窗口/后台/核心和 Linux 离线资源。兼容清单先与原冻结发布摘要核对，不把 runtime 或依赖二进制提交为源码。原请求/资源保护与分层实际结果见[专项](../../iterations/I06/pending-isolation.md)，新包不代表完整I06C准出。
 
 发布附件上传后核对公开下载可用且完整 EXE 摘要匹配。完整验证与升级说明见上述专项。
+
+## alpha.70候选资源边界
+
+当前候选包含60个CJS后台模块（含ssh-state）、84个Core文件和1728个Linux资源；同一代码须进入窗口ASAR、Windows中央和Linux资源。公开alpha.69的精确原manifest仅转为上一已受信版本pin，不能加入未登记daemon。普通portable与调试包内UI、回环SSH分开验收，原SDK/观察器失败保留，不切日常后台或部署远端。[完整构建与边界](../../iterations/I08/alpha70-release.md)。

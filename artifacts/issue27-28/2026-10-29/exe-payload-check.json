@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-29T07:55:24.560Z",
+  "version": "0.6.0-alpha.70",
+  "status": "passed",
+  "actualExeExtracted": true,
+  "resourceFiles": 3405,
+  "allResourcesMatch": true,
+  "productInputs": 225,
+  "productInputsUnchanged": true
+}

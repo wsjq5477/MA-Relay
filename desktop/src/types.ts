@@ -119,6 +119,8 @@ export interface Snapshot {
   instances?: AgentInstance[];
 }
 export interface AgentNode {
+  connectionState?: SshConnectionState;
+  errorCode?: string;
   connectionCapabilities?: ConnectionCapabilities;
   capabilitySource?: {kind: 'static-adapter'|'unknown';adapterId?:string;driver?:'native-cli'|'cli-http'};
   supersededBy?: string;

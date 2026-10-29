@@ -335,3 +335,9 @@ broker 将 token 对应 scope 与业务参数分开，中央宿主/远端 relay 
 
 
 M08-F02/F03/F05：关系冲突保持严格只读；新增连续原收据链核验、明确确认后的逐字节备份与原子恢复，selected/envelope 同步且历史不变。缺顺序的机器撤权收据不猜测恢复。[完整行为与边界](../../iterations/I08/relation-conflict-diagnostic.md)。
+
+## 当前源码：#27/#28 的观察与恢复边界
+
+M08-F02/F03/F05：[关系恢复器](../../../desktop/electron/relation-recovery.cjs)逐修订验证唯一真实变更；attach及无关节点无变更的disconnect只作观察，须与已证明的同修订状态一致，不能另算候选或授予权限。已在selected基线内的确定策略/连接收据不阻止后续链；基线后的无完整授权结果仍拒绝。图unknown仅在原方法、允许字段、完整参数指纹及原operationId的持久confirmed结果准确匹配时可作为已核对观察，不修改unknown行，不重发操作。其余未知、来源缺失、矛盾、跳号、多个真实候选和无顺序的机器撤权仍只读。恢复前逐字节备份/摘要核对，原子提交只改selected/envelope并追加恢复收据；其他关系与原任务/收据保持。
+
+完整流程、受控反例与未测边界见[本轮记录](../../iterations/I08/issues27-28-current-state.md)。

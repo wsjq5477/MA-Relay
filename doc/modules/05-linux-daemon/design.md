@@ -275,3 +275,9 @@ daemon.eventRead 的 cursorGap/earliestCursor、items/nextCursor/hasMore 由当�
 daemon.quiesce 先建立内存准入门再读取任务与收据；非终态、忙节点、在途创建或未确认原控制均拒绝切换。维护租约持久化到 maintenance.json，daemon.shutdown 仅接受同一操作且无在途任务。独立维护 worker 校验 owner/profile/UID、版本及每文件摘要后切换 current.json，目标健康核对失败回到原版本。旧 daemon 不支持停机 RPC 时使用已经校验的 owned-stop：先取得 pidfd，再核对 UID 与原启动标识，只经内核句柄发送 SIGTERM，拒绝 PID-only 降级。未知 native 控制收据不能被包装为 confirmed；只确认原 operationId 与原目标的有效状态，取消接收与实际终态分开。
 
 实现入口：[remote-maintenance.cjs](../../../desktop/electron/remote-maintenance.cjs)。需求、分层证据及未测范围见 [I06C 收尾](../../iterations/I06/final-delivery.md)。
+
+## 当前源码：#27/#28 的观察与恢复边界
+
+M05：本次不修改 daemon 业务协议或远端持久记录。客户端的[SshInstaller.release/probe](../../../desktop/electron/ssh-install.cjs)继续严格按公开可信manifest准入，未登记版本在握手/安装前拒绝；本次只修正中央/SSH客户端的观察生命周期与错误优先级。候选alpha.70保留公开alpha.69的原可信manifest，不允许未知版本；新中央状态能力不要求升级已受信兼容daemon，也不触发上传、激活、停止或任务回放。
+
+完整流程、受控反例与未测边界见[本轮记录](../../iterations/I08/issues27-28-current-state.md)。

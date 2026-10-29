@@ -408,3 +408,5 @@ pending.json 的原格式和状态不变；本地 pending IPC 的每条记录可
 小队私有nativeSessionId仅从非空白字符串观测更新，原长度上限保持；空值不建立或清除已有绑定。字段仍可缺省，缺绑定不能自动续接；不trim原生身份或新增格式/迁移。见[专项](iterations/I07/blank-native-session.md)。
 
 关系冲突恢复仅在连续唯一原收据证明终点后更新 selected 行及 envelope；追加 relationRecoveryOperations，字段为 operationId/state/sourceDigest/backup/backupDigest，原 ID 与源摘要绑定。备份保留逐字节原文件，原收据及其他业务数据不改。[完整规则](iterations/I08/relation-conflict-diagnostic.md)。
+
+当前源码新增只读节点投影 connectionState/errorCode，供SSH阶段及版本拒绝展示；不写入原节点身份或任务历史。probe仍为内存观察，失败即移除。原图unknown与原管理收据保持原值，恢复只读核对准确原确认。[字段与恢复规则](iterations/I08/issues27-28-current-state.md)。

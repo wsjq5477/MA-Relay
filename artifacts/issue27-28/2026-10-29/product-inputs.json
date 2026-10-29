@@ -1,0 +1,1130 @@
+{
+  "version": "0.6.0-alpha.70",
+  "files": [
+    {
+      "path": "src/cli.ts",
+      "bytes": 19482,
+      "sha256": "9f94627240ee8f8007aa50ddb97d6bd2f16f83a00d6c69a2a29f4eae56926c71"
+    },
+    {
+      "path": "src/client.ts",
+      "bytes": 1087,
+      "sha256": "83136af959bb4f48a4c4bf874c274b76cfe9047ff44f227d2cc1f18f620a274e"
+    },
+    {
+      "path": "src/config.ts",
+      "bytes": 13008,
+      "sha256": "01ac26601d72065f168e677bc9f916268ea9044845228239090ba53a3cf711ea"
+    },
+    {
+      "path": "src/controller.ts",
+      "bytes": 27022,
+      "sha256": "c489dc7fd0fd8335ec8f6cfe52aaa7033158f32b4e31c506d791ce5285450092"
+    },
+    {
+      "path": "src/core.ts",
+      "bytes": 6502,
+      "sha256": "15fe0f040596bff69aef67deb7dfe0a31c2f75e4a26c945649d17d759132d9cc"
+    },
+    {
+      "path": "src/desktop-host.ts",
+      "bytes": 11004,
+      "sha256": "1d85fe76fcd3caa5714f8719cd0e3756fd89e5c9951afb21b0bdb3b1c3aa69f4"
+    },
+    {
+      "path": "src/discovery.ts",
+      "bytes": 3205,
+      "sha256": "145799b9c2d994431c68cfd26bfa138bfd65e8135c37ad1db6879980c39e3226"
+    },
+    {
+      "path": "src/drivers/driver.ts",
+      "bytes": 469,
+      "sha256": "17c6ea3516958e27cb9df1b08232c26b2c9c2b22a93451b65153b2a4a76213d9"
+    },
+    {
+      "path": "src/drivers/forms.ts",
+      "bytes": 2752,
+      "sha256": "0188b9278c014a990f8abea6feef6ea4a0dbba85b900fbb4ad0b55c9e34e37ad"
+    },
+    {
+      "path": "src/drivers/mock.ts",
+      "bytes": 1494,
+      "sha256": "c920536df933cb2036fc0e0f838aa83508a2374b2380d925e6a1b4e6231684f1"
+    },
+    {
+      "path": "src/drivers/opencode-client.ts",
+      "bytes": 15876,
+      "sha256": "eb32003eb02365532c763821ccc6ac9e0e9d345ca6e84016dcda1be26f5a8dd8"
+    },
+    {
+      "path": "src/drivers/opencode-v1.ts",
+      "bytes": 14759,
+      "sha256": "727de792dabe4338dd2e3f7f0e3da186eda47399f824fdbf68b053cd0fadd770"
+    },
+    {
+      "path": "src/drivers/opencode.ts",
+      "bytes": 14257,
+      "sha256": "0f39c0c17a9b6d048a9e99d8e4d5969e75de9383df78ad0daad81629d8794c48"
+    },
+    {
+      "path": "src/edge.ts",
+      "bytes": 17247,
+      "sha256": "05587f4599f1f5c31ea39319fbb3edafe31190bbc9121dba8056d228279a4e3f"
+    },
+    {
+      "path": "src/hub.ts",
+      "bytes": 25286,
+      "sha256": "10d1f2d2f3ffff48bf9e5c1340cee700ae1fbd40abe2eea3fd4fb9f80bc66b60"
+    },
+    {
+      "path": "src/local.ts",
+      "bytes": 3903,
+      "sha256": "bfcd66fc42a8604e04e03c13cffa742b48c227132a4065f1f14eb0720862190f"
+    },
+    {
+      "path": "src/mcp-command.ts",
+      "bytes": 29049,
+      "sha256": "76e756a3454820c0006355c87a285526b63cf071791f32db6d94c72c2c2d4a1a"
+    },
+    {
+      "path": "src/native-identity.ts",
+      "bytes": 5126,
+      "sha256": "ffc091c53fe1bb254f476abe97c348ccb0c9132daec08bb5806f42736c3af64b"
+    },
+    {
+      "path": "src/native-server.ts",
+      "bytes": 7307,
+      "sha256": "547c194dd1b5c689107c3b0e38eee101418281527a589a056e4945eba0802d73"
+    },
+    {
+      "path": "src/observe.ts",
+      "bytes": 3488,
+      "sha256": "224b277f5d1801fb05a887c01238e9989a90db2acafb9dc1b5bad1b3a0ae2529"
+    },
+    {
+      "path": "src/protocol.ts",
+      "bytes": 3029,
+      "sha256": "87748fbd2e71564944886769be58eaaa5fda3feff8d2e2b705a93c85f8db1fad"
+    },
+    {
+      "path": "src/security.ts",
+      "bytes": 1160,
+      "sha256": "01240a0f14234b71841aface280f7ad947c059b9460de0aacea73ca7c473010d"
+    },
+    {
+      "path": "src/settings.ts",
+      "bytes": 9770,
+      "sha256": "897ffd5feac2f50bd25aa064ac85d4149a29d4fd1ccada65cc61f0b97957dc24"
+    },
+    {
+      "path": "src/storage/database.ts",
+      "bytes": 2313,
+      "sha256": "e50e78759f67457a26d38f9cf676819724bd933121deeac1750d83da0abb1271"
+    },
+    {
+      "path": "src/storage/edge-journal.ts",
+      "bytes": 6900,
+      "sha256": "4756e6ee1f070accf26df05756490880b16ab27080ca6b543a44338c0e01f419"
+    },
+    {
+      "path": "src/storage/hub-store.ts",
+      "bytes": 16884,
+      "sha256": "05194ff1da5a156b5a36ea5c0b091f97584b8f8cc45c8c1f6690e9a422df11de"
+    },
+    {
+      "path": "src/storage/operations.ts",
+      "bytes": 2912,
+      "sha256": "eb90c2f5add3c22e142dd1f15cb81b1c6104139abdae788349467e47ed57f1f6"
+    },
+    {
+      "path": "src/terminal.ts",
+      "bytes": 39912,
+      "sha256": "1dcd35a5846c54449a5406c48fbf7200dd5a42d6a8475d5dd06451bfa1293b9b"
+    },
+    {
+      "path": "desktop/electron/agent-adapter-contract.cjs",
+      "bytes": 7903,
+      "sha256": "659a8af996dce42bc5a6d4f68ba837634f4b691dfc997718db9ee5ffb1ded927"
+    },
+    {
+      "path": "desktop/electron/agent-connections.cjs",
+      "bytes": 1934,
+      "sha256": "9063e7045f78824ae0fa91b23caabcba9fa1ca02bd6c77629ec5010578dc1865"
+    },
+    {
+      "path": "desktop/electron/agent-network.cjs",
+      "bytes": 56560,
+      "sha256": "36fe8bc6485f2e3521f1061b72ffe2618dfed2ee94ea5e635f2525f35c28dd39"
+    },
+    {
+      "path": "desktop/electron/bootstrap.sh",
+      "bytes": 933,
+      "sha256": "3a80a062a41f62aff2364f39506948b2063f634d2d23121c9ec6053c1cfb23e7"
+    },
+    {
+      "path": "desktop/electron/builtin-adapters.cjs",
+      "bytes": 10468,
+      "sha256": "387521a4b8f624d27bec209edbec7d7e0ac78e505c97dadfc59b70530fe10cbe"
+    },
+    {
+      "path": "desktop/electron/claude-host.cjs",
+      "bytes": 59569,
+      "sha256": "e232c20aefca8b42c5bcf088da59d31f26a0714f8802a488d7146ca8f67302f7"
+    },
+    {
+      "path": "desktop/electron/codex-host.cjs",
+      "bytes": 19889,
+      "sha256": "d3a91843ce25354c95b3dbe4fd3531957888a9ae9be37b656ae2efa218ae593f"
+    },
+    {
+      "path": "desktop/electron/collaboration-broker.cjs",
+      "bytes": 3535,
+      "sha256": "7db96c157de93f4dbfdd38738ac66d17122eee2472de1bc2c265aa9b40108e3e"
+    },
+    {
+      "path": "desktop/electron/connection-policy.cjs",
+      "bytes": 13361,
+      "sha256": "baf61fefdf9f2506be1684a628bafa7b00a2781047fd237865e66b6b5b21468f"
+    },
+    {
+      "path": "desktop/electron/coordinator-client.cjs",
+      "bytes": 8417,
+      "sha256": "8be34ef985b18dae70a16c57715575670595ff59dded08b6943ea620f3a3e3aa"
+    },
+    {
+      "path": "desktop/electron/coordinator-runtime.cjs",
+      "bytes": 3791,
+      "sha256": "7df815e825509dcf3ffc4aeb7c8b024f3f752917aa62f14cccaf060406e05b8f"
+    },
+    {
+      "path": "desktop/electron/coordinator-service.cjs",
+      "bytes": 37428,
+      "sha256": "3ab922a3642d1c89fdc68f27a94b3175102d3341e5c27790a368dba15a5abedb"
+    },
+    {
+      "path": "desktop/electron/coordinator.cjs",
+      "bytes": 5950,
+      "sha256": "9b7f66761b8cd946622de8ac5b698971e5d2ff496b1855815a117dd976192147"
+    },
+    {
+      "path": "desktop/electron/daemon-rejection.cjs",
+      "bytes": 1530,
+      "sha256": "77445dbed9138a87a0b19f677dd2d9c4346a1d037f147b303488f44710dd3408"
+    },
+    {
+      "path": "desktop/electron/delegation-context.cjs",
+      "bytes": 1295,
+      "sha256": "687002e0a4b37c8e9f2e11b4420191b4bad83c2d406ec3dccea55e727c31618f"
+    },
+    {
+      "path": "desktop/electron/delegation-list.cjs",
+      "bytes": 2573,
+      "sha256": "b573443ae76f8c43290166a2479e8d40564f983b24f9bd928047816105da2935"
+    },
+    {
+      "path": "desktop/electron/dsh-connection.cjs",
+      "bytes": 9038,
+      "sha256": "4cac22d024ea8c3db34621b20d5c8b32477b0a6def06f62c256c9e1335914d6d"
+    },
+    {
+      "path": "desktop/electron/dsh-desktop-config.cjs",
+      "bytes": 4653,
+      "sha256": "581a566c0f5a292ec3ed2fb7b8f1d6c57d06c29716cd9b76c758b09ea5c72b82"
+    },
+    {
+      "path": "desktop/electron/dsh-worker.cjs",
+      "bytes": 6260,
+      "sha256": "dcb6438d1ea6964587f2e54223dbd78d2db1f38a7673f8471a3a1bb3476a7664"
+    },
+    {
+      "path": "desktop/electron/graph-layout.cjs",
+      "bytes": 5542,
+      "sha256": "c5f6a72b75c56f2adecc7c9ecb43dfd1ef2b782bd620a8580c9d8d25f947d2c8"
+    },
+    {
+      "path": "desktop/electron/graph-operations.cjs",
+      "bytes": 10542,
+      "sha256": "6d3a309141161b891d1e203111932ef09b91415f10220348332dda11091cbfcf"
+    },
+    {
+      "path": "desktop/electron/hermes-mcp-config.cjs",
+      "bytes": 8036,
+      "sha256": "98cd1dfe2e5ce5c689b03b0144b58ae9928003446b27b28fe35df21c96148653"
+    },
+    {
+      "path": "desktop/electron/machine-daemon.cjs",
+      "bytes": 33976,
+      "sha256": "919c78123e212c6a5d445c98bb8caf00f5ebfef8c5cd9f391b9ed9d00acd329f"
+    },
+    {
+      "path": "desktop/electron/machine-host.cjs",
+      "bytes": 14025,
+      "sha256": "67bab452ad7ebafee7f54b09890768057fbe997b7aaf5859e11e21d525d7307a"
+    },
+    {
+      "path": "desktop/electron/machine-protocol.cjs",
+      "bytes": 5004,
+      "sha256": "d5bb2f4864acdc3da5287ff93e08144686c355ebac4b0c5cdb4d6d31a3583868"
+    },
+    {
+      "path": "desktop/electron/machine-relay.cjs",
+      "bytes": 2613,
+      "sha256": "22bb0f2bb5d787a4ebfe73ac45c357599c9b7927235e1075a74fc3bf21f10012"
+    },
+    {
+      "path": "desktop/electron/machine-router.cjs",
+      "bytes": 24004,
+      "sha256": "0d43c645bd68da237e5074cf54e566597b58bb91cd6f64c7351024437ea27bd0"
+    },
+    {
+      "path": "desktop/electron/main.cjs",
+      "bytes": 3537,
+      "sha256": "696f15eda4e37d04f5ea4df9496ff46c8f40fbf40b2c8bd05a95d4dda766cb1f"
+    },
+    {
+      "path": "desktop/electron/mcp-client.cjs",
+      "bytes": 7150,
+      "sha256": "4b6d01bd5c440425417e07fa08dd3498365f3c6facb00290e529c0655299d881"
+    },
+    {
+      "path": "desktop/electron/mcp-config.cjs",
+      "bytes": 19524,
+      "sha256": "f88f7308da117aed8c738f1c20993f3a51c19c0999fb7c04abc673b41a1b5be8"
+    },
+    {
+      "path": "desktop/electron/mcp-integration.cjs",
+      "bytes": 31649,
+      "sha256": "f93849a729268cb1d67721b018e4cec21066a7d40772f7e0ee0df2addf741e21"
+    },
+    {
+      "path": "desktop/electron/native-cli-host.cjs",
+      "bytes": 27048,
+      "sha256": "cdb771ee8fb6b60598b3f324c1be4921f2069189274f106ebc6df63ad9f281dc"
+    },
+    {
+      "path": "desktop/electron/native-cli-protocols.cjs",
+      "bytes": 9773,
+      "sha256": "013b6faa5c2ee469be6848aa8fcfe01ea25108b499cf6a5b056c47e001538c62"
+    },
+    {
+      "path": "desktop/electron/opendesk-connection.cjs",
+      "bytes": 8443,
+      "sha256": "f835255e0f323e3044fec1eda1d5bf647295407c9a7578a5c7a82e67b93abdaf"
+    },
+    {
+      "path": "desktop/electron/opendesk-lifecycle.cjs",
+      "bytes": 3537,
+      "sha256": "1a146c36a1fddd54565420d745f3f738308444d7da0ef6bbe0237cd641f148b9"
+    },
+    {
+      "path": "desktop/electron/opendesk-worker.cjs",
+      "bytes": 15581,
+      "sha256": "eed201c35f8266f97e4f0e8a32d48d0240b0aadd5536d95b478c29d46da4fa3f"
+    },
+    {
+      "path": "desktop/electron/pending-journal.cjs",
+      "bytes": 4888,
+      "sha256": "e45f03ab5d1b3ec7bafb17867bb97a6cc821e4be11b038d2c06dd489737791d7"
+    },
+    {
+      "path": "desktop/electron/pi-mcp-config.cjs",
+      "bytes": 2787,
+      "sha256": "befca9ab9fa0295d2084c9a235b0423b7b8f50f2fcd71e135744fb8f36717631"
+    },
+    {
+      "path": "desktop/electron/preload.cjs",
+      "bytes": 686,
+      "sha256": "a87a34f2da5ff1543a1b6e561d5add2cd05d8df5c02e25bb238a676026ce7681"
+    },
+    {
+      "path": "desktop/electron/private-directory.cjs",
+      "bytes": 1463,
+      "sha256": "910778f35ae0652e961620052178451830c44c1884821abb13ac6e0c8673723b"
+    },
+    {
+      "path": "desktop/electron/relation-admission.cjs",
+      "bytes": 412,
+      "sha256": "4f0db72d486b35bb9d3b34070dd61b7f22a3c87729967e890acab0115e588dca"
+    },
+    {
+      "path": "desktop/electron/relation-recovery.cjs",
+      "bytes": 12633,
+      "sha256": "4d53bc809fc8fa4daee44c28dcd45e8a9d410ee1f5f6b970232548bd52e8d846"
+    },
+    {
+      "path": "desktop/electron/relation-state.cjs",
+      "bytes": 9899,
+      "sha256": "0cdd110d204dbf0f554d6f7bd71b12959a0e8013e705de9c5488acb3a764035d"
+    },
+    {
+      "path": "desktop/electron/remote-maintenance.cjs",
+      "bytes": 27044,
+      "sha256": "19a22424cec612175a661b919ecd8848be7fdee5199cf2233031d52b7ec2ddd7"
+    },
+    {
+      "path": "desktop/electron/rpc.cjs",
+      "bytes": 9778,
+      "sha256": "68db8fc3f22c229edd399734c8e2a380ed9839674b5d8b28644fe5ea077bf329"
+    },
+    {
+      "path": "desktop/electron/runtime-capabilities.cjs",
+      "bytes": 2648,
+      "sha256": "91410add1a92a90aca1f739313443c65208a30996a56544d412f3956d6b0be17"
+    },
+    {
+      "path": "desktop/electron/ssh-credentials.cjs",
+      "bytes": 6178,
+      "sha256": "e015d509233256d86a61e186983003c31dd7aecdf0e05f0842ce9f79f51bb4d7"
+    },
+    {
+      "path": "desktop/electron/ssh-host.cjs",
+      "bytes": 62318,
+      "sha256": "644d1f05f656f3404da138514baea192782c96780fc8820c38f66cea6c2bd6f9"
+    },
+    {
+      "path": "desktop/electron/ssh-install.cjs",
+      "bytes": 38717,
+      "sha256": "9a0b312164c4d0e2a03f0a2acb44401403b845d3bfbc77b44504c0ce5577c130"
+    },
+    {
+      "path": "desktop/electron/ssh-known-hosts.cjs",
+      "bytes": 5186,
+      "sha256": "1188329c3c388c11a6eb320e6656e095da8de963e4f6b22702067186bf46e3fa"
+    },
+    {
+      "path": "desktop/electron/ssh-state.cjs",
+      "bytes": 406,
+      "sha256": "bdce2daeacb11cba6809d5c461f8f7726721f06194de95edea5c0c1f1ce673a4"
+    },
+    {
+      "path": "desktop/electron/team-automation.cjs",
+      "bytes": 10523,
+      "sha256": "e55e06c119b66ce0d4e10fc32086adc7196fdb77448074599bbe8f5c1804f140"
+    },
+    {
+      "path": "desktop/electron/team-context-packet.cjs",
+      "bytes": 6909,
+      "sha256": "e8b40efb2f57bb3c7502fbe81f6fd2caa0a815dd06936da31fd360e85d982646"
+    },
+    {
+      "path": "desktop/electron/team-context-transfers.cjs",
+      "bytes": 8919,
+      "sha256": "1ce05d4d968b88cdf108ecb53a4e4538ac3ea38b176176033e06326090436809"
+    },
+    {
+      "path": "desktop/electron/team-materials.cjs",
+      "bytes": 6622,
+      "sha256": "be3acc6072d8e0aba4cce490a856d5bacbbfed8f4d2a9f3bc1833d9b316ea793"
+    },
+    {
+      "path": "desktop/electron/team-space.cjs",
+      "bytes": 36464,
+      "sha256": "ca11098aaec59cf62ef1ff4d51e114face326c18619263abb5baf5f3a5046aff"
+    },
+    {
+      "path": "desktop/electron/team-stop.cjs",
+      "bytes": 5010,
+      "sha256": "c4a97b6f7f538f8c1d02d6932e34607bb5075297de600396593966d2f6e4aebd"
+    },
+    {
+      "path": "desktop/electron/team-tools.cjs",
+      "bytes": 12897,
+      "sha256": "06f16799637aa73e9cd7d618b81bf74200d9ff89822dc886c01986b1e91614c7"
+    },
+    {
+      "path": "desktop/electron/team-work.cjs",
+      "bytes": 18513,
+      "sha256": "6896c8430e74cd9394045e903ebf712144e9b5a7bcbc9a8066530363f2542e77"
+    },
+    {
+      "path": "desktop/electron/tool-discovery.cjs",
+      "bytes": 13063,
+      "sha256": "dbc2711f388656b70410e678190b7071cb2062cd648a04c4819d9844158503d3"
+    },
+    {
+      "path": "desktop/electron/worker-runtime.cjs",
+      "bytes": 4888,
+      "sha256": "7eb6e360b460a2b22ed0c5d5e507565310a21bbfe346998ed257c2f00cd80297"
+    },
+    {
+      "path": "desktop/src/AddMachineDialog.tsx",
+      "bytes": 17267,
+      "sha256": "4e308b399eebeff6144a4cb2650f3fb67bbbaf44667805d2603217f0e0b37ae6"
+    },
+    {
+      "path": "desktop/src/agent-tools.ts",
+      "bytes": 2225,
+      "sha256": "2351544c848a1d1f3a51bf98ca8e0ee510d41414ad0f31041bf308cf14e8c00f"
+    },
+    {
+      "path": "desktop/src/AgentConfigurationDialog.tsx",
+      "bytes": 4460,
+      "sha256": "35afeefe6d84a8632817ea56995b0edf2932db7dfc21ce6d92d523d6377a45d6"
+    },
+    {
+      "path": "desktop/src/AgentGraph.tsx",
+      "bytes": 39208,
+      "sha256": "cf696a75d3e0fc715ca782e175c834ea4b2044eb07d699c4758186541a6b9cb1"
+    },
+    {
+      "path": "desktop/src/AgentIcon.tsx",
+      "bytes": 1614,
+      "sha256": "6b45d190a7cb2cd0ec82de5b4949e251e4d9bbbe54d5180ac685b3a3a377ac3a"
+    },
+    {
+      "path": "desktop/src/api.ts",
+      "bytes": 4613,
+      "sha256": "abe8b34b4eb89213245a3b1fdee8bb403176220f34dcb5135cc047b7b37d1871"
+    },
+    {
+      "path": "desktop/src/App.tsx",
+      "bytes": 111194,
+      "sha256": "dac4f1963bcd29d92491cda3ae0dc3967db366cf45a43d2f6137d27546183f07"
+    },
+    {
+      "path": "desktop/src/AppShell.tsx",
+      "bytes": 7170,
+      "sha256": "a7590b006695f622dc2a56697c94aa201f51fecea197339d2566cbe06a671ff0"
+    },
+    {
+      "path": "desktop/src/CollaborationChoice.tsx",
+      "bytes": 2165,
+      "sha256": "ad2aab3924c60e9af60a665f011394dfd93c55623cf92e593492c587c5517576"
+    },
+    {
+      "path": "desktop/src/connection-capabilities.ts",
+      "bytes": 5094,
+      "sha256": "f319b2422c829141c3aa899c9a1d506d1b23abb7abbd74c996e47f4989f5f082"
+    },
+    {
+      "path": "desktop/src/ConnectionPolicyPanel.tsx",
+      "bytes": 9182,
+      "sha256": "2d019421e4876e62ffdc29b843fd5f53864fa16dde0c4e72e10db454135c3b66"
+    },
+    {
+      "path": "desktop/src/DaemonDialog.tsx",
+      "bytes": 13166,
+      "sha256": "2927a4d2ca6f21f0d214d71a338debf992f722a3df503a409b1ad39194c9e385"
+    },
+    {
+      "path": "desktop/src/dsh-settings-state.ts",
+      "bytes": 2051,
+      "sha256": "1d8548b71969d142affad14a5237650ed19c7c09ac57e74ea739c98a7b0c065f"
+    },
+    {
+      "path": "desktop/src/DshSettings.tsx",
+      "bytes": 5031,
+      "sha256": "0ab9c1b147284f52f5d7368d91256ef9877657e7f8d244e38a210aeb406878f1"
+    },
+    {
+      "path": "desktop/src/graph-routing.ts",
+      "bytes": 3843,
+      "sha256": "0e06b807cf059724001822fe92bb82688168c9dd16e8f33123a6fa02d84f2d63"
+    },
+    {
+      "path": "desktop/src/graph-state.ts",
+      "bytes": 12000,
+      "sha256": "df0e908d6f7f67421a4f8d6685f711e550de1de52a04b0715ff6a49671f23e93"
+    },
+    {
+      "path": "desktop/src/graph.css",
+      "bytes": 5765,
+      "sha256": "bf0a9d9ff5c9970b42374094ae7554e7b38366790d75ef4bc0053b0565270eda"
+    },
+    {
+      "path": "desktop/src/machine-management.ts",
+      "bytes": 1810,
+      "sha256": "0010c0c3a933f53aca4ec3ee319bbc48b92626daefeca92e4dadd3344cff2b86"
+    },
+    {
+      "path": "desktop/src/MachineInventory.tsx",
+      "bytes": 23067,
+      "sha256": "df3fbc3499655d6c51881a1c2ec9e0b176598edcc986da74e803e769a2ef219a"
+    },
+    {
+      "path": "desktop/src/MachinesView.tsx",
+      "bytes": 9106,
+      "sha256": "40e17670deafb9aa3129811fae2223834c86a42e47d1fec63ac12447945e4e2e"
+    },
+    {
+      "path": "desktop/src/main.tsx",
+      "bytes": 298,
+      "sha256": "edb3d6b698cf28f72f04b00d52396e98634f5bb121f377dc6536113aa9078e60"
+    },
+    {
+      "path": "desktop/src/management-recovery.ts",
+      "bytes": 10694,
+      "sha256": "5dd4ec902feb9fe9b780fc4dc77716f028f07406bc28e74419a0be51bf224374"
+    },
+    {
+      "path": "desktop/src/management-state.ts",
+      "bytes": 6090,
+      "sha256": "d2c80f91eb91e3ff47f410de9c12f5b77bbd5d7e1130eac311d61b288bfe89df"
+    },
+    {
+      "path": "desktop/src/McpSettings.tsx",
+      "bytes": 21324,
+      "sha256": "1fa49d9feecc32c881e42f079c4f9e671db2828927336925b49739a00d412608"
+    },
+    {
+      "path": "desktop/src/network.css",
+      "bytes": 7158,
+      "sha256": "4142797bde331c1fbc2e61e2f3914e0a594a92e67bf425c84eabe1183eb27617"
+    },
+    {
+      "path": "desktop/src/NetworkApp.tsx",
+      "bytes": 50997,
+      "sha256": "b9c26c6988880b5962d308c535a502902d0db9a13b2c560cea85217cf0c38f0c"
+    },
+    {
+      "path": "desktop/src/node-management.ts",
+      "bytes": 1103,
+      "sha256": "e96f97341bf13d00d8371e20197e83a30515b627dfcbd2b0a55ff40bf9f0bbe1"
+    },
+    {
+      "path": "desktop/src/operation-recovery.ts",
+      "bytes": 1514,
+      "sha256": "edcaabf3dcf495ef10f33e5b88994fc110ce8b611468e05d19d4a50cc9a04be4"
+    },
+    {
+      "path": "desktop/src/poll-state.ts",
+      "bytes": 1163,
+      "sha256": "3a525c253ed9fb762b0bb2947487c1d0cdbc541781cb3a784949d0548b88c3b9"
+    },
+    {
+      "path": "desktop/src/relation-conflict.css",
+      "bytes": 775,
+      "sha256": "2dcce18e02011ffb814c0ed32b17d6933a8c328479b27f34e34c2e75c40443e2"
+    },
+    {
+      "path": "desktop/src/RelationConflictPanel.tsx",
+      "bytes": 4448,
+      "sha256": "2fc84989a137707352b3ebd287f3e64cd84441a1c96890a0237129b8667e8418"
+    },
+    {
+      "path": "desktop/src/ssh-node-state.ts",
+      "bytes": 629,
+      "sha256": "2c79007ce20ae593a9ec4bd085772000b9e2a66d5bcfe76e3467f0d630181580"
+    },
+    {
+      "path": "desktop/src/style.css",
+      "bytes": 39498,
+      "sha256": "7c15d905c2e357506e126678d372be4f830f51c99f23e61aa569ec135cd549eb"
+    },
+    {
+      "path": "desktop/src/team-context-receipts.ts",
+      "bytes": 3259,
+      "sha256": "60f5a62eef875d6407ab34f131b4d399e05ec0182e5c7ef3ef059f2be3d6329d"
+    },
+    {
+      "path": "desktop/src/team-context-transfer.ts",
+      "bytes": 13004,
+      "sha256": "1aa61659d6e9a4f6ad6361af6552171c0862e60c3bd124627544b346e5794e8a"
+    },
+    {
+      "path": "desktop/src/team-material-transfer.ts",
+      "bytes": 2013,
+      "sha256": "d7245f206a3cc57c84a16136a6f0741413f6f23bf2ce2fedaef156d85131bd08"
+    },
+    {
+      "path": "desktop/src/team-operation-proof.ts",
+      "bytes": 736,
+      "sha256": "68503085b383f656ef9ef8988d72ae7581a1269a65d21ef3e5cc760b1856df17"
+    },
+    {
+      "path": "desktop/src/team-types.ts",
+      "bytes": 4521,
+      "sha256": "9c002eb60347e78327c91e6b3d011864895a0fecd141de3b3eb9110fae3c489f"
+    },
+    {
+      "path": "desktop/src/team.css",
+      "bytes": 4685,
+      "sha256": "923684c0a2311a60312ec211dee6149a9a096ca17899c0b0182e3ea09e2b26d3"
+    },
+    {
+      "path": "desktop/src/TeamAutomationSettings.tsx",
+      "bytes": 5175,
+      "sha256": "9967aaf7990b04e79a9b6b3ba326d8effbdcf8c78d180e5f35b84e62f7b762bb"
+    },
+    {
+      "path": "desktop/src/TeamContextPacket.tsx",
+      "bytes": 12086,
+      "sha256": "f281e988d99285a728bf72871418b51bc471875b302901e787a3a5ddb7308fa0"
+    },
+    {
+      "path": "desktop/src/TeamContextReceipts.tsx",
+      "bytes": 3503,
+      "sha256": "a5a86864bb5e076a970408de5e386a95ea6c4d22c3a60c60fd3d5e26381c1bab"
+    },
+    {
+      "path": "desktop/src/TeamMaterials.tsx",
+      "bytes": 7917,
+      "sha256": "297d7cecc82dfa82e8a12844a969864a79437b73080da1d52599c46564f62c91"
+    },
+    {
+      "path": "desktop/src/TeamNativeNodeSelect.tsx",
+      "bytes": 1559,
+      "sha256": "31f5b9ae8b3097a9bef82003e601c97fef3d96a4208831a9c0a576fec35333c2"
+    },
+    {
+      "path": "desktop/src/TeamStopStatus.tsx",
+      "bytes": 1701,
+      "sha256": "6939810dbe8b51c2790c10993ab4a55afb84d0dd643def46a8dc6ffb9f05132a"
+    },
+    {
+      "path": "desktop/src/TeamTaskBoard.tsx",
+      "bytes": 10402,
+      "sha256": "cd6c55334c3b98b220705b4fb0b5886ae173d75953fbe34cfc6e620156ee55b3"
+    },
+    {
+      "path": "desktop/src/TeamWorkspace.tsx",
+      "bytes": 27841,
+      "sha256": "65080c8c3f7f3189c805e430221ab2cb5754290d3dd236c176659d1579beccc6"
+    },
+    {
+      "path": "desktop/src/types.ts",
+      "bytes": 11140,
+      "sha256": "aaf2455558148a1ce1c74c78a4921ff36f717633bd08c15f5a74e8037bcbed52"
+    },
+    {
+      "path": "desktop/src/workbench.css",
+      "bytes": 28165,
+      "sha256": "10a37dabeabb4cf166b743f8590a5e277f12a2e3451b9df5c7845ff9f335baee"
+    },
+    {
+      "path": "desktop/src/workspace-pages.css",
+      "bytes": 28583,
+      "sha256": "b5cbc291bb462276dd18c0f8b50235f4ed1e9f326f390f40d7352ea7fcca1814"
+    },
+    {
+      "path": "desktop/src/WorkspacePages.tsx",
+      "bytes": 39793,
+      "sha256": "a15106c817969ee4892a29442fbac43ad83df70c697daaa60844b51063af14e3"
+    },
+    {
+      "path": "desktop/assets/agents/claude.png",
+      "bytes": 10358,
+      "sha256": "7241633e5a39b44a947c7b9a821637f30d6e86716e7a8c847136d91f9c3f6ba1"
+    },
+    {
+      "path": "desktop/assets/agents/codex.png",
+      "bytes": 10969,
+      "sha256": "2ce1c57dd3b312417106a487815ab1235bddce17e1fa9b32a2f048bd71ee25d3"
+    },
+    {
+      "path": "desktop/assets/agents/dsh.BRAND_GUIDELINES.md",
+      "bytes": 2080,
+      "sha256": "c8a188bd39677c08b699fc1e4095e435503a8a051318da0c7864ed36e0003271"
+    },
+    {
+      "path": "desktop/assets/agents/dsh.LICENSE.txt",
+      "bytes": 1065,
+      "sha256": "ebb4f09972aee8608be255debaf78451a68e95c290f55c240dec2ecfa16ea6be"
+    },
+    {
+      "path": "desktop/assets/agents/dsh.svg",
+      "bytes": 3634,
+      "sha256": "9e983b4f649c25c6ca0623a50be1a6e705fd8f49f756638b980fa13b40575ab6"
+    },
+    {
+      "path": "desktop/assets/agents/hermes.LICENSE.txt",
+      "bytes": 1070,
+      "sha256": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6"
+    },
+    {
+      "path": "desktop/assets/agents/hermes.png",
+      "bytes": 11953,
+      "sha256": "4b75d873f29e3f330c7f9032051555b66218cf11e5a470876f3e0754cb32bc8e"
+    },
+    {
+      "path": "desktop/assets/agents/opencode.LICENSE.txt",
+      "bytes": 1065,
+      "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b"
+    },
+    {
+      "path": "desktop/assets/agents/opencode.svg",
+      "bytes": 631,
+      "sha256": "b1c48d82ebd304eab820658387642bcf4c9b8350d6860894d0fe21ddca25ef3f"
+    },
+    {
+      "path": "desktop/assets/agents/opendesk-LICENSE",
+      "bytes": 9153,
+      "sha256": "43e47adcf75ac27fe931f3c86e9b4ca0e52646b8f4e687ac769df8612170d70e"
+    },
+    {
+      "path": "desktop/assets/agents/opendesk.png",
+      "bytes": 29043,
+      "sha256": "4ca37af6a4ca95458575cc6ed385b1e4396ec2e9149e3a51b6d4b311291f7f98"
+    },
+    {
+      "path": "desktop/assets/agents/pi.LICENSE.txt",
+      "bytes": 1069,
+      "sha256": "0457f5bcec3b3b211605dfb5d1a49042fd638f3686a410fe099c24a25af13c48"
+    },
+    {
+      "path": "desktop/assets/agents/pi.svg",
+      "bytes": 438,
+      "sha256": "d266b2c1d2c7bf169ca30d438963b176fba16fea6263b9ac30c8302f34ad7ce7"
+    },
+    {
+      "path": "desktop/assets/agents/README.md",
+      "bytes": 3874,
+      "sha256": "a6f588379bdfd6f50c0accbbee04d99515a0ac32d6ae274c95b5c1fd2f8f562b"
+    },
+    {
+      "path": "desktop/assets/agents/sources.json",
+      "bytes": 2946,
+      "sha256": "a098090358ea1fd5c4233052c9f70aa0b95ed2b8a2e27a0bef1a23ff58cc04ba"
+    },
+    {
+      "path": "desktop/assets/fonts/ibm-plex-mono-latin-400.woff2",
+      "bytes": 14708,
+      "sha256": "08949f728dc52d528e69b1667d15c89a5686a4ee9a296ff90983985f99c380f7"
+    },
+    {
+      "path": "desktop/assets/fonts/ibm-plex-sans-latin-variable.woff2",
+      "bytes": 45712,
+      "sha256": "e2291e842cf5af167122a22881a740c7f2dda7716f1e8cd76680264f4a859470"
+    },
+    {
+      "path": "desktop/assets/fonts/OFL-IBM-Plex.txt",
+      "bytes": 4456,
+      "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da"
+    },
+    {
+      "path": "desktop/assets/icon.ico",
+      "bytes": 2415,
+      "sha256": "ffb1221f84cae62f78765322ccc16355be7137d38b18fbce3752162a038392a3"
+    },
+    {
+      "path": "desktop/assets/icon.png",
+      "bytes": 2393,
+      "sha256": "55206403b636b9d16f50b3ac267c4b964dd497fa2275db4beddcbb4dd982571b"
+    },
+    {
+      "path": "desktop/assets/icon.svg",
+      "bytes": 381,
+      "sha256": "fd5a7600865c499ccc7f41bb0eb9248fa2e64f3a7791b176e18f8ef0312a2354"
+    },
+    {
+      "path": "desktop/native/owned-stop.c",
+      "bytes": 1194,
+      "sha256": "5fdb95889a890fabc33edfa5cd96f2e9e8fd343986cba8dd6572561e4ee15c39"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.10.json",
+      "bytes": 243018,
+      "sha256": "969173d8602404cecec17faa47e3a5ee3bc7aa4240b74960e8e7edb0edbc9201"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.11.json",
+      "bytes": 244194,
+      "sha256": "f2d647bacfb7cd0100dd656aceebc6a3a72b36652ebdc2ae8134cf8584588dfe"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.12.json",
+      "bytes": 244590,
+      "sha256": "872c03361099d2b953b6dad82efe956db8c54b50195cf386c4f56a5966f00853"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.13.json",
+      "bytes": 244967,
+      "sha256": "fd1933b664d29251cbdf07dd586c698397c383cf62a4253e0a367c16849ad19c"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.14.json",
+      "bytes": 245344,
+      "sha256": "bac48c500002c67aa1c4cf9457d82d90174966c4939c2e03a04f2be8318e57fd"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.15.json",
+      "bytes": 245721,
+      "sha256": "7c5a8bf24dbf8ff051ad65fb2930641a66124896facbb517228a37723cf95e1b"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.16.json",
+      "bytes": 246098,
+      "sha256": "1a1b3b9568a9eaaac059f86cc3fb86f821df57f7955086af2e899aa6983d382a"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.17.json",
+      "bytes": 246475,
+      "sha256": "b6d9d8b5db4680988766fbfaecddfc4ab35a35b62637b13af8208e61f137fd2a"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.18.json",
+      "bytes": 246852,
+      "sha256": "31f1af43ff2b5a461ec07b0a6a033ec0069dc448df6acb21a07445b8e53cf031"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.19.json",
+      "bytes": 247229,
+      "sha256": "36fec045c1133fd56cda8c530a52e5629e0ab99a03a63806f3578dc0286c7b13"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.2.json",
+      "bytes": 239659,
+      "sha256": "4504227fff2983e07f556acac873b22f9035266ddd607dfbf82e3608d83344e4"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.24.json",
+      "bytes": 248437,
+      "sha256": "581fefe651a170fd385b96dd9739b9e7988b89279c8e25c325189ef9c51dfb1d"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.25.json",
+      "bytes": 248437,
+      "sha256": "6e7fa2742ddafb916f56113c15a310eabdbe1bd7940ff21985afc03a66e2fc6b"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.26.json",
+      "bytes": 249191,
+      "sha256": "e84556fa661086d16db5449da98e5926c42f9a579799fc9b1a2ba2b52e674cea"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.27.json",
+      "bytes": 249568,
+      "sha256": "c3917867bfd64601d9248a1c0c769290817e31a51d335cbda5a88ee484f2a0fc"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.28.json",
+      "bytes": 250116,
+      "sha256": "48f2105a31d24fa4f8cf8192e1897b238f6e3076aea4cd6c32686cc856e4ee53"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.29.json",
+      "bytes": 251188,
+      "sha256": "d8730803598fe9dfc7c355dc429354c1d59cb8c1e580133ab41251513a45db96"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.30.json",
+      "bytes": 251565,
+      "sha256": "6b368b9e010a17b2f3962a7c7db97086b7651559fa014c87cc799031612b8b3f"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.31.json",
+      "bytes": 252117,
+      "sha256": "441df96dc17d7e2bfe140639437d209e3807f924bbad4e807bcb392cca4468d4"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.32.json",
+      "bytes": 252495,
+      "sha256": "4cffabdded278967963708e2edea2efe0fb6ae697e259e19d1f60773461e821a"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.33.json",
+      "bytes": 252872,
+      "sha256": "6e29a615d6d7fbb75832969a4036dd7842807f5fda03a31e6e69ae9ac21f66b0"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.34.json",
+      "bytes": 261066,
+      "sha256": "b008589f9f1391a40a28830d95c09e54ff16409eb421c9e0449395b1c6397300"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.35.json",
+      "bytes": 261443,
+      "sha256": "09a578597dc5a804be882ceafa24a5414fbad27b6846fb1104282fe0937624dc"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.36.json",
+      "bytes": 262670,
+      "sha256": "280420793c37064eb0df59aeac17387822fbbe88f9ae2a130a1e7dfcb156731b"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.37.json",
+      "bytes": 263047,
+      "sha256": "8ac0a9b9e72cbf764bbabb6f29b4d8b204870cbc62cfd63c8fd51d90c10f0c49"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.38.json",
+      "bytes": 263424,
+      "sha256": "e03ee636c138284cf6db443f1e977a785122209e15ed46abf392811ac35cc7c4"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.4.json",
+      "bytes": 240435,
+      "sha256": "d5d87a647c01ba9e24459e574bdadfb5bc9c005eb890752942b638c77ab5da9b"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.46.json",
+      "bytes": 306202,
+      "sha256": "6ae84ada13b90c6dccc611a85a8826466af2b838dbf97fb122ee0ce5b42a2c5a"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.5.json",
+      "bytes": 240809,
+      "sha256": "63a1bd2d055d826fd62a4c5cdac0f5629ed3d58071eba24a0b573cbef4144d99"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.51.recovery.2.json",
+      "bytes": 306726,
+      "sha256": "d59cf48f5e303c70d1e716151ebac511e1bb341c1646388ad2edb0886dade2f6"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.52.json",
+      "bytes": 306888,
+      "sha256": "86e846df42573b00d0a446dd2d1e35efbe16f48dbf3aca16ac4a3a3f2f206c76"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.53.json",
+      "bytes": 306888,
+      "sha256": "93cb6e5e1353f2fdcecf8414e624f179c2cbc51afab9b31bcbd09bb510d4bfa2"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.54.json",
+      "bytes": 306888,
+      "sha256": "403fd0a6478366a68ce924494fa0cdb0e77820f660737c4ccbd8ddc87ced3aa3"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.55.json",
+      "bytes": 308806,
+      "sha256": "f8165ad9044c66bdd8698352f1790c9af417ce8fccd2a94fa93c17f773b31ac7"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.56.json",
+      "bytes": 309183,
+      "sha256": "4fc173ee2e47d90ac1cd74a7f3fe997efc0e4bfccb1b0c97b68f01b43fcd4461"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.57.json",
+      "bytes": 309729,
+      "sha256": "846fd0e1a5c31b3e59c7abf41e9142d673b0b14d3f47d7b613925a8dfcf49683"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.59.json",
+      "bytes": 310107,
+      "sha256": "0460956397efbcdb6122624d9fd861c0549c111fce0362c52ed558bb746e054a"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.6.json",
+      "bytes": 241521,
+      "sha256": "c531fe86bc38f59627075ced169e0b02bce2683c563220732c0392c409872786"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.60.json",
+      "bytes": 310657,
+      "sha256": "b2d446a81a72b0ebd39e161bd1122a1f9c5fa07cc4694ee08d0dc3baef880302"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.63.json",
+      "bytes": 311211,
+      "sha256": "3f2639b9cf31afe82d4826af32385f388ec827588a1e155fcffce467a40a2220"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.64.json",
+      "bytes": 312233,
+      "sha256": "2fb94e7afd0bdc7b386c35167fb8a4b8024f96a63204150d196a054a47f4516d"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.65.json",
+      "bytes": 312610,
+      "sha256": "777a3549dc263c3b36e89f716665fe45231d7bc85021996877e8d9d11d7035c0"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.66.json",
+      "bytes": 312987,
+      "sha256": "f6f1458e3b6e81359c99c95a88379c4e0c0b8f9572db8a4529c2eeba6234d795"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.67.json",
+      "bytes": 313364,
+      "sha256": "d75ffb53526ec88be8388fd412b8c8b5619fcb033cebed6a50543097f35edcfb"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.68.json",
+      "bytes": 313913,
+      "sha256": "72bde1ebbecc653830807eb8fac655d093f07abf0db82d4b94961c03a072a8a4"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.69.json",
+      "bytes": 314290,
+      "sha256": "436423ebb30cc6ab1b06583324235dd2f6de24b8640f47745e365616143705bc"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.7.json",
+      "bytes": 241895,
+      "sha256": "340c4f840acefed062e4bdd53c5cdecc3ab1a98af8ae27c27e3b491c558dedb6"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.8.json",
+      "bytes": 242269,
+      "sha256": "cf3802f05540aaf0ce4ec31a3e78b7f4c5dd1ec3b589f39336fa16a61345c4e9"
+    },
+    {
+      "path": "desktop/compatible-daemons/0.6.0-alpha.9.json",
+      "bytes": 242643,
+      "sha256": "a0ab0927739d52f70bd8e7f7a09157e47514e999ba0aa8783b615f2777daf2b3"
+    },
+    {
+      "path": "desktop/scripts/check-workbench-design.cjs",
+      "bytes": 11440,
+      "sha256": "72e358c24c3f9ef0e692ddf0b0eac449e18979f631223d2b3af9b69c153beefd"
+    },
+    {
+      "path": "desktop/scripts/import-daemon-manifest.cjs",
+      "bytes": 3543,
+      "sha256": "4780e323bde785127676210cb4fb779ddb33270390ad915545d48024e32390b0"
+    },
+    {
+      "path": "desktop/scripts/preview-ui.cjs",
+      "bytes": 9106,
+      "sha256": "ca9ea8809da19d59b835e6d446740a7aafc22999aaee2d111dc46171ade5b37c"
+    },
+    {
+      "path": "desktop/scripts/stage-bridge.cjs",
+      "bytes": 1252,
+      "sha256": "454de59caaa6441452bb692e733be52a4780b8aef70fd5801fc56b09564d7c94"
+    },
+    {
+      "path": "desktop/scripts/stage-linux-package.cjs",
+      "bytes": 5270,
+      "sha256": "fa5f3eec36124f155080c1bdf9cc189db35b16631205d27bf6860fe77735c715"
+    },
+    {
+      "path": "desktop/scripts/verify-package.cjs",
+      "bytes": 3756,
+      "sha256": "244db01fd3c58a80e31f45f4202de75d8eee0d192c961f38b0d72d1860e89145"
+    },
+    {
+      "path": "package.json",
+      "bytes": 2468,
+      "sha256": "51c1b4ab6d4d87c01ef3cae47bfcfb68cd04d8adbc07826dc12189e9c60f840c"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 183601,
+      "sha256": "7313895b5df8add123caf9fabc733c78ea7d8993335a3d95faddc0af8468f03c"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 323,
+      "sha256": "8cfbd010f66fc7af63f71dfe859c1a8a675ae5b5a352eeb51fb21f3a4415f14d"
+    },
+    {
+      "path": "tsconfig.check.json",
+      "bytes": 142,
+      "sha256": "a38b70782b056006e212f38f4029b2df14747d57d99be93495fc4544f52d8fd5"
+    },
+    {
+      "path": "desktop/package.json",
+      "bytes": 2720,
+      "sha256": "fdbfa05673d454b54cb1c3b1a9b4bbe2fe2c85ca46b5192bb153c36402a2a0db"
+    },
+    {
+      "path": "desktop/package-lock.json",
+      "bytes": 142617,
+      "sha256": "5ac90e6c7a931dbef56136246484e56bd6bc2236a604ea69722d1906628335a4"
+    },
+    {
+      "path": "desktop/tsconfig.json",
+      "bytes": 405,
+      "sha256": "cce7cc0f786930994a309a741c0b6edaaafd98377ccc71f23da731466b177174"
+    },
+    {
+      "path": "desktop/vite.config.ts",
+      "bytes": 260,
+      "sha256": "8ddb421b8d4cb040bb1bd3852a90e01eb7cca8b7d95121e627d6fe34f89e6325"
+    }
+  ]
+}

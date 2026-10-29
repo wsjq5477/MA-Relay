@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "writerSource": "v0.6.0-alpha.46 agent-network.cjs",
+  "environment": "controlled hosts, original old writer code, temporary synthetic profile",
+  "oldSelectedRevision": 1,
+  "oldCollaborationRevision": 3,
+  "baselineProposalAvailable": false,
+  "fixedProposalRevision": 3,
+  "originalReceiptsRetained": true,
+  "modelCalls": 0
+}

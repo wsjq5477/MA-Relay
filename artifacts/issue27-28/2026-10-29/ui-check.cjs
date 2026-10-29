@@ -1,0 +1,20 @@
+async (page)=>{
+ let refused=false;const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/rpc',async route=>{
+  const input=route.request().postDataJSON();if(input.method!=='snapshot')return route.continue();
+  const response=await route.fetch(),body=await response.json();if(!body.ok)throw Error('Preview snapshot unavailable');
+  const machines=body.result.machines.filter(m=>m.kind==='ssh'),ids=new Set(machines.map(m=>m.machineId));
+  for(const machine of machines){machine.online=false;machine.stage=refused?'disconnected':'inspecting';machine.connectionState=machine.stage;delete machine.probe;if(refused)machine.error='远端后台版本不受当前客户端支持，未列入公共兼容清单。';else delete machine.error;}
+  for(const node of body.result.nodes.filter(n=>ids.has(n.machineId))){node.online=false;node.available=false;node.status=refused?'upgrade_required':'offline';node.connectionState=refused?'disconnected':'inspecting';node.lastError={message:'obsolete-offline-source'};if(refused){node.error='远端后台版本不受当前客户端支持，未列入公共兼容清单。';node.errorCode='SSH_DAEMON_UPGRADE_REQUIRED';}else{delete node.error;delete node.errorCode;}}
+  await route.fulfill({json:body});
+ });
+ await page.setViewportSize({width:1440,height:960});await page.goto('http://127.0.0.1:4207');
+ await page.getByText('正在检查远端环境',{exact:true}).first().waitFor();
+ if(await page.getByText('obsolete-offline-source').count())throw Error('stale native error shown during inspection');
+ await page.screenshot({path:'artifacts/issue27-28/2026-10-29/ssh-inspecting-1440.png',fullPage:true});
+ refused=true;await page.reload();await page.getByText('远端后台版本不受当前客户端支持',{exact:true}).first().waitFor();
+ await page.setViewportSize({width:980,height:660});await page.screenshot({path:'artifacts/issue27-28/2026-10-29/ssh-refusal-980.png',fullPage:true});
+ if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('horizontal overflow');
+ if(errors.length)throw Error('page errors '+errors.join(';'));
+ return {inspectionRendered:true,staleOfflineHidden:true,versionRefusalRendered:true,pageErrors:0,horizontalOverflow:false,scope:'production renderer with synthetic RPC; no remote or profile writes'};
+}
