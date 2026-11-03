@@ -108,7 +108,8 @@ input.on('close',()=>{if(!wait)process.exit(0)});
   t.after(async () => {
     for (const item of hosts) item.close();
     // Tests cancel their own running tasks before cleanup.
-    fs.rmSync(directory, { recursive: true, force: true });
+    await require('./fixture-worker-exit.cjs').fixtureWorkerExit(directory,hosts.flatMap(item=>item.state.tasks.map(task=>task.worker?.workerPid)));
+    fs.rmSync(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
   });
   return { directory, executable, host };
 }

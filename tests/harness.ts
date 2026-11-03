@@ -331,6 +331,9 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
     const runningAgent = (await agents()).find(a => a.agentId === 'mock-a')!;
     assert(runningAgent.busy && !runningAgent.available);
     assert.equal(runningAgent.currentTask!.taskId, raceTask.taskId);
+    // Start the CLI admission check while the controlled invocation is known
+    // to be running, before several other CLI processes consume its window.
+    const busyWhileRunning = cli(['run', 'mock-a', 'busy']);
     const observationTimeout = await expectCode(['task', raceTask.taskId, '--watch', '--json', '--timeout-ms', '50'], 3);
     assert(observationTimeout.stderr.includes('not changed'));
     assert.equal((await task(raceTask.taskId)).status, 'running');
@@ -338,7 +341,7 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
     assert.equal((await task(raceTask.taskId)).status, 'running');
     const textTask = await expectCode(['task', raceTask.taskId], 0);
     assert(textTask.stdout.includes('Status: running'));
-    await expectCode(['run', 'mock-a', 'busy'], 4);
+    assert.equal((await busyWhileRunning).code, 4);
     await settled(raceTask.taskId);
     assert.equal(counts(resolve(dir, 'edge-a-data')).find(t => t.taskId === raceTask.taskId)!.invocations, 1);
     mark('AC-F02-04', 'AC-F03-04', 'AC-F04-03', 'AC-F05-03');

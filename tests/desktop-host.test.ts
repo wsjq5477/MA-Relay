@@ -189,18 +189,23 @@ test("desktop: UI host and CLI share conversations, request dedupe, permission c
     assert.equal((await request<{ items: Task[] }>("conversation", { conversationId: done.conversationId })).items.length, 2);
     assert.equal(native.counters().prompts, 3);
   } finally {
+    let controllerPid: number | undefined;
     try {
+      const current = await ipc<{ pid: number; directory: string }>(dir, { op: "status" });
+      assert.equal(resolve(current.directory), resolve(dir));
+      controllerPid = current.pid;
       await ipc(dir, { op: "stop" });
     } catch {
       /* Test startup may fail before the controller starts. */
     }
-    for (let i = 0; i < 200; i++) {
-      try {
-        await ipc(dir, { op: "status" });
-        await delay(20);
-      } catch {
-        break;
+    if (controllerPid) {
+      const untilExit = Date.now() + 15000;
+      let alive = true;
+      while (alive && Date.now() < untilExit) {
+        try { process.kill(controllerPid, 0); } catch { alive = false; }
+        if (alive) await delay(20);
       }
+      assert.equal(alive, false, "Owned Controller must exit before its temporary data is removed");
     }
     await native.close();
     rmSync(root, { recursive: true, force: true });
