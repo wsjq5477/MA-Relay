@@ -53,7 +53,7 @@ async function fixture(t) {
   const scope = {nodeId: leader.nodeId, parentRequestId: 'external-a', externalConnectionId: 'external-a'};
   const tool = (name, args = {}) => network.collaborationTool(scope, name, args, 'controlled-call', leader.machineId);
   const finish = task => { const original = state.tasks.find(row => row.taskId === task.taskId.split('::').at(-1)); original.status = 'succeeded'; original.result = {message: 'Actual controlled result'}; };
-  t.after(async () => { for (const resource of resources.reverse()) await resource.close(); registry.close(); network.close(); fs.rmSync(directory, {recursive: true, force: true}); });
+  t.after(async () => { for (const resource of resources.reverse()) await resource.close(); registry.close(); network.close(); await fs.promises.rm(directory, {recursive: true, force: true, maxRetries: 10, retryDelay: 100}); });
   return {directory, state, network, registry, admin, register, leader, child, outsider, tool, finish, keep(resource) {resources.push(resource); return resource;}};
 }
 

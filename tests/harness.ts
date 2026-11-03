@@ -160,8 +160,8 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
   const task = async (id: string): Promise<Task & { events: unknown[] }> => {
     const r = await http('/v1/tasks/' + id); assert.equal(r.status, 200); return r.data;
   };
-  const settled = async (id: string, expected: string = 'succeeded') => {
-    const t = await until(async () => { const t = await task(id); return ['succeeded', 'failed', 'unknown'].includes(t.status) && t; }, 'Task completion');
+  const settled = async (id: string, expected: string = 'succeeded', timeout = 10000) => {
+    const t = await until(async () => { const t = await task(id); return ['succeeded', 'failed', 'unknown'].includes(t.status) && t; }, 'Task completion', timeout);
     assert.equal(t.status, expected); return t;
   };
   const run = async (target: string, message: string, id: string = randomUUID()) => {
@@ -320,7 +320,8 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
     await edgeA.stop();
     const repeatOffline = await run('mock-a', 'same logical request', key);
     assert.equal(repeatOffline.taskId, repeated[0]!.taskId);
-    edit('edge-a', raw => { (raw.agents as { delayMs: number }[])[0]!.delayMs = 8000; });
+    const busyFixtureMs = 30000;
+    edit('edge-a', raw => { (raw.agents as { delayMs: number }[])[0]!.delayMs = busyFixtureMs; });
     edgeA = await launch('edge-a');
     const raceKeys = Array.from({ length: 6 }, () => randomUUID());
     const races = await Promise.all(raceKeys.map(id => http('/v1/tasks', { targetAgent: 'mock-a', message: 'reservation race', requestId: id })));
@@ -342,12 +343,12 @@ export async function runAcceptance(): Promise<AcceptanceReport> {
     const textTask = await expectCode(['task', raceTask.taskId], 0);
     assert(textTask.stdout.includes('Status: running'));
     assert.equal((await busyWhileRunning).code, 4);
-    await settled(raceTask.taskId);
+    await settled(raceTask.taskId, 'succeeded', busyFixtureMs + 10000);
     assert.equal(counts(resolve(dir, 'edge-a-data')).find(t => t.taskId === raceTask.taskId)!.invocations, 1);
     mark('AC-F02-04', 'AC-F03-04', 'AC-F04-03', 'AC-F05-03');
     const rejectedKey = raceKeys[races.findIndex(r => r.status === 409)]!;
     const retryRejected = await run('mock-a', 'rejected request can retry', rejectedKey);
-    await settled(retryRejected.taskId);
+    await settled(retryRejected.taskId, 'succeeded', busyFixtureMs + 10000);
     await edgeA.stop();
     edit('edge-a', raw => { (raw.agents as { delayMs: number }[])[0]!.delayMs = 20; });
     edgeA = await launch('edge-a');
