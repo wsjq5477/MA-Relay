@@ -1,16 +1,18 @@
 # 迭代路线与当前交付
 
-完整决策仍未验收完成。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。已解除网页登录与旧CLI模型门禁；原三Task读控18项、原源码受控回归维持历史证据范围。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+
+完整决策仍未验收完成。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。已解除网页登录与旧CLI模型门禁；原三Task读控18项、原源码受控回归维持历史证据范围。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 已有服务路线已有原1.2.10低层Controller/Client关闭/重开9项、模型0；OpenCode检查/协议并发和实际进程释放已修复并有定向证据。后续验证登记端点完整已有服务链及运行中升级，不以Codex闭环替代该链。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
-当前按互联核心推进：原生Agent拥有模型、工具、Session与执行权限，Bridge维持固定端点、授权、原请求与事件。TeamSpace/公共空间/自动协调暂停扩张；本轮不改变发布基线或增加模型API层。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+当前按互联核心推进：原生Agent拥有模型、工具、Session与执行权限，Bridge维持固定端点、授权、原请求与事件。TeamSpace/公共空间/自动协调暂停扩张；本轮不改变发布基线或增加模型API层。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 当前源码范围包含[界面文案与层级整理](iterations/I08/ui-cleanup.md)及[原生Agent配置弹窗重构](iterations/I08/mcp-configuration-ui.md)：四项证据、状态主按钮、折叠诊断及六个原操作；沿用原协议与权限恢复规则。尚未重打EXE或公开发布，现有发布与未准出范围保持。
 
-最新本地Windows体验包为0.6.0-alpha.71.browser.3，包含当前ChatGPT-only 19文件扩展及最新后台，源码/实际EXE载荷/ASAR核验和包内Node契约72/72通过；普通GUI、包内真实Web与原生父模型仍未准出。仅用户体验交付，公开alpha.71保持。[产物、非C盘启动及完整证据](iterations/I08/web-agent-browser3-preview.md)。
+最新本地Windows体验包为0.6.0-alpha.71.browser.3，包含当前ChatGPT-only 19文件扩展及最新后台，源码/实际EXE载荷/ASAR核验和包内Node契约72/72通过；普通GUI、包内真实Web与原生父模型仍未准出。仅用户体验交付，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[产物、非C盘启动及完整证据](iterations/I08/web-agent-browser3-preview.md)。
 
-当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开alpha.71保持。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
 
 
 Browser已接原Registry/typed发现、profile准入、认证配置、原MCP续聊、修订UI、只读核对、空闲关闭、原会话健康、未授权内容的原子取消、MCP原取消queryOnly恢复、可见对话证明及取消后无prepare行的原Session恢复；Windows受控MV3与WSL真实Linux Node进程/通道分层验证。继续完成真实账号/权限同意/父模型、取消的完整故障恢复/网页Stop、复杂分支/账号切换/虚拟化等完整人工冲突、负载/故障、Browser跨机/Linux Chrome、真实包内Web链路。快照截止失败保留，未达完整准出，公开版本不变。[台账](iterations/I08/web-agent-development.md)与[完整计划](iterations/I08/web-agent-implementation-plan.md)。

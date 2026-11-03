@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-03T13:47:28.346Z",
+  "version": "0.6.0-alpha.72",
+  "status": "passed",
+  "scope": "same ordinary no-debug portable startup retained after initial observation deadline; authenticated Coordinator and synthetic SQLite registry; normal window close and explicit owned backend shutdown",
+  "initial120SecondObservationFailed": true,
+  "originalWrapperReused": true,
+  "duplicatePortableLaunches": 0,
+  "startupToObservedWindowMs": 276178,
+  "actualWindowExecutableMatchesExtractedPayload": true,
+  "authenticatedCoordinatorVersionMatches": true,
+  "syntheticRegistryWriteRead": true,
+  "nativeTaskJournalUnchanged": true,
+  "nativeModelCalls": 0,
+  "normalWindowClose": true,
+  "portableWrapperExited": true,
+  "ownedCoordinatorExited": true,
+  "fullPortableRestartTested": false,
+  "performanceQualified": false,
+  "allTestStateNonC": true
+}

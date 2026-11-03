@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+
 Core OpenCode控制继续使用原NativeReference.snapshot.nativeProtocol。发现缓存不是任务路由凭据：原绑定校验后，本次观察、回复或取消固定该代API，健康检查不能把在途操作改到另一代；不匹配拒绝，真实未知只查询原操作/原轮，不重发控制。外部协议与收据字段未新增，confirmed仍不代表Task已取消。[实现与回归](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 
 task_result接受原taskId或list_delegations返回的原delegationId；两者同给必须一致。delegationId字段要求task.original-request-v1现场声明；可与task.events-v1组合，缺任一能力在stdio发送前拒绝。无Task时只查询原后台request，not_found返回unknown且不释放占用；确定准备拒绝返回调用级rejected，outcome.terminal=false，不是新增Task状态。查询只需原归属和当前result权限，不要求新派发目标授权，撤销主体/上下文/凭据或读取操作仍即时拒绝。[字段/收据/游标语义](iterations/I08/interconnect-caller-contract.md)。

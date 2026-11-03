@@ -1,5 +1,7 @@
 # 对象、身份与持久数据
 
+当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+
 OpenCode原任务协议仍取既有NativeReference.snapshot.nativeProtocol，不从临时健康发现缓存重写。按原绑定创建的客户端仅为本次执行/观察/控制的内存资源，不新增持久身份、字段、Task或Session；发现失败及IPC离线不能推定原任务终态。[当前行为与验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 
 无taskId委派可由原属主用task_result(delegationId)查询原requestId。只有匹配原请求、Task/会话及有效状态才保存taskId/conversationId/state关联，不改执行指纹或生成Task。taskQueryable仍仅表示已有taskId；新查询能力单独声明task.original-request-v1。原请求缺失保持unknown；确定准备拒绝由原持久指纹证明，未关联Task的outcome.terminal=false。[完整结果契约](iterations/I08/interconnect-caller-contract.md)。

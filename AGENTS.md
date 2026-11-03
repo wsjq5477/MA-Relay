@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.71**，标签冻结1b2e371；EXE132300845字节、SHA-256 94a928b5a1bf894870b1c2e8ed9d18cecbe81588899bf99ea757c7da928c4e85。226产品输入与实际EXE3406资源一致，源码/EXE/SHA公开，匿名完整下载一致。
+当前公开预发布 **0.6.0-alpha.72**，标签冻结fd450ce；EXE132441715字节、SHA-256 f2c8fe49fe655e6cfa4bca19721b663377e101fe719cfbee31738cb8b2bce4c3。277产品输入与实际EXE3516资源一致，源码/EXE/SHA公开，匿名完整下载一致。
 
-当前公开alpha.71：SSH维护只读入口在离线、任务忙和unknown时仍可打开，明确确认后可替换未登记后台；实际写入门禁和原ID保留。源码/EXE/SHA公开，匿名完整下载匹配。Windows扩展147通过/1平台跳过、包内兼容26/26；独立Ubuntu Core79/79、适配111/111、关系/SSH98/98、替换/入口105/105。实际包内UI与普通portable启动/关窗分层验证；历史Windows全量DSH竞态1失败/41跳过、文档2243缺失和依赖high1保留，真实profile/生产SSH/完整矩阵及性能未准出。[完整交付](doc/iterations/I08/alpha71-release.md)。
+当前公开alpha.72：收录互联核心、ChatGPT Web开发扩展、接入界面整理及OpenCode协议修复；冻结fd450ce，EXE132441715字节。源码/EXE/SHA及8份附件匿名完整下载匹配。277产品输入/3516实际载荷一致；独立Ubuntu87/87、111/111、98/98、105/105及Hermes原生MCP五组通过、模型0。Windows全量原失败、包内136例与Broker3/3分层复验、普通portable约276秒启动及正常关闭分别记录，非完整全绿或性能准出；真实profile/生产SSH/完整矩阵仍待。[完整交付](doc/iterations/I08/alpha72-release.md)。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

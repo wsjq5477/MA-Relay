@@ -1,10 +1,12 @@
 # Agent 接入现状与后续目标
 
+当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+
 OpenCode当前源码的Core check复用已协商的V1/V2 Agent信息，原任务执行/观察/回复/取消保留原协议，避免健康检查改写在途操作的API地址。真实WSL原1.2.10低层Controller/Client已有服务连接及观察器关闭/重开9项证据保持，模型0；当前源码受控回归不等于真实原生控制或模型重验。互联登记完整链及MachineHost已有服务仍待，与历史2.0.24模型验收分开。[当前实现、结果与原失败](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 
-互联核心未发布源码支持独立登记/上下文/凭据、原事件及原delegationId恢复，经典十工具；Windows/Linux各104/104与三适配器受控CLI3/3维持原证据范围。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。原三Task和两次旧CLI模型失败均保留；本次主会话3条成功正文，另有撤权上下文1条原生成功，累计总请求/委派11/11。关闭上下文后的委派缓存仍可能为running，须区分管理员读到的原Task终态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+alpha.72已收录的互联核心支持独立登记/上下文/凭据、原事件及原delegationId恢复，经典十工具；Windows/Linux各104/104与三适配器受控CLI3/3维持原证据范围。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。原三Task和两次旧CLI模型失败均保留；本次主会话3条成功正文，另有撤权上下文1条原生成功，累计总请求/委派11/11。关闭上下文后的委派缓存仍可能为running，须区分管理员读到的原Task终态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
-当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开alpha.71保持。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
 
 未发布chatgpt-web（browser-extension/DOM）支持原Registry/机器/节点及被动execution/delegation/resume；MCP调用方/托管scope/通用cancellation为false。续聊须原可见对话摘要/历史版本证明，旧无证明成功历史只读保留；未授权内容可凭原持久封存证明安全取消，缺prepare行仍仅以原封存恢复既有Session健康/关闭，已提交网页Stop仍不支持。生产通道/配对RPC、桌面/扩展配置与MCP原主体续聊已实现，MV3/stdio/用户表单均按受控HTML分层记录；实际站点权限确认/账号/父模型/跨机未验，Kimi未注册，公开alpha.71不含本增量。[当前证据与限制](iterations/I08/web-agent-development.md)。
 

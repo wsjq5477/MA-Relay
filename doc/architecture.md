@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+
 观察入口释放与明确停止执行后台分开：MachineHost/原生宿主门面close不自动取消Task，Core Controller的显式stop可停止经原身份核验的自有托管服务；managed=false外部服务不在其所有权中。IPC/PID消失都不是原Task终态或释放unknown的证据。各模式的状态来源、恢复与当前实证见[资源归属表](iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)，不由mode字段扩大进程管理权限。
 
 Core的OpenCode只读check沿已协商的V1/V2元数据读取Agent可用性。健康发现缓存与原任务I/O分开：执行独立协商，观察/回复/取消校验后绑定原nativeProtocol，后续健康检查失败或变化不能改变在途操作的地址。外部检查报告与持久格式保持；managed=false服务由外部操作者管理，观察器关闭/重开不取得其进程所有权。[实现与分层验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
@@ -14,7 +16,7 @@ TeamSpace 的业务任务/公共空间和 TeamAutomation 的事件激活/自动�
 
 AgentDirectory复用原team-space.sqlite的agents[]和收据，提供不依赖team/run/自动激活器的用户管理。既有登记身份与nodeId区分，端点固定原节点/机器/服务摘要，AgentNetwork按当前授权附登记信息并将明确agentId调用解析到原nodeRequest；没有新执行网络。中央新增agent-directory-v1定向能力，原daemon/线协议与scope保持。CallerService复用原登记主体和SQLite收据，新增版本1的主体/上下文/凭据控制表，使用原broker实现提供非执行型MCP入口；不创建工具节点。原事件分页沿原Task查询，MachineHost并发恢复与broker关闭有就绪围栏。Windows主对话代码模式与WSL原生正文/续聊/在途观察器恢复已有实证，完整已有服务/升级及生命周期矩阵仍待；ownership/admission不是原生成功或沙箱证明。[当前完整契约](iterations/I08/interconnect-caller-contract.md)。[职责决议](iterations/I08/interconnect-boundary.md)、[当前开发与验收](iterations/I08/interconnect-development.md)。
 
-当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开alpha.71保持。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
 
 Electron主进程间接加载Browser通道所需ws由桌面精确生产依赖提供，并核验ASAR；Bridge/Node资源内另有现有ws，不能代替主进程模块解析。仍是一条现有Registry/路由链，没有新增Broker/Provider API层。[实际启动缺陷及修复边界](iterations/I08/web-agent-packaging.md)。
 

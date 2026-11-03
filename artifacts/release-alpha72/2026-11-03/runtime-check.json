@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-03T13:54:29.153Z",
+  "scope": "actual EXE Electron/Node runtime and delivered backend/dependencies; eight-file run followed by targeted revalidation of its only failed file",
+  "version": "0.6.0-alpha.72",
+  "engine": {
+    "node": "v24.21.0",
+    "electron": "44.7.0"
+  },
+  "productInputsMatched": 277,
+  "actualExtensionArchiveFilesMatched": 19,
+  "sourceOnlyTestDriver": "desktop/scripts/agent-directory.cjs",
+  "completeSingleGreenRun": false,
+  "priorFullRun": {
+    "tests": 136,
+    "pass": 134,
+    "fail": 2,
+    "skip": 0,
+    "exitCode": 1
+  },
+  "finalFileRevalidation": {
+    "date": "2026-11-03T13:52:44.324Z",
+    "testFile": "collaboration-broker.test.cjs",
+    "tests": 3,
+    "pass": 3,
+    "fail": 0,
+    "skip": 0,
+    "exitCode": 0
+  },
+  "failedCasesRevalidated": 2,
+  "unresolvedObservedFailures": 0,
+  "exitCode": 0,
+  "actualProductCodeChangedForTests": false,
+  "modelCalls": 0,
+  "allStorageNonC": true
+}

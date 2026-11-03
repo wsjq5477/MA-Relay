@@ -1,5 +1,7 @@
 # M10 构建、发布与持久运行资源设计
 
+M10-F01/F03/F05：当前公开alpha.72，源码冻结、EXE实际载荷、扩展及SHA均绑定；8份附件匿名完整校验。非C盘隔离启动脚本显式使用新profile，普通启动沿原配置规则；旧标签不动。源码、包内受控、普通GUI及真实原生结果分层，Windows失败与未准出保持。[当前交付](../../iterations/I08/alpha72-release.md)。
+
 M10-F01/F03/F05：本地browser.3快照交付当前源码及19文件ChatGPT扩展，独立启动脚本沿既有profile环境变量把体验数据与TEMP放在同目录非C盘；直接双击portable EXE不保证非C盘临时目录。当前包与实际解包载荷、ASAR/ws、包内Node契约已核验，普通GUI及真实模型另验；没有公开发布或修改运行协议。[完整交付](../../iterations/I08/web-agent-browser3-preview.md)。
 
 当前Browser仅ChatGPT，Kimi移出开发与验收。实际匿名网页已通过原MCP/Registry/Router四轮持续对话及8次流式输出；Core、既有Broker/Transport与关系规则保持。新增DOM布局和原结束证明失败结算的职责在M06/M07，当前开发ZIP19文件；旧browser.2/公开alpha.71不据此成为新版本。[当前完整设计和证据](../../iterations/I08/web-agent-live-chatgpt.md)。

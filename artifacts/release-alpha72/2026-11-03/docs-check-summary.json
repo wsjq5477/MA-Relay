@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-03T14:08:37.003Z",
+  "baselineOriginal": 2243,
+  "scopes": [
+    {
+      "scope": "current-workspace",
+      "exitCode": 1,
+      "markdownFiles": 312,
+      "errors": 2243,
+      "distinctErrors": 2185,
+      "addedAgainstPriorWorkspace": 0,
+      "removedAgainstPriorWorkspace": 0
+    },
+    {
+      "scope": "public-source",
+      "exitCode": 1,
+      "markdownFiles": 310,
+      "errors": 3060,
+      "distinctErrors": 2989,
+      "addedAgainstPriorWorkspace": 806,
+      "removedAgainstPriorWorkspace": 2
+    }
+  ]
+}

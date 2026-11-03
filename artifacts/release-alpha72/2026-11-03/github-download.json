@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-03T14:06:21.285Z",
+  "url": "https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.72",
+  "sourceCommit": "fd450ce42c2f3155161553396037e04356eeec98",
+  "frozenTagMatches": true,
+  "assets": [
+    {
+      "name": "AgentBridge-0.6.0-alpha.72-Windows-x64.exe",
+      "status": 200,
+      "bytes": 132441715,
+      "sha256": "f2c8fe49fe655e6cfa4bca19721b663377e101fe719cfbee31738cb8b2bce4c3",
+      "anonymous": true,
+      "localMatches": true
+    },
+    {
+      "name": "AgentBridge-BrowserAgent-0.1.0-dev-f41be4b385772fc2.manifest.json",
+      "status": 200,
+      "bytes": 3607,
+      "sha256": "2d2f928f7d4daa87381d9d0fe05c8169a421272b7fe24d9a1420d780d765b454",
+      "anonymous": true,
+      "localMatches": true
+    },
+    {
+      "name": "AgentBridge-BrowserAgent-0.1.0-dev-f41be4b385772fc2.sha256",
+      "status": 200,
+      "bytes": 254,
+      "sha256": "782a5d451292bff685d981bf8d84021b3e499c60156f99112c4807e484ad5652",
+      "anonymous": true,
+      "localMatches": true
+    },
+    {
+      "name": "AgentBridge-BrowserAgent-0.1.0-dev-f41be4b385772fc2.zip",
+      "status": 200,
+      "bytes": 162097,
+      "sha256": "f41be4b385772fc24c1c648bde4f7d44d9553b737a4e9c1edea9b869fe77062d",
+      "anonymous": true,
+      "localMatches": true
+    },
+    {
+      "name": "README-release.md",
+      "status": 200,
+      "bytes": 1652,
+      "sha256": "f907bc821b7a111efa110acc5506275b5093e849f182502e86d18c1bc4f77be1",
+      "anonymous": true,
+      "localMatches": true
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "status": 200,
+      "bytes": 746,
+      "sha256": "4746964b297fd2e9f4b9cdf35cbe163b9dee5ac2cf1f14d916f23f5bc19d2f67",
+      "anonymous": true,
+      "localMatches": true
+    },
+    {
+      "name": "Start-NonC-Isolated.cmd",
+      "status": 200,
+      "bytes": 958,
+      "sha256": "f321adc241140aaff64045edc49c3e23e8b4d05adceafa2da0e9b0c3d50a5811",
+      "anonymous": true,
+      "localMatches": true
+    },
+    {
+      "name": "VERIFICATION.json",
+      "status": 200,
+      "bytes": 5383,
+      "sha256": "4442b5b3ce7e21b4a26c31518c5e1d4eb3a0da5ef554cd79112b594ce50852ce",
+      "anonymous": true,
+      "localMatches": true
+    }
+  ]
+}

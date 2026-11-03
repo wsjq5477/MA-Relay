@@ -1,0 +1,11 @@
+{
+  "verifiedAtUtc": "2026-11-03T13:28:11.299Z",
+  "scope": "actual portable EXE extracted payload; not only pre-packaging resources",
+  "version": "0.6.0-alpha.72",
+  "exeBytes": 132441715,
+  "exeSha256": "f2c8fe49fe655e6cfa4bca19721b663377e101fe719cfbee31738cb8b2bce4c3",
+  "payloadFiles": 3516,
+  "allPayloadPathsSizesAndSha256Match": true,
+  "payload": "D:\\LLM\\MA-Relay\\artifacts\\release-alpha72\\2026-11-03\\exe-outer",
+  "allExtractionStorageOutsideC": true
+}

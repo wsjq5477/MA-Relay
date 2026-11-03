@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+
 生命周期边界按实际入口区分：关闭调用方/观察门面不自动取消Task；明确停止Core Controller可停止经核验的自有托管服务，外部服务及用户原生Session不因此转归Bridge。IPC/PID消失不结算终态或释放unknown。[资源归属表](iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)已与源码核对，真实在途/服务完整链/升级仍待验证，[完整决策审计](iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。
 
 M06-OC-F01 / M09-F01：OpenCode连接check复用同次协议握手的Agent信息；执行使用独立客户端，原任务观察及回复/取消按原nativeProtocol绑定客户端，健康检查不能改写其API选择。失败发现使缓存失效，协议不匹配仍拒绝；控制收据与任务终态保持分层。managed=false已有服务仍归外部操作者，低层原Controller/Client有真实1.2.10只读连接和关闭/重开证据；互联登记完整链仍待。[当前开发与验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
@@ -12,16 +14,16 @@ AgentBridge 管理谁能调用哪个 Agent，以及一次调用如何可靠交�
 
 AB-F19 的身份/职责登记继续保留；其小队/工作容器及 AB-F20/21/22 的公共空间、依赖/复验/返修/业务验收、事件激活与自动续接定位为可选上层，暂停扩张，不作为基础发现/委派或外部 Super-agent 接入前提。已有接口、数据、授权和在途执行保持，不因定位调整删除或迁移。MachineHost、daemon、必要 worker、SSH 受控部署维护、Session/取消控制及配置/审计属于互联基础设施，继续保留。
 
-独立登记第一片已源码实现：复用原Agent登记/SQLite收据及固定端点，不要求小队；经典仍十工具，停用不释放unknown、不重绑原任务。调用方/上下文/凭据、原事件与原delegationId恢复已有源码与受控证据。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。本轮仅调整经用户授权的本机原生模型及CLI安装、扩展真实验收夹具，不增加Bridge模型API或修改持久协议。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+独立登记第一片已源码实现：复用原Agent登记/SQLite收据及固定端点，不要求小队；经典仍十工具，停用不释放unknown、不重绑原任务。调用方/上下文/凭据、原事件与原delegationId恢复已有源码与受控证据。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。本轮仅调整经用户授权的本机原生模型及CLI安装、扩展真实验收夹具，不增加Bridge模型API或修改持久协议。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 当前未发布源码的桌面界面删减五页、侧栏及配置弹窗中的重复说明；连接策略使用独立弹窗、统一分组标题，历史授权按需展开。原生Agent配置采用摘要、四项状态、路径、折叠高级设置与固定底栏，六操作按状态分配；服务端工具目录不作为原生接入成功证据。小队工作表单按前置条件显示，后续工作流暂停扩张。关联AB-F01/09/12/16、M01-F02/F04/F06/F14，原授权与恢复契约保持。[整体界面整理](iterations/I08/ui-cleanup.md)、[原生配置弹窗与验收](iterations/I08/mcp-configuration-ui.md)。
 
-最新本地Windows体验包为0.6.0-alpha.71.browser.3，包含当前ChatGPT-only 19文件扩展及最新后台，源码/实际EXE载荷/ASAR核验和包内Node契约72/72通过；普通GUI、包内真实Web与原生父模型仍未准出。仅用户体验交付，公开alpha.71保持。[产物、非C盘启动及完整证据](iterations/I08/web-agent-browser3-preview.md)。
+最新本地Windows体验包为0.6.0-alpha.71.browser.3，包含当前ChatGPT-only 19文件扩展及最新后台，源码/实际EXE载荷/ASAR核验和包内Node契约72/72通过；普通GUI、包内真实Web与原生父模型仍未准出。仅用户体验交付，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[产物、非C盘启动及完整证据](iterations/I08/web-agent-browser3-preview.md)。
 
-当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开alpha.71保持。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
 
 
-Browser Agent正在开发：AB-F03/F07/F08/F09/F10/F11复用原Registry/机器/节点、认证配对、原MCP续聊、配置/修订UI、只读核对、空闲关闭、原会话健康、未授权页面内容的安全取消、MCP原取消只读恢复、可见对话证明/同锚点冲突门禁及取消后缺请求行的原健康/关闭恢复。取消须原持久封存证明和事件齐备，普通ACK不够；旧后台未证明queryOnly支持时拒绝发送，已提交Stop仍不支持。健康不证明账号或放行unknown；人工新轮在发送前拒绝。Windows MV3/IndexedDB/DOM及Linux Node分层受控，扩大集的快照截止失败保留。真实账号/权限同意/父模型/Browser跨设备/完整控制及真实包内Web链路仍待，公开alpha.71保持。[当前证据与余项](iterations/I08/web-agent-development.md)。
+Browser Agent正在开发：AB-F03/F07/F08/F09/F10/F11复用原Registry/机器/节点、认证配对、原MCP续聊、配置/修订UI、只读核对、空闲关闭、原会话健康、未授权页面内容的安全取消、MCP原取消只读恢复、可见对话证明/同锚点冲突门禁及取消后缺请求行的原健康/关闭恢复。取消须原持久封存证明和事件齐备，普通ACK不够；旧后台未证明queryOnly支持时拒绝发送，已提交Stop仍不支持。健康不证明账号或放行unknown；人工新轮在发送前拒绝。Windows MV3/IndexedDB/DOM及Linux Node分层受控，扩大集的快照截止失败保留。真实账号/权限同意/父模型/Browser跨设备/完整控制及真实包内Web链路仍待，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[当前证据与余项](iterations/I08/web-agent-development.md)。
 
 alpha.71的SSH维护只读入口始终可打开查看；具体替换/升级仍核对原操作与远端门禁。[入口与实际EXE验证](iterations/I08/issue29-maintenance-entry.md)。
 

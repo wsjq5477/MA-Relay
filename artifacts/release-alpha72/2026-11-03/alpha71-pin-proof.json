@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-03T13:06:58.412Z",
+  "previousVersion": "0.6.0-alpha.71",
+  "previousPublicTag": "v0.6.0-alpha.71",
+  "previousPublicExeSha256": "94a928b5a1bf894870b1c2e8ed9d18cecbe81588899bf99ea757c7da928c4e85",
+  "manifestFromActualExe": true,
+  "manifestMatchesOriginalUnpacked": true,
+  "manifestFiles": 1729,
+  "pinnedExactPreviousManifest": true,
+  "unknownVersionsAutoTrusted": false,
+  "firstVerifierExpectedNestedArchiveButPayloadWasExtractedDirectly": true
+}

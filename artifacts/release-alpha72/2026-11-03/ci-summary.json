@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-03T13:58:34.738Z",
+  "url": "https://github.com/wsjq5477/MA-Relay/actions/runs/41646383309",
+  "runId": 41646383309,
+  "sourceCommit": "fd450ce42c2f3155161553396037e04356eeec98",
+  "status": "completed",
+  "conclusion": "success",
+  "environment": "independent hosted Ubuntu 24.04.5 / Node24.12.0",
+  "groups": [
+    {
+      "scope": "Core",
+      "tests": 87,
+      "pass": 87,
+      "fail": 0
+    },
+    {
+      "scope": "native adapter contracts",
+      "tests": 111,
+      "pass": 111,
+      "fail": 0
+    },
+    {
+      "scope": "relations and SSH observation",
+      "tests": 98,
+      "pass": 98,
+      "fail": 0
+    },
+    {
+      "scope": "maintenance replacement and entry",
+      "tests": 105,
+      "pass": 105,
+      "fail": 0
+    }
+  ],
+  "officialHermesNativeVersion": "0.22.5",
+  "officialHermesFiveMcpLifecycleGroups": true,
+  "modelCalls": 0,
+  "groupsMayOverlap": true
+}

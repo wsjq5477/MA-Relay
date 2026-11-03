@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-03T13:58:34.746Z",
+  "environment": "Windows / Node24.12.0 / source snapshot",
+  "typecheck": true,
+  "lint": true,
+  "coreBuild": true,
+  "desktopBuild": true,
+  "initialCore": {
+    "tests": 87,
+    "pass": 74,
+    "fail": 2,
+    "skip": 11
+  },
+  "initialDesktop": {
+    "tests": 1276,
+    "pass": 1219,
+    "fail": 11,
+    "skip": 46
+  },
+  "iconRevalidation": {
+    "tests": 5,
+    "pass": 5,
+    "fail": 0,
+    "skip": 0
+  },
+  "nativeHostRevalidation": {
+    "tests": 23,
+    "pass": 23,
+    "fail": 0,
+    "skip": 0
+  },
+  "affectedDesktopFilesFirstRevalidation": {
+    "tests": 30,
+    "pass": 25,
+    "fail": 3,
+    "skip": 2
+  },
+  "affectedCoreFirstRevalidation": {
+    "tests": 3,
+    "pass": 2,
+    "fail": 1,
+    "skip": 0
+  },
+  "i01LaterTimingRevalidation": {
+    "tests": 1,
+    "pass": 0,
+    "fail": 1,
+    "skip": 0
+  },
+  "i01BudgetedRevalidation": {
+    "tests": 1,
+    "pass": 0,
+    "fail": 0,
+    "skip": 0
+  },
+  "i01BudgetedOutcome": "300 second test-runner timeout; not a complete Windows I01 acceptance pass",
+  "firstSshFixtureModulesMissing": true,
+  "snapshotRootDependencyJunctionAdded": true,
+  "sshFilesLoadAfterDependencyRepairAndSkipUnsupportedWindowsCases": true,
+  "completeSingleWindowsGreenRun": false
+}
