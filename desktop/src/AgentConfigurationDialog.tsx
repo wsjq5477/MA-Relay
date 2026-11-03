@@ -22,7 +22,11 @@ export default function AgentConfigurationDialog({node, machine, unavailable = f
     const previous = document.activeElement as HTMLElement|null;
     closeButton.current?.focus();
     const keydown = (event:KeyboardEvent) => {
-      if (event.key === 'Escape') {event.preventDefault(); event.stopPropagation(); if (!closing.current.busy) closing.current.onClose();}
+      if (event.key === 'Escape') {
+        // Close the nested action menu first; it owns this key while open.
+        if(panel.current?.querySelector('[data-mcp-menu-open="true"]'))return;
+        event.preventDefault(); event.stopPropagation(); if (!closing.current.busy) closing.current.onClose();
+      }
       if (event.key !== 'Tab') return;
       const elements = Array.from(panel.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), summary, [tabindex="0"]') || []).filter(element => element.getClientRects().length);
       const first = elements[0], last = elements.at(-1);
@@ -40,26 +44,19 @@ export default function AgentConfigurationDialog({node, machine, unavailable = f
   const service = ['dsh-desktop', 'dsh-web'].includes(node.adapter);
   const nativeConfigurable = canConfigureMcp(node);
   const mcpBoundary = connectionCapability(node, 'nativeMcpConfig');
+  const browser=node.adapter==='chatgpt-web';
   return <div className="modal-overlay" onClick={event => {if (event.target === event.currentTarget && !busy) onClose();}}>
     <section ref={panel} tabIndex={-1} className="modal agent-configuration" role="dialog" aria-modal="true" aria-labelledby="agent-configuration-title" aria-describedby="agent-configuration-source">
       <header className="modal-head">
-        <div><h2 id="agent-configuration-title"><AgentIcon adapter={node.adapter}/>{node.name} 配置</h2><p id="agent-configuration-source">{machine.name} · {node.name}</p></div>
+        <div className="agent-configuration-identity"><AgentIcon adapter={node.adapter} size={36}/><div><h2 id="agent-configuration-title">{node.name} 配置</h2><p id="agent-configuration-source" title={machine.name+' · '+node.name}>{machine.name} · {node.name}</p></div></div>
         <button ref={closeButton} className="icon-btn" aria-label="关闭 Agent 配置" disabled={busy} onClick={onClose}><X size={18}/></button>
       </header>
-      <div className="modal-body">
-        {disabled && <p className="workspace-inline-note" role="status">原机器或节点当前不可用。配置仅供查看，请恢复连接后修改。</p>}
-        {node.adapter === 'opendesk-desktop' && <p className="workspace-inline-note">桌面会话沿用 OpenDesk 原生工作目录。原桌面连接断开后，旧会话仅可查看，请新建会话继续使用。</p>}
-        <McpSettings node={node} disabled={disabled} onBusyChange={setMcpBusy}/>
-        {service && <DshSettings node={node} disabled={disabled} onBusyChange={setServiceBusy}/>}
-        {!nativeConfigurable && <div className="agent-native-configuration">
-          <h3>原生工具配置</h3>
-          <p>
-            {mcpBoundary === false
-              ? `此入口的原生 MCP 配置暂不能由 Bridge 管理。请在 ${node.name} 自身的配置中修改，完成后重新扫描本机器。`
-              : `当前后台未报告此入口的原生 MCP 配置能力。请在 ${node.name} 自身的配置中修改，并升级后台或重新接入后核对。`}
-          </p>
-          <details><summary>安装位置</summary><code>{node.executable}</code></details>
-        </div>}
+      <div className={'modal-body'+(!browser?' agent-configuration-content':'')}>
+        {!browser&&<McpSettings key={node.machineId+':'+node.nodeId} node={node} disabled={disabled} onBusyChange={setMcpBusy} advancedChildren={<>
+          {service&&<DshSettings node={node} disabled={disabled} onBusyChange={setServiceBusy}/>}
+          {!nativeConfigurable&&<details className="mcp-detail-row"><summary>原生工具配置</summary><p>{mcpBoundary===false?`此入口的原生 MCP 配置暂不能由 Bridge 管理。请在 ${node.name} 自身的配置中修改，完成后重新扫描本机器。`:`当前后台未报告此入口的原生 MCP 配置能力。请升级后台或重新接入后核对。`}</p><p>安装位置：<code>{node.executable}</code></p></details>}
+        </>}/>}
+        {browser&&<div className="agent-native-configuration"><h3>网页接入</h3><p>此节点接收已授权的任务并返回结果。登录和站点权限由浏览器扩展管理；配对与撤销在“设置 → 浏览器接入”中处理。</p><p>运行任务使用独立网页标签页。暂停或断开连接不会证明任务已取消，未确认结果请查询原任务。</p><details><summary>原浏览器身份</summary><code>{node.browserInstanceId}</code></details></div>}
       </div>
     </section>
   </div>;

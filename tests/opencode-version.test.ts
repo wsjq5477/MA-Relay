@@ -28,7 +28,17 @@ test('a listening OpenCode 2 launcher reports API absence and auth failure witho
 test('production controller restores saved unsupported 3.x settings as an explicit version error without serve or changing the original Agent',async t=>{
  const root=mkdtempSync(resolve(tmpdir(),'ab-old-controller-')),directory=resolve(root,'profile'),executable=resolve(root,'old.cjs'),trace=resolve(root,'serve');
  const {SettingsStore}=await import('../src/settings.js'),{DesktopHost}=await import('../src/desktop-host.js'),{ipc}=await import('../src/controller.js');
- t.after(async()=>{try{await ipc(directory,{op:'stop'});}catch{}for(let i=0;i<100;i++){try{await ipc(directory,{op:'status'});}catch{break;}await new Promise(r=>setTimeout(r,20));}rmSync(root,{recursive:true,force:true});});
+ t.after(async()=>{
+  let ownedPid:number|undefined;
+  try{ownedPid=(await ipc<{pid:number}>(directory,{op:'status'})).pid;assert.notEqual(ownedPid,process.pid);await ipc(directory,{op:'stop'});}catch{}
+  for(let i=0;i<100;i++){try{await ipc(directory,{op:'status'});}catch{break;}await new Promise(r=>setTimeout(r,20));}
+  const alive=()=>{if(!ownedPid)return false;try{process.kill(ownedPid,0);return true;}catch{return false;}};
+  const ipcOfflineBeforeProcessExit=alive();
+  for(let i=0;i<200&&alive();i++)await new Promise(r=>setTimeout(r,50));
+  t.diagnostic(JSON.stringify({ipcOfflineBeforeProcessExit,ownedControllerExitObserved:!alive()}));
+  assert.equal(alive(),false,'Wait for the owned controller to release its resources before deleting the fixture');
+  rmSync(root,{recursive:true,force:true});
+ });
  writeFileSync(executable,`if(process.argv.includes('--version')){console.log('opencode 3.0.0');process.exit(0);}require('node:fs').writeFileSync(${JSON.stringify(trace)},'unexpected');`,{mode:0o700});
  const store=new SettingsStore(directory),base=store.initialize(),agent=store.normalize({adapter:'opencode',agentId:'original-agent',name:'Original',workspace:root,executable,serverUrl:'http://127.0.0.1:31998',passwordFile:resolve(directory,'original-password'),managed:true,enabled:true},base.deviceId);store.write({...base,agents:[agent],defaultAgent:agent.agentId,revision:base.revision+1},base.revision);const original=JSON.stringify(store.read().agents);writeFileSync(agent.passwordFile,'unchanged-original');
  const snapshot=await new DesktopHost(directory).handle({id:'read',method:'snapshot'}) as {agents:{items:{agentId:string;startupError?:{code:string;message:string}}[]}};

@@ -1,5 +1,23 @@
 # M10 构建与发布测试报告
 
+T-M10-209 / M10-F01/F03/F05：2026-11-01，Windows，0.6.0-alpha.71.browser.3。615项当前输入、70后台/84Core/1719Linux、EXE实际3463文件及ASAR/ws/扩展均匹配；实际包内Electron44.7.0/Nodev24.21.0受控Host/通道72/72。全开发/缓存/测试数据非C盘；两次封装EPERM和依赖修正保留。未跑普通GUI、真实网页或原生父模型，不扩展为完整准出。[全部原证据](../../iterations/I08/web-agent-browser3-preview.md)。
+
+当前19文件ChatGPT-only ZIP实际解压后，Chromium148受控MV3的19组配置/原MCP/DOM/恢复/界面检查通过；不是实际EXE或真实Provider验收。[原始ZIP运行记录](../../../artifacts/browser-agent/2026-10-31/mv3-chatgpt-current-zip.json)。
+
+T-M10-208：2026-10-31，Windows/Node24.12.0/Chromium148；真实ChatGPT经原MCP/Registry/Router同会话四轮通过，流式8次更新/2295字符；父模型受控、测试host权限预授予。DOM39/39、原生IndexedDB69/69、Host/构建器63/63；通道/网络/daemon/MCP回归45项44通过/1平台跳过。各层不累加，不作为本模块全部场景通过；原失败保留，恢复受控调用和新策略完整链区分，Linux/跨机/真实父模型未被本轮证明。Kimi不在验收范围。[原始证据与未测项](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+T-M10-206 / M10-F01/F02/F03/F05：2026-10-31，开发包browser.1普通portable缺桌面ws启动失败，0组通过，拒绝交付。修复精确ws8.22.0及ASAR入口/代码门禁后Windows/Linux各13/13，并实际拒绝旧ASAR。browser.2独立store开发包已构建，原包核验含ws17文件、3501实际载荷及包内Node68/68匹配；普通启动/原管理/合成配对三组通过，窗口/后台关闭后包装器未在15秒测试预算内退出，整轮仍失败。原profile后继复核3组通过，包装器退出0（T-M10-207），不把进程后来消失补成原轮通过；公开alpha.71保持。[全部原失败、修复及最新分层状态](../../iterations/I08/web-agent-packaging.md)。
+
+T-M10-207 / M10-F03/F05/F06：2026-10-31，browser.2普通无调试portable在同一原合成profile复核3组通过，原pending配对身份、端点及expiresAt保持，仅查询原操作；所属窗口正常关闭，后台经认证停止，包装器退出0。原首次3组后15秒等待失败仍失败，不补写退出码；后继最多180秒观察，重开241236ms不作性能准出。真实Provider/扩展认证/原生父模型及生产profile未验，无新配对或密钥导出。[原报告、复核及当前交付边界](../../iterations/I08/web-agent-packaging.md)。
+
+T-M10-203 / M10-F01/F02/F03：2026-10-31，Windows Node24.12.0构建器9/9；Python3.14独立读取18文件CRC/SHA一致，stage与源码匹配；实际开发ZIP解压后Chromium148 MV3/WS/IndexedDB/原MCP受控21组通过，pageErrors0、上游转发0。测试副本预授权限并加setup页，无生产脚本改动；真实Provider/权限同意/父模型未验。首轮夹具复制EIO为1通过/8失败保留；桌面快照首次WinError112失败，后移独立E盘构建。此条不宣称EXE/普通启动通过，不刷新公开alpha.71。[命令、原日志和产物](../../iterations/I08/web-agent-packaging.md)。
+
+同条Linux补验：WSL Ubuntu22.04/Node22.23.1构建器9/9；602项复制源摘要匹配、执行期间源未变、隔离HOME/清理成功。不是独立服务器、Linux Chrome或Browser跨设备验收，源码/ZIP/浏览器组不累加；原Bridge依赖high1保留。
+
+T-M10-204 / M10-F01/F02/F03/F05：2026-10-31，Windows/Electron44.7.0/electron-builder26.15.3，独立快照开发包`0.6.0-alpha.71.browser.1`构建及原包核验通过。69后台/84Core/1738Linux/ASAR/前端/bootstrap与快照一致；实际EXE解包3501文件与win-unpacked逐项匹配，内置扩展ZIP为原151177字节/SHA。EXE132413676字节、SHA `4d322e9b…`，未签名/未发布/未部署；普通启动另验。D盘空间、依赖链接、Electron版本解析及解包布局误判均保留原失败，公开alpha.71原文件字节/SHA重验保持。[输入、包、实际EXE和日志](../../iterations/I08/web-agent-packaging.md)。
+
+T-M10-205 / M10-F02/F03/F05：2026-10-31，实际EXE解出的AgentBridge.exe/Electron44.7.0/Node24.21.0运行包内Browser Host/通道68/68，失败/跳过0；CJS/依赖与client均取原EXE载荷/ZIP，无工作树生产模块替代。真实WS/磁盘及受控对端，不是GUI、Provider或父模型；首轮夹具缺client为46通过/22失败，补齐原ZIP后通过，原EXE未变。[脚本、初轮与最终TAP](../../iterations/I08/web-agent-packaging.md)。
+
 alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/任务忙时打开查看；实际版本切换仍核对原身份、空闲与收据，不绕过门禁。仅补公开alpha.70精确原pin以保持上一公开版本复用。[来源、包与界面验证](../../iterations/I08/issue29-maintenance-entry.md)。
 
 

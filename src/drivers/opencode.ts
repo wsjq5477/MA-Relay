@@ -32,7 +32,8 @@ export class OpenCodeDriver implements AgentDriver {
   }
   health(): boolean { if (Date.now() - this.lastCheck > 2000) void this.refresh(); return this.healthy; }
   async *execute(execution: Execution, signal?: AbortSignal): AsyncIterable<Exclude<TaskEvent, { kind: 'accepted' }>> {
-    if (execution.verification && (await this.client.check()).version !== '2.0.24') {
+    const client = new OpenCodeClient(this.config);
+    if (execution.verification && (await client.check()).version !== '2.0.24') {
       throw new BridgeError('VERIFICATION_CONTRACT', '工具禁止契约只核验了 OpenCode 2.0.24，请先核验当前版本', 503);
     }
     const previous = execution.resumeNative;
@@ -40,13 +41,13 @@ export class OpenCodeDriver implements AgentDriver {
       const evidence = await this.inspect(previous, signal);
       if (!evidence.outcome || evidence.hasLaterInput || evidence.waiting.permissions.length || evidence.waiting.forms.length) throw new BridgeError('CONVERSATION_BUSY', '原会话不是可续问的空闲状态', 409);
     }
-    const checked = await this.client.check();
-    if (previous) await this.client.ensureProtocol(previous.snapshot?.nativeProtocol || 'v2');
+    const checked = await client.check();
+    if (previous) await client.ensureProtocol(previous.snapshot?.nativeProtocol || 'v2');
     const sessionId = previous?.sessionId || 'ses_' + randomUUID().replaceAll('-', '');
     const messageId = 'msg_' + randomUUID().replaceAll('-', '');
     const reference: NativeReference = { sessionId, messageId, serverUrl: this.config.serverUrl, workspace: realpathSync(this.config.workspace),
       priorMessageIds: previous ? [...(previous.priorMessageIds || []), previous.messageId] : [],
-      snapshot: previous?.snapshot || { nativeAgent: this.config.nativeAgent, nativeProtocol: this.client.protocol || 'v2', passwordFile: this.config.passwordFile, configFingerprint: fingerprint(this.config),
+      snapshot: previous?.snapshot || { nativeAgent: this.config.nativeAgent, nativeProtocol: client.protocol || 'v2', passwordFile: this.config.passwordFile, configFingerprint: fingerprint(this.config),
         configRevision: this.config.revision, resourceKey: this.descriptor.resourceKey, model: checked.model || this.config.model,
         permissions: execution.verification ? [{ action: '*', resource: '*', effect: 'deny' }] : this.config.permissions } };
     this.invoke(execution.executionId);
@@ -54,18 +55,18 @@ export class OpenCodeDriver implements AgentDriver {
     // V2 accepts a caller session ID. V1 generates its ID at creation: invocation
     // is already durable; bind the returned ID before any prompt can be sent.
     // A lost create response stays unknown without replay or guessed session lookup.
-    if (previous || this.client.protocol !== 'v1') {
+    if (previous || client.protocol !== 'v1') {
       this.bind(execution.executionId, reference);
       yield { kind: 'native', reference };
     }
     try {
-      if (!previous && this.client.protocol === 'v1') {
-        const created = await this.client.createV1Session('AgentBridge ' + execution.conversationId, reference.snapshot, signal);
+      if (!previous && client.protocol === 'v1') {
+        const created = await client.createV1Session('AgentBridge ' + execution.conversationId, reference.snapshot, signal);
         reference.sessionId = created.id;
         this.bind(execution.executionId, reference);
         yield { kind: 'native', reference };
       } else if (!previous) {
-        const response = await this.client.call<{ data: NativeSession }>('/api/session', {
+        const response = await client.call<{ data: NativeSession }>('/api/session', {
           id: sessionId, title: 'AgentBridge ' + execution.conversationId, agent: this.config.nativeAgent,
           location: { directory: reference.workspace }, ...(this.config.model || this.config.inheritNativeCli ? { model: reference.snapshot?.model } : {}),
           ...(reference.snapshot?.permissions ? { permissions: reference.snapshot.permissions } : {}),
@@ -73,7 +74,7 @@ export class OpenCodeDriver implements AgentDriver {
         }, signal);
         if (response.data?.id !== sessionId || realpathSync(response.data.location.directory) !== reference.workspace) throw new BridgeError('NATIVE_BINDING', 'Native session does not match the configured execution', 503);
       }
-      await this.client.prompt(reference, execution.message, signal);
+      await client.prompt(reference, execution.message, signal);
     } catch (e) {
       if (e instanceof NativeHttpError && [400, 401, 403, 404, 422].includes(e.status)) {
         yield { kind: 'failed', error: { code: e.code, message: e.message, phase: 'execution' } }; return;
@@ -85,9 +86,9 @@ export class OpenCodeDriver implements AgentDriver {
   async inspect(reference: NativeReference, signal?: AbortSignal): Promise<{ current: NativeSession; turn: NativeMessage[]; waiting: Awaited<ReturnType<OpenCodeClient['waiting']>>; outcome?: string; hasLaterInput: boolean }> {
     if (reference.serverUrl !== this.config.serverUrl || reference.workspace !== realpathSync(this.config.workspace)
       || reference.snapshot && (reference.snapshot.configFingerprint !== fingerprint(this.config) || reference.snapshot.passwordFile !== this.config.passwordFile)) throw new BridgeError('NATIVE_BINDING', '原执行配置或服务身份不匹配，保留占位', 409);
-    await this.client.ensureProtocol(reference.snapshot?.nativeProtocol || 'v2');
+    const client = await this.client.bindProtocol(reference.snapshot?.nativeProtocol || 'v2');
     const [current, messages, waiting] = await Promise.all([
-      this.client.session(reference.sessionId, signal), this.client.messages(reference.sessionId, signal), this.client.waiting(reference.sessionId, signal),
+      client.session(reference.sessionId, signal), client.messages(reference.sessionId, signal), client.waiting(reference.sessionId, signal),
     ]);
     if (realpathSync(current.location.directory) !== reference.workspace || current.agent && reference.snapshot && current.agent !== reference.snapshot.nativeAgent) throw new BridgeError('NATIVE_BINDING', '原生会话目录或 Agent 已改变', 409);
     const model = reference.snapshot?.model;
@@ -99,7 +100,7 @@ export class OpenCodeDriver implements AgentDriver {
     if (JSON.stringify(prior) !== JSON.stringify(reference.priorMessageIds || [])) throw new BridgeError('NATIVE_INTERFERENCE', '原生会话出现非本会话输入，保留占位', 409);
     const later = messages.findIndex((m, i) => i > index && m.type === 'user');
     const turn = messages.slice(index, later < 0 ? undefined : later);
-    const outcome = await this.client.turnOutcome(reference.sessionId, turn, later >= 0, signal);
+    const outcome = await client.turnOutcome(reference.sessionId, turn, later >= 0, signal);
     if (later >= 0 && !outcome) throw new BridgeError('NATIVE_INTERFERENCE', '原轮未结束前插入了其他输入，不能取消或释放占位', 409);
     return { current, turn, waiting, outcome, hasLaterInput: later >= 0 };
   }

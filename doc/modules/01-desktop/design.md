@@ -1,5 +1,19 @@
 # M01 桌面界面与交互设计
 
+## 界面信息层级
+
+M01-F04/F14：接入配置、小队设置、执行审计、会话审计、设置只在页头显示页面名；移除重复的顶栏介绍、侧栏引导和设置分组说明。保留来源、状态、错误、操作影响和恢复入口。机器行不重复相同的工具名称；MCP加载帮助折叠显示。添加机器与任务详情移除泛化介绍，执行恢复仍说明仅处理当前任务、不重发。
+
+连接策略使用共享`modal-overlay`/`modal`，正文独立滚动，标题16px/600，分组标题14px/600，正文及标签14px/400，辅助状态13px/400，继承本地IBM Plex与中文回退字体。主Agent选择、预授权候选、当前连接和待确认请求分组显示；最近授权操作仅有记录时出现并默认折叠，operationId在详情中保留，修订不作为默认连接行文案。保留双修订CAS、写前持久化、原ID/指纹核对与unknown锁定。Tab约束在弹窗内，Escape关闭并恢复入口焦点。实现入口：[连接策略](../../../desktop/src/ConnectionPolicyPanel.tsx)、[专用样式](../../../desktop/src/connection-policy.css)。
+
+小队无智能体时只显示接入入口；有智能体而无小队时显示创建小队入口。已有工作才显示工作选择器，有小队且未选择工作时显示建立工作范围表单，登记、组队、预算与文档权限仍从原入口配置。[完整需求、实际检查与限制](../../iterations/I08/ui-cleanup.md)。此为未发布源码，不改公开alpha.71或browser.3既有包。
+
+当前Browser仅ChatGPT，Kimi移出开发与验收。实际匿名网页已通过原MCP/Registry/Router四轮持续对话及8次流式输出；Core、既有Broker/Transport与关系规则保持。新增DOM布局和原结束证明失败结算的职责在M06/M07，当前开发ZIP19文件；旧browser.2/公开alpha.71不据此成为新版本。[当前完整设计和证据](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+M01-F02/F04：扩展首次认证失败且未保存密钥时保留原身份，显示“原配对尚未确认”及遮蔽修正表单；错误状态刷新仍保留说明，只能修正同一原配对。该状态四张浅深/宽窄实图独立ship，不证明Provider登录/权限同意。空闲Session关闭当前为原源码RPC，未增加日常聊天或桌面关闭按钮。[实现与验收](../../iterations/I08/web-agent-development.md)。
+
+M01-F02/F04/F06/F07：未发布Browser源码新增“设置 → 浏览器接入”，按来源机器生成短期包、查询原配对和具名确认撤销。先保存无秘密operationId意图再调用RPC，重开或丢回应仅queryOnly查询，not_found保持原意图；秘密仅在内存/剪贴板，过期清除内存包，不进URL/日志/持久草稿。Browser节点按profile识别、可被委派且不可作MCP调用方，配置弹窗显示网页接入和原浏览器身份，不呈现安装路径或原生MCP表单。显式replace输出修订可覆盖改写/缩短正文，原事件保留；原CLI合并规则不变。沿用IBM Plex与原设置样式，扩展设置页提供配对/站点权限/暂停恢复；真实可选权限确认和线上账号未验。[当前实现与完整限制](../../iterations/I08/web-agent-development.md)、[界面约束](../../iterations/I08/web-agent-ui-direction.md)。
+
 ## 不受支持后台的明确确认替换
 
 M01-F02/F04：机器清单与关系图的SSH后台维护是只读入口，不因离线、认证错误、任务忙、原操作unknown或维护能力缺失而禁用；阻塞原因在弹窗中展示，实际维护操作仍受门禁限制。维护弹窗展示源/目标版本，“强制替换后台”后须勾选确认；返回或关闭不发送动作，原unknown只查询。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
@@ -97,15 +111,17 @@ M01-F01/F06：原生Agent行的“配置”打开绑定原节点的MCP卡片，�
 
 ## Agent行MCP状态与控制
 
-M01-F01/F02/F06：MCP卡片把单一“已安装”拆成**六项独立状态事实**逐项显示——配置、原生加载、连接、工具、授权、归属——每项各有一句“这一项说明了什么、不能据此推断什么”的说明；后台只返回旧摘要时，只显示一行“需要升级后台才能核对原生证据”，不逐项编造。状态标签覆盖`未添加`/`已生成独立配置`/`已添加`/`配置冲突`/`已撤销授权，原生配置待清理`/`当前产品不支持此操作`。
+M01-F01/F02/F06/F14：原生Agent配置弹窗依次展示身份、接入摘要、单一中性容器内的2×2状态（MCP配置、连接授权、Agent加载、工具可用性）、原生配置路径与复制、默认收起的高级设置、固定底栏。默认仅“更多操作”与一个状态主按钮；正文独立滚动，菜单向上展开，不随正文裁切。原六项事实中的连接握手、归属及详细说明保留在高级诊断，后台旧摘要不补造原生事实。路径使用当前节点原环境返回值，空路径不允许复制。
+
+综合状态仅在前端派生为未配置、已配置待验证、接入正常、异常；对应主操作为添加、检测、重新检测、打开诊断。接入正常要求配置有效、授权有效以及仍有效的原生加载/连接/工具事实全部齐备；`bridge-stdio`工具目录只是服务端证据，不能使原生工具项或整条接入变为成功。观测时间缺失、未来时间、超过60秒、配置目标变化或能力不支持时保持未验证。界面每秒核对TTL，打开期间每15秒及窗口重新获焦时只读重读配置；返回节点/适配器不符或旧来源的迟到结果不得覆盖当前源。持久字段、协议及后台投影保持原样。[完整需求与验收](../../iterations/I08/mcp-configuration-ui.md)。
 
 - 能力门禁按 `nativeMcpConfig`（能否管理该产品原生MCP条目）判断，与 `mcpClient`（该产品能否调用Bridge MCP）分开显示；该产品有MCP客户端但Bridge无原生配置适配时，明确写出“仍可在原生工具中手动添加，但本页无法核对原生加载/连接/工具”。
 - 不可管理时直接显示后台给出的 `nativeSupportCode`/`nativeSupportReason` 原文，不用笼统失败代替。
-- 操作：添加、移除、生成独立MCP文件、撤销连接授权、重新探测原生列表、刷新状态。移除与撤权分开确认；`revoked_config_pending` 单独告警“授权已撤销、原生配置仍存在、新调用会被拒绝、不会自动恢复授权”。只读探测不会新增/恢复/启用原生配置。
-- DSH服务连接仍在原位置单独配置，不呈现为第二种MCP安装方式；DSH Web的原生MCP条目由同一张MCP卡片管理。DSH CLI 行额外提供“DSH 原生 profile”输入框（说明“Bridge 不会猜测目标 profile”，切换 profile 会重读该 profile 的条目）；不填时只能生成片段，添加/移除会被后台以 `MCP_DSH_PROFILE_REQUIRED` 拒绝。DSH Desktop在alpha.48候选按原生选择记录管理当前Profile；卡片显示接入绑定Profile与原路径，选择变化显示原因/当前路径并禁安装，移除仅清理原绑定。
+- 添加与检测位于主按钮；更多操作提供重新读取配置、导出MCP配置及可用时的移除。高级设置提供撤销授权及故障诊断；重读只调用`mcp.status`，检测沿用`mcp.probe`，没有一键自动修复。移除/撤权分别描述影响并确认；已声明输出位置的导出提示同路径覆盖并确认。外部归属条目不显示移除，原生禁用/冲突不提供重新启用。`revoked_config_pending`在诊断保留原生清理待办；确认收据不代表任务成功或取消。
+- DSH服务连接移入同一高级设置，保留独立来源、token遮蔽和原保存流程；DSH CLI的原生profile也在高级设置，不猜目标，不填时主按钮引导设置profile。DSH Desktop继续显示绑定Profile、原路径/当前路径及目标变化原因，移除只清理原绑定。OpenDesk仍先完全退出再允许写入，重开后的加载/连接/工具只能按真实能力核对；Browser节点不展示MCP状态区或原生表单。
 - 主角色按钮的禁用理由改按MCP调用能力给出；能独立调用但托管绑定未适配时，按钮可用并附注“以独立MCP会话作为主Agent，托管任务绑定未适配”，不把托管缺失说成MCP不可用。
 
-实现落点：[McpSettings.tsx](../../../desktop/src/McpSettings.tsx#L19)（状态标签/事实行/说明/动作与禁用条件）、[connection-capabilities.ts](../../../desktop/src/connection-capabilities.ts#L1)（`canCallBridge`/`canConfigureMcp`/`canHostManagedTask` 与未知理由）、[CollaborationChoice.tsx](../../../desktop/src/CollaborationChoice.tsx#L4)。受控界面用例见[本模块报告](test-report.md)；逐入口真实原生可见性仍待验。
+实现落点：[McpSettings.tsx](../../../desktop/src/McpSettings.tsx)保留兼容导出；[McpConnectionSettings.tsx](../../../desktop/src/McpConnectionSettings.tsx)负责布局/六操作，[mcp-connection-view.ts](../../../desktop/src/mcp-connection-view.ts)派生状态与动作门禁，[McpDiagnostics.tsx](../../../desktop/src/McpDiagnostics.tsx)保留六项诊断，[专用样式](../../../desktop/src/mcp-connection.css)继承本地字体和主题token。能力仍来自[connection-capabilities.ts](../../../desktop/src/connection-capabilities.ts)，非托管MCP资格与[CollaborationChoice.tsx](../../../desktop/src/CollaborationChoice.tsx)保持。受控用例见[本模块报告](test-report.md)；逐入口真实原生可见性仍待验。
 
 ## SSH持久拒绝恢复
 

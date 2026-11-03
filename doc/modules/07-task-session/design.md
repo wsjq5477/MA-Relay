@@ -1,5 +1,45 @@
 # M07 任务、会话、交互控制与恢复设计
 
+M07-F06/F07：真实原Task已覆盖运行中门面关闭/重开及原seq补读；取消unknown收据沿原operation查询到confirmed，并独立读到Task cancelled。关闭原属主上下文即时拒读且原生任务继续成功，由管理员独立观察；已关闭调用方的委派投影可能保持旧running缓存，不能作为原生存活或释放占位证据。持久格式与unknown处理不改。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+M07-F06/F07：上下文撤销、观察门面close、明确停止自有后台属于不同动作；前两者不自动取消原Task，后者可能影响原执行，也只能按原Task/原轮证据确定终态。进程/IPC消失或服务重开不授权新请求、迁移会话或清除unknown。[资源归属与现有验证](../../iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)。
+
+M07-F06/F07：Core OpenCode原任务观察、回复与取消固定原NativeReference的协议，健康发现缓存变化不改变已准入操作的API地址；协议不匹配保留原记录并拒绝。取消收据confirmed后仍须原轮中断证据才变cancelled，unknown不重发；IPC离线与原任务/后台进程终态分别核对。[并发反例与回归](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+task_result新增可选原delegationId，关联Task缺失时只查原请求。not_found保持unknown且不释放占用；确定未派发准备拒绝返回调用级rejected/terminal=false，不虚构Task终态。拥有原上下文及当前result权限才可读，异步返回后复核；[完整字段](../../iterations/I08/interconnect-caller-contract.md)。
+
+原Task事件页保留原seq；native仅投影binding-observed，progress省略可能夹带原生命令的诊断文本并标记detailsOmitted，tool不返回参数。output、结果、错误、等待摘要仍是获准调用方可见的原正文并受长度限制，不承诺对任意正文自动去密；事件省略不修改原Task或推断业务验收。[字段与边界](../../iterations/I08/interconnect-caller-contract.md)、[新增反例与实测](../../iterations/I08/interconnect-development.md)。
+
+## 调用事实与业务工作项的边界
+
+M07 的核心对象描述一次调用的意图、接收/运行/等待、原生终态、结果、Session 绑定和原操作收据；不判断业务交付合格，也不自动改任务重试。TeamSpace 的依赖、业务轮次、返修和验收属于可选上层，暂停扩张；现有七态、waiting 附加对象、unknown 占位和原 ID 查询继续有效。
+
+独立调用方/上下文/凭据、轮换/撤权与原任务归属，以及invocation/outcome和原事件afterSeq补读已源码实现；按节点串行拒忙、workspace覆盖在意图前拒绝，原生实际权限不扩张。完整真实原生/跨机生命周期仍待。[完整契约](../../iterations/I08/interconnect-caller-contract.md)。当前原父终态 scope 失效、独立 connectionId 范围及原结果读控交集不扩大，新CallerContext不接管原父scope任务；同一明确上下文的跨回合访问沿原归属核验。当前登记委派新增registeredAgentId/endpointId及原请求指纹，派发前再次检查端点/停用；确定准备拒绝沿原收据恢复。新登记方法不改变原Task七态、原读控或unknown；不自动迁移旧请求。[字段及受控证据](../../iterations/I08/interconnect-development.md)。[完整边界与验收](../../iterations/I08/interconnect-boundary.md)。
+
+当前Browser仅ChatGPT，Kimi移出开发与验收。实际匿名网页已通过原MCP/Registry/Router四轮持续对话及8次流式输出；Core、既有Broker/Transport与关系规则保持。新增DOM布局和原结束证明失败结算的职责在M06/M07，当前开发ZIP19文件；旧browser.2/公开alpha.71不据此成为新版本。[当前完整设计和证据](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+M07-F01/F02/F04/F06/F07：取消后扩展无本轮request行不新增影子Task；原Node Task/Conversation与confirmed取消封存定向既有Session，拒绝较晚或等lease的另一请求。health不结算unknown取消，close仅Bridge墓碑且保留Task.cancelled/旧成功结果；原关闭回应丢失只查原操作。继承prepared也封存两端，旧本地confirmed不补造证明。[恢复时序与原日志](../../iterations/I08/web-agent-development.md)。
+
+M07-F01/F02/F04/F06/F07：Browser completed可携continuation={transcriptFingerprint,assistantAnchor,historyRevision}；仅原完成事件保存，Task/Conversation私有binding与终态/游标同提交。缺证明旧记录不可续，非法/错事件种类证明不推进seq，续轮submitted不能换原document。人工编辑后原成功结果不改，新轮预检失败仍按原阶段保持unknown及取消证明规则。[当前约束与验证](../../iterations/I08/web-agent-development.md)。
+
+M07-F01/F02/F04/F06/F07：Browser取消先保存原控制unknown并封住后续派发；扩展原meta/senderFence、content-not-authorized-v1及sealedThroughSeq全部匹配且旧事件收齐，才同次提交Task.cancelled/收据confirmed。普通ACK不够，丢回应以cancel_task(queryOnly=true)查原operation，不发第二取消ID；查询收据仍另读task_result，不把其他kind的confirmed当取消。原页内容已授权或缺旧字段时不能释放unknown；已submitted明确不支持Stop。[原子取消时序与验证](../../iterations/I08/web-agent-development.md)。
+
+M07-F02/F06/F07：健康观察不改变Task、Session、事件游标或控制收据。Host等待原WS回执时释放串行队列，原事件先到仍能提交；回执身份/布尔组合不符不可ready，期间revision变化标stale，unknown与存储锁定不被页面健康掩盖。人工新轮和新会话已有历史均不自动认领；原结果与未提交unknown继续保留。[原接口与故障证据](../../iterations/I08/web-agent-development.md)。
+
+Browser关闭的原meta忙碌/旧绑定拒绝在扩展持久为rejected，Node核对固定拒绝码后结算关闭控制；不改原Task/Session。未知关闭私有记录当时已知profile，后配对不可绕过，Agent仍busy且不可用；原记录缺此集合只承认原profile。数据版本和原ID保持。[当前反例](../../iterations/I08/web-agent-development.md)。
+
+M07-F02/F06/F07：Session关闭收据kind=session.close先unknown，原扩展持久closed墓碑匹配才confirmed；Conversation.closed/closeState禁止后续continue，原Task成功/失败结果保持。unknown/活跃/旧轮/错误版本不得关闭，重开/原operation查询不重发。document关闭不视为取消；真实document替换失去观察，普通同document路径变化由原锚点继续核验。[当前生命周期与证据](../../iterations/I08/web-agent-development.md)。
+
+M07-F01/F02/F06/F07的Browser任务经原nodeRequest→Router→MachineHost→Registry Host，Task/Conversation回原machine限定ID；重开保持来源和unknown。中央意图与Host Task记录原已知profile集合，新配对/新node/目录别名不能绕过，包括中央已派发但尚无Task的窗口。既有独立profile不共享文件目录锁；控制收据仍不等于Task终态。[完整规则](../../iterations/I08/web-agent-development.md)。
+
+经典MCP delegate可传原conversationId续聊；须同一原父Task/Conversation或独立connection、同一子节点、当前授权、原轮明确终态及后端canContinue，禁目录重绑。委派保存op/resumeConversationId供原指纹结算；请求未知只读原记录。task_result的canContinue为当前只读核对结果，不是续聊许可。[实现和失败矩阵](../../iterations/I08/web-agent-development.md)。
+
+Browser Task公开output的显式mode=replace/revision在现有审计/会话展示中按连续输出段采用完整修订，允许纠正和缩短，原events不改。扩展暂停/恢复只关闭/恢复原运输，保留原Task/日志与unknown，不重发或推定取消。配对queryOnly缺记录不创建身份，原profile占用规则不变。[UI与恢复验证](../../iterations/I08/web-agent-development.md)。
+
+Browser原核对收据kind=reconcile，在Host保存unknown后只请求扩展output.subscribe；命令ACK不是任务终态，原终态与核对confirmed同事务提交。任务/执行/动作不符拒绝复用操作ID，重开不自动派命令。补传工作不占Host串行事件提交队列，以允许同socket先事件后命令ACK；内部原操作查询只读核对meta，离线会话不宣称可续聊。[实现与反例](../../iterations/I08/web-agent-development.md)。
+
+富文本自身写入与后续人工输入分别归属；失去归属后保留partial/unknown，后到页面完成不能越过已停止的当前观察器回报成功。页面动作错误只保存BROWSER_白名单码或固定BROWSER_PAGE_ACTION_UNKNOWN，不把异常文本写入日志，也不把输入错误码当未提交证明。[当前反例与边界](../../iterations/I08/web-agent-development.md)。
+
 M07-F06/F07：未发布Core维护修复事件ACK超时后的运输自旋。立即退役当前原socket，原事件按同taskId/executionId/seq在新运输补传，原执行与Session不重建；相同原提交仍只调用一次。运输确认不代替任务终态，权限/取消及unknown占用保持。[实现与验证](../../iterations/I08/edge-outbox-reconnect.md)。
 
 当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。

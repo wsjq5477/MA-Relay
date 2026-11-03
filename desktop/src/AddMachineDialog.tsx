@@ -167,7 +167,7 @@ export default function AddMachineDialog({machine, editing, updateConnection, ma
   }
 
   return <div className="modal-overlay"><section ref={dialog} className="modal ssh-dialog" role="dialog" aria-modal="true" aria-labelledby="ssh-dialog-title">
-    <div className="modal-head"><div><h2 id="ssh-dialog-title">{editing ? '编辑 Linux 连接' : machine ? '重新连接 Linux 机器' : '添加 Linux 机器'}</h2><p>使用服务器已有的 SSH 登录方式。</p></div><button className="icon-btn" aria-label="关闭机器接入" disabled={busy} onClick={() => void closeDialog()}><X size={18}/></button></div>
+    <div className="modal-head"><div><h2 id="ssh-dialog-title">{editing ? '编辑 Linux 连接' : machine ? '重新连接 Linux 机器' : '添加 Linux 机器'}</h2></div><button className="icon-btn" aria-label="关闭机器接入" disabled={busy} onClick={() => void closeDialog()}><X size={18}/></button></div>
     <div className="modal-body">
       {editing&&<p>保存修改会断开当前连接；随后重新校验服务器身份并连接。已接入机器保留原 SSH 用户与历史；另一用户请新增机器。</p>}
       {managementPending&&<p role="status">连接操作回应尚未确认，请返回机器列表查询原操作。</p>}

@@ -1,5 +1,11 @@
 # OpenCode 适配器设计
 
+M06-OC-F01：DesktopHost门面close不停止Core；明确Controller stop/close会停止其Hub/Edge与经核验的自有托管服务，不能同“关闭观察器”混称。managed=false外部服务不在ownedNative中；新机器节点入口仍按原流程启动托管服务，不把低层已有服务配置自动当作新登记端点。原Task按原轮证据恢复，不因服务或IPC消失结算终态。[资源归属与验证边界](../../../iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)。
+
+M06-OC-F01：健康检查成功前保留已协商协议、失败时使发现缓存失效；执行客户端独立，原任务观察、等待/权限回复与取消校验并绑定原nativeProtocol，防止健康检查把在途I/O切到另一代。原配置/账号/模型与原Task/Session不变，协议不匹配仍拒绝，unknown不重发。[具体时序与回归](../../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+M06-OC-F01：Core连接检查复用同次只读协议握手的原生Agent可用性，V1不追加V2接口请求；V1缺失Agent仍拒绝，V2按id/name匹配。managed=false已有服务的观察器关闭/重开只管理观察资源，原服务进程不归Bridge所有。低层Controller/Client已有真实1.2.10元数据/生命周期证据，互联登记端点完整链及模型仍待。[实现与证据](../../../iterations/I08/interconnect-development.md#14-已有opencode服务的协议检查与观察器归属)。
+
 当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
 
 M06-OC-F01：独立MCP原生列表通过共享command沿选中JS/npm/原生入口启动，mcp/list与原配置继承不变；同步启动失败记探测error，不改serve/HTTP协议、Session或unknown。[本轮维护及验证](../../../iterations/I08/windows-regression-and-native-probes.md)。

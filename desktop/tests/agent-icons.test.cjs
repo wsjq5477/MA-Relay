@@ -20,10 +20,12 @@ const noop = () => {};
 const kinds = ["claude", "codex", "opencode", "hermes", "pi", "dsh"];
 
 test("six official agent icons retain their exact source bytes and bundled provenance", () => {
-  assert.deepEqual(Object.keys(agentTools).filter(k => !['dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop'].includes(k)), kinds);
+  assert.deepEqual(Object.keys(agentTools).filter(k => !['chatgpt-web', 'dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop'].includes(k)), kinds);
   assert.equal(agentTools['dsh-desktop'].icon, agentTools.dsh.icon);
   assert.equal(agentTools['dsh-web'].icon, agentTools.dsh.icon);
   const directory = path.resolve(__dirname, "../assets/agents");
+  assert.equal(fileURLToPath(agentTools['chatgpt-web'].icon), path.join(directory, 'browser.svg'));
+  assert.equal(agentTools['chatgpt-web'].fullName, 'ChatGPT Web');
   const sources = JSON.parse(fs.readFileSync(path.join(directory, "sources.json"), "utf8"));
   assert.equal(sources.length, 6);
   for (const kind of kinds) {

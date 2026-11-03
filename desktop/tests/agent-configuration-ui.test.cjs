@@ -3,6 +3,7 @@ process.env.TSX_TSCONFIG_PATH=path.resolve(__dirname,'../tsconfig.json');
 const {require:requireTsx}=require('tsx/cjs/api'),desktopRequire=createRequire(path.resolve(__dirname,'../package.json'));
 const React=desktopRequire('react'),{renderToStaticMarkup}=desktopRequire('react-dom/server');
 const Dialog=requireTsx('../src/AgentConfigurationDialog.tsx',__filename).default;
+const {mcpConnectionActions}=requireTsx('../src/mcp-connection-view.ts',__filename);
 const {SettingsPage}=requireTsx('../src/WorkspacePages.tsx',__filename);
 const Inventory=requireTsx('../src/MachineInventory.tsx',__filename).default;
 const {connectionCapabilities:backendCapabilities}=require('../electron/builtin-adapters.cjs');
@@ -22,7 +23,7 @@ test('every agent with a manageable native config gets one unified AgentBridge M
  // export-only in the same unified section (asserted below).
  for(const adapter of ['claude','codex','opencode','pi','hermes','opendesk-desktop','dsh-web','dsh-desktop']){
   const html=render(Dialog,{node:projected(adapter),machine,onClose:noop});
-  assert.match(html,/WSL 目标机器/);assert.match(html,/AgentBridge MCP 操作/);assert.match(html,/添加 Bridge MCP/);
+  assert.match(html,/WSL 目标机器/);assert.match(html,/AgentBridge MCP/);assert.match(html,/添加 Bridge MCP/);
   assert.doesNotMatch(html,/MCP 目标 Agent|<select|两种 MCP 安装模式/);
   if(!adapter.startsWith('dsh-'))assert.doesNotMatch(html,/DSH 连接 token/);
   assert.doesNotMatch(html,/原生工具配置/,adapter+' must not fall back to a second MCP install mode');
@@ -30,37 +31,37 @@ test('every agent with a manageable native config gets one unified AgentBridge M
  }
  for(const adapter of ['opendesk']){
   const html=render(Dialog,{node:projected(adapter),machine,onClose:noop});
-  assert.match(html,/AgentBridge MCP 操作/);
+  assert.match(html,/AgentBridge MCP/);
   assert.match(html,/该产品已有 MCP 客户端，但 Bridge 暂不能管理它的原生 MCP 配置/);
   assert.doesNotMatch(html,/<button[^>]*>添加 Bridge MCP/);
-  assert.match(html,/<button[^>]*>生成独立 MCP 文件/);
+  assert.match(html,/更多操作/);assert(mcpConnectionActions(projected(adapter),null).canExport);
  }
 });
 test('a stale backend refusing native config keeps manual configuration honest',()=>{
  // Old Desktop backends lack the new path adapter; the frontend cannot widen
  // their explicit false even though its current static declaration supports it.
  const html=render(Dialog,{node:projected('dsh-desktop',{connectionCapabilities:{...backendCapabilities(node('dsh-desktop')).connectionCapabilities,nativeMcpConfig:false}}),machine,onClose:noop});
- assert.match(html,/AgentBridge MCP 操作/);
+ assert.match(html,/AgentBridge MCP/);
  assert.match(html,/该产品已有 MCP 客户端，但 Bridge 暂不能管理它的原生 MCP 配置/);
  assert.doesNotMatch(html,/<button[^>]*>(添加 Bridge MCP|移除 Bridge MCP|重新探测原生列表|撤销连接授权)/);
- assert.match(html,/<button[^>]*>生成独立 MCP 文件/,'manual native configuration still gets a standard fragment');
+ assert.match(html,/更多操作/);assert(mcpConnectionActions(projected('dsh-desktop',{connectionCapabilities:{nativeMcpConfig:false}}),null).canExport,'manual export remains available from the menu');
  assert.match(html,/原生工具配置/);assert.match(html,/安装位置/);
  assert.doesNotMatch(html,/当前接入暂不支持添加 Bridge MCP|该产品未确认提供 MCP 客户端/);
 });
 test('DSH CLI asks for the launch profile instead of guessing one',()=>{
  const html=render(Dialog,{node:projected('dsh'),machine,onClose:noop});
- assert.match(html,/AgentBridge MCP 操作/);
+ assert.match(html,/AgentBridge MCP/);
  assert.match(html,/DSH 原生 profile/);
  assert.match(html,/Bridge 不会猜测目标 profile/);
- assert.match(html,/<button[^>]*>添加 Bridge MCP/,'the DSH CLI entry becomes manageable once a profile is named');
+ assert.match(html,/mcp-primary-action[\s\S]*添加 Bridge MCP/,'DSH still uses the common primary action before the required profile is read');
  assert.doesNotMatch(html,/该产品已有 MCP 客户端，但 Bridge 暂不能管理它的原生 MCP 配置/);
 });
 test('DSH service connection is configured separately from the unified MCP section',()=>{
  for(const adapter of ['dsh-desktop','dsh-web']){
   const html=render(Dialog,{node:projected(adapter),machine,onClose:noop});
   assert.match(html,/DSH 服务连接/);assert.match(html,/type="password"/);assert.match(html,/autoComplete="off"/);
-  assert.match(html,/AgentBridge MCP 操作/);
-  assert(html.indexOf('AgentBridge MCP 操作')<html.indexOf('DSH 服务连接'),'the MCP operation precedes the separate service connection');
+  assert.match(html,/AgentBridge MCP/);
+  assert(html.indexOf('AgentBridge MCP')<html.indexOf('DSH 服务连接'),'the MCP operation precedes the separate service connection');
   assert.doesNotMatch(html,/DSH 目标机器|DSH 版本|<select/);
  }
 });
@@ -78,7 +79,7 @@ test('an explicitly unsupported product keeps the native boundary and offers no 
   const html=render(Dialog,{node:projected(adapter,{connectionCapabilities:{execution:true,delegation:true,mcpClient:null,nativeMcpConfig:false}}),machine,onClose:noop});
   assert.match(html,/该产品未确认提供 MCP 客户端/);
   assert.doesNotMatch(html,/<button[^>]*>(添加 Bridge MCP|移除 Bridge MCP|撤销连接授权|重新探测原生列表)/);
-  assert.match(html,/<button[^>]*>生成独立 MCP 文件/,'a manual fragment stays possible without claiming native support');
+  assert.match(html,/更多操作/);assert(mcpConnectionActions(projected(adapter,{connectionCapabilities:{nativeMcpConfig:false}}),null).canExport,'manual export stays possible without claiming native support');
   assert.match(html,/原生工具配置/);assert.match(html,/安装位置/);
   assert.doesNotMatch(html,/<input/);
  }
@@ -95,8 +96,8 @@ test('configuration sits to the right of session action and stays reachable when
 test('an unavailable original source remains identified in a read-only configuration view',()=>{
  const html=render(Dialog,{node:projected('dsh-web'),machine,unavailable:true,onClose:noop});
  assert.match(html,/配置仅供查看/);assert.match(html,/WSL 目标机器/);assert.match(html,/DSH 服务地址[^>]*.*disabled=""/);
- assert.match(html,/AgentBridge MCP 操作/);
- assert.match(html,/<button\b[^>]*disabled[^>]*>添加 Bridge MCP/);
+ assert.match(html,/AgentBridge MCP/);
+ assert.match(html,/<button\b[^>]*mcp-primary-action[^>]*disabled/);
 });
 
 test('issue21: stale connected field never labels a needs_check OpenCode as attached',()=>{

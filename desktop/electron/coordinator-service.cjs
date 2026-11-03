@@ -15,6 +15,9 @@ const teamMethods=new Set([...require('./team-context-transfers.cjs').methods,'t
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
 const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview','machine.maintenanceBlockers','machine.queryBlockedOperation']);
 const methods = new Set(['dsh.status','dsh.configure','mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation','relations','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
+for(const method of require('./agent-directory.cjs').methods)methods.add(method);
+for(const method of require('./caller-service.cjs').methods)methods.add(method);
+for(const method of require('./browser-management.cjs').methods)methods.add(method);
 // SSH state is a complete observation: absent errors revoke cached failures.
 methods.add('relationRecovery.inspect');methods.add('relationRecovery.confirm');
 // A live transport must not hide a failed business snapshot (e.g. RPC timeout).
@@ -49,11 +52,27 @@ function projectSshNodes(nodes,machines){
 // On a Linux desktop the coordinator process itself runs beside the native
 // products, so the local machine can manage MCP configuration directly. The core
 // Bridge host (dist/desktop-host.js) owns execution and has no mcp.* methods, so
-// only MCP calls are routed to a local MachineHost; everything else keeps the
-// existing host. A WSL machine stays on the remote path because its filesystem is
-// not this process's filesystem.
+// Native context creation and scope injection keep the existing core host. The
+// same local MachineHost owns MCP and browser contexts, and merges observations;
+// no second broker or router is created. WSL keeps its existing remote path.
 const localMcpMethods = new Set(['mcp.status','mcp.install','mcp.export','mcp.remove','mcp.revoke','mcp.probe']);
 function localMcpHost(options) {
+  if(options.legacy){
+    const native=options.legacy,local=new MachineHost({...options,directory:resolve(options.directory,'local')});
+    return {
+      async call(method,params={}) {
+        if(localMcpMethods.has(method)||require('./browser-management.cjs').methods.has(method)||method==='snapshot'||method==='ipc'||method==='context'&&require('./adapter-identity.cjs').isBrowser(params))return local.call(method,params);
+        if(method==='discover'){
+          await local.browserManagement?.restore().catch(()=>{});
+          const discovered=await native.call(method,params);
+          return {...discovered,items:[...discovered.items,...await require('./browser-discovery.cjs').discoverBrowsers(local.browser)]};
+        }
+        return native.call(method,params);
+      },
+      setCollaboration(handler){local.setCollaboration(handler);},
+      close(){return local.close();}
+    };
+  }
   const { McpIntegration } = require('./mcp-integration.cjs');
   const { CollaborationBroker } = require('./collaboration-broker.cjs');
   const directory = resolve(options.directory, 'local');
@@ -79,13 +98,35 @@ function localMcpHost(options) {
 function createCoordinatorService(options) {
   const platform = options.platform || process.platform;
   let host, ssh=options.ssh;
-  let teams,teamBroker,teamEngine,teamTimer,teamReady=Promise.resolve();
+  let teams,teamBroker,teamEngine,teamTimer,teamReady=Promise.resolve(),agentDirectory,callerController;
+  function directoryService(){
+    if(!agentDirectory)agentDirectory=new (require('./agent-directory.cjs').AgentDirectory)({directory:options.directory,network:connection()});
+    return agentDirectory;
+  }
+  function callerService(){
+    if(!callerController){
+      installAdmissionChecks();
+      callerController=new(require('./caller-service.cjs').CallerService)({directory:options.directory,agents:directoryService(),network:connection()});
+    }
+    return callerController;
+  }
   const teamInvocation=Symbol('teamInvocation');
   const graphJournal=new GraphOperationJournal(options.directory,{nodeConflict:(params,row)=>connection().managementBlocks?.(row,params)??true,relationConflict:(params,row)=>connection().relationManagementBlocks?.(row,params)??true});
   async function teamRead(params){
     const reply=await call({method:'ipc',params});
     if(!reply.ok)throw Object.assign(Error('原执行或控制收据尚无法核对。'),{code:reply.error.code});
     return reply.result;
+  }
+  function installAdmissionChecks(){
+    connection().options??={};
+    connection().options.admissionCheck=machine=>{if(graphJournal.pending().some(r=>r.lane==='machine'&&r.params.machineId===machine.machineId))throw Object.assign(Error('原机器维护尚未确认，请查询原操作。'),{code:'DESKTOP_UNCONFIRMED'});};
+    connection().options.executionAdmissionCheck=(machine,instance,params)=>{
+      if(params.teamScope)teamService().admit(params.teamScope,instance.nodeId);
+      if(graphJournal.pending().some(row=>connection().managementBlocks?.(row,{...params,machineId:machine.machineId,nodeId:instance.nodeId,agentId:instance.instanceId,workspace:instance.workspace})))throw Object.assign(Error('原管理操作影响这个执行资源，请查询原操作；独立节点仍可使用。'),{code:'DESKTOP_UNCONFIRMED',executionNotDispatched:true});
+      if(read('pending.json',[]).some(row=>['pending','unknown'].includes(row.state)&&
+        connection().pendingBlocks?.(row,{machineId:machine.machineId,agentId:instance.instanceId})&&
+        !(row.id===journalKey(params)&&row.machineId===machine.machineId)))throw Object.assign(Error('这个执行资源有未确认操作，请查询原请求；独立节点仍可使用。'),{code:'DESKTOP_UNCONFIRMED',executionNotDispatched:true});
+    };
   }
   function teamService(){
     if(teams)return teams;
@@ -177,10 +218,11 @@ function connection() {
       } if(!meta?.progressOnly)host.save();}
       catch(error){host.catalog.machines=previous;throw error;}
     }});
-  host = new AgentNetwork({ directory: options.directory, platform: platform,
+  host = new AgentNetwork({ directory: options.directory, platform: platform, agentDirectory:()=>directoryService(),
     preferences: settings, distributions,
     createHost: machine => machine.kind === 'ssh' ? ssh.host(machine)
       : machine.kind === 'windows' ? new MachineHost({directory: resolve(options.directory,'windows'),
+        enableBrowser:true,
         legacy: new ClaudeHost({directory: resolve(options.directory,'windows')}),
         openCode: directory => new HostConnection(hostPath(), {directory,native:true,leaf:true,runtime:workerRuntime(resolve(options.directory,'windows'))})})
       : (() => {
@@ -190,18 +232,14 @@ function connection() {
         if (machine.kind === 'wsl' || machine.distribution) return exec;
         // The local Linux machine: MCP management runs in this process, execution
         // keeps the existing core host. MCP failures never fall back to execution.
-        const local = localMcpHost(options);
-        return {
-          async call(method, params) { return localMcpMethods.has(method) ? local.call(method, params) : exec.call(method, params); },
-          setCollaboration(handler) { local.setCollaboration(handler); exec.setCollaboration?.(handler); },
-          close() { local.close(); exec.close?.(); },
-        };
+        return localMcpHost({...options,legacy:exec,enableBrowser:true,
+          openCode:directory=>new HostConnection(hostPath(),{directory,native:true,leaf:true,runtime:workerRuntime(resolve(options.directory,'local'))})});
       })()
   });
   void ssh.start();
   return host;
 }
-const mutating = new Set(["submit", "continue", "verify", "reply", "cancel"]);
+const mutating = new Set(["submit", "continue", "verify", "reply", "cancel", "session.close"]);
 function journalKey(params) {
   return params.requestId || params.operationId || params.reply?.operationId;
 }
@@ -237,7 +275,7 @@ function settleOperation(id, result, machineId, retained) {
   const rows = read("pending.json", []);
   const row = rows.find((r) => r.id === id && r.machineId === machineId);
   if (!row) return;
-  if(['cancel','reply'].includes(row.op)){
+  if(['cancel','reply','session.close'].includes(row.op)){
     if(result?.operationId!==id||!['confirmed','rejected'].includes(result.state))return;
     const receivedTask=result.taskId||result.data?.taskId,originalTask=row.params.taskId||row.params.reply?.taskId;
     if(receivedTask&&receivedTask!==originalTask)return;
@@ -294,17 +332,13 @@ async function call(input) {
     }
     connection();
     connection().options??={};
+    connection().options.agentDirectory=()=>directoryService();
     connection().options.teamTool=(scope,name,args,sourceMachine)=>teamService().nativeTool(scope,name,args,sourceMachine);
     if(input.params.teamScope&&input[teamInvocation]!==true)throw Object.assign(Error('小队执行身份必须由后台派生。'),{code:'TEAM_FORBIDDEN'});
     if(teamMethods.has(input.method)){const service=teamService();await teamReady;return {ok:true,result:await service.call(input.method,input.params)};}
-    connection().options.admissionCheck=machine=>{if(graphJournal.pending().some(r=>r.lane==='machine'&&r.params.machineId===machine.machineId))throw Object.assign(Error('原机器维护尚未确认，请查询原操作。'),{code:'DESKTOP_UNCONFIRMED'});};
-    connection().options.executionAdmissionCheck=(machine,instance,params)=>{
-      if(params.teamScope)teamService().admit(params.teamScope,instance.nodeId);
-      if(graphJournal.pending().some(row=>connection().managementBlocks?.(row,{...params,machineId:machine.machineId,nodeId:instance.nodeId,agentId:instance.instanceId,workspace:instance.workspace})))throw Object.assign(Error('原管理操作影响这个执行资源，请查询原操作；独立节点仍可使用。'),{code:'DESKTOP_UNCONFIRMED',executionNotDispatched:true});
-      if(read('pending.json',[]).some(row=>['pending','unknown'].includes(row.state)&&
-        connection().pendingBlocks?.(row,{machineId:machine.machineId,agentId:instance.instanceId})&&
-        !(row.id===journalKey(params)&&row.machineId===machine.machineId)))throw Object.assign(Error('这个执行资源有未确认操作，请查询原请求；独立节点仍可使用。'),{code:'DESKTOP_UNCONFIRMED',executionNotDispatched:true});
-    };
+    installAdmissionChecks();
+    if(require('./agent-directory.cjs').methods.has(input.method))return {ok:true,result:await directoryService().call(input.method,input.params)};
+    if(require('./caller-service.cjs').methods.has(input.method))return {ok:true,result:await callerService().call(input.method,input.params)};
     const machineDispatch=async(method,params)=>{
       if(!ssh)throw Object.assign(Error('当前后台未启用 SSH 连接管理。'),{code:'INVALID_INPUT'});
       if(method==='machine.operation'){
@@ -350,6 +384,7 @@ async function call(input) {
     if(['connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation'].includes(input.method))return {ok:true,result:await connection().call(input.method,input.params)};
     if(input.method==='graphPending')return {ok:true,result:graphJournal.pending().map(row=>({...row,blockedNodeIds:connection().managementBlocks&&connection().network?.nodes?connection().network.nodes.filter(node=>connection().managementBlocks(row,{machineId:node.machineId,nodeId:node.nodeId})).map(node=>node.nodeId):undefined}))};
     if(['dsh.status', 'dsh.configure'].includes(input.method)) return {ok:true,result:await connection().call(input.method,input.params)};
+    if(require('./browser-management.cjs').methods.has(input.method))return {ok:true,result:await connection().call(input.method,input.params)};
     if(['collaborationOperation','graphLayoutOperation','nodeOperation'].includes(input.method))return {ok:true,result:await graphJournal.lookup(input.method,input.params,graphDispatch)};
     if(input.method==='manageNode'){
       const prepared=await connection().prepare(input.method,input.params);input={...input,params:prepared.params};
@@ -552,6 +587,7 @@ function savePreferences(value) {
 }
 
 if(existsSync(resolve(options.directory,'team-space.sqlite')))teamService();
+if(existsSync(resolve(options.directory,'caller-connections','bridge-scopes.json')))callerService();
 return { call, pending: () => read('pending.json', []).filter(r => ['pending','unknown'].includes(r.state)).map(row=>({
     ...row,...(connection().pendingBlocks?{blockedNodeIds:connection().network.nodes.filter(node=>connection().pendingBlocks(row,{nodeId:node.nodeId,machineId:node.machineId})).map(node=>node.nodeId)}:{})
   })),
@@ -567,7 +603,7 @@ return { call, pending: () => read('pending.json', []).filter(r => ['pending','u
     if (method === 'runtimes') return this.runtimes();
     if (method === 'machines') return this.machines();
     throw Object.assign(new Error('后台请求不受支持。'), {code:'COORDINATOR_METHOD'});
-  }, close() { clearInterval(teamTimer);teamEngine?.close();teamBroker?.close();teams?.close();ssh?.close(); host?.close(); }
+  }, close() { callerController?.close();clearInterval(teamTimer);teamEngine?.close();teamBroker?.close();teams?.close();agentDirectory?.close();ssh?.close(); host?.close(); }
 };
 }
 module.exports = {createCoordinatorService, mergeSshState, projectSshNodes, localMcpHost, localMcpMethods};

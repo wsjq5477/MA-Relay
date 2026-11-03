@@ -9,8 +9,8 @@ const MULTI_PARENT_RELATIONS_CAPABILITY='multi-parent-relations-v1';
 const coordinatorCapabilities=[RECOVERY_CAPABILITY,'scoped-management-v1','opencode-v2-admission-v1','maintenance-persistence-v1','opencode-dual-api-v1','team-context-mcp-v1','dsh-web-desktop-v1','scoped-management-execution-v1','scoped-node-management-v1','scoped-relation-management-v1'];
 // Advertised list: coordinator hello and daemon hello both spread this array, and
 // maintenance bundles stage this file verbatim.
-const runtimeCapabilities=[...coordinatorCapabilities,MCP_OPEN_ACCESS_CAPABILITY,'opendesk-mcp-lifecycle-v1'];
-const coordinatorRuntimeCapabilities=[...runtimeCapabilities,TEAM_CONTEXT_TRANSFER_CAPABILITY,MULTI_PARENT_RELATIONS_CAPABILITY,AGENT_CONNECTION_POLICY_CAPABILITY,'relation-index-sync-v1','relation-recovery-observations-v2','ssh-current-observation-v1','ssh-daemon-replacement-v1'];
+const runtimeCapabilities=[...coordinatorCapabilities,MCP_OPEN_ACCESS_CAPABILITY,'opendesk-mcp-lifecycle-v1','browser-agent-v1','browser-session-close-v1','browser-session-health-v1'];
+const coordinatorRuntimeCapabilities=[...runtimeCapabilities,TEAM_CONTEXT_TRANSFER_CAPABILITY,MULTI_PARENT_RELATIONS_CAPABILITY,AGENT_CONNECTION_POLICY_CAPABILITY,'relation-index-sync-v1','relation-recovery-observations-v2','ssh-current-observation-v1','ssh-daemon-replacement-v1','agent-directory-v1','independent-callers-v1'];
 const supportsCurrentCoordinator=capabilities=>Array.isArray(capabilities)&&coordinatorCapabilities.every(capability=>capabilities.includes(capability));
 const supportsRecovery=capabilities=>Array.isArray(capabilities)&&capabilities.includes(RECOVERY_CAPABILITY);
 // Richer MCP status facts and revocation need this marker. Its absence means the

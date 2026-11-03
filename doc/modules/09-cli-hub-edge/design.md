@@ -1,5 +1,15 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
+M09-F03：明确停止Controller会关闭Hub/Edge及经原身份核验的自有原生句柄；managed=false外部服务保持。释放DesktopHost门面不执行该停止流程。IPC监听可先离线，进程和资源稍后退出；均不能直接结算原Task或释放unknown。[按入口的归属表](../../iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)。
+
+M09-F01：doctor显式保留原version/workspace/model/healthy/serverUrl/agentId字段及模型不可用时的action，不展开内部原生检查元数据；两代API的只读检查不创建Session或调用模型。[兼容检查](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+M09-F01/F05：OpenCode健康发现与原任务协议路由分离；执行独立协商，Edge的原Session读控在原nativeProtocol校验后使用绑定客户端，健康检查不能改写在途API地址。控制仍一次提交，confirmed与原生终态分层。IPC停止监听也不表示Controller已完成资源释放；测试清理只在其自有后台实际退出后执行，不改变产品关闭协议。[实现与验证](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+M09-F01：check复用OpenCodeClient同次协议握手的Agent可用性，不再硬编码追加V2接口；外部检查字段及模型验证分层保持。managed=false服务由外部操作者管理，Controller关闭/重开保留原进程，不据只读接入提交或重放Task。真实低层已有服务1.2.10证据与完整互联链边界见[当前记录](../../iterations/I08/interconnect-development.md#14-已有opencode服务的协议检查与观察器归属)。
+
+M09-F01：未发布源码新增 `agentbridge interconnect agents.*|callers.* --profile-dir ABSOLUTE_DIR [--file PARAMS.json] [--json]`。复用现有认证CoordinatorClient和定向能力门禁，不启动Hub/Edge、不修改原生配置。写入须参数文件中原operationId，未知时查原operation；不得自动生成ID重做。参数为不超过1MiB的JSON对象，原profile必须明确绝对路径；not_found返回退出码3，不授权重放。原agents命令和已发布CLI保持兼容。[完整字段](../../iterations/I08/interconnect-caller-contract.md)、[实现与验证](../../iterations/I08/interconnect-development.md)。
+
 当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 M09-F01/F03：Core连接检查与高级向导只读版本检查共用原安装启动器；已选JS/CJS/MJS经Node，标准npm脚本沿原包解析，原生程序保持原路径。结构化参数、无shell、继承环境、10秒/64KiB/100字上限保持；检查不调用模型、不改账号/配置，也不回退别的安装。此为alpha.68之后未发布源码。[实现、反例与分平台验证](../../iterations/I08/core-windows-installation-checks.md)。

@@ -8,6 +8,7 @@ const desktopRequire = createRequire(path.resolve(__dirname, '../package.json'))
 const React = desktopRequire('react');
 const { renderToStaticMarkup } = desktopRequire('react-dom/server');
 const McpSettings = requireTsx('../src/McpSettings.tsx', __filename).default;
+const {mcpConnectionActions}=requireTsx('../src/mcp-connection-view.ts',__filename);
 const render = (component, props) => renderToStaticMarkup(React.createElement(component, props));
 
 // A DSH-style node whose backend projects the new three dimensions.
@@ -38,8 +39,10 @@ test('Pi native disable is visible, keeps removal available and never offers re-
     facts: {config: 'disabled', nativeLoad: 'unknown', connection: 'unknown', tools: 'unknown', authorization: 'valid', ownership: 'bridge'},
   }});
   assert.equal(factValue(html, '配置'), '已禁用');
-  assert.match(html, /<button[^>]*disabled=""[^>]*>添加 Bridge MCP/);
-  assert.match(html, /<button[^>]*>移除 Bridge MCP/);
+  assert.doesNotMatch(html, /添加 Bridge MCP/);
+  assert.match(html, /诊断并修复/);
+  const permissions=mcpConnectionActions({...node,adapter:'pi',capabilitySource:{kind:'static-adapter',adapterId:'pi'}},{...base,installed:false,facts:{config:'disabled',ownership:'bridge'}});
+  assert.equal(permissions.canInstall,false);assert.equal(permissions.canRemove,true);
   assert.match(html, /不会静默重新启用/);
 });
 test('DSH Desktop shows the registered profile and native selection change without claiming foreign ownership', () => {
@@ -83,13 +86,14 @@ test('a full facts payload renders six separate labelled rows without inventing 
   assert.match(html, /dsh mcp list/);
   assert.match(html, /Bridge 工具探测/);
   // A written config plus an unverified connection must never be rendered as connected/available.
-  assert.doesNotMatch(html, /已连接/);
+  assert.doesNotMatch(html, />已连接</);
   assert.doesNotMatch(html, />可用</);
   // The MCP section offers the unified operations for any agent.
-  assert.match(html, /AgentBridge MCP 操作/);
-  assert.match(html, /添加 Bridge MCP/);
+  assert.match(html, /AgentBridge MCP/);
+  assert.doesNotMatch(html, /添加 Bridge MCP/);
+  assert.match(html, /检测接入状态/);
   assert.match(html, /重新探测原生列表/);
-  assert.match(html, /撤销连接授权/);
+  assert.match(html, /撤销授权/);
 });
 
 test('a legacy payload without facts shows one honest upgrade line instead of per-fact claims', () => {
@@ -97,12 +101,13 @@ test('a legacy payload without facts shows one honest upgrade line instead of pe
   assert.match(html, /当前后台只返回旧的配置与授权摘要/);
   assert.match(html, /没有逐项原生证据/);
   assert.match(html, /请升级后台后再核对原生可见性/);
-  assert.doesNotMatch(html, /已连接/);
+  assert.doesNotMatch(html, />已连接</);
   assert.doesNotMatch(html, /MCP 状态事实/);
   assert.doesNotMatch(html, /<dt>原生加载<\/dt>/);
   // The legacy summary remains readable.
-  assert.match(html, /已添加/);
-  assert.match(html, /接入授权有效/);
+  assert.match(html, /已配置，待验证/);
+  assert.match(html, /<dt>MCP 配置<\/dt><dd>未验证<\/dd>/);
+  assert.match(html, /<dt>连接授权<\/dt><dd>未验证<\/dd>/);
 });
 
 test('historical probes show their timestamp and require a fresh native observation', () => {
@@ -126,18 +131,18 @@ test('revoked_config_pending shows both the revoked authorization and the pendin
       tools: 'unauthorized', authorization: 'revoked', ownership: 'bridge',
     },
   } });
-  assert.match(html, /已撤销授权，原生配置待清理/);
+  assert.match(html, /接入存在异常/);
   assert.match(html, /已撤销连接授权，原生配置仍存在，待清理/);
   assert.doesNotMatch(html, />已移除</);
-  assert.doesNotMatch(html, /已连接/);
+  assert.doesNotMatch(html, />已连接</);
   assert.equal(factValue(html, '配置'), '存在');
   assert.equal(factValue(html, '连接'), '已撤销');
   assert.equal(factValue(html, '授权'), '已撤销');
   assert.equal(factValue(html, '工具'), '未授权');
   // Cleanup can be retried and the separate authorization action is already done.
-  assert.match(html, /<button\b(?![^>]*disabled)[^>]*>移除 Bridge MCP/);
+  assert.equal(mcpConnectionActions(node,{...base,enabled:false,installed:false,state:'revoked_config_pending',facts:{config:'present',authorization:'revoked',ownership:'bridge'}}).canRemove,true);
   // The authorization is already revoked; no second revoke action is offered.
-  assert.doesNotMatch(html, /<button\b[^>]*>撤销连接授权/);
+  assert.doesNotMatch(html, /<button\b[^>]*>撤销授权/);
 });
 
 test('an unsupported native config shows the backend reason verbatim instead of a generic failure', () => {

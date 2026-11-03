@@ -6,8 +6,11 @@
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 
+当前产品边界以[互联核心决议](doc/iterations/I08/interconnect-boundary.md)为准，实现与未完成项见[互联开发台账](doc/iterations/I08/interconnect-development.md)。互联核心保留身份/获准发现/授权/明确目标调用/状态结果/交互控制及原ID恢复；小队业务工作流和自动协调为可选上层、暂停扩张。不得把登记或受控测试当作真实原生闭环，不自动迁移旧任务/授权，不添加智能选目标或新模型层。
+
 ## 开发前
 
+- 用户要求：任何开发与测试不得使用 C 盘；源码副本、临时目录、缓存、依赖、构建产物、日志、测试配置和数据均放在 D 盘或其他非 C 盘位置。运行工具前检查并重定向 `TEMP`、`TMP` 及相关工具的缓存和数据目录；无法确认不会使用 C 盘时，先解决或停止该操作。
 - 阅读整体功能设计、相关模块的 `design.md`、`test-report.md` 和当前迭代。
 - 核对实际源码、发布包和测试证据，区分已发布、源码已实现、已确认设计与候选功能。
 - 当前连接目标与各 Agent 实际接入方式以 [接入矩阵](doc/agent-integration-matrix.md) 为准；选型与快速接入见 [选型指南](doc/agent-integration-guide.md)。

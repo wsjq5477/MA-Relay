@@ -5,8 +5,8 @@ const path = require("node:path");
 const http = require("node:http");
 const { graphFixture } = require("../tests/i06b-ui-fixture.cjs");
 
-async function startPreview({ port = 4197, baseline } = {}) {
-  const fixture = await graphFixture();
+async function startPreview({ port = 4197, baseline, fixture: suppliedFixture } = {}) {
+  const fixture = suppliedFixture || await graphFixture();
   const root = path.resolve(__dirname, "../dist");
   const nodes = fixture.nodes;
   const stamp = new Date().toISOString();

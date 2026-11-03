@@ -1,5 +1,31 @@
 # M02 中央协调后台设计
 
+M02-F03/F05：无taskId的原委派查询沿既有MachineRouter ipc/request，只补原Task关联；不产生新的提交或上下文，原调用方读取权限在异步返回后复核。中央/daemon方法和Task状态不新增；[完整契约](../../iterations/I08/interconnect-caller-contract.md)。
+
+## 互联核心与可选激活器的职责
+
+M02-F03/F05：中央源码新增agents.*用户管理与agent-directory-v1定向能力；AgentDirectory独立复用原SQLite登记/收据，访问登记不要求team/run、不创建自动激活器。旧后台客户端发送前拒绝新方法；普通旧入口与daemon能力不被全局升级门禁影响。[实际字段、管理入口与验证](../../iterations/I08/interconnect-development.md)。
+
+Coordinator 的身份/授权、明确目标路由、台账、事件与原执行恢复属于互联核心。TeamAutomation 的重要事件激活、无进展唤醒、协调预算及自动续接定位为可选上层，暂停扩张；它仍沿同一授权/unknown 门禁运行，尚未物理拆分或停用。核心不替上层决定目标、任务拆分、业务返修或验收。
+
+独立调用方/上下文/凭据、用户管理与撤权/轮换已源码实现；调用方入口初始化也安装原机器/执行准入，不绕过管理pending。当前仍需真实原生和完整生命周期矩阵，不能从上层回合结束推定子任务已结束，也不能自动给新回合读控权。原中央部署、scope、原 ID 台账与在途执行不变。[边界、源码落点和验收](../../iterations/I08/interconnect-boundary.md)。
+
+当前Browser仅ChatGPT，Kimi移出开发与验收。实际匿名网页已通过原MCP/Registry/Router四轮持续对话及8次流式输出；Core、既有Broker/Transport与关系规则保持。新增DOM布局和原结束证明失败结算的职责在M06/M07，当前开发ZIP19文件；旧browser.2/公开alpha.71不据此成为新版本。[当前完整设计和证据](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+M02-F03/F05：已确认取消但扩展无本轮request行时，原health/close复用取消封存与既有Session；原中央pending/operation路径不变，丢关闭回应仅原查询，Task不因关闭收据改写。继承prepared取消也先保存unknown并取得两端证明，不把本地confirmed或NOT_FOUND作扩展墓碑。[恢复契约与实测](../../iterations/I08/web-agent-development.md)。
+
+M02-F03/F05：Browser可见对话证明仅在原Host私有绑定及扩展终态日志保存；经典MCP task_result仍只返回原结果与canContinue。旧完成记录无证明时不可续聊，错误/旧证明不触发换页或重发；原中央路由、授权及unknown控制保持。[当前完整约束](../../iterations/I08/web-agent-development.md)。
+
+M02-F03/F05：Browser沿既有cancel/operation来源路由处理未授权内容取消；unknown收据保持控制占用，普通ACK不结算Task。只有扩展原封存证明与原事件游标匹配才取消，丢回应由cancel_task(queryOnly=true)只读原operation；stdio先校验live cancel.query-v1，旧后台不能忽略只读字段后执行取消。中央不新建取消Broker或重发消息。[当前实现](../../iterations/I08/web-agent-development.md)。
+
+M02-F01/F03/F05：ipc.session.health走原Task来源，属于只读请求，不分配pending控制记录。新中央/daemon定向声明browser-session-health-v1，旧peer在发送前拒绝而不阻断原读取。ready只是当前页/资源观察，不证明账号、不授予关系、不结算unknown。[当前接口与验证](../../iterations/I08/web-agent-development.md)。
+
+M02-F03/F05：ipc.session.close走原对象来源与pending控制台账，原operation恢复只查询；维护/未知控制占用仍适用。新中央/daemon声明browser-session-close-v1，客户端在旧peer发送前拒绝；浏览器关闭收据不转换Task状态、不携配对秘密。[当前控制与证据](../../iterations/I08/web-agent-development.md)。
+
+M02-F01/F03/F05：Browser管理复用原机器RPC的browser.status/pair/revoke，不写任务pending台账或暴露配对秘密到日志；原unknown不禁只读管理或撤销。正常Windows MachineHost、Linux本地宿主组合与daemon接线；browser-agent-v1仅对新增管理入口定向检查，旧后台不自动升级。原机器/Registry/路由/经典Broker保留，桌面/扩展配置已受控接线，真实多平台准出仍待。[完整行为与证据](../../iterations/I08/web-agent-development.md)。
+
+browser.pair支持queryOnly:true，仅按原operationId/extensionId读取收据；缺失以NOT_FOUND拒绝，不创建配对。桌面UI先保存无秘密原意图，未知/重开走此入口；实际表单/剪贴板到扩展接线已受控验证，真实多平台与公开包仍待。[源码试用说明](../../iterations/I08/web-agent-installation.md)。
+
 维护弹窗只将原maintainDaemon意图标为维护pending，其他原操作的阻塞原因独立传入；只读入口不要求业务在线。后台写入、原ID查询和强制替换门禁继续按原契约。[入口收尾](../../iterations/I08/issue29-maintenance-entry.md)。
 
 

@@ -1,0 +1,14 @@
+.workbench .browser-settings-fields{min-width:0;display:flex;flex-direction:column;gap:12px}
+.workbench .browser-settings-fields label{font-size:13px;font-weight:500}
+.workbench .browser-settings-fields input,.workbench .browser-settings-fields select{width:100%;min-height:36px}
+.workbench .browser-settings-fields form{display:flex;flex-direction:column;gap:8px}
+.workbench .browser-settings-actions,.workbench .browser-settings-action{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.workbench .browser-settings-action{justify-content:space-between}
+.workbench .browser-settings-pairs{border-top:1px solid var(--border)}
+.workbench .browser-settings-pair{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.workbench .browser-settings-pair>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.workbench .browser-settings-pair code,.workbench .browser-settings-pair span{overflow-wrap:anywhere}
+.workbench .browser-settings-pair code{font-family:"IBM Plex Mono",monospace;font-size:12px}
+.workbench .browser-settings-pair button{flex-shrink:0}
+.workbench .browser-settings-error{color:var(--red)}
+@media(max-width:640px){.workbench .browser-settings-pair{align-items:flex-start;flex-direction:column}.workbench .browser-settings-fields button,.workbench .browser-settings-fields input,.workbench .browser-settings-fields select{min-height:44px}}

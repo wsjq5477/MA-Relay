@@ -8,6 +8,46 @@ import { opencodeSchema } from '../src/config.js';
 import { OpenCodeClient } from '../src/drivers/opencode-client.js';
 import { v1Fixture } from './opencode-v1-fixture.js';
 
+test('in-flight metadata refresh keeps v1 cancellation on the admitted native protocol', async t => {
+  const root = mkdtempSync(resolve(tmpdir(), 'ab-probe-control-'));
+  const native = await v1Fixture(root);
+  t.after(async () => { await native.close(); rmSync(root, { recursive: true, force: true }); });
+  const passwordFile = resolve(root, 'password'); writeFileSync(passwordFile, native.password);
+  const client = new OpenCodeClient(opencodeSchema.parse({ adapter: 'opencode', agentId: 'a', name: 'A', workspace: root, serverUrl: native.url, passwordFile }));
+  await client.check();
+  const session = await client.createV1Session('controlled original session', undefined);
+  native.delayAbort();
+  const gate = native.pauseAgents(), refresh = client.check();
+  try {
+    await gate.entered;
+    assert.deepEqual(await client.interrupt(session.id), { interrupted: true });
+    assert.equal(native.counts.aborts, 1);
+    assert.equal(native.counts.v2Controls, 0);
+    assert.equal(native.counts.prompts, 0);
+  } finally { gate.release(); await refresh; }
+});
+
+test('bound original-task controls keep their protocol after health fails; a different binding is rejected', async t => {
+  const root = mkdtempSync(resolve(tmpdir(), 'ab-probe-bound-'));
+  const native = await v1Fixture(root);
+  t.after(async () => { await native.close(); rmSync(root, { recursive: true, force: true }); });
+  const passwordFile = resolve(root, 'password'); writeFileSync(passwordFile, native.password);
+  const client = new OpenCodeClient(opencodeSchema.parse({ adapter: 'opencode', agentId: 'a', name: 'A', workspace: root, serverUrl: native.url, passwordFile }));
+  await client.check();
+  const session = await client.createV1Session('controlled original session', undefined);
+  native.delayAbort();
+  const original = await client.bindProtocol('v1');
+  await assert.rejects(client.bindProtocol('v2'), { code: 'NATIVE_BINDING' });
+  assert.equal(native.counts.writes, 1, 'Binding checks must not mutate the native service');
+  native.rejectAgentMetadata();
+  await assert.rejects(client.check(), { code: 'OPENCODE_HTTP_503' });
+  assert.equal(client.protocol, undefined, 'Failed metadata must invalidate discovery');
+  assert.deepEqual(await original.interrupt(session.id), { interrupted: true });
+  assert.equal(native.counts.aborts, 1);
+  assert.equal(native.counts.v2Controls, 0);
+  assert.equal(native.counts.prompts, 0);
+});
+
 test('issue21: valid v1 skips permanently hanging api/info and only reads metadata', async t => {
   const root = mkdtempSync(resolve(tmpdir(), 'ab-probe-v1-'));
   const native = await v1Fixture(root, { hangInfo: true });

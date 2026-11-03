@@ -2080,7 +2080,7 @@ function ConnectDialog({
             正在扫描{machine.kind === "windows" ? " Claude Code" : " OpenCode"}…
           </div>
         ) : items.length ? (
-          items.map((item) => (
+          items.filter(item=>!!item.executable).map((item) => (
             <label
               className={
                 "detected-agent " + (chosen === item.executable ? "chosen" : "")
@@ -2091,7 +2091,7 @@ function ConnectDialog({
                 type="checkbox"
                 checked={chosen === item.executable}
                 onChange={(e) =>
-                  setChosen(e.target.checked ? item.executable : "")
+                  setChosen(e.target.checked ? item.executable || "" : "")
                 }
               />
               <div className="agent-logo">
@@ -2735,7 +2735,7 @@ export function TaskDetail({
               </div>
             </div>
           )}
-          {auditOnly&&<div className="workspace-inline-note" role="status"><div><strong>{recovering?"原执行恢复":"只读执行审计"}</strong><p>日常授权与取消请在原生 Agent 会话处理。恢复仅作用于这条原任务，不会新建或重放执行。</p><button className="text-btn" onClick={()=>{setRecovering(!recovering);setCancelConfirm(false);}}>{recovering?"返回只读审计":"处理这条原执行"}</button></div></div>}
+          {auditOnly&&<div className="task-audit-mode" role="status"><div><strong>{recovering?"原执行恢复":"只读执行审计"}</strong>{recovering&&<p>仅处理当前任务，不会重发。</p>}</div><button className="text-btn" onClick={()=>{setRecovering(!recovering);setCancelConfirm(false);}}>{recovering?"返回只读审计":"处理这条原执行"}</button></div>}
           {pendingError && (
             <p className="inline-error">暂时无法读取等待项：{pendingError}</p>
           )}

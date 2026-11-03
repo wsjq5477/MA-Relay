@@ -3,6 +3,7 @@ const path = require("node:path");
 const os = require("node:os");
 const { randomUUID, createHash } = require("node:crypto");
 const {atomicWrite}=require("./graph-layout.cjs");
+const {isBrowser,connectionId:typedConnectionId,sameInstallation,executionResource}=require("./adapter-identity.cjs");
 
 const idKeys = new Set(["agentId", "instanceId", "targetAgent", "defaultAgent", "taskId", "conversationId", "lastTaskId"]);
 const terminal = new Set(["succeeded", "failed", "cancelled"]);
@@ -119,23 +120,23 @@ class MachineRouter {
     return host;
   }
   connection(machine, executable, details = {}) {
-    const normalized = machine.kind === "windows" ? executable.toLowerCase() : executable;
-    const connectionId = "tool-" + hash(machine.machineId + ":" + normalized);
+    const connectionId = typedConnectionId(machine,{...details,executable});
     let row = this.catalog.connections.find(c => c.connectionId === connectionId);
     if (!row) {
       row = { connectionId, machineId: machine.machineId, adapter: machine.kind === "windows" ? "claude" : "opencode", name: machine.kind === "windows" ? "Claude Code" : "OpenCode", executable, connected: false };
       this.catalog.connections.push(row);
     }
     Object.assign(row, details, { connectionId, machineId: machine.machineId, executable });
+    if(isBrowser(row))delete row.executable;
     return row;
   }
   importSnapshot(machine, snapshot) {
     for (const a of snapshot.agents?.items || []) {
       const existing = this.catalog.instances.find(i => i.machineId === machine.machineId && i.backendId === a.agentId);
-      const executable = a.executable || snapshot.connections?.find(c => c.connectionId === a.connectionId)?.executable || existing?.executable || (machine.kind === "windows" ? "claude" : "opencode");
-      const connection = this.connection(machine, executable, { connected: true, ...(a.adapter ? {adapter:a.adapter,name:require('./tool-discovery.cjs').tools[a.adapter]||a.name||a.adapter} : {}) });
+      const executable = isBrowser(a)?undefined:a.executable || snapshot.connections?.find(c => c.connectionId === a.connectionId)?.executable || existing?.executable || (machine.kind === "windows" ? "claude" : "opencode");
+      const connection = this.connection(machine, executable, { connected: true, ...(a.browserInstanceId?{browserInstanceId:a.browserInstanceId}:{}), ...(a.adapter ? {adapter:a.adapter,name:require('./tool-discovery.cjs').tools[a.adapter]||a.name||a.adapter} : {}) });
       const row = { instanceId: qualified(machine.machineId, a.agentId), machineId: machine.machineId, connectionId: connection.connectionId, backendId: a.agentId, name: a.name, workspace: a.workspace, enabled: a.enabled, nativeAgent: a.nativeAgent, model: a.model, default: a.default, busy: a.busy, executable, adapter:connection.adapter,
-        ...(a.nodeId ? {nodeId:a.nodeId} : {}),
+        ...(a.nodeId ? {nodeId:a.nodeId} : {}), ...(a.browserInstanceId?{browserInstanceId:a.browserInstanceId}:{}),
         ...(a.currentTask ? { currentTask: { taskId: a.currentTask.taskId, status: a.currentTask.status } } : { currentTask: undefined }) };
       if (existing) Object.assign(existing, row); else this.catalog.instances.push(row);
     }
@@ -171,7 +172,7 @@ class MachineRouter {
           // Preserve private history for disconnected/removed machines across restarts.
           const previousHistory=this.history[machine.machineId]||{};
           const retain=(older,newer,key)=>[...new Map([...(older||[]),...(newer||[])].map(row=>[row[key],row])).values()];
-          this.history[machine.machineId]={agents:{revision:snapshot.agents?.revision,connected:snapshot.agents?.connected,items:(snapshot.agents?.items||[]).map(a=>Object.fromEntries(['agentId','name','workspace','enabled','nativeAgent','default','busy','executable','adapter','nodeId','connectionId','currentTask','online','healthy','available','capabilities','startupError'].filter(k=>a[k]!==undefined).map(k=>[k,a[k]])))},tasks:retain(previousHistory.tasks,snapshot.tasks,'taskId'),conversations:retain(previousHistory.conversations,snapshot.conversations,'conversationId')};
+          this.history[machine.machineId]={agents:{revision:snapshot.agents?.revision,connected:snapshot.agents?.connected,items:(snapshot.agents?.items||[]).map(a=>Object.fromEntries(['agentId','name','workspace','enabled','nativeAgent','default','busy','executable','adapter','nodeId','connectionId','currentTask','online','healthy','available','capabilities','startupError','browserInstanceId'].filter(k=>a[k]!==undefined).map(k=>[k,a[k]])))},tasks:retain(previousHistory.tasks,snapshot.tasks,'taskId'),conversations:retain(previousHistory.conversations,snapshot.conversations,'conversationId')};
           const historyTemp=this.historyFile+'.'+randomUUID()+'.tmp';
           fs.writeFileSync(historyTemp,JSON.stringify(this.history),{mode:0o600});fs.renameSync(historyTemp,this.historyFile);
           this.retryAfter.delete(machine.machineId);
@@ -198,10 +199,10 @@ class MachineRouter {
       const found = this.discovered.get(machine.machineId)?.items || [];
       const configured = this.catalog.connections.filter(c => c.machineId === machine.machineId);
       for (const item of found) {
-        const saved = configured.find(c => c.executable === item.executable);
-        connections.push({ ...item, current: true, connectionId: saved?.connectionId || "tool-" + hash(machine.machineId + ":" + (machine.kind === "windows" ? item.executable.toLowerCase() : item.executable)), connected: !!saved?.connected, healthy: machine.online && item.healthy !== false, error: item.error });
+        const saved = configured.find(c => sameInstallation(c,item));
+        connections.push({ ...item, current: true, connectionId: saved?.connectionId || typedConnectionId(machine,item), connected: !!saved?.connected, healthy: machine.online && item.healthy !== false, error: item.error });
       }
-      for (const c of configured.filter(c => !found.some(f => f.executable === c.executable))) connections.push({ ...c, current: false, healthy: false, error: machine.error || "没有发现这个工具，请重新扫描。" });
+      for (const c of configured.filter(c => !found.some(f => sameInstallation(f,c)))) connections.push({ ...c, current: false, healthy: false, error: machine.error || "没有发现这个工具，请重新扫描。" });
       if (!snapshot) {
         for (const row of this.catalog.instances.filter(i => i.machineId === machine.machineId)) {
           const placeholder = { ...row, agentId: row.instanceId, adapter: row.adapter || (machine.kind === "windows" ? "claude" : "opencode"), online: false, healthy: false, available: false, stale: true,
@@ -277,15 +278,15 @@ class MachineRouter {
     if (params.op === "continue") backendId = (await host.call("ipc", { op: "conversation", conversationId: params.conversationId })).targetAgent;
     const instance = this.catalog.instances.find(i => i.machineId === machine.machineId && i.backendId === backendId);
     if (!instance) fail("AGENT_NOT_FOUND", "请先选择已连接的项目实例。");
-    const key = workspaceKey(machine, instance.workspace);
+    const key = executionResource(machine, instance);
     if (this.locks.has(key)) fail("PROJECT_BUSY", "这个项目正在另一台机器或工具上启动任务，请稍后再试。");
     this.locks.add(key);
     try {
       const state = await this.snapshot();
-      const unavailable = this.catalog.instances.find(i => i.enabled !== false && workspaceKey(this.machine(i.machineId), i.workspace) === key
+      const unavailable = this.catalog.instances.find(i => i.enabled !== false && executionResource(this.machine(i.machineId), i) === key
         && state.machines.find(m => m.machineId === i.machineId)?.online === false);
       if (unavailable) fail("PROJECT_SOURCE_OFFLINE", "共享这个项目的来源机器离线，无法确认占用；恢复连接并核对原任务后再提交。");
-      const overlapping = state.instances.filter(i => workspaceKey(this.machine(i.machineId), i.workspace) === key);
+      const overlapping = state.instances.filter(i => executionResource(this.machine(i.machineId), i) === key);
       if (overlapping.some(i => i.busy || i.currentTask?.status === "unknown")
         || state.tasks.some(t => !terminal.has(t.status) && overlapping.some(i => i.agentId === t.targetAgent))) fail("PROJECT_BUSY", "这个项目已有未结束任务，Windows 与 WSL 共享目录也需要等待。");
       this.assertAdmission?.(machine,instance,params);
@@ -304,6 +305,7 @@ class MachineRouter {
     if (method === "snapshot") return this.snapshot();
     await this.machines(method === "discover");
     const routed = this.route(params), machine = routed.machine, p = routed.params;
+    if(require('./browser-management.cjs').methods.has(method))return {...await this.host(machine).call(method,p),machineId:machine.machineId};
     if (method === "environment") return { ...await this.host(machine).call(method, p), machineId: machine.machineId };
     if (method === "discover") return this.discover(machine);
     if (method === "connectTool") {

@@ -1,0 +1,24 @@
+AgentBridge Browser Agent — development snapshot
+
+This ZIP contains the extension runtime and license notices. It contains no
+pairing, request journal, browser profile, account settings or credentials.
+The public AgentBridge alpha.71 does not include Browser Agent support.
+Use a matching development desktop/Node build and an isolated Chrome/Edge profile.
+
+Extract to a fixed directory. In the browser extension manager, enable developer
+mode and load that unpacked directory. Open the extension options to copy its ID.
+In the matching desktop Settings > Browser Agent, select the browser's own machine,
+enter the extension ID, and copy its pairing package into the original options page.
+Enable the optional ChatGPT website permission yourself and log in on the website.
+Connection or permission success does not prove login or model availability.
+
+Keep the original unpacked path and extension/profile identity when updating.
+Moving the directory may change a development extension ID. Never clear storage,
+re-pair, or change IDs to release an unknown task. Query the original request and
+operation instead; neither closing a tab nor pausing the extension proves cancel.
+Do not paste website cookies, tokens, passwords or private configuration here.
+
+Only ChatGPT Web is in the current development and validation scope.
+Live Provider, account, native parent models and full platform/fault acceptance
+remain separate from ZIP integrity and controlled-page verification.
+Full source instructions: doc/iterations/I08/web-agent-installation.md

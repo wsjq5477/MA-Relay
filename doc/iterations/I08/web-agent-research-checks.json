@@ -1,0 +1,1018 @@
+{
+  "date": "2026-10-30",
+  "type": "research and documentation verification only",
+  "repositoryHead": "6e7ec6f8a114be30dcf61d4a24282bd4e98a7943",
+  "node": "v24.12.0",
+  "upstreamCommits": [
+    {
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "method": "git clone --depth 1; static source review; no install/build/run"
+    },
+    {
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "method": "git clone --depth 1; static source review; no install/build/run"
+    },
+    {
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "method": "git clone --depth 1; static source review; no install/build/run"
+    }
+  ],
+  "documentCheck": {
+    "command": "node scripts/check-docs.mjs",
+    "exitCode": 1,
+    "before": {
+      "markdownFiles": 290,
+      "errors": 2243
+    },
+    "after": {
+      "markdownFiles": 297,
+      "errors": 2243
+    },
+    "added": [],
+    "removed": [],
+    "newFileErrors": []
+  },
+  "sourceCheck": {
+    "references": 111,
+    "errors": [],
+    "scope": "fixed commit, existing source path and in-range line; does not prove semantic or runtime correctness"
+  },
+  "diagramCheck": {
+    "method": "Playwright CLI, isolated loopback page, installed Mermaid render",
+    "done": "true",
+    "results": [
+      {
+        "file": "web-agent-architecture-review.md",
+        "index": 1,
+        "ok": true
+      },
+      {
+        "file": "web-agent-design.md",
+        "index": 1,
+        "ok": true
+      },
+      {
+        "file": "web-agent-design.md",
+        "index": 2,
+        "ok": true
+      },
+      {
+        "file": "web-agent-design.md",
+        "index": 3,
+        "ok": true
+      },
+      {
+        "file": "web-agent-design.md",
+        "index": 4,
+        "ok": true
+      },
+      {
+        "file": "web-agent-design.md",
+        "index": 5,
+        "ok": true
+      },
+      {
+        "file": "web-agent-design.md",
+        "index": 6,
+        "ok": true
+      },
+      {
+        "file": "web-agent-kimi-pp-research.md",
+        "index": 1,
+        "ok": true
+      },
+      {
+        "file": "web-agent-openbrowser-research.md",
+        "index": 1,
+        "ok": true
+      },
+      {
+        "file": "web-agent-web-llm-bridge-research.md",
+        "index": 1,
+        "ok": true
+      }
+    ],
+    "svgCount": 10,
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/140.0.0.0 Safari/537.36",
+    "initialNodeParse": {
+      "ok": false,
+      "reason": "DOMPurify.addHook is not a function; 3 of 10 diagrams failed in DOM-free Node environment; browser rendering then passed all 10"
+    },
+    "consoleError": "favicon 404 on temporary diagram host only"
+  },
+  "trackedChangedPaths": [
+    "doc/iterations/README.md"
+  ],
+  "productCodeChangedPaths": [],
+  "preservedPreexistingChanges": [
+    "doc/iterations/README.md Paperclip entry",
+    "doc/iterations/I08/paperclip-feature-reference.md",
+    ".playwright-cli/"
+  ],
+  "notExecuted": [
+    "product implementation or engineering tests",
+    "upstream tests/build/dependency installation",
+    "ChatGPT/Kimi page load or prompt",
+    "native parent model delegation",
+    "SSH deployment or production profile changes",
+    "EXE build or release verification"
+  ],
+  "sourceReferences": [
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "wxt.config.ts",
+      "line": 44,
+      "sha256": "98056806dd9d5cd1b077c2d6aa51035cd8a92b53bf0e4ced0757220e53c0b184"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "wxt.config.ts",
+      "line": 47,
+      "sha256": "98056806dd9d5cd1b077c2d6aa51035cd8a92b53bf0e4ced0757220e53c0b184"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/main-world.content.ts",
+      "line": 55,
+      "sha256": "75665d7db5e530b147110cd09ec305d9807c656767daf886d9a91174b804e17b"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/content.ts",
+      "line": 489,
+      "sha256": "d85da7afc75ede915744168af69a9fcbb54cfc3bb19ad828a855e68e22fcf6fd"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/background.ts",
+      "line": 311,
+      "sha256": "d0ee0b24749c29a60f25a1341ab18706b65f7e7293aa5b68cd26f77e00969de3"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/main-world.content.ts",
+      "line": 114,
+      "sha256": "75665d7db5e530b147110cd09ec305d9807c656767daf886d9a91174b804e17b"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/messaging/schema.ts",
+      "line": 57,
+      "sha256": "e279110027054ac4c913d237a344fbb0c4baaed42e021f29fb6a8753ec483b0d"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/fetch-interceptor.ts",
+      "line": 45,
+      "sha256": "2fdf031eca9f55abbc57e42688847038b4282b95e230f2c1bc57e855a9243094"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/request-adapter.ts",
+      "line": 10,
+      "sha256": "4189e7524ae07df409a47a6c0c4be81c4c61cdbcc4447bb51513fef6b22c14a8"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/content.ts",
+      "line": 767,
+      "sha256": "d85da7afc75ede915744168af69a9fcbb54cfc3bb19ad828a855e68e22fcf6fd"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/lexical-editor-adapter.ts",
+      "line": 44,
+      "sha256": "553594ea24a4920f1c894bbfdec429dff52b4ccc1c7e6737f4f56a4594f38368"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/dom-adapter.ts",
+      "line": 86,
+      "sha256": "02c8ca8c19aea1eeb34e717d6cdb7e627c0517a11e438623dda5b38eb144351c"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/prompt-interceptor.ts",
+      "line": 38,
+      "sha256": "587c11b279fb1b14a8f082e71030d9adb219151c949f92f1f5291039a2ba5337"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/fetch-interceptor.ts",
+      "line": 155,
+      "sha256": "2fdf031eca9f55abbc57e42688847038b4282b95e230f2c1bc57e855a9243094"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/protocol.ts",
+      "line": 20,
+      "sha256": "3440e063e2cb33a86403c7c658f57aaa3b85e9c7140cf94785f2271352f1f6af"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/tool-stream-adapter.ts",
+      "line": 39,
+      "sha256": "62713eaa4903ee238198afa365485672197d3c7047f643a0f936b1eef53e78b3"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/tool-stream-adapter.ts",
+      "line": 122,
+      "sha256": "62713eaa4903ee238198afa365485672197d3c7047f643a0f936b1eef53e78b3"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/response-observer.ts",
+      "line": 15,
+      "sha256": "101cc2e9c263f846c6e51837cc572a9a9e97ff874f529d73c81497b95197f1e3"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/continuation-coordinator.ts",
+      "line": 61,
+      "sha256": "d28e432ac0358f637f2b73f0e94c2977fc430f656c091415c8ed941e80769bb0"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/tool-execution-barrier.ts",
+      "line": 8,
+      "sha256": "76bee5dbd8701814083ada139ef60e799fd93f9b4c99086ac8c717550d1ccdd5"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/background.ts",
+      "line": 247,
+      "sha256": "d0ee0b24749c29a60f25a1341ab18706b65f7e7293aa5b68cd26f77e00969de3"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/background.ts",
+      "line": 1229,
+      "sha256": "d0ee0b24749c29a60f25a1341ab18706b65f7e7293aa5b68cd26f77e00969de3"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/background.ts",
+      "line": 2313,
+      "sha256": "d0ee0b24749c29a60f25a1341ab18706b65f7e7293aa5b68cd26f77e00969de3"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/mcp/transports/native.ts",
+      "line": 51,
+      "sha256": "1b603b4514bec2724e7f74503bb37885a111b6c06531ee8de582e25debab4d2c"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/mcp/transports/native.ts",
+      "line": 137,
+      "sha256": "1b603b4514bec2724e7f74503bb37885a111b6c06531ee8de582e25debab4d2c"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "packages/shell-host/native/shell-mcp-host.mjs",
+      "line": 346,
+      "sha256": "c78f72e439aae0dcd7ac60fa5a1771083092b23d51de4e1f5d841b79df8ae119"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "packages/shell-host/lib/installer.mjs",
+      "line": 175,
+      "sha256": "f2ea4550ce49d10e1df76ef485090a51263b99e6774665bee95cd73002c7739c"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/mcp/transports/http.ts",
+      "line": 71,
+      "sha256": "2c99256aa978974477a3ae0396dab75a61904f3c5904ad70c4812b7bf4815635"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/mcp/transports/sse.ts",
+      "line": 36,
+      "sha256": "960114b3f95ef7bbb8060817fca286c5f7d2567e78668f5f36463571d82d7026"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/main-world.content.ts",
+      "line": 29,
+      "sha256": "75665d7db5e530b147110cd09ec305d9807c656767daf886d9a91174b804e17b"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/fetch-interceptor.ts",
+      "line": 82,
+      "sha256": "2fdf031eca9f55abbc57e42688847038b4282b95e230f2c1bc57e855a9243094"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/content.ts",
+      "line": 2998,
+      "sha256": "d85da7afc75ede915744168af69a9fcbb54cfc3bb19ad828a855e68e22fcf6fd"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/continuation-coordinator.ts",
+      "line": 136,
+      "sha256": "d28e432ac0358f637f2b73f0e94c2977fc430f656c091415c8ed941e80769bb0"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/chat/active-loop.ts",
+      "line": 65,
+      "sha256": "fff125bcc2d5a0ba7379cb250e92a49d9aebb3b696ad0294e730ae7a63839f29"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/automation/scheduler.ts",
+      "line": 201,
+      "sha256": "b7a0533e74cea66decd9b52760ab82a3f0e002cababebbbfc2c573a93303bb6f"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/automation/runner.ts",
+      "line": 37,
+      "sha256": "56b1ffc2b5a8e5c80063425f70bb4a1f9cde5ba64453548bb9a17d2ced0ba041"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/deepseek/adapter.ts",
+      "line": 189,
+      "sha256": "c0d7e8bbd27661d299ab72a69a2bc3de2f80384540c398c97819425c475ef780"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/deepseek/adapter.ts",
+      "line": 640,
+      "sha256": "c0d7e8bbd27661d299ab72a69a2bc3de2f80384540c398c97819425c475ef780"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "LICENSE",
+      "line": null,
+      "sha256": "37f6b7d766eb6791edb89211111a48e3e12ff5cb06578299019bb009fd5be44c"
+    },
+    {
+      "document": "web-agent-kimi-pp-research.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "package.json",
+      "line": null,
+      "sha256": "74bc4ff9fc7335de9bb194523120e3b38ab2ebc1caee95460f26fdc29dc67e5a"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/manifest.json",
+      "line": 11,
+      "sha256": "85aebe8e3e0f47a02a3d6a4d26ab49dcefaf7d173b73e9ffaf06fd6d0edd3944"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/background.js",
+      "line": 61,
+      "sha256": "552df4d557db649f374ee0862549a347d6630c1fb0c5493aea5a5d1beeb5c43f"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 183,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "src/server/index.ts",
+      "line": 116,
+      "sha256": "712863bd93f58733954beb711d8298e5ce17f2aa42918eb8469b2a3bcfa8e196"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "src/server/session-store.ts",
+      "line": 42,
+      "sha256": "29d4cadd7814be53f9907ada1f876cb31f97bb20b12c5cf6f15ae44f3eb52d62"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "src/server/sse-hub.ts",
+      "line": 78,
+      "sha256": "3097b4a54983d119033b49872e17f4596be2f407f7f2863fa9a1f67abf96daf0"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "src/client/bridge-client.ts",
+      "line": 72,
+      "sha256": "4876c9241df4ca3793d0794b7b1196baaa4a00969bf95acdcadac8b517c83e1d"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 285,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 700,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 1010,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 415,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/chatgpt-api.js",
+      "line": 27,
+      "sha256": "0207ec794955fdb3cb27e51f887d528d35540ac0f88c6f946c00b8c92ef475d9"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/chatgpt-api.js",
+      "line": 161,
+      "sha256": "0207ec794955fdb3cb27e51f887d528d35540ac0f88c6f946c00b8c92ef475d9"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 68,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/chatgpt-api.js",
+      "line": 146,
+      "sha256": "0207ec794955fdb3cb27e51f887d528d35540ac0f88c6f946c00b8c92ef475d9"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 1200,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/providers.js",
+      "line": 2,
+      "sha256": "af446ea042b76243758be2b9740cb11e2c6055783d2b9cd519b1583784590842"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 1909,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/background.js",
+      "line": 294,
+      "sha256": "552df4d557db649f374ee0862549a347d6630c1fb0c5493aea5a5d1beeb5c43f"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 183,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/background.js",
+      "line": 137,
+      "sha256": "552df4d557db649f374ee0862549a347d6630c1fb0c5493aea5a5d1beeb5c43f"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 249,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 1960,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "src/server/index.ts",
+      "line": 355,
+      "sha256": "712863bd93f58733954beb711d8298e5ce17f2aa42918eb8469b2a3bcfa8e196"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "LICENSE",
+      "line": null,
+      "sha256": "4a4157e30daceea12424b90e2708d47405fec8d58d7f2034d95304c516f52c5d"
+    },
+    {
+      "document": "web-agent-openbrowser-research.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "package.json",
+      "line": 46,
+      "sha256": "7bfd039da82b25ce512e80e2fec56f736493cca0ca40648cfb70f6832086ab2f"
+    },
+    {
+      "document": "web-agent-source-comparison.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "src/server/index.ts",
+      "line": 116,
+      "sha256": "712863bd93f58733954beb711d8298e5ce17f2aa42918eb8469b2a3bcfa8e196"
+    },
+    {
+      "document": "web-agent-source-comparison.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/content-script.js",
+      "line": 285,
+      "sha256": "b65b353429cb82606cd16a5bf5cd450a518da10e50f86d8105a444b40e882dfc"
+    },
+    {
+      "document": "web-agent-source-comparison.md",
+      "repository": "1129Aliasgar/OpenBrowser",
+      "commit": "2f090f0954435efb07ee35f95e04576b7c6d65fa",
+      "path": "browser-extension/src/chatgpt-api.js",
+      "line": 161,
+      "sha256": "0207ec794955fdb3cb27e51f887d528d35540ac0f88c6f946c00b8c92ef475d9"
+    },
+    {
+      "document": "web-agent-source-comparison.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/service_worker.js",
+      "line": 27,
+      "sha256": "aaa4a8fd2418783fb19c33e8db5d5178260c15d4923993f416cd8fa5b56d0a7b"
+    },
+    {
+      "document": "web-agent-source-comparison.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/content_runtime.js",
+      "line": 43,
+      "sha256": "d7ac66cfc87a4b6dbe4ee67393a749d884b6052c6a7329e0954b6457a4e93b52"
+    },
+    {
+      "document": "web-agent-source-comparison.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/session/manager.py",
+      "line": 368,
+      "sha256": "beb01d037e7cdfd1721ad9f52afc294bd0b2786dd327f07465da9294f7abf8d5"
+    },
+    {
+      "document": "web-agent-source-comparison.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "entrypoints/main-world.content.ts",
+      "line": 55,
+      "sha256": "75665d7db5e530b147110cd09ec305d9807c656767daf886d9a91174b804e17b"
+    },
+    {
+      "document": "web-agent-source-comparison.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/fetch-interceptor.ts",
+      "line": 45,
+      "sha256": "2fdf031eca9f55abbc57e42688847038b4282b95e230f2c1bc57e855a9243094"
+    },
+    {
+      "document": "web-agent-source-comparison.md",
+      "repository": "springrain1/kimi-pp",
+      "commit": "6edf5494532845102e174d5f22669548309f5d18",
+      "path": "core/kimi/lexical-editor-adapter.ts",
+      "line": 44,
+      "sha256": "553594ea24a4920f1c894bbfdec429dff52b4ccc1c7e6737f4f56a4594f38368"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/manifest.json",
+      "line": 1,
+      "sha256": "f0f66568ca99e7369b2ade0056129cec1e2ea7c661dd3e4fc1123dfc97baa0da"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/service_worker.js",
+      "line": 27,
+      "sha256": "aaa4a8fd2418783fb19c33e8db5d5178260c15d4923993f416cd8fa5b56d0a7b"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/rpc.js",
+      "line": 4,
+      "sha256": "4cabb84f8c089ca8812bbcee296c4c1d0a3ee616b30b9f9c8dfe7f57f9cbc38d"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/tabs.js",
+      "line": 4,
+      "sha256": "a56705e1b7b0e93c9e137b441c9b662a75fb942941d8a6917373176a58d0a057"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/content.js",
+      "line": 3,
+      "sha256": "36e2e1d74dcefe5583db4807d27255030b7a89b66b2145b846e87bace844e353"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/content_runtime.js",
+      "line": 4,
+      "sha256": "d7ac66cfc87a4b6dbe4ee67393a749d884b6052c6a7329e0954b6457a4e93b52"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/providers/chatgpt/adapter.js",
+      "line": 124,
+      "sha256": "11f73e6830a90d714d4d2163c17713b5e3db9a8b4e609f1610b548270ade31a1"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/transport/extension.py",
+      "line": 27,
+      "sha256": "3d0b4ba3aea3b61816979e67ed31126a0d1526bb23b3c0d346938f8eea127a22"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/session/manager.py",
+      "line": 24,
+      "sha256": "beb01d037e7cdfd1721ad9f52afc294bd0b2786dd327f07465da9294f7abf8d5"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/broker/server.py",
+      "line": 21,
+      "sha256": "c9b504ee5e4dd3554e813608545fe86382406512ba2c2e6252d3c298e753509a"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/protocol.py",
+      "line": 6,
+      "sha256": "5005de24f1e40b5e8a99ff9c7658f97b440f1f4c3097b5103d45ed04525b1f43"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/registry.js",
+      "line": 6,
+      "sha256": "3aa816c27fb875666b4a682ea07d3eb124792f64cf8eeb9dccdcc6c66fd2e082"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/providers/chatgpt/profile.js",
+      "line": 19,
+      "sha256": "5dca1f31895343facf04161e5475c677f13bbc1552df5e417df71ba64b790548"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/content_runtime.js",
+      "line": 15,
+      "sha256": "d7ac66cfc87a4b6dbe4ee67393a749d884b6052c6a7329e0954b6457a4e93b52"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/content_runtime.js",
+      "line": 43,
+      "sha256": "d7ac66cfc87a4b6dbe4ee67393a749d884b6052c6a7329e0954b6457a4e93b52"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/markdown.js",
+      "line": 10,
+      "sha256": "aa79c8b357053bac485d8fde65ab48b08a4267b8773bcd2a694065c799370079"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/providers/chatgpt/serializer.js",
+      "line": 5,
+      "sha256": "95f9156259b6effdb0ce50d124f720282792ee5f4cc1d557985fb6bad8fd6b06"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/tabs.js",
+      "line": 8,
+      "sha256": "a56705e1b7b0e93c9e137b441c9b662a75fb942941d8a6917373176a58d0a057"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/session/store.py",
+      "line": 52,
+      "sha256": "fb71b41d2291f2818104a3228e54022fa28992137b89b1a883cfb6be641482a5"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/session/manager.py",
+      "line": 193,
+      "sha256": "beb01d037e7cdfd1721ad9f52afc294bd0b2786dd327f07465da9294f7abf8d5"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/history.js",
+      "line": 24,
+      "sha256": "3695f775698ee77567813e0ace7426d31048726545747ea4273474b1c382af9b"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/rpc.js",
+      "line": 8,
+      "sha256": "4cabb84f8c089ca8812bbcee296c4c1d0a3ee616b30b9f9c8dfe7f57f9cbc38d"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/service_worker.js",
+      "line": 77,
+      "sha256": "aaa4a8fd2418783fb19c33e8db5d5178260c15d4923993f416cd8fa5b56d0a7b"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/transport/extension.py",
+      "line": 159,
+      "sha256": "3d0b4ba3aea3b61816979e67ed31126a0d1526bb23b3c0d346938f8eea127a22"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/session/manager.py",
+      "line": 368,
+      "sha256": "beb01d037e7cdfd1721ad9f52afc294bd0b2786dd327f07465da9294f7abf8d5"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/browser/launcher.py",
+      "line": 71,
+      "sha256": "aa6470fb3ba8cfe80741661827dfca1e9dac01b73ae3c725b99c940696812750"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "web_llm_bridge/session/manager.py",
+      "line": 100,
+      "sha256": "beb01d037e7cdfd1721ad9f52afc294bd0b2786dd327f07465da9294f7abf8d5"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/providers/chatgpt/adapter.js",
+      "line": 69,
+      "sha256": "11f73e6830a90d714d4d2163c17713b5e3db9a8b4e609f1610b548270ade31a1"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "extension/core/content_runtime.js",
+      "line": 76,
+      "sha256": "d7ac66cfc87a4b6dbe4ee67393a749d884b6052c6a7329e0954b6457a4e93b52"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "pyproject.toml",
+      "line": 12,
+      "sha256": "82ca46d09f047c1e33ff65a3bf1d0a3d622792107be8c07e43c642ea04cd3524"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "LICENSE",
+      "line": null,
+      "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "requirements.txt",
+      "line": 1,
+      "sha256": "a4345dcdd9de5685a1d7a64d3021b265cad38b15f73ca8a2b910d8f5dc9bfe39"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "tests/providers/chatgpt/submission_wait_smoke.js",
+      "line": null,
+      "sha256": "8ee1daea027ad9e91e469ea3a18610a5ad0ac79658d7849588ba7cc276a0ed79"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "tests/providers/chatgpt/streaming_completion_smoke.js",
+      "line": null,
+      "sha256": "b1fd016102841aca8a11518de9e6f1d3013180c84fe907cc211bee6d27b4e8e6"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "tests/providers/chatgpt/stale_completion_smoke.js",
+      "line": null,
+      "sha256": "f8af7dd68d256597dcfcdfc11dff352976759562cdc4d3eb8a4f2ba70ce4ab14"
+    },
+    {
+      "document": "web-agent-web-llm-bridge-research.md",
+      "repository": "Tzufucius/web-llm-bridge",
+      "commit": "171a57115cd09f834c064c83f6e7959a81f33102",
+      "path": "tests/providers/chatgpt/isolation_smoke.js",
+      "line": null,
+      "sha256": "16e2426c88595c26e94214307f375140d840d0ee691ebb1982df65e176ca56d3"
+    }
+  ],
+  "gitDiffCheck": {
+    "command": "git diff --check",
+    "exitCode": 0,
+    "output": ""
+  }
+}

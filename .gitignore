@@ -19,9 +19,19 @@ artifacts/
 artifacts/acceptance-private/
 desktop/.bridge-runtime/
 desktop/.linux-package/
+desktop/.browser-extension/
+desktop/.browser-extension.*.tmp/
+desktop/.browser-extension.*.backup/
 
 doc/.vitepress/dist/
 doc/.vitepress/cache/
 doc/public/references/
 doc/user/_generated/
 doc/user/public/
+
+# Local agent and browser development state
+.tmp/
+.cache/
+.playwright-cli/
+.impeccable/
+output/

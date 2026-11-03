@@ -1,6 +1,6 @@
 {
   "name": "agentbridge-desktop",
-  "version": "0.6.0-alpha.71",
+  "version": "0.6.0-alpha.72",
   "private": true,
   "type": "module",
   "description": "AgentBridge Windows desktop dashboard",
@@ -18,7 +18,8 @@
     "@xyflow/react": "12.12.0",
     "lucide-react": "^0.577.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "ws": "8.22.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
@@ -44,6 +45,13 @@
       "package.json"
     ],
     "extraResources": [
+      {
+        "from": ".browser-extension",
+        "to": "browser-extension",
+        "filter": [
+          "**/*"
+        ]
+      },
       {
         "from": ".bridge-runtime/desktop/electron",
         "to": "bridge/desktop/electron",

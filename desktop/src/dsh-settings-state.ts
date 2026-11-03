@@ -7,7 +7,7 @@ export function selectDshConnection(status:DshStatus,node:Pick<AgentNode,'adapte
  if(!Array.isArray(status.items))throw Error('INVALID_STATUS');
  const candidates=status.items.filter(row=>row&&row.adapter===node.adapter);
  const matches=candidates.filter(row=>selected?dshConnectionIdentity(row)===selected:row.executable===node.executable),row=matches.length===1?matches[0]:undefined;
- const originalConfig=/[\\/]dsh-connections[\\/](dsh-desktop|dsh-web)-[a-f0-9]{32}\.json$/i.test(node.executable);
+ const originalConfig=/[\\/]dsh-connections[\\/](dsh-desktop|dsh-web)-[a-f0-9]{32}\.json$/i.test(node.executable||'');
  const state:DshSelectionState=matches.length>1?'corrupt':row?(row.error||!row.origin?'corrupt':row.executable===node.executable?'loaded':'reload_required'):selected||originalConfig?'missing':candidates.length?'unmatched':'unconfigured';
  return {row:row||null,state};
 }

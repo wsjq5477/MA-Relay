@@ -1,5 +1,13 @@
 # Agent 接入方式、选型与快速接入
 
+仅作上层调用方、无需Bridge驱动其Runtime时，未发布源码可登记kind=mcp主体，由用户明确目标/操作授权并发放CallerContext配置。该mode=caller入口不要求安装工具节点；同一明确上下文可跨回合与凭据轮换访问原任务，不自动迁移旧native-parent/connectionId。使用方法及边界见[调用方契约](iterations/I08/interconnect-caller-contract.md)，公开alpha.71不包含这些新接口。
+
+当前源码已增加不要求小队的智能体登记、固定端点及按登记ID委派；这复用已有登记和原生适配，不增加第七种执行协议。接入、授权、登记、模型可用与真实调用仍分别核对；旧登记不自动获得可执行端点，外部MCP成员不因此成为可执行服务。公开alpha.71保持，[源码入口与验收](iterations/I08/interconnect-development.md)。
+
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开alpha.71保持。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+
+Browser扩展DOM是Bridge调用网页的独立适配路径，不属于原生MCP调用方或ACP。未发布chatgpt-web已接原Registry/机器/节点、持久通道/配对RPC、用户配置、MCP原主体续聊、未授权内容的证明式取消和可见对话证明；旧无证明成功记录不能自动续聊；已确认取消缺prepare行时，原健康/关闭复用原封存，不造新请求；按profile识别，无CLI命令/模型覆盖/新Broker。已提交网页Stop不支持，实际站点权限确认/账号/父模型/跨机仍待验，不能作为公开版快速接入承诺。[源码试用步骤](iterations/I08/web-agent-installation.md)、[证据与下一步](iterations/I08/web-agent-development.md)。
+
 当前公开alpha.67：WSL就绪等待120秒，业务请求在握手后发送并另起计时；Linux Hermes0.22.5实际两轮、原请求去重、通道重开与精确Session续聊通过，原配置字节保持。Windows受控22/22、独立Ubuntu109/109及Core71/71、原生MCP五组和普通EXE七组通过；首轮控制器启动失败与旧就绪失败保留。WSL直连TLS仍有问题，临时验收通道已停止；自主父模型、网关取消、完整矩阵、图100ms与冷启动仍未准出。[交付、环境和分层证据](iterations/I08/alpha67-hermes-linux-live.md)。
 
 Bridge调用原生Agent与Agent调用Bridge是两个方向；模型、供应商与权限由原生工具管理。Windows Hermes使用原生bin启动器；Linux/WSL在目标环境安装并配置Hermes，先核对原生版本再扫描。网关任务在Hermes原生会话停止，关闭CLI不代表取消，旧unknown只查原ID。

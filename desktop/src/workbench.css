@@ -96,6 +96,8 @@
   font-weight: 600;
 }
 .workbench h3 {
+  font-size: 14px;
+  line-height: 1.5;
   font-weight: 600;
 }
 .workbench button,
@@ -883,7 +885,7 @@
   place-items: center;
   flex-shrink: 0;
 }
-.team-onboarding > div:nth-child(2) {
+.team-onboarding > div {
   flex: 1;
 }
 .team-onboarding h2 {

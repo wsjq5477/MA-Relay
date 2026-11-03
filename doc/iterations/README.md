@@ -1,5 +1,37 @@
 # 迭代资料目录
 
+- 2026-11-03：[原生登录恢复、用户选定Sol及主从真实验收](I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)：原位升级WSL CLI到0.166.0；原主会话正文/无工具续聊/在途观察器恢复通过，另验原取消及执行中属主上下文关闭。原生成功4条、失败和缓存状态分层保留；完整已有服务/交互/产物/机器与EXE矩阵仍待。
+
+- 2026-11-03：[当前源码与完整决策完成审计](I08/interconnect-development.md#16-当前源码与完整决策的完成审计)：补齐观察器/明确停止后台的资源归属表；76文件与运行时实测清单无漂移，原三Task累计18项只读复核保持；实际原生认证仍过期、登录及隔离浏览器活跃未完成，不冒充真实模型闭环。
+
+- 2026-11-03：[原任务协议与健康检查并发、停止后的资源释放](I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)：可控HTTP复现健康检查清空协议导致V1取消误走V2；执行/观察/控制绑定原协议，Windows测试等待实际进程退出后清理，保留旧失败及分平台回归；模型和完整真实链仍待。
+
+- 2026-11-03：[已有OpenCode服务与协议检查修复](I08/interconnect-development.md#14-已有opencode服务的协议检查与观察器归属)：V1只读检查误访问V2地址的真实失败及源码修复；原1.2.10低层Controller/Client已有服务连接、非自有进程与关闭/重开9项通过、模型0，原失败和Windows清理限制保留；未替代Codex主从闭环。
+
+- 2026-11-03：[Windows Codex主 / WSL Codex从真实验收](I08/interconnect-windows-wsl.md)：当前Windows桌面主对话经真实MCP向WSL Codex委派，本次WSL出网已修复，原上下文/子会话内三条Task明确终态，旧原生刷新凭据被401拒绝，网页登录等待；独立Windows CLI的代理配置/401另列，非当前主入口前提。旧原请求取消终态保留；非C盘profile/attempt保护10/10；原三条真实Task的轮换/重开/隔离/撤权读控18项已实测，成功正文闭环未准出。
+
+- 2026-11-03：[按互联边界推进的开发与验收](I08/interconnect-development.md)：复用原Agent登记/收据，新增无小队前提的用户管理、固定端点确认、获准发现和按登记ID委派；独立调用方/上下文/凭据、恢复和原事件分页已有源码与受控证据；[完整调用方契约](I08/interconnect-caller-contract.md)明确授权与轮换，并支持按原delegationId只读恢复无taskId请求。真实Super-agent闭环和完整生命周期/跨机验收继续推进，不扩大公开alpha.71或历史准出结论。
+
+- 2026-11-03：[原生Agent接入配置弹窗重构](I08/mcp-configuration-ui.md)：依据todo需求、两张参考图及HTML原型，默认显示摘要/四状态/路径/折叠高级设置/固定双操作，保留六个原操作及证据边界；仅源码与隔离验证，不刷新发布包或真实原生矩阵。
+
+- 2026-11-03：[互联核心与可选协作能力边界](I08/interconnect-boundary.md)：用户确认身份、发现、授权、明确目标调用、结果/交互控制及恢复为核心；小队业务工作流与自动协调保留为可选上层、暂停扩张。优先补 Agent 身份、调用方归属、生命周期契约和真实 Super-agent 闭环；仅设计同步，无运行时或发布变化。
+
+- 2026-11-01：[桌面界面文案与层级整理](I08/ui-cleanup.md)：删减五页、侧栏与弹窗重复说明，修复连接策略未定义弹层样式、统一分组排版，按小队前置条件显示表单；受控UI与原授权恢复检查分层记录，未重打EXE、未发布。
+
+- 2026-11-01：[ChatGPT最新browser.3 Windows体验包](I08/web-agent-browser3-preview.md)：当前源码及19文件扩展重构建，实际EXE载荷/ASAR/ws核验、包内Node 72/72；同目录非C盘启动与配置隔离，保留EPERM失败。不公开发布，不冒充普通GUI或真实父模型/当前包内Web验收。
+
+- 2026-10-31：[真实ChatGPT布局与链路验证](I08/web-agent-live-chatgpt.md)：仅ChatGPT；原MCP同会话四轮/8次流式更新通过，父模型受控。DOM39/39、IndexedDB69/69、Host/构建器63/63；保留原第二轮失败与原结束失败结算边界。当前19文件ZIP与旧EXE区分，Kimi不开发不验收。
+
+- 2026-10-31：[真实ChatGPT公共DOM与布局适配](I08/web-agent-live-chatgpt.md)：独立匿名真实页两轮DOM回复、原生消息ID与同会话保持、流式/结束观察；发现`/uc`布局及ARIA异步发送就绪与当前Driver不兼容。准备补布局策略和回归，不冒充已完成Bridge/原生父模型调用。
+
+- 2026-10-31：[Browser开发扩展交付与打包](I08/web-agent-packaging.md)：固定18文件ZIP/清单、原桌面资源/核验整合；首包GUI缺ws被拒，补精确依赖/ASAR门禁后Windows/Linux各13/13。browser.2原包/3501载荷/包内Node68/68及原profile普通重开/正常退出分层通过；首轮15秒包装器等待失败保留。实际ZIP解压MV3受控21组、真实Provider/父模型与完整矩阵分开，公开alpha.71保持。
+
+- 2026-10-31：[Browser Agent开发台账](I08/web-agent-development.md)：原Registry、配置/原MCP续聊/核对/空闲关闭/只读健康、未授权内容证明取消及MCP queryOnly恢复；可见对话证明/同锚点冲突门禁；取消后缺请求行的原Session恢复；最新Windows定向153项152通过/1平台跳过，IndexedDB53及MV3两种取消恢复各21分层，不累加。此前DOM28/编辑/重生成证据保持，Linux Node相关133/133，扩大集快照截止失败仍留；真实Provider/父模型/Browser跨机/Linux Chrome/Kimi/完整控制及真实包内Web链路待验，公开alpha.71保持。[源码安装](I08/web-agent-installation.md)。
+
+- 2026-10-30：[Browser Agent架构审查](I08/web-agent-architecture-review.md) · [三项目源码对比](I08/web-agent-source-comparison.md) · [Web Adapter与扩展设计](I08/web-agent-design.md) · [MVP文件/任务/验收计划](I08/web-agent-implementation-plan.md)：实际拉取OpenBrowser、web-llm-bridge、kimi-pp并固定源码；ChatGPT优先、DOM-only、复用现有Registry/路由/原请求恢复。仅调研与待评审设计，未改产品代码、调用模型或变更alpha.71发布状态。
+
+- 2026-10-30：[Paperclip 功能调研与借鉴候选](I08/paperclip-feature-reference.md)：固定官方源码，核对任务、审查、预算、技能、例行工作及恢复边界；优先建议只读待办和交付证据聚合。仅调研，不变更产品范围或发布状态。
+
 - 2026-10-29：[#29灰色维护入口收尾](I08/issue29-maintenance-entry.md)：只读查看与实际写入门禁分离，明确原执行unknown和原维护pending；alpha.71已公开且匿名完整下载匹配，实际包/普通portable与独立CI验证另记。[发布记录](I08/alpha71-release.md)。
 
 

@@ -38,6 +38,16 @@ test('connection declarations accept only source-owned booleans and fixed driver
   assert.equal(Object.hasOwn(createAdapterRegistry([definition()]).get('example').capabilities, 'execution'), false);
 });
 
+test('browser registration has no executable aliases and preserves the synchronous host contract', () => {
+  const browser=definition({driver:'browser-extension',commands:[],npmEntrypoints:[]});
+  const registry=createAdapterRegistry([browser]);
+  assert.deepEqual(registry.get('example').commands,[]);
+  assert.equal(typeof registry.createHost('example',{}).call,'function');
+  assert.throws(()=>defineAdapter({...browser,commands:['fake-browser']}),{code:'ADAPTER_DEFINITION'});
+  assert.throws(()=>defineAdapter({...browser,npmEntrypoints:['browser/driver.js']}),{code:'ADAPTER_DEFINITION'});
+  assert.throws(()=>defineAdapter({...browser,driver:'native-cli'}),{code:'ADAPTER_DEFINITION'});
+});
+
 test('registry rejects ambiguous IDs, command aliases and Windows npm entrypoint collisions', () => {
   assert.throws(() => createAdapterRegistry([definition(), definition()]), {code: 'ADAPTER_DUPLICATE'});
   assert.throws(() => createAdapterRegistry([definition(), definition({id: 'other', npmEntrypoints: []})]), {code: 'ADAPTER_DUPLICATE'});

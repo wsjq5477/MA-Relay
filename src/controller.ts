@@ -228,8 +228,7 @@ export async function startController(directory: string): Promise<{ close(): Pro
       try { report.workspace = statSync(a.workspace).isDirectory() ? 'available' : 'unavailable'; } catch { report.workspace = 'unavailable'; }
       try {
         const native = new OpenCodeClient(a); const result = await native.check(3000); Object.assign(report, { connection: 'connected', authentication: 'accepted', modelConfiguration: result.healthy ? 'available' : 'unavailable', selectedModel: result.model, nativeVersion: result.version });
-        const agents = await native.call<{ data: { id?: string; name?: string }[] }>('/api/agent?location%5Bdirectory%5D=' + encodeURIComponent(a.workspace));
-        report.nativeAgentConfiguration = Array.isArray(agents.data) && agents.data.some(agent => agent.id === a.nativeAgent || agent.name === a.nativeAgent) ? 'available' : 'unavailable';
+        report.nativeAgentConfiguration = result.nativeAgentAvailable ? 'available' : 'unavailable';
       }
       catch (e) { const error = e instanceof BridgeError ? e : new BridgeError('CHECK_FAILED', '连接检查失败');
         report.connection = ['OPENCODE_HTTP_401', 'OPENCODE_HTTP_403'].includes(error.code) ? 'reachable' : error.code === 'NATIVE_AUTH_UNAVAILABLE' ? 'not_checked' : 'failed';

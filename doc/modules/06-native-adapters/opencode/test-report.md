@@ -1,5 +1,13 @@
 # OpenCode 适配器测试报告
 
+2026-11-03本轮仅核对门面close、明确Controller stop与managed=false外部服务的实际资源边界；原定向运行时源码/编译摘要保持一致，未重跑模型或把低层已有服务9项写成新登记链验收。原平台、在途及升级缺证保留，不新增测试编号。[资源归属与审计](../../../iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。
+
+当前T-M06-OC-316的Linux七文件初轮24通过/1 ACK夹具环境失败；修正相对源码/编译子入口后，Windows/Linux该项补验各1/1，未声称单次Linux全绿。原取消/回复/恢复和3.x清理均已通过；完整原件及范围以[本轮记录](../../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)为准，后续T-M06-OC-315保留上一轮原失败。
+
+T-M06-OC-316：2026-11-03，未发布源码。暂停真实HTTP夹具的健康元数据响应，修复前V1取消误入V2返回404；修复后原任务协议绑定、发现失败仍不漂移原控制、跨代绑定写入前拒绝通过。Windows七文件25项23通过/0失败/2平台跳过；原取消及权限/表单、会话/unknown恢复均在其中。Core构建/类型/受影响TS lint通过，模型0；Linux同范围、首次失败与当前源码摘要见[完整证据](../../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。不重记上一轮真实1.2.10低层9项为本轮重验，不覆盖新登记已有服务完整链/真实模型/SSH/EXE。
+
+T-M06-OC-315：2026-11-03，未发布源码。Controller跨协议检查错误先由真实HTTP夹具复现，修复后四项回归在Windows/Linux均通过；Windows六文件22项19通过/1清理EPERM失败/2平台跳过，Linux同范围21通过/1取消收据unknown失败/0跳过，两失败单独复查仍复现。WSL原生OpenCode1.2.10/Node24.13.0经原Controller/Client的9项已有服务只读连接、非自有进程、关闭/重开和无重放检查通过，模型0、原配置不变、操作者已停止其自有服务。该链未经过AgentDirectory/MachineHost，不作为模型/SSH/EXE/完整已有服务准出。Core构建/类型、相关TS及CommonJS专项lint通过；文档结果与各次失败原件见[完整记录](../../../iterations/I08/interconnect-development.md#14-已有opencode服务的协议检查与观察器归属)，共享检查不累加。
+
 当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
 
 T-M06-OC-215 / M06-OC-F01：2026-10-29，Windows Node24.12.0，Core生产controller加受控HTTP服务，新版本检查前0/2、后2/2。CJS/MJS只读入口与删除后不替代检查通过，模型0；Core定向32通过/7平台跳过，最终全量、Linux快照和运行限制见[专项](../../../iterations/I08/core-windows-installation-checks.md)。不是实际OpenCode安装、模型或普通EXE验收。

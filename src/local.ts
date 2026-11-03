@@ -23,7 +23,8 @@ export async function doctor(dir: string): Promise<unknown> {
       if (!agent.managed || !(e instanceof BridgeError) || !['NATIVE_UNAVAILABLE', 'NATIVE_AUTH_UNAVAILABLE'].includes(e.code)) throw e;
       native = await startNativeServer(agent); check = await client.check(3000);
     }
-    return { ...check, serverUrl: agent.serverUrl, agentId: agent.agentId,
+    return { version: check.version, workspace: check.workspace, model: check.model, healthy: check.healthy,
+      serverUrl: agent.serverUrl, agentId: agent.agentId,
       ...(check.healthy ? {} : { action: 'Configure an available model in native OpenCode, then rerun doctor' }) };
   } finally { await native?.close(); }
 }

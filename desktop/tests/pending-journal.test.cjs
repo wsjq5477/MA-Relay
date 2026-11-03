@@ -38,6 +38,14 @@ test("control receipts settle only confirmed or rejected original operation IDs"
   assert.deepEqual(calls.map(c=>c.op),['operation']);assert.equal(r.resolved,state==='unknown'?0:1);
  }
 });
+test('uncertain session close recovers by querying the original control and never repeats close',async()=>{
+ const calls=[];const original=row({op:'session.close',params:{taskId:'original-task',expectedRevision:1}});
+ for(const state of ['unknown','confirmed']){
+  const result=await recoverJournal([original],async(method,p)=>{calls.push(p);return {operationId:'original',state};},async()=>true);
+  assert.equal(result.resolved,state==='confirmed'?1:0);
+ }
+ assert.ok(calls.every(p=>p.op==='operation'&&p.taskId==='original-task'&&p.operationId==='original'));
+});
 test("offline transport and missing machine provenance preserve all unknown records", async()=>{
  for(const item of [row(),row({machineId:undefined})]){
   const r=await recoverJournal([item],async()=>{throw Error('offline');},()=>{throw Error('unexpected settlement');});assert.equal(r.resolved,0);

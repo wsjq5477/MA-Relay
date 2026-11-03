@@ -19,7 +19,7 @@ const noop=()=>{};
 const {adapters,connectionCapabilities:backendCapabilities}=require('../electron/builtin-adapters.cjs');
 
 function node(adapter, extra = {}) {
-  return {nodeId: adapter, adapter, name: 'Claude Code', machineId: 'machine', executable: '/fixture/'+adapter,
+  return {nodeId: adapter, adapter, name: 'Claude Code', machineId: 'machine', ...(adapter==='chatgpt-web'?{browserInstanceId:'fixture-browser-profile'}:{executable: '/fixture/'+adapter}),
     connected: true, online: true, healthy: true, available: true, busy: false,
     executionSupported: true, activeTasks: 0, status: 'connected', ...extra};
 }

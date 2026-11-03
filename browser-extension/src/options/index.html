@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>浏览器接入 · AgentBridge</title>
+    <link rel="stylesheet" href="./options.css">
+    <script type="module" src="./options.mjs"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="brand"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="6" rx="1"/><path d="M6 9v7h9"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg><span>AgentBridge</span></div>
+        <h1>浏览器接入</h1>
+        <p>让已授权的 Agent 在这个浏览器中向 ChatGPT 提交任务。</p>
+      </header>
+      <p id="notice" role="status" aria-live="polite">正在读取接入状态…</p>
+      <section aria-labelledby="connection-heading">
+        <div><h2 id="connection-heading">本机连接</h2><p>此浏览器连接所在机器的 AgentBridge 后台。</p></div>
+        <div class="fields">
+          <dl>
+            <div><dt>连接</dt><dd id="connection">正在检查…</dd></div>
+            <div><dt>扩展 ID</dt><dd><code id="extension-id"></code><button id="copy-id" type="button">复制 ID</button></dd></div>
+            <div id="binding-row" hidden><dt>原配对</dt><dd><code id="binding"></code></dd></div>
+          </dl>
+          <div class="actions"><button id="refresh" type="button">重新检查</button><button id="pause" type="button" hidden>暂停接入</button></div>
+          <p id="unresolved" hidden></p>
+        </div>
+      </section>
+      <section id="pair-section" aria-labelledby="pair-heading">
+        <div><h2 id="pair-heading">配对这台机器</h2><p>将扩展 ID 填入桌面“设置 → 浏览器接入”，再复制配对包到这里。</p></div>
+        <form id="pair-form" class="fields">
+          <label for="pair-code">本机配对包</label>
+          <input id="pair-code" type="password" autocomplete="off" spellcheck="false" aria-describedby="pair-help" required>
+          <p id="pair-help">配对包两分钟内有效。请使用原配对包查询或重连。</p>
+          <div><button id="pair" class="primary" type="submit">连接 AgentBridge</button></div>
+        </form>
+      </section>
+      <section aria-labelledby="site-heading">
+        <div><h2 id="site-heading">ChatGPT 网页</h2><p>使用网页中已登录的账号和当前配置。</p></div>
+        <div class="fields">
+          <p id="site-state">正在检查网页授权…</p>
+          <div><button id="site-permission" type="button" disabled>授权 ChatGPT 网页</button></div>
+          <p>首次使用请在 ChatGPT 网页手动登录。任务使用独立标签页；运行时请保留该页，避免编辑输入框或切换会话。</p>
+          <p>当前仅支持 ChatGPT 网页。</p>
+        </div>
+      </section>
+      <footer>暂停、移除网页授权或关闭标签页不会证明任务已取消。结果未确认时，请在 AgentBridge 查询原任务。</footer>
+    </main>
+  </body>
+</html>

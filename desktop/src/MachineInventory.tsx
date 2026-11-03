@@ -427,7 +427,7 @@ export default function MachineInventory(props: Props) {
                         )}
                       </div>
                       <div className="inventory-node-meta">
-                        <span>{toolLabel(node.adapter)}</span>
+                        {toolLabel(node.adapter)!==node.name&&<span>{toolLabel(node.adapter)}</span>}
                         <span>{node.version || "版本未知"}</span>
                         <span>{node.status === "version_incompatible" ? "版本不兼容" : node.status === "needs_check" ? "待检查原生 API" : node.connected ? "已接入" : "未接入"}</span>
                       </div>
@@ -520,9 +520,6 @@ export default function MachineInventory(props: Props) {
           </section>
         );
       })}
-      <p className="inventory-note">
-        接入与可执行状态来自工具检查，真实模型回复以实际任务结果为准。
-      </p>
     </div>
   );
 }

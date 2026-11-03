@@ -6,6 +6,7 @@ export const agentTools: Record<
   ToolKind,
   { name: string; fullName: string; icon: string; background: string }
 > = {
+  "chatgpt-web": {name:"ChatGPT Web",fullName:"ChatGPT Web",icon:new URL("../assets/agents/browser.svg",import.meta.url).href,background:"#ffffff"},
   opendesk: { name: "OpenDesk", fullName: "OpenDesk", icon: new URL("../assets/agents/opendesk.png", import.meta.url).href, background: "#ffffff" },
   "opendesk-desktop": { name: "OpenDesk Desktop", fullName: "OpenDesk Desktop", icon: new URL("../assets/agents/opendesk.png", import.meta.url).href, background: "#ffffff" },
   claude: {

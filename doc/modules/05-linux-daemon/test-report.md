@@ -1,5 +1,33 @@
 # M05 Linux daemon 测试报告
 
+T-M06-CX-317（共享）：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+T-M05-314：2026-11-03，Windows原认证Coordinator/真实stdio MCP，读取已有三条WSL Codex真实原生Task（cancelled/failed/failed）。实际原上下文凭据轮换、旧Bearer拒绝、观察器关闭/重开、跨上下文拒读、delegate/result/目标授权撤销及恢复累计18项核对通过，原Task/原生Session与请求计数3→3保持。本轮新需求0，原操作权限和目标已恢复；18项为共用累计检查，不与各阶段或104项相加。没有成功模型正文、在途属主上下文关闭或真正丢提交回应，已有服务/SSH/EXE与原矩阵仍未准出。新增验收脚本lint通过；首次脚本把Task.error误判为查询失败，产品行为未改。[源码、原始失败与分阶段实测](../../iterations/I08/interconnect-development.md#13-基于三条真实原生task的读控恢复验收)。
+
+T-M05-313：2026-11-03，当前Windows Codex桌面对话经真实MCP委派WSL Codex0.101.0；同一原CallerContext/子会话中三条Task明确cancelled/failed/failed，无成功正文。原取消收据confirmed与实际cancelled分别核对；观察器重开后原归属保持。Windows网络TLS成功、WSL直连超时，本次临时回环CONNECT通道已恢复TLS；两次原生刷新均401 invalid_refresh_token，同账号较新缓存试验失败并回滚，原生网页登录等待。profile/attempt保护受控10/10；网络四项拒绝门禁与一项原绑定保护、相关lint通过，均不等于模型闭环。成功续聊/轮换、真实profile/SSH/EXE仍未准出，公开alpha.71不变。[原始证据及登录恢复](../../iterations/I08/interconnect-windows-wsl.md)。
+
+T-M05-312：2026-11-03，未发布源码。新增task_result(delegationId)只读查询原请求，回应丢失后可补原Task关联；目标/委派授权撤销后原属主仍按result权限查询，读取中撤权/跨上下文/异源收据拒绝，not_found不释放占用，确定准备拒绝不伪造Task终态。Windows Node24.12.0与WSL Node24.13.0同范围11文件各104/104、0跳过；Hermes/Pi/DSH生产宿主+真实受控CLI恢复3/3，模型0。相关CJS lint通过，冻结源码逐字节一致；非EXE、非真实父模型/已有服务/SSH准出。[源码、原始证据及未测项](../../iterations/I08/interconnect-development.md#7-无taskid时查询原委派)。
+
+T-M05-311：2026-11-03，未发布互联核心源码、Windows Node24.12.0、全部配置/数据/缓存/日志在D盘。共享定向回归99/99，真实SQLite/认证IPC/stdio，原生执行为受控宿主；Hermes/Pi/DSH生产宿主与真实受控CLI事件/恢复3/3，模型0；源码管理CLI认证IPC15/15与99项重叠，不累计。Core构建/类型与相关CJS/CLI lint通过。后续Linux对应9文件79/79、Windows进度诊断正文省略反例及调用方/事件22/22通过；各集重叠，不相加。新增调用方/上下文/凭据、轮换/恢复、原Task事件分页及关闭竞态覆盖；原daemon、SSH、真实父模型、已有服务、EXE与完整矩阵不能用这些通过数关闭。失败及单独复核均保留于[当前开发与证据](../../iterations/I08/interconnect-development.md)，完整字段见[调用方契约](../../iterations/I08/interconnect-caller-contract.md)。
+
+T-M05-163：2026-10-31，Windows/Node24.12.0/Chromium148；真实ChatGPT经原MCP/Registry/Router同会话四轮通过，流式8次更新/2295字符；父模型受控、测试host权限预授予。DOM39/39、原生IndexedDB69/69、Host/构建器63/63；通道/网络/daemon/MCP回归45项44通过/1平台跳过。各层不累加，不作为本模块全部场景通过；原失败保留，恢复受控调用和新策略完整链区分，Linux/跨机/真实父模型未被本轮证明。Kimi不在验收范围。[原始证据与未测项](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+T-M05-162 / M05-F01/F02：2026-10-31，WSL Ubuntu22.04/真实Linux Node22.23.1定向133/133，新增继承prepared取消先封存合同，原daemon/机器/WS/MCP/pending保持；597份源码原生副本hash一致且运行期间未变、并发1、隔离HOME、清理完成。新Journal恢复实际Chrome证据在Windows，不是Linux Chrome/生产SSH；完整性能与旧失败保留。[清单、元数据及原日志](../../iterations/I08/web-agent-development.md)。
+
+T-M05-161 / M05-F01/F02：2026-10-31，WSL Ubuntu22.04/真实Linux Node22.23.1定向132/132，含原完成证明/旧记录只读/续轮document与既有daemon/MCP/pending；597份原生源码hash一致且运行期间未变、并发1、HOME隔离、临时目录清理。没有Linux Chrome/真实Provider或生产SSH证明；原性能失败仍保留。[清单、元数据与日志](../../iterations/I08/web-agent-development.md)。
+
+T-M05-160 / M05-F01/F02：2026-10-31，WSL Ubuntu22.04/真实Linux Node22.23.1定向129/129，新增真实stdio旧后台查询门禁、原连接视图及原MCP取消查询。597文件原生副本hash匹配、运行期间源码未变、并发1、HOME隔离且临时目录已清理；仍非Linux Chrome/真实Provider/生产SSH或完整性能矩阵。[元数据与日志](../../iterations/I08/web-agent-development.md)。
+
+T-M05-159 / M05-F01/F02：2026-10-31，WSL Ubuntu22.04/真实Linux Node22.23.1，Browser/原pending/Adapter/独立daemon定向104/104通过；原生临时目录597份源码hash匹配、运行期间未变、HOME隔离、并发1且清理完成。含本次Node取消证明/原游标规则，不是Linux Chrome/真实Provider或生产SSH；扩大集的快照截止失败仍保留。[清单、执行元数据及原日志](../../iterations/I08/web-agent-development.md)。
+
+T-M05-158 / M05-F01/F02：2026-10-31，未发布源码。WSL/Node22.23.1真实Linux Browser相关97/97，含独立daemon/单监听者与原端口、关闭原收据只读恢复。扩大Native320项318通过/2失败（副本漏示例与快照冷却截止），示例补齐专项7/7；未将这些集合相加或宣称Linux全绿。Windows最新共享327项307通过/20个平台跳过、失败0；专项/平台不累计。Provider账号、生产授权同意、完整人工/故障/负载、Kimi及EXE仍未准出。[原日志、失败和复现](../../iterations/I08/web-agent-development.md)。
+
+T-M05-157 / M05-F01/F02：2026-10-31，Windows Node24.12.0/Chromium148。新增关闭控制/收据/维护路径源码和SSH旧能力受控反例；19项Linux平台跳过，不能据此宣称Linux daemon/真实SSH通过。最新共享319项300通过/19平台跳过、失败0，包含原pending恢复，不跨模块/专项累加。真实账号/完整控制/跨机/Kimi/EXE仍待。[原日志、失败与范围](../../iterations/I08/web-agent-development.md)。
+
+T-M05-156 / M05-F01/F02：2026-10-30，Windows Node24.12.0；queryOnly只读配对与原身份专项7/7，最新共享286项267通过/19个Linux平台用例明确跳过、失败0。生产宿主源码启用与原机器RPC透传在Windows受控验证，未据此宣称Linux daemon/实际SSH、站点权限或Provider通过。[原证据及平台限制](../../iterations/I08/web-agent-development.md)。
+
+T-M05-155 / M05-F01/F02：2026-10-30，Windows Node24.12.0；新增Browser方法白名单/维护配置门禁及生产宿主启用，相关共享260项241通过/19个Linux平台跳过、失败0。Node本机真实WS/文件恢复验证不等于Linux daemon进程或实际SSH验证；本轮未连接生产远端/部署后台。Linux/SSH和包兼容仍待实测。[原始命令、证据与未测项](../../iterations/I08/web-agent-development.md)。
+
 alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/任务忙时打开查看；实际版本切换仍核对原身份、空闲与收据，不绕过门禁。仅补公开alpha.70精确原pin以保持上一公开版本复用。[来源、包与界面验证](../../iterations/I08/issue29-maintenance-entry.md)。
 
 

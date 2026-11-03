@@ -1,4 +1,5 @@
 import type {DetailRead} from './types';
+import { BrowserSettings } from './BrowserSettings';
 import {laneNames,redactedOperation,recoveryKey,type RecoveryRow,type QueryOutcome,type ManagementLane} from './management-recovery';
 import { useId, useRef, useState, type ReactNode } from "react";
 import {managementLabel, type ManagementRecord} from './operation-recovery';
@@ -197,7 +198,6 @@ export function TasksPage({
       <div className="page-heading workspace-page-heading">
         <div>
           <h1>{auditOnly?"执行审计":"任务看板"}</h1>
-          <p>{auditOnly?"只读原任务、结果与状态；需求从原生 Agent 会话发起。":"从需求到结果，查看每次执行的进展。"}</p>
         </div>
         {!auditOnly&&onNew&&<button className="btn primary" onClick={onNew}>
           <Plus size={16} aria-hidden="true" />
@@ -431,7 +431,6 @@ export function ConversationsPage({
       <div className="page-heading workspace-page-heading">
         <div>
           <h1>{auditOnly?"会话审计":"会话"}</h1>
-          <p>{auditOnly?"只读原会话和轮次；继续工作请回原生 Agent 入口。":"接着上次的上下文，与 Agent 继续工作。"}</p>
         </div>
         {!auditOnly&&onNew&&<button className="btn primary" onClick={onNew}>
           <Plus size={16} aria-hidden="true" />
@@ -761,7 +760,6 @@ export function SettingsPage({
       <div className="page-heading workspace-page-heading">
         <div>
           <h1>设置</h1>
-          <p>让工作台按你的习惯运行。</p>
         </div>
         {preferences.version && (
           <span className="workspace-version">
@@ -778,7 +776,6 @@ export function SettingsPage({
             <Palette size={19} aria-hidden="true" />
             <div>
               <h2 id="settings-appearance">外观</h2>
-              <p>选择适合当前环境的显示主题。</p>
             </div>
           </div>
           <div className="settings-row">
@@ -786,11 +783,9 @@ export function SettingsPage({
               <label htmlFor="workspace-theme">
                 <strong>主题</strong>
               </label>
-              <span id="workspace-theme-help">跟随系统，或使用固定主题</span>
             </div>
             <select
               id="workspace-theme"
-              aria-describedby="workspace-theme-help"
               className="settings-theme-select"
               value={preferences.theme}
               disabled={busy}
@@ -812,7 +807,6 @@ export function SettingsPage({
             <Monitor size={19} aria-hidden="true" />
             <div>
               <h2 id="settings-connections">连接状态</h2>
-              <p>当前后台提供的机器与 Agent 概况。</p>
             </div>
           </div>
           <dl className="settings-facts">
@@ -842,9 +836,6 @@ export function SettingsPage({
               </dd>
             </div>
           </dl>
-          <p className="settings-footnote">
-            AgentBridge 管理机器连接和协作，原生工具管理自己的账户、模型与配置。
-          </p>
           {!machineManagementSupported && (
             <div className="workspace-inline-note" role="status">
               <Circle size={15} aria-hidden="true" />
@@ -854,6 +845,7 @@ export function SettingsPage({
             </div>
           )}
         </section>
+        <BrowserSettings machines={machines} directory={directory}/>
         <section
           className="settings-card network-relations"
           aria-labelledby="settings-background"
@@ -862,7 +854,6 @@ export function SettingsPage({
             <Power size={19} aria-hidden="true" />
             <div>
               <h2 id="settings-background">后台运行</h2>
-              <p>分别管理桌面窗口与后台连接。</p>
             </div>
           </div>
           <div className="settings-row">
@@ -904,7 +895,6 @@ export function SettingsPage({
             <ShieldCheck size={19} aria-hidden="true" />
             <div>
               <h2 id="settings-recovery">未确认操作</h2>
-              <p>沿原请求核对结果，保留原执行归属。</p>
             </div>
             <span className="workspace-count">{journal.length + managementJournal.length + managementRows.length}</span>
           </div>
@@ -971,7 +961,6 @@ export function SettingsPage({
               <CheckCheck size={20} aria-hidden="true" />
               <div>
                 <strong>{managementReadError ? '执行请求无未确认项，管理状态待读取' : '当前没有未确认操作'}</strong>
-                <p>原操作需要核对时，会显示在这里。</p>
               </div>
             </div>
           )}
@@ -997,7 +986,6 @@ export function SettingsPage({
               <History size={19} aria-hidden="true" />
               <div>
                 <h2 id="settings-removed">已移除机器</h2>
-                <p>恢复原机器身份，继续保留任务和会话历史。</p>
               </div>
             </div>
             {removed.map((machine) => (

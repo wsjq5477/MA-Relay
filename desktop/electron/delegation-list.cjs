@@ -3,6 +3,7 @@ const fail=(code,message)=>Object.assign(new Error(message),{code});
 const id=x=>typeof x==='string'&&x.trim().length>0;
 const states=new Set(['pending','queued','accepted','running','succeeded','failed','cancelled','unknown','rejected']);
 function owned(d,node,owner){
+  if(owner.authority&&(d.callerPrincipalId!==owner.authority.view().principalId||d.callerContextId!==owner.authority.view().contextId))return false;
   if(!id(node.nodeId)||!id(owner.requestId)||!id(owner.conversationId))return false;
   if(d.leaderId!==node.nodeId||d.parentRequestId!==owner.requestId||d.parentConversationId!==owner.conversationId)return false;
   if(id(owner.externalConnectionId))return owner.taskId===null&&d.parentTaskId===null&&d.externalConnectionId===owner.externalConnectionId;

@@ -707,7 +707,7 @@ test("settings matches original recovery identity across machines and retains it
   );
 });
 
-test("settings exposes the exact theme name separately from its help text", () => {
+test("settings exposes the theme name and choices without redundant help text", () => {
   const html = render(SettingsPage, settingsProps());
   const label = html.match(
     /<label\b[^>]*for="workspace-theme"[^>]*>([\s\S]*?)<\/label>/,
@@ -716,11 +716,8 @@ test("settings exposes the exact theme name separately from its help text", () =
   assert.equal(plainText(label[1]), "主题");
   const select = html.match(/<select\b[^>]*id="workspace-theme"[^>]*>/);
   assert.ok(select);
-  assert.match(select[0], /aria-describedby="workspace-theme-help"/);
-  assert.match(
-    html,
-    /id="workspace-theme-help"[^>]*>跟随系统，或使用固定主题<\//,
-  );
+  assert.doesNotMatch(select[0], /aria-describedby/);
+  assert.match(html, /<option value="system"[^>]*>跟随系统<\/option>/);
 });
 
 test("settings keeps an unmatched recovery read-only and prevents duplicate queries", () => {
@@ -841,7 +838,7 @@ test('configuration-only inventory removes execution controls while retaining no
  const html=render(MachineInventory,inventoryProps({configurationOnly:true}));assert(!buttons(html).some(b=>b.text==='开始会话'));assert(buttons(html).some(b=>b.text==='配置'));assert.match(html,/可用于协作/);
 });
 test('execution audit cannot start a task and retains original results',()=>{
- const html=render(TasksPage,{tasks:[task({status:'succeeded',result:{message:'retained result'}})],machineName:()=> 'controlled',nodeFor:()=>node(),onOpen:noop,auditOnly:true});assert.match(html,/执行审计/);assert(!buttons(html).some(b=>b.text==='新建任务'));assert.match(html,/原任务/);
+ const html=render(TasksPage,{tasks:[task({status:'succeeded',result:{message:'retained result'}})],machineName:()=> 'controlled',nodeFor:()=>node(),onOpen:noop,auditOnly:true});assert.match(html,/执行审计/);assert(!buttons(html).some(b=>b.text==='新建任务'));assert.match(html,/retained result/);
 });
 test('conversation audit has no continuation form even when the original session can continue',()=>{
  const html=render(ConversationsPage,conversationsProps({auditOnly:true}));assert.match(html,/会话审计/);assert.doesNotMatch(html,/aria-label="继续会话"/);assert(!buttons(html).some(b=>b.text==='新建会话'||b.text==='发送'));assert.match(html,/当前轮次|本轮|原会话|只读/);

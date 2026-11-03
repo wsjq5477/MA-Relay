@@ -1,4 +1,18 @@
 /* Page presentation is scoped to the current desktop shell. Legacy classes remain for existing UI checks. */
+.workbench .task-audit-mode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 13px;
+}
+.task-audit-mode strong { font-weight: 500; }
+.task-audit-mode p { margin-top: 4px; }
 .workbench .workspace-page {
   min-width: 0;
   font-size: 14px;

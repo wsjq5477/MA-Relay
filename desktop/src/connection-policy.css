@@ -1,0 +1,41 @@
+.workbench .connection-policy {
+  width: min(720px, 100%);
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-size: 14px;
+}
+.connection-policy .modal-head { flex-shrink: 0; }
+.connection-policy-body { overflow-y: auto; overscroll-behavior: contain; }
+.connection-policy-body > [role] { margin-bottom: 16px; overflow-wrap: anywhere; }
+.connection-policy-section + .connection-policy-section { margin-top: 24px; }
+.workbench .connection-policy h3,
+.connection-policy-audit > summary {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.connection-policy-field { display: grid; gap: 8px; }
+.workbench .connection-policy label { font-size: 14px; font-weight: 400; margin: 0; }
+.connection-policy-field > select { margin-top: 0; }
+.connection-policy-note { color: var(--secondary); font-size: 13px; font-weight: 400; }
+.connection-policy-field + .connection-policy-note { margin-top: 12px; }
+.connection-policy-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.connection-policy-candidates { display: grid; gap: 8px; margin: 12px 0 16px; }
+.connection-policy-candidates label { display: flex; align-items: center; gap: 10px; padding: 8px 0; overflow-wrap: anywhere; }
+.connection-policy-candidates input { width: 16px; height: 16px; margin: 0; flex-shrink: 0; accent-color: var(--orange); }
+.connection-policy-row { display: grid; gap: 4px; overflow-wrap: anywhere; }
+.connection-policy-row + .connection-policy-row { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.connection-policy-row > p { color: var(--secondary); }
+.connection-policy-request { display: grid; gap: 8px; padding: 12px 0; overflow-wrap: anywhere; }
+.connection-policy-request + .connection-policy-request { border-top: 1px solid var(--border); }
+.connection-policy summary { cursor: pointer; }
+.connection-policy code { font-size: 12px; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .modal-overlay:has(.connection-policy) { padding: 12px; }
+  .workbench .connection-policy { max-height: calc(100dvh - 24px); }
+  .workbench .connection-policy .modal-body { padding: 16px; }
+  .connection-policy-actions .btn { min-height: 36px; }
+}

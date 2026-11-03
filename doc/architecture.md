@@ -1,5 +1,37 @@
 # AgentBridge 整体架构
 
+观察入口释放与明确停止执行后台分开：MachineHost/原生宿主门面close不自动取消Task，Core Controller的显式stop可停止经原身份核验的自有托管服务；managed=false外部服务不在其所有权中。IPC/PID消失都不是原Task终态或释放unknown的证据。各模式的状态来源、恢复与当前实证见[资源归属表](iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)，不由mode字段扩大进程管理权限。
+
+Core的OpenCode只读check沿已协商的V1/V2元数据读取Agent可用性。健康发现缓存与原任务I/O分开：执行独立协商，观察/回复/取消校验后绑定原nativeProtocol，后续健康检查失败或变化不能改变在途操作的地址。外部检查报告与持久格式保持；managed=false服务由外部操作者管理，观察器关闭/重开不取得其进程所有权。[实现与分层验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+原提交回应丢失时，task_result可按原delegationId沿MachineRouter查询原后台request；恢复只补原Task关联，不进入nodeRequest或准备/提交链。调用方身份及result权限在异步读取后复核，旧scope失效规则与原机器归属保持。[字段与未知处理](iterations/I08/interconnect-caller-contract.md)。
+
+## 互联核心与可选上层
+
+互联核心负责身份、获准发现、授权、明确目标路由、调用台账、Session/执行关联、交互控制与结果交付；通过 MachineHost、daemon 和原生适配器请求执行。原生 Runtime 负责 Agent Loop、工具、模型、内部 Session 行为与实际执行权限。Bridge 不选择业务目标、不拆任务、不自动换 Agent 或改写失败任务重跑；目录占用是资源准入，不是沙箱。
+
+TeamSpace 的业务任务/公共空间和 TeamAutomation 的事件激活/自动续接是保留兼容的可选上层，暂停扩张，不作为普通 MCP 发现/委派前提。它们目前仍在既有部署与源码中，尚未拆进程、拆包或拆存储；受控 SSH 运维、必要 worker 及配置/审计仍属于基础设施。
+
+AgentDirectory复用原team-space.sqlite的agents[]和收据，提供不依赖team/run/自动激活器的用户管理。既有登记身份与nodeId区分，端点固定原节点/机器/服务摘要，AgentNetwork按当前授权附登记信息并将明确agentId调用解析到原nodeRequest；没有新执行网络。中央新增agent-directory-v1定向能力，原daemon/线协议与scope保持。CallerService复用原登记主体和SQLite收据，新增版本1的主体/上下文/凭据控制表，使用原broker实现提供非执行型MCP入口；不创建工具节点。原事件分页沿原Task查询，MachineHost并发恢复与broker关闭有就绪围栏。Windows主对话代码模式与WSL原生正文/续聊/在途观察器恢复已有实证，完整已有服务/升级及生命周期矩阵仍待；ownership/admission不是原生成功或沙箱证明。[当前完整契约](iterations/I08/interconnect-caller-contract.md)。[职责决议](iterations/I08/interconnect-boundary.md)、[当前开发与验收](iterations/I08/interconnect-development.md)。
+
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开alpha.71保持。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+
+Electron主进程间接加载Browser通道所需ws由桌面精确生产依赖提供，并核验ASAR；Bridge/Node资源内另有现有ws，不能代替主进程模块解析。仍是一条现有Registry/路由链，没有新增Broker/Provider API层。[实际启动缺陷及修复边界](iterations/I08/web-agent-packaging.md)。
+
+Browser扩展的开发ZIP复用现有桌面extraResources与包核验，置于`resources/browser-extension`；Linux离线包仍只带Node侧Browser后台CJS，不自动安装浏览器。构建产物不包含profile/配对状态，不新增服务或路由；Core与Browser运行边界保持。[交付设计](iterations/I08/web-agent-packaging.md)。
+
+Browser取消后的健康/关闭复用原控制台账：扩展以原取消封存与既有Session解决“尚未prepare无请求行”，不建立第二请求源；最新同Session lease、完整meta、profile及忙碌状态共同围栏。关闭原子记录引用取消，丢回应只查询；健康只读，不从观察或NOT_FOUND结算未知Task。继承prepared也先取得两端封存，原路由/Core边界保持。[设计与实际证据](iterations/I08/web-agent-development.md)。
+
+Browser续聊由Provider Driver对可见DOM建立摘要/消息锚点/历史版本证明，原扩展/Node终态事务保存私有绑定；异步哈希后及实际写入的同步段重查，拒绝同ID人工改写、重生成或版本变化。Node仅验证原事件归属与字段，不引入Provider逻辑到Core，旧无证明完成记录只读保留。[当前机制与受控证据](iterations/I08/web-agent-development.md)。
+
+Browser取消复用原Task/控制/认证通道，新增页面内容授权与原请求封存的两端证明。扩展单IndexedDB事务排序取消与授权，Node先冻结派发、收齐封存前事件并核对原meta后才cancelled；丢回应由经典cancel_task(queryOnly=true)只读原operation，不重发。stdio先查live cancel.query-v1声明，防旧后台忽略字段后执行取消；仍核对原delegation与取消种类。它不新增Broker、不点击Stop，不以页面错误或缺失记录释放unknown。[实际实现与限制](iterations/I08/web-agent-development.md)。
+
+Browser原会话健康复用原对象路由和认证通道，只读原IndexedDB/原document；Host捕获/重查revision的短串行段与网络等待分开，原输出事件可先落盘ACK。探测不结算Task/关闭收据、不释放unknown；页就绪与Node资源/存储状态、账号和执行授权分开。Linux已有独立daemon进程/单监听者/原端点恢复受控证据，Linux Chrome与真实Provider/跨设备仍待。[当前接口与分层证据](iterations/I08/web-agent-development.md)。
+
+Browser空闲关闭复用原IPC对象来源与控制台账：Node先持久unknown，再由扩展单事务写关闭墓碑；丢回应仅查原operation，后续写入保持冻结。网页导航按实际documentId判定，不能仅因tabs loading误判换页；Driver拒绝未支持query/hash。首次配对修正仅保留原绑定，pending过期拒绝、committed原密钥重连不受bootstrap期限影响。[当前实现与边界](iterations/I08/web-agent-development.md)。
+
+Browser复用原Registry/MachineHost/Router/AgentNetwork，按来源机器/adapter/profile归属；原机器宿主拥有持久loopback端点与配对RPC，不新增Broker。Linux本地原生发现/上下文/scope仍由原Core执行，机器宿主合并网页观察并复用原MCP目录。经典delegate续聊核对原主体/当前关系/原终态，旧后台先查能力，unknown继续占用。桌面与扩展设置已接线，配对秘密不进入UI意图存储；线上账号/站点权限确认、跨机与EXE仍待验。[完整边界](iterations/I08/web-agent-development.md)。
+
 Core Edge的事件补传按当前socket绑定运输；ACK超时/断开先退役当前原运输，再异步关闭，只在当前OPEN且就绪时继续补传。close回调驱动既有退避重连，旧运输失败不影响新运输；持久事件沿原execution/seq补传，不再调用驱动。此为未发布可靠性修复，数据/帧格式保持。[恢复时序与证据](iterations/I08/edge-outbox-reconnect.md)。
 
 共用原生CLI worker以实际ChildProcess的spawn/error事件区分“所选进程未启动”与“已启动后结果不明”；前者结束原Task并向原控制收据提供nativeExited=false，后者沿适配器原unknown规则。该证明只来自当次worker，不在恢复时根据文件/PID缺失推断，也不新增传输、模型层或取消能力。[启动边界与证据](iterations/I08/native-start-boundary.md)。

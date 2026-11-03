@@ -456,6 +456,13 @@ async function resolveAdapter(call: (method: string, params: Record<string, unkn
   return adapter;
 }
 
+export function createDesktopCoordinatorClient(directory: string): CoordinatorClientLike {
+  const root = bridgeDirectory();
+  const backend = loadDesktopBackend(root);
+  const packageDirectory = [join(root, '..', 'linux-package'), join(root, 'desktop', '.linux-package')].find(path => existsSync(join(path, 'manifest.json')));
+  return new backend.Client({directory, version: installedDesktopVersion(root), bridgeDirectory: root, ...(packageDirectory ? {packageDirectory} : {})});
+}
+
 export async function runMcpCommand(options: McpCommandOptions, positionals: string[]): Promise<number> {
   const sub = positionals[1];
   if (positionals.length !== 2 || !isSubcommand(sub))

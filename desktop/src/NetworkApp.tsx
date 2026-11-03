@@ -619,7 +619,6 @@ export default function NetworkApp() {
           <div className="page-heading">
             <div>
               <h1>接入配置</h1>
-              <p>配置机器、原生 Agent 和 MCP；日常需求从原生 Agent 会话发起。</p>
             </div>
             <div className="page-heading-actions">
               <button className="btn" onClick={() => setPolicyOpen(true)}>
@@ -706,7 +705,6 @@ export default function NetworkApp() {
               <div className="workspace-toolbar">
                 <div className="inventory-section-heading">
                   <h2>机器与 Agent</h2>
-                  <span className="machine-count">按机器管理原生工具</span>
                 </div>
                 <label className="ui-search">
                   <Search size={15} />
@@ -942,7 +940,6 @@ export default function NetworkApp() {
               </button>
             </div>
             <div className="modal-body">
-              <p>选择这台机器上已安装的原生工具；沿用它自己的账号和配置。</p>
               {!data.nodeManagement && (
                 <p role="alert">
                   当前后台不支持节点管理。请在“设置 →

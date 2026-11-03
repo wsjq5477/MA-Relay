@@ -162,13 +162,18 @@ for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary d
   assert.equal(uncertain.contextVersion,1);
   assert.equal(f.network.network.requests.find(item => item.requestId === uncertain.requestId).dispatched, true);
   await f.reopen();
-  const recovered = await f.call('ipc', { op: 'request', machineId: f.member.machineId, requestId: uncertain.requestId });
-  assert.equal(recovered.requestId, uncertain.requestId);
+  const recovered = await f.mcp('task_result', {delegationId:uncertain.delegationId,afterSeq:0});
+  assert.equal(recovered.invocation.requestId, uncertain.requestId);
   const child = await f.mcp('delegate', args);
   assert.equal(child.taskId, recovered.taskId);
   assert.equal(child.parentTaskId, f.parent.taskId);
   const result = await until(() => f.mcp('task_result', { taskId: child.taskId }), value => terminal(value.status));
   assert.equal(result.status, 'succeeded'); assert.equal(result.result.message, adapter + ': ' + args.message + ' / native-default-' + adapter);
+  const events=await f.mcp('task_result',{taskId:child.taskId,afterSeq:0,limit:100});
+  assert.equal(events.events.supported,true);assert.ok(events.events.cursor>0);assert.equal(events.events.cursorGap,false);
+  assert.ok(events.events.items.some(item=>item.event.kind==='output'));
+  assert.equal(JSON.stringify(events.events).includes(adapter+'-controlled-session'),false);
+  assert.equal(events.outcome.terminal,true);assert.equal(events.outcome.businessAcceptance,'not-evaluated');
   const pending = await f.mcp('task_pending', { taskId: child.taskId });
   assert.deepEqual(pending.permissions, []); assert.deepEqual(pending.forms, []);
   assert.equal(pending.machineId, f.member.machineId);
@@ -182,6 +187,8 @@ for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary d
   const original = await f.call('ipc', { op: 'request', machineId: f.member.machineId, requestId: row.requestId });
   assert.equal(original.taskId, child.taskId); assert.equal(original.status, 'succeeded');
   assert.equal((await f.mcp('task_result', { taskId: child.taskId })).status, 'succeeded');
+  const replayed=await f.mcp('task_result',{taskId:child.taskId,afterSeq:0,limit:100});
+  assert.deepEqual(replayed.events.items.slice(0,events.events.items.length),events.events.items);
   assert.equal(invocations(f.calls).filter(item => item.adapter === adapter).length, 1, 'reopening/read/deduplication never starts the original prompt again');
   assert.equal(invocations(f.calls).find(item=>item.adapter===adapter).prompt,renderDelegation({contextVersion:1,message:args.message}));
 

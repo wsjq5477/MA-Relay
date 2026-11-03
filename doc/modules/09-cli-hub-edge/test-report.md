@@ -1,5 +1,17 @@
 # M09 CLI、controller 与 Hub/Edge 测试报告
 
+2026-11-03本轮仅补齐关闭入口的资源归属说明：DesktopHost门面不停止Core，明确Controller stop可停止经核验的自有句柄，IPC离线不等于资源释放完。当前定向12份源码/测试与6份编译物摘要与最近实测一致，未新增运行时行为、测试编号或模型验收。[当前源码与完整决策审计](../../iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。
+
+T-M09-316另含doctor JSON兼容反例：V1/V2在修复前2/2因内部字段外泄失败，显式保留原字段后Windows/Linux各2/2通过、Session数0。最终Core构建、含新用例的编译/类型及相关lint通过；与下列25项及补验分开，不声称重跑全量。[原始证据](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+当前T-M09-316的Linux七文件初轮24通过/1 ACK夹具环境失败；修正相对源码/编译子入口后，Windows/Linux该项补验各1/1，未声称单次Linux全绿。原取消/回复/恢复和3.x清理均已通过；完整原件及范围以[本轮记录](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)为准，后续T-M09-315保留上一轮原失败。
+
+T-M09-316：2026-11-03，未发布源码。暂停健康元数据的真实HTTP夹具复现V1取消误入V2，现执行/观察/控制保留原协议；原3.x清理等待实际自有进程退出，保留IPC先离线诊断。Windows七文件25项23通过/0失败/2平台跳过，含事件ACK重连只执行一次及原控制去重/恢复。Core构建/类型/受影响TS lint通过；Linux结果与原失败见[完整实测](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。与T-M06-OC-316/T-M07-316共用，模型0、不扩大原生模型/已有服务完整链/SSH/EXE准出。
+
+T-M09-315：2026-11-03，未发布源码，与T-M06-OC-315共享。跨协议检查错误修复前1失败、后新增四回归在Windows/Linux均通过；Windows六文件19通过/1既有3.x清理EPERM失败/2平台跳过，Linux同范围21通过/1取消收据unknown失败/0跳过，两失败单独复查均保留。WSL原安装OpenCode1.2.10/Node24.13.0在原Controller/Client的已有服务连接、无进程所有权、关闭/重开及不重放9项通过，原配置未改，模型0；没有经过互联登记/MachineHost或EXE。构建/类型及相关lint通过，文档结果和完整原始证据见[本轮记录](../../iterations/I08/interconnect-development.md#14-已有opencode服务的协议检查与观察器归属)。
+
+T-M09-311：2026-11-03，未发布互联核心源码、Windows Node24.12.0、全部配置/数据/缓存/日志在D盘。共享定向回归99/99，真实SQLite/认证IPC/stdio，原生执行为受控宿主；Hermes/Pi/DSH生产宿主与真实受控CLI事件/恢复3/3，模型0；源码管理CLI认证IPC15/15与99项重叠，不累计。Core构建/类型与相关CJS/CLI lint通过。后续Linux对应9文件79/79、Windows进度诊断正文省略反例及调用方/事件22/22通过；各集重叠，不相加。新增调用方/上下文/凭据、轮换/恢复、原Task事件分页及关闭竞态覆盖；原daemon、SSH、真实父模型、已有服务、EXE与完整矩阵不能用这些通过数关闭。失败及单独复核均保留于[当前开发与证据](../../iterations/I08/interconnect-development.md)，完整字段见[调用方契约](../../iterations/I08/interconnect-caller-contract.md)。
+
 当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 2026-10-29续办：T-M09-215最终共享Windows79项68通过/11平台跳过；冻结alpha.69源码Linux79项76通过/3失败、无跳过或取消。原Hub重开与ACK丢失恢复通过；v1取消unknown、等待和探测超时保留，独立诊断9/9不替代全量。完整快照/清理及共享protocol竞态后续按[当次证据](../../iterations/I08/edge-outbox-reconnect.md)，不跨模块相加。

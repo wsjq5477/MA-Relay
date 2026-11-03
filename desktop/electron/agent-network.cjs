@@ -1,4 +1,5 @@
 const fs=require('node:fs'),path=require('node:path');
+const {isBrowser,installation,sameInstallation,executionResource}=require('./adapter-identity.cjs');
 const {randomUUID,createHash}=require('node:crypto');
 const {MachineRouter,qualified,folderPath,workspaceKey}=require('./machine-router.cjs');
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');
@@ -9,8 +10,15 @@ const {loadRelationState,syncSelectedRelation,runtimeRelations,relationForCaller
 const {relationAdmissionTargets}=require('./relation-admission.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const hash=value=>createHash('sha256').update(value).digest('hex');
-const requestFingerprint=(nodeId,params)=>hash(JSON.stringify({nodeId,op:params.op,message:params.message,workspace:params.workspace||'',conversationId:params.conversationId||'',collaboration:!!params.collaboration}));
+const requestFingerprint=(nodeId,params)=>hash(JSON.stringify({nodeId,op:params.op,message:params.message,workspace:params.workspace||'',conversationId:params.conversationId||'',collaboration:!!params.collaboration,...(params.registeredAgentId?{registeredAgentId:params.registeredAgentId,endpointId:params.endpointId}:{})}));
 const terminal=new Set(['succeeded','failed','cancelled']);
+const CALLER_AUTHORIZATION=Symbol('caller-authorization');
+const activeRelation=(network,node,owner)=>owner.authority?owner.authority.relation():relationForCaller(network,node.nodeId);
+const delegationOwned=(d,node,owner)=>d.leaderId===node.nodeId&&d.parentRequestId===owner.requestId&&d.parentTaskId===owner.taskId&&d.parentConversationId===owner.conversationId&&(d.externalConnectionId||null)===(owner.externalConnectionId||null);
+const invocationView=(delegation,task,owner)=>({delegationId:delegation.delegationId,requestId:delegation.requestId,
+  ...(task?{taskId:task.taskId,executionId:task.executionId,conversationId:task.conversationId}:{}),
+  ...(delegation.registeredAgentId?{agentId:delegation.registeredAgentId,endpointId:delegation.endpointId}:{}),
+  ...(owner.authority?{caller:{principalId:delegation.callerPrincipalId,contextId:delegation.callerContextId}}:{})});
 class AgentNetwork extends MachineRouter {
   constructor(options){
     const networkFile=path.join(options.directory,'agent-network.json');
@@ -49,7 +57,7 @@ class AgentNetwork extends MachineRouter {
     const receipt=this.network.requests.find(r=>r.requestId===delegation.requestId&&r.nodeId===node.nodeId&&r.machineId===node.machineId);
     if(!receipt||receipt.dispatched!==false||!receipt.preparationRejection||receipt.taskId||receipt.conversationId)return null;
     let message;try{message=require('./delegation-context.cjs').renderDelegation(delegation);}catch{return null;}
-    if(receipt.fingerprint!==requestFingerprint(node.nodeId,{op:'submit',message,workspace:delegation.workspace,collaboration:false}))return null;
+    if(receipt.fingerprint!==requestFingerprint(node.nodeId,{op:delegation.op||'submit',message,workspace:delegation.workspace,...(delegation.registeredAgentId?{registeredAgentId:delegation.registeredAgentId,endpointId:delegation.endpointId}:{}),...(delegation.resumeConversationId?{conversationId:delegation.resumeConversationId}:{}),collaboration:false}))return null;
     delegation.state='rejected';delegation.error={code:receipt.preparationRejection,message:receipt.preparationError?.message||delegation.error?.message||'原委派在准备阶段被拒绝，未派发；请修复配置后新建请求。'};
     return delegation.error;
   }
@@ -59,14 +67,14 @@ class AgentNetwork extends MachineRouter {
     snapshot.machines=snapshot.machines.map(m=>({...m,removed:(this.network.removedMachines||[]).includes(m.machineId)}));
     const groups=new Map();
     for(const connection of snapshot.connections){
-      const key=connection.machineId+':'+connection.adapter;
+      const key=connection.machineId+':'+connection.adapter+(isBrowser(connection)?':'+installation(this.machine(connection.machineId),connection):'');
       if(!groups.has(key)||connection.current&&!groups.get(key).current)groups.set(key,connection);
     }
     for(let connection of groups.values()){
-      const executable=this.machine(connection.machineId).kind==='windows'?connection.executable.toLowerCase():connection.executable;
+      const executable=installation(this.machine(connection.machineId),connection);
       const owned=this.catalog.instances.find(i=>i.connectionId===connection.connectionId&&i.nodeId&&this.network.nodes.some(n=>n.nodeId===i.nodeId));
       const nodeId=owned?.nodeId||'node-'+hash(connection.machineId+':'+connection.adapter+':'+executable).slice(0,24);
-      const siblings=this.network.nodes.filter(n=>n.machineId===connection.machineId&&n.adapter===connection.adapter);
+      const siblings=this.network.nodes.filter(n=>n.machineId===connection.machineId&&n.adapter===connection.adapter&&(!isBrowser(connection)||sameInstallation(n,connection)));
       // Keep the established role/identity across native upgrades. Historical
       // aliases retain their original IDs, receipts and context ownership.
       let node=siblings.find(n=>runtimeRelations(this.network).some(row=>n.nodeId===row.leaderId))
@@ -74,7 +82,7 @@ class AgentNetwork extends MachineRouter {
         ||siblings.find(n=>!n.supersededBy&&!n.removed&&n.connected)
         ||siblings.find(n=>!n.supersededBy&&!n.removed)
         ||siblings.find(n=>n.nodeId===nodeId)||siblings[0];
-      if(!node){node={nodeId,machineId:connection.machineId,adapter:connection.adapter,name:connection.name,executable:connection.executable,connected:connection.connected};this.network.nodes.push(node);}
+      if(!node){node={nodeId,machineId:connection.machineId,adapter:connection.adapter,name:connection.name,executable:connection.executable,...(isBrowser(connection)?{browserInstanceId:connection.browserInstanceId}:{}),connected:connection.connected};this.network.nodes.push(node);}
       // A retained OpenCode owner must never follow a new PATH installation.
       if(node.adapter==='opencode'&&(node.managed||node.connected||node.apiCompatibility||this.catalog.instances.some(i=>i.nodeId===node.nodeId))&&connection.executable!==node.executable){
         connection=snapshot.connections.find(c=>c.machineId===node.machineId&&c.adapter===node.adapter&&c.executable===node.executable)
@@ -90,7 +98,7 @@ class AgentNetwork extends MachineRouter {
       delete node.supersededBy;
       for(const sibling of siblings)if(sibling!==node)sibling.supersededBy=node.nodeId;
       Object.assign(node,{executable:connection.current?connection.executable:node.executable,connectionId:connection.connectionId,version:connection.current?connection.version:node.version,connected:node.managed?!!node.connected:node.connected||connection.connected,installed:!connection.error||connection.healthy,error:connection.error,errorCode:connection.errorCode,executionSupported:connection.executionSupported??connection.adapter!=='codex'});
-      for(const instance of snapshot.instances.filter(i=>i.machineId===node.machineId&&i.adapter===node.adapter)){const saved=this.catalog.instances.find(i=>i.instanceId===instance.instanceId);if(saved&&!saved.nodeId)saved.nodeId=node.nodeId;}
+      for(const instance of snapshot.instances.filter(i=>i.machineId===node.machineId&&i.adapter===node.adapter&&(!isBrowser(node)||sameInstallation(i,node)))){const saved=this.catalog.instances.find(i=>i.instanceId===instance.instanceId);if(saved&&!saved.nodeId)saved.nodeId=node.nodeId;}
     }
     const nodes=this.network.nodes.map(node=>{
       const machine=snapshot.machines.find(m=>m.machineId===node.machineId),connection=snapshot.connections.find(c=>c.connectionId===node.connectionId);
@@ -243,6 +251,13 @@ class AgentNetwork extends MachineRouter {
       try{return await super.call('ipc',{op:'request',machineId:node.machineId,requestId:params.requestId});}catch(e){if(!['NOT_FOUND','REQUEST_NOT_FOUND','NOT_CONFIGURED'].includes(e.code))throw e;}
       if(previous.dispatched)throw fail('DESKTOP_UNCONFIRMED','原请求提交状态尚未确认，请查询原请求，不能重复执行。');
     }
+    const checkRegisteredEndpoint=()=>{
+      params[CALLER_AUTHORIZATION]?.();
+      if(!params.registeredAgentId)return;
+      const endpoint=this.options.agentDirectory?.().resolve(params.registeredAgentId);
+      if(!endpoint||endpoint.nodeId!==node.nodeId||endpoint.endpointId!==params.endpointId)throw fail('AGENT_ENDPOINT_CHANGED','原登记与执行端点不匹配，需求未派发。');
+    };
+    checkRegisteredEndpoint();
     if(node.adapter==='opencode'&&!openCodeCompatibility(node.version).supported)throw openCodeVersionError(node.version);
     if(!node.executionSupported)throw fail('ADAPTER_UNSUPPORTED','这个节点已发现，尚未完成执行适配。');
     // Original dispatched receipts above remain readable if current capabilities
@@ -253,9 +268,15 @@ class AgentNetwork extends MachineRouter {
     if(params.collaboration&&capabilities.bridgeMcp!==true)throw collaborationCapabilityError('这个节点尚不支持调用 Bridge MCP，不能作为协作主 Agent；需求未派发。');
     if(node.supersededBy&&params.op!=='continue')throw fail('NODE_SUPERSEDED','这个历史安装已由当前版本替代，请使用当前 Agent 节点新建会话。');
     const state=await this.snapshot();
+    if(isBrowser(node))for(const original of this.network.requests){
+      const owner=this.network.nodes.find(n=>n.nodeId===original.nodeId&&n.machineId===original.machineId);
+      if(!original.dispatched||!owner||owner.machineId!==node.machineId||owner.adapter!==node.adapter||!isBrowser(owner))continue;
+      const observed=state.tasks.find(t=>t.machineId===owner.machineId&&t.requestId===original.requestId);
+      if(!terminal.has(observed?.status||original.lastStatus)&&!(original.knownBrowserInstances||[owner.browserInstanceId]).includes(node.browserInstanceId))throw fail('BROWSER_RESOURCE_UNCONFIRMED','Original browser dispatch is unresolved; a new profile cannot replace it.');
+    }
     if(node.supersededBy&&params.op!=='continue')throw fail('NODE_SUPERSEDED','这个历史安装已由当前版本替代，请使用当前 Agent 节点新建会话。');
     if(state.nodes.find(n=>n.nodeId===(node.supersededBy||node.nodeId))?.busy)throw fail('AGENT_BUSY','这个 Agent 节点仍有未结束任务，请先查看或核对原执行。');
-    const receipt=previous||{requestId:params.requestId,machineId:node.machineId,nodeId:node.nodeId,fingerprint,inputFingerprint,createdAt:new Date().toISOString(),dispatched:false,collaboration:!!params.collaboration};
+    const receipt=previous||{requestId:params.requestId,machineId:node.machineId,nodeId:node.nodeId,fingerprint,inputFingerprint,createdAt:new Date().toISOString(),dispatched:false,collaboration:!!params.collaboration,...(isBrowser(node)?{knownBrowserInstances:this.network.nodes.filter(n=>n.machineId===node.machineId&&n.adapter===node.adapter&&isBrowser(n)).map(n=>n.browserInstanceId)}:{})};
     if(!previous){this.network.requests.push(receipt);this.saveNetwork();}
     let rawParams;
     try{
@@ -274,7 +295,7 @@ class AgentNetwork extends MachineRouter {
       rawParams={op:'continue',conversationId:params.conversationId,requestId:params.requestId,message:params.message};
     }else{
       if(params.collaboration&&relationForCaller(this.network,node.nodeId).leaderId!==node.nodeId)throw fail('COLLABORATION_FORBIDDEN','这个节点不是当前主 Agent。');
-      const context=await this.host(machine).call('context',{nodeId:node.nodeId,adapter:node.adapter,executable:node.executable,workspace:params.workspace?folderPath(params.workspace,machine):undefined,...(params.teamScope?{collaborationId:'team:'+params.teamScope.teamSessionId,scope:params.teamScope}:params.collaboration?{collaborationId:'default',scope:{nodeId:node.nodeId,parentRequestId:params.requestId}}:{})});
+      const context=await this.host(machine).call('context',{nodeId:node.nodeId,adapter:node.adapter,executable:node.executable,...(isBrowser(node)?{browserInstanceId:node.browserInstanceId}:{}),workspace:params.workspace?folderPath(params.workspace,machine):undefined,...(params.teamScope?{collaborationId:'team:'+params.teamScope.teamSessionId,scope:params.teamScope}:params.collaboration?{collaborationId:'default',scope:{nodeId:node.nodeId,parentRequestId:params.requestId}}:{})});
       if(node.adapter==='opencode')node.apiCompatibility={executable:node.executable,version:node.version,compatible:true};
       if(params.collaboration&&context.teamCollaboration===false)throw collaborationCapabilityError('来源后台未提供 Bridge MCP 通道，需求未派发。');
       if(params.teamScope&&!context.teamCollaboration)throw Object.assign(fail('TEAM_UPGRADE_REQUIRED','来源后台尚不支持小队通信，请升级该机器后台后再执行。'),{executionNotDispatched:true});
@@ -284,6 +305,7 @@ class AgentNetwork extends MachineRouter {
       receipt.contextId=context.contextId;if(params.teamScope)receipt.teamSessionId=params.teamScope.teamSessionId;receipt.collaboration=!!params.collaboration;
       rawParams={op:params.op||'submit',agentId:receipt.agentId,requestId:params.requestId,message:params.message};
     }
+    checkRegisteredEndpoint();
     }catch(error){
       receipt.preparationRejection=typeof error.code==='string'&&/^[A-Z][A-Z0-9_]{0,79}$/.test(error.code)?error.code:'DESKTOP_ERROR';
       receipt.preparationError={code:receipt.preparationRejection,message:error.message};
@@ -315,54 +337,142 @@ class AgentNetwork extends MachineRouter {
     return this.scopedCollaborationTool(node,relationForCaller(this.network,node.nodeId),{requestId:scope.externalConnectionId,conversationId:'mcp:'+scope.externalConnectionId,taskId:null,externalConnectionId:scope.externalConnectionId},name,args);
   }
   async scopedCollaborationTool(node,relation,owner,name,args){
+    owner.authority?.assert();
+    relation=activeRelation(this.network,node,owner);
     if(['list_connectable','connect_agent','disconnect_agent'].includes(name)){const policy=this.connectionPolicy||(this.connectionPolicy=new (require('./connection-policy.cjs').ConnectionPolicy)(this));return name==='list_connectable'?policy.list(node,owner,args):policy.operate(node,owner,name==='connect_agent'?'connect':'disconnect',args);}
     if(name==='list_delegations')return require('./delegation-list.cjs').delegationList(this.network,node,owner,args);
     if(name==='list_agents'){
       const {assertListArgs,listAgentConnections}=require('./agent-connections.cjs');assertListArgs(args);
-      const snapshot=node.nodeId===relationForCaller(this.network,node.nodeId).leaderId?await this.snapshot():null;
-      return listAgentConnections(this.network,node,owner,snapshot);
+      const snapshot=node.nodeId===activeRelation(this.network,node,owner).leaderId?await this.snapshot():null;
+      const view=listAgentConnections(this.network,node,owner,snapshot),directory=this.options.agentDirectory?.();
+      if(directory){const agents=directory.authorized(view.items.map(item=>item.nodeId));view.items=view.items.map(item=>({...item,agents:agents.filter(agent=>agent.endpoint?.nodeId===item.nodeId||directory.record(agent.agentId).nodeId===item.nodeId)}));view.supportedOperations.push('delegate.agent-id-v1');}
+      return view;
     }
     if(name==='delegate'){
+      owner.authority?.checkTarget(args.agentId);
       if(node.nodeId!==relation.leaderId)throw fail('COLLABORATION_FORBIDDEN','此调用者已不是当前主 Agent，不能新委派。');
       if(owner.status==='unknown')throw fail('COLLABORATION_FORBIDDEN','原父执行尚未确认，不能新委派。');
+      let registeredEndpoint;
+      if(args.agentId!==undefined){
+        const directory=this.options.agentDirectory?.();if(!directory)throw fail('AGENT_DIRECTORY_BACKEND_UPGRADE_REQUIRED','原后台未支持登记身份调用。');
+        const registered=directory.record(args.agentId);
+        if(registered.kind!=='native'||!relation.memberIds.includes(registered.nodeId))throw fail('COLLABORATION_FORBIDDEN','目标登记不在当前获准节点中。');
+        registeredEndpoint=directory.resolve(args.agentId);
+        if(args.nodeId!==undefined&&args.nodeId!==registeredEndpoint.nodeId)throw fail('AGENT_ENDPOINT_CONFLICT','登记身份与目标节点不一致。');
+        args={...args,nodeId:registeredEndpoint.nodeId};
+      }
       if(!relation.memberIds.includes(args.nodeId)||args.nodeId===node.nodeId)throw fail('COLLABORATION_FORBIDDEN','目标节点不在已允许的子 Agent 中。');
       if(typeof args.requestId!=='string'||!args.requestId||args.requestId.length>128||typeof args.message!=='string'||!args.message.trim()||args.message.length>65536)throw fail('INVALID_INPUT','委派需要稳定请求 ID 和需求文本。');
+      if(args.conversationId!==undefined&&(typeof args.conversationId!=='string'||!args.conversationId.trim()||args.conversationId.length>256))throw fail('INVALID_INPUT','续聊需要原会话 ID。');
+      if(args.conversationId&&args.workspace)throw fail('CONVERSATION_CONFIG','委派续聊沿用原执行上下文，不接受新的目录。');
       const requestId='delegation-'+hash(node.nodeId+':'+owner.conversationId+':'+args.requestId).slice(0,40);
       let delegation=this.network.delegations.find(d=>d.requestId===requestId);
-      if(delegation&&(delegation.memberId!==args.nodeId||delegation.message!==args.message||(delegation.workspace||'')!==(args.workspace||'')))throw fail('REQUEST_CONFLICT','此委派请求 ID 已用于另一条需求。');
+      if(delegation&&!delegationOwned(delegation,node,owner))throw fail('COLLABORATION_FORBIDDEN','原委派属于另一个父执行或接入身份。');
+      if(delegation&&(delegation.registeredAgentId||null)!==(args.agentId||null))throw fail('REQUEST_CONFLICT','原请求不能更换或移除登记身份。');
+      if(delegation&&(delegation.memberId!==args.nodeId||delegation.message!==args.message||(delegation.workspace||'')!==(args.workspace||'')||(delegation.resumeConversationId||'')!==(args.conversationId||'')))throw fail('REQUEST_CONFLICT','此委派请求 ID 已用于另一条需求。');
       const child=this.node(args.nodeId);
       if(delegation){const refusal=this.reconcileDelegation(delegation);if(refusal){this.saveNetwork();throw fail(refusal.code,refusal.message);}}
       if(!delegation){
-        if(connectionCapabilities(node).connectionCapabilities.bridgeMcp!==true)throw collaborationCapabilityError('当前主节点没有已声明的 Bridge MCP 调用能力，未派发新委派。');
+        if(owner.authority?!owner.authority.canDelegate():connectionCapabilities(node).connectionCapabilities.bridgeMcp!==true)throw collaborationCapabilityError('当前主节点没有已声明的 Bridge MCP 调用能力，未派发新委派。');
         if(connectionCapabilities(child).connectionCapabilities.delegation!==true)throw collaborationCapabilityError('目标节点没有已声明的受委派执行能力，未派发新委派。');
+        if(args.conversationId){
+          if(connectionCapabilities(child).connectionCapabilities.resume!==true)throw fail('ADAPTER_UNSUPPORTED','目标节点尚未声明原会话续聊能力。');
+          const prior=this.network.delegations.findLast(d=>d.memberId===child.nodeId&&d.conversationId===args.conversationId&&delegationOwned(d,node,owner));
+          if(!prior?.taskId)throw fail('COLLABORATION_FORBIDDEN','这个会话不是原调用方在此目标上创建的委派。');
+          const session=await super.call('ipc',{op:'conversation',machineId:child.machineId,conversationId:args.conversationId});
+          const previous=await super.call('ipc',{op:'task',machineId:child.machineId,taskId:prior.taskId});
+          const instance=this.catalog.instances.find(i=>i.instanceId===session.targetAgent);
+          if(session.conversationId!==args.conversationId||instance?.nodeId!==child.nodeId||previous.conversationId!==args.conversationId||!terminal.has(previous.status)||session.lastTaskId&&session.lastTaskId!==prior.taskId||session.canContinue!==true)throw fail('CONVERSATION_BINDING','原委派尚未确定结束或原会话不能续聊。');
+          const current=activeRelation(this.network,node,owner);
+          if(current.leaderId!==node.nodeId||!current.memberIds.includes(child.nodeId)||!node.connected||node.removed||!child.connected||child.removed)throw fail('COLLABORATION_FORBIDDEN','原目标关系或节点接入已撤销，续聊未派发。');
+          if(!owner.externalConnectionId){const parent=await super.call('ipc',{op:'request',machineId:node.machineId,requestId:owner.requestId});if(parent.taskId!==owner.taskId||parent.conversationId!==owner.conversationId||terminal.has(parent.status)||parent.status==='unknown')throw fail('COLLABORATION_FORBIDDEN','原父执行已失效，续聊未派发。');}
+          const finalRelation=activeRelation(this.network,node,owner);
+          if(finalRelation.leaderId!==node.nodeId||!finalRelation.memberIds.includes(child.nodeId))throw fail('COLLABORATION_FORBIDDEN','当前授权已撤销，续聊未派发。');
+        }
       }
       const context=require('./delegation-context.cjs');
       // Freeze the context version before any dispatch; a retry uses the original
       // version (including unwrapped legacy rows) and therefore the same input.
       const intended=delegation||{message:args.message,contextVersion:context.version};
       const message=context.renderDelegation(intended);
-      if(!delegation){delegation={delegationId:randomUUID(),requestId,leaderId:node.nodeId,memberId:args.nodeId,parentRequestId:owner.requestId,parentTaskId:owner.taskId,...(owner.externalConnectionId?{externalConnectionId:owner.externalConnectionId}:{}),parentConversationId:owner.conversationId,message:args.message,contextVersion:intended.contextVersion,workspace:args.workspace,createdAt:new Date().toISOString(),state:'pending'};this.network.delegations.push(delegation);this.saveNetwork();}
-      try{const task=await this.call('nodeRequest',{op:'submit',nodeId:child.nodeId,machineId:child.machineId,requestId,message,workspace:args.workspace,collaboration:false});Object.assign(delegation,{taskId:task.taskId,conversationId:task.conversationId,state:task.status});this.saveNetwork();return {...task,parentTaskId:owner.taskId,delegationId:delegation.delegationId};}
+      if(!delegation){delegation={delegationId:randomUUID(),requestId,leaderId:node.nodeId,memberId:args.nodeId,parentRequestId:owner.requestId,parentTaskId:owner.taskId,...(owner.externalConnectionId?{externalConnectionId:owner.externalConnectionId}:{}),...(owner.authority?{callerPrincipalId:owner.authority.view().principalId,callerContextId:owner.authority.view().contextId}:{}),...(registeredEndpoint?{registeredAgentId:registeredEndpoint.registeredAgentId,endpointId:registeredEndpoint.endpointId}:{}),parentConversationId:owner.conversationId,message:args.message,contextVersion:intended.contextVersion,workspace:args.workspace,op:args.conversationId?'continue':'submit',...(args.conversationId?{resumeConversationId:args.conversationId}:{}),createdAt:new Date().toISOString(),state:'pending'};this.network.delegations.push(delegation);this.saveNetwork();}
+      try{const task=await this.call('nodeRequest',{[CALLER_AUTHORIZATION]:owner.authority?()=>owner.authority.checkTarget(args.agentId):undefined,op:delegation.op||'submit',...(delegation.registeredAgentId?{registeredAgentId:delegation.registeredAgentId,endpointId:delegation.endpointId}:{}),...(delegation.resumeConversationId?{conversationId:delegation.resumeConversationId}:{}),nodeId:child.nodeId,machineId:child.machineId,requestId,message,workspace:args.workspace,collaboration:false});Object.assign(delegation,{taskId:task.taskId,conversationId:task.conversationId,state:task.status});this.saveNetwork();return {...task,parentTaskId:owner.taskId,delegationId:delegation.delegationId};}
       catch(e){const refusal=this.reconcileDelegation(delegation);if(!refusal){delegation.state=['AGENT_BUSY','PROJECT_BUSY','AGENT_UNHEALTHY','AGENT_UNAVAILABLE','NODE_DISCONNECTED','ADAPTER_UNSUPPORTED','INVALID_INPUT','WORKSPACE_UNAVAILABLE'].includes(e.code)?'rejected':'unknown';delegation.error={code:e.code,message:e.message};}this.saveNetwork();throw e;}
     }
-    const delegation=this.network.delegations.find(d=>d.taskId===args.taskId&&d.leaderId===node.nodeId&&d.parentRequestId===owner.requestId&&d.parentTaskId===owner.taskId&&d.parentConversationId===owner.conversationId);
+    if(name==='task_result'){
+      if(!args||typeof args!=='object'||Array.isArray(args)||Object.keys(args).some(key=>!['taskId','delegationId','waitMs','afterSeq','limit'].includes(key))
+        ||args.taskId===undefined&&args.delegationId===undefined
+        ||args.taskId!==undefined&&(typeof args.taskId!=='string'||!args.taskId.trim()||args.taskId.length>4096)
+        ||args.delegationId!==undefined&&(typeof args.delegationId!=='string'||!args.delegationId.trim()||args.delegationId.length>128))throw fail('INVALID_INPUT','结果查询需要原taskId或list_delegations返回的原delegationId。');
+      require('./task-event-view.cjs').validateCursor(args);
+    }
+    const delegation=this.network.delegations.find(d=>(name==='task_result'&&args.delegationId!==undefined?d.delegationId===args.delegationId:d.taskId===args.taskId)&&delegationOwned(d,node,owner));
     if(!delegation)throw fail('COLLABORATION_FORBIDDEN','只能读取或控制当前主会话委派的任务。');
+    if(owner.authority&&(delegation.callerPrincipalId!==owner.authority.view().principalId||delegation.callerContextId!==owner.authority.view().contextId))throw fail('RECEIPT_MISMATCH','原调用上下文与委派归属不匹配。');
     const member=this.node(delegation.memberId);
+    if(name==='task_result'&&args.delegationId!==undefined){
+      if(delegation.taskId&&args.taskId!==undefined&&delegation.taskId!==args.taskId)throw fail('RECEIPT_MISMATCH','原委派与所给Task不一致。');
+      if(!delegation.taskId){
+        const refusal=this.reconcileDelegation(delegation);let recovered;
+        if(!refusal)try{
+          recovered=await super.call('ipc',{op:'request',machineId:member.machineId,requestId:delegation.requestId});
+        }catch(error){if(!['NOT_FOUND','TASK_NOT_FOUND'].includes(error.code))throw error;}
+        owner.authority?.assert();
+        if(!recovered){
+          if(refusal)this.saveNetwork();
+          return {status:refusal?'rejected':'unknown',canContinue:false,delegationId:delegation.delegationId,
+            error:refusal||{code:'ORIGINAL_REQUEST_NOT_FOUND',message:'原后台未找到原请求；保留原意图与占用，不授权重新提交。'},
+            invocation:invocationView(delegation,null,owner),
+            outcome:{status:refusal?'rejected':'unknown',terminal:false,evidence:refusal?'original-preparation-rejection':'original-request-query',businessAcceptance:'not-evaluated',...(refusal?{errorPhase:'before_execution'}:{})},
+            recovery:{state:refusal?'not-dispatched':'request-not-found',resubmissionAllowed:false},
+            ...(args.afterSeq!==undefined?{events:{schema:1,supported:false,source:'original-task-events',reason:'task-not-associated',afterSeq:args.afterSeq,cursor:args.afterSeq,items:[],hasMore:false}}:{})};
+        }
+        const original=this.network.requests.find(row=>row.requestId===delegation.requestId&&row.nodeId===delegation.memberId&&row.machineId===member.machineId);
+        const instance=this.catalog.instances.find(row=>row.instanceId===recovered.targetAgent&&row.machineId===member.machineId);
+        if(!original?.dispatched||typeof original.agentId!=='string'||recovered.targetAgent!==original.agentId||instance?.nodeId!==delegation.memberId
+          ||recovered.requestId!==delegation.requestId||typeof recovered.taskId!=='string'||!recovered.taskId||typeof recovered.conversationId!=='string'||!recovered.conversationId
+          ||!['queued','accepted','running','succeeded','failed','cancelled','unknown'].includes(recovered.status)
+          ||original.conversationId&&original.conversationId!==recovered.conversationId||delegation.resumeConversationId&&delegation.resumeConversationId!==recovered.conversationId
+          ||args.taskId!==undefined&&args.taskId!==recovered.taskId||delegation.taskId&&delegation.taskId!==recovered.taskId)throw fail('RECEIPT_MISMATCH','原请求返回的Task/会话身份不匹配；不重绑或重发。');
+        Object.assign(delegation,{taskId:recovered.taskId,conversationId:recovered.conversationId,state:recovered.status});this.saveNetwork();
+      }
+      args={...args,taskId:delegation.taskId};
+    }
     if(name==='task_pending')return super.call('ipc',{op:'pending',machineId:member.machineId,taskId:args.taskId});
     if(name==='reply_task'){
       if(!['permission','form'].includes(args.action)||!args.requestId||!args.operationId)throw fail('INVALID_INPUT','回复需要原交互请求 ID 与操作 ID。');
       const original=await super.call('ipc',{op:'task',machineId:member.machineId,taskId:args.taskId});
+      owner.authority?.assert();
       if(args.action==='permission'&&!['reject','once'].includes(args.decision))throw fail('INVALID_INPUT','请选择拒绝或仅允许本次。');
       return super.call('ipc',{op:'reply',machineId:member.machineId,taskId:args.taskId,reply:{taskId:args.taskId,executionId:original.executionId,operationId:args.operationId,requestId:args.requestId,action:args.action,...(args.action==='permission'?{decision:args.decision}:{answer:args.answer})}});
     }
     if(name==='cancel_task'){
       if(typeof args.operationId!=='string'||!args.operationId)throw fail('INVALID_INPUT','取消需要操作 ID。');
+      if(args.queryOnly!==undefined&&typeof args.queryOnly!=='boolean')throw fail('INVALID_INPUT','queryOnly必须是布尔值；查询不会重新发送取消。');
+      if(args.queryOnly===true){
+        const receipt=await super.call('ipc',{op:'operation',machineId:member.machineId,taskId:args.taskId,operationId:args.operationId});
+        if(receipt?.operationId!==args.operationId||receipt.taskId!==args.taskId||!['attempted','unknown','confirmed','rejected'].includes(receipt.state))throw fail('RECEIPT_MISMATCH','原取消收据的操作、任务身份或状态不匹配。');
+        if(receipt.kind!=='cancel')throw fail('OPERATION_CONFLICT','原操作未证明属于该任务的取消；不能以其他收据确认取消。');
+        return receipt;
+      }
       return super.call('ipc',{op:'cancel',machineId:member.machineId,taskId:args.taskId,operationId:args.operationId});
     }
     if(name==='task_result'){
+      const eventsRequested=require('./task-event-view.cjs').validateCursor(args);
       const waitMs=Math.min(45000,Math.max(0,Number(args.waitMs)||0)),deadline=Date.now()+waitMs;let task;
-      do{task=await super.call('ipc',{op:'task',machineId:member.machineId,taskId:args.taskId});if(terminal.has(task.status)||task.status==='unknown'||task.waiting||Date.now()>=deadline)break;await new Promise(r=>setTimeout(r,500));}while(true);
-      delegation.state=task.status;this.saveNetwork();return {taskId:task.taskId,status:task.status,result:task.result,error:task.error,waiting:task.waiting,summary:task.lastSummary,delegationId:delegation.delegationId};
+      do{owner.authority?.assert();task=await super.call('ipc',{op:'task',machineId:member.machineId,taskId:args.taskId});if(terminal.has(task.status)||task.status==='unknown'||task.waiting||eventsRequested&&(!Array.isArray(task.events)||task.events.some(row=>row.seq>args.afterSeq)||task.lastSeq>args.afterSeq)||Date.now()>=deadline)break;await new Promise(r=>setTimeout(r,500));}while(true);
+      let canContinue=false;
+      owner.authority?.assert();
+      const current=activeRelation(this.network,node,owner);
+      if((!owner.authority||owner.authority.canDelegate())&&terminal.has(task.status)&&task.conversationId&&connectionCapabilities(member).connectionCapabilities.resume===true&&current.leaderId===node.nodeId&&current.memberIds.includes(member.nodeId)&&node.connected&&!node.removed&&member.connected&&!member.removed)try{
+        const session=await super.call('ipc',{op:'conversation',machineId:member.machineId,conversationId:task.conversationId});
+        canContinue=session.canContinue===true&&(!session.lastTaskId||session.lastTaskId===task.taskId);
+        const latest=activeRelation(this.network,node,owner);canContinue=canContinue&&(!owner.authority||owner.authority.canDelegate())&&latest.leaderId===node.nodeId&&latest.memberIds.includes(member.nodeId)&&node.connected&&!node.removed&&member.connected&&!member.removed;
+      }catch{/* A failed continuation probe does not hide the original result. */}
+      delegation.state=task.status;this.saveNetwork();return {taskId:task.taskId,conversationId:task.conversationId,canContinue,status:task.status,result:task.result,error:task.error,waiting:task.waiting,summary:task.lastSummary,delegationId:delegation.delegationId,
+        invocation:invocationView(delegation,task,owner),
+        outcome:{status:task.status,terminal:terminal.has(task.status),evidence:'original-task',businessAcceptance:'not-evaluated',...(task.error?.phase?{errorPhase:task.error.phase}:{}),...(task.waiting?{waiting:task.waiting.kind}: {})},
+        ...(eventsRequested?{events:require('./task-event-view.cjs').taskEventView(task,args)}:{})};
     }
     throw fail('INVALID_INPUT','不支持这个协作操作。');
   }
@@ -415,11 +525,11 @@ class AgentNetwork extends MachineRouter {
       const state=await this.snapshot(),current=state.nodes.find(n=>n.nodeId===node.nodeId);
       if(!current.online)throw fail('MACHINE_OFFLINE','请先恢复来源机器，核对原执行后再变更节点。');
       const instances=this.catalog.instances.filter(i=>i.nodeId===node.nodeId);
-      if(current.busy||instances.some(i=>this.locks.has(workspaceKey(machine,i.workspace))))throw fail('AGENT_BUSY','节点仍有运行、等待或未确认的任务，不能断开、移除或重新接入。');
+      if(current.busy||instances.some(i=>this.locks.has(executionResource(machine,i))))throw fail('AGENT_BUSY','节点仍有运行、等待或未确认的任务，不能断开、移除或重新接入。');
       if(params.action==='attach'){
         if(node.supersededBy)throw fail('NODE_SUPERSEDED','请接入当前 Agent 节点，历史安装仅保留原执行记录。');
         const discovered=await super.call('discover',{machineId:node.machineId});
-        const item=discovered.items.find(i=>i.executable===node.executable&&i.adapter===node.adapter);
+        const item=discovered.items.find(i=>sameInstallation(i,node)&&i.adapter===node.adapter);
         if(!item)throw fail('DISCOVERY_CHANGED','这个工具已不可用，请重新扫描。');
         if(item.adapter==='opencode'&&item.version)node.version=item.version;
         if(item.adapter==='opencode'&&!openCodeCompatibility(item.version??node.version).supported)throw openCodeVersionError(item.version??node.version);

@@ -1,5 +1,41 @@
 # 对象、身份与持久数据
 
+OpenCode原任务协议仍取既有NativeReference.snapshot.nativeProtocol，不从临时健康发现缓存重写。按原绑定创建的客户端仅为本次执行/观察/控制的内存资源，不新增持久身份、字段、Task或Session；发现失败及IPC离线不能推定原任务终态。[当前行为与验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+无taskId委派可由原属主用task_result(delegationId)查询原requestId。只有匹配原请求、Task/会话及有效状态才保存taskId/conversationId/state关联，不改执行指纹或生成Task。taskQueryable仍仅表示已有taskId；新查询能力单独声明task.original-request-v1。原请求缺失保持unknown；确定准备拒绝由原持久指纹证明，未关联Task的outcome.terminal=false。[完整结果契约](iterations/I08/interconnect-caller-contract.md)。
+
+## 身份与归属的设计边界
+
+当前存储和身份仍以本文现有 nodeId、contextId、connectionId、Conversation、Task、executionId 与 operationId 为准。原生产品的独立MCP配置接入仍绑定节点，同一长期接入内的外部会话共享范围；新增mode=caller入口则按明确的主体/上下文/凭据核验，不要求工具节点；托管父执行终态使其原 scope 失效。跨回合访问仅在同一明确CallerContext及当前授权内；凭据轮换不改变上下文归属。新上下文、原native-parent和旧connectionId不自动接管旧任务。
+
+当前未发布源码复用team-space.sqlite格式3的agents[]/receipts，原生登记增加可选interconnectEndpoint={version:1,endpointId,revision:1,nodeId,machineId,adapter,bindingDigest,mode}，不新增登记表或自动迁移旧登记。旧登记需明确confirmEndpoint；仅协作MCP登记无执行端点。说明更新保留原agentId/端点；既有端点不可重绑，损坏/未知版本拒绝。ownership/admission是只读投影，不落盘为Agent可修改策略。登记agentId与原生执行实例agentId/instanceId是不同命名空间，不能互换；委派/执行指纹增加registeredAgentId/endpointId，原ID/unknown不迁移、不释放。[字段、收据与实际证据](iterations/I08/interconnect-development.md)。独立调用方新增interconnect_callers单行表，body版本1包含callers/contexts/credentials；principalId复用登记agentId，contextId发放读控范围，credentialId仅认证且可轮换。原委派保存callerPrincipalId/callerContextId；凭据秘密仍仅存私有broker，不进入收据。原Task七态不变，结果新增invocation/outcome，事件游标取原Task序列。[字段、容量、恢复和权限](iterations/I08/interconnect-caller-contract.md)。完整原生/跨设备生命周期仍待验；节点/关系不绑定模型、供应商或项目。
+
+TeamSpace 的工作项、依赖、返修与业务验收属于可选上层，暂停扩张；其业务状态不能进入通用原生 Task 状态机。原数据与兼容行为保留。[完整约束与待实现验收](iterations/I08/interconnect-boundary.md)。
+
+Browser IndexedDB原请求新增可选integrityResolution={observed,proof,documentId,pageEpoch,sessionKey,userAnchor,assistantAnchor,terminalFingerprint,stableForMs}；仅原submitted/contentAuthorized、最新原Session、1500ms稳定结束证明可与failed/BROWSER_CONTEXT_INTEGRITY_LOST及资源锁释放同事务写入。严格校验9字段/原绑定，旧无字段记录保留；不保存第二份消息正文、不迁移Core或v1表。Node沿用原failed事件/游标/原reconcile结算。[实现与恢复证据](iterations/I08/web-agent-live-chatgpt.md)。
+
+Browser交付新增构建期`agentbridge-browser-bundle-v1`外置清单：development通道、扩展/协议版本、sourceDigest、ZIP字节/SHA及逐生产文件字节/SHA；专属stage标记另保存三份输出摘要用于替换核验。均非运行状态，不含配对、账号或Task记录；不改变Node/扩展持久表或数据版本。[产物字段与边界](iterations/I08/web-agent-packaging.md)。
+
+Browser扩展关闭操作可选recoverySealOperationId，指向同完整meta、confirmed的原task.cancel/content-not-authorized-v1；仅以该原封存可在缺本轮request行时关闭既有Session，读取时校验引用。health不新增持久记录，request.get仍不伪造缺行；同Session其他请求的相同或更大leaseEpoch使旧控制不再是最新轮次。继承绑定prepared取消先保存两端证明，全新无绑定prepared本地取消保持。数据版本不变，无Core/native迁移。[完整恢复约束](iterations/I08/web-agent-design.md#64-已确认取消后的原-session-恢复)。
+
+Browser原私有Task/Conversation binding及扩展Session.continuation新增transcriptFingerprint/assistantAnchor/historyRevision；来源是原completed事件的可见DOM证明，与终态/游标同次提交。扩展r.terminal保留原证明，ACK不删除；submitted清除上轮Session证明，新完成才替换。旧缺字段记录保留结果但不自动续聊，损坏证明拒绝打开，不改变Core/native表或v1版本。[原数据及边界](iterations/I08/web-agent-design.md#44-已实现的可见对话续聊证明)。
+
+Browser IndexedDB v1请求新增可选contentAuthorized；新请求明确false，提交内容前原子变true，旧缺字段不能作未授权证明。task.cancel操作原子保存原meta/senderFence、proof=content-not-authorized-v1及sealedThroughSeq；已准备请求以cancelProofOperationId关联取消，未创建Session时仅保存封存操作，不造页面。Node原cancel操作可含proofMode/senderFence及当时已知profile；收齐原游标并验证后才同事务保存Task.cancelled。cancel_task的queryOnly只沿原记录查询，不创建替代操作/Task或改变归属；原收据身份/种类不可核验时保留不确定性。数据版本不变，无Core/native迁移。[完整约束](iterations/I08/web-agent-design.md#74-取消关闭与超时)。
+
+健康检查没有新增持久字段、Schema迁移或Task事件。probeId、observedAt及运输/站点/DOM/存储/占用/陈旧性是一次只读观察，原Task、Session、请求锁及控制台账不被其结果结算。已知Node存储写失败锁定使storageReady/ready=false，原完成结果仍可读；扩展异常正文不投影。[原身份检查与实测](iterations/I08/web-agent-development.md)。
+
+Browser关闭的原meta忙碌/旧绑定拒绝在扩展持久为rejected，Node核对固定拒绝码后结算关闭控制；不改原Task/Session。未知关闭私有记录当时已知profile，后配对不可绕过，Agent仍busy且不可用；原记录缺此集合只承认原profile。数据版本和原ID保持。[当前反例](iterations/I08/web-agent-development.md)。
+
+Browser Conversation可选closed/closeState，Host.operations的kind=session.close含原taskId/conversationId/operationId/expectedRevision和closed证明；扩展在原IndexedDB v1单事务写Session.closed及confirmed操作，不触碰Task终态。未知关闭保留占用，原operation查询不重发。pending配对期限仍按原记录强制核验，首次修正不改node/pair/profile/Origin/地址，已保存密钥不被粘贴替换。无Core/native迁移。[字段与实测](iterations/I08/web-agent-development.md)。
+
+Browser节点/连接/context按machineId+adapter+browserInstanceId识别，无executable/workspace；原机器历史保留profile字段，CLI身份算法不变。中央requests和Host Task私有保存派发时已知profile集合，缺字段只承认原profile；原unknown及中央有派发无Task均不因新配对解锁。Node JSON与扩展IndexedDB仍各自单权威提交，无Core/native迁移。[当前完整数据](iterations/I08/web-agent-development.md)。
+
+Node私有browser-endpoint.json版本1绑定原nodeId、127.0.0.1和49152–65535中的固定端口，启动后不因占用改址；原pair记录可选operationId实现配对重查，过期/撤销不分配替代身份。委派记录可选op及resumeConversationId区分提交与续聊指纹，缺op的旧记录仍按submit；原父Task/Conversation或独立externalConnectionId不得转移。[字段、恢复与证据](iterations/I08/web-agent-development.md)。
+
+桌面按directory+machineId保存browser-pair.v1本机意图，仅operationId、extensionId及已确认pairingId；不保存bootstrap或长期密钥。丢回应/重开只queryOnly，不以缺收据自动另建。扩展browserEnabled控制本机接入暂停，browserPairing仍保留在TRUSTED_CONTEXTS，原IndexedDB和请求/锁不清理。[UI行为与验证](iterations/I08/web-agent-development.md)。
+
+Browser Host.operations新增kind=reconcile原收据，包含原taskId/operationId、unknown或confirmed及原Task状态；终态Task及相应核对收据同次提交。扩展operation.get不改变原IndexedDB版本/操作状态；全meta不符不能读取为另一个原操作，缺失不生成新记录。[原查询与恢复](iterations/I08/web-agent-development.md)。
+
 三原生CLI明确未启动时，复用现有terminal事件status=failed/code=NATIVE_START，并写已有可选nativeExited=false。原Task与请求保留；原取消data为status=failed/nativeExited=false，原核对消息注明未派发，confirmed不改变任务为成功/取消。spawn边界为当次worker内存事实，不新增数据版本或恢复推断；历史unknown保持。[完整合约与验证](iterations/I08/native-start-boundary.md)。
 
 Pi沿用原Agent.workspace、Conversation.sessionId与原生JSONL头cwd做派发前绑定校验；原生session事件按同一真实目录规则读取cwd，等价别名不改写原Session/文件，缺失或失效不能产生成功。没有新增字段/版本，旧记录不迁移；派发前缺失或变化时canContinue=false，续聊以CONVERSATION_CONFIG拒绝且不新增持久请求/Task，不更改历史/unknown。Claude脚本启动同样保持原安装路径与持久记录。[派发前规则](iterations/I08/pi-session-workspace.md)、[未发布修复与验证](iterations/I08/pi-workspace-events-and-windows-validation.md)。

@@ -66,8 +66,8 @@ export class OpenCodeClient {
     } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
   }
   /** Read-only contract probe shared by startup, reconnect and execution checks. */
-  async probe(signal?: AbortSignal): Promise<{version: string; selected: {id:string;providerID:string;variant?:string}|null; models:{id:string;providerID:string}[]}> {
-    this.protocol = undefined;
+  async probe(signal?: AbortSignal): Promise<{version: string; selected: {id:string;providerID:string;variant?:string}|null; models:{id:string;providerID:string}[]; nativeAgentAvailable: boolean}> {
+    // A healthy refresh must not unset routing while original-task I/O is active.
     // Protocol discovery has its own budget, including response bodies and metadata.
     // Never touch api/info on a healthy v1: early v1 initializes and hangs there.
     const budget = AbortSignal.timeout(4000);
@@ -124,14 +124,16 @@ export class OpenCodeClient {
         if (!Array.isArray(config) || !config.every(s => s && typeof s === 'object')) throw new BridgeError('NATIVE_CONTRACT', 'API config shape mismatch', 503);
       }
       this.protocol = 'v2';
-      return {version: info.version, selected:selected.data as {id:string;providerID:string;variant?:string}|null, models:models.data as {id:string;providerID:string}[]};
+      return {version: info.version, selected:selected.data as {id:string;providerID:string;variant?:string}|null, models:models.data as {id:string;providerID:string}[],
+        nativeAgentAvailable: agents.data.some(a => a.id === this.config.nativeAgent || a.name === this.config.nativeAgent)};
     } catch (error) {
+      this.protocol = undefined;
       if (error instanceof BridgeError && (['NATIVE_CONTRACT','NATIVE_RESPONSE_LIMIT','OPENCODE_HTTP_404','OPENCODE_HTTP_405','OPENCODE_PROBE_TIMEOUT'].includes(error.code) || reachable && error.code === 'NATIVE_UNAVAILABLE'))
         throw new BridgeError('OPENCODE_API_UNSUPPORTED', 'OpenCode 服务的 1.x/2.x API 契约或响应时限不满足要求，协议协商失败；请核对原安装的健康接口与服务配置，保留原请求与会话。', 503);
       throw error;
     }
   }
-  async check(warmupMs = 0): Promise<{ version: string; workspace: string; model: { id: string; providerID: string; variant?: string } | null; healthy: boolean }> {
+  async check(warmupMs = 0): Promise<{ version: string; workspace: string; model: { id: string; providerID: string; variant?: string } | null; healthy: boolean; nativeAgentAvailable: boolean }> {
     let workspace: string;
     try { workspace = realpathSync(this.config.workspace); if (!statSync(workspace).isDirectory()) throw new Error(); }
     catch { throw new BridgeError('WORKSPACE_UNAVAILABLE', 'Configured workspace is unavailable'); }
@@ -155,7 +157,7 @@ export class OpenCodeClient {
         }
       }
       const healthy = !!model && Array.isArray(available.data) && available.data.some(m => m.id === model.id && m.providerID === model.providerID);
-      if (healthy || Date.now() >= deadline) return { version: info.version, workspace, model: model ? { id: model.id, providerID: model.providerID, ...(model.variant ? { variant: model.variant } : {}) } : null, healthy };
+      if (healthy || Date.now() >= deadline) return { version: info.version, workspace, model: model ? { id: model.id, providerID: model.providerID, ...(model.variant ? { variant: model.variant } : {}) } : null, healthy, nativeAgentAvailable: info.nativeAgentAvailable };
       // v2 can publish an empty model catalogue while initializing this location.
       // Retry only read-only metadata; never retry session or prompt mutations.
       await delay(150);
@@ -195,6 +197,13 @@ export class OpenCodeClient {
   async ensureProtocol(expected: 'v1' | 'v2'): Promise<void> {
     if (!this.protocol) await this.probe();
     if (this.protocol !== expected) throw new BridgeError('NATIVE_BINDING', '原生协议与原任务绑定不一致；保留原会话和占位，不能切换协议重发。', 409);
+  }
+  /** Original-task I/O keeps its admitted protocol across unrelated health checks. */
+  async bindProtocol(expected: 'v1' | 'v2'): Promise<OpenCodeClient> {
+    await this.ensureProtocol(expected);
+    const bound = new OpenCodeClient(this.config);
+    bound.protocol = expected;
+    return bound;
   }
   async createV1Session(title: string, snapshot: NativeReference['snapshot'], signal?: AbortSignal): Promise<NativeSession> {
     await this.ensureProtocol('v1');

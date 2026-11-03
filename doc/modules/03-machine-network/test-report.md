@@ -1,5 +1,43 @@
 # M03 机器与 Agent 网络测试报告
 
+T-M07-317（共享）：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+T-M03-314：2026-11-03，Windows原认证Coordinator/真实stdio MCP，读取已有三条WSL Codex真实原生Task（cancelled/failed/failed）。实际原上下文凭据轮换、旧Bearer拒绝、观察器关闭/重开、跨上下文拒读、delegate/result/目标授权撤销及恢复累计18项核对通过，原Task/原生Session与请求计数3→3保持。本轮新需求0，原操作权限和目标已恢复；18项为共用累计检查，不与各阶段或104项相加。没有成功模型正文、在途属主上下文关闭或真正丢提交回应，已有服务/SSH/EXE与原矩阵仍未准出。新增验收脚本lint通过；首次脚本把Task.error误判为查询失败，产品行为未改。[源码、原始失败与分阶段实测](../../iterations/I08/interconnect-development.md#13-基于三条真实原生task的读控恢复验收)。
+
+T-M03-313：2026-11-03，当前Windows Codex桌面对话经真实MCP委派WSL Codex0.101.0；同一原CallerContext/子会话中三条Task明确cancelled/failed/failed，无成功正文。原取消收据confirmed与实际cancelled分别核对；观察器重开后原归属保持。Windows网络TLS成功、WSL直连超时，本次临时回环CONNECT通道已恢复TLS；两次原生刷新均401 invalid_refresh_token，同账号较新缓存试验失败并回滚，原生网页登录等待。profile/attempt保护受控10/10；网络四项拒绝门禁与一项原绑定保护、相关lint通过，均不等于模型闭环。成功续聊/轮换、真实profile/SSH/EXE仍未准出，公开alpha.71不变。[原始证据及登录恢复](../../iterations/I08/interconnect-windows-wsl.md)。
+
+T-M03-312：2026-11-03，未发布源码。新增task_result(delegationId)只读查询原请求，回应丢失后可补原Task关联；目标/委派授权撤销后原属主仍按result权限查询，读取中撤权/跨上下文/异源收据拒绝，not_found不释放占用，确定准备拒绝不伪造Task终态。Windows Node24.12.0与WSL Node24.13.0同范围11文件各104/104、0跳过；Hermes/Pi/DSH生产宿主+真实受控CLI恢复3/3，模型0。相关CJS lint通过，冻结源码逐字节一致；非EXE、非真实父模型/已有服务/SSH准出。[源码、原始证据及未测项](../../iterations/I08/interconnect-development.md#7-无taskid时查询原委派)。
+
+T-M03-311：2026-11-03，未发布互联核心源码、Windows Node24.12.0、全部配置/数据/缓存/日志在D盘。共享定向回归99/99，真实SQLite/认证IPC/stdio，原生执行为受控宿主；Hermes/Pi/DSH生产宿主与真实受控CLI事件/恢复3/3，模型0；源码管理CLI认证IPC15/15与99项重叠，不累计。Core构建/类型与相关CJS/CLI lint通过。后续Linux对应9文件79/79、Windows进度诊断正文省略反例及调用方/事件22/22通过；各集重叠，不相加。新增调用方/上下文/凭据、轮换/恢复、原Task事件分页及关闭竞态覆盖；原daemon、SSH、真实父模型、已有服务、EXE与完整矩阵不能用这些通过数关闭。失败及单独复核均保留于[当前开发与证据](../../iterations/I08/interconnect-development.md)，完整字段见[调用方契约](../../iterations/I08/interconnect-caller-contract.md)。
+
+## 共享登记源与固定端点（源码第一片）
+
+T-M03-310 / M03-F02/F03：2026-11-03，Windows Node24.12.0；无team/run登记、旧身份明确确认、不支持小队的普通委派目标、说明CAS/原收据、获准发现/端点变化/损坏拒绝及unknown保持，跨模块受控回归74/74、0跳过。不是完整M03或真实服务/新多调用方验收，不与其他模块重复统计。[完整源码和原始证据](../../iterations/I08/interconnect-development.md)。
+
+## 互联身份边界确认（仅文档）
+
+2026-11-03：工具安装/可调用 Agent/端点区分、共享资源和生命周期契约已确认待细化，当前 nodeId、路由、占用和授权不变。仅同步设计，未运行机器发现、多调用方、隔离或 SSH/EXE 测试，不新增通过案例或刷新历史多主证据；新契约未实现/未测试。文档检查见[本轮证据](../../iterations/I08/interconnect-boundary.md)。
+
+T-M03-210：2026-10-31，Windows/Node24.12.0/Chromium148；真实ChatGPT经原MCP/Registry/Router同会话四轮通过，流式8次更新/2295字符；父模型受控、测试host权限预授予。DOM39/39、原生IndexedDB69/69、Host/构建器63/63；通道/网络/daemon/MCP回归45项44通过/1平台跳过。各层不累加，不作为本模块全部场景通过；原失败保留，恢复受控调用和新策略完整链区分，Linux/跨机/真实父模型未被本轮证明。Kimi不在验收范围。[原始证据与未测项](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+T-M03-209 / M03-F02/F03/F05：2026-10-31，原完整meta/profile、同Session相同或更大lease阻断旧恢复，IndexedDB53/53含跨profile/新轮次反例；MV3两种取消阶段各21组，原会话关闭后显式新请求另建tab一次发送。Windows153项152通过/1平台跳过、Linux Node133/133，不代表真实Browser跨设备。[分层日志](../../iterations/I08/web-agent-development.md)。
+
+T-M03-208 / M03-F02/F03/F05：2026-10-31，Host/网络56/56验证旧无证明不可续、原证明字段/归属及续轮不得换document；Windows152项151通过/1平台跳过、Linux Node132/132。实际MV3人工编辑与重生成各18组仍为受控Provider/父任务，不证明生产Browser跨设备。[原证据与边界](../../iterations/I08/web-agent-development.md)。
+
+T-M03-207 / M03-F02/F03/F05：2026-10-31，Windows定向149项148通过/1平台跳过，Linux Node129/129；cancel queryOnly原machine/task/operation及delegation归属验证，关系变化不授予新委派，其他收据kind/非法状态拒绝。实际Browser跨设备仍未验。[层级与原日志](../../iterations/I08/web-agent-development.md)。
+
+T-M03-206 / M03-F02/F03/F05：2026-10-31，Windows定向134项133通过/1平台跳过、失败0，含原机器/节点/profile、未知控制与原请求恢复。MV319组受控HTML验证原Session未授权内容取消及明确新轮，不能替代真实Browser跨设备SSH。[分层证据](../../iterations/I08/web-agent-development.md)。
+
+T-M03-205 / M03-F02/F03/F05：2026-10-31，未发布源码。原机器/Task路由的健康检查身份与只读性已验，页状态不授权新执行或释放unknown；真实跨设备Browser仍待。Windows最新共享327项307通过/20个平台跳过、失败0；专项/平台不累计。Provider账号、生产授权同意、完整人工/故障/负载、Kimi及EXE仍未准出。[原日志、失败和复现](../../iterations/I08/web-agent-development.md)。
+
+T-M03-204 / M03-F02/F03/F05：2026-10-31，Windows Node24.12.0/Chromium148。关闭按原machine限定Task路由、原结果保留/不可续聊、明确新Session已验；不扩展到真实跨机。最新共享319项300通过/19平台跳过、失败0，包含原pending恢复，不跨模块/专项累加。真实账号/完整控制/跨机/Kimi/EXE仍待。[原日志、失败与范围](../../iterations/I08/web-agent-development.md)。
+
+T-M03-203 / M03-F02/F03/F05：2026-10-30，Windows Node24.12.0；共享286项267通过/19平台跳过、失败0，Browser渲染专项4/4含静态profile来源与被动能力门禁。真实生产桌面表单→中央/机器配对RPC→扩展及原核心执行的13组受控HTML通过；真实账号/原生父模型/跨机/EXE仍待，不跨M01/M06/M07相加。[原证据](../../iterations/I08/web-agent-development.md)。
+
+T-M03-202 / M03-F02/F03/F05：2026-10-30，Windows Node24.12.0；共享260项241通过/19平台跳过、失败0，实际原机器RPC配对/撤销及原节点受控执行；真实Chromium148十组经中央配对、原MCP/Registry/机器/节点→MV3受控HTML。Linux本地组合保留原生发现/context/scope和独立MCP目录；实际Linux/SSH、原生父模型与线上Provider未验。共享数不累加。[证据与边界](../../iterations/I08/web-agent-development.md)。
+
+T-M03-201 / M03-F02/F03/F05：2026-10-30，6e7ec6f工作树/Windows Node24.12.0；Browser核心新增8项及原节点/路由/注册/能力等共享187/187，失败/跳过0。真实Chromium148的受控HTML完整链九组经实际Registry/MachineHost/Router/AgentNetwork，pageErrors0；非真实Provider、父模型、独立SSH/EXE。[场景与全部原证据](../../iterations/I08/web-agent-development.md)。
+
 当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 2026-10-29测试维护：Windows发现夹具采用宿主PATH分隔符，原选中安装权威断言保留；图崩溃夹具核对准确注入点与Windows真实退出码，生产网络/发现/身份/unknown未改。平台共享78项为38通过/40个Linux专属明确跳过，不跨模块相加。[完整源码基线与最终证据](../../iterations/I08/windows-regression-and-native-probes.md)。

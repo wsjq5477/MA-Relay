@@ -1,5 +1,59 @@
 # M07 任务、会话与恢复测试报告
 
+T-M07-317：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+2026-11-03本轮静态核对上下文撤权、门面关闭和明确停止后台的不同边界；原三条真实failed/cancelled Task的verify阶段实际再次读取，累计18项及原归属/权限保持，业务请求0，不能记为额外18项或在途关闭通过。没有新增模型测试，原Task/unknown语义不变。[完整审计](../../iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。
+
+当前T-M07-316的Linux七文件初轮24通过/1 ACK夹具环境失败；修正相对源码/编译子入口后，Windows/Linux该项补验各1/1，未声称单次Linux全绿。原取消收据/原生中断分层、回复和恢复用例均通过；完整原件及范围见[本轮记录](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+T-M07-316：2026-11-03，未发布Core源码，与T-M06-OC-316/T-M09-316共享。健康检查与原控制协议并发错误修复；Windows七文件25项23通过/0失败/2平台跳过，包含取消confirmed后继续running直至原轮中断证据、原操作去重与重开、未知不重放。Windows原3.x用例改为等待其自有Controller实际退出后清理，实际证明IPC先离线、进程后退出。构建/类型/lint通过，Linux同范围及原失败见[本轮记录](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。全为受控证据、模型0，不替代真实在途属主关闭/模型/SSH/EXE。
+
+T-M07-314：2026-11-03，Windows原认证Coordinator/真实stdio MCP，读取已有三条WSL Codex真实原生Task（cancelled/failed/failed）。实际原上下文凭据轮换、旧Bearer拒绝、观察器关闭/重开、跨上下文拒读、delegate/result/目标授权撤销及恢复累计18项核对通过，原Task/原生Session与请求计数3→3保持。本轮新需求0，原操作权限和目标已恢复；18项为共用累计检查，不与各阶段或104项相加。没有成功模型正文、在途属主上下文关闭或真正丢提交回应，已有服务/SSH/EXE与原矩阵仍未准出。新增验收脚本lint通过；首次脚本把Task.error误判为查询失败，产品行为未改。[源码、原始失败与分阶段实测](../../iterations/I08/interconnect-development.md#13-基于三条真实原生task的读控恢复验收)。
+
+T-M07-313：2026-11-03，当前Windows Codex桌面对话经真实MCP委派WSL Codex0.101.0；同一原CallerContext/子会话中三条Task明确cancelled/failed/failed，无成功正文。原取消收据confirmed与实际cancelled分别核对；观察器重开后原归属保持。Windows网络TLS成功、WSL直连超时，本次临时回环CONNECT通道已恢复TLS；两次原生刷新均401 invalid_refresh_token，同账号较新缓存试验失败并回滚，原生网页登录等待。profile/attempt保护受控10/10；网络四项拒绝门禁与一项原绑定保护、相关lint通过，均不等于模型闭环。成功续聊/轮换、真实profile/SSH/EXE仍未准出，公开alpha.71不变。[原始证据及登录恢复](../../iterations/I08/interconnect-windows-wsl.md)。
+
+T-M07-312：2026-11-03，未发布源码。新增task_result(delegationId)只读查询原请求，回应丢失后可补原Task关联；目标/委派授权撤销后原属主仍按result权限查询，读取中撤权/跨上下文/异源收据拒绝，not_found不释放占用，确定准备拒绝不伪造Task终态。Windows Node24.12.0与WSL Node24.13.0同范围11文件各104/104、0跳过；Hermes/Pi/DSH生产宿主+真实受控CLI恢复3/3，模型0。相关CJS lint通过，冻结源码逐字节一致；非EXE、非真实父模型/已有服务/SSH准出。[源码、原始证据及未测项](../../iterations/I08/interconnect-development.md#7-无taskid时查询原委派)。
+
+T-M07-311：2026-11-03，未发布互联核心源码、Windows Node24.12.0、全部配置/数据/缓存/日志在D盘。共享定向回归99/99，真实SQLite/认证IPC/stdio，原生执行为受控宿主；Hermes/Pi/DSH生产宿主与真实受控CLI事件/恢复3/3，模型0；源码管理CLI认证IPC15/15与99项重叠，不累计。Core构建/类型与相关CJS/CLI lint通过。后续Linux对应9文件79/79、Windows进度诊断正文省略反例及调用方/事件22/22通过；各集重叠，不相加。新增调用方/上下文/凭据、轮换/恢复、原Task事件分页及关闭竞态覆盖；原daemon、SSH、真实父模型、已有服务、EXE与完整矩阵不能用这些通过数关闭。失败及单独复核均保留于[当前开发与证据](../../iterations/I08/interconnect-development.md)，完整字段见[调用方契约](../../iterations/I08/interconnect-caller-contract.md)。
+
+## 登记绑定与原请求恢复（源码第一片）
+
+T-M07-310 / M07-F06/F07：2026-11-03，Windows Node24.12.0；registeredAgentId/endpointId进入原委派和请求指纹，相同请求去重、同ID移除身份拒绝、准备中撤销不发送Prompt、停用后原unknown仍占位/可按原任务读取，跨模块受控74/74、0跳过。通用上下文/凭据轮换未实现，真实模型/SSH/EXE未验；不重复累计。[原始输出与完整限制](../../iterations/I08/interconnect-development.md)。
+
+## 调用归属与业务状态边界确认（仅文档）
+
+2026-11-03：确认调用事实/收据/unknown 属于核心、业务依赖/返修/验收属于可选上层；原状态机、读控和持久数据不变。调用方/上下文及跨回合归属、生命周期与事件契约待实现/实测；本轮没有运行工程/原生/恢复回归或新增通过案例，历史统计保持。文档检查见[本轮证据](../../iterations/I08/interconnect-boundary.md)。
+
+T-M07-229：2026-10-31，Windows/Node24.12.0/Chromium148；真实ChatGPT经原MCP/Registry/Router同会话四轮通过，流式8次更新/2295字符；父模型受控、测试host权限预授予。DOM39/39、原生IndexedDB69/69、Host/构建器63/63；通道/网络/daemon/MCP回归45项44通过/1平台跳过。各层不累加，不作为本模块全部场景通过；原失败保留，恢复受控调用和新策略完整链区分，Linux/跨机/真实父模型未被本轮证明。Kimi不在验收范围。[原始证据与未测项](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+T-M07-228 / M07-F01/F02/F04/F06/F07：2026-10-31，IndexedDB53/53验证原取消封存到既有Session恢复、缺证明/错meta/跨profile/新轮次拒绝、关闭引用/重开和事务失败回滚；Host46/46。MV3原Task保持cancelled、旧结果/旧页保留，健康不结算未知取消，关闭丢回应只查原操作。Windows153项152通过/1平台跳过，Linux Node133/133。[原始证据及边界](../../iterations/I08/web-agent-development.md)。
+
+T-M07-227 / M07-F01/F02/F04/F06/F07：2026-10-31，Host/网络56/56：旧成功缺证明不可续但结果保持，非法/错种类证明不推进seq、绑定私有、续轮不同document拒绝；IndexedDB41/41原证明与终态同事务/错误证明回滚。Windows152项151通过/1平台跳过，Linux Node132/132，真实Provider仍待。[原始证据及范围](../../iterations/I08/web-agent-development.md)。
+
+T-M07-226 / M07-F01/F02/F04/F06/F07：2026-10-31，经典cancel_task新增queryOnly；旧后台无声明、其他kind/身份缺失/非法状态不确认取消，confirmed仍另查原Task。Windows定向149项148通过/1平台跳过、Linux Node129/129；真实MV3在受控Host丢回执后只查询原操作恢复，零重发。[完整原证据](../../iterations/I08/web-agent-development.md)。
+
+T-M07-225 / M07-F01/F02/F04/F06/F07：2026-10-31，Host42/42验证原取消意图先落盘、丢回应只查原操作、ACK/外来身份不能释放、create晚ACK不继续派发、取消前事件收齐、原完成不被覆盖；实际IndexedDB38/38验证原子封存，MV319组验证草稿保留与明确新轮。Windows定向134项133通过/1平台跳过、失败0，未准出完整故障或真实Provider。[原始证据](../../iterations/I08/web-agent-development.md)。
+
+T-M07-224 / M07-F01/F02/F06/F07：2026-10-31，未发布源码。健康不改变原任务/锁/收据，事件先到与换轮陈旧性、已知存储失败不可ready均验；Driver最后用户锚点在submit再核对，人工新轮不认领。Windows最新共享327项307通过/20个平台跳过、失败0；专项/平台不累计。Provider账号、生产授权同意、完整人工/故障/负载、Kimi及EXE仍未准出。[原日志、失败和复现](../../iterations/I08/web-agent-development.md)。
+
+T-M07-223 / M07-F01/F02/F06/F07：2026-10-31，Windows Node24.12.0/Chromium148。Host29/29覆盖关闭丢回应只查/无墓碑ACK/旧轮/版本/落盘失败；IndexedDB26/26与实际换document15组/关闭16组分层验证，unknown/原结果保持。最新共享319项300通过/19平台跳过、失败0，包含原pending恢复，不跨模块/专项累加。真实账号/完整控制/跨机/Kimi/EXE仍待。[原日志、失败与范围](../../iterations/I08/web-agent-development.md)。
+
+T-M07-222 / M07-F01/F02/F06/F07：2026-10-30，Windows/Chromium148；原生IndexedDB22/22覆盖动作错误码、私密异常固定unknown及重复send不执行；实际DOM6/6证实人工编辑后unknown保持、后到完成不误报，另两类实际MV3受控链各14组验证原Session/核对/失联不重发。网页Stop/未提交恢复和真实账号未准出，不与其他模块累计。[证据与限制](../../iterations/I08/web-agent-development.md)。
+
+T-M07-221 / M07-F01/F02/F06/F07：2026-10-30，Windows Node24.12.0；Host新增五项后22/22，覆盖事件先于订阅ACK不死锁、仅ACK保持unknown、操作动作/执行冲突、重开原记录只读、离线原结果可读但不可续聊。原生IndexedDB20/20、共享292项273通过/19平台跳过；实际MV3受控14组含原页晚到同时结算Task/核对。首轮不稳定与未测压力/Provider如实单列。[日志及限制](../../iterations/I08/web-agent-development.md)。
+
+T-M07-220 / M07-F01/F02/F06/F07：2026-10-30，Windows Node24.12.0/Chromium148；UI专项4/4包含修订正文纠正/缩短、CLI旧行为/原事件保持和被动profile配置。实际扩展暂停/恢复同配对及unknown不重发、原页面晚到结算仍通过，完整交互13组为受控HTML；共享286项267通过/19平台跳过，不相加。Provider/真实父模型与取消完整接口未准出。[原日志与边界](../../iterations/I08/web-agent-development.md)。
+
+T-M07-219 / M07-F01/F02/F06/F07：2026-10-30，Windows Node24.12.0；原MCP续聊专项8项覆盖原主体/三轮/去重、foreign connection与新父执行拒绝、unknown与控制未定拒绝、异步关系撤权、目录/ID冲突和原continue指纹准备拒绝。最新共享260项241通过/19平台跳过，真实Chromium148受控HTML十组含真实stdio三轮/worker失联/晚到原完成；不证明真实Provider或原生父模型。[日志与限制](../../iterations/I08/web-agent-development.md)。
+
+T-M07-218 / M07-F01/F02/F06/F07：2026-10-30，Windows Node24.12.0；共享187/187含核心重开原request/Task/Session、原profile锁、已知独立profile与后配对拒绝、中央dispatched而无Task仍保护。实际核心→MV3受控HTML九组保持原ID/点击次数与unknown恢复；非真实父模型/跨机，原公开准出不变。[原始证据与剩余项](../../iterations/I08/web-agent-development.md)。
+
+T-M07-217 / M07-F01/F02/F06/F07：2026-10-30，Windows/Chromium148；共享真实MV3受控HTML八组含原Session三轮、原Task流、实际worker强停/重开、unknown占位与原完成核对，源页click计数未增长。草稿保留，Node最新67/67；非真实站点/原生父模型，未据此开放生产节点，不与M06相加。[全部证据与边界](../../iterations/I08/web-agent-development.md)。
+
+T-M07-216 / M07-F01/F02/F06/F07：2026-10-30，Windows/HeadlessChrome140；共享扩展原生IndexedDB18/18，验证原操作丢回应、事务提交/回滚、消息指纹、20次并发单许可、恢复函数unknown保锁、事件ACK和损坏拒绝。页面动作计数器，不证明真实点击/MV3回收；不与M06重复统计。[完整证据](../../iterations/I08/web-agent-development.md)。
+
+T-M07-215 / M07-F01/F02/F06/F07：2026-10-30，6e7ec6f工作树/Windows Node24.12.0；共享65/65覆盖原ID去重、重开unknown、事件/绑定、写失败不ACK、原会话三轮、认证WS断线/换连接和配对commit丢回应恢复。含受控transport及真实loopback WS/扩展Web Crypto模块，不是MV3/网页/父模型实测；不与M06重复计数。[证据与未测项](../../iterations/I08/web-agent-development.md)。
+
 2026-10-29续办：T-M07-214共享Windows全量68通过/11平台跳过，冻结alpha.69源码Linux全量76通过/3失败。原事件/原执行恢复通过；v1取消收据unknown、等待及协议探测失败保留，不能以定向12/12或诊断9/9关闭完整矩阵。快照/I01/清理及后续独立工作树见[最终结果](../../iterations/I08/edge-outbox-reconnect.md)。
 
 T-M07-214 / M07-F06/F07：2026-10-29，未发布Core源码，Windows独立子进程受控ACK丢失反例前0/1，修复后相关10/10。两条运输仅1次原执行，taskId/executionId与事件seq保持、ack_seq最终连续，原Hub重开/未知占用回归保留；模型0、非真实原生/EXE。[原失败、热点与完整矩阵](../../iterations/I08/edge-outbox-reconnect.md)。

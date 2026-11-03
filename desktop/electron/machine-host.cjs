@@ -3,11 +3,14 @@ const {createHash,randomUUID}=require('node:crypto');
 const {adapters,supportsTeamCollaboration}=require('./builtin-adapters.cjs');
 const {scanTools,openCodeVersionError}=require('./tool-discovery.cjs');
 const {CollaborationBroker}=require('./collaboration-broker.cjs');
+const {isBrowser,sameInstallation}=require('./adapter-identity.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 /** A machine owns installed tools; private contexts own directories and native sessions. */
 class MachineHost {
   constructor(options){
     this.options=options;this.directory=options.directory;this.legacy=options.legacy;
+    this.browser=options.browserChannel;
+    if(options.enableBrowser&&!this.browser){this.browserManagement=new(require('./browser-management.cjs').BrowserManagement)({directory:path.join(this.directory,'browser')});this.browser=this.browserManagement.channel;}
     this.contexts=new Map();this.connecting=new Map();this.file=path.join(this.directory,'node-contexts.json');
     this.rows=fs.existsSync(this.file)?JSON.parse(fs.readFileSync(this.file,'utf8')):[];
     this.broker=new CollaborationBroker(this.directory,(...args)=>{if(args[0].externalConnectionId)this.mcp.authorize(args[0]);if(!this.options.collaboration)throw fail('COLLABORATION_OFFLINE','主 Agent 协作通道未连接。');return this.options.collaboration(...args);});
@@ -16,7 +19,23 @@ class MachineHost {
     if(!Array.isArray(this.rows))throw fail('CONTEXT_STATE','执行上下文记录无法读取，请保留数据排查。');
   }
   save(){fs.mkdirSync(this.directory,{recursive:true});const tmp=this.file+'.'+randomUUID()+'.tmp';fs.writeFileSync(tmp,JSON.stringify(this.rows,null,2),{mode:0o600});fs.renameSync(tmp,this.file);}
-  setCollaboration(handler){this.options.collaboration=handler;}
+  setCollaboration(handler){this.options.collaboration=handler;this.legacy.setCollaboration?.(handler);}
+  async restoreScopes(){
+    if(this.closed)throw fail('COLLABORATION_CLOSED','原机器观察器已关闭。');
+    if(this.restored)return;
+    if(!this.scopeRestore){
+      const pending=(async()=>{
+        for(const entry of [...this.broker.scopes]){
+          if(this.closed)throw fail('COLLABORATION_CLOSED','原机器观察器已关闭。');
+          if(!entry.scope.externalConnectionId)await this.call('scope',{contextId:entry.contextId,scope:entry.scope});
+        }
+        if(this.closed)throw fail('COLLABORATION_CLOSED','原机器观察器已关闭。');
+        this.restored=true;
+      })().finally(()=>{if(this.scopeRestore===pending)this.scopeRestore=null;});
+      this.scopeRestore=pending;
+    }
+    await this.scopeRestore;
+  }
   async readOwnedObject(params){
     const conversation=['conversation','continue'].includes(params.op),key=conversation?'conversationId':'taskId',collection=conversation?'conversations':'tasks';
     if(typeof params[key]!=='string'||!params[key].trim())throw fail('INVALID_INPUT','读取原记录需要原对象 ID。');
@@ -45,19 +64,21 @@ class MachineHost {
   backend(row){
     if(!this.contexts.has(row.contextId)){
       const directory=path.join(this.directory,'node-contexts',row.contextId);
-      const host=adapters.createHost(row.adapter,{...this.options,directory,executable:row.executable,home:this.options.home||os.homedir()});
+      const host=adapters.createHost(row.adapter,{...this.options,directory,executable:row.executable,browserInstanceId:row.browserInstanceId,browserChannel:this.browser,home:this.options.home||os.homedir()});
       if(!host)throw fail('ADAPTER_UNSUPPORTED','这个节点尚未完成执行适配。');
       this.contexts.set(row.contextId,host);
     }
     return this.contexts.get(row.contextId);
   }
   async discover(){
-    const items=await scanTools(this.options);
+    await this.browserManagement?.restore().catch(()=>{});
+    const items=[...await scanTools(this.options),...await require('./browser-discovery.cjs').discoverBrowsers(this.browser)];
     // Installation/transport checks are independent of an account's model availability.
     return {items:items.map(i=>({...i,executable:i.executable,executionSupported:!!adapters.get(i.adapter)&&i.compatibility?.supported!==false}))};
   }
   async context(params){
     if(params.model||params.providerID)throw fail('INVALID_INPUT','节点使用原生配置，不接受模型或供应商覆盖。');
+    if(isBrowser(params))return this.browserContext(params);
     const detected=(await this.discover()).items.find(i=>i.adapter===params.adapter&&i.executable===params.executable);
     if(!detected?.healthy)throw fail('DISCOVERY_CHANGED','这个工具当前不可调用，请重新扫描。');
     if(detected.compatibility?.supported===false)throw openCodeVersionError(detected.version);
@@ -103,7 +124,34 @@ class MachineHost {
       return {...row,teamCollaboration:supportsTeamCollaboration(row)};
     })().finally(()=>this.connecting.delete(key));this.connecting.set(key,job);return job;
   }
+  async browserContext(params){
+    if(params.workspace||params.scope||params.collaborationId)throw fail('ADAPTER_UNSUPPORTED','Browser tasks cannot receive workspace or hosted MCP configuration.');
+    const detected=(await require('./browser-discovery.cjs').discoverBrowsers(this.browser)).find(i=>i.adapter===params.adapter&&sameInstallation(i,params));
+    if(!detected?.healthy)throw fail('BROWSER_OFFLINE','Original paired browser is not ready.');
+    // An installation paired after an unresolved execution is not proof of an
+    // independent profile. Keep the orphaned resource occupied across aliases.
+    for(const old of this.rows.filter(r=>isBrowser(r)&&r.adapter===params.adapter)) {
+      const backend=this.backend(old);
+      const state=backend.store.read();
+      for(const task of state.tasks)if(!['succeeded','failed','cancelled'].includes(task.status)&&!(task.knownBrowserInstances||[old.browserInstanceId]).includes(params.browserInstanceId))throw fail('BROWSER_RESOURCE_UNCONFIRMED','An earlier browser resource remains unresolved; a new pairing cannot release it.');
+      for(const op of state.operations)if(op.state==='unknown'&&!(op.knownBrowserInstances||[old.browserInstanceId]).includes(params.browserInstanceId))throw fail('BROWSER_RESOURCE_UNCONFIRMED','An earlier browser control remains unresolved; a new pairing cannot release it.');
+    }
+    const key=createHash('sha256').update('browser:'+params.adapter+':'+params.browserInstanceId).digest('hex').slice(0,24);
+    if(this.connecting.has(key))return this.connecting.get(key);
+    const job=(async()=>{
+      let row=this.rows.find(r=>r.contextId===key);
+      if(row&&(row.nodeId!==params.nodeId||!sameInstallation(row,params)))throw fail('BROWSER_RESOURCE_ALIAS','Original browser context cannot be rebound to another node.');
+      if(!row){row={contextId:key,nodeId:params.nodeId,adapter:params.adapter,browserInstanceId:params.browserInstanceId};this.rows.push(row);this.save();}
+      const host=this.backend(row);
+      if(!row.agentId){row.agentId=(await host.call('connect',{})).agentId;this.save();}
+      return {...row,teamCollaboration:false};
+    })().finally(()=>this.connecting.delete(key));this.connecting.set(key,job);return job;
+  }
   async call(method,params={}){
+    if(require('./browser-management.cjs').methods.has(method)){
+      if(!this.browserManagement)throw fail('BROWSER_MANAGEMENT_UNAVAILABLE','This host does not own browser pairing management.');
+      return this.browserManagement.call(method,params);
+    }
     if (method === 'dsh.status') return require('./dsh-connection.cjs').status(this.options);
     if (method === 'dsh.configure') return require('./dsh-connection.cjs').configure(this.options, params);
     if(['mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe'].includes(method)){
@@ -128,16 +176,17 @@ class MachineHost {
       return {configured:true,teamContinuation:true};
     }
     if(method==='snapshot'){
-      if(!this.restored){this.restored=true;for(const entry of this.broker.scopes)await this.call('scope',{contextId:entry.contextId,scope:entry.scope});}
+      await this.browserManagement?.restore().catch(()=>{});
+      await this.restoreScopes();
       const all=await Promise.all([this.legacy.call('snapshot',{}),...this.rows.filter(r=>r.agentId).map(async row=>{
         try{return await this.backend(row).call('snapshot',{});}catch(error){return {agents:{items:[{agentId:row.agentId,workspace:row.workspace,executable:row.executable,adapter:row.adapter,enabled:true,online:false,healthy:false,available:false,startupError:{code:error.code,message:error.message}}]},tasks:[],conversations:[]};}
       })]);
-      const base=all[0];return {...base,agents:{...base.agents,items:all.flatMap(s=>s.agents?.items||[]).map(a=>{const row=this.rows.find(r=>r.agentId===a.agentId);return {...a,...(row?{adapter:row.adapter,nodeId:row.nodeId,contextId:row.contextId}:{})};})},tasks:all.flatMap(s=>s.tasks||[]),conversations:all.flatMap(s=>s.conversations||[])};
+      const base=all[0];return {...base,agents:{...base.agents,items:all.flatMap(s=>s.agents?.items||[]).map(a=>{const row=this.rows.find(r=>r.agentId===a.agentId);return {...a,...(row?{adapter:row.adapter,nodeId:row.nodeId,contextId:row.contextId,...(row.browserInstanceId?{browserInstanceId:row.browserInstanceId}:{})}:{})};})},tasks:all.flatMap(s=>s.tasks||[]),conversations:all.flatMap(s=>s.conversations||[])};
     }
     if(method==='ipc'){
       // A read belongs to the backend whose own snapshot contains the object.
       // Neither a missing/stale owner nor a supplied agent may select root IPC.
-      if(['task','conversation','pending','reply','cancel','operation','continue','reconcile'].includes(params.op))return this.readOwnedObject(params);
+      if(['task','conversation','pending','reply','cancel','operation','continue','reconcile','session.close','session.health'].includes(params.op))return this.readOwnedObject(params);
       // Failed context preparation may persist a row before it has an agent.
       // Two absent IDs must never route a read/control to that unfinished row.
       const byAgent=typeof params.agentId==='string'&&params.agentId.trim()
@@ -152,6 +201,6 @@ class MachineHost {
     }
     return this.legacy.call(method,params);
   }
-  close(){this.broker.close();this.legacy.close?.();for(const host of this.contexts.values())host.close?.();}
+  close(){this.closed=true;this.broker.close();this.legacy.close?.();for(const host of this.contexts.values())host.close?.();return this.browserManagement?.close();}
 }
 module.exports={MachineHost};

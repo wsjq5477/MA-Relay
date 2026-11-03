@@ -53,12 +53,13 @@ test('v1 production Hub/Edge runs and continues one server-generated Session; re
   }finally{await h.close();}
 });
 
-test('v1 cancel receipt is separate from original-turn abort evidence, dedupes and recovers without reissuing',async()=>{
+test('v1 cancel receipt is separate from original-turn abort evidence, dedupes and recovers without reissuing',async t=>{
   const h=await harness();try{
     h.native.delayAbort();const active=await h.active(await h.submit('wait')),operationId=randomUUID();
     const input={taskId:active.taskId,executionId:active.executionId,operationId,action:'cancel'};
     const cancel=()=>request<Operation>(h.client,'/v1/tasks/'+active.taskId+'/cancel',input);
-    assert.equal((await cancel()).state,'confirmed');assert.equal(h.native.counts.aborts,1);
+    const receipt=await cancel();if(receipt.state!=='confirmed')t.diagnostic(JSON.stringify({state:receipt.state,nativeCounts:h.native.counts}));
+    assert.equal(receipt.state,'confirmed');assert.equal(h.native.counts.aborts,1);
     await delay(100);assert.equal((await h.read(active.taskId)).status,'running');
     await h.restart();assert.equal((await cancel()).state,'confirmed');assert.equal(h.native.counts.aborts,1);
     h.native.finish(active.native!.sessionId,'interrupted');assert.equal((await h.finish(active)).status,'cancelled');

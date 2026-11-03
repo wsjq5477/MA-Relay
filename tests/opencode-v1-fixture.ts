@@ -2,13 +2,15 @@ import { createServer } from 'node:http';
 import assert from 'node:assert/strict';
 
 // Official 1.19.3-shaped contract fixture, not native/model acceptance.
-export async function v1Fixture(workspace: string, options: { hangInfo?: boolean } = {}) {
+export async function v1Fixture(workspace: string, options: { hangInfo?: boolean; hangV2Agents?: boolean } = {}) {
   type Message = { info: { id: string; sessionID: string; role: string; parentID?: string; finish?: string;
     time: { created: number; completed?: number }; error?: { name: string; data: { message: string } } };
     parts: { type: string; text?: string; tool?: string; state?: { status: string } }[] };
   const sessions = new Map<string, {id:string;directory:string;agent:string;model:unknown;messages:Message[];mode:string;done:boolean}>();
   const password = 'synthetic-v1-secret';
-  const counts = {creates:0,prompts:0,aborts:0,replies:0,info:0,writes:0};
+  const counts = {creates:0,prompts:0,aborts:0,replies:0,info:0,writes:0,v2Agents:0,v2Controls:0};
+  let agentGate: { entered(): void; released: Promise<void> } | undefined;
+  let rejectAgentMetadata = false;
   let losePrompt = false, loseCreate = false, delayAbort = false, loseAbort = false;
   const finish = (id:string, outcome='succeeded') => {
     const s=sessions.get(id)!;s.done=true;
@@ -23,11 +25,13 @@ export async function v1Fixture(workspace: string, options: { hangInfo?: boolean
     const url=new URL(req.url!,'http://localhost'),path=url.pathname;
     if(req.method !== 'GET')counts.writes++;
     if(path==='/api/info'){counts.info++;if(options.hangInfo)return;return send(404,{});}
+    if(path==='/api/agent'){counts.v2Agents++;if(options.hangV2Agents)return;return send(404,{});}
+    if(path.startsWith('/api/session/')){counts.v2Controls++;return send(404,{});}
     if(path==='/global/health')return send(200,{healthy:true,version:'1.19.3'});
     assert.equal(url.searchParams.get('directory'),workspace);
     let body:Record<string,unknown>={};
     if(req.method==='POST'){const chunks=[];for await(const c of req)chunks.push(c);body=JSON.parse(Buffer.concat(chunks).toString());}
-    if(path==='/agent')return send(200,[{name:'build'}]);
+    if(path==='/agent'){const gate=agentGate;if(gate){gate.entered();await gate.released;}return send(rejectAgentMetadata?503:200,rejectAgentMetadata?{}:[{name:'build'}]);}
     if(path==='/config')return send(200,{model:'fixture/model'});
     if(path==='/config/providers')return send(200,{providers:[{id:'fixture',models:{model:{id:'model'}}}],default:{fixture:'model'}});
     if(path==='/session/status')return send(200,Object.fromEntries([...sessions.values()].filter(s=>!s.done&&s.messages.length).map(s=>[s.id,{type:'busy'}])));
@@ -62,6 +66,13 @@ export async function v1Fixture(workspace: string, options: { hangInfo?: boolean
   })().catch(()=>{if(!res.headersSent)res.writeHead(500);res.end();});});
   await new Promise<void>(done=>server.listen(0,'127.0.0.1',done));
   return {url:'http://127.0.0.1:'+(server.address() as {port:number}).port,password,sessions,counts,finish,
+    rejectAgentMetadata(){rejectAgentMetadata=true;},
+    pauseAgents(){
+      let entered!:()=>void,release!:()=>void;
+      const ready=new Promise<void>(resolve=>{entered=resolve;}),released=new Promise<void>(resolve=>{release=resolve;});
+      agentGate={entered,released};
+      return {entered:ready,release(){agentGate=undefined;release();}};
+    },
     losePrompt(){losePrompt=true;},loseCreate(){loseCreate=true;},delayAbort(){delayAbort=true;},loseAbort(){loseAbort=true;},
     async close(){server.closeAllConnections();await new Promise<void>(done=>server.close(()=>done()));}};
 }

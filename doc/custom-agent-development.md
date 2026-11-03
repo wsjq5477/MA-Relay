@@ -1,5 +1,13 @@
 # 自定义原生 Agent 适配开发指南
 
+外部Super-agent只需要调用其他Agent时，优先使用未发布源码的[独立调用方MCP契约](iterations/I08/interconnect-caller-contract.md)，无需为其伪造执行节点或开发模型适配器。只有Bridge需要发现、启动或观察该Runtime时才按本文增加原生执行适配；主体、上下文与凭据不等于Session/执行实例。
+
+## 登记身份与执行适配的区别
+
+当前未发布源码提供独立agents.*用户登记与固定端点确认，复用既有智能体登记、无需小队；仅支持普通委派的原生入口也可登记。登记不实现驱动、不授予连接、不接受任意命令/地址或模型覆盖；自研Agent的执行接入仍须完成本文适配和验收。旧登记须明确确认原端点，MCP协作成员没有执行端点。源码管理CLI、参数、实际证据与未完成项见[互联开发台账](iterations/I08/interconnect-development.md)。
+
+Browser扩展示例已实现browser-extension类型：commands/npmEntrypoints必须为空，通过browserInstanceId与机器拥有的BrowserChannel同步构造Host，call为异步串行接口。它不是动态外部模块，不将profile伪装成executable；身份/资源键由adapter-identity维护。生产启动/配对RPC、用户配置与原MCP续聊已接线；Driver的validateContinuation核验可见DOM证明，旧无证明成功记录只读。原取消的queryOnly查询先验证live能力和原收据kind/task/operation，旧缺证明记录不能推断取消。真实账号/权限确认/跨机未准出。[源码与受控验证](iterations/I08/web-agent-development.md)。
+
 关联 AB-F02/F07/F08/F10/F11/F17、M03/M06/M07/M10。本文说明源码级扩展接口；自定义适配器随 Bridge 源码审核、构建和部署。当前公开 alpha.46 的源码与包范围见[发布交付记录](iterations/I08/alpha46-release.md)，DSH Desktop/Web 的接口与限制见[DSH交付](iterations/I07/dsh-desktop-web.md)。方向能力契约见[CT-01](iterations/I07/connection-capabilities.md)；具体工具的实现与验收状态见[接入矩阵](agent-integration-matrix.md)、[M06设计](modules/06-native-adapters/design.md)和[测试报告](modules/06-native-adapters/test-report.md)。
 
 用户先在目标机器安装、登录并配置自己的 Agent。Bridge 适配器负责发现程序或已配置服务、调用既有任务接口、读取输出和核对原请求。模型、供应商、账号、Skill 与工具业务由原 Agent 管理。原生 CLI、API、MCP、ACP、插件、SDK 的功能与优缺点见[接入方式与选型指南](agent-integration-guide.md)。本文给出如何把选定路径接到现有源码的具体步骤。
@@ -198,3 +206,5 @@ node scripts/check-docs.mjs
 ## OpenDesk 参考适配
 
 OpenDesk CLI使用已有HTTP会话接口，Desktop使用已有设备网关。Bridge持久Host与连接持有worker保存去重、派发围栏及原回应；不要求原生Agent增加接口。Desktop原连接断开后旧sessionKey不可续聊；CLI历史completed不能代替原同步回应。独立MCP与托管scope分开。[当前设计](modules/06-native-adapters/opendesk/design.md)、[实施和验证边界](iterations/I08/opendesk-existing-interfaces.md)。
+
+Browser原会话健康示例复用call(ipc, session.health)与原对象路由；工厂仍同步，等待WS须在Host串行提交队列之外，仅捕获/重查状态占短串行段。禁止用健康回应结算原Task/unknown或动态注册模型API；接口/字段与分层证据见[本轮开发](iterations/I08/web-agent-development.md)。

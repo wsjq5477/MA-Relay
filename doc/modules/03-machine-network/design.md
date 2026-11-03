@@ -1,5 +1,27 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+原委派只读恢复固定原机器/原requestId，不因当前端点停用、目录或授权变化换目标；Task/会话身份不符拒绝。新派发门禁与原占用保持，[字段和恢复证据](../../iterations/I08/interconnect-caller-contract.md)。
+
+## 已确认的身份与资源准入边界
+
+M03 的身份、获准发现、明确目标寻址、连接与资源冲突检查属于互联核心。现有 nodeId 仍表示本文的工具节点；职责登记不自动创建可执行服务。当前源码以AgentDirectory复用既有登记，登记agentId与工具nodeId分开；原生端点经明确确认固定node/machine/adapter及服务绑定摘要，不自动重绑。旧登记默认confirmation-required，MCP协作身份不等于执行端点；agents.*无需小队。[字段、源码和验收](../../iterations/I08/interconnect-development.md)。独立调用方使用原登记主体和明确上下文，不创建工具节点；只列其固定获准端点，默认目标原生目录、拒绝workspace覆盖。完整真实原生/跨机生命周期仍待。[调用方完整契约](../../iterations/I08/interconnect-caller-contract.md)。节点/关系继续不绑定模型、供应商或项目。
+
+多调用方共享需明确串行/并发、忙时行为、会话与资源范围；首片可以串行、忙时拒绝和会话隔离，不建设智能资源调度器。现有目录占用不是沙箱，原生环境落实执行权限；unknown 不能因更换身份、连接或目录别名释放。当前路由/存储/授权与多主实测状态保持。[完整边界与验收](../../iterations/I08/interconnect-boundary.md)。
+
+当前Browser仅ChatGPT，Kimi移出开发与验收。实际匿名网页已通过原MCP/Registry/Router四轮持续对话及8次流式输出；Core、既有Broker/Transport与关系规则保持。新增DOM布局和原结束证明失败结算的职责在M06/M07，当前开发ZIP19文件；旧browser.2/公开alpha.71不据此成为新版本。[当前完整设计和证据](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+M03-F02/F03/F05：取消后缺请求行的health/close仍固定原machine/adapter/profile/Session；完整原meta和原confirmed取消封存匹配后才访问既有绑定。同Session其他请求相同或更大leaseEpoch阻断旧控制，不回退到旧lastRequestId。新明确请求在原关闭后另建会话，不重放旧Task。[完整恢复与边界](../../iterations/I08/web-agent-development.md)。
+
+M03-F02/F03/F05：Browser续聊证明随原machine/adapter/profile/Conversation绑定，不向全局发现或MCP公开DOM摘要。canContinue仅原Host资格，还须实际原document的可见快照/历史版本预检；旧无证明历史仍读、不能自动续聊或改绑新document。[当前设计与验证](../../iterations/I08/web-agent-development.md)。
+
+M03-F02/F03/F05：原Browser Task的未授权内容取消沿原机器/节点/profile控制，保留request/execution/operation身份；未知取消记录当时已知profile并继续占用，不能换节点或配对释放。cancel_task(queryOnly=true)仍由原delegation所有权定向原机器Task的operation，拒绝其他种类/身份不明收据；不把原关系变化变成新授权。仅封存证明后原Task.cancelled，原会话后续新轮仍须既有所有权/关系/页面预检。[当前设计与验证](../../iterations/I08/web-agent-development.md)。
+
+M03-F03/F05：session.health按原机器限定Task路由至唯一后端，再核对原execution/probe与完整meta；不允许Caller提供新页面或把旧观察写为任务结果。Node捕获/重查revision，网络等待不持有提交队列，换轮/占用/存储锁定均不可ready。发现healthy只证明通道/站点授权，实际DOM另查；canContinue为Bridge侧资格，发送前仍核对原页。[完整时序与测试](../../iterations/I08/web-agent-development.md)。
+
+M03-F03/F05：空闲Browser Session关闭由原machine限定taskId路由到唯一MachineHost上下文，核对原execution/最新轮次与bindingRevision；canContinue在closed或closeState=unknown时为false。原任务结果/节点/profile保留，明确新提交可创建独立Session，不能关闭unknown释放资源。[实现及受控链](../../iterations/I08/web-agent-development.md)。
+
+M03-F02/F03/F05的Browser节点采用machine/adapter/profile的typed发现、连接、siblings与实例归属，原CLI安装算法保持；MachineHost按固定profile上下文执行，无假路径或项目目录。Node/Host已知profile围栏保持unknown、原对象来源与独立profile准入。生产宿主持久通道/中央RPC和配置UI已接线；渲染能力须准确static-adapter/browser-extension/profile来源，不据名字扩权。实际多平台/站点/包仍待。[当前实现](../../iterations/I08/web-agent-development.md)。
+
 当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 M03-F01/F02：Linux Hermes保留PATH优先；显式HERMES_INSTALL_DIR下的原生启动器在非交互PATH缺失时优先于通用便利路径。数据Home/bin、原生Profile所属根、默认根/后缀与旧venv布局作为Hermes专用候选，不从中选择其他Agent。不创建Profile、不重绑原请求或安装。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。

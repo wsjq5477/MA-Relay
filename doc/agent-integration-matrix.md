@@ -1,5 +1,13 @@
 # Agent 接入现状与后续目标
 
+OpenCode当前源码的Core check复用已协商的V1/V2 Agent信息，原任务执行/观察/回复/取消保留原协议，避免健康检查改写在途操作的API地址。真实WSL原1.2.10低层Controller/Client已有服务连接及观察器关闭/重开9项证据保持，模型0；当前源码受控回归不等于真实原生控制或模型重验。互联登记完整链及MachineHost已有服务仍待，与历史2.0.24模型验收分开。[当前实现、结果与原失败](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+互联核心未发布源码支持独立登记/上下文/凭据、原事件及原delegationId恢复，经典十工具；Windows/Linux各104/104与三适配器受控CLI3/3维持原证据范围。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。原三Task和两次旧CLI模型失败均保留；本次主会话3条成功正文，另有撤权上下文1条原生成功，累计总请求/委派11/11。关闭上下文后的委派缓存仍可能为running，须区分管理员读到的原Task终态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开alpha.71保持。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+
+未发布chatgpt-web（browser-extension/DOM）支持原Registry/机器/节点及被动execution/delegation/resume；MCP调用方/托管scope/通用cancellation为false。续聊须原可见对话摘要/历史版本证明，旧无证明成功历史只读保留；未授权内容可凭原持久封存证明安全取消，缺prepare行仍仅以原封存恢复既有Session健康/关闭，已提交网页Stop仍不支持。生产通道/配对RPC、桌面/扩展配置与MCP原主体续聊已实现，MV3/stdio/用户表单均按受控HTML分层记录；实际站点权限确认/账号/父模型/跨机未验，Kimi未注册，公开alpha.71不含本增量。[当前证据与限制](iterations/I08/web-agent-development.md)。
+
 当前alpha.69源码：Claude/Codex/OpenCode的独立MCP原生列表与Pi/Hermes统一使用原安装启动解析器；不支持的shim或OS启动失败仅为探测错误，不推定连接成功或改变托管/执行能力。[源码、平台回归与限制](iterations/I08/windows-regression-and-native-probes.md)。
 
 alpha.69源码补齐各原生MCP配置布局在并发修改/目标切换/原子替换失败后的准确临时文件清理；原生能力、加载/连接证据、授权及托管scope不扩大。系统Node与Electron旧实现结果分别记录，不把配置受控测试当成真实原生或EXE验收。[当前行为与运行时边界](iterations/I08/mcp-config-temporary-cleanup.md)。
@@ -18,7 +26,7 @@ Hermesalpha.69源码补齐[等待输入的分离保护](iterations/I08/hermes-de
 
 阅读顺序：本页登记“每个Agent已接了哪些方式”；[接入方式、选型与快速接入](agent-integration-guide.md)说明六种方式的优缺点、功能条件和逐Agent后续推荐；[开发指南](custom-agent-development.md)提供当前可执行的适配步骤与验证命令。
 
-本表已核对当前静态注册表：七种产品、十个执行入口。Claude/Codex/Hermes/Pi与DSH CLI使用各自原生CLI；OpenCode由CLI启动服务后走HTTP；DSH Desktop/Web连接用户已运行且认证的HTTP服务。OpenDesk CLI由原生serve提供HTTP控制，Windows Desktop沿用当前实例WebSocket网关；独立MCP配置与托管scope分开。当前没有内置ACP驱动，也没有用厂家SDK驱动这些入口。Agent调用Bridge则走另一方向的stdio MCP；不能把两种方向统称为“MCP接入”。
+以下原生基线为七种产品、十个执行入口；未发布源码另有上方单列的chatgpt-web浏览器入口。Claude/Codex/Hermes/Pi与DSH CLI使用各自原生CLI；OpenCode由CLI启动服务后走HTTP；DSH Desktop/Web连接用户已运行且认证的HTTP服务。OpenDesk CLI由原生serve提供HTTP控制，Windows Desktop沿用当前实例WebSocket网关；独立MCP配置与托管scope分开。当前没有内置ACP驱动，也没有用厂家SDK驱动这些入口。Agent调用Bridge则走另一方向的stdio MCP；不能把两种方向统称为“MCP接入”。
 
 DSH新增的Desktop/Web已随alpha.46公开，Desktop原生MCP配置适配属于alpha.48候选，支持直接执行和普通被委派，MCP调用能力与原生配置、托管scope分开判定；不声明已完成真实主调用或小队成员验收。当前在原Agent行的配置弹窗提供独立的服务连接卡，MCP管理与其他Agent共用同一配置入口。模型、供应商、原生权限不由此配置卡管理。[完整协议、当前设置流程与证据](iterations/I07/dsh-desktop-web.md)。
 
@@ -29,6 +37,8 @@ DSH新增的Desktop/Web已随alpha.46公开，Desktop原生MCP配置适配属于
 ## 1. 目标与统计口径
 
 用户明确：AgentBridge 的核心是给 Agent 提供发现、调用、观察和控制其他 Agent 的通路。自动续接、多用户不作为后续目标；已有相关实现和历史证据保留，不用其完整度衡量连接产品的完成度。模型、Skill、业务规划和原生内部记忆由原 Agent 管理。
+
+已确认的范围：身份、授权、明确目标调用、交互控制及可靠恢复为核心；AB-F19 小队容器与 AB-F20/21/22 公共空间、业务任务/验收、自动协调定位为可选上层，保留兼容并暂停扩张。优先补 Agent 身份、调用方/上下文归属与接入生命周期，再补共享策略、结果/事件和真实 Super-agent 闭环；当前独立登记/固定端点/按登记ID委派源码第一片已实现：新增中央agents.*、端点扩展字段和定向能力，不迁移旧登记或原任务；74项受控回归不代表真实原生Super-agent完成；独立调用方/上下文/凭据和原事件查询现已源码实现，完整契约见[调用方与事件](iterations/I08/interconnect-caller-contract.md)。[当前实现与证据](iterations/I08/interconnect-development.md)。MCP 可先完成闭环，订阅/A2A/DSH Provider/递归委派不作为必需项。[完整边界与完成条件](iterations/I08/interconnect-boundary.md)。
 
 “适配程度”按具体能力和证据记录，不用没有权重依据的百分比。必须区分以下方向：
 
@@ -98,9 +108,11 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | 原请求持久查询与 unknown 保护 | 已实现 | 已实现 | 已实现 | 已实现 |
 | 当前内置 ACP 驱动 | 无 | 无 | 无 | 无 |
 
-经典MCP（本地60源码10项、公开53为7项）里的 `delegate` 发起新的子会话，没有父完整历史复制；当前也没有给已委派子会话发送后续普通消息的工具。用户未将这项扩展列为优先目标，不以此否定现有任务通路。TeamSpace 的公共材料与某个原生 Agent 的私有对话是不同层，不能混为“共享了所有上下文”。
+当前未发布源码的经典 MCP 保持十工具：`delegate` 默认新建子会话，可传原 `conversationId` 继续同一调用身份拥有的原会话；须目标当前授权、上一轮明确终态及原宿主可续聊，不接受目录变更。新托管父执行不能接管旧父委派；独立接入仍按原 connectionId 归属。已有续聊不等于运行中任意消息注入或任务订阅，也没有父完整历史复制。[当前实现与证据边界](iterations/I08/web-agent-development.md)。TeamSpace 的公共材料与原生 Agent 私有对话仍分开；本段不刷新公开 alpha.71 或真实父模型验收状态。
 
 ## 4. 后续目标与完成条件
+
+后续先细化 Agent 身份、调用方/上下文归属和接入生命周期三项契约，再推进共享资源、结果/事件与一个真实 Super-agent 闭环。它们复用CT-06/07/08和M02/M03/M06/M07/M08落点，不改已有编号；登记/端点/命名调用第一片已有新RPC/字段及受控证据，独立调用方/上下文/凭据和原事件查询也已实现，真实原生和完整矩阵仍待；完整状态见[开发台账](iterations/I08/interconnect-development.md)。下表保留各 CT 的实际实现状态；可选小队/自动协调的完整度不作为连接核心完成条件，已知故障与未测证据仍保留。[当前优先级与验收定义](iterations/I08/interconnect-boundary.md)。
 
 以下区分实际完成的源码切片与后续目标。CT-01源码/受控验收已完成；其余目标不因写入本表变为已实现，也未部署或发布。
 

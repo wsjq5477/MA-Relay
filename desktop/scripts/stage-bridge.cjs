@@ -28,3 +28,5 @@ const { stageLinuxPackage } = require('./stage-linux-package.cjs');
 const { version } = require('../package.json');
 const linux = stageLinuxPackage({repo,runtime,destination:resolve(__dirname,'../.linux-package'),version});
 console.log(`Linux daemon ${linux.version}: ${linux.files} files, Node ${linux.nodeVersion}`);
+const browser=require('./build-browser-extension.cjs').stageBrowserExtension();
+console.log(`Browser Agent development bundle: ${browser.manifest.files.length} production files, SHA-256 ${browser.manifest.archive.sha256}`);

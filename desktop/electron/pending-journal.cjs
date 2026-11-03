@@ -56,7 +56,7 @@ async function recoverJournal(rows, call, settle, rejectsVerificationContinuatio
         if (task?.taskId && task.requestId === row.id && (!task.machineId || task.machineId === row.machineId))
           await resolve(row, "confirmed", task);
         else items.push(diagnostic(row, 'RECEIPT_MISMATCH'));
-      } else if (["reply", "cancel"].includes(row.op)) {
+      } else if (["reply", "cancel", "session.close"].includes(row.op)) {
         const taskId = row.params?.taskId || row.params?.reply?.taskId;
         if (!taskId) { items.push(diagnostic(row, 'RECEIPT_MISMATCH')); continue; }
         const receipt = await call("ipc", { op: "operation", taskId, operationId: row.id, machineId: row.machineId });

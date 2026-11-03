@@ -77,7 +77,7 @@ API 让 Bridge 直接操作正在运行的 Desktop / Web 会话服务，沿用�
 
 DSH CLI 的配置文件跟着你启动 `dsh` 时选择的 profile 走，所以 Bridge 不猜默认值，需要你告诉它：
 
-1. 在 DSH CLI 节点行的“配置”里填写“DSH 原生 profile”（与启动 dsh 时使用的名称一致），或使用命令行 `--profile`。
+1. 在 DSH CLI 节点行的“配置 → 高级设置”里填写“DSH 原生 profile”（与启动 dsh 时使用的名称一致），或使用命令行 `--profile`。
 2. 点击“添加 Bridge MCP”，Bridge 只写这一个 profile 的补丁层：`$DSH_HOME/profiles/<profile>/cordis.patch.yml` 的一行条目。
 3. 重新启动该 profile 的 dsh，在 DSH 自己的 MCP 列表里核对。
 

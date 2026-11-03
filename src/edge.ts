@@ -151,6 +151,7 @@ export async function startEdge(config: EdgeConfig, log: (message: string) => vo
     if (input.action === 'reconcile') return recoverExecution(input.executionId);
     const reference = journal.native(input.executionId); const driver = drivers.get(execution.agent_id);
     if (!reference || !(driver instanceof OpenCodeDriver)) throw new BridgeError('NATIVE_BINDING', 'Task has no local native binding', 409);
+    const native = await driver.client.bindProtocol(reference.snapshot?.nativeProtocol || 'v2');
     const evidence = await driver.inspect(reference);
     if (input.action === 'cancel') {
       if (input.requestId || input.answer || input.decision) throw new BridgeError('INVALID_INPUT', '取消不能包含等待回复字段');
@@ -158,7 +159,7 @@ export async function startEdge(config: EdgeConfig, log: (message: string) => vo
       const claim = journal.operations.claim(input); if (!claim.fresh) return claim.operation;
       if (evidence.outcome) return journal.operations.finish(input.operationId, 'confirmed', { interrupted: false, effect: evidence.outcome });
       try {
-        const receipt = await driver.client.interrupt(reference.sessionId);
+        const receipt = await native.interrupt(reference.sessionId);
         if (typeof receipt?.interrupted !== 'boolean') throw new BridgeError('NATIVE_CONTRACT', '原生取消收据无效', 503);
         return journal.operations.finish(input.operationId, 'confirmed', { interrupted: receipt.interrupted, effect: 'awaiting_native_evidence' });
       } catch { return journal.operations.finish(input.operationId, 'unknown', { effect: 'query_original_turn_only' }); }
@@ -176,7 +177,7 @@ export async function startEdge(config: EdgeConfig, log: (message: string) => vo
     }
     const claim = journal.operations.claim(input); if (!claim.fresh) return claim.operation;
     try {
-      await driver.client.reply(reference.sessionId, input.action, input.requestId, {decision:input.decision,answer:input.answer});
+      await native.reply(reference.sessionId, input.action, input.requestId, {decision:input.decision,answer:input.answer});
       return journal.operations.finish(input.operationId, 'confirmed');
     } catch { return journal.operations.finish(input.operationId, 'unknown'); }
   };

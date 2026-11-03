@@ -1,5 +1,31 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+M08：当前Windows Codex主对话以代码模式消费真实MCP结果，原WSL Codex同Session正文/续聊与在途恢复已实测；未伪造父模型Task，也未验证桌面原生工具目录安装。已撤权上下文的原生完成由管理员观察，不恢复调用权；不据此扩大递归委派或业务验收。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+经典task_result支持原delegationId只读恢复，不要求当前新派发权限；从list_delegations取原ID后，仅原请求查询，不重新delegate。旧后台无task.original-request-v1时零任务查询，和事件游标能力分别核验；原Task、原scope和十工具保持。[完整契约](../../iterations/I08/interconnect-caller-contract.md)。
+
+## 通用互联与可选小队的边界
+
+M08 的关系授权、获准发现、明确目标委派、原结果/等待/控制与恢复属于互联核心。TeamSpace 的小队工作、公共文档/群聊、任务依赖/交付/复验/返修/业务验收，以及 TeamAutomation 的事件激活/自动续接，属于保留兼容的可选上层，暂停扩张；普通 MCP 发现和委派不要求采用其业务模型。现有主/子名称不表示网络必须只有一个全局主角色，固定业务角色不成为通用协议前提。
+
+Agent身份/固定端点/按登记ID委派第一片已源码实现，list_agents仅附获准节点的agents[]，delegate解析已确认agentId并保留绑定指纹，旧后台未声明能力时零派发。经典仍十工具、不要求小队。[当前schema、实现与受控证据](../../iterations/I08/interconnect-development.md)。独立调用方/上下文/凭据和原结果/事件查询第二片已有源码与受控证据，主体不要求可执行节点；原native-parent和connectionId不自动迁移。真实父模型、已有服务及完整生命周期/跨机矩阵仍待。[完整契约](../../iterations/I08/interconnect-caller-contract.md)。当前原父 scope、长期接入范围、原委派读控和 collaboration=false 子任务限制保持；不开放递归委派，不新增订阅/A2A/DSH Provider。经典 MCP 续聊已有源码实现，不能继续按“完全无多轮”登记；新契约不因该实现变为已完成。[完整边界与验收](../../iterations/I08/interconnect-boundary.md)。
+
+桌面授权展示沿用[M01界面层级](../01-desktop/design.md#界面信息层级)：连接策略弹窗按主Agent管理预授权，当前连接分行显示，审计按需展开；小队界面按智能体→小队→工作范围显示可用表单。仅调整展示与入口可见性，原授权、双修订CAS、原operationId/指纹恢复、成员权限、调度和MCP合约保持。[本次变更与验证](../../iterations/I08/ui-cleanup.md)。
+
+当前Browser仅ChatGPT，Kimi移出开发与验收。实际匿名网页已通过原MCP/Registry/Router四轮持续对话及8次流式输出；Core、既有Broker/Transport与关系规则保持。新增DOM布局和原结束证明失败结算的职责在M06/M07，当前开发ZIP19文件；旧browser.2/公开alpha.71不据此成为新版本。[当前完整设计和证据](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+M08-F03/F05：真实stdio原cancel_task/queryOnly取得取消封存，原health/close在缺扩展请求行时仍可恢复既有Session；MCP工具数/原delegation所有权不变。关闭不等于Task成功或取消，原Task已确认cancelled后仍保持；旧会话不可重开，新明确请求另建Session只发送一次，不自动重发已取消输入。[完整链与实测](../../iterations/I08/web-agent-development.md)。
+
+M08-F03/F05：原MCP delegate续聊仍保持同一原主体/当前关系，新增可见对话证明由原Host/扩展私有校验；task_result的canContinue不替代实时DOM预检。旧成功记录无证明时结果保留、不可续聊；同锚点人工编辑/重生成阻止自动接管，不授予新会话或重放权限。[受控完整链及范围](../../iterations/I08/web-agent-development.md)。
+
+M08-F03/F05：经典MCP工具数保持；cancel_task新增queryOnly:boolean，true仅读原取消操作，stdio须先核对live list_agents声明cancel.query-v1；旧后台未声明/原收据身份或种类不可核验时拒绝，不发取消。原委派所有权/机器归属保持，confirmed另读task_result。未授权内容的原子封存可使原Browser子Task明确cancelled，后续delegate续聊仍核对原主体/当前关系/原会话与页面状态。取消不删除人工草稿；用户清空后须明确的新requestId，不自动重发被取消的输入。网页Stop仍不支持。[受控完整路径与限制](../../iterations/I08/web-agent-development.md)。
+
+M08-F03/F05：空闲Browser Session关闭沿原IPC，经典MCP仍十工具；task_result保留已完成结果并反映canContinue=false，原委派续聊不能绕过closed/关闭unknown。新需求需明确新request创建独立Session，不能把关闭收据当任务取消或成功。[受控完整链](../../iterations/I08/web-agent-development.md)。
+
+Browser前端能力门禁只认可准确static-adapter/browser-extension及原profile，允许作为普通受委派目标；MCP调用方/托管scope仍false，配置弹窗不开放原生MCP安装。实际13组仅证明受控父Task通过真实stdio原Broker委派及三轮续聊，不能推导真实父模型准出。[当前界面与证据](../../iterations/I08/web-agent-development.md)。
+
+M08-F03/F04/F05/F06：经典MCP仍10工具，delegate可选conversationId继续同一原主体拥有的子会话；须原父Task/Conversation或独立connectionId一致、目标与当前关系有效、原轮明确终态、原宿主canContinue，不接受目录变更。异步原会话查询后重新核对关系/父任务；新父执行不能认领旧会话或同名request。task_result返回conversationId及当前canContinue，查询失败不隐藏原结果。list_agents新增supportedOperations=['delegate.continue-v1']；新版stdio客户端在发送续聊前向原认证Broker作此只读能力确认，旧后台缺声明时明确拒绝，防静默退化为新会话。仍为结果轮询，无MCP token推送。[完整实现与原始证据](../../iterations/I08/web-agent-development.md)。
+
 当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 
@@ -55,7 +81,7 @@ M08-F02/F03/F05/F06：list_agents只接受空参数，身份由原机器/原父�
 
 源码新增list_delegations({limit?,after?})，默认20/最多50；原生按leader和原父request/task/conversation交集，独立接入按非空connectionId/原父范围且parentTaskId=null过滤，不能以空身份匹配。游标只允许当前作用域原委派ID，额外身份参数拒绝；移除子关系保留原父读控，失效父/撤销独立接入仍拒绝。
 
-只投影原ID、已有taskId、ledgerState和安全元数据，无Prompt/目录/结果/秘密，不查子工具或写/恢复台账。ledgerState非实时，已有taskId再用task_result；无taskId保留unknown与原请求，不补发。多主共享存储不改变既有六工具的原父读控语义，完整CT-07未完成。[完整当前契约](../../iterations/I07/delegation-list.md)。
+只投影原ID、已有taskId、ledgerState和安全元数据，无Prompt/目录/结果/秘密，不查子工具或写/恢复台账。ledgerState非实时，已有taskId再用task_result；无taskId可按task.original-request-v1用原delegationId只查询原请求，缺记录继续保留unknown，不补发。多主共享存储不改变既有六工具的原父读控语义，完整CT-07未完成。[完整当前契约](../../iterations/I07/delegation-list.md)。
 
 ## DSH Desktop / Web 当前行为
 
@@ -263,7 +289,7 @@ CT-04 实现范围：小队MCP有17项，包含新增 `team_materials({limit?,do
 | list_delegations | 可选limit/after，身份来自原scope | 只读列自己的原委派ID/台账状态，不查询实时任务或结算unknown |
 | list_agents | 无节点身份参数 | 返回当前关系允许的子节点、machine、status、busy、能力 |
 | delegate | nodeId、message、requestId，可选 workspace | 返回真实子任务与 delegationId；目标必须已授权 |
-| task_result | taskId，可选 waitMs | 最多等待 45 秒；终态、unknown、waiting 或超时立即返回实际状态 |
+| task_result | taskId或原delegationId，可选waitMs/afterSeq/limit | 最多等待45秒；原delegationId仅查询原请求并恢复原Task关联，缺记录保留unknown；新字段须现场能力声明。事件与原结果契约见[独立调用方契约](../../iterations/I08/interconnect-caller-contract.md) |
 | task_pending | taskId | 查询本父会话委派任务的真实权限/表单 |
 | reply_task | taskId、operationId、原 requestId、action 与回答 | 只处理原 pending；权限只有 reject / once，需要用户授权 |
 | cancel_task | taskId、operationId | 请求取消自己的子任务；回执不等同进程已结束 |

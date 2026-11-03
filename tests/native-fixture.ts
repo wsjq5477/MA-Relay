@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 // Contract fixture follows OpenCode 2.0.24 /openapi.json. It is NOT real-agent acceptance.
-export async function fixture(workspace: string) {
+export async function fixture(workspace: string, options: { agents?: { id?: string; name?: string }[] } = {}) {
   const password = 'native-fixture-private-password';
   const sessions = new Map<string, { id: string; model: unknown; prompt?: { id: string; text: string }; permitted: boolean; denied: boolean; form: boolean; polls: number }>();
   let modelId = 'fixture';
@@ -13,7 +13,7 @@ export async function fixture(workspace: string) {
     let body: Record<string, unknown> = {};
     if (req.method === 'POST') { const chunks: Buffer[] = []; for await (const c of req) chunks.push(c); body = JSON.parse(Buffer.concat(chunks).toString()); }
     if (url.pathname === '/api/info') return send(200, { version: '2.0.24' });
-    if (url.pathname === '/api/agent') return send(200, { data: [{ id: 'build', name: 'build' }] });
+    if (url.pathname === '/api/agent') return send(200, { data: options.agents ?? [{ id: 'build', name: 'build' }] });
     if (url.pathname === '/api/model/default' || url.pathname === '/api/model') {
       if (url.searchParams.get('location[directory]') !== workspace) return send(400, { _tag: 'InvalidRequestError' });
       const model = { id: modelId, providerID: 'offline' };

@@ -1,6 +1,10 @@
 # Codex 适配器设计
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+Windows主/WSL从使用原HostConnection/MachineHost/CodexHost，独立CallerContext固定WSL目标。用户明确选择后只修改原生默认模型为gpt-6.1-sol，原npm安装原位升级0.101.0→0.166.0；原路径/其余原生配置/登录凭据保持，Bridge不做模型回退或新增API。原主上下文与Session已有真实正文/续聊/在途恢复和取消实证；外层关闭与原生终态分别核对。[本轮验收](../../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+当前公开alpha.71，冻结1b2e371；下述Windows主/WSL从为未发布工作区的独立原生验收，不代表现有EXE或完整用户profile已准出。[公开交付边界](../../../iterations/I08/alpha71-release.md)。
+
+本机验收使用仅对Codex生效的私有回环CONNECT通道，TLS端到端、不解析模型/认证正文；仅监听回环且需独立凭据，不导出全局代理。CLI升级的npm临时通道已关闭，原Codex通道中途退出后沿原地址/凭据恢复；临时通道持续性不属于生产网络准出。原CLI/配置备份在E盘，用户明确选择的原生模型由Bridge继承。网页登录已完成，旧started标记不代表存活；本机支持不进入产品账号/模型状态机。[网络与历史证据](../../../iterations/I08/interconnect-windows-wsl.md)。
 
 M06-CX-F01：独立MCP只读列表使用共享command解析，Windows npm保持原JS安装身份并启动同包原生程序，不回退其他安装；列表启动错误不构成配置加载或连接证明。exec/resume、原thread、取消与模型配置未改。[实现与验证](../../../iterations/I08/windows-regression-and-native-probes.md)。
 

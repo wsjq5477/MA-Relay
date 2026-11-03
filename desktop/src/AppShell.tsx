@@ -15,7 +15,6 @@ import {
   PanelLeftOpen,
   ChevronRight,
   Workflow,
-  CircleHelp,
 } from "lucide-react";
 import type { Preferences } from "./types";
 
@@ -24,31 +23,26 @@ export const pages = [
     id: "machines",
     label: "接入配置",
     icon: Monitor,
-    description: "机器、原生 Agent 与 MCP",
   },
   {
     id: "teams",
     label: "小队设置",
     icon: GitBranch,
-    description: "成员、工作作用域与授权",
   },
   {
     id: "board",
     label: "执行审计",
     icon: LayoutGrid,
-    description: "原任务、结果与恢复",
   },
   {
     id: "conversations",
     label: "会话审计",
     icon: MessageSquare,
-    description: "只读原会话与历史轮次",
   },
   {
     id: "settings",
     label: "设置",
     icon: Settings2,
-    description: "外观、后台与恢复",
   },
 ] as const;
 export type Page = (typeof pages)[number]["id"];
@@ -109,7 +103,6 @@ export default function AppShell({
           <Workflow size={14} />
           <span>AgentBridge</span>
         </div>
-        <div className="titlebar-center">原生 Agent · 连接与协作</div>
         <div className="window-controls">
           <button aria-label="最小化" onClick={() => onWindow("minimize")}>
             <Minus size={15} />
@@ -133,10 +126,8 @@ export default function AppShell({
           </div>
           <div className="brand-copy">
             <strong>AgentBridge</strong>
-            <span>你的 Agent 工作台</span>
           </div>
         </div>
-        <div className="nav-label">工作空间</div>
         <nav aria-label="主导航">
           {pages
             .filter((p) => p.id !== "settings")
@@ -155,14 +146,6 @@ export default function AppShell({
               </button>
             ))}
         </nav>
-        <div className="sidebar-guide">
-          <CircleHelp size={16} />
-          <span>
-            配置已有 Agent，
-            <br />
-            从原生会话开始协作。
-          </span>
-        </div>
         <div className="sidebar-bottom">
           <button
             aria-label="设置"
@@ -226,7 +209,6 @@ export default function AppShell({
               <ChevronRight size={13} />
               <strong>{current.label}</strong>
             </span>
-            <span className="topbar-description">{current.description}</span>
           </div>
           <div className="topbar-actions">
             <span

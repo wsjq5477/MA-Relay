@@ -81,7 +81,7 @@ export class OpenCodeV1 {
       const id = provider && catalogue.default[provider.id];
       if (provider && typeof id === 'string') selected = { providerID: provider.id, id };
     }
-    return { version: health.version, selected, models };
+    return { version: health.version, selected, models, nativeAgentAvailable: true };
   }
   private sessionInfo(raw: V1Session): NativeSession {
     if (!raw || typeof raw.id !== 'string' || typeof raw.directory !== 'string') throw contract();

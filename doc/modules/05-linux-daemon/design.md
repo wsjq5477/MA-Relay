@@ -1,5 +1,25 @@
 # M05 Linux 机器后台设计
 
+中央MCP的task_result(delegationId)只查询原MachineRouter ipc/request；机器后台仍按原Task/原Session路由，无新增daemon帧、Prompt重放或目录重建。源码stdio以task.original-request-v1现场门禁拒绝旧后台，真实跨机仍待验。[完整契约与恢复证据](../../iterations/I08/interconnect-caller-contract.md)。
+
+未发布源码共享MachineHost的scope恢复现等待同一Promise完成；失败可沿原scope重查，关闭阻止迟到入口复活。broker关闭主动拒绝尚未完成的就绪等待，关闭观察器不发送任务取消。独立调用方由中央CallerService管理，daemon不声明中央专有能力；原Task/线协议及机器归属保持。[完整调用方契约](../../iterations/I08/interconnect-caller-contract.md)、[受控证据与未测项](../../iterations/I08/interconnect-development.md)。
+
+当前Browser仅ChatGPT，Kimi移出开发与验收。实际匿名网页已通过原MCP/Registry/Router四轮持续对话及8次流式输出；Core、既有Broker/Transport与关系规则保持。新增DOM布局和原结束证明失败结算的职责在M06/M07，当前开发ZIP19文件；旧browser.2/公开alpha.71不据此成为新版本。[当前完整设计和证据](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+M05-F01/F02：继承绑定prepared取消通过原认证task.cancel取得封存；health/close恢复仍用原帧，不新增daemon命令或绕过维护门禁。派生关闭引用原取消而不造请求；Windows MV3与Linux Node合同分层验收，不把Node客户端替代Linux Chrome。[当前实现与验证](../../iterations/I08/web-agent-development.md)。
+
+M05-F01/F02：原Browser completed事件可携私有continuation证明，Node只验证字段、原执行/事件和document，不在daemon实现Provider DOM逻辑。旧无证明成功历史保持，canContinue=false；原帧与维护/取消门禁不变，Linux Node与Windows Chrome分层验收。[当前证据与边界](../../iterations/I08/web-agent-development.md)。
+
+M05-F01/F02：Browser未授权内容取消复用既有ipc.cancel/operation与daemon维护/原对象来源门禁；Node必须先冻结派发，扩展原持久证明才取消。cancel_task的queryOnly沿旧有operation帧只读原取消，不增加daemon mutation或改变维护门禁。页面已授权/缺证明仍保留原执行，不引入Linux专用发送或Stop；实际Linux Node与Windows MV3分层记录。[范围与证据](../../iterations/I08/web-agent-development.md)。
+
+M05-F01/F02：session.health沿原认证机器帧只读调用，维护期间不分配写入/控制收据；browser-session-health-v1仅门禁新探测。WSL真实Linux子进程已验证单daemon/浏览器监听者、原端点/身份重开及原关闭收据只查询；传输对端为Node受控BrowserClient，不是Linux Chrome/Provider。扩大集仍有快照截止失败，不能称Linux全量全绿。[分层证据及失败](../../iterations/I08/web-agent-development.md)。
+
+M05-F01/F02：ipc.session.close纳入原控制mutation、维护门禁、daemon收据及原operation查询，hello新增browser-session-close-v1；关闭unknown不记confirmed、不重发。Windows受控回归与真实MV3不作为Linux实际daemon进程/维护/SSH通过证据。[当前测试边界](../../iterations/I08/web-agent-development.md)。
+
+M05-F01/F02：生产MachineHost启用BrowserManagement，原daemon拥有认证loopback监听与持久端点；browser.status/pair/revoke沿原认证机器帧，pair/revoke遵守原维护配置门禁，不将bootstrap秘密写入任务收据。hello声明browser-agent-v1，旧daemon缺声明时客户端拒绝新管理请求；浏览器始终连接所在机器的127.0.0.1，跨设备任务继续使用已有SSH。Windows受控共享与WSL真实Linux进程分层验证；实际Linux Chrome、Browser跨设备SSH及真实Provider未验。[源码、恢复与限制](../../iterations/I08/web-agent-development.md)。
+
+browser.pair的queryOnly:true只按原operationId读取，不因NOT_FOUND创建；UI重开沿此入口，接口字段沿原帧透传，无版本迁移。Windows实际机器组件/RPC与MV3受控验证不替代Linux daemon进程、维护竞态或实际SSH证明。[当前验收](../../iterations/I08/web-agent-development.md)。
+
 alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/任务忙时打开查看；实际版本切换仍核对原身份、空闲与收据，不绕过门禁。仅补公开alpha.70精确原pin以保持上一公开版本复用。[来源、包与界面验证](../../iterations/I08/issue29-maintenance-entry.md)。
 
 

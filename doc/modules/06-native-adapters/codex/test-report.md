@@ -1,6 +1,14 @@
 # Codex 适配器测试报告
 
-当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
+T-M06-CX-317：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+T-M06-CX-314 / M06-CX-F01：2026-11-03，Windows原认证Coordinator/真实stdio MCP，读取已有三条WSL Codex真实原生Task（cancelled/failed/failed）。实际原上下文凭据轮换、旧Bearer拒绝、观察器关闭/重开、跨上下文拒读、delegate/result/目标授权撤销及恢复累计18项核对通过，原Task/原生Session与请求计数3→3保持。本轮新需求0，原操作权限和目标已恢复；18项为共用累计检查，不与各阶段或104项相加。没有成功模型正文、在途属主上下文关闭或真正丢提交回应，已有服务/SSH/EXE与原矩阵仍未准出。新增验收脚本lint通过；首次脚本把Task.error误判为查询失败，产品行为未改。[源码、原始失败与分阶段实测](../../../iterations/I08/interconnect-development.md#13-基于三条真实原生task的读控恢复验收)。
+
+T-M06-CX-313 / M06-CX-F01：2026-11-03，当前Windows Codex桌面对话经真实MCP委派WSL Codex0.101.0；同一原CallerContext/子会话中三条Task明确cancelled/failed/failed，无成功正文。原取消收据confirmed与实际cancelled分别核对；观察器重开后原归属保持。Windows网络TLS成功、WSL直连超时，本次临时回环CONNECT通道已恢复TLS；两次原生刷新均401 invalid_refresh_token，同账号较新缓存试验失败并回滚，原生网页登录等待。profile/attempt保护受控10/10；网络四项拒绝门禁与一项原绑定保护、相关lint通过，均不等于模型闭环。成功续聊/轮换、真实profile/SSH/EXE仍未准出，公开alpha.71不变。[原始证据及登录恢复](../../../iterations/I08/interconnect-windows-wsl.md)。
+
+当前公开alpha.71，冻结1b2e371；下述Windows主/WSL从为未发布工作区的独立原生验收，不代表现有EXE或完整用户profile已准出。[公开交付边界](../../../iterations/I08/alpha71-release.md)。
+
+T-M06-CX-313追加原生启动核对：用户普通WSL zsh未继承验收代理，原登录进程已退出而started标记过时。现已在E盘备份.zshrc并追加仅codex命令的网络包装，原模型/安装/账号不改；真实交互zsh解析与版本返回约3.3秒，PTY完整原生界面约8.2秒显示目录信任提示，未提交业务消息。新的独立原生登录观察器、原生进程与D盘隔离浏览器均已核对存活，网页登录仍等待，不计模型通过。[原始证据、原标记纠正与恢复方式](../../../iterations/I08/interconnect-windows-wsl.md#7-普通wsl终端的codex启动修复)。
 
 T-M06-CX-214 / M06-CX-F01：2026-10-29，未发布源码；中文profile的添加/移除在并发修改及替换失败后原TOML保持、准确临时文件消失。四项计入共享专项44/44与相关Windows117通过/1平台跳过，Electron44/44；不是本机真实Codex、模型或普通EXE验收。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
 

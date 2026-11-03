@@ -39,7 +39,9 @@ export const hasNativeConversation = (c: Conversation) =>
   c.canContinue ?? !!c.items?.some(t => t.native?.sessionId);
 export const taskLabel = (t: Task) =>
   t.waiting ? "等待你处理" : labels[t.status];
-// Claude output events contain text deltas; OpenCode emits text snapshots.
+// Explicit replace events carry complete text revisions, including corrections
+// and truncation. Claude deltas and legacy OpenCode prefix snapshots keep their
+// established behavior when no mode is present.
 // Merge only within a visible output span, keeping tools and state changes in
 // their original order. Raw task events remain untouched for reconciliation.
 export function taskEvents(task: Task, adapter?: Agent["adapter"]): Event[] {
@@ -50,8 +52,9 @@ export function taskEvents(task: Task, adapter?: Agent["adapter"]): Event[] {
     const last = rows.at(-1);
     if (item.event.kind === "output" && last?.event.kind === "output") {
       const previous = last.event.text || "", next = item.event.text || "";
-      if (adapter === "claude" || (adapter === "opencode" && next.startsWith(previous))) {
-        last.event.text = adapter === "claude" ? previous + next : next;
+      if (item.event.mode === "replace" || adapter === "claude" || (adapter === "opencode" && next.startsWith(previous))) {
+        last.event.text = item.event.mode === "replace" ? next : adapter === "claude" ? previous + next : next;
+        if(item.event.mode==="replace"){last.event.mode="replace";last.event.revision=item.event.revision;}
         last.timestamp = item.timestamp;
         continue;
       }

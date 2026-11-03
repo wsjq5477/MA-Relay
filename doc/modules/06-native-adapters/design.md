@@ -1,5 +1,45 @@
 # M06 原生 Agent 适配器设计
 
+M06-CX-F01：本机用户明确选择原生gpt-6.1-sol并原位升级CLI，不增加Bridge模型字段或模型API。Windows主/WSL从的正文、原Session续聊与在途观察器恢复已有实证，原失败保留；这是单一真实接入，不扩大完整适配器/机器/EXE准出。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+M06-OC-F01：OpenCode执行使用独立协议协商客户端，原Session观察及回复/取消在原nativeProtocol校验后使用绑定客户端，健康检查失败/变化不改写本次I/O地址。失败发现仍使缓存失效，协议不匹配拒绝；不增加控制重试。[当前实现与回归](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+M06-OC-F01：OpenCode只读连接检查使用已协商的V1/V2 Agent信息，避免V1成功后追加V2地址而误报失败；managed=false已有服务的原进程归属保持。真实原安装1.2.10仅验证低层Controller/Client元数据及观察器关闭/重开，模型和互联登记完整链仍待。[当前实现与证据](../../iterations/I08/interconnect-development.md#14-已有opencode服务的协议检查与观察器归属)。
+
+原委派尚无taskId时，按delegationId恢复仅使用目标适配器既有request读取；请求/Task/会话不匹配拒绝关联，缺原记录不假造失败或重跑。Hermes/Pi/DSH受控CLI已覆盖原MCP查询恢复；真实模型和已有服务仍需独立证据。[完整契约](../../iterations/I08/interconnect-caller-contract.md)。
+
+互联核心第二片复用原生入口/已有服务/Browser三种端点模式，ownership/admission只读描述既有能力；CallerContext控制Bridge读控归属，不生成原生Session或文件权限。原Task事件投影省略Session/私有控制正文，支持原序列补读；缺事件与保留缺口明确报告。原生终态和业务验收分开，真实模型/已有服务/跨机仍需独立验收。[完整契约](../../iterations/I08/interconnect-caller-contract.md)、[当前实测](../../iterations/I08/interconnect-development.md)。
+
+原生MCP配置状态的桌面消费沿用[M01四项状态与诊断](../01-desktop/design.md#agent行mcp状态与控制)：原适配器`facts/evidence`及持久字段保持，前端不把`bridge-stdio`目录成功当作原生Agent可见工具；未知、不支持、过期与目标变化不显示接入正常。无新增探测接口或自动修复，原生加载与原生工具可见性仍按各适配器真实证据决定。[本次界面实现及证据范围](../../iterations/I08/mcp-configuration-ui.md)。
+
+## 原生调用与生命周期的权责
+
+M06 负责适配已有原生接口，请求创建/续接 Session、提交、观察、交互回复与取消；Agent Loop、工具、模型、内部状态及实际权限由原生 Runtime 管理。必要 worker、原生服务启动和 Session 控制保留，close 不等于取消，不提供任意远程 Shell。可追溯的版本化任务说明允许存在，但不改任务目标、不增加权限。
+
+已有服务、获准启动入口与原Session的资源归属已按当前源码明确：观察门面关闭不自动取消；明确停止Core Controller可停止经核验的自有托管服务，外部服务不归其所有。原Task仍按原生证据核对，PID/IPC消失不变更终态。mode及ownership/admission为既有行为的只读投影，不授予任意进程管理、Session接管或迁移能力；完整真实在途/升级证据仍待。[资源归属表](../../iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)、[当前实现与证据](../../iterations/I08/interconnect-development.md)。MCP优先完成调用方闭环，ACP可选试点保留，A2A/DSH Provider不作为当前必需项；TeamSpace/TeamAutomation保留兼容并暂停扩张。[完整职责与验收](../../iterations/I08/interconnect-boundary.md)。
+
+当前Browser仅ChatGPT，Kimi移出开发与验收。实际匿名网页已通过原MCP/Registry/Router四轮持续对话及8次流式输出；Core、既有Broker/Transport与关系规则保持。新增DOM布局和原结束证明失败结算的职责在M06/M07，当前开发ZIP19文件；旧browser.2/公开alpha.71不据此成为新版本。[当前完整设计和证据](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+Browser通道依赖ws，Electron主进程间接加载该模块时也需可解析；桌面精确生产声明与ASAR依赖核验归M10，不能从Node/Bridge模式通过推定GUI可启动。首个Browser开发包普通启动缺ws已被拒绝，修复后继包单独验收；公开alpha.71不受影响。[实际缺陷与修复](../../iterations/I08/web-agent-packaging.md)。
+
+M06-F01/F05：Browser扩展以18个生产文件的开发ZIP交付，保持manifest原字节与独立ChatGPT Driver，不封装账号或配对状态。构建器拒绝权限、外部引用及未收录生产文件漂移；桌面资源核验沿用M10。固定路径解压加载，目录变动可能改变开发扩展ID，不自动转移旧绑定。ZIP真实解压MV3的受控验证不能替代真实Provider/原生父模型。[交付边界与原始证据](../../iterations/I08/web-agent-packaging.md)。
+
+M06-F01/F05：Journal.controlTarget/readControlTarget以原取消封存恢复无prepare行的既有Session健康/关闭；完整meta、原profile和最新同Session lease共同围栏。health不创建行，request.get/output.subscribe继续严格NOT_FOUND；close同事务写墓碑及recoverySealOperationId，读库校验原取消引用。Node继承prepared先取扩展封存，延迟派发不得复活原任务；全新无绑定prepared本地取消保持。[实际反例与边界](../../iterations/I08/web-agent-development.md)。
+
+M06-F01/F05：ChatGPT Driver以可见[role,id,text]序列的SHA-256和文档历史/逐锚点版本建立续聊证明；Web Crypto返回后、实际填入/点击同步段再次核对，运行中旧消息与本轮user不可改写。可信编辑/重生成/分支动作使原所有权失效；1MiB/8192锚点达限拒绝，不截断后声称可续。Journal/Node同原完成事务保留私有证明，旧无证明成功只读，resume不可换tab/document/pageEpoch。[完整实现与受控反例](../../iterations/I08/web-agent-development.md)。
+
+M06-F01/F05：BrowserJournal将claimSend与authorizeContent分开；新请求contentAuthorized=false，提交页动作前严格落盘true。取消与授权由原IndexedDB事务排序，成功封存后所有create/finish/prepare/send/authorize入口拒绝；旧缺标记/已授权不提供取消证明，通用cancellation仍false且无Stop。经典MCP queryOnly只查询原取消；旧目标缺可核验kind/taskId的收据不作证明，不迁移Core/native记录。ChatGPT仅将精确单个裸BR视作Chromium空编辑器占位，空格/人工换行仍是草稿。[完整约束和实测](../../iterations/I08/web-agent-development.md)。
+
+M06-F01/F05：原session.health只读原meta、最新request和document/epoch/会话/用户锚点，返回站点授权、DOM提示与Node存储/任务占用，不访问账号/私有API或发送测试Prompt。原用户锚点须仍为最后一条用户消息，submit传递锚点且Driver再核对完整params；填写中新增用户轮拒绝点击，无原绑定的新Session不接管已有历史。同锚点编辑/助手重新生成与真实Provider仍待完整矩阵。[实现和反例](../../iterations/I08/web-agent-development.md)。
+
+M06-F01/F05：Browser Host提供原ipc.session.close，空闲最新轮次/绑定版本才允许；扩展原子关闭绑定、不关tab或删除历史，丢回应只查原operation。Driver拒绝query/hash页面/中途模式变化；Chrome loading/complete须核对实际documentId，同document保留观察，换document/不可核对unknown。配对schema严格、pending期限全程核验、首次认证修正保留原绑定；网页Stop仍false。[规则、失败与实测](../../iterations/I08/web-agent-development.md)。
+
+M06-F01/F05源码注册chatgpt-web，静态execution/delegation/resume，MCP调用方/托管scope/表单/权限/验证/网页取消为false。生产宿主有持久认证channel/配对RPC，原profile同步Host与CLI跳过规则保持；桌面/扩展设置和原MCP被动委派/续聊已接线，真实扩展三轮仅验受控HTML。实际站点权限确认/账号、原生父模型、跨机/EXE仍待，Kimi未注册。[完整当前行为](../../iterations/I08/web-agent-development.md)。
+
+Browser Host已接原ipc.reconcile，只读订阅补原事件；ACK不能释放unknown，原终态到达才同时结算原Task/核对收据。内部operation.get/request.get/output.subscribe按原meta核验，不创建页或重发。离线canContinue=false，原结果仍可读，网页Stop能力保持false。[当前控制边界](../../iterations/I08/web-agent-development.md)。
+
+ChatGPT候选Driver支持textarea与contenteditable的公开DOM输入；富文本仅转义文本和显式换行，一次写入/通知后全文核对及一次点击。content归属只识别同步写入内原控件的一个匹配自身事件，后续人工编辑/控件替换继续拒绝；不依赖框架私有对象或Provider API。仅Chromium148受控DOM/实际MV3验证，线上与跨版本仍待。异常白名单固定错误码，其他降固定unknown且不重发。[输入和错误实测](../../iterations/I08/web-agent-development.md)。
+
 M06-F01/F02：独立MCP的Claude/Codex/OpenCode/Pi/Hermes原生列表统一通过共享command解析选中安装，以结构化参数继承原环境；JS/npm入口不送shell。启动器拒绝或同步spawn失败保存native-list/error，不宣告原生加载/连接成功；Bridge工具目录和原授权独立核验，不影响原任务或unknown。[行为、验证与边界](../../iterations/I08/windows-regression-and-native-probes.md)。
 
 M06-F01/F04、M06-CC-F01：alpha.68之后未发布源码统一Pi派发/事件目录规则，Claude已选JS/CJS/MJS入口经Node启动。原生配置、Session、权限与unknown规则保持。[完整行为、验证与边界](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
@@ -269,7 +309,7 @@ OpenCode 的 DesktopHost 二次发现与机器节点使用相同安装扫描规�
 
 ### 当前连接能力与恢复
 
-M06-F01/F05：注册描述显式声明execution/delegation/bridgeMcp，以及resume/cancellation/permissions/forms/verification。六工具可执行/被普通委派，原三工具可调用MCP，新三工具bridgeMcp=false；权限/表单/验证按[连接矩阵](../../agent-integration-matrix.md)分别声明。driver只可为native-cli或cli-http；源代码注册为能力上限，缺字段未知，不接受远端任意模块/命令或伪造声明扩权。自研适配器需实现并通过生命周期验证后才声明true。 当前为未发布源码；[完整能力/错误/兼容契约](../../iterations/I07/connection-capabilities.md)及[本模块报告](test-report.md)记录实际范围。
+M06-F01/F05：注册描述显式声明execution/delegation/bridgeMcp，以及resume/cancellation/permissions/forms/verification，按[当前接入矩阵](../../agent-integration-matrix.md)逐入口投影。driver允许native-cli、cli-http及源码审定的browser-extension；后者必须空commands/npmEntrypoints，以原profile发现且不能作为MCP调用方。源代码注册为能力上限，缺字段未知，不接受远端任意模块/命令或伪造声明扩权。自研适配器须实现并验证生命周期后才声明true。[原能力契约](../../iterations/I07/connection-capabilities.md)、[Browser当前实现](../../iterations/I08/web-agent-development.md)及[本模块报告](test-report.md)限定实际范围。
 
 “已实现”表示本地实现存在；真实工具证据范围见[测试报告](test-report.md)。原生版本、登录和模型可用性可能让已经实现的操作失败。
 

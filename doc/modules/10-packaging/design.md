@@ -1,5 +1,15 @@
 # M10 构建、发布与持久运行资源设计
 
+M10-F01/F03/F05：本地browser.3快照交付当前源码及19文件ChatGPT扩展，独立启动脚本沿既有profile环境变量把体验数据与TEMP放在同目录非C盘；直接双击portable EXE不保证非C盘临时目录。当前包与实际解包载荷、ASAR/ws、包内Node契约已核验，普通GUI及真实模型另验；没有公开发布或修改运行协议。[完整交付](../../iterations/I08/web-agent-browser3-preview.md)。
+
+当前Browser仅ChatGPT，Kimi移出开发与验收。实际匿名网页已通过原MCP/Registry/Router四轮持续对话及8次流式输出；Core、既有Broker/Transport与关系规则保持。新增DOM布局和原结束证明失败结算的职责在M06/M07，当前开发ZIP19文件；旧browser.2/公开alpha.71不据此成为新版本。[当前完整设计和证据](../../iterations/I08/web-agent-live-chatgpt.md)。
+
+## Browser开发扩展资源
+
+Electron主进程的CoordinatorClient会导入Browser通道，故桌面生产依赖独立精确声明`ws@8.22.0`，不能只依赖Bridge资源目录内的ws或开发树提升。包核验须同时检查app.asar内ws的版本、模块入口/依赖元数据和运行JS摘要；包清理产生的scripts等非运行元数据差异不作错误。原源码/Core/ASAR/资源一致只是一个层级，普通GUI启动仍须实际验证，Node模式后台通过不能替代。首个Browser开发EXE因此被拒绝交付，修复与后继包状态见[实际失败和复验](../../iterations/I08/web-agent-packaging.md)。
+
+M10-F01/F02/F03：`npm run browser:pack`以固定19文件、原manifest和MIT/OFL许可生成开发ZIP/逐文件清单/SHA；相同生产字节可复现，不含profile、凭据或测试。构建器检查固定权限/CSP/本地引用及源/输出分离；同名不同内容保留并拒绝。`stage-bridge`仅替换原标记与摘要完全核验的`.browser-extension`，异常回滚原目录；未知/损坏内容不清理。electron-builder沿用extraResources收录`resources/browser-extension`，`verify-package`重建当前源码期望字节逐项比对，并继续原后台/Core/ASAR/前端/Linux检查。没有桌面导出/商店安装/自动升级，公开alpha.71不因此更新；实际EXE与普通启动单列验收。[格式、源码、产物与证据](../../iterations/I08/web-agent-packaging.md)。
+
 alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/任务忙时打开查看；实际版本切换仍核对原身份、空闲与收据，不绕过门禁。仅补公开alpha.70精确原pin以保持上一公开版本复用。[来源、包与界面验证](../../iterations/I08/issue29-maintenance-entry.md)。
 
 

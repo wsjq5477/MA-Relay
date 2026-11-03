@@ -18,6 +18,7 @@ import { type Interaction } from './protocol.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { terminalCommand, safeTerminal } from './terminal.js';
 import { runMcpCommand } from './mcp-command.js';
+import { runInterconnectCommand } from './interconnect-command.js';
 
 const help = [
   'AgentBridge — CLI / Hub / Edge / OpenCode', '',
@@ -48,6 +49,7 @@ const help = [
   'agentbridge native TASK_ID --config CLIENT --permission ID --decision once|reject',
   'agentbridge native TASK_ID --config CLIENT --form ID --answer-file JSON_FILE',
   '', 'MCP for one Agent node (no desktop window required; uses the running background):',
+  'agentbridge interconnect agents.*|callers.* --profile-dir ABSOLUTE_DIR [--file PARAMS.json] [--json]',
   'agentbridge mcp nodes [--json] [--profile-dir DIR]',
   'agentbridge mcp attach --node NODE_ID --operation-id ID [--json] [--profile-dir DIR]',
   'agentbridge mcp operation --node NODE_ID --operation-id ID [--json] [--profile-dir DIR]',
@@ -88,6 +90,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       doctor: ['dir', 'json'], up: ['dir'],
       native: ['config', 'edge-config', 'json', 'permission', 'decision', 'form', 'answer-file'],
       mcp: ['node', 'adapter', 'json', 'profile-dir', 'profile', 'operation-id'],
+      interconnect: ['profile-dir', 'file', 'json'],
       agents: ['config', 'json'], run: ['config', 'json', 'stdin', 'file', 'request-id', 'watch', 'timeout-ms'],
       tasks: ['config', 'json', 'watch', 'timeout-ms'], task: ['config', 'json', 'watch', 'timeout-ms', 'diagnostics'],
     };
@@ -97,6 +100,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     // MCP management talks to the local desktop coordinator directly; it needs
     // no Hub/Edge config file, model turn, task or hosted session.
     if (command === 'mcp') return await runMcpCommand({ node: v.node, adapter: v.adapter, profileDir: v['profile-dir'], profile: v.profile, operationId:v['operation-id'], json: !!v.json }, p);
+    if (command === 'interconnect') return await runInterconnectCommand({profileDir:v['profile-dir'],file:v.file,json:!!v.json},p);
     if (command === 'init') {
       if (p.length !== 1) throw new BridgeError('INVALID_ARGUMENT', 'init accepts no positional arguments');
       if (v.adapter !== undefined && !['mock', 'opencode'].includes(v.adapter)) throw new BridgeError('INVALID_ARGUMENT', 'Adapter must be mock or opencode');

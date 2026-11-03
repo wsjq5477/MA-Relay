@@ -1,5 +1,5 @@
 // Real Windows Edge, production renderer, isolated API fixtures; model calls 0.
-// I08-MCP02: the unified "AgentBridge MCP 操作" card (native load/connection/
+// I08-MCP02: the unified "AgentBridge MCP" card (native load/connection/
 // tools/authorization/ownership) is separate from the DSH service connection.
 // A full native-visibility run must add mcp.status/mcp.probe/mcp.revoke fixtures
 // and click 重新探测原生列表 / 撤销连接授权; this file keeps only the service flow.
@@ -37,7 +37,7 @@ function setup(){
   // The unified MCP card is capability-driven: DSH Desktop has an MCP client but
   // no Bridge-managed native config path, so it shows the manual note + export
   // and no install/probe button. DSH Web below owns the managed config.
-  await expect(page.getByRole('heading',{name:'AgentBridge MCP 操作',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'AgentBridge MCP',exact:true})).toBeVisible();
   await expect(page.getByText('该产品已有 MCP 客户端，但 Bridge 暂不能管理它的原生 MCP 配置',{exact:false})).toBeVisible();
   await expect(page.getByRole('button',{name:'添加 Bridge MCP',exact:true})).toHaveCount(0);
   await expect(page.getByRole('heading',{name:'DSH 服务连接',exact:true})).toBeVisible();
@@ -45,7 +45,7 @@ function setup(){
   await page.getByLabel('DSH 连接 token',{exact:true}).fill('fixture-connection-token');
   await page.getByRole('button',{name:'关闭 Agent 配置',exact:true}).click();
   await page.getByRole('button',{name:'配置 WSL Web / DSH Web',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'AgentBridge MCP 操作',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'AgentBridge MCP',exact:true})).toBeVisible();
   await expect(page.getByRole('button',{name:'添加 Bridge MCP',exact:true})).toBeVisible();
   await expect(page.getByLabel('DSH 连接 token',{exact:true})).toHaveValue('');
   report.checks.push('Switching node configuration clears secret input and binds the WSL Web target');

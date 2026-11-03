@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtempSync, writeFileSync, promises as fs} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {spawn, type ChildProcess} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {setTimeout as delay} from 'node:timers/promises';
@@ -53,7 +54,9 @@ test('an event ACK timeout yields to reconnect, preserves the original outbox an
     assert.fail(label + '; registrations=' + registrations + '; ' + stderr);
   };
   try {
-    child = spawn(process.execPath,['--import','tsx',resolve('tests/edge-timeout-child.ts'),file],{windowsHide:true,stdio:['ignore','ignore','pipe','ipc']});
+    const compiled = import.meta.url.endsWith('.js');
+    const childModule = fileURLToPath(new URL(compiled?'./edge-timeout-child.js':'./edge-timeout-child.ts',import.meta.url));
+    child = spawn(process.execPath,[...(compiled?[]:['--import','tsx']),childModule,file],{windowsHide:true,stdio:['ignore','ignore','pipe','ipc']});
     child.stderr!.on('data',part => {stderr += part.toString();});
     child.on('message',(message:{id?:string;outbox:number}) => {if(message.id) snapshots.get(message.id)?.(message);});
     exited = new Promise<void>((done,reject) => {child!.once('error',reject);child!.once('close',() => done());});

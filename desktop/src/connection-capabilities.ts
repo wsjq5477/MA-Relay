@@ -10,7 +10,8 @@ const executionGatedKeys: (keyof ConnectionCapabilities)[] = ['execution', 'dele
 // for old consumers, but MCP calling is never narrowed by managed-task support
 // or by a hard-coded product whitelist.
 export function connectionCapability(node: AgentNode | undefined, key: keyof ConnectionCapabilities): boolean | null {
-  if (!node || !nativeAdapters.has(node.adapter)) return null;
+  if (!node || !nativeAdapters.has(node.adapter)&&node.adapter!=='chatgpt-web') return null;
+  if(node.adapter==='chatgpt-web'&&(!node.browserInstanceId||node.capabilitySource?.kind!=='static-adapter'||node.capabilitySource.adapterId!==node.adapter||node.capabilitySource.driver!=='browser-extension'))return null;
   if (node.executionSupported === false && executionGatedKeys.includes(key)) return false;
   if (key === 'delegation') {
     const execution = connectionCapability(node, 'execution');
@@ -31,7 +32,7 @@ export function connectionCapability(node: AgentNode | undefined, key: keyof Con
   // Older snapshots have no directional contract. Only the reviewed execution
   // operations stay readable; every new control/MCP field remains explicitly
   // unknown instead of being guessed from team collaboration or the adapter id.
-  if (key === 'execution' || key === 'delegation') return node.executionSupported === true;
+  if (node.adapter!=='chatgpt-web'&&(key === 'execution' || key === 'delegation')) return node.executionSupported === true;
   return null;
 }
 

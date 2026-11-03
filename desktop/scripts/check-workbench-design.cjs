@@ -21,7 +21,7 @@ const report = {
   date: new Date().toISOString(),
   version: require("../package.json").version,
   environment:
-    "Windows / Edge / production renderer / disposable Coordinator / synthetic history",
+    "Windows / Chromium / production renderer / disposable Coordinator / synthetic history",
   status: "running",
   modelCalls: 0,
   checks: [],
@@ -135,7 +135,7 @@ async function checkContrast(theme) {
 (async () => {
   fs.mkdirSync(out, { recursive: true });
   preview = await startPreview({ port: 0 });
-  browser = await chromium.launch({ channel: "msedge", headless: true });
+  browser = await chromium.launch({ ...(process.env.AGENTBRIDGE_TEST_CHROMIUM ? {executablePath: process.env.AGENTBRIDGE_TEST_CHROMIUM} : {channel: "msedge"}), headless: true });
   report.browserVersion = browser.version();
   report.nodeVersion = process.version;
   page = await browser.newPage({
@@ -193,6 +193,12 @@ async function checkContrast(theme) {
   await navigate("执行审计");
   await expect(page.locator(".workspace-task")).toHaveCount(4);
   await capture("03-audit-light");
+  if (!captureOnly) {
+    await page.locator('.workspace-task').first().click();
+    await expect(page.getByRole('dialog', {name: '任务详情', exact: true})).toBeVisible();
+    await capture('22-task-audit-detail');
+    await page.getByRole('button', {name: '关闭任务详情', exact: true}).click();
+  }
   await navigate("会话审计");
   await page
     .locator(".workspace-conversation-choice")
@@ -204,6 +210,18 @@ async function checkContrast(theme) {
   await capture("04-conversations-light");
   await navigate("小队设置");
   await capture("05-teams-light");
+  if (!captureOnly) {
+    await expect(page.locator('.team-new-run')).toHaveCount(0);
+    await expect(page.locator('.team-run-picker')).toHaveCount(0);
+    await page.getByRole('button', {name: '接入智能体', exact: true}).click();
+    await expect(page.getByRole('button', {name: '保存智能体', exact: true})).toBeVisible();
+    await capture('20-agent-registration');
+    await page.locator('.team-tabs').getByRole('button', {name: '小队设置', exact: true}).click();
+    await expect(page.getByRole('button', {name: '保存小队', exact: true})).toBeVisible();
+    await capture('21-team-configuration');
+    await page.locator('.team-tabs').getByRole('button', {name: '工作范围与审计', exact: true}).click();
+    report.checks.push('Empty teams show one registration action; unavailable work picker/form stay hidden; registration and team configuration remain reachable');
+  }
   await navigate("设置");
   await capture("06-settings-light");
   await page.getByLabel("主题", { exact: true }).selectOption("dark");

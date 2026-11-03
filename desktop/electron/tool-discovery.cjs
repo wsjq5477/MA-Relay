@@ -118,7 +118,7 @@ async function scanTools(options={}) {
   if(windows)folders.push(path.join(env.APPDATA||path.join(home,'AppData/Roaming'),'npm'),path.join(home,'scoop/shims'));
   else if(platform==='linux')folders.push(...managedLinuxFolders(home,env));
   const result=[];
-  await Promise.all(descriptors.filter(d => !['dsh-desktop', 'dsh-web', 'opendesk-desktop'].includes(d.id)).map(async({id:adapter,name,commands})=>{
+  await Promise.all(descriptors.filter(d => d.driver!=='browser-extension'&&!['dsh-desktop', 'dsh-web', 'opendesk-desktop'].includes(d.id)).map(async({id:adapter,name,commands})=>{
     // Hermes' Windows installer publishes its native launcher under the data
     // home's bin. A running desktop/daemon may predate the installer's PATH edit.
     // Keep this fallback Hermes-only and after PATH; never execute a setup GUI.

@@ -42,6 +42,17 @@ test('the local machine routes MCP calls only and never borrows the execution ho
   assert.equal(rows[0].id, 'agentbridge-mcp');
   assert.equal(rows[0].config.serverName, 'agentbridge');
 });
+
+test('production local composite restores independent MCP scopes without treating them as hosted task contexts',async t=>{
+  const {options}=fixture(t),legacy={async call(method){if(method==='snapshot')return {agents:{items:[]},tasks:[],conversations:[]};throw Object.assign(Error('Unexpected native call'),{code:'NOT_FOUND'});},close(){}};
+  let host=localMcpHost({...options,legacy,enableBrowser:true});
+  const params={nodeId:'dsh-web-production-local',adapter:'dsh-web'};
+  const installed=await host.call('mcp.install',params);assert.equal(installed.state,'installed');
+  assert.deepEqual((await host.call('snapshot',{})).tasks,[]);await host.close();
+  host=localMcpHost({...options,legacy,enableBrowser:true});t.after(()=>host.close());
+  assert.deepEqual((await host.call('snapshot',{})).tasks,[]);
+  const restored=await host.call('mcp.status',params);assert.equal(restored.connectionId,installed.connectionId);assert.equal(restored.facts.authorization,'valid');
+});
 test('local restart re-creates the endpoint but never rewrites the user-deleted native entry', async (t) => {
   const { options } = fixture(t);
   let host = localMcpHost(options);

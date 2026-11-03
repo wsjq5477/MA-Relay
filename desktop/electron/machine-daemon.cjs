@@ -19,10 +19,11 @@ const now = () => new Date().toISOString();
 const own = value => value && Object.getPrototypeOf(value) === Object.prototype;
 const validId = value => typeof value === 'string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
 const methods = new Set(['dsh.status', 'dsh.configure', 'mcp.status', 'mcp.install', 'mcp.remove', 'mcp.export', 'mcp.revoke', 'mcp.probe', 'snapshot', 'discover', 'context', 'scope', 'ipc', 'environment', 'connect']);
+for(const method of require('./browser-management.cjs').methods)methods.add(method);
 // mcp.revoke persists the revocation, so it is a configuration mutation. mcp.probe
 // is read-only and deliberately stays outside this gate.
-const configurationMutations = ['dsh.configure','context','connect','mcp.install','mcp.remove','mcp.revoke','mcp.export'];
-const mutations = new Set(['submit', 'continue', 'verify', 'reply', 'cancel']);
+const configurationMutations = ['dsh.configure','context','connect','mcp.install','mcp.remove','mcp.revoke','mcp.export','browser.pair','browser.revoke'];
+const mutations = new Set(['submit', 'continue', 'verify', 'reply', 'cancel', 'session.close']);
 const knownRejections = new Set(['INVALID_INPUT', 'REQUEST_CONFLICT', 'AGENT_BUSY', 'AGENT_UNHEALTHY', 'TASK_NOT_FOUND', 'CONVERSATION_NOT_FOUND', 'CONVERSATION_CONFIG', 'CONVERSATION_BUSY', 'EXECUTION_MISMATCH', 'REQUEST_NOT_FOUND', 'STALE_OPERATION', 'PERMISSION_NOT_FOUND', 'PERMISSION_REPLIED', 'NODE_NOT_FOUND', 'WORKSPACE_UNAVAILABLE', 'DISCOVERY_CHANGED', 'NOT_CONFIGURED', 'ADAPTER_UNSUPPORTED']);
 
 function canonical(value) {
@@ -149,7 +150,7 @@ async function productionHost(directory, collaboration) {
   const { DesktopHost } = await import(pathToFileURL(path.resolve(__dirname, '../../dist/desktop-host.js')).href);
   const { MachineHost } = require('./machine-host.cjs');
   const backend = context => new DesktopHost(context);
-  return new MachineHost({ directory, legacy: backend(directory), collaboration, openCode: backend });
+  return new MachineHost({ directory, legacy: backend(directory), collaboration, openCode: backend, enableBrowser:true });
 }
 
 /** Detached daemon: a relay disappearing never closes its native hosts. */
@@ -166,7 +167,7 @@ async function startDaemon(options) {
   const events = [];
   try {
     records = fs.existsSync(receiptsFile) ? readJson(receiptsFile) : [];
-    if(Array.isArray(records))for(const r of records)if(['reply','cancel'].includes(r.op)&&r.state==='confirmed'&&r.result?.state==='unknown')r.state='unknown';
+    if(Array.isArray(records))for(const r of records)if(['reply','cancel','session.close'].includes(r.op)&&r.state==='confirmed'&&r.result?.state==='unknown')r.state='unknown';
     if (!Array.isArray(records)) throw fail('DAEMON_STATE', '后台操作收据记录无法读取。');
     if (fs.existsSync(eventsFile)) {
       inspectFile(eventsFile, 'file');
@@ -217,13 +218,13 @@ async function startDaemon(options) {
       record.state = 'rejected'; record.updatedAt = now(); saveReceipts();
     }
     if (record.state === 'confirmed') return record.result;
-    if(record.state==='rejected'&&['reply','cancel'].includes(record.op)&&record.result?.operationId===record.key)return record.result;
+    if(record.state==='rejected'&&['reply','cancel','session.close'].includes(record.op)&&record.result?.operationId===record.key)return record.result;
     if (record.state === 'rejected') throw Object.assign(new Error(record.error.message), { code: record.error.code });
     if (jobs.has(record.key)) return jobs.get(record.key);
     try {
-      const query = ['reply', 'cancel'].includes(record.op) ? { ...record.target, op: 'operation', operationId: record.key } : { ...record.target, op: 'request', requestId: record.key };
+      const query = ['reply', 'cancel', 'session.close'].includes(record.op) ? { ...record.target, op: 'operation', operationId: record.key } : { ...record.target, op: 'request', requestId: record.key };
       const result = await host.call('ipc', query);
-      if(['reply','cancel'].includes(record.op)){
+      if(['reply','cancel','session.close'].includes(record.op)){
         if(result?.operationId!==record.key||!['confirmed','rejected','unknown'].includes(result.state))throw fail('DESKTOP_UNCONFIRMED','原控制收据尚未确认。');
         record.state=result.state;
       }else{
@@ -287,7 +288,7 @@ async function startDaemon(options) {
       record.state = 'dispatched'; record.updatedAt = now(); saveReceipts(); emitEvent('operation.accepted', { requestId: key, op: params.op });
       try {
         const result = await host.call(method, params);
-        const control=['reply','cancel'].includes(params.op);
+        const control=['reply','cancel','session.close'].includes(params.op);
         record.state=control?(result?.operationId===key&&['confirmed','rejected','unknown'].includes(result.state)?result.state:'unknown'):'confirmed';
         if(control&&record.state==='unknown'&&(result?.operationId!==key||!result.state)){record.result={operationId:key,taskId:params.taskId||params.reply?.taskId,state:'unknown'};}else record.result=result; record.updatedAt = now(); saveReceipts(); emitEvent('operation.confirmed', { requestId: key, taskId: result?.taskId, op: params.op }); return record.result;
       } catch (error) {

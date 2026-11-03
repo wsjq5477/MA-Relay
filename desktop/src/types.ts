@@ -1,4 +1,4 @@
-export type ToolKind = "opendesk" | "opendesk-desktop" | "claude" | "opencode" | "codex" | "hermes" | "pi" | "dsh" | "dsh-desktop" | "dsh-web";
+export type ToolKind = "opendesk" | "opendesk-desktop" | "claude" | "opencode" | "codex" | "hermes" | "pi" | "dsh" | "dsh-desktop" | "dsh-web" | "chatgpt-web";
 export type Status =
   | "queued"
   | "accepted"
@@ -17,6 +17,8 @@ export interface Event {
   event: {
     kind: string;
     text?: string;
+    mode?: "replace" | "delta";
+    revision?: number;
     reason?: string;
     error?: { message: string };
   };
@@ -53,6 +55,7 @@ export interface Task {
   verification?: boolean;
 }
 export interface Agent {
+  browserInstanceId?:string;
   settingsRevision?: number;
   instanceId?: string;
   machineId?: string;
@@ -122,14 +125,15 @@ export interface AgentNode {
   connectionState?: SshConnectionState;
   errorCode?: string;
   connectionCapabilities?: ConnectionCapabilities;
-  capabilitySource?: {kind: 'static-adapter'|'unknown';adapterId?:string;driver?:'native-cli'|'cli-http'};
+  capabilitySource?: {kind: 'static-adapter'|'unknown';adapterId?:string;driver?:'native-cli'|'cli-http'|'browser-extension'};
   supersededBy?: string;
   removed?:boolean;
   nodeId:string;
   machineId:string;
   adapter:ToolKind;
   name:string;
-  executable:string;
+  browserInstanceId?:string;
+  executable?:string;
   version?:string;
   connected:boolean;
   online:boolean;
@@ -276,11 +280,12 @@ export interface SshTestResult {
   probe?: SshProbe;
 }
 export interface ToolConnection {
+  browserInstanceId?:string;
   connectionId: string;
   machineId: string;
   name: string;
   adapter: ToolKind;
-  executable: string;
+  executable?: string;
   version?: string;
   connected: boolean;
   healthy: boolean;
@@ -294,9 +299,10 @@ export interface AgentInstance extends Agent {
   adapter: ToolKind;
 }
 export interface DiscoveredTool {
+  browserInstanceId?:string;
   name: string;
   version?: string;
-  executable: string;
+  executable?: string;
   adapter: ToolKind;
   connectionId?: string;
   machineId: string;

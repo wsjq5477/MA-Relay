@@ -65,6 +65,11 @@ class CoordinatorClient {
   }
   async request(method,params) {
     await this.open();
+    if(method==='call'&&params?.method?.startsWith('callers.')&&!this.info?.capabilities?.includes('independent-callers-v1'))throw Object.assign(Error('当前后台尚不支持独立调用方与上下文，请升级原后台；原身份、授权和任务保持。'),{code:'CALLER_BACKEND_UPGRADE_REQUIRED'});
+    if(method==='call'&&params?.method?.startsWith('agents.')&&!this.info?.capabilities?.includes('agent-directory-v1'))throw Object.assign(Error('当前后台尚不支持独立智能体登记，请升级原后台；原身份与任务保持。'),{code:'AGENT_DIRECTORY_BACKEND_UPGRADE_REQUIRED'});
+    if(method==='call'&&params?.method==='ipc'&&params.params?.op==='session.health'&&!this.info?.capabilities?.includes('browser-session-health-v1'))throw Object.assign(Error('当前中央后台尚不支持原浏览器会话健康检查，请升级原后台；不创建页面或发送消息。'),{code:'BROWSER_BACKEND_UPGRADE_REQUIRED'});
+    if(method==='call'&&params?.method==='ipc'&&params.params?.op==='session.close'&&!this.info?.capabilities?.includes('browser-session-close-v1'))throw Object.assign(Error('当前中央后台尚不支持安全关闭浏览器会话，请升级原后台；原会话和任务保留。'),{code:'BROWSER_BACKEND_UPGRADE_REQUIRED'});
+    if(method==='call'&&require('./browser-management.cjs').methods.has(params?.method)&&!this.info?.capabilities?.includes('browser-agent-v1'))throw Object.assign(Error('当前中央后台尚不支持浏览器配对。请停止后台并打开新版；原任务和配对记录保留。'),{code:'BROWSER_BACKEND_UPGRADE_REQUIRED'});
     if(method==='call'&&(params?.method==='machine.daemonPreview'||params?.method==='machine.maintainDaemon'&&params.params?.config?.action==='replace')&&!this.info?.capabilities?.includes('ssh-daemon-replacement-v1'))
       throw Object.assign(Error('当前中央后台尚不支持强制替换未登记版本。请在设置中停止后台并退出，再打开新版；原后台与任务保留。'),{code:'SSH_REPLACEMENT_BACKEND_UPGRADE_REQUIRED'});
     if(method==='call'&&['relationRecovery.inspect','relationRecovery.confirm'].includes(params?.method)&&!this.info?.capabilities?.includes('relation-recovery-observations-v2'))

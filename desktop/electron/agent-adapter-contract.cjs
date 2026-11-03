@@ -21,7 +21,7 @@
  * @property {ReadonlyArray<string>} commands Extensionless executable basenames.
  * @property {ReadonlyArray<string>} npmEntrypoints Paths below node_modules.
  * @property {Readonly<AdapterCapabilities>} capabilities Declared, tested features.
- * @property {'native-cli'|'cli-http'} [driver] Source-owned implementation route.
+ * @property {'native-cli'|'cli-http'|'browser-extension'} [driver] Source-owned implementation route.
  *
  * @typedef {Object} AdapterHost
  * @property {function(string, Object=): Promise<*>} call Supports connect,
@@ -38,7 +38,7 @@
  * @property {string[]} commands
  * @property {string[]} [npmEntrypoints]
  * @property {AdapterCapabilities} [capabilities]
- * @property {'native-cli'|'cli-http'} [driver]
+ * @property {'native-cli'|'cli-http'|'browser-extension'} [driver]
  * @property {function(Object): AdapterHost} createHost Synchronous factory.
  */
 
@@ -75,11 +75,13 @@ function defineAdapter(definition) {
   if (typeof definition.id !== 'string' || !/^[a-z][a-z0-9-]{0,47}$/.test(definition.id)) invalid('Invalid adapter id.');
   if (typeof definition.name !== 'string' || !definition.name.trim() || definition.name !== definition.name.trim() || definition.name.length > 100 || /[\x00-\x1f\x7f]/.test(definition.name)) invalid('Invalid adapter name.');
   if (typeof definition.createHost !== 'function') invalid('createHost must be a function.');
-  if (definition.driver !== undefined && !['native-cli', 'cli-http'].includes(definition.driver)) invalid('Invalid adapter driver.');
-  const commands = stringList(definition.commands, 'commands', value => /^[a-z][a-z0-9-]{0,63}$/.test(value), {required: true});
+  if (definition.driver !== undefined && !['native-cli', 'cli-http', 'browser-extension'].includes(definition.driver)) invalid('Invalid adapter driver.');
+  const browser = definition.driver === 'browser-extension';
+  const commands = stringList(definition.commands, 'commands', value => /^[a-z][a-z0-9-]{0,63}$/.test(value), {required: !browser});
   const npmEntrypoints = stringList(definition.npmEntrypoints ?? [], 'npmEntrypoints', value =>
     value.length <= 240 && /^[a-zA-Z0-9@_./-]+$/.test(value) && !value.startsWith('/') &&
     value.split('/').every(part => part && part !== '.' && part !== '..') && /\.(?:c?js|mjs|exe)$/.test(value));
+  if (browser && (commands.length || npmEntrypoints.length)) invalid('Browser adapters cannot declare executable launch entries.');
   const capabilities = definition.capabilities ?? {};
   if (!object(capabilities)) invalid('capabilities must be an object.');
   for (const [name, value] of Object.entries(capabilities)) {

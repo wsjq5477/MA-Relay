@@ -14,6 +14,11 @@ const { createAdapterRegistry } = require('./agent-adapter-contract.cjs');
 // mcpClient and hostManagedTask. A product with no MCP client evidence omits
 // mcpClient so the projection reports unknown instead of "not supported".
 const adapters = createAdapterRegistry([
+  {
+    id:'chatgpt-web',name:'ChatGPT Web',commands:[],npmEntrypoints:[],driver:'browser-extension',
+    capabilities:{execution:true,delegation:true,resume:true,cancellation:false,mcpClient:false,nativeMcpConfig:false,hostManagedTask:false,permissions:false,forms:false,verification:false},
+    createHost:options=>new(require('./browser-adapter-host.cjs').BrowserAdapterHost)({...options,adapter:'chatgpt-web',channel:options.browserChannel?.forInstance(options.browserInstanceId)}),
+  },
   // OpenDesk CLI 0.3.8 exposes no MCP manager: `opendesk plugins list/tools` has no
   // MCP entry and launching it rewrites setting.json dropping unrecognized
   // `applications` sections, so only the Desktop surface keeps a write adapter (its

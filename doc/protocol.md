@@ -1,5 +1,41 @@
 # 通信协议与接口
 
+Core OpenCode控制继续使用原NativeReference.snapshot.nativeProtocol。发现缓存不是任务路由凭据：原绑定校验后，本次观察、回复或取消固定该代API，健康检查不能把在途操作改到另一代；不匹配拒绝，真实未知只查询原操作/原轮，不重发控制。外部协议与收据字段未新增，confirmed仍不代表Task已取消。[实现与回归](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
+
+task_result接受原taskId或list_delegations返回的原delegationId；两者同给必须一致。delegationId字段要求task.original-request-v1现场声明；可与task.events-v1组合，缺任一能力在stdio发送前拒绝。无Task时只查询原后台request，not_found返回unknown且不释放占用；确定准备拒绝返回调用级rejected，outcome.terminal=false，不是新增Task状态。查询只需原归属和当前result权限，不要求新派发目标授权，撤销主体/上下文/凭据或读取操作仍即时拒绝。[字段/收据/游标语义](iterations/I08/interconnect-caller-contract.md)。
+
+有原Task关联且outcome.evidence=original-task时，status=failed/error属于原执行，读取失败Task可以成功。没有Task时继续按invocation/outcome/recovery区分原准备拒绝与原请求未找到；MCP错误响应或仅含error而无关联证据时才按调用/读取错误处理，不能只看error重发原需求。真实原生失败Task在凭据轮换、观察器重开及目标授权撤销后仍按原归属读取，result权限撤销则拒绝；本轮字段和工具数不变。[原记录验收与限制](iterations/I08/interconnect-development.md#13-基于三条真实原生task的读控恢复验收)。
+
+## 互联接口的职责与演进边界
+
+通用入口服务于获准发现、明确目标调用、状态/结果读取、消息和交互控制；不要求调用方采用 TeamSpace 的任务板、依赖、返修或业务验收模型。MCP 继续作为上层接入首选，目标侧沿既有原生接口适配；小队工具与自动协调保留兼容、暂停扩张。未发布源码新增agents.list/get/register/update/confirmEndpoint/disable/operation用户RPC及中央agent-directory-v1定向能力；同时新增callers.list/create/configure/openContext/closeContext/rotateCredential/revoke/operation用户RPC与中央independent-callers-v1；仍使用原认证IPC，原daemon与线协议版本不变。
+
+当前经典MCP仍十工具：delegate支持nodeId或已确认端点的agentId，两者同传必须一致；list_agents只在获准节点附agents[]。发送agentId须原后台声明delegate.agent-id-v1；与原conversationId续聊同时使用时两种能力均须确认。task_result保持查询/长轮询，新增invocation/outcome及可选afterSeq/limit原事件页；须task.events-v1现场能力，缺口/不支持/截断明确返回，不增加任务订阅工具。[完整调用方与事件契约](iterations/I08/interconnect-caller-contract.md)。[完整schema、原ID规则和实测](iterations/I08/interconnect-development.md)。续聊仍要求原调用身份、原会话和当前授权，原父 scope 终态失效；原生产品独立connectionId仍按原范围；mode=caller明确区分主体、上下文与可轮换凭据，新上下文不继承旧任务，关闭/撤权不发送取消。requestId/operationId 原请求查询、unknown 占位和 confirmed 不等于执行终态继续有效。
+
+核心契约区分主体/上下文/任务归属、提交拒绝/执行失败/unknown、等待输入、终态、事件补读及正文/产物。Windows主对话代码模式→WSL Codex已有正文/同Session续聊/在途观察器恢复实证；关闭属主上下文不取消原执行，撤权后的管理员观察与调用方权限分开。完整矩阵、交互转交和产物实体交付仍待；本轮不增线协议/持久字段，不要求订阅/A2A/DSH Provider或递归委派。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+
+Browser原output.subscribe新增可选observeTerminal=integrity-failure-v1及原message正文，只用于已submitted且上下文完整性丢失的原请求；扩展先校验原payloadFingerprint。返回integrityObservationSupported=true仅证明识别策略；原document/epoch/user对应的稳定结束证明经原failed事件落盘后，才结算BROWSER_CONTEXT_INTEGRITY_LOST并确认原reconcile。旧worker普通ACK不能释放unknown，原事件/帧版本及MCP工具数保持。[字段、失败与实测边界](iterations/I08/web-agent-live-chatgpt.md)。
+
+Browser开发扩展ZIP/清单/SHA随原桌面资源交付，不承载控制消息或身份迁移；`agentbridge-browser-v1`帧、原MCP十工具、Task/Session/request/operation恢复合约均保持。构建清单的format只标记产物格式，不作为Provider或Node运行能力证明。[交付核验与限制](iterations/I08/web-agent-packaging.md)。
+
+原session.health/session.close在扩展缺本轮request行时，仅以同完整meta的原confirmed取消封存读取/关闭原既有Session；原资源归属、最新lease及占用仍须匹配。缺失本身不作证明，request.get/output.subscribe仍严格缺行拒绝。关闭回应未知仅原operation.get，健康不结算未知取消；无新参数/工具或Browser帧版本。[完整时序](iterations/I08/web-agent-design.md#64-已确认取消后的原-session-恢复)。
+
+Browser completed事件可带私有continuation={transcriptFingerprint,assistantAnchor,historyRevision}，仅completed允许，摘要为64位小写SHA-256、锚点为原身份字符串、历史版本为非负安全整数。原Node/扩展完成事务保留证明，后续resume匹配原document和证明，实际写入前再次核对可见快照与版本。旧成功记录缺证明仍可读，canContinue=false，不补造；Core公开Task/MCP工具数及Browser帧版本不变。[完整续聊与冲突契约](iterations/I08/web-agent-design.md#44-已实现的可见对话续聊证明)。
+
+Browser复用ipc.cancel/task.cancel/operation.get，当前支持content-not-authorized-v1：Node先保存取消unknown并停止后续派发，携完整原meta/operationId/senderFence；扩展原子封存返回匹配身份、contentAuthorized=false及sealedThroughSeq才是证明。普通ACK/NOT_FOUND无效，丢回应只查原操作；已授权内容和旧无标记记录明确拒绝，已submitted仍BROWSER_CANCEL_UNSUPPORTED。经典cancel_task新增queryOnly:boolean，true只读原ipc.operation；发送前live list_agents须声明cancel.query-v1，旧后台无声明时拒绝，不能忽略字段后变成取消。原receipt须匹配task/operation、kind=cancel及合法状态；confirmed仍另读task_result。通用cancellation能力保持false，未实现网页Stop；帧/MCP工具数不变。[完整查询契约](iterations/I08/web-agent-design.md#63-原取消的-mcp-只读查询)与[取消时序](iterations/I08/web-agent-design.md#104-取消与关闭)。
+
+Browser新增ipc {op:session.health,taskId,probeId,executionId?}；probeId是只读观察关联，不是operationId。返回online/storageReady/sitePermission、domChecked/pageReady、loginChecked=false、sessionClosed/blocked/stale、taskStatus/ready/observedAt，以及固定code/pageCode；探测中原revision或最新轮次变更时ready=false。缺browser-session-health-v1的旧中央/SSH peer发送前拒绝，仅定向门禁新方法。Frame/MCP工具数/Task状态枚举保持，不写健康控制收据。[完整时序与约束](iterations/I08/web-agent-design.md#61-已实现的原会话健康检查)。
+
+Browser关闭的原meta忙碌/旧绑定拒绝在扩展持久为rejected，Node核对固定拒绝码后结算关闭控制；不改原Task/Session。未知关闭私有记录当时已知profile，后配对不可绕过，Agent仍busy且不可用；原记录缺此集合只承认原profile。数据版本和原ID保持。[当前反例](iterations/I08/web-agent-development.md)。
+
+Browser新增ipc {op:session.close, taskId, operationId, expectedRevision, executionId?}，仅原最新空闲终态及绑定版本；先保存unknown，匹配原request/execution/conversation与closed=true墓碑才确认。原ipc.operation只读operation.get，缺失不重发。中央/daemon以browser-session-close-v1定向门禁新关闭；旧peer拒绝，原读取/十个MCP工具及帧版本保持。关闭不删Provider历史、不关tab、不成功/取消Task。认证包严格schema，pending到期不能resume/commit；committed原派生凭据可继续重连。[完整规则](iterations/I08/web-agent-development.md)。
+
+现有discover/context/nodeRequest/原ipc对象路径承载chatgpt-web，context新增browserInstanceId，拒绝项目/托管scope。新增browser.status/pair/revoke沿原机器RPC；新中央/daemon以browser-agent-v1声明管理能力，缺失在新请求发送前拒绝。经典MCP仍10工具，delegate增加可选conversationId；stdio客户端先只读list_agents确认supportedOperations含delegate.continue-v1，未声明时不提交。task_result增加conversationId/canContinue，仍为轮询。WS/fingerprint/seq/ACK及原IPC/SSH帧版本保持；healthy不证明登录。[完整合约及证据](iterations/I08/web-agent-development.md)。
+
+browser.pair新增可选queryOnly:boolean；true只查原操作、缺失不创建。Browser公开output事件可带mode='replace'/revision，界面在同一连续输出段采用完整修订，包括纠正和缩短，不修改原事件。扩展受信options-v1支持status/configure/reconnect/pause/resume；暂停仅停接入并保留原unknown，不是task.cancel。[实际用户流程与限制](iterations/I08/web-agent-development.md)。
+
+Browser复用ipc.reconcile保存原operationId，仅请求output.subscribe补传原事件，订阅ACK不结算Task；原终态与核对收据在同一Host事务确认。内部operation.get/request.get/output.subscribe校验原meta再只读，缺失不创建页/消息；cancel/reconcile不能共用操作ID。现有帧/工具数不变，网页Stop仍不支持。[核对规则与实测](iterations/I08/web-agent-development.md)。
+
 Core task.event的ACK超时只退役原运输，不确认/删除原事件，也不重派任务。新运输仍按原taskId/executionId/seq补传，ACK后连续推进ack_seq；异步关闭期间不进行立即循环重试，旧socket失败不能关闭新socket。帧、操作ID、状态枚举和生产ACK预算均不变。[实现与验证](iterations/I08/edge-outbox-reconnect.md)。
 
 Hermes/Pi/DSH共用worker在启动器解析同步拒绝或真实ChildProcess spawn前error时，输出既有terminal failed/NATIVE_START及nativeExited=false；原核对/取消收据按原ID结算到failed。stderr文本、运行后非零退出或缺结果不是此类未派发证明；不添加RPC、取消或原生事件协议。[启动边界与验证](iterations/I08/native-start-boundary.md)。
@@ -70,7 +106,7 @@ discover的DSH安装提示可携带errorCode=DSH_CONNECTION_REQUIRED，节点sna
 
 list_delegations({limit?,after?})属于当前经典10项工具中的只读入口，readOnlyHint=true；小队当前22项。历史工具表变化见该专项迭代。limit安全整数1–50/默认20，after为本作用域原delegationId（非空≤128）；只接受两个参数，额外身份参数/外来游标报INVALID_INPUT。响应schema1/readOnly/source=delegation-ledger/liveTaskStatus=false及items/total/hasMore/next，每项仅原委派/请求/目标/已有任务会话ID、ledgerState、创建时间/规范错误码和taskQueryable。
 
-身份来自原broker与来源机器校验。原生须同时匹配leader和原parentRequest/Task/Conversation，父终态拒绝、unknown仅只读；独立接入须enabled及原connectionId，parentTaskId必须明确null，缺/空身份不匹配。台账状态不是实时任务结果，已有taskId再调task_result；无taskId保留原requestId，不重发或换ID。无新中央/daemon帧、无迁移/连接管理或权限扩张，旧工具表缺工具时明确不可用。[完整字段、失败与验证](iterations/I07/delegation-list.md)。
+身份来自原broker与来源机器校验。原生须同时匹配leader和原parentRequest/Task/Conversation，父终态拒绝、unknown仅只读；独立接入须enabled及原connectionId，parentTaskId必须明确null，缺/空身份不匹配。台账状态不是实时任务结果，已有taskId再调task_result；无taskId可在原后台证明task.original-request-v1后用原delegationId查询原请求，不重发或换ID。无新中央/daemon帧、无迁移/连接管理或权限扩张，旧工具表缺工具时明确不可用。[完整字段、失败与验证](iterations/I07/delegation-list.md)。
 
 ## DSH Desktop/Web RPC
 
