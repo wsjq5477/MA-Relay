@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器测试报告
 
+2026-11-04，未发布源码。Windows 受控 Hermes 兼容 CLI 通过真实 stdio MCP 和生产宿主执行，验证固定参数顺序、配置冲突和原任务去重。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
+
 T-M06-CX-317：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 2026-11-03本轮生命周期条款按实际关闭入口完成静态核对；互联76文件及运行时12份源码/测试、6份编译物与最近证据无漂移。既有原三Task只读verify复核保持累计18项、业务请求0，不新增需求、测试编号或模型通过数。资源归属表不替代真实在途/升级/已有服务完整链验收。[当前源码及完整决策审计](../../iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。

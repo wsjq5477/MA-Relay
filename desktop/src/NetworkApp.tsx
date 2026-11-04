@@ -16,6 +16,7 @@ import DaemonDialog, {
   type MaintenanceBlockers,
 } from "./DaemonDialog";
 import AddMachineDialog from "./AddMachineDialog";
+import CustomRuntimeDialog from "./CustomRuntimeDialog";
 import { useMachineManagement, type MachineAction } from "./machine-management";
 import AgentGraph from "./AgentGraph";
 import ConnectionPolicyPanel from "./ConnectionPolicyPanel";
@@ -135,6 +136,7 @@ export default function NetworkApp() {
       /* Keep view usable without persistence. */
     }
   }
+  const [customRuntimeOpen, setCustomRuntimeOpen] = useState(false);
   const [addAgent, setAddAgent] = useState<Machine | null>(null),
     [nodeDialog, setNodeDialog] = useState<{
       node: AgentNode;
@@ -921,7 +923,13 @@ export default function NetworkApp() {
         unavailable={!nodes.some(node=>node.nodeId===configuration.node.nodeId&&node.machineId===configuration.node.machineId)||!machines.some(machine=>machine.machineId===configuration.machine.machineId)}
         onClose={()=>setConfiguration(null)}
       />}
-      {addAgent && (
+      {addAgent && (customRuntimeOpen ? (
+        <CustomRuntimeDialog machine={addAgent} onClose={() => setCustomRuntimeOpen(false)} onCreated={async () => {
+          await refresh();
+          setCustomRuntimeOpen(false);
+          setNotice("运行时已创建，可以添加并接入。");
+        }} />
+      ) : (
         <div className="modal-overlay">
           <section
             className="modal"
@@ -961,6 +969,11 @@ export default function NetworkApp() {
               >
                 重新扫描 Agent
               </button>
+              {addAgent.machineId.startsWith("local-") && data.nodeManagement && (
+                <button type="button" className="btn" disabled={busy || !addAgent.online || blocked(addAgent.machineId)} onClick={() => setCustomRuntimeOpen(true)}>
+                  新建自定义运行时
+                </button>
+              )}
               <div className="node-picker">
                 {allNodes
                   .filter((n) => !n.supersededBy && n.machineId === addAgent.machineId)
@@ -972,7 +985,7 @@ export default function NetworkApp() {
                       <small>
                         {n.removed ? "已移除，可重新接入" : nodeStatus(n)}
                       </small>
-                      <code>{n.executable}</code>
+                      {n.executable?.startsWith("custom-runtime:") ? <small>自定义运行时</small> : <code>{n.executable}</code>}
                       <button
                         className="btn"
                         disabled={
@@ -1012,7 +1025,7 @@ export default function NetworkApp() {
             </div>
           </section>
         </div>
-      )}
+      ))}
       {nodeDialog && (
         <div className="modal-overlay">
           <section

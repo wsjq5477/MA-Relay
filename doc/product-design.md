@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+未发布源码在桌面本机「添加 Agent」提供 Hermes 自定义运行时。用户选择基础类型，填写显示名、命令和可选描述，版本探测通过后可添加并接入。运行时身份与内置 Hermes 独立，仍需既有授权。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
+
 当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
 
 生命周期边界按实际入口区分：关闭调用方/观察门面不自动取消Task；明确停止Core Controller可停止经核验的自有托管服务，外部服务及用户原生Session不因此转归Bridge。IPC/PID消失不结算终态或释放unknown。[资源归属表](iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)已与源码核对，真实在途/服务完整链/升级仍待验证，[完整决策审计](iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。

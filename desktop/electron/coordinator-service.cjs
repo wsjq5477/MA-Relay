@@ -15,6 +15,7 @@ const teamMethods=new Set([...require('./team-context-transfers.cjs').methods,'t
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
 const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview','machine.maintenanceBlockers','machine.queryBlockedOperation']);
 const methods = new Set(['dsh.status','dsh.configure','mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation','relations','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
+methods.add('customRuntime.create');
 for(const method of require('./agent-directory.cjs').methods)methods.add(method);
 for(const method of require('./caller-service.cjs').methods)methods.add(method);
 for(const method of require('./browser-management.cjs').methods)methods.add(method);
@@ -61,11 +62,12 @@ function localMcpHost(options) {
     const native=options.legacy,local=new MachineHost({...options,directory:resolve(options.directory,'local')});
     return {
       async call(method,params={}) {
-        if(localMcpMethods.has(method)||require('./browser-management.cjs').methods.has(method)||method==='snapshot'||method==='ipc'||method==='context'&&require('./adapter-identity.cjs').isBrowser(params))return local.call(method,params);
+        if(localMcpMethods.has(method)||require('./browser-management.cjs').methods.has(method)||method==='snapshot'||method==='ipc'||method==='customRuntime.create'||
+          method==='context'&&(require('./adapter-identity.cjs').isBrowser(params)||require('./custom-runtime.cjs').isCustomRuntime(params.executable)))return local.call(method,params);
         if(method==='discover'){
           await local.browserManagement?.restore().catch(()=>{});
           const discovered=await native.call(method,params);
-          return {...discovered,items:[...discovered.items,...await require('./browser-discovery.cjs').discoverBrowsers(local.browser)]};
+          return {...discovered,items:[...discovered.items,...local.customRuntimes.list().map(item=>({...item,executionSupported:true})),...await require('./browser-discovery.cjs').discoverBrowsers(local.browser)]};
         }
         return native.call(method,params);
       },

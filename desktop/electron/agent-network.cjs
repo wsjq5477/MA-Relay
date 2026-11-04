@@ -1,5 +1,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {isBrowser,installation,sameInstallation,executionResource}=require('./adapter-identity.cjs');
+const {isCustomRuntime}=require('./custom-runtime.cjs');
+const usesExactInstallation = node => isBrowser(node) || isCustomRuntime(node.executable);
 const {randomUUID,createHash}=require('node:crypto');
 const {MachineRouter,qualified,folderPath,workspaceKey}=require('./machine-router.cjs');
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');
@@ -67,14 +69,15 @@ class AgentNetwork extends MachineRouter {
     snapshot.machines=snapshot.machines.map(m=>({...m,removed:(this.network.removedMachines||[]).includes(m.machineId)}));
     const groups=new Map();
     for(const connection of snapshot.connections){
-      const key=connection.machineId+':'+connection.adapter+(isBrowser(connection)?':'+installation(this.machine(connection.machineId),connection):'');
+      const key=connection.machineId+':'+connection.adapter+(usesExactInstallation(connection)?':'+installation(this.machine(connection.machineId),connection):'');
       if(!groups.has(key)||connection.current&&!groups.get(key).current)groups.set(key,connection);
     }
     for(let connection of groups.values()){
       const executable=installation(this.machine(connection.machineId),connection);
       const owned=this.catalog.instances.find(i=>i.connectionId===connection.connectionId&&i.nodeId&&this.network.nodes.some(n=>n.nodeId===i.nodeId));
       const nodeId=owned?.nodeId||'node-'+hash(connection.machineId+':'+connection.adapter+':'+executable).slice(0,24);
-      const siblings=this.network.nodes.filter(n=>n.machineId===connection.machineId&&n.adapter===connection.adapter&&(!isBrowser(connection)||sameInstallation(n,connection)));
+      const siblings=this.network.nodes.filter(n=>n.machineId===connection.machineId&&n.adapter===connection.adapter&&
+        (!(usesExactInstallation(connection)||usesExactInstallation(n))||sameInstallation(n,connection)));
       // Keep the established role/identity across native upgrades. Historical
       // aliases retain their original IDs, receipts and context ownership.
       let node=siblings.find(n=>runtimeRelations(this.network).some(row=>n.nodeId===row.leaderId))
@@ -98,7 +101,8 @@ class AgentNetwork extends MachineRouter {
       delete node.supersededBy;
       for(const sibling of siblings)if(sibling!==node)sibling.supersededBy=node.nodeId;
       Object.assign(node,{executable:connection.current?connection.executable:node.executable,connectionId:connection.connectionId,version:connection.current?connection.version:node.version,connected:node.managed?!!node.connected:node.connected||connection.connected,installed:!connection.error||connection.healthy,error:connection.error,errorCode:connection.errorCode,executionSupported:connection.executionSupported??connection.adapter!=='codex'});
-      for(const instance of snapshot.instances.filter(i=>i.machineId===node.machineId&&i.adapter===node.adapter&&(!isBrowser(node)||sameInstallation(i,node)))){const saved=this.catalog.instances.find(i=>i.instanceId===instance.instanceId);if(saved&&!saved.nodeId)saved.nodeId=node.nodeId;}
+      for(const instance of snapshot.instances.filter(i=>i.machineId===node.machineId&&i.adapter===node.adapter&&
+        (!(usesExactInstallation(i)||usesExactInstallation(node))||sameInstallation(i,node)))){const saved=this.catalog.instances.find(i=>i.instanceId===instance.instanceId);if(saved&&!saved.nodeId)saved.nodeId=node.nodeId;}
     }
     const nodes=this.network.nodes.map(node=>{
       const machine=snapshot.machines.find(m=>m.machineId===node.machineId),connection=snapshot.connections.find(c=>c.connectionId===node.connectionId);
@@ -583,6 +587,7 @@ class AgentNetwork extends MachineRouter {
     if(method==='snapshot')return this.snapshot();
     if(['mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe'].includes(method)){
       const node=this.node(params.nodeId),machine=this.machine(node.machineId);
+      if(isCustomRuntime(node.executable))throw fail('ADAPTER_UNSUPPORTED','自定义运行时沿用原生配置，暂不由 Bridge 管理 MCP。');
       // Revoking authorization and probing native state both need a live, attached
       // node; a removed node never owns an MCP connection any more.
       if(['mcp.install','mcp.export','mcp.revoke','mcp.probe'].includes(method)&&(node.removed||node.supersededBy||!node.connected&&!(node.adapter==='opendesk-desktop'&&method==='mcp.install')))throw fail('NODE_DISCONNECTED','请先接入此 Agent。');

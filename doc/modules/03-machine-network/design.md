@@ -1,5 +1,7 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+自定义运行时使用独立安装身份进行发现、节点分组和执行上下文绑定。同机的内置 Hermes 与每个自定义配置各有节点。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
+
 原委派只读恢复固定原机器/原requestId，不因当前端点停用、目录或授权变化换目标；Task/会话身份不符拒绝。新派发门禁与原占用保持，[字段和恢复证据](../../iterations/I08/interconnect-caller-contract.md)。
 
 ## 已确认的身份与资源准入边界

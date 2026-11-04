@@ -5,7 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { createInterface } = require('node:readline');
-const { createHash } = require('node:crypto');
+const { createHash, randomUUID } = require('node:crypto');
 const { AgentNetwork } = require('../electron/agent-network.cjs');
 const { MachineHost } = require('../electron/machine-host.cjs');
 const { ClaudeHost } = require('../electron/claude-host.cjs');
@@ -87,7 +87,7 @@ function mcpClient(t, config) {
   };
 }
 
-async function fixture(t, adapter) {
+async function fixture(t, adapter, custom = false) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-native-delegation-'));
   const workspace = path.join(directory, 'native-workspace'), home = path.join(directory, 'home');
   fs.mkdirSync(workspace); fs.mkdirSync(home);
@@ -137,7 +137,23 @@ async function fixture(t, adapter) {
       }
     } finally { service.close(); network.close(); await fs.promises.rm(directory, { recursive: true, force: true, maxRetries:8, retryDelay:100 }); }
   });
-  const snapshot = await call('snapshot'), leader = snapshot.nodes.find(node => node.adapter === 'claude'), member = snapshot.nodes.find(node => node.adapter === adapter);
+  let snapshot = await call('snapshot'), selected;
+  if (custom) {
+    const machineId = snapshot.machines[0].machineId;
+    const input = { machineId, adapter, name: 'Custom Hermes', command: `"${candidates[adapter][0]}" wrapper "fixed argument"`, profileId: randomUUID() };
+    for (const command of [input.command + ' | echo bad', input.command + ' --resume=other', input.command + ' "unclosed']) {
+      await assert.rejects(call('customRuntime.create', { ...input, command }), { code: 'CUSTOM_RUNTIME_INVALID' });
+    }
+    selected = await call('customRuntime.create', input);
+    assert.deepEqual(await call('customRuntime.create', input), selected);
+    await assert.rejects(call('customRuntime.create', { ...input, name: 'Different' }), { code: 'CUSTOM_RUNTIME_INVALID' });
+    snapshot = await call('snapshot');
+    assert.equal(snapshot.nodes.filter(node => node.adapter === adapter).length, 2);
+    assert.equal(snapshot.nodes.find(node => node.executable === selected.executable).name, input.name);
+    assert.equal(JSON.stringify(snapshot).includes('fixed argument'), false);
+  }
+  const leader = snapshot.nodes.find(node => node.adapter === 'claude');
+  const member = snapshot.nodes.find(node => node.adapter === adapter && (!selected || node.executable === selected.executable));
   assert.ok(leader && member, 'production discovery found both fixture installations');
   await call('attachNode', { nodeId: leader.nodeId }); await call('attachNode', { nodeId: member.nodeId });
   await call('saveCollaboration', { leaderId: leader.nodeId, memberIds: [member.nodeId], expectedRevision: 0 });
@@ -151,6 +167,27 @@ async function fixture(t, adapter) {
     reopen: async () => { service.close(); network.close(); open(); await call('snapshot'); },
   };
 }
+
+test('custom Hermes keeps an independent node and forwards fixed argv through the production host', { timeout: 45000 }, async t => {
+  const f = await fixture(t, 'hermes', true);
+  assert.equal(f.member.connectionCapabilities.nativeMcpConfig, false);
+  assert.deepEqual((await f.mcp('list_agents')).items.map(node => node.nodeId), [f.member.nodeId]);
+  f.loseNextSubmitResponse();
+  const args = { nodeId: f.member.nodeId, requestId: 'custom-child', message: 'custom runtime', workspace: f.workspace };
+  await assert.rejects(f.mcp('delegate', args), { code: 'DESKTOP_TRANSPORT' });
+  const pending = f.network.network.delegations.find(item => item.message === args.message);
+  assert.equal(pending.state, 'unknown');
+  await f.reopen();
+  const original = await f.mcp('task_result', { delegationId: pending.delegationId });
+  assert.equal(original.invocation.requestId, pending.requestId);
+  const task = await until(() => f.mcp('task_result', { taskId: original.taskId }), item => item.status === 'succeeded');
+  assert.equal((await f.mcp('delegate', args)).taskId, task.taskId);
+  const snapshot = await f.call('snapshot');
+  assert.equal(snapshot.nodes.find(node => node.nodeId === f.member.nodeId).name, 'Custom Hermes');
+  const calls = invocations(f.calls).filter(row => row.adapter === 'hermes');
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].args, ['wrapper', 'fixed argument', 'chat', '--query-file', '-', '--format', 'stream-json']);
+});
 
 for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary delegated target through Coordinator, MCP, MachineHost and an owned native process', { timeout: 45000 }, async t => {
   const f = await fixture(t, adapter), args = { nodeId: f.member.nodeId, requestId: 'original-child', message: 'literal $(no-shell) `quote` 中文', workspace: f.workspace };

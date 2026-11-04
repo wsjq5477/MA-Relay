@@ -27,7 +27,9 @@ class NativeCliHost {
   constructor(options) {
     if (!profiles[options.adapter]) throw fail('ADAPTER_UNSUPPORTED', '原生 Agent 适配器未注册。');
     this.directory = options.directory; this.adapter = options.adapter; this.executable = options.executable;
-    this.home = options.home; this.environment = options.environment; this.name = names[this.adapter];
+    this.home = options.home; this.environment = options.environment;
+    this.customRuntime = options.customRuntime;
+    this.name = this.customRuntime?.name || names[this.adapter];
     this.file = path.join(this.directory, this.adapter + '-state.json');
     this.state = read(this.file, { revision: 1, agents: [], tasks: [], conversations: [], requests: [], operations: [] });
     this.chain = Promise.resolve();
@@ -170,6 +172,10 @@ class NativeCliHost {
     if (this.state.tasks.some(item => !terminal.has(item.status))) throw fail('AGENT_BUSY', '此上下文仍有未结束任务。');
     const fresh = { taskId: this.adapter + '-task-' + randomUUID(), executionId: randomUUID(), conversationId: conversation?.conversationId || this.adapter + '-conversation-' + randomUUID(), targetAgent: agent.agentId, requestId: params.requestId, message: safe(params.message), status: 'accepted', createdAt: now(), updatedAt: now(), turn: (conversation?.turns || 0) + 1, lastSeq: 0, lastSummary: '已接收，正在启动 ' + this.name, events: [], offset: 0 };
     const directory = path.join(this.directory, 'runs', fresh.taskId), job = { adapter: this.adapter, profile: profiles[this.adapter], executable: this.executable, workspace: agent.workspace, message: params.message, requestId: params.requestId, conversationId: fresh.conversationId, sessionId: conversation?.sessionId, ...(conversation?.instanceId ? {instanceId:conversation.instanceId} : {}), sessionDirectory: path.join(this.directory, 'native-sessions'), ...(this.adapter.startsWith('opendesk') ? {controlRoot:path.join(this.directory,'opendesk-existing-v2')} : {}), ...(['dsh-desktop', 'dsh-web'].includes(this.adapter) ? {origin: require('./dsh-connection.cjs').read(this.executable).origin} : {}) };
+    if (this.customRuntime) {
+      job.executable = this.customRuntime.program;
+      job.launchPrefix = this.customRuntime.args;
+    }
     // Validate exact Pi persisted binding before any durable intent or spawn.
     argumentsFor(job);
     write(path.join(directory, 'job.json'), job);
@@ -211,7 +217,7 @@ async function runWorker(directory) {
   let child, spawned = false, spawnFailed = false, cancelRequested = false, terminationSent = false, windowsKill, killDeadline = 0, ended = false, oversized = false, buffer = '', failure = '', diagnostics = '';
   const parser = createParser(job, event => emit({ ...event, ...(typeof event.text === 'string' ? { text: safe(event.text) } : {}) }));
   try {
-    const launch = require('./tool-discovery.cjs').command(job.executable, argumentsFor(job));
+    const launch = require('./tool-discovery.cjs').command(job.executable, [...(job.launchPrefix || []), ...argumentsFor(job)]);
     child = spawn(launch.executable, launch.args, { cwd: job.workspace, env: launch.env, windowsHide: true, detached: process.platform !== 'win32', stdio: ['pipe', 'pipe', 'pipe'] });
   } catch (error) { clearInterval(heartbeat); emit({ kind: 'terminal', status: 'failed', code: 'NATIVE_START', text: safe(error.message), nativeExited: false }); return; }
   child.once('spawn', () => { spawned = true; emit({ kind: 'started' }); });

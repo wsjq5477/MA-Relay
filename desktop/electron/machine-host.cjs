@@ -9,6 +9,7 @@ const fail=(code,message)=>Object.assign(new Error(message),{code});
 class MachineHost {
   constructor(options){
     this.options=options;this.directory=options.directory;this.legacy=options.legacy;
+    this.customRuntimes=new(require('./custom-runtime.cjs').CustomRuntimeStore)(this.directory,options.environment);
     this.browser=options.browserChannel;
     if(options.enableBrowser&&!this.browser){this.browserManagement=new(require('./browser-management.cjs').BrowserManagement)({directory:path.join(this.directory,'browser')});this.browser=this.browserManagement.channel;}
     this.contexts=new Map();this.connecting=new Map();this.file=path.join(this.directory,'node-contexts.json');
@@ -64,7 +65,8 @@ class MachineHost {
   backend(row){
     if(!this.contexts.has(row.contextId)){
       const directory=path.join(this.directory,'node-contexts',row.contextId);
-      const host=adapters.createHost(row.adapter,{...this.options,directory,executable:row.executable,browserInstanceId:row.browserInstanceId,browserChannel:this.browser,home:this.options.home||os.homedir()});
+      const customRuntime=row.adapter==='hermes'?this.customRuntimes.read(row.executable):null;
+      const host=adapters.createHost(row.adapter,{...this.options,directory,executable:row.executable,customRuntime,browserInstanceId:row.browserInstanceId,browserChannel:this.browser,home:this.options.home||os.homedir()});
       if(!host)throw fail('ADAPTER_UNSUPPORTED','这个节点尚未完成执行适配。');
       this.contexts.set(row.contextId,host);
     }
@@ -72,7 +74,7 @@ class MachineHost {
   }
   async discover(){
     await this.browserManagement?.restore().catch(()=>{});
-    const items=[...await scanTools(this.options),...await require('./browser-discovery.cjs').discoverBrowsers(this.browser)];
+    const items=[...await scanTools(this.options),...this.customRuntimes.list(),...await require('./browser-discovery.cjs').discoverBrowsers(this.browser)];
     // Installation/transport checks are independent of an account's model availability.
     return {items:items.map(i=>({...i,executable:i.executable,executionSupported:!!adapters.get(i.adapter)&&i.compatibility?.supported!==false}))};
   }
@@ -159,6 +161,7 @@ class MachineHost {
       return this.mcp.call(method,params);
     }
     if(method==='discover')return this.discover();
+    if(method==='customRuntime.create')return this.customRuntimes.create(params);
     if(method==='context')return this.context(params);
     if(method==='environment')return this.legacy.call(method,params);
     if(method==='scope'){

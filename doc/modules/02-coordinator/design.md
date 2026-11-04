@@ -1,5 +1,7 @@
 # M02 中央协调后台设计
 
+桌面 Coordinator 的自定义运行时创建方法仅转给本机 MachineHost，沿用机器管理准入。远端 daemon 和 MCP 工具列表不开放创建。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
+
 M02-F03/F05：无taskId的原委派查询沿既有MachineRouter ipc/request，只补原Task关联；不产生新的提交或上下文，原调用方读取权限在异步返回后复核。中央/daemon方法和Task状态不新增；[完整契约](../../iterations/I08/interconnect-caller-contract.md)。
 
 ## 互联核心与可选激活器的职责

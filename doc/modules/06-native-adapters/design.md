@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器设计
 
+Hermes 自定义运行时复用原 stream-json 宿主和原生 Session。宿主加载本机配置，按独立安装标识路由，固定 argv 置于协议参数之前。Bridge 管理 MCP 在自定义配置中关闭。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
+
 M06-CX-F01：本机用户明确选择原生gpt-6.1-sol并原位升级CLI，不增加Bridge模型字段或模型API。Windows主/WSL从的正文、原Session续聊与在途观察器恢复已有实证，原失败保留；这是单一真实接入，不扩大完整适配器/机器/EXE准出。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 M06-OC-F01：OpenCode执行使用独立协议协商客户端，原Session观察及回复/取消在原nativeProtocol校验后使用绑定客户端，健康检查失败/变化不改写本次I/O地址。失败发现仍使缓存失效，协议不匹配拒绝；不增加控制重试。[当前实现与回归](../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。

@@ -88,6 +88,10 @@ function connectionCapabilities(node) {
   if (node?.executionSupported === false) {
     for (const name of connectionCapabilityNames) if (capabilities[name] === true) capabilities[name] = false;
   }
+  if (require('./custom-runtime.cjs').isCustomRuntime(node?.executable)) {
+    capabilities.mcpClient = false;
+    capabilities.nativeMcpConfig = false;
+  }
   if (capabilities.execution !== true && capabilities.delegation === true) capabilities.delegation = capabilities.execution;
   // Hosted task binding is its own admission. A product that cannot host a
   // scoped session keeps independent MCP call ability; the two are never folded.

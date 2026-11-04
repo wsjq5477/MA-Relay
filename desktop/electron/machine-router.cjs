@@ -134,7 +134,8 @@ class MachineRouter {
     for (const a of snapshot.agents?.items || []) {
       const existing = this.catalog.instances.find(i => i.machineId === machine.machineId && i.backendId === a.agentId);
       const executable = isBrowser(a)?undefined:a.executable || snapshot.connections?.find(c => c.connectionId === a.connectionId)?.executable || existing?.executable || (machine.kind === "windows" ? "claude" : "opencode");
-      const connection = this.connection(machine, executable, { connected: true, ...(a.browserInstanceId?{browserInstanceId:a.browserInstanceId}:{}), ...(a.adapter ? {adapter:a.adapter,name:require('./tool-discovery.cjs').tools[a.adapter]||a.name||a.adapter} : {}) });
+      const name = require('./custom-runtime.cjs').isCustomRuntime(executable) ? a.name : require('./tool-discovery.cjs').tools[a.adapter] || a.name || a.adapter;
+      const connection = this.connection(machine, executable, { connected: true, ...(a.browserInstanceId?{browserInstanceId:a.browserInstanceId}:{}), ...(a.adapter ? {adapter:a.adapter,name} : {}) });
       const row = { instanceId: qualified(machine.machineId, a.agentId), machineId: machine.machineId, connectionId: connection.connectionId, backendId: a.agentId, name: a.name, workspace: a.workspace, enabled: a.enabled, nativeAgent: a.nativeAgent, model: a.model, default: a.default, busy: a.busy, executable, adapter:connection.adapter,
         ...(a.nodeId ? {nodeId:a.nodeId} : {}), ...(a.browserInstanceId?{browserInstanceId:a.browserInstanceId}:{}),
         ...(a.currentTask ? { currentTask: { taskId: a.currentTask.taskId, status: a.currentTask.status } } : { currentTask: undefined }) };
@@ -308,6 +309,14 @@ class MachineRouter {
     if(require('./browser-management.cjs').methods.has(method))return {...await this.host(machine).call(method,p),machineId:machine.machineId};
     if (method === "environment") return { ...await this.host(machine).call(method, p), machineId: machine.machineId };
     if (method === "discover") return this.discover(machine);
+    if (method === "customRuntime.create") {
+      if (machine.machineId !== this.catalog.localMachineId) fail("CUSTOM_RUNTIME_LOCAL_ONLY", "请在运行程序的机器上创建自定义运行时。");
+      this.assertMachineAdmission?.(machine);
+      const created = await this.host(machine).call(method, p);
+      await this.scanning.get(machine.machineId)?.catch(() => {});
+      await this.discover(machine);
+      return created;
+    }
     if (method === "connectTool") {
       const result = await this.discover(machine);
       const selected = result.items.find(i => i.executable === p.executable);

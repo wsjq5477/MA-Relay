@@ -1,5 +1,7 @@
 # 对象、身份与持久数据
 
+桌面本机自定义运行时以 UUID 保存私有配置。目录与执行上下文沿用安装身份字段，值为 `custom-runtime:<UUID>`，实际程序、固定参数与描述留在本机配置。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
+
 当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
 
 OpenCode原任务协议仍取既有NativeReference.snapshot.nativeProtocol，不从临时健康发现缓存重写。按原绑定创建的客户端仅为本次执行/观察/控制的内存资源，不新增持久身份、字段、Task或Session；发现失败及IPC离线不能推定原任务终态。[当前行为与验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。

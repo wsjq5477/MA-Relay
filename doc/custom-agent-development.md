@@ -1,5 +1,7 @@
 # 自定义原生 Agent 适配开发指南
 
+已有 Hermes 兼容命令的用户可从桌面本机「添加 Agent → 新建自定义运行时」填写。本文后续步骤用于增加新的协议或实现。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
+
 外部Super-agent只需要调用其他Agent时，优先使用未发布源码的[独立调用方MCP契约](iterations/I08/interconnect-caller-contract.md)，无需为其伪造执行节点或开发模型适配器。只有Bridge需要发现、启动或观察该Runtime时才按本文增加原生执行适配；主体、上下文与凭据不等于Session/执行实例。
 
 ## 登记身份与执行适配的区别

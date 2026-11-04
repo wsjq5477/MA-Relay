@@ -1,5 +1,7 @@
 # Agent 接入现状与后续目标
 
+未发布源码支持桌面本机添加 Hermes 兼容命令，执行复用 stream-json。受控 CLI 已验，真实用户命令、Linux、远端和 EXE 待验。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
+
 当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
 
 OpenCode当前源码的Core check复用已协商的V1/V2 Agent信息，原任务执行/观察/回复/取消保留原协议，避免健康检查改写在途操作的API地址。真实WSL原1.2.10低层Controller/Client已有服务连接及观察器关闭/重开9项证据保持，模型0；当前源码受控回归不等于真实原生控制或模型重验。互联登记完整链及MachineHost已有服务仍待，与历史2.0.24模型验收分开。[当前实现、结果与原失败](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
