@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-11-04：[alpha.73 发布](I08/alpha73-release.md)，桌面本机 Hermes 自定义运行时与已校验的 Windows 便携 EXE。
+
 - 2026-11-04：[自定义 Agent 执行接入设计](I08/custom-runtime-design.md)：参考 Multica 的 Runtime 与协议族分离，明确现有注册、会话和调用生命周期的复用落点及首片验收。
 
 - 2026-11-03：[alpha.72当前源码与EXE公开交付](I08/alpha72-release.md)：互联核心、ChatGPT Web及界面；277输入/3516实际载荷、包内分层复验、原进程普通启动/关闭、独立Ubuntu CI与8附件匿名完整校验。Windows原失败、I01测试预算、真实profile/完整矩阵/性能保留。

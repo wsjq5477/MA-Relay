@@ -1,6 +1,6 @@
 # I08 自定义 Agent 执行接入设计
 
-2026-11-04。未发布源码实现了桌面本机 Hermes 兼容命令首片。当前接入状态见[接入矩阵](../../agent-integration-matrix.md)，产品范围遵循[互联核心边界](interconnect-boundary.md)。
+2026-11-04。alpha.73 发布了桌面本机 Hermes 兼容命令首片。当前接入状态见[接入矩阵](../../agent-integration-matrix.md)，产品范围遵循[互联核心边界](interconnect-boundary.md)。
 
 Multica 的 Daemon 在机器上发现和运行工具，Backend 统一执行入口，运行记录与原生会话独立。其内置 Runtime ID 可与协议族分开，自定义 Profile 只能选择已支持的 Backend，固定启动参数由该 Backend 消费。AgentBridge 借鉴身份和协议实现分离，并继续由调用方指定目标。参考 [Daemon Runtimes](https://multica.ai/docs/zh/daemon-runtimes)、[Backend](https://github.com/multica-ai/multica/blob/main/server/pkg/agent/agent.go)和[内置 Runtime](https://github.com/multica-ai/multica/blob/main/server/pkg/agent/builtin_runtimes.go)。实现由 AgentBridge 独立编写，Multica 的源码使用条件见[上游许可证](https://github.com/multica-ai/multica/blob/main/LICENSE)。
 

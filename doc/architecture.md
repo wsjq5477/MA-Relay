@@ -1,8 +1,8 @@
 # AgentBridge 整体架构
 
-桌面本机的 Hermes 自定义运行时在未发布源码中复用静态 Hermes Backend、原生会话绑定及 Task 收据。Coordinator 只向本机宿主写入配置，MachineHost 用独立安装标识发现并绑定该配置。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
+桌面本机的 Hermes 自定义运行时在 alpha.73 中复用静态 Hermes Backend、原生会话绑定及 Task 收据。Coordinator 只向本机宿主写入配置，MachineHost 用独立安装标识发现并绑定该配置。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
 
-当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](iterations/I08/alpha73-release.md)
 
 观察入口释放与明确停止执行后台分开：MachineHost/原生宿主门面close不自动取消Task，Core Controller的显式stop可停止经原身份核验的自有托管服务；managed=false外部服务不在其所有权中。IPC/PID消失都不是原Task终态或释放unknown的证据。各模式的状态来源、恢复与当前实证见[资源归属表](iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)，不由mode字段扩大进程管理权限。
 

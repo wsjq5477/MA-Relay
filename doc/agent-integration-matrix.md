@@ -1,6 +1,6 @@
 # Agent 接入现状与后续目标
 
-未发布源码支持桌面本机添加 Hermes 兼容命令，执行复用 stream-json。受控 CLI 已验，真实用户命令、Linux、远端和 EXE 待验。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
+alpha.73 支持桌面本机添加 Hermes 兼容命令，执行复用 stream-json。受控 CLI 已验，真实用户命令、Linux、远端和 EXE 待验。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
 
 当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
 

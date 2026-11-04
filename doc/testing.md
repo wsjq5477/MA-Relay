@@ -1,8 +1,8 @@
 # 整体测试与验收报告
 
-文档检查仍未通过：当前工作树2243项历史缺失，公开源码3060项（本地历史证据及用户参考材料未随Git公开）；发布验证与文档材料范围分别见[本次交付](iterations/I08/alpha72-release.md#文档检查与公开材料边界)。
+alpha.73 冻结源码文档检查报告 3062 项历史资料链接错误，自定义运行时条目无报错。[本次交付](iterations/I08/alpha73-release.md)
 
-当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](iterations/I08/alpha73-release.md)
 
 T-M06-CX-317 / T-M07-317 / T-M08-317：2026-11-03，本轮真实Windows主对话与WSL原生子Agent。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。主会话登录后六轮为failed/failed/succeeded/succeeded/succeeded/cancelled，另有独立上下文网络失败及修复后成功；原三Task保留，总请求/委派11/11。CLI安装首轮错误、旧模型/旧CLI拒绝及中途转发退出均保留，未重发未知请求。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 

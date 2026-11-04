@@ -1,5 +1,7 @@
 # M10 构建与发布测试报告
 
+2026-11-04，alpha.73。Windows x64 实际 EXE 解包 3518 文件，与未压缩包逐路径、字节数及 SHA-256 匹配。GitHub EXE 与校验文件匿名下载一致。[交付与验证边界](../../iterations/I08/alpha73-release.md)
+
 T-M10-317 / M10-F01/F03/F05：2026-11-03，alpha.72。277产品输入、73后台/87Core/1746Linux及实际3516载荷一致；包内136例首轮134通过/2清理失败，由完整Broker3/3覆盖复验，非单次全绿。普通portable原120秒超时后同进程276178ms打开窗口，认证/合成SQLite、正常关窗及所属后台退出通过，未作性能准出。独立Ubuntu87/111/98/105各组全通过；Windows全量原失败/I01预算未完成保留。8份附件匿名完整校验通过。[原始分层证据](../../iterations/I08/alpha72-release.md)。
 
 T-M10-209 / M10-F01/F03/F05：2026-11-01，Windows，0.6.0-alpha.71.browser.3。615项当前输入、70后台/84Core/1719Linux、EXE实际3463文件及ASAR/ws/扩展均匹配；实际包内Electron44.7.0/Nodev24.21.0受控Host/通道72/72。全开发/缓存/测试数据非C盘；两次封装EPERM和依赖修正保留。未跑普通GUI、真实网页或原生父模型，不扩展为完整准出。[全部原证据](../../iterations/I08/web-agent-browser3-preview.md)。

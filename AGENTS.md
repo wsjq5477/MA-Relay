@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.72**，标签冻结fd450ce；EXE132441715字节、SHA-256 f2c8fe49fe655e6cfa4bca19721b663377e101fe719cfbee31738cb8b2bce4c3。277产品输入与实际EXE3516资源一致，源码/EXE/SHA公开，匿名完整下载一致。
+当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。 EXE 132443109 字节，SHA-256 73000602e0c2f267acf81cb4778e05974ed87331f22a0cdd36f43b824605ba65。
 
-当前公开alpha.72：收录互联核心、ChatGPT Web开发扩展、接入界面整理及OpenCode协议修复；冻结fd450ce，EXE132441715字节。源码/EXE/SHA及8份附件匿名完整下载匹配。277产品输入/3516实际载荷一致；独立Ubuntu87/87、111/111、98/98、105/105及Hermes原生MCP五组通过、模型0。Windows全量原失败、包内136例与Broker3/3分层复验、普通portable约276秒启动及正常关闭分别记录，非完整全绿或性能准出；真实profile/生产SSH/完整矩阵仍待。[完整交付](doc/iterations/I08/alpha72-release.md)。
+发布验证范围见[交付记录](doc/iterations/I08/alpha73-release.md)。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

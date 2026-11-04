@@ -1,6 +1,6 @@
 # AgentBridge
 
-当前公开alpha.72：收录互联核心、ChatGPT Web开发扩展、接入界面整理及OpenCode协议修复；冻结fd450ce，EXE132441715字节。源码/EXE/SHA及8份附件匿名完整下载匹配。277产品输入/3516实际载荷一致；独立Ubuntu87/87、111/111、98/98、105/105及Hermes原生MCP五组通过、模型0。Windows全量原失败、包内136例与Broker3/3分层复验、普通portable约276秒启动及正常关闭分别记录，非完整全绿或性能准出；真实profile/生产SSH/完整矩阵仍待。[完整交付](doc/iterations/I08/alpha72-release.md)。
+当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](doc/iterations/I08/alpha73-release.md)
 
 AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：从原生Agent发起协作，在客户端配置连接、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
 
@@ -9,14 +9,14 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0 |
-| 当前公开预发布 | **0.6.0-alpha.72**，冻结 fd450ce；EXE132441715字节，8份附件匿名完整下载一致；[发布记录](doc/iterations/I08/alpha72-release.md) |
-| 本次内容与边界 | 互联核心、ChatGPT Web开发扩展、接入界面及OpenCode协议修复；[分层验证与限制](doc/iterations/I08/alpha72-release.md) |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.72/AgentBridge-0.6.0-alpha.72-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.72/SHA256SUMS.txt)；未签名 |
-| 上一公开预发布 | alpha.71，SSH维护入口与确认替换；[历史发布](doc/iterations/I08/alpha71-release.md) |
-| 当前公开源码范围 | 标签 v0.6.0-alpha.72（fd450ce），master含后续发布文档与测试夹具修正 |
+| 当前公开预发布 | **0.6.0-alpha.73**，冻结 042c546，EXE 132443109 字节。[发布记录](doc/iterations/I08/alpha73-release.md) |
+| 本次内容与边界 | 桌面本机 Hermes 自定义运行时，受控 CLI 已验证。[分层验证](doc/iterations/I08/alpha73-release.md) |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.73/AgentBridge-0.6.0-alpha.73-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.73/SHA256SUMS.txt)，未签名 |
+| 上一公开预发布 | alpha.72，互联核心与 ChatGPT Web 扩展。[历史发布](doc/iterations/I08/alpha72-release.md) |
+| 当前公开源码范围 | 标签 v0.6.0-alpha.73（042c546） |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
-[下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.72/AgentBridge-0.6.0-alpha.72-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.72/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.72)。用户无需自行编译或安装 WSL/Node.js。
+[下载 Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.73/AgentBridge-0.6.0-alpha.73-Windows-x64.exe) · [SHA-256 校验文件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.73/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.73)
 
 升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE。可信兼容的SSH后台可继续使用；远端维护须空闲时由用户明确确认。原机器、节点、请求和历史保留；旧 unknown 只查原 ID，不重发。
 
