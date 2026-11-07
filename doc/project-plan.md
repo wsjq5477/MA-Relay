@@ -1,5 +1,7 @@
 # 迭代路线与当前交付
 
+未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](iterations/I08/maintenance-controller-recovery.md)
+
 本轮交付范围：alpha.74 汇总远端自定义运行时、Hermes/Pi 图标选择与既有 Windows worker 发布修复；真实模型/生产 SSH 和完整原生矩阵仍待验收。[发布记录](iterations/I08/alpha74-release.md)
 
 issue #30：共享 worker 运行时默认发布重试与清理保错已在 alpha.73 基线上源码修复并完成 Windows 定向与真实 Electron/ICU 验证；外部 CodeAgent 分支验证另列未测。按本 issue 范围不构建或发布 EXE，不重试历史失败任务。[交付与剩余验证](iterations/I08/codex-runtime-publish-recovery.md)

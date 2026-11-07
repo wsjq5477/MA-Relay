@@ -1,5 +1,7 @@
 # M04 SSH 机器接入设计
 
+未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](../../iterations/I08/maintenance-controller-recovery.md)
+
 alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/任务忙时打开查看；实际版本切换仍核对原身份、空闲与收据，不绕过门禁。仅补公开alpha.70精确原pin以保持上一公开版本复用。[来源、包与界面验证](../../iterations/I08/issue29-maintenance-entry.md)。
 
 

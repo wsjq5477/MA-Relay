@@ -1,0 +1,15 @@
+✔ full staged controller upgrades a legacy daemon and queries the original receipt (19445.245609ms)
+✔ old staging fails in isolation; full manifest loads and repairs the same controller without touching maintenance state (36542.521752ms)
+✔ nonzero controller exit retains safe structured diagnostic without raw stderr (8.873899ms)
+✔ original-ID recovery repairs once then only queries the unchanged input (14.6734ms)
+✔ query startup failure is persisted on the original unknown without releasing it (2.9924ms)
+✔ repair refuses a changed target digest before any remote command (2.3668ms)
+✔ a missing remote receipt cannot settle or release an original unknown (3.788ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 56103.855306

@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-07T10:30:27.406Z",
+  "version": "0.6.0-alpha.74",
+  "files": 1748,
+  "size": 151147079,
+  "nodeVersion": "v22.23.1",
+  "digest": "258f09994bf3393efa5499a6cf4213de6fe08c05809cefaf403a97bd94525ba5",
+  "helperIncluded": true,
+  "wsIncluded": true
+}

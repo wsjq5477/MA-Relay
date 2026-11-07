@@ -394,6 +394,7 @@ class SshManager {
       delete c.progress;
       try{await this.installer.remoteMaintenance(client,input,row.controller);}
       catch(error){
+        row.error={code:error.code||'DAEMON_MAINTENANCE_TRANSPORT',message:error.details?.controllerMessage||'维护回应尚未确认，请查询原操作。',...(error.details?{details:error.details}:{})};c.maintenance={...c.maintenance,error:row.error};this.save();
         // A rejected channel open proves the original input never left this
         // machine, so one fresh-connection retry is not a second send. A second
         // pre-transmission rejection marks the receipt rejected, never unknown;
@@ -425,7 +426,14 @@ class SshManager {
   /** The original-ID query is the only recovery path for an unknown intent, so
    * a pre-transmission channel-open rejection gets one fresh-connection retry. */
   async queryWithRecovery(connection,row){
-    const query=async client=>this.installer.remoteMaintenance(client,{...row.remoteInput,action:'query'},row.controller);
+    const query=async client=>{
+      try{return await this.installer.remoteMaintenance(client,{...row.remoteInput,action:'query'},row.controller);}
+      catch(error){
+        if(error.details?.controllerCode!=='MODULE_NOT_FOUND'||!this.installer.repairMaintenance)throw error;
+        await this.installer.repairMaintenance(client,row.remoteInput,row.controller);
+        return this.installer.remoteMaintenance(client,{...row.remoteInput,action:'query'},row.controller);
+      }
+    };
     try{return await query(await this.authenticate(connection));}
     catch(error){
       if(error?.code!=='SSH_EXEC_FAILED'||error.details?.stage!=='open')throw error;
@@ -446,7 +454,8 @@ class SshManager {
     }
     try{
       const result=await this.queryWithRecovery(c,row);
-      if(result.operationId!==row.operationId||!['confirmed','rejected'].includes(result.state))return this.publicOperation(row);
+      if(result.operationId!==row.operationId)return this.publicOperation(row);
+      if(!['confirmed','rejected'].includes(result.state)){if(result.state==='not_found'){row.error={code:'DAEMON_MAINTENANCE_NOT_FOUND',message:'远端未找到原维护记录，尚不能证明原操作终态；保留原 ID 待核对。'};c.maintenance={...c.maintenance,error:row.error};this.save();}return this.publicOperation(row);}
       row.state=result.state;row.error=result.error;row.data={...row.data,...result.data,action:'maintainDaemon',remoteAction:row.remoteInput.action};
       c.maintenance={...c.maintenance,state:result.state,...(result.error?{error:{code:result.error.code,message:result.error.message,...(result.error.details?{details:result.error.details}:{})}}:{error:undefined})};c.daemonVersion=result.data?.version;this.save();
       const removed=result.state==='confirmed'&&row.remoteInput.action==='uninstall';c.removed=removed;
@@ -457,7 +466,7 @@ class SshManager {
       // this also covers a receipt resolved after a desktop restart.
       if(removed||!daemonAvailable(result,row.remoteInput.action)){c.autoReconnect=false;if(removed||['stop','uninstall'].includes(row.remoteInput.action))this.dropTransport(c);this.state(c,removed?'removed':'disconnected_manual');}
       else{c.autoReconnect=true;this.save();this.state(c,'reconnecting');this.scheduleReconnect(c,true);}
-    }catch(error){const failure=safeFailure(error);this.state(c,['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(failure.code)?'needs_credentials':fatal.has(failure.code)?'blocked':'maintaining',failure);}
+    }catch(error){const failure=safeFailure(error);row.error={code:failure.code,message:error.details?.controllerMessage||failure.message,...(error.details?{details:error.details}:{})};c.maintenance={...c.maintenance,error:row.error};this.state(c,['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(failure.code)?'needs_credentials':fatal.has(failure.code)?'blocked':'maintaining',failure);}
     return this.publicOperation(row);
   }
   async resumeConnection(connectionId,expectedRevision){

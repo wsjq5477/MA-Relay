@@ -4,6 +4,11 @@ const os = require('node:os');
 const zlib = require('node:zlib');
 const { createHash, randomUUID } = require('node:crypto');
 const { problem } = require('./ssh-known-hosts.cjs');
+function maintenanceDiagnostic(stderr){
+  let code;if(/(?:code[\s:'"]+|\b)(?:MODULE_NOT_FOUND|ERR_MODULE_NOT_FOUND)\b/.test(stderr))code='MODULE_NOT_FOUND';
+  else {try{const v=JSON.parse(stderr);if(['SSH_PACKAGE_CHECKSUM','REMOTE_DIRECTORY_UNSAFE','INVALID_INPUT','DAEMON_OWNER_CONFLICT','DAEMON_MAINTENANCE_STAGE'].includes(v.code))code=v.code;}catch{}}
+  return {controllerCode:code||'DAEMON_CONTROLLER_EXIT',controllerMessage:code==='MODULE_NOT_FOUND'?'维护控制器依赖缺失，请查询原操作修复暂存。':'维护控制器非零退出，原操作仍待核对。'};
+}
 const MAX_COMPATIBLE_DAEMONS = 128;
 
 // Observer failures are diagnostic only; never reinterpret them as SFTP faults.
@@ -17,16 +22,16 @@ function quote(value) {
 }
 function remoteExec(client, command, input = '', options = {}) {
   return new Promise((resolve, reject) => {
-    let channel, settled = false, out = [], errorBytes = 0, size = 0;
+    let channel, settled = false, out = [], diagnostics = [], errorBytes = 0, size = 0;
     const fail = error => { if (settled) return; settled = true; clearTimeout(timer); channel?.close(); reject(error); };
     const timer = setTimeout(() => fail(problem('SSH_COMMAND_TIMEOUT', 'SSH 环境检测或安装步骤超时，请检查服务器。')), options.timeoutMs || 15000);
     client.exec(command, { pty: false }, (error, stream) => {
       if (error) return fail(problem('SSH_EXEC_FAILED', '服务器拒绝了无终端的后台命令' + (Number.isSafeInteger(error.reason) ? '（通道原因码 ' + error.reason + '）' : '') + '，请检查 SSH 权限。', { stage: 'open' }));
       channel = stream;
       stream.on('data', chunk => { size += chunk.length; if (size > (options.maxBytes || 65536)) return fail(problem('SSH_BOOTSTRAP_OUTPUT', '服务器启动脚本输出过多，无法安全解析后台检测结果。')); out.push(chunk); });
-      stream.stderr.on('data', chunk => { errorBytes += chunk.length; if (errorBytes > 65536) fail(problem('SSH_BOOTSTRAP_OUTPUT', '服务器后台命令诊断输出过多，请检查启动脚本。')); });
+      stream.stderr.on('data', chunk => { diagnostics.push(chunk); errorBytes += chunk.length; if (errorBytes > 65536) fail(problem('SSH_BOOTSTRAP_OUTPUT', '服务器后台命令诊断输出过多，请检查启动脚本。')); });
       stream.on('error', () => fail(problem('SSH_EXEC_FAILED', 'SSH 后台命令通道已中断。', { stage: 'stream' })));
-      stream.on('close', code => { if (settled) return; settled = true; clearTimeout(timer); if (code !== 0) reject(problem(options.errorCode || 'SSH_EXEC_FAILED', options.errorMessage || ('远端后台命令执行失败（退出码 ' + (code === null || code === undefined ? '未知' : code) + '），请检查运行条件。'), { stage: 'exit' })); else resolve(Buffer.concat(out).toString('utf8')); });
+      stream.on('close', code => { if (settled) return; settled = true; clearTimeout(timer); if (code !== 0) reject(problem(options.errorCode || 'SSH_EXEC_FAILED', options.errorMessage || ('远端后台命令执行失败（退出码 ' + (code === null || code === undefined ? '未知' : code) + '），请检查运行条件。'), { stage: 'exit', exitCode: Number.isInteger(code)?code:null, ...(options.maintenanceDiagnostics?maintenanceDiagnostic(Buffer.concat(diagnostics).toString('utf8')):{}) })); else resolve(Buffer.concat(out).toString('utf8')); });
       stream.end(input);
     });
   });
@@ -337,9 +342,17 @@ class SshInstaller {
     const bundle=this.bundle(),target={...probe,daemonVersion:bundle.manifest.version,manifestDigest:bundle.digest,versionPath:path.posix.join(probe.installPath,'versions',bundle.manifest.version),installNeeded:true};
     const staged=await this.install(client,target,operationId,onProgress,{deferActivation:true});
     const controller=path.posix.join(probe.stateDirectory,'maintenance-runtime',bundle.digest);
-    const script=`const fs=require('node:fs'),path=require('node:path');const source=${JSON.stringify(target.versionPath)},target=${JSON.stringify(controller)},uid=${probe.uid};let current='/';for(const part of target.split('/').filter(Boolean)){current=path.join(current,part);if(!fs.existsSync(current))fs.mkdirSync(current,{mode:0o700});const s=fs.lstatSync(current);if(s.isSymbolicLink()||!s.isDirectory())throw Error('unsafe');if(current.startsWith(${JSON.stringify(probe.stateDirectory)})&&(s.uid!==uid||(s.mode&0o077)))throw Error('owner');}const files=['package.json','runtime/node','runtime/owned-stop','desktop/electron/remote-maintenance.cjs','desktop/electron/machine-daemon.cjs','desktop/electron/machine-protocol.cjs','desktop/electron/runtime-capabilities.cjs'];for(const file of files){const dst=path.join(target,file);fs.mkdirSync(path.dirname(dst),{recursive:true,mode:0o700});let component=target;for(const part of path.dirname(file).split('/').filter(x=>x!=='.')){component=path.join(component,part);const stat=fs.lstatSync(component);if(stat.isSymbolicLink()||!stat.isDirectory()||stat.uid!==uid)throw Error('unsafe');}if(fs.existsSync(dst)){const stat=fs.lstatSync(dst);if(stat.isSymbolicLink()||!stat.isFile()||stat.uid!==uid)throw Error('unsafe');}const tmp=dst+'.tmp-'+process.pid;fs.writeFileSync(tmp,fs.readFileSync(path.join(source,file)),{flag:'wx',mode:file.startsWith('runtime/')?0o700:0o600});fs.renameSync(tmp,dst);}process.stdout.write('ready');`;
-    await remoteExec(client,quote(path.posix.join(target.versionPath,'runtime/node'))+' -',script,{timeoutMs:60000,errorCode:'DAEMON_MAINTENANCE_STAGE',errorMessage:'维护运行资源暂存失败，原版本保留。'});
+    await this.prepareMaintenanceRuntime(client,{...target,ownerCoordinatorId:this.options.coordinatorId}, {version:bundle.manifest.version,digest:bundle.digest,manifest:bundle.manifest},controller);
     return {directory:controller,release:{version:bundle.manifest.version,digest:bundle.digest,manifest:bundle.manifest},...(staged.progressWarning?{progressWarning:staged.progressWarning}:{})};
+  }
+  async prepareMaintenanceRuntime(client,probe,release,controller){
+    const script=require('./maintenance-runtime.cjs').maintenanceRuntimeScript(probe,release,controller);
+    await remoteExec(client,quote(path.posix.join(probe.versionPath,'runtime/node'))+' --no-global-search-paths -',script,{timeoutMs:120000,errorCode:'DAEMON_MAINTENANCE_STAGE',errorMessage:'维护控制器校验或加载失败，原版本保留。',maintenanceDiagnostics:true});
+  }
+  async repairMaintenance(client,input,controller){
+    const release=this.release(input.controller.version);
+    if(release.digest!==input.controller.digest||controller!==path.posix.join(input.stateDirectory,'maintenance-runtime',release.digest))throw problem('SSH_PACKAGE_CHECKSUM','原维护控制器摘要或路径不匹配，保留原操作。');
+    return this.prepareMaintenanceRuntime(client,{...input,versionPath:path.posix.join(input.installPath,'versions',release.manifest.version)}, {version:release.manifest.version,...release},controller);
   }
   async remoteMaintenance(client,input,controller){
     const node=path.posix.join(controller,'runtime/node'),entry=path.posix.join(controller,'desktop/electron/remote-maintenance.cjs');
@@ -347,7 +360,7 @@ class SshInstaller {
     // catalogue is needed for commands, and stays intact in the saved intent;
     // omit it only from read-only queries so older controllers remain queryable.
     const wire=input.action==='query'?{...input,releases:[]}:input;
-    const raw=await remoteExec(client,quote(node)+' '+quote(entry),JSON.stringify(wire),{timeoutMs:60000,errorCode:'DAEMON_MAINTENANCE_TRANSPORT',errorMessage:'维护回应尚未确认，请查询原操作。'});
+    const raw=await remoteExec(client,quote(node)+' --no-global-search-paths '+quote(entry),JSON.stringify(wire),{timeoutMs:60000,errorCode:'DAEMON_MAINTENANCE_TRANSPORT',errorMessage:'维护回应尚未确认，请查询原操作。',maintenanceDiagnostics:true});
     try{return JSON.parse(raw);}catch{throw problem('DAEMON_PROTOCOL','维护收据无法读取，请查询原操作。');}
   }
   async install(client, probe, operationId, onProgress = () => {}, options = {}) {

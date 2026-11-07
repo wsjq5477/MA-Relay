@@ -1,0 +1,33 @@
+✖ full staged controller upgrades a legacy daemon and queries the original receipt (12143.114799ms)
+✔ old staging fails in isolation; full manifest loads and repairs the same controller without touching maintenance state (27740.666229ms)
+✔ nonzero controller exit retains safe structured diagnostic without raw stderr (19.2886ms)
+✔ original-ID recovery repairs once then only queries the unchanged input (15.9668ms)
+✔ query startup failure is persisted on the original unknown without releasing it (3.3754ms)
+✔ repair refuses a changed target digest before any remote command (2.5686ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40871.383773
+
+✖ failing tests:
+
+test at desktop/tests/platform-test.cjs:5:10
+✖ full staged controller upgrades a legacy daemon and queries the original receipt (12143.114799ms)
+  AssertionError [ERR_ASSERTION]: {"code":"MAINTENANCE_ERROR","message":"维护未完成，查询原操作。"}
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (/mnt/d/LLM/MA-Relay/artifacts/issue31/source/desktop/tests/daemon-maintenance.test.cjs:28:84)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

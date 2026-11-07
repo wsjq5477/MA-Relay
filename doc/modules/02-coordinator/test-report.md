@@ -1,5 +1,7 @@
 # M02 中央协调后台测试报告
 
+未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](../../iterations/I08/maintenance-controller-recovery.md)
+
 2026-11-04，Windows 未发布源码。经桌面 Coordinator 验证 Hermes 兼容配置创建、相同 ID 重试和不同配置冲突；同组证据不重复计数。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
 
 T-M07-317（共享）：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。

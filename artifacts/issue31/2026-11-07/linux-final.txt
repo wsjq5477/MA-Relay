@@ -1,0 +1,38 @@
+✔ full staged controller upgrades a legacy daemon and queries the original receipt (15519.483056ms)
+✔ actual maintenance CLI reads the complete large catalogue and queries the original unknown without another action (13561.537927ms)
+✔ real daemon version switch and rollback preserve identity/history, restart healthy, and original receipts never perform another switch (9366.374248ms)
+✔ explicit replacement of an unlisted source uses only verified target code and preserves original identity, history and source directory (11346.722379ms)
+✔ replacement requires strict consent and cannot bypass active tasks or unresolved receipts (6131.346896ms)
+✔ failed replacement remains unknown and original recovery completes verified target instead of executing unlisted rollback code (8853.408958ms)
+✔ changed source ownership/current or damaged target rejects replacement before stopping original daemon (5821.506215ms)
+✔ replacement recovery never infers process exit from a missing socket or lock (5352.129489ms)
+✔ failed new health rolls back the exact old version without losing daemon identity or native history (10699.208497ms)
+✔ busy, waiting, unknown and original unresolved receipts refuse version switch before stopping; damaged files refuse execution (10889.314637ms)
+✔ owned stop checks a kernel process handle and original start time; another live process is never signalled (7667.784858ms)
+✔ stop and uninstall preserve state/history; uninstall queries still find the original receipt after installation removal (10855.14687ms)
+✔ crash after activation reconciles by original maintenance record and rolls back without native replay (14123.995455ms)
+✔ ten original maintenance launches have one durable worker and receipt; repeated queries never repeat the switch (16869.721566ms)
+✔ a remote daemon released before the maintenance protocol still upgrades, keeps identity/history, and the receipt reports it was stopped (11193.332103ms)
+✔ a query reconciles an unknown row whose worker record is missing or dead, but honours a fresh-launch grace period (21904.491161ms)
+✔ a barrier left by an already terminal operation never wedges a later maintenance (10057.721803ms)
+✔ a live daemon holding a barrier from an already terminal operation releases it for the next maintenance (10972.482555ms)
+✔ an interrupted switch after the stop keeps the receipt unknown so the original-ID query restores the running daemon (11199.84576ms)
+✔ socket reset during shutdown waits for original process exit; an offline socket alone never confirms stop (408.9897ms)
+✔ replacement preserves unresolved receipts byte for byte and refuses to stop their original daemon (11087.606739ms)
+✔ an unconfirmed receipt refuses the maintenance before anything is stopped and names the gate and receipt (15556.496492ms)
+✔ an explicitly confirmed unresolved receipt upgrades while the original unknown receipt stays durable (17208.412622ms)
+✔ a non-terminal task or Agent is never overridden even when the receipt override is requested (14977.343903ms)
+✔ a maintenance record lock released between exclusive-create and owner-read is retried without replay (9761.214245ms)
+✔ old staging fails in isolation; full manifest loads and repairs the same controller without touching maintenance state (24513.455614ms)
+✔ nonzero controller exit retains safe structured diagnostic without raw stderr (9.374799ms)
+✔ original-ID recovery repairs once then only queries the unchanged input (10.2477ms)
+✔ query startup failure is persisted on the original unknown without releasing it (3.3866ms)
+✔ repair refuses a changed target digest before any remote command (2.6108ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 285021.597531

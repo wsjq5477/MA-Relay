@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-11-07：[issue #31 维护控制器暂存与原 ID 恢复](I08/maintenance-controller-recovery.md)。
+
 - 2026-11-07：[alpha.74 发布记录](I08/alpha74-release.md)：远端创建、Hermes/Pi 图标与原会话，冻结源/EXE/下载分层验证。
 
 - 2026-11-07：[Pi 自定义运行时](I08/custom-runtime-pi.md) · [远端创建与图标选择](I08/custom-runtime-remote-ui.md)：Hermes/Pi 目标机配置和原会话绑定，源码与受控界面分层验证。

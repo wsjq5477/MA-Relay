@@ -1,5 +1,7 @@
 # M05 Linux 机器后台设计
 
+未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](../../iterations/I08/maintenance-controller-recovery.md)
+
 M05-F01/F02：认证方法 customRuntime.create 交由目标 MachineHost 保存私有配置并进行版本探测；纳入 configurationMutations，维护期间拒绝，进行中的创建计入准入占用。Hermes/Pi 共用此目标配置链路；稳定 profileId 沿用原配置幂等，不引入任务执行或自动授权。[本轮范围](../../iterations/I08/custom-runtime-remote-ui.md)
 
 中央MCP的task_result(delegationId)只查询原MachineRouter ipc/request；机器后台仍按原Task/原Session路由，无新增daemon帧、Prompt重放或目录重建。源码stdio以task.original-request-v1现场门禁拒绝旧后台，真实跨机仍待验。[完整契约与恢复证据](../../iterations/I08/interconnect-caller-contract.md)。

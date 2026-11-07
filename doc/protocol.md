@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)
+
 桌面 Coordinator 管理方法 `customRuntime.create` 接收目标 machineId、profileId、adapter、name、command 和可选 description，返回不含命令的 executable 身份。adapter 当前接受 hermes/pi。相同 ID 和配置可重试，包含协议变化的配置冲突拒绝。远端 daemon 经原认证连接开放此方法，按配置变更执行维护门禁；旧后台拒绝方法时提示升级，不回退本机或自动部署。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
 当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)

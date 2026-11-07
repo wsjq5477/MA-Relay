@@ -19,6 +19,16 @@ async function fixture(t,modes={}){const root=fs.mkdtempSync(path.join(os.tmpdir
  t.after(async()=>{try{const lock=JSON.parse(fs.readFileSync(path.join(options.stateDirectory,'daemon.lock')));execFileSync(path.join(install,'versions',target.version,'runtime/owned-stop'),[String(lock.pid),String(lock.pidStart),String(process.getuid())],{stdio:'ignore'});}catch{}await new Promise(r=>setTimeout(r,200));fs.rmSync(root,{recursive:true,force:true});});
  const run=async(p=input,opts={})=>{const file=path.join(options.stateDirectory,'maintenance-operations.json');const rows=fs.existsSync(file)?JSON.parse(fs.readFileSync(file)):[];rows.push({operationId:p.operationId,action:p.action,state:'unknown',fingerprint:maintenance.digest(p)});fs.writeFileSync(file,JSON.stringify(rows),{mode:0o600});return maintenance.run(p,opts);};
  return {root,input,options,from,target,run,boot};}
+linuxTest('full staged controller upgrades a legacy daemon and queries the original receipt',async t=>{
+ const f=await fixture(t,{legacyFrom:true}),controller=path.join(f.options.stateDirectory,'maintenance-runtime',f.target.digest),source=path.join(f.input.installPath,'versions',f.target.version);
+ const script=require('../electron/maintenance-runtime.cjs').maintenanceRuntimeScript({...f.input,versionPath:source},f.target,controller);
+ const stage=require('node:child_process').spawnSync(process.execPath,['-'],{input:script,encoding:'utf8',timeout:60000});assert.equal(stage.status,0,stage.stderr);
+ const invoke=input=>require('node:child_process').spawnSync(path.join(controller,'runtime/node'),['--no-global-search-paths',path.join(controller,'desktop/electron/remote-maintenance.cjs')],{input:JSON.stringify(input),encoding:'utf8',timeout:30000});
+ const launched=invoke(f.input);assert.equal(launched.status,0,launched.stderr);assert.equal(JSON.parse(launched.stdout).operationId,f.input.operationId);
+ let row;const ledger=path.join(f.options.stateDirectory,'maintenance-operations.json');for(let i=0;i<300;i++){row=JSON.parse(fs.readFileSync(ledger)).find(r=>r.operationId===f.input.operationId);if(row?.state!=='unknown')break;await new Promise(r=>setTimeout(r,100));}const queried=invoke({...f.input,action:'query'});assert.equal(queried.status,0,queried.stderr);row=JSON.parse(queried.stdout);
+ assert.equal(row.operationId,f.input.operationId);assert.equal(row.state,'confirmed',JSON.stringify(row));assert.equal(row.data.version,f.target.version);
+ const rows=JSON.parse(fs.readFileSync(path.join(f.options.stateDirectory,'maintenance-operations.json')));assert.equal(rows.filter(r=>r.operationId===f.input.operationId).length,1);
+});
 linuxTest('actual maintenance CLI reads the complete large catalogue and queries the original unknown without another action',async t=>{
  const f=await fixture(t),before=await inspectDaemon(f.options);
  const input={...f.input,...require('./maintenance-input-fixture.cjs').frozenCatalogueInput(),...f.options,action:'query',daemonId:before.daemonId,uid:process.getuid(),home:f.root,installPath:f.input.installPath};

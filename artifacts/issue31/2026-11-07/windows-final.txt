@@ -1,0 +1,27 @@
+✔ complete frozen release catalogues above 8MiB round-trip every original field and fingerprint (4130.3793ms)
+✔ byte counting preserves split UTF-8 and rejects the first excess byte before JSON parsing (13.5169ms)
+✔ malformed complete input is rejected before a maintenance action can be selected (4.2349ms)
+﹣ old staging fails in isolation; full manifest loads and repairs the same controller without touching maintenance state (9.1801ms) # SKIP
+✔ nonzero controller exit retains safe structured diagnostic without raw stderr (7.1759ms)
+✔ original-ID recovery repairs once then only queries the unchanged input (6.2256ms)
+✔ query startup failure is persisted on the original unknown without releasing it (2.7351ms)
+✔ repair refuses a changed target digest before any remote command (1.8196ms)
+✔ a missing remote receipt cannot settle or release an original unknown (1.8087ms)
+﹣ TCP SSH reconnect drains real daemon cursorGap pages, restores original receipt and refuses changed machine host key before authentication (5.9636ms) # Requires Linux daemon, POSIX ownership or native process support
+✔ session-capped maintenance preview recovers on one fresh connection, stages there and keeps the receipt unknown (1962.0869ms)
+✔ maintenance preview retries transport rejection on the same connection first and never retries semantic rejection (2650.8203ms)
+✔ pre-transmission maintenance rejection with missing retry credentials stays definitively not started across restart (1673.9826ms)
+✔ a terminal maintenance receipt releases the reconnect hold unless the remote daemon was left stopped (668.8691ms)
+✔ maintenance retry open preserves the original transmission boundary and receipt (739.0545ms)
+✔ maintenance retry stream preserves the original transmission boundary and receipt (2632.381ms)
+✔ maintenance retry timeout preserves the original transmission boundary and receipt (530.1024ms)
+✔ maintenance blockers project tasks/agents/receipts read-only and original-ID queries never resend or mint an ID (56.6498ms)
+✔ maintenance input carries the strict unresolved-receipt override and never a truthy lookalike (1517.9252ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 2
+ℹ todo 0
+ℹ duration_ms 15072.6454
