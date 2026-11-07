@@ -1,0 +1,8 @@
+{
+  "code": 0,
+  "signal": null,
+  "engine": "actual EXE Electron 44.7.0 / Node24.21.0",
+  "productionModules": "actual extracted bridge modules and dependencies; junctions only",
+  "sourceOnly": "copied test scripts",
+  "previousHarnessIssue": "PowerShell direct GUI-subsystem invocation returned without a test transcript; preserved empty output, not a test pass"
+}

@@ -1,0 +1,19 @@
+{
+  "tag": "v0.6.0-alpha.74",
+  "commit": "07f46dd5a55df6f1eddb3a72d367cb8b88a28f0d",
+  "release": "https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.74",
+  "verified": [
+    {
+      "name": "AgentBridge-0.6.0-alpha.74-Windows-x64.exe",
+      "url": "https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.74/AgentBridge-0.6.0-alpha.74-Windows-x64.exe",
+      "bytes": 132436666,
+      "sha256": "21eeb101d70beecdc2d24e8e5bc5f0ae0193a9c1e0d748546c39dc4d0b9da51f"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "url": "https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.74/SHA256SUMS.txt",
+      "bytes": 109,
+      "sha256": "4220844e4bc00de4d1884937be61034aa326f08553cb0088fa028ad332e11454"
+    }
+  ]
+}

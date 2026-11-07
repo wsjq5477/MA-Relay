@@ -1,0 +1,91 @@
+{
+  "runId": 42337270233,
+  "commit": "07f46dd5a55df6f1eddb3a72d367cb8b88a28f0d",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/wsjq5477/MA-Relay/actions/runs/42337270233",
+  "jobs": [
+    {
+      "name": "linux",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install Bridge dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build and validate Bridge",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Linux native adapter regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Custom runtime persistence and authenticated Linux daemon",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Relation recovery and SSH current-observation regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Explicit daemon replacement and readable maintenance entry",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install pinned official Hermes CLI without account setup",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Installed Linux Hermes discovery and MCP lifecycle",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload inspectable results",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

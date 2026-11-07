@@ -2,7 +2,7 @@
 
 自定义运行时以 UUID 在目标机器保存私有配置。目录与执行上下文沿用安装身份字段，值为 `custom-runtime:<UUID>`，实际程序、固定参数与描述留在目标机器配置；Windows 不替远端解析路径或保存配置。私有配置持久化 adapter（hermes/pi）；旧配置缺字段时仍按 Hermes 读取，同一 UUID 不允许换协议。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
-当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 OpenCode原任务协议仍取既有NativeReference.snapshot.nativeProtocol，不从临时健康发现缓存重写。按原绑定创建的客户端仅为本次执行/观察/控制的内存资源，不新增持久身份、字段、Task或Session；发现失败及IPC离线不能推定原任务终态。[当前行为与验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 

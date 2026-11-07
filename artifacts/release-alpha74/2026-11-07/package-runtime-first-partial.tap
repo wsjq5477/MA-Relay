@@ -1,0 +1,63 @@
+TAP version 13
+# Subtest: Pi profile persists its protocol across restart and cannot change protocol under the same identity
+not ok 1 - Pi profile persists its protocol across restart and cannot change protocol under the same identity
+  ---
+  duration_ms: 5680.8404
+  type: 'test'
+  location: 'E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\runtime-tests\\desktop\\tests\\custom-runtime.test.cjs:17:1'
+  failureType: 'testCodeFailure'
+  error: '程序未通过版本探测，请确认固定参数后可运行 --version。'
+  code: 'CUSTOM_RUNTIME_INVALID'
+  stack: |-
+    invalid (E:\AgentBridge-Releases\alpha74\2026-11-07\exe-outer\resources\bridge\desktop\electron\custom-runtime.cjs:15:42)
+    CustomRuntimeStore.create (E:\AgentBridge-Releases\alpha74\2026-11-07\exe-outer\resources\bridge\desktop\electron\custom-runtime.cjs:91:13)
+    process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    async TestContext.<anonymous> (E:\AgentBridge-Releases\alpha74\2026-11-07\runtime-tests\desktop\tests\custom-runtime.test.cjs:18:35)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: legacy Hermes profiles without adapter retain their identity and idempotent creation
+not ok 2 - legacy Hermes profiles without adapter retain their identity and idempotent creation
+  ---
+  duration_ms: 5474.8179
+  type: 'test'
+  location: 'E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\runtime-tests\\desktop\\tests\\custom-runtime.test.cjs:26:1'
+  failureType: 'testCodeFailure'
+  error: '程序未通过版本探测，请确认固定参数后可运行 --version。'
+  code: 'CUSTOM_RUNTIME_INVALID'
+  stack: |-
+    invalid (E:\AgentBridge-Releases\alpha74\2026-11-07\exe-outer\resources\bridge\desktop\electron\custom-runtime.cjs:15:42)
+    CustomRuntimeStore.create (E:\AgentBridge-Releases\alpha74\2026-11-07\exe-outer\resources\bridge\desktop\electron\custom-runtime.cjs:91:13)
+    process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    async TestContext.<anonymous> (E:\AgentBridge-Releases\alpha74\2026-11-07\runtime-tests\desktop\tests\custom-runtime.test.cjs:28:19)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: Pi rejects flags that override protocol, original session or native model selection before probing
+ok 3 - Pi rejects flags that override protocol, original session or native model selection before probing
+  ---
+  duration_ms: 22.6295
+  type: 'test'
+  ...
+# Subtest: a saved runtime cannot be executed through a different protocol context
+ok 4 - a saved runtime cannot be executed through a different protocol context
+  ---
+  duration_ms: 28.7919
+  type: 'test'
+  ...
+# Subtest: custom runtime creation stays on the selected SSH machine and refreshes only its discovery
+ok 5 - custom runtime creation stays on the selected SSH machine and refreshes only its discovery
+  ---
+  duration_ms: 329.8606
+  type: 'test'
+  ...
+# Subtest: custom hermes keeps an independent node and forwards fixed argv through the production host
+not ok 6 - custom hermes keeps an independent node and forwards fixed argv through the production host
+  ---
+  duration_ms: 47839.5665
+  type: 'test'
+  location: 'E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\runtime-tests\\desktop\\tests\\native-delegation.test.cjs:171:41'
+  failureType: 'testTimeoutFailure'
+  error: 'test timed out after 45000ms'
+  code: 'ERR_TEST_FAILURE'
+  ...

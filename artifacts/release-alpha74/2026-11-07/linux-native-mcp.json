@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-07T04:15:24.664Z",
+  "bridgeVersion": "0.6.0-alpha.74",
+  "nativeSource": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+  "nativeVersion": "0.22.5",
+  "expectedTools": 10,
+  "environment": "linux / original Hermes source and installed Python/MCP runtime / production MachineHost and broker / isolated native Profile / controlled parent",
+  "status": "passed",
+  "modelCalls": 0,
+  "checks": [
+    "Original Hermes CLI follows the sticky native Profile and lists the Bridge-written entry; product status correctly leaves connection unconfirmed by a plain list",
+    "Unmodified native MCPServerTask and actual SDK expose the expected classic tools and call the production broker with original scope; forged arguments are rejected",
+    "Original native config writer disables and removes the entry; Bridge refuses re-enable and restart never reinstalls native deletion",
+    "Explicit revoke rejects a cached native client; new native Profile binding rotates identity and only the fresh client remains authorized",
+    "Removal clears only the new registered Profile and revokes its cached client, without a model task or replay"
+  ]
+}

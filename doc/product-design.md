@@ -1,10 +1,10 @@
 # AgentBridge 整体功能设计
 
-AB-F07 / M06-CX-F01：未发布源码已修复 Windows worker 运行时目录发布。完整复制和校验后，对瞬时目录锁在 5 秒预算内重试；并发目标须验证完整，损坏目录保留并使用独立 repair 目录。清理错误不覆盖主错误，非空临时目录保留。运行准备失败仍结束原 Task，不启动原生 CLI、不重发原请求。[issue #30 实现与验证](iterations/I08/codex-runtime-publish-recovery.md)
+AB-F07 / M06-CX-F01：alpha.74 已修复 Windows worker 运行时目录发布。完整复制和校验后，对瞬时目录锁在 5 秒预算内重试；并发目标须验证完整，损坏目录保留并使用独立 repair 目录。清理错误不覆盖主错误，非空临时目录保留。运行准备失败仍结束原 Task，不启动原生 CLI、不重发原请求。[issue #30 实现与验证](iterations/I08/codex-runtime-publish-recovery.md)
 
-未发布源码在本机、WSL 和 SSH Linux 的「添加 Agent」提供 Hermes、Pi 自定义运行时。用户点击协议图标，填写显示名、命令和可选描述，由目标机器完成版本探测并保存后可添加并接入。运行时身份与内置 Hermes 独立，仍需既有授权。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
+alpha.74 在本机、WSL 和 SSH Linux 的「添加 Agent」提供 Hermes、Pi 自定义运行时。用户点击协议图标，填写显示名、命令和可选描述，由目标机器完成版本探测并保存后可添加并接入。运行时身份与内置 Hermes 独立，仍需既有授权。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
-当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 生命周期边界按实际入口区分：关闭调用方/观察门面不自动取消Task；明确停止Core Controller可停止经核验的自有托管服务，外部服务及用户原生Session不因此转归Bridge。IPC/PID消失不结算终态或释放unknown。[资源归属表](iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)已与源码核对，真实在途/服务完整链/升级仍待验证，[完整决策审计](iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。
 

@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-07T04:07:26.579Z",
+  "platform": "win32",
+  "node": "24.12.0",
+  "status": "passed",
+  "checks": [
+    "Two controlled locks followed by a complete, executable persistent Electron/ICU runtime",
+    "Repeated preparation reuses the original validated runtime",
+    "Corruption repairs into an executable sibling and preserves the original runtime"
+  ],
+  "nativePrompts": 0,
+  "electron": "44.7.0",
+  "publicationMilliseconds": 81.85369999999966,
+  "cleanup": "removed owned fixture"
+}

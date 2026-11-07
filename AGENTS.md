@@ -1,8 +1,8 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。 EXE 132443109 字节，SHA-256 73000602e0c2f267acf81cb4778e05974ed87331f22a0cdd36f43b824605ba65。
+当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。 EXE 132436666 字节，SHA-256 21eeb101d70beecdc2d24e8e5bc5f0ae0193a9c1e0d748546c39dc4d0b9da51f。[交付记录](doc/iterations/I08/alpha74-release.md)
 
-发布验证范围见[交付记录](doc/iterations/I08/alpha73-release.md)。
+发布验证范围见[交付记录](doc/iterations/I08/alpha74-release.md)。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

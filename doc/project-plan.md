@@ -4,7 +4,7 @@
 
 issue #30：共享 worker 运行时默认发布重试与清理保错已在 alpha.73 基线上源码修复并完成 Windows 定向与真实 Electron/ICU 验证；外部 CodeAgent 分支验证另列未测。按本 issue 范围不构建或发布 EXE，不重试历史失败任务。[交付与剩余验证](iterations/I08/codex-runtime-publish-recovery.md)
 
-当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](iterations/I08/alpha73-release.md)
+当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 完整决策仍未验收完成。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。已解除网页登录与旧CLI模型门禁；原三Task读控18项、原源码受控回归维持历史证据范围。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
@@ -36,8 +36,8 @@ alpha.71已修复#29的维护入口闭锁：未登记后台仍不直接复用，
 | 项目 | 状态 |
 | --- | --- |
 | 最近稳定 Windows 程序 | 0.5.0 / I05；机器节点与主从协作，原生限制保留 |
-| 当前公开预发布 | **0.6.0-alpha.71**，冻结 `1b2e371`；EXE132300845字节，匿名完整下载一致；[发布记录](iterations/I08/alpha71-release.md) |
-| 上一公开预发布 | alpha.70，#27/#28恢复与SSH观察；[历史发布](iterations/I08/alpha70-release.md) |
+| 当前公开预发布 | **0.6.0-alpha.74**，冻结 07f46dd，EXE 132436666 字节。[发布记录](iterations/I08/alpha74-release.md) |
+| 上一公开预发布 | alpha.73，本机 Hermes 自定义运行时。[历史发布](iterations/I08/alpha73-release.md) |
 | 当前自动回归 | Windows147通过/1跳过、包内26/26；独立Ubuntu79/79、111/111、98/98、105/105，[当前证据](iterations/I08/alpha71-release.md) |
 | 当前桌面外观 | Taste/Impeccable浅色框架、中性深色主题及离线字体已发布；[实现与证据](iterations/I08/taste-impeccable-ui.md) |
 | 当前用户文档网站 | 只发布doc/user当前功能/设计/使用页，六Agent章节、DSH三入口与六方式/能力摘要；内部资料不发布，见[M11](modules/11-documentation-portal/design.md) |

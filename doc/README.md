@@ -1,6 +1,6 @@
 # AgentBridge 项目资料
 
-当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 OpenCode已修复V1检查地址及健康检查干扰原协议；受控回归和原失败分平台保留，低层已有服务9项不等于登记链准出。Codex主从正文/续聊/在途观察器恢复本轮已有实证。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
@@ -25,10 +25,10 @@ AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前公开预发布 | **0.6.0-alpha.71**，冻结 `1b2e371`；EXE132300845字节，匿名完整下载一致；[发布记录](iterations/I08/alpha71-release.md) |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.71/AgentBridge-0.6.0-alpha.71-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.71/SHA256SUMS.txt)；未签名；[发布记录](iterations/I08/alpha71-release.md) |
-| 当前公开源码范围 | 标签 `v0.6.0-alpha.71`（1b2e371），master含后续发布说明 |
-| 本次内容与边界 | SSH只读维护入口与明确确认替换；[分层验证](iterations/I08/alpha71-release.md) |
+| 当前公开预发布 | **0.6.0-alpha.74**，冻结 07f46dd，EXE 132436666 字节。[发布记录](iterations/I08/alpha74-release.md) |
+| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.74/AgentBridge-0.6.0-alpha.74-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.74/SHA256SUMS.txt)，未签名 |
+| 当前公开源码范围 | 标签 v0.6.0-alpha.74（07f46dd） |
+| 本次内容与边界 | 目标机器自定义运行时、Hermes/Pi图标及原会话、Windows worker修复；[验证边界](iterations/I08/alpha74-release.md) |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

@@ -1,0 +1,11 @@
+{
+  "verifiedAtUtc": "2026-11-07T04:23:56.260Z",
+  "scope": "actual portable EXE extracted payload; not only pre-packaging resources",
+  "version": "0.6.0-alpha.74",
+  "exeBytes": 132436666,
+  "exeSha256": "21eeb101d70beecdc2d24e8e5bc5f0ae0193a9c1e0d748546c39dc4d0b9da51f",
+  "payloadFiles": 3518,
+  "allPayloadPathsSizesAndSha256Match": true,
+  "payload": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\exe-outer",
+  "allExtractionStorageOutsideC": true
+}

@@ -1,0 +1,21 @@
+{
+  "directories": {
+    "TEMP": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\tmp",
+    "TMP": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\tmp",
+    "USERPROFILE": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\profile",
+    "HOME": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\profile",
+    "APPDATA": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\profile\\AppData\\Roaming",
+    "LOCALAPPDATA": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\profile\\AppData\\Local",
+    "NPM_CONFIG_CACHE": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\npm-cache",
+    "ELECTRON_CACHE": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\electron-cache",
+    "ELECTRON_BUILDER_CACHE": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\builder-cache",
+    "XDG_CACHE_HOME": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\cache",
+    "XDG_CONFIG_HOME": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\config",
+    "XDG_DATA_HOME": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\data",
+    "XDG_STATE_HOME": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\state",
+    "NODE_COMPILE_CACHE": "E:\\AgentBridge-Releases\\alpha74\\2026-11-07\\node-compile-cache"
+  },
+  "node": "E:\\03_WorkingSoft\\nodejs\\node.exe",
+  "dependencyLinksChecked": 0,
+  "allResolvedTargetsNonC": true
+}

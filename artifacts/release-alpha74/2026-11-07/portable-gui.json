@@ -1,0 +1,21 @@
+{
+  "observerBudgetSeconds": 360,
+  "date": "2026-11-07T04:22:45.869Z",
+  "version": "0.6.0-alpha.74",
+  "environment": "Windows ordinary no-debug EXE / production Coordinator+MachineHost+SQLite / synthetic retained history and isolated native configuration paths",
+  "modelCalls": 0,
+  "status": "failed",
+  "checks": [
+    "Ordinary candidate opens with all three safe routing/management/version capabilities and no debug flags.",
+    "Packaged exact document revision, standalone MCP TOML export and orphan native history work together; original unknown is retained and no native config is installed."
+  ],
+  "portable": {
+    "bytes": 132436666,
+    "sha256": "21eeb101d70beecdc2d24e8e5bc5f0ae0193a9c1e0d748546c39dc4d0b9da51f"
+  },
+  "error": {
+    "code": "ERR_ASSERTION",
+    "message": "Expected \"actual\" to be strictly unequal to: null"
+  },
+  "forcedOwnedTestCleanup": true
+}

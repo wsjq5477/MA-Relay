@@ -1,0 +1,35 @@
+✔ Pi profile persists its protocol across restart and cannot change protocol under the same identity (39.662862ms)
+✔ legacy Hermes profiles without adapter retain their identity and idempotent creation (39.229923ms)
+✔ Pi rejects flags that override protocol, original session or native model selection before probing (1.644916ms)
+✔ a saved runtime cannot be executed through a different protocol context (3.575716ms)
+✔ 4BE framing preserves Chinese and emoji across every byte and coalesced messages (2.822872ms)
+✔ frame decoder rejects oversized headers before allocation, malformed UTF-8 and truncation (5.831306ms)
+✔ private daemon identity rejects symlinks, conflicting profile and ordinary socket files (12.152953ms)
+✔ daemon socket is private at bind time and restores the caller umask (12.703022ms)
+✔ daemon handshake binds owner, daemon identity and protocol before exposing native calls (11.302257ms)
+✔ one daemon per profile owns its socket and short paths safely support long user homes (7.325685ms)
+✔ ten same-ID requests invoke native submit once and changed content cannot reuse an ID (29.070465ms)
+✔ closing a relay preserves running tasks and reconnect continuation uses the original native session (63.727387ms)
+✔ restart keeps daemon ID and receipts; missing backend receipt remains unknown without replay (29.763218ms)
+(node:6726) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ inspect never fences a live coordinator; new hello fences stale callbacks and event cursors survive restart (19.955347ms)
+✔ production daemon loads built DesktopHost and real MachineHost without creating native tasks (193.261846ms)
+✔ uncertain cancellation recovery retains original task identity (6.447201ms)
+✔ blocked transport rejects excess queued bytes and daemon rejects request 65 (5.733548ms)
+✔ real detached ensure calls reuse one verified daemon and it survives its bootstrap parent (279.58091ms)
+✔ native unhealthy is a stable pre-execution rejection; same ID and original query never execute again (7.99398ms)
+✔ original read reconciles only durable unhealthy rejection; missing native receipts remain unknown (5.914354ms)
+✔ unknown native control receipt remains unknown through daemon restart; original query confirms it without another cancellation (9.700791ms)
+✔ permission and form lost acknowledgements query original receipts after restart and cannot read a foreign task operation (10.981412ms)
+✔ foreign native control receipt IDs never confirm the original action and rejected original controls remain readable (5.735918ms)
+✔ authenticated daemon exposes MCP configuration methods and blocks configuration writes during maintenance (4.552188ms)
+✔ custom runtime creation uses the authenticated daemon host and is blocked during maintenance (4.353135ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 811.350123

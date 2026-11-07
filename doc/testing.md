@@ -4,9 +4,9 @@ alpha.74 发布验证单列：开发阶段自定义运行时配置/路由23/23�
 
 issue #30 未发布源码：2026-11-07 Windows 隔离回归两组 86/86、21/21，MCP 协议另测 2/2；真实 Electron 44.7.0/ICU 发布、复用及损坏副本修复三组通过。类型检查、lint、根和桌面构建通过；公开 EXE、真实模型与外部 CodeAgent 专项未测。本次仅修复共享运行时发布和清理，不扩张其他原生矩阵。[原始证据与未测项](iterations/I08/codex-runtime-publish-recovery.md)
 
-alpha.73 冻结源码文档检查报告 3062 项历史资料链接错误，自定义运行时条目无报错。[本次交付](iterations/I08/alpha73-release.md)
+alpha.74 候选及发布后文档检查均3065项历史证据链接错误，本轮新增记录无报错。[本次交付](iterations/I08/alpha73-release.md)
 
-当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](iterations/I08/alpha73-release.md)
+当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 T-M06-CX-317 / T-M07-317 / T-M08-317：2026-11-03，本轮真实Windows主对话与WSL原生子Agent。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。主会话登录后六轮为failed/failed/succeeded/succeeded/succeeded/cancelled，另有独立上下文网络失败及修复后成功；原三Task保留，总请求/委派11/11。CLI安装首轮错误、旧模型/旧CLI拒绝及中途转发退出均保留，未重发未知请求。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 

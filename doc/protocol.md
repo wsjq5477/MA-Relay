@@ -2,7 +2,7 @@
 
 桌面 Coordinator 管理方法 `customRuntime.create` 接收目标 machineId、profileId、adapter、name、command 和可选 description，返回不含命令的 executable 身份。adapter 当前接受 hermes/pi。相同 ID 和配置可重试，包含协议变化的配置冲突拒绝。远端 daemon 经原认证连接开放此方法，按配置变更执行维护门禁；旧后台拒绝方法时提示升级，不回退本机或自动部署。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
-当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
+当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 Core OpenCode控制继续使用原NativeReference.snapshot.nativeProtocol。发现缓存不是任务路由凭据：原绑定校验后，本次观察、回复或取消固定该代API，健康检查不能把在途操作改到另一代；不匹配拒绝，真实未知只查询原操作/原轮，不重发控制。外部协议与收据字段未新增，confirmed仍不代表Task已取消。[实现与回归](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 

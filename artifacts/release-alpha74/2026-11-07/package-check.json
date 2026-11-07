@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-07T04:21:22.800Z",
+  "status": "passed",
+  "version": "0.6.0-alpha.74",
+  "browserBundle": {
+    "format": "agentbridge-browser-bundle-v1",
+    "extensionVersion": "0.1.0",
+    "files": 19,
+    "bytes": 162097,
+    "sha256": "f41be4b385772fc24c1c648bde4f7d44d9553b737a4e9c1edea9b869fe77062d",
+    "sourceDigest": "2a1773dfc0673bf45301cb47e6b69f041b428eaffcb55e2f0b0f7442a7c312e9",
+    "archive": "AgentBridge-BrowserAgent-0.1.0-dev-f41be4b385772fc2.zip"
+  },
+  "desktopWebSocketRuntime": {
+    "name": "ws",
+    "version": "8.22.0",
+    "files": 17,
+    "sourceMatches": true,
+    "packageMetadataMatches": true
+  },
+  "backendModules": 74,
+  "coreFiles": 87,
+  "coreBuildMatches": true,
+  "linuxBackendMatches": true,
+  "linuxFiles": 1747,
+  "linuxManifestDigest": "37f701a02d9d868c75219ec49eb5ed44104eef5532a20eb00de7417b80a11e09",
+  "appAsarSourceMatches": true,
+  "frontendMatches": true,
+  "bootstrapMatches": true,
+  "portable": {
+    "file": "desktop/release/AgentBridge-0.6.0-alpha.74-Windows-x64.exe",
+    "bytes": 132436666,
+    "sha256": "21eeb101d70beecdc2d24e8e5bc5f0ae0193a9c1e0d748546c39dc4d0b9da51f"
+  }
+}

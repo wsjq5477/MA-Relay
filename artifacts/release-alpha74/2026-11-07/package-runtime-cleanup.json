@@ -1,0 +1,5 @@
+{
+  "earlierManualClose": 1,
+  "automaticClientCloses": 1,
+  "scope": "Only owned test MCP clients after their fixture reached recursive cleanup; production modules unchanged"
+}

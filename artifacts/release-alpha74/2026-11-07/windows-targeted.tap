@@ -1,0 +1,91 @@
+✔ Pi profile persists its protocol across restart and cannot change protocol under the same identity (698.0376ms)
+✔ legacy Hermes profiles without adapter retain their identity and idempotent creation (700.3695ms)
+✔ Pi rejects flags that override protocol, original session or native model selection before probing (14.2857ms)
+✔ a saved runtime cannot be executed through a different protocol context (29.0634ms)
+✔ 4BE framing preserves Chinese and emoji across every byte and coalesced messages (11.6508ms)
+✔ frame decoder rejects oversized headers before allocation, malformed UTF-8 and truncation (20.9277ms)
+﹣ private daemon identity rejects symlinks, conflicting profile and ordinary socket files (0.6671ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ daemon socket is private at bind time and restores the caller umask (0.566ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ daemon handshake binds owner, daemon identity and protocol before exposing native calls (0.4868ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ one daemon per profile owns its socket and short paths safely support long user homes (0.4498ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ ten same-ID requests invoke native submit once and changed content cannot reuse an ID (0.3597ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ closing a relay preserves running tasks and reconnect continuation uses the original native session (0.3947ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ restart keeps daemon ID and receipts; missing backend receipt remains unknown without replay (0.4253ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ inspect never fences a live coordinator; new hello fences stale callbacks and event cursors survive restart (1.0739ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ production daemon loads built DesktopHost and real MachineHost without creating native tasks (0.7341ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ uncertain cancellation recovery retains original task identity (0.4542ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ blocked transport rejects excess queued bytes and daemon rejects request 65 (0.3588ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ real detached ensure calls reuse one verified daemon and it survives its bootstrap parent (0.4174ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ native unhealthy is a stable pre-execution rejection; same ID and original query never execute again (0.5133ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ original read reconciles only durable unhealthy rejection; missing native receipts remain unknown (0.4682ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ unknown native control receipt remains unknown through daemon restart; original query confirms it without another cancellation (0.3374ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ permission and form lost acknowledgements query original receipts after restart and cannot read a foreign task operation (0.4258ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ foreign native control receipt IDs never confirm the original action and rejected original controls remain readable (0.5336ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ authenticated daemon exposes MCP configuration methods and blocks configuration writes during maintenance (0.4285ms) # Requires Linux daemon, POSIX ownership or native process support
+﹣ custom runtime creation uses the authenticated daemon host and is blocked during maintenance (0.2423ms) # Requires Linux daemon, POSIX ownership or native process support
+✔ SSH filesystem paths never alias local Windows or WSL drives (10.0821ms)
+✔ idle status polls never relaunch inventory probes; manual scan refreshes tools and WSL environments (837.4589ms)
+✔ failed startup discovery stays quiet until manual retry without hiding live machine state (356.3673ms)
+✔ concurrent initial status reads share one WSL enumeration (134.1775ms)
+✔ new native adapters retain their names and identities when snapshots are imported (436.2138ms)
+✔ imports old instances and history with stable machine IDs without rewriting raw or native IDs (571.4612ms)
+✔ same raw IDs route tasks, conversations, requests, replies and operations to their source machine (517.2431ms)
+✔ keeps Windows paths native and maps only the selected WSL distribution (7.1607ms)
+✔ shared Windows and WSL projects reject new work while either instance is busy (374.2076ms)
+✔ shared occupancy includes an active instance outside the first 100 displayed tasks (392.8942ms)
+✔ reopening with an offline shared source retains occupancy but independent projects still run (405.1647ms)
+✔ idempotent retries reach the original backend contract before shared project occupancy (382.8386ms)
+✔ changing the selected machine preserves other hosts and their running work (466.7418ms)
+✔ one failed source keeps healthy results and marks only cached active tasks uncertain (241.254ms)
+✔ empty machines exist before instances and connecting a tool does not ask for a project (333.628ms)
+✔ an unavailable legacy preferred WSL retains its identity instead of falling back to another distro (291.7809ms)
+✖ a never-ending WSL snapshot times out without blocking Windows or spawning repeated jobs (548.877ms)
+✔ instance model overrides and inheritance resets retain source routing and revision contracts (259.4924ms)
+✔ custom runtime creation stays on the selected SSH machine and refreshes only its discovery (158.744ms)
+(node:34720) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ custom hermes keeps an independent node and forwards fixed argv through the production host (22484.9934ms)
+✔ custom pi keeps an independent node and forwards fixed argv through the production host (20343.8959ms)
+✔ hermes is an ordinary delegated target through Coordinator, MCP, MachineHost and an owned native process (17883.8712ms)
+✔ pi is an ordinary delegated target through Coordinator, MCP, MachineHost and an owned native process (27890.5586ms)
+✔ dsh is an ordinary delegated target through Coordinator, MCP, MachineHost and an owned native process (27916.3821ms)
+✔ detached runtime survives portable extraction cleanup and retains license (231.2816ms)
+✔ missing ICU or V8 resources reject startup before admitting a native task (60.8738ms)
+✔ ordinary Node keeps using its existing executable (41.2109ms)
+✔ Coordinator to Windows runtime copies never track or copy their own manifest (310.033ms)
+✔ alpha.9 self-referential manifests remain usable without changing their files (837.8555ms)
+✔ damaged runtime rebuilds into a validated sibling while preserving the old worker files (275.1095ms)
+✔ new runtime manifests detect same-size resource changes and preserve volatile logs outside the manifest (250.953ms)
+✔ incomplete or malformed caches never become valid from an empty or unsafe manifest (1628.8974ms)
+✔ broken source cache cannot be used to rebuild another runtime (276.6116ms)
+✔ publish races never return an incomplete competing runtime (228.9401ms)
+✔ default publication recovers after consecutive ENOTEMPTY and EPERM directory locks (252.1598ms)
+✔ publication EIO is preserved when temporary cleanup also fails with ENOTEMPTY (140.8822ms)
+✔ all supported transient directory errors retry without publishing unvalidated files (947.6747ms)
+✔ a complete concurrent publisher is reused after a lock without deleting preparation evidence (322.4959ms)
+✔ permanent directory locks exhaust the five second budget with the first error and allow a new preparation (5241.7479ms)
+✔ copy and validation failures preserve their original error and never publish partial resources (147.5854ms)
+ℹ tests 65
+ℹ suites 0
+ℹ pass 45
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 19
+ℹ todo 0
+ℹ duration_ms 120301.465
+
+✖ failing tests:
+
+test at desktop\tests\machine-router.test.cjs:406:1
+✖ a never-ending WSL snapshot times out without blocking Windows or spawning repeated jobs (548.877ms)
+  AssertionError [ERR_ASSERTION]: cooldown refreshes should immediately reuse the failed source status
+      at TestContext.<anonymous> (E:\AgentBridge-Releases\alpha74\2026-11-07\source\desktop\tests\machine-router.test.cjs:430:10)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

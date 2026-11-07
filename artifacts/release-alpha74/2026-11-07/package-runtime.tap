@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: Pi profile persists its protocol across restart and cannot change protocol under the same identity
+ok 1 - Pi profile persists its protocol across restart and cannot change protocol under the same identity
+  ---
+  duration_ms: 502.0943
+  type: 'test'
+  ...
+# Subtest: legacy Hermes profiles without adapter retain their identity and idempotent creation
+ok 2 - legacy Hermes profiles without adapter retain their identity and idempotent creation
+  ---
+  duration_ms: 473.1285
+  type: 'test'
+  ...
+# Subtest: Pi rejects flags that override protocol, original session or native model selection before probing
+ok 3 - Pi rejects flags that override protocol, original session or native model selection before probing
+  ---
+  duration_ms: 12.6838
+  type: 'test'
+  ...
+# Subtest: a saved runtime cannot be executed through a different protocol context
+ok 4 - a saved runtime cannot be executed through a different protocol context
+  ---
+  duration_ms: 25.7932
+  type: 'test'
+  ...
+# Subtest: custom runtime creation stays on the selected SSH machine and refreshes only its discovery
+ok 5 - custom runtime creation stays on the selected SSH machine and refreshes only its discovery
+  ---
+  duration_ms: 246.8608
+  type: 'test'
+  ...
+# Subtest: custom hermes keeps an independent node and forwards fixed argv through the production host
+ok 6 - custom hermes keeps an independent node and forwards fixed argv through the production host
+  ---
+  duration_ms: 198790.0837
+  type: 'test'
+  ...
+# Subtest: custom pi keeps an independent node and forwards fixed argv through the production host
+ok 7 - custom pi keeps an independent node and forwards fixed argv through the production host
+  ---
+  duration_ms: 95120.2386
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 298873.6883

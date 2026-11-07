@@ -1,8 +1,8 @@
 # AgentBridge 整体架构
 
-Hermes/Pi 自定义运行时在未发布源码中复用各自静态协议 Backend、原生会话绑定及 Task 收据。Coordinator 按目标 machineId 路由至本机、WSL 或已认证 SSH Linux 的 MachineHost，由目标机器探测并持有配置；MachineHost 用独立安装标识发现并绑定该配置。远端创建纳入 daemon 配置写入维护门禁。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
+Hermes/Pi 自定义运行时在 alpha.74 中复用各自静态协议 Backend、原生会话绑定及 Task 收据。Coordinator 按目标 machineId 路由至本机、WSL 或已认证 SSH Linux 的 MachineHost，由目标机器探测并持有配置；MachineHost 用独立安装标识发现并绑定该配置。远端创建纳入 daemon 配置写入维护门禁。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
-当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](iterations/I08/alpha73-release.md)
+当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 观察入口释放与明确停止执行后台分开：MachineHost/原生宿主门面close不自动取消Task，Core Controller的显式stop可停止经原身份核验的自有托管服务；managed=false外部服务不在其所有权中。IPC/PID消失都不是原Task终态或释放unknown的证据。各模式的状态来源、恢复与当前实证见[资源归属表](iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)，不由mode字段扩大进程管理权限。
 

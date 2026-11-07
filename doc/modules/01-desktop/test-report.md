@@ -1,5 +1,7 @@
 # M01 桌面交互测试报告
 
+2026-11-07，alpha.74已公开。冻结源、独立Ubuntu CI、实际EXE载荷/包内7项、普通portable及匿名下载分层结果见[本次交付](../../iterations/I08/alpha74-release.md)；Windows首轮45通过/1失败/19跳过，定向复验不改写原失败，真实模型/生产SSH/完整矩阵仍待。
+
 2026-11-07，未发布源码新增 Pi 自定义运行时。构建通过，配置/路由23/23，受控 Hermes/Pi 原生委派2/2，浏览器六组通过；Pi 原 Session 续聊单列，不代表真实 Linux/SSH/模型/EXE 验收。[本轮证据和初次失败](../../iterations/I08/custom-runtime-pi.md)
 
 2026-11-04，未发布源码。自定义运行时管理与受控执行证据见本轮记录。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)

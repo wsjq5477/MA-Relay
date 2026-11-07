@@ -1,6 +1,8 @@
 # M10 构建与发布测试报告
 
-2026-11-07，alpha.74 发布验证进行中；开发阶段构建与受控自定义运行时专项通过，发布包和下载状态按实际执行补齐，不从源码测试推定 EXE 通过。[本轮发布记录](../../iterations/I08/alpha74-release.md)
+2026-11-07，alpha.74已公开。冻结源、独立Ubuntu CI、实际EXE载荷/包内7项、普通portable及匿名下载分层结果见[本次交付](../../iterations/I08/alpha74-release.md)；Windows首轮45通过/1失败/19跳过，定向复验不改写原失败，真实模型/生产SSH/完整矩阵仍待。
+
+2026-11-07，alpha.74 已公开；开发、冻结源、发布包与匿名下载分层结果已记录，不从源码测试推定 EXE 通过。[本轮发布记录](../../iterations/I08/alpha74-release.md)
 
 2026-11-04，alpha.73。Windows x64 实际 EXE 解包 3518 文件，与未压缩包逐路径、字节数及 SHA-256 匹配。GitHub EXE 与校验文件匿名下载一致。[交付与验证边界](../../iterations/I08/alpha73-release.md)
 

@@ -1,0 +1,33 @@
+
+7-Zip (a) 24.09 (x86) : Copyright (c) 1999-2024 Igor Pavlov : 2024-11-29
+
+Scanning the drive for archives:
+1 file, 132436666 bytes (127 MiB)
+
+Extracting archive: E:\AgentBridge-Releases\alpha74\2026-11-07\source\desktop\release\AgentBridge-0.6.0-alpha.74-Windows-x64.exe
+
+WARNINGS:
+There are data after the end of archive
+
+--
+Path = E:\AgentBridge-Releases\alpha74\2026-11-07\source\desktop\release\AgentBridge-0.6.0-alpha.74-Windows-x64.exe
+Type = 7z
+WARNINGS:
+There are data after the end of archive
+Offset = 52007
+Physical Size = 132096661
+Tail Size = 287998
+Headers Size = 24765
+Method = LZMA2:26 LZMA:20 BCJ2
+Solid = +
+Blocks = 2
+
+Everything is Ok
+
+Archives with Warnings: 1
+
+Warnings: 1
+Folders: 291
+Files: 3518
+Size:       588719818
+Compressed: 132436666

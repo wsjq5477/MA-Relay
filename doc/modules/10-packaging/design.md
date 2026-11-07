@@ -1,8 +1,8 @@
 # M10 构建、发布与持久运行资源设计
 
-M10-F01/F02/F03：alpha.74 候选在独立 E 盘发布树冻结 Hermes/Pi 自定义配置、目标 daemon 和图标向导，实际 EXE 必须核对 Core、后台、ASAR、前端与 Linux 离线资源，解包摘要和公开下载分别验证。[本轮发布记录](../../iterations/I08/alpha74-release.md)
+M10-F01/F02/F03：alpha.74在独立 E 盘发布树冻结 Hermes/Pi 自定义配置、目标 daemon 和图标向导，实际 EXE 必须核对 Core、后台、ASAR、前端与 Linux 离线资源，解包摘要和公开下载分别验证。[本轮发布记录](../../iterations/I08/alpha74-release.md)
 
-M10-F01/F03/F05：当前公开 alpha.73。冻结源码、实际 Windows 便携 EXE、SHA-256 和匿名下载结果绑定。便携包 GUI 与真实用户命令单独验收。[当前交付](../../iterations/I08/alpha73-release.md)
+M10-F01/F03/F05：当前公开 alpha.74。冻结源码、实际 Windows 便携 EXE、SHA-256 和匿名下载结果绑定。便携包 GUI 与真实用户命令单独验收。[当前交付](../../iterations/I08/alpha74-release.md)
 
 M10-F01/F03/F05：本地browser.3快照交付当前源码及19文件ChatGPT扩展，独立启动脚本沿既有profile环境变量把体验数据与TEMP放在同目录非C盘；直接双击portable EXE不保证非C盘临时目录。当前包与实际解包载荷、ASAR/ws、包内Node契约已核验，普通GUI及真实模型另验；没有公开发布或修改运行协议。[完整交付](../../iterations/I08/web-agent-browser3-preview.md)。
 

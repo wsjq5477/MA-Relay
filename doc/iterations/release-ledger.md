@@ -1,5 +1,9 @@
 # 历史发布登记：标签、EXE 与 SHA-256
 
+## 2026-11-07 alpha.74 预发布
+
+标签 `v0.6.0-alpha.74` 冻结 `07f46dd5a55df6f1eddb3a72d367cb8b88a28f0d`。EXE 132436666 字节，SHA-256 `21eeb101d70beecdc2d24e8e5bc5f0ae0193a9c1e0d748546c39dc4d0b9da51f`。EXE/SHA匿名完整下载一致；3518实际载荷匹配。Windows初轮失败、包内夹具适配与普通窗口复验分别保留；生产SSH/真实自定义模型/完整矩阵待验。[完整交付](I08/alpha74-release.md)。
+
 ## 2026-11-04 alpha.73 预发布
 
 标签 v0.6.0-alpha.73 冻结 042c546。EXE 132443109 字节，SHA-256 73000602e0c2f267acf81cb4778e05974ed87331f22a0cdd36f43b824605ba65。EXE 与 SHA 文件匿名下载一致。[完整交付](I08/alpha73-release.md)。

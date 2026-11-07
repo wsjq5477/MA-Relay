@@ -1,0 +1,47 @@
+{
+  "runId": 42337270233,
+  "commit": "07f46dd5a55df6f1eddb3a72d367cb8b88a28f0d",
+  "conclusion": "success",
+  "counts": [
+    {
+      "file": "core.tap",
+      "tests": 87,
+      "pass": 87,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "custom-runtime.tap",
+      "tests": 25,
+      "pass": 25,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "issue29.tap",
+      "tests": 105,
+      "pass": 105,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "issues27-28.tap",
+      "tests": 99,
+      "pass": 99,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "targeted.tap",
+      "tests": 113,
+      "pass": 113,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    }
+  ]
+}

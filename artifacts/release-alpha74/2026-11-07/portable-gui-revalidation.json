@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-07T04:30:42.640Z",
+  "version": "0.6.0-alpha.74",
+  "scope": "same original synthetic profile; read original history and unknown only; normal portable window and wrapper close",
+  "observerBudgetSeconds": 360,
+  "closeBudgetSeconds": 180,
+  "modelCalls": 0,
+  "status": "passed",
+  "checks": [
+    "Same original profile reopened; original orphan history, unknown operation and MCP identity preserved; no new requests.",
+    "Verified owned window accepted normal close and its portable wrapper exited 0.",
+    "Full backend restart retained the same records and MCP identity; second owned window/wrapper closed normally."
+  ]
+}

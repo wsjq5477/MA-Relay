@@ -1,0 +1,20 @@
+{
+  "version": "0.6.0-alpha.74",
+  "scope": "actual EXE Electron44.7.0/Node24.21.0 with delivered backend and dependencies; source-only test fixtures",
+  "final": {
+    "tests": 7,
+    "pass": 7,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "productCodeChangedForTests": false,
+  "fixtureAdaptations": [
+    "Use .cjs CLI fixture directly instead of treating Electron GUI executable as ordinary Node",
+    "240-second per-test and 60-second polling budgets for the actual Electron engine",
+    "Close only owned test MCP clients when recursive fixture cleanup has started; avoid deleting their mapped executable before client termination"
+  ],
+  "firstAttempt": "Empty transcript from direct PowerShell GUI-subsystem invocation is not a test result",
+  "firstExecutedAttempt": "Two version-fixture failures, one 45-second native test/cleanup timeout, incomplete suite; original partial transcript retained",
+  "modelCalls": 0
+}
