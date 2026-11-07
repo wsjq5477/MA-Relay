@@ -1,0 +1,25 @@
+(node:33700) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ custom hermes keeps an independent node and forwards fixed argv through the production host (15998.6997ms)
+✖ custom pi keeps an independent node and forwards fixed argv through the production host (14319.0356ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31163.5849
+
+✖ failing tests:
+
+test at desktop\tests\native-delegation.test.cjs:171:41
+✖ custom pi keeps an independent node and forwards fixed argv through the production host (14319.0356ms)
+  Error: 委派续聊沿用原执行上下文，不接受新的目录。
+      at Object.mcp (D:\LLM\MA-Relay\desktop\tests\native-delegation.test.cjs:85:42)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async TestContext.<anonymous> (D:\LLM\MA-Relay\desktop\tests\native-delegation.test.cjs:193:23)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    code: 'CONVERSATION_CONFIG'
+  }

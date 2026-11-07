@@ -1,6 +1,6 @@
 # M01 桌面界面与交互设计
 
-本机「添加 Agent」可新建 Hermes 自定义运行时。第一步选基础类型，第二步填写名称、命令和可选描述，创建后回到候选列表。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
+本机、WSL 和 SSH Linux「添加 Agent」可新建 Hermes、Pi 自定义运行时。第一步点击图标选择兼容协议，第二步显示所选图标并填写名称、命令和可选描述；返回保留输入，创建后回到目标机器候选列表。当前开放已有自定义宿主支持的 Hermes、Pi。[自定义运行时记录](../../iterations/I08/custom-runtime-pi.md)
 
 ## 界面信息层级
 

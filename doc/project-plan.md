@@ -1,5 +1,7 @@
 # 迭代路线与当前交付
 
+本轮交付范围：alpha.74 汇总远端自定义运行时、Hermes/Pi 图标选择与既有 Windows worker 发布修复；真实模型/生产 SSH 和完整原生矩阵仍待验收。[发布记录](iterations/I08/alpha74-release.md)
+
 issue #30：共享 worker 运行时默认发布重试与清理保错已在 alpha.73 基线上源码修复并完成 Windows 定向与真实 Electron/ICU 验证；外部 CodeAgent 分支验证另列未测。按本 issue 范围不构建或发布 EXE，不重试历史失败任务。[交付与剩余验证](iterations/I08/codex-runtime-publish-recovery.md)
 
 当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](iterations/I08/alpha73-release.md)

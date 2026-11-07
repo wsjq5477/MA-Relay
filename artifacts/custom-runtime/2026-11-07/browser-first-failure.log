@@ -1,0 +1,139 @@
+(node:8476) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ExpectError: expect(locator).toBeVisible() failed
+
+Locator: getByRole('dialog', { name: '添加 Agent' }).getByText('Hermes 构建')
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByRole('dialog', { name: '添加 Agent' }).getByText('Hermes 构建') with timeout 5000ms
+  - waiting for getByRole('dialog', { name: '添加 Agent' }).getByText('Hermes 构建')
+
+    at captureRawStack (D:\LLM\MA-Relay\desktop\node_modules\playwright-core\lib\coreBundle.js:9282:17)
+    at callMatcherAsStep (D:\LLM\MA-Relay\desktop\node_modules\playwright\lib\matchers\expect.js:13316:57)
+    at Object.toBeVisible (D:\LLM\MA-Relay\desktop\node_modules\playwright\lib\matchers\expect.js:13308:23)
+    at D:\LLM\MA-Relay\artifacts\custom-runtime\2026-11-07\browser-check.cjs:61:101 {
+  matcherResult: {
+    message: 'expect(locator).toBeVisible() failed\n' +
+      '\n' +
+      "Locator: getByRole('dialog', { name: '添加 Agent' }).getByText('Hermes 构建')\n" +
+      'Expected: visible\n' +
+      'Timeout: 5000ms\n' +
+      'Error: element(s) not found\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toBeVisible" getByRole('dialog', { name: '添加 Agent' }).getByText('Hermes 构建') with timeout 5000ms\n` +
+      "  - waiting for getByRole('dialog', { name: '添加 Agent' }).getByText('Hermes 构建')\n",
+    pass: false,
+    actual: undefined,
+    name: 'toBeVisible',
+    expected: 'visible',
+    log: [
+      `  - Expect "toBeVisible" getByRole('dialog', { name: '添加 Agent' }).getByText('Hermes 构建') with timeout 5000ms`,
+      "  - waiting for getByRole('dialog', { name: '添加 Agent' }).getByText('Hermes 构建')"
+    ],
+    timeout: 5000,
+    ariaSnapshot: '- banner:\n' +
+      '  - text: AgentBridge\n' +
+      '  - button "最小化"\n' +
+      '  - button "最大化"\n' +
+      '  - button "关闭窗口"\n' +
+      '- complementary "应用导航":\n' +
+      '  - strong: AgentBridge\n' +
+      '  - navigation "主导航":\n' +
+      '    - button "接入配置"\n' +
+      '    - button "小队设置"\n' +
+      '    - button "执行审计"\n' +
+      '    - button "会话审计"\n' +
+      '  - button "设置"\n' +
+      '  - text: 3 台机器在线 版本读取中\n' +
+      '  - button "切换深浅主题"\n' +
+      '- main:\n' +
+      '  - button "收起侧栏" [expanded]\n' +
+      '  - text: 工作台\n' +
+      '  - strong: 接入配置\n' +
+      '  - text: 自动同步\n' +
+      '  - button "刷新数据"\n' +
+      '  - status:\n' +
+      '    - text: 原布局保存尚未确认，继续只读核对。\n' +
+      '    - button "关闭提示"\n' +
+      '  - heading "接入配置" [level=1]\n' +
+      '  - button "连接策略与确认"\n' +
+      '  - button "添加 Linux 机器"\n' +
+      '  - strong: "3"\n' +
+      '  - text: 机器总数\n' +
+      '  - strong: "4"\n' +
+      '  - text: 可用 Agent\n' +
+      '  - strong: "0"\n' +
+      '  - text: 进行中任务\n' +
+      '  - strong: "0"\n' +
+      '  - text: 已保存授权\n' +
+      '  - button "全部机器" [pressed]\n' +
+      '  - button "Windows 测试机"\n' +
+      '  - button "Linux 测试服务器"\n' +
+      '  - button "WSL · Ubuntu"\n' +
+      '  - group "机器显示方式":\n' +
+      '    - button "概览" [pressed]\n' +
+      '    - button "关系图"\n' +
+      '  - heading "机器与 Agent" [level=2]\n' +
+      '  - searchbox "搜索机器与 Agent"\n' +
+      '  - region "Windows 测试机":\n' +
+      '    - heading "Windows 测试机" [level=2]\n' +
+      '    - text: Windows 本机 2 个工具 在线\n' +
+      '    - button "重新扫描 · Windows 测试机": 扫描\n' +
+      '    - button "添加 Agent · Windows 测试机": 添加 Agent\n' +
+      '    - group\n' +
+      '    - article "Claude Code · Agent · 可用于协作":\n' +
+      '      - heading "Claude Code" [level=3]\n' +
+      '      - text: 2.0.24 已接入 可被委派 · 可调用 Bridge MCP\n' +
+      '      - group: 安装位置\n' +
+      '      - text: 可用于协作\n' +
+      '      - button "配置 Windows 测试机 / Claude Code": 配置\n' +
+      '      - group\n' +
+      '    - article "Hermes 构建 · Agent · 尚未支持执行":\n' +
+      '      - heading "Hermes 构建" [level=3]\n' +
+      '      - text: Hermes 2.0.24 未接入 执行能力未知\n' +
+      '      - group: 安装位置\n' +
+      '      - text: 尚未支持执行\n' +
+      '      - button "接入" [disabled]\n' +
+      '      - button "配置 Windows 测试机 / Hermes 构建": 配置\n' +
+      '      - group\n' +
+      '  - region "Linux 测试服务器":\n' +
+      '    - heading "Linux 测试服务器" [level=2]\n' +
+      '    - text: SSH · Linux 1 个工具 在线\n' +
+      '    - button "重新扫描 · Linux 测试服务器": 扫描\n' +
+      '    - button "添加 Agent · Linux 测试服务器": 添加 Agent\n' +
+      '    - group\n' +
+      '    - article "OpenCode · Agent · 可用于协作":\n' +
+      '      - heading "OpenCode" [level=3]\n' +
+      '      - text: 2.0.24 已接入 可被委派 · 可调用 Bridge MCP\n' +
+      '      - group: 安装位置\n' +
+      '      - text: 可用于协作\n' +
+      '      - button "配置 Linux 测试服务器 / OpenCode": 配置\n' +
+      '      - group\n' +
+      '  - region "WSL · Ubuntu":\n' +
+      '    - heading "WSL · Ubuntu" [level=2]\n' +
+      '    - text: WSL · Ubuntu 1 个工具 宿主 Windows 测试机 在线\n' +
+      '    - button "重新扫描 · WSL · Ubuntu": 扫描\n' +
+      '    - button "添加 Agent · WSL · Ubuntu": 添加 Agent\n' +
+      '    - group\n' +
+      '    - article "OpenCode · Agent · 可用于协作":\n' +
+      '      - heading "OpenCode" [level=3]\n' +
+      '      - text: 2.0.24 已接入 可被委派 · 可调用 Bridge MCP\n' +
+      '      - group: 安装位置\n' +
+      '      - text: 可用于协作\n' +
+      '      - button "配置 WSL · Ubuntu / OpenCode": 配置\n' +
+      '      - group\n' +
+      '  - dialog "添加 Agent":\n' +
+      '    - heading "添加 Agent · Linux 测试服务器" [level=2]\n' +
+      '    - button "关闭添加 Agent"\n' +
+      '    - button "重新扫描 Agent"\n' +
+      '    - button "新建自定义运行时"\n' +
+      '    - strong: OpenCode · 2.0.24\n' +
+      '    - text: 已接入\n' +
+      '    - code: /opt/opencode\n' +
+      '    - button "已接入" [disabled]'
+  }
+}

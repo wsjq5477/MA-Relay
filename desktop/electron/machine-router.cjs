@@ -310,9 +310,13 @@ class MachineRouter {
     if (method === "environment") return { ...await this.host(machine).call(method, p), machineId: machine.machineId };
     if (method === "discover") return this.discover(machine);
     if (method === "customRuntime.create") {
-      if (machine.machineId !== this.catalog.localMachineId) fail("CUSTOM_RUNTIME_LOCAL_ONLY", "请在运行程序的机器上创建自定义运行时。");
       this.assertMachineAdmission?.(machine);
-      const created = await this.host(machine).call(method, p);
+      let created;
+      try { created = await this.host(machine).call(method, p); }
+      catch (error) {
+        if (error.code === 'DESKTOP_METHOD') fail('CUSTOM_RUNTIME_BACKEND_UPGRADE_REQUIRED', '目标机器后台尚不支持自定义运行时，请先在该机器的后台维护中升级。');
+        throw error;
+      }
       await this.scanning.get(machine.machineId)?.catch(() => {});
       await this.discover(machine);
       return created;

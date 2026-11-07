@@ -57,6 +57,10 @@ jobs:
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: |
           node --test desktop/tests/tool-discovery.test.cjs desktop/tests/hermes-linux-discovery.test.cjs desktop/tests/hermes-windows-discovery.test.cjs desktop/tests/mcp-hermes.test.cjs desktop/tests/native-cli-host.test.cjs desktop/tests/native-reconcile.test.cjs desktop/tests/native-delegation.test.cjs desktop/tests/connection-capabilities.test.cjs desktop/tests/discovery-isolation.test.cjs desktop/tests/rpc-wsl-ready.test.cjs 2>&1 | tee artifacts/hermes-linux-ci/targeted.tap
+      - name: Custom runtime persistence and authenticated Linux daemon
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: |
+          node --test desktop/tests/custom-runtime.test.cjs desktop/tests/machine-daemon.test.cjs 2>&1 | tee artifacts/hermes-linux-ci/custom-runtime.tap
       - name: Relation recovery and SSH current-observation regression
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: |

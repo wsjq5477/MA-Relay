@@ -140,8 +140,8 @@ async function fixture(t, adapter, custom = false) {
   let snapshot = await call('snapshot'), selected;
   if (custom) {
     const machineId = snapshot.machines[0].machineId;
-    const input = { machineId, adapter, name: 'Custom Hermes', command: `"${candidates[adapter][0]}" wrapper "fixed argument"`, profileId: randomUUID() };
-    for (const command of [input.command + ' | echo bad', input.command + ' --resume=other', input.command + ' "unclosed']) {
+    const input = { machineId, adapter, name: 'Custom ' + adapter, command: `"${candidates[adapter][0]}" wrapper "fixed argument"`, profileId: randomUUID() };
+    for (const command of [input.command + ' | echo bad', input.command + ' --resume=other', input.command + ' "unclosed', ...(adapter === 'pi' ? ['--mode=rpc', '--session-dir=/foreign', '-p', '-rforeign', '--model=other', '--provider=other', '--no-session'].map(flag => input.command + ' ' + flag) : [])]) {
       await assert.rejects(call('customRuntime.create', { ...input, command }), { code: 'CUSTOM_RUNTIME_INVALID' });
     }
     selected = await call('customRuntime.create', input);
@@ -168,8 +168,8 @@ async function fixture(t, adapter, custom = false) {
   };
 }
 
-test('custom Hermes keeps an independent node and forwards fixed argv through the production host', { timeout: 45000 }, async t => {
-  const f = await fixture(t, 'hermes', true);
+for (const adapter of ['hermes', 'pi']) test('custom ' + adapter + ' keeps an independent node and forwards fixed argv through the production host', { timeout: 45000 }, async t => {
+  const f = await fixture(t, adapter, true);
   assert.equal(f.member.connectionCapabilities.nativeMcpConfig, false);
   assert.deepEqual((await f.mcp('list_agents')).items.map(node => node.nodeId), [f.member.nodeId]);
   f.loseNextSubmitResponse();
@@ -183,10 +183,25 @@ test('custom Hermes keeps an independent node and forwards fixed argv through th
   const task = await until(() => f.mcp('task_result', { taskId: original.taskId }), item => item.status === 'succeeded');
   assert.equal((await f.mcp('delegate', args)).taskId, task.taskId);
   const snapshot = await f.call('snapshot');
-  assert.equal(snapshot.nodes.find(node => node.nodeId === f.member.nodeId).name, 'Custom Hermes');
-  const calls = invocations(f.calls).filter(row => row.adapter === 'hermes');
+  assert.equal(snapshot.nodes.find(node => node.nodeId === f.member.nodeId).name, 'Custom ' + adapter);
+  const calls = invocations(f.calls).filter(row => row.adapter === adapter);
   assert.equal(calls.length, 1);
-  assert.deepEqual(calls[0].args, ['wrapper', 'fixed argument', 'chat', '--query-file', '-', '--format', 'stream-json']);
+  if (adapter === 'hermes') {
+    assert.deepEqual(calls[0].args, ['wrapper', 'fixed argument', 'chat', '--query-file', '-', '--format', 'stream-json']);
+  } else {
+    assert.deepEqual(calls[0].args.slice(0, 6), ['wrapper', 'fixed argument', '--mode', 'json', '--print', '--session-dir']);
+    assert(path.isAbsolute(calls[0].args[6]));
+    const { workspace, ...continuationArgs } = args;
+    const continued = await f.mcp('delegate', { ...continuationArgs, requestId: 'custom-next', message: 'continued custom runtime', conversationId: task.conversationId });
+    const result = await until(() => f.mcp('task_result', { taskId: continued.taskId }), item => terminal(item.status));
+    assert.equal(result.status, 'succeeded');
+    const followup = invocations(f.calls).filter(row => row.adapter === adapter)[1];
+    assert.deepEqual(followup.args.slice(0, 2), ['wrapper', 'fixed argument']);
+    assert.equal(followup.args[followup.args.indexOf('--session') + 1], path.join(calls[0].args[6], 'session.jsonl'));
+    assert.equal(invocations(f.calls).filter(row => row.adapter === adapter).length, 2);
+    assert.equal(fs.readFileSync(path.join(f.workspace, 'native-settings.json'), 'utf8'), f.config);
+    assert.equal(result.conversationId, task.conversationId);
+  }
 });
 
 for (const adapter of ['hermes', 'pi', 'dsh']) test(adapter + ' is an ordinary delegated target through Coordinator, MCP, MachineHost and an owned native process', { timeout: 45000 }, async t => {

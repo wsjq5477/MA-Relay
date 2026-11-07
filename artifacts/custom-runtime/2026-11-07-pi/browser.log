@@ -1,0 +1,8 @@
+(node:500) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+hermes 1440: wizard, failure, preserved input and creation passed
+hermes 1024: wizard, failure, preserved input and creation passed
+hermes 390: wizard, failure, preserved input and creation passed
+pi 1440: wizard, failure, preserved input and creation passed
+pi 1024: wizard, failure, preserved input and creation passed
+pi 390: wizard, failure, preserved input and creation passed

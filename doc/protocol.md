@@ -1,6 +1,6 @@
 # 通信协议与接口
 
-桌面 Coordinator 管理方法 `customRuntime.create` 接收本机 machineId、profileId、adapter、name、command 和可选 description，返回不含命令的 executable 身份。相同 ID 和配置可重试，配置冲突拒绝。远端 daemon 不开放此方法。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
+桌面 Coordinator 管理方法 `customRuntime.create` 接收目标 machineId、profileId、adapter、name、command 和可选 description，返回不含命令的 executable 身份。adapter 当前接受 hermes/pi。相同 ID 和配置可重试，包含协议变化的配置冲突拒绝。远端 daemon 经原认证连接开放此方法，按配置变更执行维护门禁；旧后台拒绝方法时提示升级，不回退本机或自动部署。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
 当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
 

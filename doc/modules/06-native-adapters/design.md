@@ -1,6 +1,6 @@
 # M06 原生 Agent 适配器设计
 
-Hermes 自定义运行时复用原 stream-json 宿主和原生 Session。宿主加载本机配置，按独立安装标识路由，固定 argv 置于协议参数之前。Bridge 管理 MCP 在自定义配置中关闭。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
+Hermes/Pi 自定义运行时分别复用原 stream-json / JSON-print 宿主和原生 Session。宿主加载目标机器配置，复核 adapter 与原上下文一致，按独立安装标识路由，固定 argv 置于协议参数之前；Pi 续聊沿用原 session 文件及工作目录校验。Bridge 管理 MCP 在自定义配置中关闭。[自定义运行时记录](../../iterations/I08/custom-runtime-pi.md)
 
 M06-CX-F01：本机用户明确选择原生gpt-6.1-sol并原位升级CLI，不增加Bridge模型字段或模型API。Windows主/WSL从的正文、原Session续聊与在途观察器恢复已有实证，原失败保留；这是单一真实接入，不扩大完整适配器/机器/EXE准出。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 

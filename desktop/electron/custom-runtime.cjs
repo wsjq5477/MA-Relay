@@ -6,6 +6,11 @@ const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 
 const prefix = 'custom-runtime:';
+const adapters = new Set(['hermes', 'pi']);
+const reservedArguments = {
+  hermes: /^(?:--(?:query(?:-file)?|format|resume|model|provider)(?:=|$)|--$|chat$)/,
+  pi: /^(?:--(?:mode|print|session(?:-dir)?|continue|resume|no-session|model|provider|api-key|help|version|export|list-models)(?:=|$)|-[pcrhv](?:.*)$|--$)/,
+};
 const isCustomRuntime = identity => typeof identity === 'string' && identity.startsWith(prefix);
 const invalid = message => Object.assign(new Error(message), { code: 'CUSTOM_RUNTIME_INVALID' });
 
@@ -45,7 +50,8 @@ class CustomRuntimeStore {
   read(identity) {
     const id = isCustomRuntime(identity) ? identity.slice(prefix.length) : '';
     if (!/^[a-f0-9-]{36}$/.test(id)) return null;
-    return JSON.parse(fs.readFileSync(path.join(this.directory, id + '.json'), 'utf8'));
+    const profile = JSON.parse(fs.readFileSync(path.join(this.directory, id + '.json'), 'utf8'));
+    return { ...profile, adapter: profile.adapter || 'hermes' };
   }
   list() {
     if (!fs.existsSync(this.directory)) return [];
@@ -54,21 +60,21 @@ class CustomRuntimeStore {
       const profile = this.read(executable);
       let healthy = false;
       try { healthy = resolveExecutable(profile.program, this.environment) === profile.program; } catch { /* Installation is unavailable. */ }
-      return { executable, adapter: 'hermes', name: profile.name, version: profile.version, healthy,
+      return { executable, adapter: profile.adapter, name: profile.name, version: profile.version, healthy,
         ...(!healthy ? { error: '自定义运行时的原程序不可用。' } : {}) };
     });
   }
   async create({ adapter, name, command, description = '', profileId }) {
-    if (adapter !== 'hermes' || typeof name !== 'string' || !name.trim() || name.length > 80 ||
+    if (!adapters.has(adapter) || typeof name !== 'string' || !name.trim() || name.length > 80 ||
         typeof description !== 'string' || description.length > 500 || typeof profileId !== 'string' || !/^[a-f0-9-]{36}$/.test(profileId))
-      throw invalid('请选择 Hermes，并填写有效的显示名称和描述。');
+      throw invalid('请选择支持的协议，并填写有效的显示名称和描述。');
     const [programName, ...args] = parseCommand(command);
-    if (args.some(arg => /^(?:--(?:query(?:-file)?|format|resume|model|provider)(?:=|$)|--$|chat$)/.test(arg)))
-      throw invalid('命令包含由 Hermes 适配器管理的参数。');
+    if (args.some(arg => reservedArguments[adapter].test(arg)))
+      throw invalid('命令包含由所选适配器管理的协议、会话或模型参数。');
     const program = resolveExecutable(programName, this.environment);
-    const profile = { name: name.trim(), description: description.trim(), program, args };
+    const profile = { adapter, name: name.trim(), description: description.trim(), program, args };
     const executable = prefix + profileId;
-    const same = previous => JSON.stringify({ ...previous, version: undefined }) === JSON.stringify(profile);
+    const same = previous => previous.adapter === adapter && ['name', 'description', 'program', 'args'].every(key => JSON.stringify(previous[key]) === JSON.stringify(profile[key]));
     const file = path.join(this.directory, profileId + '.json');
     if (fs.existsSync(file)) {
       if (!same(this.read(executable))) throw invalid('此创建请求已经使用不同配置保存。');

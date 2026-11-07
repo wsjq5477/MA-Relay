@@ -1,5 +1,7 @@
 # M01 桌面交互测试报告
 
+2026-11-07，未发布源码新增 Pi 自定义运行时。构建通过，配置/路由23/23，受控 Hermes/Pi 原生委派2/2，浏览器六组通过；Pi 原 Session 续聊单列，不代表真实 Linux/SSH/模型/EXE 验收。[本轮证据和初次失败](../../iterations/I08/custom-runtime-pi.md)
+
 2026-11-04，未发布源码。自定义运行时管理与受控执行证据见本轮记录。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
 
 alpha.72发布核对：旧六工具图标断言补入ChatGPT Web入口，图标5/5；普通EXE窗口/认证后台/合成登记及正常关闭沿原进程实测。完整Windows回归原失败和启动约276秒不作全绿或性能准出。[发布分层结果](../../iterations/I08/alpha72-release.md)。

@@ -314,3 +314,23 @@ linuxTest('authenticated daemon exposes MCP configuration methods and blocks con
  await assert.rejects(connection.call('mcp.install',{nodeId:'node',adapter:'claude'}),{code:'DAEMON_MAINTENANCE'});
  await connection.call('mcp.status',{nodeId:'node',adapter:'claude'});assert.equal(calls.length,5);assert.equal(host.executions,0);
 });
+
+
+linuxTest('custom runtime creation uses the authenticated daemon host and is blocked during maintenance', async t => {
+  const opts = setup(t), host = hostFixture(), original = host.call.bind(host), calls = [];
+  host.call = async (method, params) => {
+    if (method === 'customRuntime.create') { calls.push(params); return { executable: 'custom-runtime:' + params.profileId }; }
+    return original(method, params);
+  };
+  const daemon = await startDaemon({ ...opts, hostFactory: () => host });
+  t.after(() => daemon.close());
+  const connection = await client(t, opts);
+  const input = { adapter: 'hermes', name: 'Remote Hermes', command: '/opt/hermes-wrapper', profileId: 'same-profile' };
+  assert.equal((await connection.call('customRuntime.create', input)).executable, 'custom-runtime:same-profile');
+  assert.deepEqual(calls, [input]);
+  await connection.call('daemon.quiesce', { operationId: 'maintenance' });
+  await assert.rejects(connection.call('customRuntime.create', input), { code: 'DAEMON_MAINTENANCE' });
+  assert.equal(calls.length, 1);
+  await connection.call('daemon.releaseMaintenance', { operationId: 'maintenance' });
+  assert.equal((await connection.call('customRuntime.create', input)).executable, 'custom-runtime:same-profile');
+});

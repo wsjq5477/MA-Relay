@@ -65,7 +65,8 @@ class MachineHost {
   backend(row){
     if(!this.contexts.has(row.contextId)){
       const directory=path.join(this.directory,'node-contexts',row.contextId);
-      const customRuntime=row.adapter==='hermes'?this.customRuntimes.read(row.executable):null;
+      const customRuntime=this.customRuntimes.read(row.executable);
+      if(customRuntime && customRuntime.adapter!==row.adapter)throw fail('CONVERSATION_CONFIG','自定义运行时的协议与原上下文不符，未重新提交。');
       const host=adapters.createHost(row.adapter,{...this.options,directory,executable:row.executable,customRuntime,browserInstanceId:row.browserInstanceId,browserChannel:this.browser,home:this.options.home||os.homedir()});
       if(!host)throw fail('ADAPTER_UNSUPPORTED','这个节点尚未完成执行适配。');
       this.contexts.set(row.contextId,host);

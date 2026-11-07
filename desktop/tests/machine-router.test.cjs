@@ -451,3 +451,34 @@ test("instance model overrides and inheritance resets retain source routing and 
     }
   }
 });
+
+
+test('custom runtime creation stays on the selected SSH machine and refreshes only its discovery', async t => {
+  const f = fixture(t);
+  await f.router.machines();
+  const remote = { machineId: 'ssh-custom', kind: 'ssh', platform: 'linux', name: 'Remote Linux' };
+  f.router.catalog.machines.push(remote);
+  const calls = [];
+  const host = { async call(method, params) {
+    calls.push({ method, params });
+    if (method === 'customRuntime.create') return { executable: 'custom-runtime:remote' };
+    if (method === 'discover') return { items: [{ adapter: 'hermes', executable: 'custom-runtime:remote', name: 'Remote Hermes', healthy: true }] };
+    if (method === 'snapshot') return { agents: { items: [] }, tasks: [], conversations: [] };
+  }, close() {} };
+  f.router.hosts.set(remote.machineId, host);
+  let admitted;
+  f.router.assertMachineAdmission = value => { admitted = value.machineId; };
+  const input = { machineId: remote.machineId, adapter: 'hermes', name: 'Remote Hermes', command: '/opt/hermes-wrapper', profileId: 'stable-profile' };
+  assert.deepEqual(await f.router.call('customRuntime.create', input), { executable: 'custom-runtime:remote' });
+  assert.equal(admitted, remote.machineId);
+  assert.equal(calls.filter(c => c.method === 'customRuntime.create').length, 1);
+  assert.equal(calls.find(c => c.method === 'customRuntime.create').params.command, input.command);
+  assert(calls.some(c => c.method === 'discover'));
+  assert(!f.hosts.windows.calls.some(c => c.method === 'customRuntime.create'));
+  f.router.assertMachineAdmission = () => { throw error('MACHINE_MAINTENANCE'); };
+  await assert.rejects(f.router.call('customRuntime.create', input), { code: 'MACHINE_MAINTENANCE' });
+  assert.equal(calls.filter(c => c.method === 'customRuntime.create').length, 1);
+  f.router.assertMachineAdmission = () => {};
+  host.call = async () => { throw error('DESKTOP_METHOD'); };
+  await assert.rejects(f.router.call('customRuntime.create', input), { code: 'CUSTOM_RUNTIME_BACKEND_UPGRADE_REQUIRED' });
+});

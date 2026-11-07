@@ -1,6 +1,8 @@
 # M03 机器、Agent 节点与执行上下文设计
 
-自定义运行时使用独立安装身份进行发现、节点分组和执行上下文绑定。同机的内置 Hermes 与每个自定义配置各有节点。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
+M03-F01/F02：自定义运行时创建按目标 machineId 发送至本机、WSL 或 SSH Linux，先核对机器准入，成功后仅刷新目标发现；路径解析、探测和保存由目标 MachineHost 完成。旧 daemon 提示维护升级，不回退本机。[范围与证据](../../iterations/I08/custom-runtime-remote-ui.md)
+
+自定义运行时使用独立安装身份进行发现、节点分组和执行上下文绑定。同机内置工具与每个 Hermes/Pi 自定义配置各有节点；发现与执行使用保存的 adapter，旧配置缺 adapter 时保持 Hermes。[自定义运行时记录](../../iterations/I08/custom-runtime-pi.md)
 
 原委派只读恢复固定原机器/原requestId，不因当前端点停用、目录或授权变化换目标；Task/会话身份不符拒绝。新派发门禁与原占用保持，[字段和恢复证据](../../iterations/I08/interconnect-caller-contract.md)。
 

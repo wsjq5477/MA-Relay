@@ -1382,3 +1382,15 @@
     transition: none !important;
   }
 }
+
+.custom-runtime-dialog { width: min(680px, calc(100vw - 32px)); }
+.custom-runtime-dialog .modal-body { display: grid; gap: 18px; }
+.custom-runtime-dialog h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.runtime-type-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.runtime-type-option, .runtime-selected { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; }
+.runtime-type-option { cursor: pointer; text-align: left; min-height: 56px; }
+.runtime-type-option:hover { background: var(--subtle); border-color: var(--secondary); }
+.runtime-type-option:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.runtime-selected { background: transparent; }
+.custom-runtime-dialog .runtime-help { margin: 0; color: var(--secondary); }
+@media (max-width: 600px) { .runtime-type-grid { grid-template-columns: 1fr; } }

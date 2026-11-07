@@ -969,7 +969,7 @@ export default function NetworkApp() {
               >
                 重新扫描 Agent
               </button>
-              {addAgent.machineId.startsWith("local-") && data.nodeManagement && (
+              {data.nodeManagement && (
                 <button type="button" className="btn" disabled={busy || !addAgent.online || blocked(addAgent.machineId)} onClick={() => setCustomRuntimeOpen(true)}>
                   新建自定义运行时
                 </button>

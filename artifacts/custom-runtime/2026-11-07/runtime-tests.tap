@@ -1,0 +1,14 @@
+✔ 4BE framing preserves Chinese and emoji across every byte and coalesced messages (12.8082ms)
+✔ frame decoder rejects oversized headers before allocation, malformed UTF-8 and truncation (19.0823ms)
+﹣ custom runtime creation uses the authenticated daemon host and is blocked during maintenance (1.2123ms) # Requires Linux daemon, POSIX ownership or native process support
+(node:31392) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ custom Hermes keeps an independent node and forwards fixed argv through the production host (15600.1817ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 16712.6085

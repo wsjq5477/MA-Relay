@@ -1,0 +1,11 @@
+✔ Pi profile persists its protocol across restart and cannot change protocol under the same identity (602.9165ms)
+✔ legacy Hermes profiles without adapter retain their identity and idempotent creation (558.1511ms)
+✔ Pi rejects flags that override protocol, original session or native model selection before probing (18.6568ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1727.1635

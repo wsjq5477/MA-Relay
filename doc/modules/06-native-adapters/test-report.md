@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器测试报告
 
+2026-11-07，未发布源码新增 Pi 自定义运行时。构建通过，配置/路由23/23，受控 Hermes/Pi 原生委派2/2，浏览器六组通过；Pi 原 Session 续聊单列，不代表真实 Linux/SSH/模型/EXE 验收。[本轮证据和初次失败](../../iterations/I08/custom-runtime-pi.md)
+
 T-M06-320 / M06-F01：2026-11-07，alpha.73 源码基线 e9557b7，Windows 11 10.0.26220 / Node 24.12.0。共享 runtime、Codex、Claude、NativeCliHost 与核对回归 86/86；原请求恢复、MachineHost 路由与适配契约另组 21/21；MCP 协议另测 2/2。真实 Electron 44.7.0/ICU 隔离发布、复用、损坏副本修复三组通过，模型 0。两次锁后发布、5 秒耗尽保留首错、清理不遮蔽主错、非空目录保留和原请求不重发均覆盖。上述是本次工程共享结果，不按模块重复累加；CodeAgent 外部分支、公开 EXE 与真实模型未测。[实现、原始证据和限制](../../iterations/I08/codex-runtime-publish-recovery.md)
 
 2026-11-04，未发布源码。Windows 受控 Hermes 兼容 CLI 通过真实 stdio MCP 和生产宿主执行，验证固定参数顺序、配置冲突和原任务去重。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)

@@ -1,0 +1,27 @@
+✔ SSH filesystem paths never alias local Windows or WSL drives (8.5325ms)
+✔ idle status polls never relaunch inventory probes; manual scan refreshes tools and WSL environments (387.1141ms)
+✔ failed startup discovery stays quiet until manual retry without hiding live machine state (102.3433ms)
+✔ concurrent initial status reads share one WSL enumeration (26.5248ms)
+✔ new native adapters retain their names and identities when snapshots are imported (73.1048ms)
+✔ imports old instances and history with stable machine IDs without rewriting raw or native IDs (135.4514ms)
+✔ same raw IDs route tasks, conversations, requests, replies and operations to their source machine (197.6282ms)
+✔ keeps Windows paths native and maps only the selected WSL distribution (1.7641ms)
+✔ shared Windows and WSL projects reject new work while either instance is busy (96.184ms)
+✔ shared occupancy includes an active instance outside the first 100 displayed tasks (106.864ms)
+✔ reopening with an offline shared source retains occupancy but independent projects still run (149.5318ms)
+✔ idempotent retries reach the original backend contract before shared project occupancy (105.8659ms)
+✔ changing the selected machine preserves other hosts and their running work (190.356ms)
+✔ one failed source keeps healthy results and marks only cached active tasks uncertain (84.1773ms)
+✔ empty machines exist before instances and connecting a tool does not ask for a project (75.0842ms)
+✔ an unavailable legacy preferred WSL retains its identity instead of falling back to another distro (61.5754ms)
+✔ a never-ending WSL snapshot times out without blocking Windows or spawning repeated jobs (165.3255ms)
+✔ instance model overrides and inheritance resets retain source routing and revision contracts (58.9721ms)
+✔ custom runtime creation stays on the selected SSH machine and refreshes only its discovery (27.7737ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2638.6912

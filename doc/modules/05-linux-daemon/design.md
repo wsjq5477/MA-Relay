@@ -1,5 +1,7 @@
 # M05 Linux 机器后台设计
 
+M05-F01/F02：认证方法 customRuntime.create 交由目标 MachineHost 保存私有配置并进行版本探测；纳入 configurationMutations，维护期间拒绝，进行中的创建计入准入占用。Hermes/Pi 共用此目标配置链路；稳定 profileId 沿用原配置幂等，不引入任务执行或自动授权。[本轮范围](../../iterations/I08/custom-runtime-remote-ui.md)
+
 中央MCP的task_result(delegationId)只查询原MachineRouter ipc/request；机器后台仍按原Task/原Session路由，无新增daemon帧、Prompt重放或目录重建。源码stdio以task.original-request-v1现场门禁拒绝旧后台，真实跨机仍待验。[完整契约与恢复证据](../../iterations/I08/interconnect-caller-contract.md)。
 
 未发布源码共享MachineHost的scope恢复现等待同一Promise完成；失败可沿原scope重查，关闭阻止迟到入口复活。broker关闭主动拒绝尚未完成的就绪等待，关闭观察器不发送任务取消。独立调用方由中央CallerService管理，daemon不声明中央专有能力；原Task/线协议及机器归属保持。[完整调用方契约](../../iterations/I08/interconnect-caller-contract.md)、[受控证据与未测项](../../iterations/I08/interconnect-development.md)。

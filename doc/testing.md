@@ -1,5 +1,7 @@
 # 整体测试与验收报告
 
+alpha.74 发布验证单列：开发阶段自定义运行时配置/路由23/23、受控委派2/2、Pi续聊1/1、界面六组通过；冻结源、Windows/独立Linux、实际EXE及公开下载分层核验，真实模型/生产SSH/完整矩阵不因此准出。[交付记录](iterations/I08/alpha74-release.md)
+
 issue #30 未发布源码：2026-11-07 Windows 隔离回归两组 86/86、21/21，MCP 协议另测 2/2；真实 Electron 44.7.0/ICU 发布、复用及损坏副本修复三组通过。类型检查、lint、根和桌面构建通过；公开 EXE、真实模型与外部 CodeAgent 专项未测。本次仅修复共享运行时发布和清理，不扩张其他原生矩阵。[原始证据与未测项](iterations/I08/codex-runtime-publish-recovery.md)
 
 alpha.73 冻结源码文档检查报告 3062 项历史资料链接错误，自定义运行时条目无报错。[本次交付](iterations/I08/alpha73-release.md)

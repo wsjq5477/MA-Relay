@@ -1,6 +1,6 @@
 # AgentBridge 整体架构
 
-桌面本机的 Hermes 自定义运行时在 alpha.73 中复用静态 Hermes Backend、原生会话绑定及 Task 收据。Coordinator 只向本机宿主写入配置，MachineHost 用独立安装标识发现并绑定该配置。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
+Hermes/Pi 自定义运行时在未发布源码中复用各自静态协议 Backend、原生会话绑定及 Task 收据。Coordinator 按目标 machineId 路由至本机、WSL 或已认证 SSH Linux 的 MachineHost，由目标机器探测并持有配置；MachineHost 用独立安装标识发现并绑定该配置。远端创建纳入 daemon 配置写入维护门禁。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
 当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](iterations/I08/alpha73-release.md)
 

@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
+import AgentIcon from "./AgentIcon";
+import { toolLabel } from "./agent-tools";
 import { call } from "./api";
 import type { Machine } from "./types";
 
@@ -37,7 +39,7 @@ export default function CustomRuntimeDialog({ machine, onClose, onCreated }: {
   }
 
   return <div className="modal-overlay">
-    <form className="modal" role="dialog" aria-modal="true" aria-labelledby="custom-runtime-title" onSubmit={submit}>
+    <form className="modal custom-runtime-dialog" role="dialog" aria-modal="true" aria-labelledby="custom-runtime-title" onSubmit={submit}>
       <div className="modal-head">
         <h2 id="custom-runtime-title">新建自定义运行时</h2>
         <button type="button" className="icon-btn" aria-label="关闭" disabled={busy} onClick={onClose}><X size={18} /></button>
@@ -45,28 +47,28 @@ export default function CustomRuntimeDialog({ machine, onClose, onCreated }: {
       <div className="modal-body">
         <p>{machine.name} · 第 {step} / 2 步</p>
         {step === 1 ? <>
-          <label>基础 Agent 类型
-            <select value={adapter} onChange={event => setAdapter(event.target.value)} required autoFocus>
-              <option value="">选择兼容的 Agent 类型</option>
-              <option value="hermes">Hermes</option>
-            </select>
-          </label>
-          <p>请选择启动命令实际兼容的协议类型。创建后协议类型固定。</p>
+          <h3>选择基础协议类型</h3>
+          <div className="runtime-type-grid" aria-label="基础协议类型">
+            {["hermes", "pi"].map((kind, index) => <button key={kind} type="button" className="runtime-type-option" autoFocus={index === 0} onClick={() => { setAdapter(kind); setStep(2); setError(""); }}>
+              <AgentIcon adapter={kind} size={24} /><span>{toolLabel(kind)}</span>
+            </button>)}
+          </div>
+          <p className="runtime-help">请选择命令实际兼容的协议。</p>
         </> : <>
-          <p>基础 Agent 类型 · Hermes</p>
+          <div className="runtime-selected"><AgentIcon adapter={adapter} size={24} /><span>{toolLabel(adapter)}</span></div>
           <label>显示名称<input value={name} onChange={event => setName(event.target.value)} required maxLength={80} autoFocus /></label>
-          <label>命令<input value={command} onChange={event => setCommand(event.target.value)} required maxLength={4096} placeholder="hermes-wrapper start" aria-describedby="custom-runtime-command-help" /></label>
+          <label>命令<input value={command} onChange={event => setCommand(event.target.value)} required maxLength={4096} placeholder={adapter === "pi" ? "pi-wrapper" : "hermes-wrapper start"} aria-describedby="custom-runtime-command-help" /></label>
           <p id="custom-runtime-command-help">输入程序名或绝对路径和固定参数。带空格的路径请加引号。凭据请留在原生配置中。</p>
           <label>描述（可选）<textarea value={description} onChange={event => setDescription(event.target.value)} maxLength={500} /></label>
           {error && <p role="alert">{error}</p>}
         </>}
       </div>
       <div className="modal-footer">
-        {step === 2 && <button type="button" className="text-btn" disabled={busy} onClick={() => setStep(1)}>返回</button>}
+        {step === 2 && <button type="button" className="text-btn" disabled={busy} onClick={() => setStep(1)}><ArrowLeft size={16} />返回</button>}
         <button type="button" className="btn" disabled={busy} onClick={onClose}>取消</button>
-        <button type="submit" className="btn primary" disabled={busy || (step === 1 ? !adapter : !name.trim() || !command.trim())}>
-          {step === 1 ? "下一步" : busy ? "正在探测…" : "创建运行时"}
-        </button>
+        {step === 2 && <button type="submit" className="btn primary" disabled={busy || !name.trim() || !command.trim()}>
+          {busy ? "正在探测…" : "创建运行时"}
+        </button>}
       </div>
     </form>
   </div>;

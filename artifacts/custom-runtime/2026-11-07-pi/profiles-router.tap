@@ -1,0 +1,31 @@
+✔ Pi profile persists its protocol across restart and cannot change protocol under the same identity (540.9865ms)
+✔ legacy Hermes profiles without adapter retain their identity and idempotent creation (487.5035ms)
+✔ Pi rejects flags that override protocol, original session or native model selection before probing (17.056ms)
+✔ a saved runtime cannot be executed through a different protocol context (31.464ms)
+✔ SSH filesystem paths never alias local Windows or WSL drives (9.4513ms)
+✔ idle status polls never relaunch inventory probes; manual scan refreshes tools and WSL environments (389.5482ms)
+✔ failed startup discovery stays quiet until manual retry without hiding live machine state (108.5492ms)
+✔ concurrent initial status reads share one WSL enumeration (27.3551ms)
+✔ new native adapters retain their names and identities when snapshots are imported (78.7663ms)
+✔ imports old instances and history with stable machine IDs without rewriting raw or native IDs (131.9401ms)
+✔ same raw IDs route tasks, conversations, requests, replies and operations to their source machine (205.1536ms)
+✔ keeps Windows paths native and maps only the selected WSL distribution (1.8043ms)
+✔ shared Windows and WSL projects reject new work while either instance is busy (94.7316ms)
+✔ shared occupancy includes an active instance outside the first 100 displayed tasks (110.5409ms)
+✔ reopening with an offline shared source retains occupancy but independent projects still run (180.7666ms)
+✔ idempotent retries reach the original backend contract before shared project occupancy (125.897ms)
+✔ changing the selected machine preserves other hosts and their running work (182.5381ms)
+✔ one failed source keeps healthy results and marks only cached active tasks uncertain (83.0885ms)
+✔ empty machines exist before instances and connecting a tool does not ask for a project (81.4178ms)
+✔ an unavailable legacy preferred WSL retains its identity instead of falling back to another distro (62.4581ms)
+✔ a never-ending WSL snapshot times out without blocking Windows or spawning repeated jobs (163.3498ms)
+✔ instance model overrides and inheritance resets retain source routing and revision contracts (63.7309ms)
+✔ custom runtime creation stays on the selected SSH machine and refreshes only its discovery (30.0779ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2776.8026
