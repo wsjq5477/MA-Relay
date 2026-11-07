@@ -1,11 +1,57 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { randomUUID, createHash } = require("node:crypto");
+const { performance } = require("node:perf_hooks");
 
 const resources = ["icudtl.dat", "snapshot_blob.bin", "v8_context_snapshot.bin"];
 const failure = (code, message) => Object.assign(new Error(message), { code });
 const digest = file => createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 const resourceFile = name => name !== "runtime.json" && !/\.(?:log|tmp)$/i.test(name);
+const transientDirectoryErrors = new Set(["EACCES", "EBUSY", "EEXIST", "ENOTEMPTY", "EPERM"]);
+const waitBuffer = new Int32Array(new SharedArrayBuffer(4));
+
+// Only empty directories can be discarded. Nonempty failed preparations are
+// diagnostic evidence, and cleanup must never replace the preparation error.
+function discardRuntimeDirectory(directory) {
+  const deadline = performance.now() + 200;
+  for (;;) {
+    try { fs.rmdirSync(directory); return; }
+    catch (error) {
+      if (!["EACCES", "EBUSY", "EPERM"].includes(error.code)) return;
+      const remaining = deadline - performance.now();
+      if (remaining <= 0) return;
+      Atomics.wait(waitBuffer, 0, 0, Math.min(25, remaining));
+    }
+  }
+}
+
+function publishRuntimeDirectory(temporary, destination, executable) {
+  const deadline = performance.now() + 5000;
+  let target = destination, firstError, delay = 25;
+  for (;;) {
+    if (firstError && performance.now() >= deadline) throw firstError;
+    try {
+      // A competing publisher may have finished while this one was waiting.
+      // Reuse only a fully validated runtime; never repair it in place.
+      for (const candidate of new Set([destination, target])) {
+        if (inspectRuntime(candidate, executable)) {
+          discardRuntimeDirectory(temporary);
+          return candidate;
+        }
+      }
+      if (fs.existsSync(target)) target = destination + ".repair-" + randomUUID();
+      fs.renameSync(temporary, target);
+      return target;
+    } catch (error) {
+      firstError ||= error;
+      if (!transientDirectoryErrors.has(error.code)) throw firstError;
+      const remaining = deadline - performance.now();
+      if (remaining <= 0) throw firstError;
+      Atomics.wait(waitBuffer, 0, 0, Math.min(delay, remaining));
+      delay = Math.min(delay * 2, 250);
+    }
+  }
+}
 
 function inspectRuntime(directory, executable) {
   try {
@@ -56,7 +102,6 @@ function workerRuntime(directory, options = {}) {
     throw failure("CLAUDE_RUNTIME_INVALID", "后台运行资源校验失败，请在设置中停止后台后重新打开完整的程序文件；原请求与历史已保留。");
 
   fs.mkdirSync(root, { recursive: true });
-  let target = fs.existsSync(destination) ? destination + ".repair-" + randomUUID() : destination;
   const temporary = destination + "." + randomUUID() + ".tmp";
   fs.mkdirSync(temporary);
   try {
@@ -69,19 +114,10 @@ function workerRuntime(directory, options = {}) {
     }
     fs.writeFileSync(path.join(temporary, "runtime.json"), JSON.stringify({ version: 2, executable: name, files }));
     if (!inspectRuntime(temporary, name)) throw failure("CLAUDE_RUNTIME_INVALID", "新后台运行资源校验失败，原运行目录与请求记录已保留。");
-    try { fs.renameSync(temporary, target); }
-    catch (error) {
-      if (!["EEXIST", "ENOTEMPTY", "EPERM"].includes(error.code)) throw error;
-      if (inspectRuntime(target, name)) {
-        fs.rmSync(temporary, { recursive: true, force: true });
-        return path.join(target, name);
-      }
-      target = destination + ".repair-" + randomUUID();
-      fs.renameSync(temporary, target);
-    }
+    const target = publishRuntimeDirectory(temporary, destination, name);
     return path.join(target, name);
   } catch (error) {
-    fs.rmSync(temporary, { recursive: true, force: true });
+    discardRuntimeDirectory(temporary);
     throw error;
   }
 }

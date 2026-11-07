@@ -1,5 +1,7 @@
 # 整体测试与验收报告
 
+issue #30 未发布源码：2026-11-07 Windows 隔离回归两组 86/86、21/21，MCP 协议另测 2/2；真实 Electron 44.7.0/ICU 发布、复用及损坏副本修复三组通过。类型检查、lint、根和桌面构建通过；公开 EXE、真实模型与外部 CodeAgent 专项未测。本次仅修复共享运行时发布和清理，不扩张其他原生矩阵。[原始证据与未测项](iterations/I08/codex-runtime-publish-recovery.md)
+
 alpha.73 冻结源码文档检查报告 3062 项历史资料链接错误，自定义运行时条目无报错。[本次交付](iterations/I08/alpha73-release.md)
 
 当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](iterations/I08/alpha73-release.md)

@@ -1,0 +1,30 @@
+✔ Codex executes native JSON events, inherits configuration, deduplicates and resumes the exact session after observer restart (2503.3557ms)
+✔ Codex provider failure stays failed and cancellation is confirmed only when its owned native process exits (5205.6273ms)
+✔ MCP approval adaptation is scoped to bridge tools and does not replace native account, model or filesystem policies (1089.3009ms)
+✔ Codex Bridge turns distinguish connected nodes from native agents on new and resumed sessions without altering direct prompts or receipts (3092.0358ms)
+✔ Codex explicit errors cannot be overwritten by completion and zero exit, including after observer restart (3016.7809ms)
+✔ runtime preparation failure ends only the original request before native launch and never replays it (1015.6044ms)
+✔ detached runtime survives portable extraction cleanup and retains license (186.5107ms)
+✔ missing ICU or V8 resources reject startup before admitting a native task (48.4567ms)
+✔ ordinary Node keeps using its existing executable (43.5089ms)
+✔ Coordinator to Windows runtime copies never track or copy their own manifest (256.0554ms)
+✔ alpha.9 self-referential manifests remain usable without changing their files (147.0429ms)
+✔ damaged runtime rebuilds into a validated sibling while preserving the old worker files (274.3184ms)
+✔ new runtime manifests detect same-size resource changes and preserve volatile logs outside the manifest (223.1342ms)
+✔ incomplete or malformed caches never become valid from an empty or unsafe manifest (1191.9321ms)
+✔ broken source cache cannot be used to rebuild another runtime (160.2206ms)
+✔ publish races never return an incomplete competing runtime (194.5918ms)
+✔ default publication recovers after consecutive ENOTEMPTY and EPERM directory locks (278.714ms)
+✔ publication EIO is preserved when temporary cleanup also fails with ENOTEMPTY (141.7616ms)
+✔ all supported transient directory errors retry without publishing unvalidated files (916.333ms)
+✔ a complete concurrent publisher is reused after a lock without deleting preparation evidence (374.5445ms)
+✔ permanent directory locks exhaust the five second budget with the first error and allow a new preparation (5218.969ms)
+✔ copy and validation failures preserve their original error and never publish partial resources (188.5544ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16418.2262

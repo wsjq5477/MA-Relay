@@ -1,0 +1,68 @@
+✔ detached runtime survives portable extraction cleanup and retains license (155.3773ms)
+✔ missing ICU or V8 resources reject startup before admitting a native task (41.7165ms)
+✔ ordinary Node keeps using its existing executable (37.5674ms)
+✔ Coordinator to Windows runtime copies never track or copy their own manifest (246.1747ms)
+✔ alpha.9 self-referential manifests remain usable without changing their files (149.4485ms)
+✔ damaged runtime rebuilds into a validated sibling while preserving the old worker files (215.6816ms)
+✔ new runtime manifests detect same-size resource changes and preserve volatile logs outside the manifest (183.718ms)
+✔ incomplete or malformed caches never become valid from an empty or unsafe manifest (1023.6738ms)
+✔ broken source cache cannot be used to rebuild another runtime (147.1709ms)
+✔ publish races never return an incomplete competing runtime (131.1559ms)
+✖ default publication recovers after consecutive ENOTEMPTY and EPERM directory locks (111.6558ms)
+✖ publication EIO is preserved when temporary cleanup also fails with ENOTEMPTY (136.7311ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 10
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3071.826
+
+✖ failing tests:
+
+test at desktop\tests\worker-runtime.test.cjs:123:1
+✖ default publication recovers after consecutive ENOTEMPTY and EPERM directory locks (111.6558ms)
+  Error: transient publication lock
+      at fs.renameSync (D:\LLM\MA-Relay\artifacts\issue30\2026-11-07\source\desktop\tests\worker-runtime.test.cjs:128:27)
+      at workerRuntime (D:\LLM\MA-Relay\artifacts\issue30\2026-11-07\source\desktop\electron\worker-runtime.cjs:80:10)
+      at TestContext.<anonymous> (D:\LLM\MA-Relay\artifacts\issue30\2026-11-07\source\desktop\tests\worker-runtime.test.cjs:132:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    code: 'EPERM'
+  }
+
+test at desktop\tests\worker-runtime.test.cjs:140:1
+✖ publication EIO is preserved when temporary cleanup also fails with ENOTEMPTY (136.7311ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  Error: secondary cleanup failure
+      at TestContext.<anonymous> (D:\LLM\MA-Relay\artifacts\issue30\2026-11-07\source\desktop\tests\worker-runtime.test.cjs:157:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: secondary cleanup failure
+        at Object.<anonymous> (D:\LLM\MA-Relay\artifacts\issue30\2026-11-07\source\desktop\tests\worker-runtime.test.cjs:151:27)
+        at workerRuntime (D:\LLM\MA-Relay\artifacts\issue30\2026-11-07\source\desktop\electron\worker-runtime.cjs:84:8)
+        at D:\LLM\MA-Relay\artifacts\issue30\2026-11-07\source\desktop\tests\worker-runtime.test.cjs:157:25
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at TestContext.<anonymous> (D:\LLM\MA-Relay\artifacts\issue30\2026-11-07\source\desktop\tests\worker-runtime.test.cjs:157:12)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+        at Test.postRun (node:internal/test_runner/test:1235:19),
+    operator: 'throws',
+    diff: 'simple'
+  }

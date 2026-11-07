@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+AB-F07 / M06-CX-F01：未发布源码已修复 Windows worker 运行时目录发布。完整复制和校验后，对瞬时目录锁在 5 秒预算内重试；并发目标须验证完整，损坏目录保留并使用独立 repair 目录。清理错误不覆盖主错误，非空临时目录保留。运行准备失败仍结束原 Task，不启动原生 CLI、不重发原请求。[issue #30 实现与验证](iterations/I08/codex-runtime-publish-recovery.md)
+
 alpha.73 在桌面本机「添加 Agent」提供 Hermes 自定义运行时。用户选择基础类型，填写显示名、命令和可选描述，版本探测通过后可添加并接入。运行时身份与内置 Hermes 独立，仍需既有授权。[自定义运行时记录](iterations/I08/custom-runtime-design.md)
 
 当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。

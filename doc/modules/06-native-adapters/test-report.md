@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器测试报告
 
+T-M06-320 / M06-F01：2026-11-07，alpha.73 源码基线 e9557b7，Windows 11 10.0.26220 / Node 24.12.0。共享 runtime、Codex、Claude、NativeCliHost 与核对回归 86/86；原请求恢复、MachineHost 路由与适配契约另组 21/21；MCP 协议另测 2/2。真实 Electron 44.7.0/ICU 隔离发布、复用、损坏副本修复三组通过，模型 0。两次锁后发布、5 秒耗尽保留首错、清理不遮蔽主错、非空目录保留和原请求不重发均覆盖。上述是本次工程共享结果，不按模块重复累加；CodeAgent 外部分支、公开 EXE 与真实模型未测。[实现、原始证据和限制](../../iterations/I08/codex-runtime-publish-recovery.md)
+
 2026-11-04，未发布源码。Windows 受控 Hermes 兼容 CLI 通过真实 stdio MCP 和生产宿主执行，验证固定参数顺序、配置冲突和原任务去重。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)
 
 T-M06-CX-317：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。

@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-11-07：[issue #30：Windows Codex 运行时发布恢复](I08/codex-runtime-publish-recovery.md)，默认共享发布有界重试、保留首次错误及非空证据；Windows 受控回归与实际 Electron/ICU 分层验证，不刷新公开 EXE。
+
 - 2026-11-04：[alpha.73 发布](I08/alpha73-release.md)，桌面本机 Hermes 自定义运行时与已校验的 Windows 便携 EXE。
 
 - 2026-11-04：[自定义 Agent 执行接入设计](I08/custom-runtime-design.md)：参考 Multica 的 Runtime 与协议族分离，明确现有注册、会话和调用生命周期的复用落点及首片验收。

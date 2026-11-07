@@ -1,0 +1,30 @@
+✔ registry validates discovery data and freezes caller-independent metadata (10.8121ms)
+✔ source registration rejects unsafe identities, launch paths, unknown fields and invalid capabilities (4.2055ms)
+✔ connection declarations accept only source-owned booleans and fixed driver names (4.0308ms)
+✔ browser registration has no executable aliases and preserves the synchronous host contract (2.3172ms)
+✔ registry rejects ambiguous IDs, command aliases and Windows npm entrypoint collisions (1.854ms)
+✔ host construction rejects unknown adapters and incomplete or async lifecycle implementations (2.081ms)
+✔ contract-only scaffold never reports native acceptance or turns missing receipts into execution (3.929ms)
+✔ Codex preparation failures persist a terminal original receipt, free admission and never start a worker (155.6142ms)
+✔ Codex reconciles an intact original launch that never reached its worker fence, without replay (69.5666ms)
+▶ Codex keeps uncertain executions occupied when evidence is missing or any worker/native activity exists
+  ✔ missing-run (29.3425ms)
+  ✔ heartbeat (51.1357ms)
+  ✔ null-heartbeat (52.6512ms)
+  ✔ events (54.1576ms)
+  ✔ worker-log (48.1146ms)
+  ✔ native (48.7361ms)
+  ✔ progress (45.4848ms)
+✔ Codex keeps uncertain executions occupied when evidence is missing or any worker/native activity exists (334.6128ms)
+✔ reopened incomplete context cannot hide an original request receipt during read-only recovery (1138.35ms)
+✔ missing original receipt stays unknown without querying an unfinished context or dispatching a prompt (20.4052ms)
+✔ unbound task and control lookups never select a context through two absent identities (20.8014ms)
+✔ an explicit agent and a bound original task still route to their owning context (17.7262ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2099.355

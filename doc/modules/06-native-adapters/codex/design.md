@@ -40,6 +40,8 @@ Codex worker 冻结 `tool-discovery.cjs` 时同步复制新发现器依赖的 `b
 
 ## 启动准备与原任务核对
 
+共享持久运行时准备在原生 CLI 启动前完成；完整复制和校验后的目录发布对瞬时锁统一进行 5 秒有界重试，并校验并发目标或使用独立 repair 目录。失败保留首次复制/校验/发布错误，空目录清理最多 200ms，非空临时证据保留。CodexHost 沿既有 `failLaunch` 保存原 failed Task、错误及 accepted→failed 事件；此时没有 worker.log、heartbeat、events 或原生 Session。同 requestId（含宿主重开后）只返回原失败任务，用户明确提交新请求才开始新的准备，未改变 Codex 命令、登录、模型、权限或 Session 格式。[issue #30](../../../iterations/I08/codex-runtime-publish-recovery.md)
+
 运行准备/同步spawn及异步启动失败均保存原failed任务、原错误code、脱敏原因和事件；spawn已有child后错误不证明未派发。reconcile沿原task读取已有终态；仅原job存在且只有accepted、无native/offset、无worker.log/心跳/事件时可证明尚未越过启动边界，记failed并释放。worker.log在spawn之前创建，因此即使心跳尚未写出，有该文件仍保留unknown。核对不准备runtime、不启动CLI、不改原requestId/Conversation，无原生Session的旧会话仍不可续问。[完整设计与证据](../../../iterations/I06/windows-start-persistence.md)。
 功能 **M06-CX-F01**；对应[模块总设计](../design.md)与[测试报告](test-report.md)；当前发布状态见[迭代发布记录](../../../iterations/release-ledger.md)。
 

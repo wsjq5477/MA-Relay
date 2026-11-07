@@ -1,5 +1,7 @@
 # 迭代路线与当前交付
 
+issue #30：共享 worker 运行时默认发布重试与清理保错已在 alpha.73 基线上源码修复并完成 Windows 定向与真实 Electron/ICU 验证；外部 CodeAgent 分支验证另列未测。按本 issue 范围不构建或发布 EXE，不重试历史失败任务。[交付与剩余验证](iterations/I08/codex-runtime-publish-recovery.md)
+
 当前公开预发布 **0.6.0-alpha.73**，源码冻结 042c546。新增桌面本机 Hermes 自定义运行时。Windows 便携 EXE 已发布并完成匿名下载校验。[交付记录](iterations/I08/alpha73-release.md)
 
 完整决策仍未验收完成。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。已解除网页登录与旧CLI模型门禁；原三Task读控18项、原源码受控回归维持历史证据范围。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。

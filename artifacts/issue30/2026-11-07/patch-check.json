@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-07T03:45:31.143Z",
+  "base": "e9557b7c431476ab3d268a5870791b1d366eb64c",
+  "markers": [],
+  "binding": [
+    {
+      "file": "desktop/electron/worker-runtime.cjs",
+      "source": "41dfa51480ebe3e8eaf5f55cc8d6ce312b16af1d544513d88a1bd5f49ce551c8",
+      "replay": "41dfa51480ebe3e8eaf5f55cc8d6ce312b16af1d544513d88a1bd5f49ce551c8"
+    },
+    {
+      "file": "desktop/tests/codex-host.test.cjs",
+      "source": "73d81699d08c0284a701c4502728091f980fc2d43eb8872d9e155078a29c521c",
+      "replay": "73d81699d08c0284a701c4502728091f980fc2d43eb8872d9e155078a29c521c"
+    },
+    {
+      "file": "desktop/tests/worker-runtime.test.cjs",
+      "source": "b6f37fc0f0acbf1d8f7f19b90d8ae10c51cce0f0757ac0406859f17a45917f4c",
+      "replay": "b6f37fc0f0acbf1d8f7f19b90d8ae10c51cce0f0757ac0406859f17a45917f4c"
+    },
+    {
+      "file": "desktop/tests/windows-worker-runtime-publish.cjs",
+      "source": "b563c499c014b9d6816f1bb2ee17703185b03d977f190c73ae869ae70a891485",
+      "replay": "b563c499c014b9d6816f1bb2ee17703185b03d977f190c73ae869ae70a891485"
+    }
+  ],
+  "sameProductFiles": true,
+  "runtimeOnlyProductChange": true,
+  "temp": "D:\\LLM\\MA-Relay\\artifacts\\issue30\\2026-11-07\\tmp"
+}

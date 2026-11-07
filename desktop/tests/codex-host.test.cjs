@@ -52,3 +52,31 @@ test('Codex Bridge turns distinguish connected nodes from native agents on new a
  for(const requestId of ['error-before-completed','failed-before-completed','error-after-completed'])assert.equal((await reopened.call('ipc',{op:'request',requestId})).status,'failed');
  assert.equal(fs.readFileSync(path.join(f.directory,'calls.jsonl'),'utf8').trim().split('\n').length,3);
 });
+
+test('runtime preparation failure ends only the original request before native launch and never replays it', async t => {
+ const f=fixture(t),a=await f.host.call('connect',{workspace:f.directory});
+ const runtime=require('../electron/worker-runtime.cjs'),prepare=runtime.workerRuntime;
+ const primary=Object.assign(new Error('original runtime publication error'),{code:'EIO'});
+ const params={op:'submit',agentId:a.agentId,requestId:'runtime-failure',message:'hello'};
+ let preparations=0,failed;
+ runtime.workerRuntime=()=>{preparations++;throw primary;};
+ try { failed=await f.host.call('ipc',params); }
+ finally { runtime.workerRuntime=prepare; }
+ assert.equal(failed.status,'failed');assert.equal(failed.error.code,'EIO');
+ assert.match(failed.error.message,/original runtime publication error/);
+ assert.equal(failed.lastSummary,failed.error.message);
+ assert.deepEqual(failed.events.map(row=>row.event.kind),['accepted','failed']);
+ assert.equal(failed.native,undefined);
+ const job=path.join(f.directory,'runs',failed.taskId);
+ assert.deepEqual(fs.readdirSync(job),['job.json']);
+ assert.equal(fs.existsSync(path.join(f.directory,'calls.jsonl')),false);
+ assert.deepEqual(await f.host.call('ipc',params),failed);assert.equal(preparations,1);
+ f.host.close();const reopened=new CodexHost({directory:f.directory,executable:f.executable});t.after(()=>reopened.close());
+ assert.deepEqual(await reopened.call('ipc',params),failed);
+ const conversation=await reopened.call('ipc',{op:'conversation',conversationId:failed.conversationId});
+ assert.equal(conversation.canContinue,false);
+ const next=await reopened.call('ipc',{...params,requestId:'explicit-new-request'});
+ assert.equal((await done(reopened,next.taskId)).status,'succeeded');
+ assert.deepEqual(await reopened.call('ipc',{op:'request',requestId:params.requestId}),failed);
+ assert.equal(fs.readFileSync(path.join(f.directory,'calls.jsonl'),'utf8').trim().split('\n').length,1);
+});

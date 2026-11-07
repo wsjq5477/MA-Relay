@@ -1,5 +1,7 @@
 # Codex 适配器测试报告
 
+T-M06-CX-320 / M06-CX-F01：2026-11-07，alpha.73 基线 e9557b7，Windows 11 10.0.26220 / Node 24.12.0，隔离受控 CLI。CodexHost 6/6 是共享原生回归 86/86 的子集：新增准备 EIO 后只有 job.json、accepted→failed、无原生 Session；同请求及宿主重开不重发，明确新请求成功且旧失败历史不变。原五项继续验证 JSONL 执行、配置继承、去重、原 Session 续聊、错误终态、MCP 范围及取消进程退出。共享 runtime 16/16 同属该回归；真实 Electron/ICU 三组独立通过，不等于真实 Codex 模型或 EXE 验收。外部 CodeAgent 专项未测。[完整证据](../../../iterations/I08/codex-runtime-publish-recovery.md)
+
 T-M06-CX-317：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 T-M06-CX-314 / M06-CX-F01：2026-11-03，Windows原认证Coordinator/真实stdio MCP，读取已有三条WSL Codex真实原生Task（cancelled/failed/failed）。实际原上下文凭据轮换、旧Bearer拒绝、观察器关闭/重开、跨上下文拒读、delegate/result/目标授权撤销及恢复累计18项核对通过，原Task/原生Session与请求计数3→3保持。本轮新需求0，原操作权限和目标已恢复；18项为共用累计检查，不与各阶段或104项相加。没有成功模型正文、在途属主上下文关闭或真正丢提交回应，已有服务/SSH/EXE与原矩阵仍未准出。新增验收脚本lint通过；首次脚本把Task.error误判为查询失败，产品行为未改。[源码、原始失败与分阶段实测](../../../iterations/I08/interconnect-development.md#13-基于三条真实原生task的读控恢复验收)。

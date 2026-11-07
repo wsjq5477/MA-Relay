@@ -414,6 +414,8 @@ sequenceDiagram
 
 共享 Electron 运行缓存不追踪 runtime.json 自身；新缓存逐文件 SHA-256 校验，旧自引用清单只忽略自身，其余资源异常时保留旧目录并准备完整新副本。Windows OpenCode 子后台启动前的 INVALID/MISSING 不代表原生模型失败；仅中央原未派发证据完备时记明确拒绝。Claude/Codex 的任务与原生终态仍按各适配器，不根据共享错误码泛化解除占位。见 [资源与原请求修复](../../iterations/I06/runtime-recovery.md)。
 
+所有 `workerRuntime` 调用方统一在复制、清单写入及逐文件校验成功后发布。`publishRuntimeDirectory` 对 EACCES/EBUSY/EEXIST/ENOTEMPTY/EPERM 使用单调时钟控制 5 秒总预算，25ms 起退避、单次最多 250ms；每轮重新校验并发目标，有效才复用，已有无效目录保持原样并选择唯一 repair 目录。耗尽或出现不可重试错误时返回首次错误。`discardRuntimeDirectory` 只非递归删除本次空临时目录，对清理锁最多等待 200ms，吸收全部清理异常；非空准备证据及其他发布者的目录不删除、不扫描回收。该默认路径无需模式开关，上游没有 `retry-v1` 扩展或 CodeAgent 补丁框架。原任务、Session、收据与适配器启动协议不变。[issue #30](../../iterations/I08/codex-runtime-publish-recovery.md)
+
 ## 8. 代码入口与扩展规则
 
 | 入口 | 责任 |
