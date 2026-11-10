@@ -249,6 +249,7 @@ class SshManager {
     for (const connection of this.connections.filter(row => row.machineId && !row.removed && row.autoReconnect !== false)) this.scheduleReconnect(connection, true);
   }
   async call(method, params = {}) {
+    if(method==='machine.confirmMaintenanceNotRun')return this.confirmMaintenanceNotRun(params);
     if(method==='machine.operation'){const row=this.lifecycleOperations.find(o=>o.operationId===params.operationId);if(row?.remoteInput&&row.state==='unknown')return this.queryMaintenance(row);return structuredClone(row?this.publicOperation(row):{operationId:params.operationId,state:'not_found'});}
     if(method==='machine.daemonPreview'){const c=this.find(params);if(this.jobs.has(c.connectionId))throw problem('MACHINE_BUSY','连接操作正在进行。');return this.serial(c,'preview',()=>this.maintenanceEntry(c));}
     if(lifecycleMethods.has(method)||['machine.disconnect','machine.reconnect'].includes(method)&&params.operationId)return this.lifecycle(method,params);
@@ -324,6 +325,30 @@ class SshManager {
     return structuredClone(receipt);
   }
   publicOperation(row){const {remoteInput,controller,...result}=row;return structuredClone(result);}
+  async confirmMaintenanceNotRun(params){
+    operationId(params.operationId);
+    if(params.confirmNotRun!==true||typeof params.connectionId!=='string'||!params.connectionId)throw problem('INVALID_INPUT','必须明确确认并指定原连接和原操作。');
+    const c=this.find({connectionId:params.connectionId});
+    const row=this.lifecycleOperations.find(r=>r.operationId===params.operationId);
+    const valid=()=>row?.state==='unknown'&&row.remoteLaunched===true&&row.data?.action==='maintainDaemon'&&row.data.connectionId===c.connectionId&&typeof c.machineId==='string'&&!!c.machineId&&row.data.machineId===c.machineId&&(!params.machineId||params.machineId===c.machineId)&&c.maintenance?.operationId===row.operationId&&c.maintenance.state==='unknown'&&['upgrade','rollback','replace'].includes(row.remoteInput?.action);
+    if(!valid()||c.removed||this.jobs.has(c.connectionId))throw problem('DAEMON_RECOVERY_UNSAFE','原维护状态或连接不匹配，保留原操作。');
+    return this.serial(c,'maintenance-recovery',async()=>{
+      if(!valid())throw problem('DAEMON_RECOVERY_UNSAFE','原维护状态已变化，保留原操作。');
+      const input=row.remoteInput;
+      if(!input.from?.version||!input.from?.digest||!input.installPath||!input.stateDirectory||!input.profileId||!Number.isSafeInteger(input.uid)||!row.controller)throw problem('DAEMON_RECOVERY_UNSAFE','原维护身份不完整，无法安全解除。');
+      const client=await this.authenticate(c);
+      const receipt=await this.installer.readMaintenanceReceipt(client,input);
+      if(receipt?.operationId!==row.operationId||receipt.state!=='not_found')throw problem('DAEMON_RECOVERY_UNSAFE','远端原操作并非未找到，保留原操作并重新查询。');
+      const preview=await this.installer.maintenancePreview(client);
+      if(!valid()||preview.replacementRequired||preview.installNeeded||preview.daemonVersion!==input.from.version||preview.installPath!==input.installPath||preview.stateDirectory!==input.stateDirectory||preview.profileId!==input.profileId||preview.uid!==input.uid||preview.manifestDigest!==input.from.digest)throw problem('DAEMON_RECOVERY_UNSAFE','远端版本或安装身份已变化，保留原操作。');
+      const oldRow=structuredClone(row),oldConnection=structuredClone(c);
+      row.state='rejected';row.error={code:'DAEMON_NOT_RUN_CONFIRMED',message:'远端原操作未找到，用户核对原版本和安装身份后确认本次维护未执行。'};
+      c.maintenance={...c.maintenance,state:'rejected',error:row.error};c.autoReconnect=true;c.stage='reconnecting';c.online=false;delete c.error;
+      try{this.save();}catch(error){for(const key of Object.keys(row))delete row[key];Object.assign(row,oldRow);for(const key of Object.keys(c))delete c[key];Object.assign(c,oldConnection);throw error;}
+      this.options.onChange?.(this.publicState(c));this.scheduleReconnect(c,true);
+      return this.publicOperation(row);
+    });
+  }
   /** Read-only maintenance preview. A session-budget-limited sshd can reject
    * the channel open of an otherwise healthy connection. No maintenance
    * intent exists yet, so the preview retries once on the same connection and
@@ -454,6 +479,7 @@ class SshManager {
     }
     try{
       const result=await this.queryWithRecovery(c,row);
+      if(row.state!=='unknown')return this.publicOperation(row);
       if(result.operationId!==row.operationId)return this.publicOperation(row);
       if(!['confirmed','rejected'].includes(result.state)){if(result.state==='not_found'){row.error={code:'DAEMON_MAINTENANCE_NOT_FOUND',message:'远端未找到原维护记录，尚不能证明原操作终态；保留原 ID 待核对。'};c.maintenance={...c.maintenance,error:row.error};this.save();}return this.publicOperation(row);}
       row.state=result.state;row.error=result.error;row.data={...row.data,...result.data,action:'maintainDaemon',remoteAction:row.remoteInput.action};
@@ -466,7 +492,7 @@ class SshManager {
       // this also covers a receipt resolved after a desktop restart.
       if(removed||!daemonAvailable(result,row.remoteInput.action)){c.autoReconnect=false;if(removed||['stop','uninstall'].includes(row.remoteInput.action))this.dropTransport(c);this.state(c,removed?'removed':'disconnected_manual');}
       else{c.autoReconnect=true;this.save();this.state(c,'reconnecting');this.scheduleReconnect(c,true);}
-    }catch(error){const failure=safeFailure(error);row.error={code:failure.code,message:error.details?.controllerMessage||failure.message,...(error.details?{details:error.details}:{})};c.maintenance={...c.maintenance,error:row.error};this.state(c,['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(failure.code)?'needs_credentials':fatal.has(failure.code)?'blocked':'maintaining',failure);}
+    }catch(error){if(row.state!=='unknown')return this.publicOperation(row);const failure=safeFailure(error);row.error={code:failure.code,message:error.details?.controllerMessage||failure.message,...(error.details?{details:error.details}:{})};c.maintenance={...c.maintenance,error:row.error};this.state(c,['SSH_AUTH_REQUIRED','SSH_AUTH_FAILED','CREDENTIAL_STORE_UNAVAILABLE'].includes(failure.code)?'needs_credentials':fatal.has(failure.code)?'blocked':'maintaining',failure);}
     return this.publicOperation(row);
   }
   async resumeConnection(connectionId,expectedRevision){

@@ -338,6 +338,23 @@ class SshInstaller {
     if(previous&&!probe.replacementRequired){const release=this.release(previous.version);if(previous.digest!==release.digest||previous.versionPath!==path.posix.join(probe.installPath,'versions',previous.version))throw problem('SSH_VERSION_CONFLICT','旧版本回退路径或摘要不可验证。');rollbackVersion=previous.version;}
     return {...probe,targetVersion:this.bundle().manifest.version,rollbackVersion};
   }
+  async readMaintenanceReceipt(client,input){
+    const sftp=await sftpOpen(client);
+    try{
+      await existingPrivateDirectory(sftp,input.stateDirectory,input.home,input.uid);
+      const identityFile=path.posix.join(input.stateDirectory,'machine.json'),identityStat=await lstat(sftp,identityFile);
+      if(!identityStat||identityStat.uid!==input.uid)throw problem('DAEMON_IDENTITY_CHANGED','远端后台身份归属不符。');
+      const identity=await readJson(sftp,identityFile);
+      if(!identity||identity.kind!=='agentbridge-machine'||identity.stateVersion!==1||identity.daemonId!==input.daemonId||identity.ownerCoordinatorId!==input.ownerCoordinatorId||identity.profileId!==input.profileId||identity.uid!==input.uid||identity.stateDirectory!==input.stateDirectory)throw problem('DAEMON_IDENTITY_CHANGED','远端后台身份变化，保留原操作。');
+      const file=path.posix.join(input.stateDirectory,'maintenance-operations.json');
+      if(await lstat(sftp,file+'.lock'))throw problem('DAEMON_RECOVERY_UNSAFE','远端维护台账正在写入，保留原操作。');
+      const stat=await lstat(sftp,file);if(stat&&stat.uid!==input.uid)throw problem('REMOTE_DIRECTORY_UNSAFE','远端维护台账归属不符。');
+      const rows=await readJson(sftp,file);
+      if(rows!==null&&!Array.isArray(rows))throw problem('DAEMON_RECOVERY_UNSAFE','远端维护台账无法核对。');
+      if(await lstat(sftp,file+'.lock'))throw problem('DAEMON_RECOVERY_UNSAFE','远端维护台账正在写入，保留原操作。');
+      return (rows||[]).find(row=>row.operationId===input.operationId)||{operationId:input.operationId,state:'not_found'};
+    }finally{sftp.end();}
+  }
   async stageMaintenance(client,probe,operationId,onProgress){
     const bundle=this.bundle(),target={...probe,daemonVersion:bundle.manifest.version,manifestDigest:bundle.digest,versionPath:path.posix.join(probe.installPath,'versions',bundle.manifest.version),installNeeded:true};
     const staged=await this.install(client,target,operationId,onProgress,{deferActivation:true});

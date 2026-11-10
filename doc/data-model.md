@@ -1,5 +1,7 @@
 # 对象、身份与持久数据
 
+维护未执行确认复用原 lifecycle operation 的 rejected 状态与 error 字段，错误码 DAEMON_NOT_RUN_CONFIRMED 记录远端原记录缺失和用户明确确认；不新增远端终态或迁移数据，graph 按同一原收据结算。[详情](iterations/I08/maintenance-unstarted-cleanup.md)
+
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)
 
 自定义运行时以 UUID 在目标机器保存私有配置。目录与执行上下文沿用安装身份字段，值为 `custom-runtime:<UUID>`，实际程序、固定参数与描述留在目标机器配置；Windows 不替远端解析路径或保存配置。私有配置持久化 adapter（hermes/pi）；旧配置缺字段时仍按 Hermes 读取，同一 UUID 不允许换协议。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)

@@ -1,5 +1,7 @@
 # M02 中央协调后台设计
 
+M02：维护确认先校验原 graph 意图指纹，结算后查询原收据恢复 graph；中断时仍可按原 ID 查询。[详情](../../iterations/I08/maintenance-unstarted-cleanup.md)
+
 未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](../../iterations/I08/maintenance-controller-recovery.md)
 
 桌面 Coordinator 的自定义运行时创建方法仅转给本机 MachineHost，沿用机器管理准入。远端 daemon 和 MCP 工具列表不开放创建。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)

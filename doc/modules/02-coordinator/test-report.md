@@ -1,5 +1,7 @@
 # M02 中央协调后台测试报告
 
+2026-11-09：协调器原收据结算受控测试见[本轮记录](../../iterations/I08/maintenance-unstarted-cleanup.md)。
+
 未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](../../iterations/I08/maintenance-controller-recovery.md)
 
 2026-11-04，Windows 未发布源码。经桌面 Coordinator 验证 Hermes 兼容配置创建、相同 ID 重试和不同配置冲突；同组证据不重复计数。[自定义运行时记录](../../iterations/I08/custom-runtime-design.md)

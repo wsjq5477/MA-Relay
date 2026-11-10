@@ -13,7 +13,7 @@ const {isSshTransition}=require('./ssh-state.cjs');
 const { supportsTeamCollaboration, connectionCapabilities, isCollaborationCapabilityRejection } = require('./builtin-adapters.cjs');
 const teamMethods=new Set([...require('./team-context-transfers.cjs').methods,'team.contextPacket','team.materials','team.stopRun','team.configureAutomation','team.wake','team.tasks',...require('./team-work.cjs').taskMethods,'team.snapshot','team.operation','team.registerAgent','team.disableAgent','team.createTeam','team.createRun','team.context','team.messages','team.postMessage','team.document','team.writeDocument','team.revokeMember','team.pause','team.closeRun','team.connect','team.execute','team.refresh']);
 const machineWrites=new Set(['machine.updateSsh','machine.remove','machine.restore','machine.disconnect','machine.reconnect','machine.maintainDaemon']);
-const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview','machine.maintenanceBlockers','machine.queryBlockedOperation']);
+const sshMethods = new Set(['machine.createSshDraft','credential.provide','machine.testSsh','machine.trustHost','machine.connectSsh','machine.reconnect','machine.disconnect','machine.daemonPreview','machine.maintenanceBlockers','machine.queryBlockedOperation','machine.confirmMaintenanceNotRun']);
 const methods = new Set(['dsh.status','dsh.configure','mcp.status','mcp.install','mcp.remove','mcp.export','mcp.revoke','mcp.probe','snapshot','discover','ipc','environment','attachNode','manageNode','nodeOperation','nodeRequest','connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation','relations','saveCollaboration','collaboration','collaborationOperation','graphLayout','saveGraphLayout','graphLayoutOperation','graphPending','machine.operation',...machineWrites,...sshMethods,...teamMethods]);
 methods.add('customRuntime.create');
 for(const method of require('./agent-directory.cjs').methods)methods.add(method);
@@ -368,6 +368,16 @@ async function call(input) {
       }finally{if(machineId)connection().machineLocks.delete(machineId);}
     };
     const graphDispatch=(method,params)=>method.startsWith('machine.')?machineDispatch(method,params):connection().call(method,params);
+    if(input.method==='machine.confirmMaintenanceNotRun'){
+      const p=input.params;
+      if(Object.keys(p).some(k=>!['operationId','connectionId','machineId','confirmNotRun'].includes(k)))throw Object.assign(Error('恢复请求包含不支持的字段。'),{code:'INVALID_INPUT'});
+      const entry=graphJournal.pending().find(r=>r.lane==='machine'&&r.operationId===p.operationId);
+      if(!entry||entry.method!=='machine.maintainDaemon'||entry.params?.operationId!==p.operationId||entry.params?.connectionId!==p.connectionId||p.machineId&&entry.params?.machineId!==p.machineId||entry.fingerprint!==require('./graph-layout.cjs').digest(entry.params))throw Object.assign(Error('原图维护记录不匹配，保留原操作。'),{code:'DAEMON_RECOVERY_UNSAFE'});
+      const original=ssh.lifecycleOperations?.find(row=>row.operationId===p.operationId);
+      if(!original||original.fingerprint!==entry.fingerprint)throw Object.assign(Error('原维护与图记录不匹配，保留原操作。'),{code:'DAEMON_RECOVERY_UNSAFE'});
+      await ssh.call(input.method,p);
+      return {ok:true,result:await graphJournal.lookup('machine.operation',{operationId:p.operationId},graphDispatch)};
+    }
     if(input.method==='machine.operation')return {ok:true,result:await graphJournal.lookup(input.method,input.params,graphDispatch)};
     if(machineWrites.has(input.method)){
       if(!ssh)throw Object.assign(Error('当前后台未启用 SSH 连接管理。'),{code:'INVALID_INPUT'});

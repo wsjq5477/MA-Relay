@@ -261,6 +261,7 @@ export default function MachineInventory(props: Props) {
               >
                 {machineStatus}
               </span>
+              {machine.daemonMaintenance?.state==='unknown'&&<button className="text-btn" onClick={()=>props.machineAction(machine,'daemon')}>原操作待核对 · 查看</button>}
               <div className="inventory-machine-actions">
                 <button
                   className="btn small"
@@ -446,7 +447,7 @@ export default function MachineInventory(props: Props) {
                       <span className="ui-status" data-tone={state.tone}>
                         {props.configurationOnly&&state.label==='可开始会话'?'可用于协作':state.label}
                       </span>
-                      {resourceBlocked && <button className="text-btn" title={props.executionReason?.(node.machineId,node.nodeId) || metadataReason || '查看原操作与查询结果'} onClick={props.openSettings}>原操作待核对 · 查看</button>}
+                      {resourceBlocked && <button className="text-btn" title={props.executionReason?.(node.machineId,node.nodeId) || metadataReason || '查看原操作与查询结果'} onClick={()=>machine.daemonMaintenance?.state==='unknown'?props.machineAction(machine,'daemon'):props.openSettings?.()}>原操作待核对 · 查看</button>}
                     </div>
                     <div className="inventory-node-actions">
                       {(node.connected && node.status !== "needs_check") ? (

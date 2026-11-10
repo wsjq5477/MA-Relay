@@ -40,8 +40,21 @@ function harness() {
     async call() { throw Object.assign(Error('stub network call'), { code: 'STUB' }); },
   };
   const service = createCoordinatorService({ directory, platform: 'linux', coordinatorId: 'coordinator-1', ssh, network });
-  return { service, sshCalls, connection, directory };
+  return { service, sshCalls, connection, directory, ssh };
 }
+
+test('explicit recovery settles the original graph record through the original receipt', async (t) => {
+  const {service,sshCalls,connection,directory,ssh}=harness();
+  t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));
+  const params={operationId:'original',connectionId:connection.connectionId,machineId:connection.machineId,expectedRevision:1,config:{action:'upgrade'}};
+  fs.writeFileSync(path.join(directory,'graph-pending.json'),JSON.stringify([{lane:'machine',method:'machine.maintainDaemon',operationId:'original',params,fingerprint:require('../electron/graph-layout.cjs').digest(params),state:'unknown'}]));
+  ssh.lifecycleOperations=[{operationId:'original',fingerprint:require('../electron/graph-layout.cjs').digest(params)}];
+  ssh.call=async(method,p)=>{sshCalls.push({method,params:p});return {operationId:'original',state:'rejected',data:{action:'maintainDaemon',connectionId:connection.connectionId,machineId:connection.machineId},error:{code:'DAEMON_NOT_RUN_CONFIRMED',message:'confirmed'}};};
+  const result=await dispatch(service,'machine.confirmMaintenanceNotRun',{operationId:'original',connectionId:connection.connectionId,machineId:connection.machineId,confirmNotRun:true});
+  assert.equal(result.ok,true);assert.equal(result.result.state,'rejected');
+  assert.deepEqual(sshCalls.map(c=>c.method),['machine.confirmMaintenanceNotRun','machine.operation']);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(directory,'graph-pending.json')))[0].state,'rejected');
+});
 
 function dispatch(service, method, params) {
   return service.dispatch('call', { method, params });

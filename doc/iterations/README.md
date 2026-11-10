@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+[I08 issue #32：维护未执行的明确确认](I08/maintenance-unstarted-cleanup.md)。
+
 - 2026-11-07：[issue #31 维护控制器暂存与原 ID 恢复](I08/maintenance-controller-recovery.md)。
 
 - 2026-11-07：[alpha.74 发布记录](I08/alpha74-release.md)：远端创建、Hermes/Pi 图标与原会话，冻结源/EXE/下载分层验证。

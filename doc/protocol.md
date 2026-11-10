@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+桌面协调器 `machine.confirmMaintenanceNotRun` 接收原 operationId、connectionId、可选 machineId 和严格布尔 confirmNotRun；仅在原查询 not_found 和只读身份检查通过后结算本机 rejected，随后以原收据结算 graph。[契约与限制](iterations/I08/maintenance-unstarted-cleanup.md)
+
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)
 
 桌面 Coordinator 管理方法 `customRuntime.create` 接收目标 machineId、profileId、adapter、name、command 和可选 description，返回不含命令的 executable 身份。adapter 当前接受 hermes/pi。相同 ID 和配置可重试，包含协议变化的配置冲突拒绝。远端 daemon 经原认证连接开放此方法，按配置变更执行维护门禁；旧后台拒绝方法时提示升级，不回退本机或自动部署。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)

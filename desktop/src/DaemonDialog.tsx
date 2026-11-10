@@ -9,16 +9,18 @@ export interface BlockerReceipt{key:string;op:string;state:string;updatedAt?:str
 export interface MaintenanceBlockers{available:boolean;reason?:string;code?:string;tasks?:BlockerTask[];agents?:BlockerTask[];receipts?:BlockerReceipt[];receiptsSupported?:boolean}
 export interface BlockedOperationResult{state:string;detail?:Record<string,unknown>}
 export interface MaintenanceGateDetails{gate?:string;tasks?:BlockerTask[];agents?:BlockerTask[];receipts?:BlockerReceipt[]}
-type Props={machine:Machine;pending:boolean;blockedReason?:string;onClose:()=>void;onOpenOperations?:()=>void;run:(config:Record<string,unknown>)=>Promise<boolean>;poll?:()=>void|Promise<void>;blockers?:()=>Promise<MaintenanceBlockers>;queryBlocked?:(key:string,op:string)=>Promise<BlockedOperationResult>};
+type Props={machine:Machine;pending:boolean;blockedReason?:string;onClose:()=>void;onOpenOperations?:()=>void;run:(config:Record<string,unknown>)=>Promise<boolean>;poll?:()=>void|Promise<void>;confirmNotRun?:()=>Promise<void>;blockers?:()=>Promise<MaintenanceBlockers>;queryBlocked?:(key:string,op:string)=>Promise<BlockedOperationResult>};
 const phaseNames:Record<string,string>={uploading:'正在上传',extracting:'正在解包',verifying:'正在校验'};
 const gateText=(details:MaintenanceGateDetails)=>details.gate==='receipts'?`未确认收据 ${(details.receipts||[]).length} 条`:`运行、等待或未知任务 ${(details.tasks||[]).length} 项、Agent ${(details.agents||[]).length} 项`;
 const terminalText=(machine:Machine)=>{
  const maintenance=machine.daemonMaintenance;if(!maintenance||!['confirmed','rejected'].includes(maintenance.state))return '';
  return maintenance.state==='confirmed'?'后台维护已完成，远端已切换。':maintenance.error?.message||'后台维护未执行；原版本与历史保留。';
 };
-export default function DaemonDialog({machine,pending,blockedReason,onClose,onOpenOperations,run,poll,blockers,queryBlocked}:Props){
+export default function DaemonDialog({machine,pending,blockedReason,onClose,onOpenOperations,run,poll,confirmNotRun,blockers,queryBlocked}:Props){
  const [preview,setPreview]=useState<Preview|null>(null),[error,setError]=useState(''),[action,setAction]=useState(''),[working,setWorking]=useState(false);
  const [confirmReplacement,setConfirmReplacement]=useState(false);
+ const [confirmedNotRun,setConfirmedNotRun]=useState(false);
+ useEffect(()=>setConfirmedNotRun(false),[machine.daemonMaintenance?.operationId]);
  const [previewReload,setPreviewReload]=useState(0);
  useEffect(()=>{let alive=true;setPreview(null);setError('');setAction('');setConfirmReplacement(false);if(pending)return;void call<Preview>('machine.daemonPreview',{connectionId:machine.connectionId,machineId:machine.machineId}).then(p=>{if(alive)setPreview(p);},e=>{if(alive)setError(e.message);});return(()=>{alive=false;});},[machine.connectionId,machine.machineId,pending,previewReload]);
  // Bounded auto-query while the original receipt stays unconfirmed: 1s/2s/4s/8s backoff, one call in flight,
@@ -74,6 +76,7 @@ export default function DaemonDialog({machine,pending,blockedReason,onClose,onOp
  {error&&<p role="alert">{error}</p>}{!preview&&!error&&!pending&&<p>正在核对实际后台版本与可信安装…</p>}
  {!pending&&<p><button className="btn" disabled={working} onClick={()=>{setPreviewReload(value=>value+1);setReloadToken(value=>value+1);}}>重新检查维护状态</button></p>}
  {pending&&poll&&<p><button className="btn" disabled={working} onClick={()=>void pollRef.current?.()}>查询原维护操作</button></p>}
+ {machine.daemonMaintenance?.state==='unknown'&&machine.daemonMaintenance.error?.code==='DAEMON_MAINTENANCE_NOT_FOUND'&&confirmNotRun&&<section className="ssh-note" aria-label="确认维护未执行"><p>远端未找到原维护记录。请确认本次维护未执行；系统会再次核对原版本和安装身份。</p><label className="daemon-replacement-confirm"><input type="checkbox" checked={confirmedNotRun} onChange={event=>setConfirmedNotRun(event.target.checked)}/> 我确认本次维护未执行</label><p><button className="btn" disabled={!confirmedNotRun||working} onClick={()=>{setWorking(true);setError('');void confirmNotRun().catch(reason=>setError((reason as Error).message||'核对失败，原操作保留。')).finally(()=>setWorking(false));}}>确认并解除占用</button></p></section>}
  {progress&&<div className="ssh-upload"><div className="ssh-progress" role="progressbar" aria-label="后台维护进度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}><i style={{width:percent+'%'}}/></div><p>{phaseNames[progress.phase]||'正在上传'} {sshTransferSize(progress.completedBytes)} / {sshTransferSize(progress.totalBytes)}</p></div>}
  {machine.progressWarning&&<p className="ssh-note" role="status">提示：{machine.progressWarning.message}上传仍在继续，不影响后续核对。</p>}
  {terminal&&<section className="ssh-note" aria-label="上次维护结果" role={historyAlert?'alert':'status'}><p>上次维护结果：{terminal}</p>{upToDate&&<p>当前实际版本 {preview?.daemonVersion} 已与本程序版本一致，无需升级；以上只是历史记录，不代表当前失败。</p>}{!upToDate&&gateRefusal&&<p>这是上一次维护留下的结果：远端门禁在停止后台之前就拒绝了这次维护，后台没有被停止、版本也没有变化，不代表现在又失败了；实时阻塞项见下一节。</p>}{gateDetails&&<p>远端门禁原话：{terminal}（{gateText(gateDetails)}）</p>}</section>}
@@ -89,7 +92,7 @@ export default function DaemonDialog({machine,pending,blockedReason,onClose,onOp
  {workBlocked&&<p className="inventory-machine-error">任务或 Agent 仍在运行、等待或未知，维护前置门禁不可越过。请先完成或按原 ID 核对这些操作。</p>}
  {preview&&<><p>实际版本：{preview.daemonVersion} · 本程序版本：{preview.targetVersion}</p><p>所有操作保留原机器身份、任务与会话历史，以及原生 Agent 的安装和配置。运行、等待、未知或未确认操作会阻止维护。</p>{preview.replacementRequired?<section className="ssh-note" aria-label="替换不受支持的后台"><p>该后台未列入兼容清单，无法直接连接。可以将它替换为本程序配套的后台；原版本目录、机器身份和任务历史保留。</p><p>替换会短暂中断连接。运行、等待、未知任务或未确认收据会阻止替换。若启动失败，保留原操作供查询，不自动运行未校验的旧版本。</p><button className="btn" disabled={mutationBlocked||blockedReceipts.length>0} onClick={()=>{setAction('replace');setConfirmReplacement(false);}}>强制替换后台</button></section>:<div className="ssh-actions"><button className="btn" disabled={mutationBlocked||preview.daemonVersion===preview.targetVersion} onClick={()=>setAction('upgrade')}>升级后台</button><button className="btn" disabled={mutationBlocked||!preview.rollbackVersion} onClick={()=>setAction('rollback')}>回滚到 {preview.rollbackVersion||'无可用旧版本'}</button><button className="btn" disabled={mutationBlocked} onClick={()=>setAction('stop')}>停止后台</button><button className="btn" disabled={mutationBlocked} onClick={()=>setAction('uninstall')}>卸载 Bridge 后台</button></div>}
  {action&&<div role="status"><p>{action==='replace'?'将替换为 '+preview.targetVersion+'，不会直接连接或自动回滚到当前未校验版本。':action==='upgrade'?'新包通过校验后才切换；启动或健康检查失败会回到原版本。':action==='rollback'?'切换回已校验的原版本；不迁移或重发任务。':action==='stop'?'停止这份机器后台并暂停自动重连；稍后可重新连接启动。':'仅移除本 profile 的已核对 Bridge 安装；保留历史，撤销相关协作授权。'}</p><>{action==='replace'&&<p><label className="daemon-replacement-confirm"><input type="checkbox" checked={confirmReplacement} onChange={event=>setConfirmReplacement(event.target.checked)}/> 我确认将远端后台替换为本程序配套版本</label></p>}</><button className="btn" disabled={working} onClick={()=>{setAction('');setConfirmReplacement(false);}}>返回</button> <button className="btn primary" disabled={mutationBlocked||action==='replace'&&(!confirmReplacement||workBlocked||blockedReceipts.length>0)} onClick={()=>void confirm()}>确认{action==='replace'?'替换':action==='upgrade'?'升级':action==='rollback'?'回滚':action==='stop'?'停止':'卸载'}</button></div>}</>}
- {pending&&<p role="status">已发送维护指令，等待远端切换（原操作已保留，不会重做）。关闭此窗口不会重做维护；也可以稍后在机器页面查询原操作。</p>}
+ {pending&&<p role="status">{machine.daemonMaintenance?.error?.code==='DAEMON_MAINTENANCE_NOT_FOUND'?'原维护尚未确认。请查询原操作，或确认本次维护未执行后解除占用。':'已发送维护指令，等待远端切换（原操作已保留，不会重做）。关闭此窗口不会重做维护；也可以稍后在机器页面查询原操作。'}</p>}
  {!pending&&machine.daemonMaintenance?.state==='unknown'&&<p role="status">远端正在报告后台切换中；原操作与历史保留，完成后显示核对结果。</p>}
  </div></section></div>;
 }

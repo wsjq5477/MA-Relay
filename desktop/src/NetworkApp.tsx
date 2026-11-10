@@ -1219,6 +1219,15 @@ export default function NetworkApp() {
           blockedReason={managementReason(daemonDialog.machineId)||executionReason(daemonDialog.machineId)||(allMachines.find(m=>m.machineId===daemonDialog.machineId)?.busy||(data.nodes||[]).some(n=>n.machineId===daemonDialog.machineId&&n.busy)?'来源机器仍有运行、等待或待核对的任务。':'')||(!data.daemonManagement?'当前中央后台未提供维护能力，请在设置中停止旧后台并打开新版。':'')}
           onClose={() => setDaemonDialog(null)}
           onOpenOperations={() => {setDaemonDialog(null);showSettings('recovery');}}
+          confirmNotRun={async()=>{
+            const machine=allMachines.find(m=>m.machineId===daemonDialog.machineId)??daemonDialog;
+            const operationId=machine.daemonMaintenance?.operationId;
+            if(!operationId||!machine.connectionId)throw Error('原维护或连接不可用，请重新核对。');
+            await call('machine.confirmMaintenanceNotRun',{operationId,connectionId:machine.connectionId,machineId:machine.machineId,confirmNotRun:true});
+            const intent=machineManagement.pendingItems.find(i=>i.operationId===operationId);
+            if(intent)await machineManagement.query(intent,false);
+            await graphRecovery.reload();await refresh();
+          }}
           poll={async () => {
             const intent = machineManagement.pendingItems.find(
               (i) => i.connectionId === daemonDialog.connectionId && i.action === 'maintainDaemon',

@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+M04/M01：维护原操作 not_found 保持 unknown；用户明确确认后可核对原版本与安装身份并结算本机原收据，原 ID 同步恢复 graph。[设计与验证](iterations/I08/maintenance-unstarted-cleanup.md)
+
 未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](iterations/I08/maintenance-controller-recovery.md)
 
 AB-F07 / M06-CX-F01：alpha.74 已修复 Windows worker 运行时目录发布。完整复制和校验后，对瞬时目录锁在 5 秒预算内重试；并发目标须验证完整，损坏目录保留并使用独立 repair 目录。清理错误不覆盖主错误，非空临时目录保留。运行准备失败仍结束原 Task，不启动原生 CLI、不重发原请求。[issue #30 实现与验证](iterations/I08/codex-runtime-publish-recovery.md)
