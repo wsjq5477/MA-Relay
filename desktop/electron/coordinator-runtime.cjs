@@ -2,11 +2,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash, randomUUID } = require('node:crypto');
 const { workerRuntime } = require('./worker-runtime.cjs');
-const { ensurePrivateDirectory } = require('./private-directory.cjs');
+const { ensurePrivateDirectoryAsync } = require('./private-directory.cjs');
+
+function coordinatorVersionsDirectory(directory) {
+  return path.join(directory, 'coordinator', 'versions');
+}
 
 // Freeze the complete backend, not just electron.exe: portable extraction paths
 // disappear as soon as the last window closes.
-function coordinatorRuntime(options) {
+async function coordinatorRuntime(options) {
   const source = options.bridgeDirectory;
   const version = options.version || '0.6.0-alpha.1';
   const modules = path.join(source, 'node_modules');
@@ -22,10 +26,11 @@ function coordinatorRuntime(options) {
   }
   digestDirectory(path.join(source,'dist'));
   stamp.update(fs.readFileSync(path.join(source, 'package.json')));
-  const target = path.join(options.directory, 'coordinator', 'versions', `${version}-${stamp.digest('hex').slice(0,12)}`);
+  const versions = coordinatorVersionsDirectory(options.directory);
+  const target = path.join(versions, `${version}-${stamp.digest('hex').slice(0,12)}`);
   const manifest = path.join(target, 'coordinator-runtime.json');
+  await ensurePrivateDirectoryAsync(versions);
   if (!fs.existsSync(manifest)) {
-    ensurePrivateDirectory(path.dirname(target));
     const stage = target + '.' + randomUUID() + '.tmp';
     fs.mkdirSync(stage, {mode:0o700});
     try {
@@ -56,4 +61,4 @@ function coordinatorRuntime(options) {
   return {directory:target, executable:workerRuntime(path.join(options.directory,'coordinator')),
     entry:path.join(target,'desktop/electron/coordinator.cjs'),packageDirectory:path.join(target,'linux-package')};
 }
-module.exports = {coordinatorRuntime};
+module.exports = {coordinatorRuntime,coordinatorVersionsDirectory};

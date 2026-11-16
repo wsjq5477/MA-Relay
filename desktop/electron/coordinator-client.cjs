@@ -3,11 +3,12 @@ const path = require('node:path');
 const net = require('node:net');
 const { spawn } = require('node:child_process');
 const { randomUUID } = require('node:crypto');
-const { identity,endpoint,readLines,PROTOCOL } = require('./coordinator.cjs');
-const { coordinatorRuntime } = require('./coordinator-runtime.cjs');
+const { identityAsync,endpoint,readLines,PROTOCOL } = require('./coordinator.cjs');
+const { coordinatorRuntime,coordinatorVersionsDirectory } = require('./coordinator-runtime.cjs');
+const { retryPrivateDirectory } = require('./private-directory.cjs');
 const {supportsTeamContextTransfer,supportsCurrentCoordinator,supportsMcpOpenAccess,supportsMultiParentRelations,supportsAgentConnectionPolicy}=require('./runtime-capabilities.cjs');
 class CoordinatorClient {
-  constructor(options) {this.options=options;this.pending=new Map();this.socket=null;this.connecting=null;}
+  constructor(options) {this.options=options;this.pending=new Map();this.socket=null;this.connecting=null;this.generation=0;}
   guardRelations(candidate) {
     const file=path.join(this.options.directory,'agent-network.json');
     if(!fs.existsSync(file)||JSON.parse(fs.readFileSync(file,'utf8')).relationsVersion!==3)return;
@@ -19,8 +20,21 @@ class CoordinatorClient {
     if(this.connecting) return this.connecting;
     this.connecting=this.ensure().finally(()=>{this.connecting=null;});return this.connecting;
   }
-  async attach() {
-    const owner=identity(this.options.directory);
+  reconnect() {
+    if(!this.connecting) {
+      retryPrivateDirectory(this.options.directory);
+      retryPrivateDirectory(coordinatorVersionsDirectory(this.options.directory));
+    }
+    return this.open();
+  }
+  checkGeneration(generation) {
+    if(generation!==this.generation)
+      throw Object.assign(new Error('桌面后台连接已关闭。'),{code:'COORDINATOR_TRANSPORT'});
+  }
+  async attach(owner) {
+    const generation=this.generation;
+    owner??=await identityAsync(this.options.directory);
+    this.checkGeneration(generation);
     const socket=net.connect(endpoint(this.options.directory));
     await new Promise((done,reject)=>{
       const timer=setTimeout(()=>{socket.destroy();reject(Object.assign(new Error('中央后台身份确认超时。'),{code:'COORDINATOR_TIMEOUT'}));},5000);
@@ -30,7 +44,7 @@ class CoordinatorClient {
       readLines(socket,message=>{
         if(!ready) {
           if(!message.hello||message.protocol!==PROTOCOL||message.coordinatorId!==owner.coordinatorId) {socket.destroy();reject(Object.assign(new Error('中央后台身份不匹配。'),{code:'COORDINATOR_IDENTITY'}));return;}
-          try{this.guardRelations(message);}catch(error){clearTimeout(timer);socket.destroy();reject(error);return;}
+          try{this.checkGeneration(generation);this.guardRelations(message);}catch(error){clearTimeout(timer);socket.destroy();reject(error);return;}
           ready=true;clearTimeout(timer);this.info=message;this.socket=socket;done();return;
         }
         const job=this.pending.get(message.id);if(!job) return;
@@ -40,17 +54,22 @@ class CoordinatorClient {
       socket.once('close',()=>{
         clearTimeout(timer);
         if(!ready) reject(Object.assign(new Error('中央后台拒绝连接。'),{code:'COORDINATOR_TRANSPORT'}));
-        if(this.socket===socket) this.socket=null;
-        for(const job of this.pending.values()){clearTimeout(job.timer);job.reject(Object.assign(new Error('后台回应尚未确认，请查询原请求。'),{code:'COORDINATOR_TRANSPORT'}));}
-        this.pending.clear();
+        if(this.socket!==socket) return;
+        this.socket=null;
+        this.rejectPending();
       });
     });
   }
   async ensure() {
-    try {await this.attach();return;} catch(error) {
+    const generation=this.generation;
+    const owner=await identityAsync(this.options.directory);
+    this.checkGeneration(generation);
+    try {await this.attach(owner);return;} catch(error) {
       if(!['ENOENT','ECONNREFUSED'].includes(error.code)) throw error;
     }
-    const runtime=coordinatorRuntime(this.options);
+    this.checkGeneration(generation);
+    const runtime=await coordinatorRuntime(this.options);
+    this.checkGeneration(generation);
     this.guardRelations(JSON.parse(fs.readFileSync(path.join(runtime.directory,'coordinator-runtime.json'),'utf8')));
     const log=fs.openSync(path.join(this.options.directory,'coordinator.log'),'a',0o600);
     const child=spawn(runtime.executable,[runtime.entry,'--directory',this.options.directory,'--version',this.options.version],{
@@ -58,7 +77,8 @@ class CoordinatorClient {
     child.on('error',()=>{});child.unref();fs.closeSync(log);
     const deadline=Date.now()+20000;
     while(Date.now()<deadline) {
-      try {await this.attach();return;} catch(error) {if(!['ENOENT','ECONNREFUSED'].includes(error.code)) throw error;}
+      this.checkGeneration(generation);
+      try {await this.attach(owner);return;} catch(error) {if(!['ENOENT','ECONNREFUSED'].includes(error.code)) throw error;}
       await new Promise(resolve=>setTimeout(resolve,100));
     }
     throw Object.assign(new Error('中央后台未能启动，请查看后台诊断日志。'),{code:'COORDINATOR_START'});
@@ -98,6 +118,10 @@ class CoordinatorClient {
       this.pending.set(id,{resolve,reject,timer});socket.write(JSON.stringify({id,method,params})+'\n');
     });
   }
-  close() {this.socket?.destroy();this.socket=null;}
+  rejectPending() {
+    for(const job of this.pending.values()){clearTimeout(job.timer);job.reject(Object.assign(new Error('后台回应尚未确认，请查询原请求。'),{code:'COORDINATOR_TRANSPORT'}));}
+    this.pending.clear();
+  }
+  close() {this.generation++;this.socket?.destroy();this.socket=null;this.rejectPending();}
 }
 module.exports={CoordinatorClient};

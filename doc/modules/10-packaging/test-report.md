@@ -1,5 +1,7 @@
 # M10 构建与发布测试报告
 
+2026-11-16，issue #33：本地 Windows portable 构建、实际包内启动资源、隔离大型 profile 及普通窗口生命周期的分层结果见[本次启动验收](../../iterations/I08/windows-coordinator-profile-startup.md)。
+
 2026-11-07，alpha.74已公开。冻结源、独立Ubuntu CI、实际EXE载荷/包内7项、普通portable及匿名下载分层结果见[本次交付](../../iterations/I08/alpha74-release.md)；Windows首轮45通过/1失败/19跳过，定向复验不改写原失败，真实模型/生产SSH/完整矩阵仍待。
 
 2026-11-07，alpha.74 已公开；开发、冻结源、发布包与匿名下载分层结果已记录，不从源码测试推定 EXE 通过。[本轮发布记录](../../iterations/I08/alpha74-release.md)

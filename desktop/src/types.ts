@@ -362,6 +362,7 @@ export interface DesktopAPI {
     | { ok: false; error: { code: string; message: string } }
   >;
   preferences(): Promise<Preferences>;
+  reconnect?(): Promise<void>;
   savePreferences(p: Preferences): Promise<Preferences>;
   runtimes(): Promise<{
     platform: string;

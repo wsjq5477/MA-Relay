@@ -51,9 +51,11 @@ export default function AppShell({
   page,
   onPage,
   preferences,
+  preferencesFailed,
   onlineCount,
   loading,
   error,
+  connectionError,
   counts,
   onTheme,
   onRefresh,
@@ -62,10 +64,12 @@ export default function AppShell({
 }: {
   page: Page;
   onPage: (page: Page) => void;
-  preferences: Preferences;
+  preferences: Preferences | null;
+  preferencesFailed: boolean;
   onlineCount: number;
   loading: boolean;
   error: boolean;
+  connectionError?: string;
   counts: Partial<Record<Page, number>>;
   onTheme: () => void;
   onRefresh: () => void;
@@ -168,18 +172,19 @@ export default function AppShell({
               {loading
                 ? "正在连接后台"
                 : error
-                  ? "后台连接异常"
+                  ? connectionError || "后台连接异常"
                   : `${onlineCount} 台机器在线`}
             </span>
           </div>
           <div className="sidebar-meta">
             <span>
-              {preferences.version ? `v${preferences.version}` : "版本读取中"}
+              {preferences?.version ? `v${preferences.version}` : preferences || preferencesFailed ? "版本未读取" : "版本读取中"}
             </span>
             <button
               className="icon-btn"
               title="切换深浅主题"
               aria-label="切换深浅主题"
+              disabled={!preferences}
               onClick={onTheme}
             >
               <Sun className="theme-dark-icon" size={16} />
@@ -214,7 +219,7 @@ export default function AppShell({
             <span
               className={
                 "sync-status " +
-                (error ? "has-error" : loading ? "is-loading" : "")
+                (loading ? "is-loading" : error ? "has-error" : "")
               }
             >
               <i />
@@ -224,6 +229,7 @@ export default function AppShell({
               className="icon-btn"
               title="刷新数据"
               aria-label="刷新数据"
+              disabled={loading}
               onClick={onRefresh}
             >
               <RefreshCw size={16} />

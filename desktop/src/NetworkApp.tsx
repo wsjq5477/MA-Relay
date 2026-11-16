@@ -54,6 +54,12 @@ const empty: Snapshot = {
   tasks: [],
   conversations: [],
 };
+const defaultPreferences: Preferences = { theme: "system", distribution: "", directory: "" };
+const privateDirectoryRetryMs = 30_000;
+function privateDirectoryStatus(code?: string) {
+  if (code === "PRIVATE_DIRECTORY_TIMEOUT") return "私有目录初始化超时";
+  if (code === "PRIVATE_DIRECTORY") return "私有目录初始化失败";
+}
 const nodeStatus = (n: AgentNode) =>
   sshNodeState(n) || (
   n.status === "offline"
@@ -78,19 +84,20 @@ const nodeStatus = (n: AgentNode) =>
                   ? "最近执行失败"
                   : "已接入");
 export default function NetworkApp() {
-  const [data, setData] = useState(empty),
+  const [snapshot, setSnapshot] = useState<Snapshot | null>(null),
     [page, setPage] = useState<Page>("machines"),
-    [error, setError] = useState(""),
+    [error, setError] = useState<{ code?: string; message: string } | null>(null),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true);
-  const [prefs, setPrefs] = useState<Preferences>({
-      theme: "system",
-      distribution: "",
-      directory: "",
-    }),
+  const [preferences, setPreferences] = useState<Preferences | null>(null),
+    [preferencesFailed, setPreferencesFailed] = useState(false),
     [journal, setJournal] = useState<Journal[]>([]),
     [machineFilter, setMachineFilter] = useState("all");
+  const data = snapshot ?? empty;
+  const snapshotReady = snapshot !== null;
+  const prefs = preferences ?? defaultPreferences;
+  const privateDirectoryFailure = privateDirectoryStatus(error?.code);
   const [conversation, setConversation] = useState<Conversation | null>(null),
     [task, setTask] = useState<Task | null>(null),
     [showChecks, setShowChecks] = useState(false);
@@ -148,7 +155,9 @@ export default function NetworkApp() {
     machine?: Machine;
     editing?: boolean;
   } | null>(null);
-  const updating = useRef(false),
+  const updating = useRef<Promise<void> | null>(null),
+    nextAclRead = useRef(0),
+    preferencesRequest = useRef<"idle" | "reading" | "ready">("idle"),
     alive = useRef(true),
     conversationId = useRef<string | null>(null),
     taskId = useRef<string | null>(null);
@@ -211,22 +220,51 @@ export default function NetworkApp() {
       if(kind==='conversation')setConversationRead(previous=>shareUnchanged(previous,state));else setTaskRead(previous=>shareUnchanged(previous,state));
     }finally{detailJobs.current.delete(key);}
   }
-  async function refresh() {
-    if (updating.current || stopping.current) return;
-    updating.current = true;
+  async function refreshPreferences() {
+    if (preferencesRequest.current !== "idle") return;
+    preferencesRequest.current = "reading";
+    try {
+      const value = await bridge().preferences();
+      if (!alive.current) return;
+      setPreferences(value);
+      preferencesRequest.current = "ready";
+    } catch {
+      if (alive.current) setPreferencesFailed(true);
+    } finally {
+      if (preferencesRequest.current === "reading") preferencesRequest.current = "idle";
+    }
+  }
+  async function refreshSnapshot(reconnect: boolean) {
     let snapshot: Snapshot;
     try {
-      const result = await Promise.all([call<Snapshot>("snapshot"),bridge().pending()]);
-      snapshot=result[0];
+      const api = bridge();
+      if (reconnect) {
+        setLoading(true);
+        // The subsequent snapshot exposes structured startup failures across IPC.
+        await api.reconnect?.().catch(() => {});
+      }
+      void refreshPreferences();
+      const [snapshotRead, pendingRead] = await Promise.allSettled([
+        call<Snapshot>("snapshot"),
+        api.pending(),
+      ]);
+      if (snapshotRead.status === "rejected") throw snapshotRead.reason;
+      if (pendingRead.status === "rejected") throw pendingRead.reason;
+      snapshot = snapshotRead.value;
       if (!alive.current) return;
-      setData(previous=>shareUnchanged(previous,snapshot));
-      setJournal(previous=>shareUnchanged(previous,result[1]));
-      setError("");
+      setSnapshot(previous=>shareUnchanged(previous,snapshot));
+      setJournal(previous=>shareUnchanged(previous,pendingRead.value));
+      nextAclRead.current = 0;
+      setError(null);
     } catch (e) {
-      if (alive.current) setError((e as Error).message);
+      const failure = e as Error & { code?: string };
+      nextAclRead.current = privateDirectoryStatus(failure?.code) ? Date.now() + privateDirectoryRetryMs : 0;
+      if (alive.current) setError(previous => shareUnchanged(previous, {
+        code: failure?.code,
+        message: failure?.message || "无法读取后台数据。",
+      }));
       return;
     } finally {
-      updating.current = false;
       if (alive.current) setLoading(false);
     }
     // Detail reads have independent lifetimes and errors. A slow/missing object
@@ -234,14 +272,23 @@ export default function NetworkApp() {
     void refreshDetail('conversation',snapshot);
     void refreshDetail('task',snapshot);
   }
+  async function refresh(reconnect = false) {
+    if (!reconnect && Date.now() < nextAclRead.current) return;
+    if (updating.current) {
+      if (!reconnect) return;
+      await updating.current;
+    }
+    if (updating.current || stopping.current || !alive.current) return;
+    updating.current = refreshSnapshot(reconnect);
+    try {
+      await updating.current;
+    } finally {
+      updating.current = null;
+    }
+  }
   useEffect(() => {
     alive.current = true;
     void refresh();
-    void bridge()
-      .preferences()
-      .then((p) => {
-        if (alive.current) setPrefs(p);
-      });
     const timer = setInterval(() => void refresh(), 1500);
     return () => {
       alive.current = false;
@@ -267,6 +314,12 @@ export default function NetworkApp() {
     media.addEventListener("change", apply);
     return () => media.removeEventListener("change", apply);
   }, [prefs.theme]);
+  function changeTheme(theme: Preferences["theme"]) {
+    if (!preferences) return;
+    void act("theme", async () => {
+      setPreferences(await bridge().savePreferences({ ...preferences, theme }));
+    });
+  }
   const blocked = (machineId?: string, nodeId?: string, chosenWorkspace?:string) =>
     journal.some((r) =>
       nodeId && r.blockedNodeIds
@@ -276,7 +329,7 @@ export default function NetworkApp() {
     !!executionReason(machineId,nodeId,chosenWorkspace);
   const pendingKey = journal.map((r) => r.id + ":" + r.state).join("|");
   useEffect(() => {
-    if (!pendingKey || !bridge().recoverPending) return;
+    if (!pendingKey || privateDirectoryFailure || !bridge().recoverPending) return;
     let done = false,
       running = false;
     const recover = async () => {
@@ -301,7 +354,7 @@ export default function NetworkApp() {
       done = true;
       clearInterval(timer);
     };
-  }, [pendingKey]);
+  }, [pendingKey, privateDirectoryFailure]);
   async function act(
     _key: string,
     work: () => Promise<unknown>,
@@ -528,10 +581,12 @@ export default function NetworkApp() {
     <AppShell
       page={page}
       onPage={setPage}
-      preferences={prefs}
+      preferences={preferences}
+      preferencesFailed={preferencesFailed}
       onlineCount={machines.filter((m) => m.online).length}
       loading={loading}
       error={!!error}
+      connectionError={privateDirectoryFailure}
       counts={{
         machines: machines.length,
         board: running,
@@ -539,31 +594,19 @@ export default function NetworkApp() {
           (c) => c.kind !== "verification",
         ).length,
       }}
-      onTheme={() =>
-        void act("theme", async () =>
-          setPrefs(
-            await bridge().savePreferences({
-              ...prefs,
-              theme:
-                document.documentElement.dataset.theme === "dark"
-                  ? "light"
-                  : "dark",
-            }),
-          ),
-        )
-      }
-      onRefresh={() => void refresh()}
+      onTheme={() => changeTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark")}
+      onRefresh={() => void refresh(!!error)}
       onWindow={(action) => void bridge().window(action)}
     >
       {error && (
         <div className="error-banner" role="alert">
-          {error}
-          <button className="btn small" onClick={() => void refresh()}>
-            重新连接
+          {error.message}
+          <button className="btn small" disabled={loading} onClick={() => void refresh(true)}>
+            {loading ? "正在连接" : "重新连接"}
           </button>
         </div>
       )}
-      {error && <RelationConflictPanel onRecovered={message=>{setNotice(message);void refresh();}}/>}
+      {error && !privateDirectoryFailure && <RelationConflictPanel onRecovered={message=>{setNotice(message);void refresh();}}/>}
       {journal.length > 0 && (
         <div className="notice-banner">
           <ShieldCheck size={17} />
@@ -609,7 +652,12 @@ export default function NetworkApp() {
       </div>)}
       {managementSummary&&<div className="notice-banner" role="status">{managementSummary}</div>}
       {graphRecovery.error&&<div className="notice-banner" role="status">管理台账读取失败，原未知记录与保护保留；请稍后查询原操作。</div>}
-      {page === "teams" &&
+      {!snapshotReady && (page === "teams" || page === "board" || page === "conversations") && (
+        <p className="notice-banner" role="status">
+          {loading ? "正在读取后台数据" : "后台数据尚未读取"}
+        </p>
+      )}
+      {snapshotReady && page === "teams" &&
         (data.teamSpaceSupported ? (
           <TeamWorkspace nodes={nodes} directory={data.directory} settingsOnly />
         ) : (
@@ -624,11 +672,11 @@ export default function NetworkApp() {
               <h1>接入配置</h1>
             </div>
             <div className="page-heading-actions">
-              <button className="btn" onClick={() => setPolicyOpen(true)}>
+              <button className="btn" disabled={!snapshotReady} onClick={() => setPolicyOpen(true)}>
                 <ShieldCheck size={15} />
                 连接策略与确认
               </button>
-              <button className="btn primary" onClick={() => setSshDialog({})}>
+              <button className="btn primary" disabled={!snapshotReady} onClick={() => setSshDialog({})}>
                 <Plus size={15} />
                 添加 Linux 机器
               </button>
@@ -639,11 +687,11 @@ export default function NetworkApp() {
               <div className="summary-copy">
                 <strong>
                   {
-                    machines.filter(
+                    snapshotReady ? machines.filter(
                       (m) =>
                         machineFilter === "all" ||
                         m.machineId === machineFilter,
-                    ).length
+                    ).length : "—"
                   }
                 </strong>
                 <span>机器总数</span>
@@ -653,9 +701,9 @@ export default function NetworkApp() {
               <div className="summary-copy">
                 <strong>
                   {
-                    scopedNodes.filter(
+                    snapshotReady ? scopedNodes.filter(
                       (n) => n.available && !blocked(n.machineId, n.nodeId),
-                    ).length
+                    ).length : "—"
                   }
                 </strong>
                 <span>可用 Agent</span>
@@ -665,9 +713,9 @@ export default function NetworkApp() {
               <div className="summary-copy">
                 <strong>
                   {
-                    visibleTasks.filter((t) =>
+                    snapshotReady ? visibleTasks.filter((t) =>
                       ["queued", "accepted", "running"].includes(t.status),
-                    ).length
+                    ).length : "—"
                   }
                 </strong>
                 <span>进行中任务</span>
@@ -675,12 +723,12 @@ export default function NetworkApp() {
             </div>
             <div>
               <div className="summary-copy">
-                <strong>{data.relations?data.relations.filter(row=>row.enabled).reduce((sum,row)=>sum+row.memberIds.length,0):relationship.memberIds.length}</strong>
+                <strong>{snapshotReady ? (data.relations?data.relations.filter(row=>row.enabled).reduce((sum,row)=>sum+row.memberIds.length,0):relationship.memberIds.length) : "—"}</strong>
                 <span>已保存授权</span>
               </div>
             </div>
           </div>
-          <div className="machine-filterbar">
+          {snapshotReady && <div className="machine-filterbar">
             {filters}
             <div
               className="ui-segmented"
@@ -702,8 +750,13 @@ export default function NetworkApp() {
                 关系图
               </button>
             </div>
-          </div>
-          {machineView === "overview" && (
+          </div>}
+          {!snapshotReady ? (
+            <div className="ui-empty" role="status">
+              <Monitor size={24} aria-hidden="true" />
+              <h3>{loading ? "正在读取机器与 Agent" : "机器与 Agent 尚未读取"}</h3>
+            </div>
+          ) : machineView === "overview" && (
             <>
               <div className="workspace-toolbar">
                 <div className="inventory-section-heading">
@@ -739,13 +792,6 @@ export default function NetworkApp() {
                   )}
                 </label>
               </div>
-              {loading && !machines.length ? (
-                <div className="ui-empty" role="status">
-                  <Monitor size={24} />
-                  <h3>正在读取机器与 Agent</h3>
-                  <p>连接后台后，已有机器和工具会显示在这里。</p>
-                </div>
-              ) : (
                 <MachineInventory
                   openSettings={() => showSettings('recovery')}
                   configure={configureAgent}
@@ -772,7 +818,6 @@ export default function NetworkApp() {
                   addAgent={setAddAgent}
                   machineAction={machineAction}
                 />
-              )}
             </>
           )}
         </>
@@ -850,7 +895,7 @@ export default function NetworkApp() {
           )}
         </>
       )}
-      {page === "board" && (
+      {snapshotReady && page === "board" && (
         <TasksPage
           scope={filters}
           tasks={visibleTasks}
@@ -860,7 +905,7 @@ export default function NetworkApp() {
           auditOnly
         />
       )}
-      {page === "conversations" && (
+      {snapshotReady && page === "conversations" && (
         <ConversationsPage
           scope={filters}
           executionLocked={executionLocked}
@@ -882,11 +927,9 @@ export default function NetworkApp() {
       {page === "settings" && (
         <SettingsPage
           preferences={prefs}
-          onTheme={(theme) =>
-            void act("prefs", async () =>
-              setPrefs(await bridge().savePreferences({ ...prefs, theme })),
-            )
-          }
+          onTheme={changeTheme}
+          preferencesReady={preferences !== null}
+          snapshotReady={snapshotReady}
           directory={data.directory}
           machines={allMachines}
           nodes={nodes}

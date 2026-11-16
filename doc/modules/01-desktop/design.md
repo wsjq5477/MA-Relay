@@ -1,5 +1,7 @@
 # M01 桌面界面与交互设计
 
+M01-F01/F14：正在连接、后台失败和快照已读分别呈现。快照未读时使用待加载状态，连接中断时保留上次成功读取的数据；恢复后重读快照、pending 和首次未取到的版本。私有目录初始化错误有独立状态，显式重连经当前窗口校验后恢复建连。[issue #33 行为与验证](../../iterations/I08/windows-coordinator-profile-startup.md)
+
 M01-F01/F02：安装版 DSH NEXT 使用普通节点接入。服务地址与 Token 只用于独立 DSH 服务节点。 [DSH NEXT 交付](../../iterations/I08/alpha76-dsh-release.md)
 
 M01-F04：后台维护 unknown 且原 ID 未找到时提供明确确认入口；机器上的待核对入口可打开对应维护窗口。[详情](../../iterations/I08/maintenance-unstarted-cleanup.md)

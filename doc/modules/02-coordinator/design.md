@@ -1,5 +1,7 @@
 # M02 中央协调后台设计
 
+M02-F01/F04：Windows Coordinator 启动先异步验证 profile 根目录 ACL。已保护且仅当前用户拥有可继承完全控制权的目录直接通过；其余情况尝试恢复受保护 ACL 并复核。建连、原身份加载和运行版本目录准备共享进行中的初始化；同目录失败后退避 30 秒，显式重连可提前重试。[issue #33 契约与验证](../../iterations/I08/windows-coordinator-profile-startup.md)
+
 M02：维护确认先校验原 graph 意图指纹，结算后查询原收据恢复 graph；中断时仍可按原 ID 查询。[详情](../../iterations/I08/maintenance-unstarted-cleanup.md)
 
 未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](../../iterations/I08/maintenance-controller-recovery.md)

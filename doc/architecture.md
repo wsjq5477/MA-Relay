@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+Windows Coordinator 的连接与运行资源准备等待异步 ACL 校验。根目录已受保护且 ACL 匹配当前用户时仅执行只读检查；需要修复时复核写入结果后才读原身份或发布冻结运行资源。窗口控制 IPC 与这段等待相互独立。[issue #33 启动与恢复](iterations/I08/windows-coordinator-profile-startup.md)
+
 Windows MachineHost 自动发现 DSH NEXT 安装，任务开始时由 NativeCliHost 启动包内原生 CLI。DSH 侧可选面板复用原生 MCP `list_agents`，通过 DSH 的已授权浏览器连接呈现结果。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
 
 维护未执行确认由桌面协调器校验原 graph 意图，经 SshManager 对原连接执行 SFTP 只读台账和安装预览；本机拒绝收据仍以原 operationId 恢复 graph。[恢复链与限制](iterations/I08/maintenance-unstarted-cleanup.md)

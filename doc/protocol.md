@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+桌面本地 `bridge:reconnect` 仅接收当前主窗口请求，解除本会话中 profile 与运行版本目录的 ACL 退避后复用 Coordinator 建连。`bridge:call` 暴露 `PRIVATE_DIRECTORY_TIMEOUT` / `PRIVATE_DIRECTORY` 分类。认证端点、IPC v2 帧及持久身份格式沿用原合约。[issue #33 本地启动契约](iterations/I08/windows-coordinator-profile-startup.md)
+
 `discover` 可返回 `dsh-next`。节点使用原管理和任务接口，内部 `desktop-headless-json-v1` 复用 DSH JSONL。独立 MCP 调用方可用 `task_result({clientRequestId})` 查询原提交，能力由 `list_agents` 声明。查询缺记录保留未知状态。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
 
 桌面协调器 `machine.confirmMaintenanceNotRun` 接收原 operationId、connectionId、可选 machineId 和严格布尔 confirmNotRun；仅在原查询 not_found 和只读身份检查通过后结算本机 rejected，随后以原收据结算 graph。[契约与限制](iterations/I08/maintenance-unstarted-cleanup.md)

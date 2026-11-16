@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+AB-F14：Windows 常驻协调后台在连接前异步验证已有 profile 的私有目录。等待、私有目录错误、版本未读和已确认空数据可区分；失败保留此前读到的历史，恢复后刷新快照与未读版本。[issue #33 实现与验收](iterations/I08/windows-coordinator-profile-startup.md)
+
 Windows 安装版 DSH NEXT 通过包内原生入口自动发现。在「接入配置」点「接入」即可，无需另建服务地址。首次接入可为当前原生 Profile 准备 MCP。DSH 调用其他 Agent 需已有明确授权。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
 
 M04/M01：维护原操作 not_found 保持 unknown；用户明确确认后可核对原版本与安装身份并结算本机原收据，原 ID 同步恢复 graph。[设计与验证](iterations/I08/maintenance-unstarted-cleanup.md)

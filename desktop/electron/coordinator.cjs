@@ -4,12 +4,19 @@ const path = require('node:path');
 const net = require('node:net');
 const { StringDecoder } = require('node:string_decoder');
 const { createHash, randomBytes, randomUUID, timingSafeEqual } = require('node:crypto');
-const { ensurePrivateDirectory } = require('./private-directory.cjs');
+const { ensurePrivateDirectory, ensurePrivateDirectoryAsync } = require('./private-directory.cjs');
 const { createCoordinatorService } = require('./coordinator-service.cjs');
 const {coordinatorRuntimeCapabilities:runtimeCapabilities}=require('./runtime-capabilities.cjs');
 const PROTOCOL = 2;
 function identity(directory) {
   ensurePrivateDirectory(directory);
+  return readOrCreateIdentity(directory);
+}
+async function identityAsync(directory) {
+  await ensurePrivateDirectoryAsync(directory);
+  return readOrCreateIdentity(directory);
+}
+function readOrCreateIdentity(directory) {
   const file = path.join(directory,'coordinator-identity.json');
   if (!fs.existsSync(file)) {
     try { fs.writeFileSync(file,JSON.stringify({coordinatorId:randomUUID(),token:randomBytes(32).toString('hex')}),{flag:'wx',mode:0o600}); }
@@ -45,7 +52,7 @@ function readLines(socket, receive) {
   });
 }
 async function startCoordinator(options) {
-  const directory=path.resolve(options.directory), owner=identity(directory), address=endpoint(directory);
+  const directory=path.resolve(options.directory), owner=await identityAsync(directory), address=endpoint(directory);
   const service=options.service || createCoordinatorService({...options,coordinatorId:owner.coordinatorId});
   const clients = new Set();
   const server = net.createServer(socket=>{
@@ -95,4 +102,4 @@ if(require.main===module) {
     .then(coordinator=>{for(const signal of ['SIGINT','SIGTERM']) process.on(signal,()=>{void coordinator.close().then(()=>process.exit(0));});})
     .catch(error=>{process.stderr.write((error.code||'COORDINATOR_ERROR')+': '+error.message+'\n');process.exitCode=1;});
 }
-module.exports={startCoordinator,identity,endpoint,readLines,PROTOCOL};
+module.exports={startCoordinator,identity,identityAsync,endpoint,readLines,PROTOCOL};

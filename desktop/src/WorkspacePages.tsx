@@ -687,6 +687,8 @@ export function ConversationsPage({
 
 export interface SettingsPageProps {
   preferences: Preferences;
+  preferencesReady?: boolean;
+  snapshotReady?: boolean;
   onTheme: (theme: Preferences["theme"]) => void;
   directory: string;
   machines: Machine[];
@@ -724,6 +726,8 @@ const operationName = (operation: string) =>
 
 export function SettingsPage({
   preferences,
+  preferencesReady = true,
+  snapshotReady = true,
   onTheme,
   directory,
   machines,
@@ -788,7 +792,7 @@ export function SettingsPage({
               id="workspace-theme"
               className="settings-theme-select"
               value={preferences.theme}
-              disabled={busy}
+              disabled={busy || !preferencesReady}
               onChange={(event) =>
                 onTheme(event.target.value as Preferences["theme"])
               }
@@ -813,20 +817,19 @@ export function SettingsPage({
             <div>
               <dt>机器</dt>
               <dd>
-                {activeMachines.length} 台
-                <span>
-                  {activeMachines.filter((machine) => machine.online).length}{" "}
-                  台在线
-                </span>
+                {snapshotReady ? <>
+                  {activeMachines.length} 台
+                  <span>{activeMachines.filter((machine) => machine.online).length} 台在线</span>
+                </> : "待读取"}
               </dd>
             </div>
             <div>
               <dt>Agent 节点</dt>
               <dd>
-                {activeNodes.length} 个
-                <span>
-                  {activeNodes.filter((node) => node.connected).length} 个已接入
-                </span>
+                {snapshotReady ? <>
+                  {activeNodes.length} 个
+                  <span>{activeNodes.filter((node) => node.connected).length} 个已接入</span>
+                </> : "待读取"}
               </dd>
             </div>
             <div className="settings-fact-wide">
@@ -836,7 +839,7 @@ export function SettingsPage({
               </dd>
             </div>
           </dl>
-          {!machineManagementSupported && (
+          {snapshotReady && !machineManagementSupported && (
             <div className="workspace-inline-note" role="status">
               <Circle size={15} aria-hidden="true" />
               <span>
@@ -845,7 +848,7 @@ export function SettingsPage({
             </div>
           )}
         </section>
-        <BrowserSettings machines={machines} directory={directory}/>
+        {snapshotReady && <BrowserSettings machines={machines} directory={directory}/>}
         <section
           className="settings-card network-relations"
           aria-labelledby="settings-background"
@@ -896,14 +899,14 @@ export function SettingsPage({
             <div>
               <h2 id="settings-recovery">未确认操作</h2>
             </div>
-            <span className="workspace-count">{journal.length + managementJournal.length + managementRows.length}</span>
+            <span className="workspace-count">{snapshotReady ? journal.length + managementJournal.length + managementRows.length : "—"}</span>
           </div>
           {managementReadError && <p role="status">管理台账暂时无法读取：{managementReadError}。现有原操作继续保留。</p>}
           {onCleanup && journal.length + managementJournal.length + managementRows.length > 0 && <div className="settings-card-footer">
             <p>清理会核对原结果，解除确定失败的占位并保留失败历史。执行结果仍未知的操作继续保留，可查看下方原因。</p>
             <button className="btn" disabled={busy || querying || managementQuerying} onClick={onCleanup}>{querying ? '正在核对并清理…' : '清理已失败操作'}</button>
           </div>}
-          {journal.length + managementJournal.length > 0 ? (
+          {!snapshotReady ? <p role="status">后台记录尚未读取。</p> : journal.length + managementJournal.length > 0 ? (
             <>
               <div className="settings-pending-list">
                 {managementJournal.map(record => <article className="settings-pending" key={record.lane+':'+record.operationId}>

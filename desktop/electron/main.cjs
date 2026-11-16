@@ -22,6 +22,10 @@ ipcMain.handle('bridge:preferences',(event)=>request(event,'preferences'));
 ipcMain.handle('bridge:save-preferences',(event,value)=>request(event,'savePreferences',value));
 ipcMain.handle('bridge:runtimes',(event)=>request(event,'runtimes'));
 ipcMain.handle('bridge:pending',(event)=>request(event,'pending'));
+ipcMain.handle('bridge:reconnect',(event)=>{
+  checkSender(event);
+  return connection().reconnect();
+});
 ipcMain.handle('bridge:recover-pending',(event)=>request(event,'recoverPending'));
 ipcMain.handle('bridge:folder',async(event,machineId)=>{
   checkSender(event);

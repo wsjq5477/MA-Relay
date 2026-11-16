@@ -9,5 +9,6 @@ contextBridge.exposeInMainWorld("agentbridge", {
   pickFolder: (machineId) => ipcRenderer.invoke("bridge:folder", machineId),
   window: (action) => ipcRenderer.invoke("bridge:window", action),
   pending: () => ipcRenderer.invoke("bridge:pending"),
+  reconnect: () => ipcRenderer.invoke("bridge:reconnect"),
   recoverPending: () => ipcRenderer.invoke("bridge:recover-pending"),
 });
