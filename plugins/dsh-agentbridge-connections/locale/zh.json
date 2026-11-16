@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "AgentBridge 连接",
+    "description": "只读列出当前 DSH 经现有 AgentBridge MCP 服务器获准访问的 Agent，按机器分组并显示在线与忙碌状态。",
+    "detail": "docs/DETAIL.zh.md"
+  }
+}

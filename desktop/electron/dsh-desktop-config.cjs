@@ -40,10 +40,7 @@ function assertTargetDirectory(value) {
       throw fail('DSH Desktop 原接入目录已被替换或变为链接；已保留原配置，请核对原目标。');
   }
 }
-function desktopTarget(home, env = process.env) {
-  const appData = env.APPDATA || (process.platform === 'win32' ? path.join(home, 'AppData', 'Roaming') : process.platform === 'darwin'
-    ? path.join(home, 'Library', 'Application Support') : env.XDG_CONFIG_HOME || path.join(home, '.config'));
-  const userData = path.join(appData, 'DSH Desktop');
+function stableTarget(home, env, userData) {
   const location = json(path.join(userData, 'data-directory', 'state.json'), true);
   let root = env.DSH_HOME?.trim() || path.join(home, '.dsh');
   if (root === '~' || /^~[\\/]/.test(root)) root = path.join(home, root.slice(2));
@@ -61,7 +58,28 @@ function desktopTarget(home, env = process.env) {
   const selection = json(path.join(userData, 'profile-selection', 'state.json'), true);
   if (selection && selection.version !== 2)
     throw fail('DSH Desktop Profile 选择记录版本无法核对，请保留原记录。');
-  const target = validateTarget({home: root, profile: selection ? selection.active : 'desktop'});
+  return validateTarget({home: root, profile: selection ? selection.active : 'desktop'});
+}
+function nextHome(home, env, stateDirectory = path.join(env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'DSH NEXT')) {
+  const location = json(path.join(stateDirectory, 'home', 'desktop-next-location.json'), true);
+  return validateTarget({home: location ? location.home : env.DSH_DESKTOP_NEXT_HOME || path.join(home, '.dsh'), profile: 'desktop'}).home;
+}
+function nextTarget(home, env, stateDirectory) {
+  const root = nextHome(home, env, stateDirectory);
+  const selection = json(path.join(root, 'desktop-next.json'), true);
+  return validateTarget({home: root, profile: selection ? selection.active : 'desktop'});
+}
+function desktopState(home, env) {
+  const appData = env.APPDATA || (process.platform === 'win32' ? path.join(home, 'AppData', 'Roaming') : process.platform === 'darwin'
+    ? path.join(home, 'Library', 'Application Support') : env.XDG_CONFIG_HOME || path.join(home, '.config'));
+  const stable = path.join(appData, 'DSH Desktop');
+  const next = path.join(appData, 'DSH NEXT');
+  return !!env.DSH_DESKTOP_NEXT_HOME || !fs.existsSync(stable) && fs.existsSync(next)
+    ? {edition:'next', directory:next} : {edition:'stable', directory:stable};
+}
+function desktopTarget(home, env = process.env, forceNext = false) {
+  const state = desktopState(home, env);
+  const target = forceNext || state.edition === 'next' ? nextTarget(home, env, forceNext ? undefined : state.directory) : stableTarget(home, env, state.directory);
   const directory = path.dirname(targetFile(target));
   try {
     for (const dir of [target.home, path.dirname(directory), directory]) {
@@ -75,4 +93,10 @@ function desktopTarget(home, env = process.env) {
   }
   return target;
 }
-module.exports = {desktopTarget, validateTarget, targetFile, assertTargetDirectory};
+function nextDesktopProfile(home, env) {
+  if (isNextDesktop(home, env)) return targetFile(desktopTarget(home, env));
+}
+function isNextDesktop(home, env) {
+  return desktopState(home, env).edition === 'next';
+}
+module.exports = {desktopTarget, validateTarget, targetFile, assertTargetDirectory, nextDesktopProfile, isNextDesktop, nextHome};

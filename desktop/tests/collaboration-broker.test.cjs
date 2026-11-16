@@ -25,10 +25,13 @@ test('a newer real stdio client never sends continuation to a backend without li
  const child=spawn(config.command,config.args,{windowsHide:true,env:{...process.env,...config.env},stdio:['pipe','pipe','pipe']});
  disposeFixture(t,child,broker,directory);
  const waiting=new Map();createInterface({input:child.stdout}).on('line',line=>{const value=JSON.parse(line);waiting.get(value.id)?.(value);waiting.delete(value.id);});let id=0;
- const send=args=>new Promise((resolve,reject)=>{const n=++id,timer=setTimeout(()=>reject(Error('MCP timeout')),5000);waiting.set(n,v=>{clearTimeout(timer);resolve(v.result);});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id:n,method:'tools/call',params:{name:'delegate',arguments:args}})+'\n');});
+ const send=(args,name='delegate')=>new Promise((resolve,reject)=>{const n=++id,timer=setTimeout(()=>reject(Error('MCP timeout')),5000);waiting.set(n,v=>{clearTimeout(timer);resolve(v.result);});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id:n,method:'tools/call',params:{name,arguments:args}})+'\n');});
  const args={nodeId:'child',requestId:'original-message',message:'Continue',conversationId:'original-session'};
  const refused=await send(args);assert.equal(refused.isError,true);assert.equal(JSON.parse(refused.content[0].text).error.code,'MCP_CONTINUATION_BACKEND_UPGRADE_REQUIRED');assert.deepEqual(calls,['list_agents']);
  supports=true;assert.equal(JSON.parse((await send(args)).content[0].text).taskId,'original-task');assert.deepEqual(calls,['list_agents','list_agents','delegate']);
+ const clientQuery=await send({clientRequestId:'original-message'},'task_result');
+ assert.equal(clientQuery.isError,true);assert.equal(JSON.parse(clientQuery.content[0].text).error.code,'MCP_CLIENT_REQUEST_BACKEND_UPGRADE_REQUIRED');
+ assert.equal(calls.at(-1),'list_agents');assert.equal(calls.includes('task_result'),false);
  revoked=true;assert.equal(JSON.parse((await send(args)).content[0].text).error.code,'COLLABORATION_FORBIDDEN');assert.equal(calls.at(-1),'list_agents');assert.equal(calls.filter(n=>n==='delegate').length,1);
 });
 test('real stdio cancellation lookup refuses old brokers before any cancellation dispatch',async t=>{

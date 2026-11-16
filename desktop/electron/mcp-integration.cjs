@@ -15,7 +15,8 @@ const fail = (code, message) => Object.assign(new Error(message), { code });
 // is deliberately absent: its 0.3.8 surface has no MCP manager, so nativeSupport()
 // reports it unsupported and only export is offered. DSH CLI is handled by
 // nativeSupport() because it also requires the user-named launch profile.
-const configurable = new Set(['claude', 'codex', 'opencode', 'pi', 'hermes', 'opendesk-desktop', 'dsh-web', 'dsh-desktop']);
+const configurable = new Set(['claude', 'codex', 'opencode', 'pi', 'hermes', 'opendesk-desktop', 'dsh-web', 'dsh-desktop', 'dsh-next']);
+const desktopDsh = adapter => adapter === 'dsh-desktop' || adapter === 'dsh-next';
 // Read-only native MCP list commands. Health-checking list is evidence for both
 // the native load and the connection; a plain list proves only configuration.
 const nativeLists = {
@@ -70,7 +71,7 @@ class McpIntegration {
     )
       throw fail("MCP_REVOKED", "此 MCP 接入已移除，请从 Bridge 重新添加。");
   }
-  async configure(row, {selectLauncher = false} = {}) {
+  async configure(row, {selectLauncher = false, dshNext = row.adapter === 'dsh-next' || row.adapter === 'dsh-desktop' && row.configuration?.config?.startupTimeoutMs !== undefined} = {}) {
     let config = await this.broker.configure("external-" + row.connectionId, {
       nodeId: row.nodeId,
       parentRequestId: row.connectionId,
@@ -126,7 +127,7 @@ class McpIntegration {
     fs.writeFileSync(files.opendesk, JSON.stringify({applications:{mcpmgr:{servers:[nativeEntry("opendesk", config)]}}}, null, 2) + "\n", {mode:0o600});
     // A DSH patch fragment: the user can paste it into any DSH profile patch file,
     // and Bridge uses the same shape when it writes the DSH Web profile itself.
-    fs.writeFileSync(files.dsh, require('yaml').stringify([{insert: [nativeEntry('dsh-web', config)]}]), {mode:0o600});
+    fs.writeFileSync(files.dsh, require('yaml').stringify([{insert: [nativeEntry('dsh-web', config, 'v2', {dshNext})]}]), {mode:0o600});
     fs.writeFileSync(files.hermes, require('yaml').stringify({mcp_servers: {agentbridge: nativeEntry('hermes', config)}}), {mode: 0o600});
     return { config, files };
   }
@@ -234,7 +235,7 @@ class McpIntegration {
       installed: matching,
       conflict: foreign || !!inspectError || !!targetConflict,
       configPath: target?.file || '',
-      ...(params.adapter === 'dsh-desktop' ? {profile: target?.profile || row?.nativeTarget?.profile || null, nativeTargetChanged: !!targetConflict,
+      ...(desktopDsh(params.adapter) ? {profile: target?.profile || row?.nativeTarget?.profile || null, nativeTargetChanged: !!targetConflict,
         ...(currentTarget ? {currentConfigPath: require('./dsh-desktop-config.cjs').targetFile(currentTarget)} : {})} : {}),
       ...(params.adapter === 'pi' ? {nativeTargetChanged: !!targetConflict,
         ...(currentTarget ? {currentConfigPath: require('./pi-mcp-config.cjs').targetFile(currentTarget)} : {})} : {}),
@@ -374,7 +375,7 @@ class McpIntegration {
       // Desktop selection may change while preparing the endpoint. A refused
       // write must retain the old registration/ownership and revoke a new id.
       if(params.adapter === 'opendesk-desktop') this.openDeskObservation=await require('./opendesk-lifecycle.cjs').observe(this.options);
-      const before = ['dsh-desktop', 'pi', 'hermes', 'opendesk-desktop'].includes(params.adapter) && ['mcp.install', 'mcp.export'].includes(method) ? structuredClone(this.rows) : null;
+      const before = (desktopDsh(params.adapter) || ['pi', 'hermes', 'opendesk-desktop'].includes(params.adapter)) && ['mcp.install', 'mcp.export'].includes(method) ? structuredClone(this.rows) : null;
       try { return await this.perform(method, params); }
       catch (error) {
         if (before && JSON.stringify(before)!==JSON.stringify(this.rows)) { this.rows = before; this.save(); }
@@ -392,6 +393,10 @@ class McpIntegration {
       throw fail("MCP_UNSUPPORTED", "请选择支持 MCP 配置的 Agent 节点。");
     if (method === "mcp.status") return this.status(params);
     let row = this.rows.find((r) => r.nodeId === params.nodeId);
+    if (method === 'mcp.install' && params.adapter === 'dsh-next' && params.defaultSetup === true) {
+      const status = this.status(params);
+      if (row || status.facts.config !== 'absent') return status;
+    }
     let protocol = row?.nativeProtocol || 'v2';
     const profile = params.profile === undefined ? row?.profile : params.profile;
     const support = this.nativeSupport(params.adapter, profile);
@@ -456,7 +461,7 @@ class McpIntegration {
     let target;
     try {
       target = this.config(params.adapter, protocol, profile, row?.nativeTarget);
-      if (['dsh-desktop', 'pi', 'hermes'].includes(params.adapter) && ['mcp.install', 'mcp.export'].includes(method) && !row?.enabled && target.inspect().entry === undefined)
+      if ((desktopDsh(params.adapter) || ['pi', 'hermes'].includes(params.adapter)) && ['mcp.install', 'mcp.export'].includes(method) && !row?.enabled && target.inspect().entry === undefined)
         target = this.config(params.adapter, protocol, profile);
     } catch (error) {
       if (method === 'mcp.export') return await this.exportOnly(params, row);
@@ -510,15 +515,16 @@ class McpIntegration {
       this.save();
     }
     if (target.nativeTarget) row.nativeTarget = target.nativeTarget;
-    const { config, files } = await this.configure(row, {selectLauncher:true});
-    row.configuration = nativeEntry(params.adapter, config, protocol);
+    const dshNext = target.dshNext === true;
+    const { config, files } = await this.configure(row, {selectLauncher:true,dshNext});
+    row.configuration = nativeEntry(params.adapter, config, protocol, {dshNext});
     delete row.probe;
     this.save();
     if (method === 'mcp.install') {
       if(params.adapter==='opendesk-desktop')this.openDeskObservation=await require('./opendesk-lifecycle.cjs').assertStopped(this.options,target.file);
       target.update(row.configuration, owned);
     }
-    if (method === "mcp.install" && ['dsh-web', 'dsh', 'dsh-desktop'].includes(params.adapter)) {
+    if (method === "mcp.install" && (desktopDsh(params.adapter) || ['dsh-web', 'dsh'].includes(params.adapter))) {
       // DSH applies the profile patch layer itself (live when HMR is enabled).
       // Bridge reports the requirement instead of claiming a loaded connection.
       row.probe = {kind: 'patch-layer', nativeLoad: 'reload_required', at:new Date().toISOString(), binding:this.probeBinding(params,row)};

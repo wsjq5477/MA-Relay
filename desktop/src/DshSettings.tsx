@@ -27,7 +27,7 @@ export default function DshSettings({node,disabled=false,onBusyChange}:{node:Age
   finally{if(current.current===ticket){setToken('');setBusy(false);try{setUrl(new URL(address).origin+'/');}catch{/* Retain invalid user input for correction. */}}}
  }
  return <section className="settings-card network-relations settings-dsh" aria-labelledby="settings-dsh">
-  <div className="settings-card-heading"><AgentIcon adapter={adapter}/><div><h2 id="settings-dsh">DSH 服务连接</h2><p>连接已运行的 {adapter==='dsh-desktop'?'Desktop':'Web'}，沿用原生登录、模型和权限。</p></div></div>
+  <div className="settings-card-heading"><AgentIcon adapter={adapter}/><div><h2 id="settings-dsh">在 Bridge 中运行 DSH（可选）</h2><p>连接已运行的 {adapter==='dsh-desktop'?'Desktop':'Web'}，沿用原生登录、模型和权限。</p></div></div>
   <p className="settings-footnote">填写当前机器可访问的服务根地址和连接 token。HTTP 使用该机器的本机地址，token 仅保存在目标机器私有配置中。Desktop 需要开启原生浏览器访问，原生权限和问题仍在 DSH 界面处理。</p>
   <label className="settings-row">服务地址<input aria-label="DSH 服务地址" value={url} disabled={busy||disabled||!writable} onChange={event=>setUrl(event.target.value)}/></label>
   <label className="settings-row">连接 token<input aria-label="DSH 连接 token" type="password" autoComplete="off" value={token} disabled={busy||disabled||!writable} onChange={event=>setToken(event.target.value)}/></label>

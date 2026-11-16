@@ -40,7 +40,7 @@ function setup(){
   await expect(page.getByRole('heading',{name:'AgentBridge MCP',exact:true})).toBeVisible();
   await expect(page.getByText('该产品已有 MCP 客户端，但 Bridge 暂不能管理它的原生 MCP 配置',{exact:false})).toBeVisible();
   await expect(page.getByRole('button',{name:'添加 Bridge MCP',exact:true})).toHaveCount(0);
-  await expect(page.getByRole('heading',{name:'DSH 服务连接',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'在 Bridge 中运行 DSH（可选）',exact:true})).toBeVisible();
   await expect(page.getByLabel('DSH 连接 token',{exact:true})).toHaveAttribute('type','password');
   await page.getByLabel('DSH 连接 token',{exact:true}).fill('fixture-connection-token');
   await page.getByRole('button',{name:'关闭 Agent 配置',exact:true}).click();

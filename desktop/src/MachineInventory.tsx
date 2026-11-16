@@ -19,7 +19,7 @@ import { time } from "./api";
 import AgentIcon from "./AgentIcon";
 import {sshNodeState} from './ssh-node-state';
 import { toolLabel } from "./agent-tools";
-import {canExecuteNode,connectionCapabilitySummary} from "./connection-capabilities";
+import {canExecuteNode,connectionCapabilitySummary,dshServicePendingLabel} from "./connection-capabilities";
 import type { NodeAction } from "./node-management";
 import type { AgentNode, Collaboration, Machine } from "./types";
 
@@ -78,7 +78,7 @@ function nodeState(node: AgentNode): { label: string; tone: Tone } {
   if (node.status === "upgrade_required") return {label:"后台需要升级",tone:"warning"};
   if (node.status === "version_incompatible") return {label:"版本不兼容，需要 OpenCode 2.x",tone:"danger"};
   if (node.status === "needs_check") return {label:"需要检查原生 API",tone:"warning"};
-  if (node.status === "configuration_required") return {label:"待配置服务连接",tone:"warning"};
+  if (node.status === "configuration_required") return {label:dshServicePendingLabel,tone:"neutral"};
   if (node.status === "tool_error")
     return { label: "工具检查异常", tone: "danger" };
   if (!canExecuteNode(node))

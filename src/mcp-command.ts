@@ -43,6 +43,7 @@ const adapterNames: Record<string, string> = {
   opendesk: 'OpenDesk CLI',
   'opendesk-desktop': 'OpenDesk Desktop',
   dsh: 'DSH CLI',
+  'dsh-next': 'DSH NEXT',
   'dsh-web': 'DSH Web',
   'dsh-desktop': 'DSH Desktop',
   hermes: 'Hermes',
@@ -278,7 +279,7 @@ function statusFacts(result: Record<string, unknown>): string[] {
   ];
   const path = configPath(result);
   if (path) lines.push('原生配置：' + path);
-  if (result.adapter === 'dsh-desktop' && text(result.profile)) lines.push('DSH Desktop Profile：' + text(result.profile));
+  if ((result.adapter === 'dsh-desktop' || result.adapter === 'dsh-next') && text(result.profile)) lines.push('DSH Desktop Profile：' + text(result.profile));
   const configError = evidenceOf(result).configError;
   if (isRecord(configError) && text(configError.message)) lines.push('配置核对：' + text(configError.message));
   if (result.nativeTargetChanged === true && text(result.currentConfigPath)) lines.push('当前原生配置：' + text(result.currentConfigPath) + '；移除只清理原接入目标');

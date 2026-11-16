@@ -20,6 +20,32 @@ function fixture(t) {
   return {root, home, native, env, write, profile, select, relocate, makeHost};
 }
 const params = {nodeId: 'desktop', adapter: 'dsh-desktop'};
+test('DSH NEXT follows its native data and Profile selection and removes only the original entry', async t => {
+  const f = fixture(t), nextState = path.join(f.env.APPDATA, 'DSH NEXT', 'home');
+  const root = path.join(f.root, 'next data'), selected = f.profile('研发 Profile', root), other = f.profile('desktop', root);
+  const custom = path.join(nextState, 'desktop-next-location.json'), selection = path.join(root, 'desktop-next.json');
+  f.write(custom, {home: root}); f.write(selection, {active: '研发 Profile'});
+  const host = f.makeHost(); t.after(() => host.close());
+  const installed = await host.call('mcp.install', params);
+  assert.equal(installed.configPath, selected);
+  assert.equal(installed.configuration.config.startupTimeoutMs, 30000);
+  assert.match(fs.readFileSync(installed.files.dsh, 'utf8'), /startupTimeoutMs: 30000/);
+  const otherBefore = fs.readFileSync(other, 'utf8');
+  f.write(selection, {active: 'desktop'});
+  await assert.rejects(host.call('mcp.install', params), {code: 'MCP_NATIVE_TARGET_CHANGED'});
+  assert.equal((await host.call('mcp.remove', params)).facts.authorization, 'revoked');
+  assert.equal(fs.readFileSync(other, 'utf8'), otherBefore);
+  f.write(custom, {home: 'relative'});
+  assert.throws(() => desktopTarget(f.home, f.env), {code: 'MCP_DSH_DESKTOP_TARGET'});
+});
+test('Stable selection is preserved when both editions exist and NEXT has no explicit environment', t => {
+  const f = fixture(t), stable = f.profile('desktop'); f.select('desktop');
+  const nextRoot = path.join(f.root, 'next home'), next = f.profile('desktop', nextRoot);
+  f.write(path.join(f.env.APPDATA, 'DSH NEXT', 'home', 'desktop-next-location.json'), {home: nextRoot});
+  assert.equal(targetFile(desktopTarget(f.home, f.env)), stable);
+  f.env.DSH_DESKTOP_NEXT_HOME = path.join(f.root, 'unused environment home');
+  assert.equal(targetFile(desktopTarget(f.home, f.env)), next);
+});
 test('DSH Desktop refuses a selection race without leaving a new authorization or overwriting native files', async t => {
   const f = fixture(t), original = f.profile('desktop'), other = f.profile('next');
   const before = fs.readFileSync(original, 'utf8'), otherBytes = fs.readFileSync(other, 'utf8');
@@ -38,6 +64,7 @@ test('DSH Desktop reads native selection, preserves other profiles and keeps ori
   const installed = await host.call('mcp.install', params);
   assert.equal(installed.configPath, original); assert.equal(installed.profile, 'desktop');
   assert.equal(installed.facts.nativeLoad, 'reload_required');
+  assert.equal(installed.configuration.config.startupTimeoutMs, undefined);
   assert.equal(fs.readFileSync(other, 'utf8'), before);
   assert.match(fs.readFileSync(original, 'utf8'), /preserve native comment/);
   f.select('研发 Profile');

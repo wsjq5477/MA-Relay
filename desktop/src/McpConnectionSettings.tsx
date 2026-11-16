@@ -527,7 +527,7 @@ export default function McpConnectionSettings({
                   </p>
                   {status.profile && (
                     <p>
-                      {node.adapter === "dsh-desktop"
+                      {node.adapter === "dsh-desktop" || node.adapter === "dsh-next"
                         ? "接入的 DSH Desktop Profile："
                         : "原生 Profile："}
                       {status.profile}

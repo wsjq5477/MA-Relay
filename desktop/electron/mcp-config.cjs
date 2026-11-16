@@ -77,7 +77,7 @@ function dshPatchFile(home, env, profile) {
 function location(adapter, home, env, profile, nativeTarget) {
   if (adapter === 'hermes') return require('./hermes-mcp-config.cjs').targetFile(nativeTarget);
   if (adapter === 'pi') return require('./pi-mcp-config.cjs').targetFile(nativeTarget);
-  if (adapter === 'dsh-desktop') return require('./dsh-desktop-config.cjs').targetFile(nativeTarget);
+  if (['dsh-desktop', 'dsh-next'].includes(adapter)) return require('./dsh-desktop-config.cjs').targetFile(nativeTarget);
   if (adapter === "dsh-web") return dshPatchFile(home, env, "web");
   if (adapter === "dsh") return dshPatchFile(home, env, profile);
   if (['opendesk', 'opendesk-desktop'].includes(adapter)) return path.join(require('./opendesk-connection.cjs').nativeHome({home,environment:env}), 'setting.json');
@@ -101,11 +101,12 @@ function location(adapter, home, env, profile, nativeTarget) {
     );
   throw fail("MCP_UNSUPPORTED", "这个 Agent 尚未提供可验证的 MCP 配置格式。");
 }
-function nativeEntry(adapter, config, protocol = 'v2') {
-  if (['dsh-web', 'dsh', 'dsh-desktop'].includes(adapter)) return {
+function nativeEntry(adapter, config, protocol = 'v2', {dshNext = false} = {}) {
+  if (['dsh-web', 'dsh', 'dsh-desktop', 'dsh-next'].includes(adapter)) return {
     id: dshRowId,
     name: "@deepseek-ai/dsh-mcp-client",
-    config: {serverName: "agentbridge", transport: "stdio", command: config.command, args: config.args, env: config.env},
+    config: {serverName: "agentbridge", transport: "stdio", command: config.command, args: config.args, env: config.env,
+      ...(dshNext ? {startupTimeoutMs: 30000} : {})},
   };
   if (['opendesk', 'opendesk-desktop'].includes(adapter)) return {id:'agentbridge',name:'AgentBridge',transport:'stdio',enabled:true,command:config.command,args:config.args,env:config.env};
   if (adapter === "opencode")
@@ -183,8 +184,9 @@ class McpConfig {
     this.adapter = adapter;
     this.protocol = protocol;
     // Both DSH surfaces edit a native patch layer; only the profile differs.
-    this.dshWeb = ['dsh-web', 'dsh', 'dsh-desktop'].includes(adapter);
-    this.targetModule = {pi: './pi-mcp-config.cjs', hermes: './hermes-mcp-config.cjs', 'dsh-desktop': './dsh-desktop-config.cjs'}[adapter];
+    const desktopDsh = ['dsh-desktop', 'dsh-next'].includes(adapter);
+    this.dshWeb = desktopDsh || ['dsh-web', 'dsh'].includes(adapter);
+    this.targetModule = desktopDsh ? './dsh-desktop-config.cjs' : {pi: './pi-mcp-config.cjs', hermes: './hermes-mcp-config.cjs'}[adapter];
     if (adapter === 'hermes') {
       const hermes = require(this.targetModule);
       this.nativeSelection = () => hermes.currentTarget(home, env);
@@ -195,12 +197,13 @@ class McpConfig {
       this.nativeSelection = () => pi.currentTarget(home, env);
       this.nativeTarget = nativeTarget ? pi.validateTarget(nativeTarget) : this.nativeSelection();
     }
-    if (adapter === 'dsh-desktop') {
+    if (desktopDsh) {
       const desktop = require('./dsh-desktop-config.cjs');
-      this.nativeSelection = () => desktop.desktopTarget(home, env);
+      this.nativeSelection = () => desktop.desktopTarget(home, env, adapter === 'dsh-next');
       this.nativeTarget = nativeTarget ? desktop.validateTarget(nativeTarget) : this.nativeSelection();
+      this.dshNext = adapter === 'dsh-next' || desktop.isNextDesktop(home, env);
     }
-    this.profile = adapter === 'dsh-desktop' ? this.nativeTarget.profile : adapter === 'dsh-web' ? 'web' : profile === undefined ? undefined : dshProfile(profile);
+    this.profile = desktopDsh ? this.nativeTarget.profile : adapter === 'dsh-web' ? 'web' : profile === undefined ? undefined : dshProfile(profile);
     this.file = location(adapter, home, env, this.profile, this.nativeTarget);
     // OpenCode merges json/jsonc. Edit the existing file, and reject ambiguous dual entries.
     if (

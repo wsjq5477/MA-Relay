@@ -44,6 +44,7 @@ import type {
 } from "./types";
 import "./network.css";
 import {sshNodeState} from './ssh-node-state';
+import {dshServicePendingLabel} from './connection-capabilities';
 const empty: Snapshot = {
   configured: false,
   directory: "",
@@ -60,7 +61,7 @@ const nodeStatus = (n: AgentNode) =>
     : n.status === "upgrade_required" ? "后台需要升级"
     : n.status === "version_incompatible" ? "版本不兼容，需要 OpenCode 2.x"
     : n.status === "needs_check" ? "需要检查原生 API"
-    : n.status === "configuration_required" ? "待配置服务连接"
+    : n.status === "configuration_required" ? dshServicePendingLabel
     : n.status === "tool_error"
       ? "工具检查异常"
       : n.status === "unsupported"

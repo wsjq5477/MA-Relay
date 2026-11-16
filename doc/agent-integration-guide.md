@@ -1,5 +1,7 @@
 # Agent 接入方式、选型与快速接入
 
+安装 DSH NEXT 后，在 Bridge 的「接入配置」中直接点「接入」。DSH NEXT 沿用原生登录和数据目录。可选的「AgentBridge 连接」插件从 DSH 左侧栏显示已获准目标及状态。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
+
 当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
 
 仅作上层调用方、无需Bridge驱动其Runtime时，未发布源码可登记kind=mcp主体，由用户明确目标/操作授权并发放CallerContext配置。该mode=caller入口不要求安装工具节点；同一明确上下文可跨回合与凭据轮换访问原任务，不自动迁移旧native-parent/connectionId。使用方法及边界见[调用方契约](iterations/I08/interconnect-caller-contract.md)，公开alpha.71不包含这些新接口。

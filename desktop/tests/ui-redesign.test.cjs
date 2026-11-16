@@ -34,7 +34,7 @@ test('settings shows management originals even with an empty execution journal, 
 });
 test('unconfigured DSH service exposes configuration guidance rather than a tool failure or execution button',()=>{
  const html=render(MachineInventory,inventoryProps({nodes:[node({name:'DSH Web',adapter:'dsh-web',connected:false,healthy:false,available:false,status:'configuration_required'})]}));
- assert.match(html,/待配置服务连接/);assert.doesNotMatch(html,/工具检查异常/);assert.equal(buttonNamed(html,'配置').disabled,false);
+ assert.match(html,/Bridge 调用 DSH 未启用/);assert.doesNotMatch(html,/工具检查异常/);assert.equal(buttonNamed(html,'配置').disabled,false);
  assert.equal(buttonNamed(html,'接入').disabled,true);assert(!buttons(html).some(button=>button.text==='开始会话'));
 });
 const timestamp = "2026-10-17T08:00:00.000Z";

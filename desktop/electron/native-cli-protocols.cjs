@@ -4,8 +4,9 @@ const path = require('node:path');
 // These are three different upstream protocols. Never infer one tool's flags
 // or terminal vocabulary from another tool's --version result. Pinned source
 // refs and inspected contract URLs: artifacts/native-agent-expansion/2026-10-18/upstream-contracts.json.
-const profiles = Object.freeze({ opendesk: 'opendesk-http-v2', 'opendesk-desktop': 'opendesk-gateway-v2', hermes: 'chat-stream-json-v1', pi: 'json-print-v1', dsh: 'headless-json-v1', 'dsh-desktop': 'web-api-v1', 'dsh-web': 'web-api-v1' });
-const names = Object.freeze({ opendesk: 'OpenDesk', 'opendesk-desktop': 'OpenDesk Desktop', hermes: 'Hermes Agent', pi: 'Pi', dsh: 'DeepSeek Harness', 'dsh-desktop': 'DSH Desktop', 'dsh-web': 'DSH Web' });
+const profiles = Object.freeze({ opendesk: 'opendesk-http-v2', 'opendesk-desktop': 'opendesk-gateway-v2', hermes: 'chat-stream-json-v1', pi: 'json-print-v1', dsh: 'headless-json-v1', 'dsh-next': 'desktop-headless-json-v1', 'dsh-desktop': 'web-api-v1', 'dsh-web': 'web-api-v1' });
+const names = Object.freeze({ opendesk: 'OpenDesk', 'opendesk-desktop': 'OpenDesk Desktop', hermes: 'Hermes Agent', pi: 'Pi', dsh: 'DeepSeek Harness', 'dsh-next': 'DSH NEXT', 'dsh-desktop': 'DSH Desktop', 'dsh-web': 'DSH Web' });
+const dshHeadless = adapter => adapter === 'dsh' || adapter === 'dsh-next';
 const fail = (code, message) => Object.assign(new Error(message), { code });
 const validIdentity = value => typeof value === 'string' && value.trim().length > 0 && value.length <= 4096;
 const messageText = message => Array.isArray(message?.content)
@@ -56,7 +57,7 @@ function argumentsFor(job) {
   // --no-restore-cwd flag is rejected by installed Hermes 0.22.5; both native
   // implementations accept the common stream-json and exact-resume contract.
   if (job.adapter === 'hermes') return ['chat', '--query-file', '-', '--format', 'stream-json', ...(job.sessionId ? ['--resume', job.sessionId] : [])];
-  if (job.adapter === 'dsh') return ['--profile', 'headless', '--json', ...(job.sessionId ? ['--session-id', job.sessionId] : []), '-'];
+  if (dshHeadless(job.adapter)) return ['--profile', 'headless', '--json', ...(job.sessionId ? ['--session-id', job.sessionId] : []), '-'];
   return ['--mode', 'json', '--print', '--session-dir', job.sessionDirectory, ...(job.sessionId ? ['--session', piSessionFile(job.sessionDirectory, job.sessionId, job.workspace)] : [])];
 }
 function createParser(job, emit) {
@@ -114,7 +115,7 @@ function createParser(job, emit) {
       if (event.type === 'error') failure = String(event.message || event.error?.message || event.error || '原生工具返回错误');
     },
     finish(code) {
-      const error = failure || (job.adapter === 'pi' ? piError || (!piFinal ? 'Pi 缺少本轮正常结束的 assistant 消息。' : '') : '') || (job.adapter === 'dsh' && !dshEnded ? 'DeepSeek Harness 缺少本轮 completed 终态。' : '');
+      const error = failure || (job.adapter === 'pi' ? piError || (!piFinal ? 'Pi 缺少本轮正常结束的 assistant 消息。' : '') : '') || (dshHeadless(job.adapter) && !dshEnded ? 'DeepSeek Harness 缺少本轮 completed 终态。' : '');
       return { sessionId, answer, succeeded: code === 0 && completed && !!sessionId && !error, error,
         ...(job.adapter === 'hermes' ? {uncertain: !resultSeen || hermesDetached || code === 3 || code === 130 || /Gateway connection\/read failed|Detached; accepted work|Unknown execution blocks/.test(error)} : {}) };
     },

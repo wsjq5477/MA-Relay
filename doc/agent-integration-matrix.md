@@ -1,5 +1,7 @@
 # Agent 接入现状与后续目标
 
+源码增加 Windows `dsh-next` 原生执行入口，使用安装包内的 headless JSONL。首次接入可为当前 DSH NEXT Profile 安装 MCP，已授权 DSH 仍通过原生 MCP 查询和调用 Bridge。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
+
 alpha.74 支持本机、WSL 与 SSH Linux 目标添加 Hermes/Pi 兼容命令，分别复用 stream-json/JSON-print。受控 CLI 已验 Pi 原会话续聊；真实用户命令、Linux/SSH 原生闭环和 EXE 待验。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
 当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。

@@ -92,8 +92,9 @@ class NativeCliHost {
   }
   call(method, params = {}) { const result = this.chain.then(() => this.handle(method, params)); this.chain = result.catch(() => {}); return result; }
   failLaunch(task, error) { if (!terminal.has(task.status)) { this.finish(task, 'failed', safe(this.name + ' 原生任务未启动：' + error.message), error.code || 'NATIVE_START', false); this.save(); } return this.publicTask(task); }
+  dshNextHome() { return require('./dsh-desktop-config.cjs').nextHome(this.home, this.environment || process.env); }
   conversationView(conversation) {
-    const result = clone(conversation); delete result.sessionId;
+    const result = clone(conversation); delete result.sessionId; delete result.dshHome;
     const last = this.state.tasks.find(item => item.taskId === conversation.lastTaskId);
     let bound = validIdentity(conversation.sessionId) && (!this.adapter.startsWith('opendesk') || validIdentity(conversation.instanceId)) && conversation.profile === profiles[this.adapter] && !conversation.bindingError;
     if (bound && this.adapter.startsWith('opendesk')) {
@@ -103,6 +104,9 @@ class NativeCliHost {
     if (bound && this.adapter === 'pi') {
       try { piSessionFile(path.join(this.directory, 'native-sessions'), conversation.sessionId, this.state.agents.find(agent => agent.agentId === conversation.targetAgent)?.workspace); }
       catch (error) { if (error.code !== 'CONVERSATION_CONFIG') throw error; bound = false; }
+    }
+    if (bound && this.adapter === 'dsh-next') {
+      try { bound = conversation.dshHome === this.dshNextHome(); } catch { bound = false; }
     }
     return { ...result, kind: 'task', canContinue: !!bound && !!last && terminal.has(last.status) && !this.state.tasks.some(item => !terminal.has(item.status)) };
   }
@@ -169,6 +173,8 @@ class NativeCliHost {
     if (old) { if (old.fingerprint !== fingerprint) throw fail('REQUEST_CONFLICT', '请求内容冲突。'); return this.publicTask(this.state.tasks.find(item => item.taskId === old.taskId)); }
     if (params.op === 'continue' && (!validIdentity(conversation?.sessionId) || conversation.profile !== profiles[this.adapter] || conversation.bindingError)) throw fail('CONVERSATION_CONFIG', '原生会话或执行协议尚未绑定，未重新提交。');
     if (params.op === 'continue' && this.adapter.startsWith('opendesk') && !this.conversationView(conversation).canContinue) throw fail('CONVERSATION_CONFIG', '原 OpenDesk 连接或会话不可用，请保留原历史；未重新提交。');
+    const dshHome = this.adapter === 'dsh-next' ? this.dshNextHome() : undefined;
+    if (dshHome && conversation && conversation.dshHome !== dshHome) throw fail('CONVERSATION_CONFIG', 'DSH NEXT 的原生数据目录已变更，原会话保留，需求未发送。');
     if (this.state.tasks.some(item => !terminal.has(item.status))) throw fail('AGENT_BUSY', '此上下文仍有未结束任务。');
     const fresh = { taskId: this.adapter + '-task-' + randomUUID(), executionId: randomUUID(), conversationId: conversation?.conversationId || this.adapter + '-conversation-' + randomUUID(), targetAgent: agent.agentId, requestId: params.requestId, message: safe(params.message), status: 'accepted', createdAt: now(), updatedAt: now(), turn: (conversation?.turns || 0) + 1, lastSeq: 0, lastSummary: '已接收，正在启动 ' + this.name, events: [], offset: 0 };
     const directory = path.join(this.directory, 'runs', fresh.taskId), job = { adapter: this.adapter, profile: profiles[this.adapter], executable: this.executable, workspace: agent.workspace, message: params.message, requestId: params.requestId, conversationId: fresh.conversationId, sessionId: conversation?.sessionId, ...(conversation?.instanceId ? {instanceId:conversation.instanceId} : {}), sessionDirectory: path.join(this.directory, 'native-sessions'), ...(this.adapter.startsWith('opendesk') ? {controlRoot:path.join(this.directory,'opendesk-existing-v2')} : {}), ...(['dsh-desktop', 'dsh-web'].includes(this.adapter) ? {origin: require('./dsh-connection.cjs').read(this.executable).origin} : {}) };
@@ -176,12 +182,13 @@ class NativeCliHost {
       job.executable = this.customRuntime.program;
       job.launchPrefix = this.customRuntime.args;
     }
+    if (dshHome) job.dshHome = dshHome;
     // Validate exact Pi persisted binding before any durable intent or spawn.
     argumentsFor(job);
     write(path.join(directory, 'job.json'), job);
     this.state.tasks.push(fresh); this.state.requests.push({ requestId: params.requestId, fingerprint, taskId: fresh.taskId });
     if (conversation) { conversation.turns++; conversation.lastTaskId = fresh.taskId; conversation.updatedAt = now(); }
-    else this.state.conversations.push({ conversationId: fresh.conversationId, targetAgent: agent.agentId, profile: profiles[this.adapter], title: safe(params.message).slice(0, 100), turns: 1, lastTaskId: fresh.taskId, updatedAt: now() });
+    else this.state.conversations.push({ conversationId: fresh.conversationId, targetAgent: agent.agentId, profile: profiles[this.adapter], ...(dshHome ? {dshHome} : {}), title: safe(params.message).slice(0, 100), turns: 1, lastTaskId: fresh.taskId, updatedAt: now() });
     this.event(fresh, 'accepted'); this.save();
     return this.startWorker(fresh, directory, agent.workspace);
   }
@@ -195,7 +202,7 @@ class NativeCliHost {
     try {
       const runtime = require('./worker-runtime.cjs').workerRuntime(this.directory), workerDirectory = path.join(this.directory, 'runtime', 'native-' + randomUUID());
       fs.mkdirSync(workerDirectory, { recursive: true, mode: 0o700 });
-      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs', 'dsh-connection.cjs', 'dsh-worker.cjs', 'opendesk-connection.cjs', 'opendesk-worker.cjs', 'graph-layout.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
+      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs', 'dsh-connection.cjs', 'dsh-next-runtime.cjs', 'dsh-worker.cjs', 'opendesk-connection.cjs', 'opendesk-worker.cjs', 'graph-layout.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
       fd = fs.openSync(path.join(directory, 'worker.log'), 'a', 0o600);
       child = spawn(runtime, [path.join(workerDirectory, 'native-cli-host.cjs'), '--native-cli-worker', directory, ...(observe ? ['--observe'] : [])], { cwd: workspace, env: { ...(this.environment || process.env), ELECTRON_RUN_AS_NODE: '1' }, detached: true, windowsHide: true, stdio: ['ignore', fd, fd] });
       child.once('error', error => { this.chain = this.chain.then(() => launchFailure(error)).catch(() => {}); }); child.unref();
@@ -217,7 +224,9 @@ async function runWorker(directory) {
   let child, spawned = false, spawnFailed = false, cancelRequested = false, terminationSent = false, windowsKill, killDeadline = 0, ended = false, oversized = false, buffer = '', failure = '', diagnostics = '';
   const parser = createParser(job, event => emit({ ...event, ...(typeof event.text === 'string' ? { text: safe(event.text) } : {}) }));
   try {
-    const launch = require('./tool-discovery.cjs').command(job.executable, [...(job.launchPrefix || []), ...argumentsFor(job)]);
+    const args = argumentsFor(job);
+    const launch = job.adapter === 'dsh-next' ? require('./dsh-next-runtime.cjs').launch(job.executable, args, job.dshHome)
+      : require('./tool-discovery.cjs').command(job.executable, [...(job.launchPrefix || []), ...args]);
     child = spawn(launch.executable, launch.args, { cwd: job.workspace, env: launch.env, windowsHide: true, detached: process.platform !== 'win32', stdio: ['pipe', 'pipe', 'pipe'] });
   } catch (error) { clearInterval(heartbeat); emit({ kind: 'terminal', status: 'failed', code: 'NATIVE_START', text: safe(error.message), nativeExited: false }); return; }
   child.once('spawn', () => { spawned = true; emit({ kind: 'started' }); });

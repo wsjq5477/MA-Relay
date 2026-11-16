@@ -1,5 +1,7 @@
 # M01 桌面交互测试报告
 
+2026-11-16：DSH NEXT 的本机 GUI 接入、真实 Claude 委派及面板刷新见 [DSH NEXT 交付](../../iterations/I08/alpha76-dsh-release.md)。候选与冻结发布包的证据分别记录。
+
 2026-11-09：维护确认交互的受控与未测范围见[本轮记录](../../iterations/I08/maintenance-unstarted-cleanup.md)。
 
 2026-11-07，alpha.74已公开。冻结源、独立Ubuntu CI、实际EXE载荷/包内7项、普通portable及匿名下载分层结果见[本次交付](../../iterations/I08/alpha74-release.md)；Windows首轮45通过/1失败/19跳过，定向复验不改写原失败，真实模型/生产SSH/完整矩阵仍待。

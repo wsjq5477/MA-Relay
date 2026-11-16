@@ -3,15 +3,15 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {AgentNetwork}=require('../electron/agent-network.cjs');
 const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
 const {adapters,connectionCapabilities}=require('../electron/builtin-adapters.cjs');
-const tools=['claude','opencode','codex','hermes','pi','dsh','dsh-desktop','dsh-web','opendesk','opendesk-desktop'];
+const tools=['claude','opencode','codex','hermes','pi','dsh','dsh-next','dsh-desktop','dsh-web','opendesk','opendesk-desktop'];
 // Independent MCP client support is a product capability, not the old three-name
 // whitelist and not hosted-scope adaptation. Native config adaptation is a third,
 // separate answer.
-const callers=['hermes','pi','claude','opencode','codex','dsh','dsh-desktop','dsh-web','opendesk','opendesk-desktop'];
+const callers=['hermes','pi','claude','opencode','codex','dsh','dsh-next','dsh-desktop','dsh-web','opendesk','opendesk-desktop'];
 const hosted=['claude','opencode','codex'];
 // DSH CLI manages its own native MCP entry only when the user names the launch
 // profile; the product-level adaptation exists, so it declares the dimension.
-const nativeConfig=['hermes','pi','claude','opencode','codex','dsh','dsh-web','dsh-desktop','opendesk-desktop'];
+const nativeConfig=['hermes','pi','claude','opencode','codex','dsh','dsh-next','dsh-web','dsh-desktop','opendesk-desktop'];
 function fixture(t, selectedTools=tools){
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'ab-connection-capabilities-'));
  const host={agents:[],tasks:[],conversations:[],calls:[],executions:0,scopeSupported:undefined,

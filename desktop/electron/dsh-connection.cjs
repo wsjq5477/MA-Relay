@@ -74,7 +74,7 @@ async function client(file, expectedOrigin) {
   }
   return {rpc, origin: row.origin};
 }
-async function discover(options = {}) {
+async function discover(options = {}, {automaticNext = false} = {}) {
   const configured = status(options).items;
   const result = await Promise.all(configured.filter(row => row.enabled).map(async row => {
     const base = {adapter: row.adapter, name: row.adapter === 'dsh-desktop' ? 'DSH Desktop' : 'DSH Web', executable: row.executable};
@@ -103,6 +103,13 @@ async function discover(options = {}) {
         if (!['dsh-plugin-desktop', '@deepseek-ai/dsh-desktop'].includes(pkg.name)) continue;
         result.push({adapter:'dsh-desktop', name:'DSH Desktop', executable, version:pkg.version, healthy:false, errorCode:'DSH_CONNECTION_REQUIRED', error:'已安装 DSH Desktop；请在机器与 Agent 的 DSH Desktop 行点击“配置”，保存服务地址和连接 token，再重新扫描。'}); break;
       } catch { /* Other native installation layouts require explicit connection. */ }
+    }
+    if (!automaticNext && !result.some(row => row.adapter === 'dsh-desktop')) {
+      try {
+        const profile = require('./dsh-desktop-config.cjs').nextDesktopProfile(options.home || os.homedir(), env);
+        if (profile) result.push({adapter:'dsh-desktop', name:'DSH NEXT', executable:profile, healthy:false, errorCode:'DSH_NEXT_INSTALLATION',
+          error:'已发现 DSH NEXT 的数据，未找到原生程序。请确认 DSH NEXT 已安装后重新扫描。'});
+      } catch { /* An unverified Profile is not evidence of a usable Desktop installation. */ }
     }
   }
   return result;

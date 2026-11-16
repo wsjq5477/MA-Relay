@@ -1,5 +1,7 @@
 # AgentBridge 整体功能设计
 
+Windows 安装版 DSH NEXT 通过包内原生入口自动发现。在「接入配置」点「接入」即可，无需另建服务地址。首次接入可为当前原生 Profile 准备 MCP。DSH 调用其他 Agent 需已有明确授权。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
+
 M04/M01：维护原操作 not_found 保持 unknown；用户明确确认后可核对原版本与安装身份并结算本机原收据，原 ID 同步恢复 graph。[设计与验证](iterations/I08/maintenance-unstarted-cleanup.md)
 
 未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](iterations/I08/maintenance-controller-recovery.md)

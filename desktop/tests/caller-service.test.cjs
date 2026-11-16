@@ -35,6 +35,7 @@ test('a caller-only principal uses the existing agent identity without installin
   assert.equal(view.caller.kind,'independent-caller');assert.equal(view.caller.role,'caller');
   assert.equal(view.caller.nodeId,undefined);assert.equal(view.caller.machineId,undefined);
   assert.equal(view.caller.contextId,f.opened.contextId);
+  assert.ok(view.supportedOperations.includes('task.client-request-v1'));
   assert.deepEqual(view.items.map(node=>node.nodeId),[f.child.nodeId]);
   assert.deepEqual(view.items[0].agents.map(agent=>agent.agentId),[f.target.agentId]);
   const publicState=await f.controller.call('callers.list',{}),privateDescriptor=f.descriptor(f.opened);
@@ -49,6 +50,12 @@ test('contexts have separate request and control ownership while sharing one ser
   const first=await f.tool('delegate',input);
   assert.equal((await f.tool('delegate',input)).taskId,first.taskId);
   await assert.rejects(f.tool('task_result',{taskId:first.taskId},other),{code:'COLLABORATION_FORBIDDEN'});
+  const unassociated=await f.tool('task_result',{clientRequestId:input.requestId,afterSeq:0},other);
+  assert.equal(unassociated.status,'unknown');assert.equal(unassociated.outcome.terminal,false);
+  assert.deepEqual(unassociated.recovery,{state:'delegation-not-found',resubmissionAllowed:false});
+  assert.equal(unassociated.invocation,undefined);assert.equal(unassociated.events.cursor,0);
+  await assert.rejects(f.tool('task_result',{clientRequestId:input.requestId,taskId:first.taskId}),{code:'INVALID_INPUT'});
+  assert.equal((await f.tool('task_result',{clientRequestId:input.requestId})).taskId,first.taskId);
   await assert.rejects(f.tool('cancel_task',{taskId:first.taskId,operationId:'steal'},other),{code:'COLLABORATION_FORBIDDEN'});
   await assert.rejects(f.tool('delegate',input,other),{code:'AGENT_BUSY'});
   f.state.tasks[0].status='unknown';
@@ -173,8 +180,10 @@ test('different principals share a node without sharing sessions, task results o
   assert.notEqual(next.conversationId,first.conversationId);assert.equal(f.state.executions,2);
 });
 
-test('a real MCP stdio caller recovers a lost submission receipt, reads the original result and survives explicit credential rotation',async t=>{
+test('real MCP stdio recovers the exact client request among multiple delegations and after credential rotation',async t=>{
   const f=await setup(t),config=f.opened.configuration;
+  const another=await f.register(f.outsider);
+  await f.admin('configure',{principalId:f.caller.principalId,expectedRevision:1,allowedAgentIds:[f.target.agentId,another.agentId]});
   const child=spawn(config.command,config.args,{windowsHide:true,env:{...process.env,...config.env},stdio:['pipe','pipe','pipe']});
   const lines=createInterface({input:child.stdout}),waiting=new Map();let id=0,diagnostic='';
   child.stderr.on('data',data=>{diagnostic+=data;});
@@ -187,19 +196,23 @@ test('a real MCP stdio caller recovers a lost submission receipt, reads the orig
     child.stdin.write(JSON.stringify({jsonrpc:'2.0',id:current,method:'tools/call',params:{name,arguments:args}})+'\n');
   });
   const view=await call('list_agents');assert.equal(view.caller.kind,'independent-caller');
+  const other=await call('delegate',{agentId:another.agentId,requestId:'stdio-other',message:'Separate work'});
   f.state.loseNextSubmitResponse=true;
   assert.equal((await call('delegate',{agentId:f.target.agentId,requestId:'stdio-original',message:'Compile'})).error.code,'DESKTOP_TRANSPORT');
-  const original=(await call('list_delegations')).items[0];assert.equal(original.taskId,undefined);
-  const task=await call('task_result',{delegationId:original.delegationId});assert.equal(task.status,'running');
-  f.state.tasks[0].lastSeq=1;f.state.tasks[0].events=[{seq:1,timestamp:new Date().toISOString(),event:{kind:'output',text:'Controlled progress'}}];
-  const progress=await call('task_result',{taskId:task.taskId,afterSeq:0});
+  const task=await call('task_result',{clientRequestId:'stdio-original'});assert.equal(task.status,'running');
+  assert.notEqual(task.taskId,other.taskId);assert.equal(task.invocation.agentId,f.target.agentId);
+  assert.equal((await call('task_result',{clientRequestId:'stdio-other'})).taskId,other.taskId);
+  assert.equal((await call('task_result',{delegationId:task.delegationId})).taskId,task.taskId);
+  const original=f.state.tasks.find(row=>row.requestId===task.invocation.requestId);
+  original.lastSeq=1;original.events=[{seq:1,timestamp:new Date().toISOString(),event:{kind:'output',text:'Controlled progress'}}];
+  const progress=await call('task_result',{clientRequestId:'stdio-original',afterSeq:0});
   assert.equal(progress.events.cursor,1);assert.equal(progress.events.items[0].event.text,'Controlled progress');assert.equal(progress.outcome.terminal,false);
   f.finish(task);assert.equal((await call('task_result',{taskId:task.taskId})).status,'succeeded');
   await f.admin('rotateCredential',{contextId:f.opened.contextId,expectedRevision:1});
-  assert.equal((await call('task_result',{taskId:task.taskId})).status,'succeeded');
+  assert.equal((await call('task_result',{clientRequestId:'stdio-original'})).status,'succeeded');
   await f.admin('closeContext',{contextId:f.opened.contextId,expectedRevision:2});
   assert.equal((await call('task_result',{taskId:task.taskId})).error.code,'CALLER_REVOKED');
-  assert.equal(f.state.executions,1);
+  assert.equal(f.state.executions,2);
 });
 
 test('parallel machine snapshots share one scope restoration and do not publish premature readiness',async()=>{

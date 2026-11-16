@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "AgentBridge connections",
+    "description": "Read-only list of the agents this DSH is authorized to reach through the existing AgentBridge MCP server, grouped by machine with online and busy state.",
+    "detail": "docs/DETAIL.en.md"
+  }
+}

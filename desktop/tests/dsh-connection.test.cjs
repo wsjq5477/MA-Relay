@@ -143,6 +143,45 @@ test('installed Windows Desktop is discoverable without CLI or token, with confi
   assert.deepEqual(await scanTools(options),[],'disabled service must not reappear as an unconfigured installation');
 });
 
+test('an initialized DSH NEXT profile is discoverable outside regular app installation paths', async t => {
+  const home=fs.mkdtempSync(path.join(os.tmpdir(),'ab-next-profile-'));t.after(()=>fs.rmSync(home,{recursive:true,force:true}));
+  const roaming=path.join(home,'roaming'),state=path.join(roaming,'DSH NEXT','home'),data=path.join(home,'custom-next');
+  const profile=path.join(data,'profiles','desktop');
+  fs.mkdirSync(state,{recursive:true});fs.mkdirSync(profile,{recursive:true});
+  fs.writeFileSync(path.join(state,'desktop-next-location.json'),JSON.stringify({home:data}));
+  fs.writeFileSync(path.join(profile,'package.json'),JSON.stringify({dsh:{profile:{bundles:['@deepseek-ai/dsh-web-app']}}}));
+  const options={home,platform:'win32',environment:{Path:'',APPDATA:roaming,LOCALAPPDATA:path.join(home,'local')},candidates:{claude:[],codex:[],opencode:[],hermes:[],pi:[],dsh:[]}};
+  const [item]=await scanTools(options);
+  assert.equal(item.adapter,'dsh-desktop');assert.equal(item.name,'DSH NEXT');
+  assert.equal(item.errorCode,'DSH_NEXT_INSTALLATION');assert.equal(item.healthy,false);
+  assert.equal(item.executable,path.join(profile,'cordis.patch.yml'));
+  configure({home},{adapter:'dsh-desktop',url:'http://127.0.0.1:12345/',token:'synthetic-token',enabled:false});
+  assert.deepEqual(await scanTools(options),[]);
+});
+
+test('installed DSH NEXT exposes native execution without a service or CLI on PATH', async t => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-next-install-'));
+  t.after(() => fs.rmSync(home, {recursive:true, force:true}));
+  const app = path.join(home, 'custom', 'DSH NEXT');
+  const executable = path.join(app, 'DSH NEXT.exe');
+  fs.mkdirSync(path.join(app, 'resources'), {recursive:true});
+  fs.writeFileSync(executable, 'discovery must not start this executable');
+  const manifest = Buffer.from(JSON.stringify({name:'dsh-desktop-next', version:'2.0.23-next'}));
+  const header = Buffer.from(JSON.stringify({files:{'package.json':{size:manifest.length, offset:'0'}, lib:{files:{'desktop-cli.js':{size:1, offset:String(manifest.length)}}}}}));
+  const prefix = Buffer.alloc(16), padding = Buffer.alloc((4 - header.length % 4) % 4);
+  prefix.writeUInt32LE(4, 0);
+  prefix.writeUInt32LE(8 + header.length + padding.length, 4);
+  prefix.writeUInt32LE(4 + header.length + padding.length, 8);
+  prefix.writeUInt32LE(header.length, 12);
+  const archive = path.join(app, 'resources', 'app.asar');
+  fs.writeFileSync(archive, Buffer.concat([prefix, header, padding, manifest, Buffer.from(' ')]));
+  const options = {home, platform:'win32', environment:{Path:'', APPDATA:path.join(home, 'roaming'), LOCALAPPDATA:path.join(home, 'local')}, candidates:{claude:[], codex:[], opencode:[], hermes:[], pi:[], dsh:[], 'dsh-next':[executable]}};
+  assert.deepEqual(await scanTools(options), [{adapter:'dsh-next', name:'DSH NEXT', version:'2.0.23-next', executable:fs.realpathSync(executable), healthy:true}]);
+  const {launch} = require('../electron/dsh-next-runtime.cjs');
+  assert.deepEqual(launch(executable, ['--profile', 'headless'], home, {}).args, [path.join(archive, 'lib', 'desktop-cli.js'), '--profile', 'headless']);
+  assert.deepEqual(status(options).items, []);
+});
+
 test('Linux Web profile is a configuration hint without reading native credentials or launching dsh', async t => {
   const home=fs.mkdtempSync(path.join(os.tmpdir(),'ab-web-install-'));t.after(()=>fs.rmSync(home,{recursive:true,force:true}));
   for(const custom of [false,true]) {

@@ -1,5 +1,7 @@
 # 通信协议与接口
 
+`discover` 可返回 `dsh-next`。节点使用原管理和任务接口，内部 `desktop-headless-json-v1` 复用 DSH JSONL。独立 MCP 调用方可用 `task_result({clientRequestId})` 查询原提交，能力由 `list_agents` 声明。查询缺记录保留未知状态。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
+
 桌面协调器 `machine.confirmMaintenanceNotRun` 接收原 operationId、connectionId、可选 machineId 和严格布尔 confirmNotRun；仅在原查询 not_found 和只读身份检查通过后结算本机 rejected，随后以原收据结算 graph。[契约与限制](iterations/I08/maintenance-unstarted-cleanup.md)
 
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)

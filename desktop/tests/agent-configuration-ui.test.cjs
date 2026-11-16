@@ -59,9 +59,9 @@ test('DSH CLI asks for the launch profile instead of guessing one',()=>{
 test('DSH service connection is configured separately from the unified MCP section',()=>{
  for(const adapter of ['dsh-desktop','dsh-web']){
   const html=render(Dialog,{node:projected(adapter),machine,onClose:noop});
-  assert.match(html,/DSH 服务连接/);assert.match(html,/type="password"/);assert.match(html,/autoComplete="off"/);
+  assert.match(html,/在 Bridge 中运行 DSH（可选）/);assert.match(html,/type="password"/);assert.match(html,/autoComplete="off"/);
   assert.match(html,/AgentBridge MCP/);
-  assert(html.indexOf('AgentBridge MCP')<html.indexOf('DSH 服务连接'),'the MCP operation precedes the separate service connection');
+  assert(html.indexOf('AgentBridge MCP')<html.indexOf('在 Bridge 中运行 DSH（可选）'),'the MCP operation precedes the separate service connection');
   assert.doesNotMatch(html,/DSH 目标机器|DSH 版本|<select/);
  }
 });

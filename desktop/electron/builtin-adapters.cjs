@@ -36,6 +36,11 @@ const adapters = createAdapterRegistry([
     createHost: options => new (require('./native-cli-host.cjs').NativeCliHost)({...options, adapter: id}),
   })),
   {
+    id:'dsh-next', name:'DSH NEXT', commands:['dsh-next'], npmEntrypoints:[], driver:'native-cli',
+    capabilities:{execution:true, delegation:true, mcpClient:true, nativeMcpConfig:true, hostManagedTask:false, resume:true, cancellation:true, permissions:false, forms:false, verification:false},
+    createHost:options=>new (require('./native-cli-host.cjs').NativeCliHost)({...options, adapter:'dsh-next'}),
+  },
+  {
     id: 'claude', name: 'Claude Code', commands: ['claude'],
     npmEntrypoints: ['@anthropic-ai/claude-code/bin/claude.exe', '@anthropic-ai/claude-code/cli.js'],
     driver: 'native-cli',

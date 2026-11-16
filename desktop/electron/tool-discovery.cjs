@@ -118,7 +118,7 @@ async function scanTools(options={}) {
   if(windows)folders.push(path.join(env.APPDATA||path.join(home,'AppData/Roaming'),'npm'),path.join(home,'scoop/shims'));
   else if(platform==='linux')folders.push(...managedLinuxFolders(home,env));
   const result=[];
-  await Promise.all(descriptors.filter(d => d.driver!=='browser-extension'&&!['dsh-desktop', 'dsh-web', 'opendesk-desktop'].includes(d.id)).map(async({id:adapter,name,commands})=>{
+  await Promise.all(descriptors.filter(d => d.driver!=='browser-extension'&&!['dsh-next', 'dsh-desktop', 'dsh-web', 'opendesk-desktop'].includes(d.id)).map(async({id:adapter,name,commands})=>{
     // Hermes' Windows installer publishes its native launcher under the data
     // home's bin. A running desktop/daemon may predate the installer's PATH edit.
     // Keep this fallback Hermes-only and after PATH; never execute a setup GUI.
@@ -158,7 +158,8 @@ async function scanTools(options={}) {
   }));
   // command() is also frozen into legacy CLI workers; discovery-only
   // dependencies are loaded exclusively by scanTools().
-  result.push(...await require('./dsh-connection.cjs').discover(options));
+  const dshNext = await require('./dsh-next-runtime.cjs').discover(options);
+  result.push(...dshNext, ...await require('./dsh-connection.cjs').discover(options, {automaticNext:dshNext.length > 0}));
   result.push(...await require('./opendesk-connection.cjs').discover(options));
   return result.sort((a,b)=>a.adapter.localeCompare(b.adapter));
 }

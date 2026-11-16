@@ -1,5 +1,7 @@
 # 对象、身份与持久数据
 
+`dsh-next` 节点以原安装位置绑定。私有会话和作业保存原生数据目录 `dshHome`，续聊核对原绑定，不把字段投影到公开会话。独立调用方按自己的上下文和客户端请求 ID 匹配原委派。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
+
 维护未执行确认复用原 lifecycle operation 的 rejected 状态与 error 字段，错误码 DAEMON_NOT_RUN_CONFIRMED 记录远端原记录缺失和用户明确确认；不新增远端终态或迁移数据，graph 按同一原收据结算。[详情](iterations/I08/maintenance-unstarted-cleanup.md)
 
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)

@@ -1,6 +1,8 @@
 import type { AgentNode, ConnectionCapabilities } from './types';
 
-const nativeAdapters = new Set(['claude', 'opencode', 'codex', 'hermes', 'pi', 'dsh', 'dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop']);
+export const dshServicePendingLabel = 'Bridge 调用 DSH 未启用';
+
+const nativeAdapters = new Set(['claude', 'opencode', 'codex', 'hermes', 'pi', 'dsh', 'dsh-next', 'dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop']);
 // Product names, icons, online/available flags and arbitrary claims never
 // establish an adapter. Keep the reviewed registry boundary for unknown ones.
 const executionGatedKeys: (keyof ConnectionCapabilities)[] = ['execution', 'delegation', 'bridgeMcp', 'mcpClient', 'nativeMcpConfig', 'hostManagedTask'];
@@ -65,7 +67,7 @@ export function bridgeCallerReason(node?: AgentNode) {
 export function connectionCapabilitySummary(node: AgentNode) {
   if (node.status === 'upgrade_required') return '后台需要升级后才能执行和读取协作结果';
   if (node.status === 'version_incompatible') return '需要 OpenCode 2.x，当前版本不能执行或被委派';
-  if (node.status === 'configuration_required') return '已安装，需先在设置中配置原生服务连接';
+  if (node.status === 'configuration_required') return '在 Bridge 内运行 DSH 时可配置服务连接';
   if (node.status === 'needs_check') return '需要重新接入并检查原生 API';
   const execution = connectionCapability(node, 'execution');
   if (execution !== true) return execution === false ? '尚未支持执行' : '执行能力未知';

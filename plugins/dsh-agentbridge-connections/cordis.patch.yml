@@ -1,0 +1,11 @@
+# AgentBridge connections: read-only list of the agents this DSH may reach.
+# `openOnLoad: true` reveals the page once after activation (the preview this
+# artifact was built for); set it to false for a purely click-to-open page.
+- insert:
+    - id: agentbridge-connections
+      name: '@local/agentbridge-connections'
+      config:
+        serverName: agentbridge
+        toolName: list_agents
+        timeoutMs: 20000
+        openOnLoad: true

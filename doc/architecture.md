@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+Windows MachineHost 自动发现 DSH NEXT 安装，任务开始时由 NativeCliHost 启动包内原生 CLI。DSH 侧可选面板复用原生 MCP `list_agents`，通过 DSH 的已授权浏览器连接呈现结果。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
+
 维护未执行确认由桌面协调器校验原 graph 意图，经 SshManager 对原连接执行 SFTP 只读台账和安装预览；本机拒绝收据仍以原 operationId 恢复 graph。[恢复链与限制](iterations/I08/maintenance-unstarted-cleanup.md)
 
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)

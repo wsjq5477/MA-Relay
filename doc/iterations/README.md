@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-11-16：[alpha.76 DSH NEXT 默认接入与可选连接面板](I08/alpha76-dsh-release.md)。
+
 [I08 issue #32：维护未执行的明确确认](I08/maintenance-unstarted-cleanup.md)。
 
 - 2026-11-07：[issue #31 维护控制器暂存与原 ID 恢复](I08/maintenance-controller-recovery.md)。
