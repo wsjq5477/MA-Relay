@@ -1,5 +1,7 @@
 # M10 构建、发布与持久运行资源设计
 
+本地 x64 安装包通过 `scripts/build-local-exe.ps1 -Installer` 构建。NSIS 负责安装目录覆盖，启动的 Windows 桌面负责同一 profile 的 Coordinator 切换。[覆盖升级](../../iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)
+
 M10-F01/F03/F05：Windows portable 的窗口 ASAR 和冻结的 Coordinator 运行时都包含相同的私有目录保护。后端沿既有完整运行资源暂存与原 IPC 握手启动；关窗和明确停止后台沿原入口。Windows 包验收覆盖隔离大型 profile 和首次创建。[issue #33 包与验证](../../iterations/I08/windows-coordinator-profile-startup.md)
 
 M10-F01/F02/F03：alpha.74在独立 E 盘发布树冻结 Hermes/Pi 自定义配置、目标 daemon 和图标向导，实际 EXE 必须核对 Core、后台、ASAR、前端与 Linux 离线资源，解包摘要和公开下载分别验证。[本轮发布记录](../../iterations/I08/alpha74-release.md)

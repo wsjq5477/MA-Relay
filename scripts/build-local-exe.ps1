@@ -3,7 +3,8 @@
 param(
     [string]$RepoRoot,
     [string]$OutputDirectory,
-    [string]$Version
+    [string]$Version,
+    [switch]$Installer
 )
 
 $ErrorActionPreference = 'Stop'
@@ -76,14 +77,23 @@ try {
             Get-ChildItem -LiteralPath $rootWs -Force | Copy-Item -Destination $desktopWs -Recurse -Force
         }
     }
-    $builder = @('node_modules/electron-builder/cli.js', '--win', 'portable', '--x64', '--config.compression=store',
+    $target = if ($Installer) { 'nsis' } else { 'portable' }
+    $compression = if ($Installer) { 'maximum' } else { 'store' }
+    $builder = @('node_modules/electron-builder/cli.js', '--win', $target, '--x64', '--publish', 'never', "--config.compression=$compression",
         "--config.directories.output=$output", "--config.extraMetadata.version=$Version")
+    $suffix = ''
+    if ($Installer) {
+        $suffix = '-Setup'
+        $builder += @('--config.nsis.oneClick=false', '--config.nsis.perMachine=false',
+            '--config.nsis.allowToChangeInstallationDirectory=true', '--config.nsis.packElevateHelper=false', '--config.nsis.differentialPackage=false',
+            '--config.nsis.artifactName=AgentBridge-${version}-Windows-x64-Setup.${ext}')
+    }
     $installedElectron = Join-Path $desktop 'node_modules\electron\dist'
     if (Test-Path -LiteralPath (Join-Path $installedElectron 'electron.exe')) {
         $builder += "--config.electronDist=$installedElectron"
     }
     Invoke-BuildStep $builder
-    Write-Output (Join-Path $output "AgentBridge-$Version-Windows-x64.exe")
+    Write-Output (Join-Path $output "AgentBridge-$Version-Windows-x64$suffix.exe")
 } finally {
     foreach ($key in $previous.Keys) { [Environment]::SetEnvironmentVariable($key, $previous[$key], 'Process') }
     Pop-Location

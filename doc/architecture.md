@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+Windows 打包桌面只有在新运行时已准备且通过准入后才请求同一 profile 的旧后台正常退出；客户端确认原进程退出后切换到新版。其他 IPC 客户端沿用普通连接入口。[覆盖升级](iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)
+
 Windows Coordinator 的连接与运行资源准备等待异步 ACL 校验。根目录已受保护且 ACL 匹配当前用户时仅执行只读检查；需要修复时复核写入结果后才读原身份或发布冻结运行资源。窗口控制 IPC 与这段等待相互独立。[issue #33 启动与恢复](iterations/I08/windows-coordinator-profile-startup.md)
 
 Windows MachineHost 自动发现 DSH NEXT 安装，任务开始时由 NativeCliHost 启动包内原生 CLI。DSH 侧可选面板复用原生 MCP `list_agents`，通过 DSH 的已授权浏览器连接呈现结果。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)

@@ -1,5 +1,7 @@
 # M10 构建与发布测试报告
 
+2026-11-17，Windows 本地安装包及隔离 profile 的后台切换证据见[覆盖升级](../../iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)。
+
 2026-11-16，issue #33：本地 Windows portable 构建、实际包内启动资源、隔离大型 profile 及普通窗口生命周期的分层结果见[本次启动验收](../../iterations/I08/windows-coordinator-profile-startup.md)。
 
 2026-11-07，alpha.74已公开。冻结源、独立Ubuntu CI、实际EXE载荷/包内7项、普通portable及匿名下载分层结果见[本次交付](../../iterations/I08/alpha74-release.md)；Windows首轮45通过/1失败/19跳过，定向复验不改写原失败，真实模型/生产SSH/完整矩阵仍待。

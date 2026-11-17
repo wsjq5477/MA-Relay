@@ -7,8 +7,29 @@ const { identityAsync,endpoint,readLines,PROTOCOL } = require('./coordinator.cjs
 const { coordinatorRuntime,coordinatorVersionsDirectory } = require('./coordinator-runtime.cjs');
 const { retryPrivateDirectory } = require('./private-directory.cjs');
 const {supportsTeamContextTransfer,supportsCurrentCoordinator,supportsMcpOpenAccess,supportsMultiParentRelations,supportsAgentConnectionPolicy}=require('./runtime-capabilities.cjs');
+const missingEndpoint=error=>['ENOENT','ECONNREFUSED'].includes(error.code);
+
+function olderVersion(current,target) {
+  const pattern=/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([\da-z-]+(?:\.[\da-z-]+)*))?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?$/i;
+  const left=pattern.exec(current),right=pattern.exec(target);
+  if(!left||!right)return false;
+  for(let index=1;index<=3;index++) {
+    const a=BigInt(left[index]),b=BigInt(right[index]);
+    if(a!==b)return a<b;
+  }
+  if(!left[4]||!right[4])return Boolean(left[4]&&!right[4]);
+  const a=left[4].split('.'),b=right[4].split('.');
+  for(let index=0;index<Math.min(a.length,b.length);index++) {
+    if(a[index]===b[index])continue;
+    const numericA=/^\d+$/.test(a[index]),numericB=/^\d+$/.test(b[index]);
+    if(numericA&&numericB)return BigInt(a[index])<BigInt(b[index]);
+    return numericA!==numericB?numericA:a[index]<b[index];
+  }
+  return a.length<b.length;
+}
+
 class CoordinatorClient {
-  constructor(options) {this.options=options;this.pending=new Map();this.socket=null;this.connecting=null;this.generation=0;}
+  constructor(options) {this.options=options;this.pending=new Map();this.socket=null;this.connecting=null;this.generation=0;this.stoppingPid=null;}
   guardRelations(candidate) {
     const file=path.join(this.options.directory,'agent-network.json');
     if(!fs.existsSync(file)||JSON.parse(fs.readFileSync(file,'utf8')).relationsVersion!==3)return;
@@ -16,8 +37,8 @@ class CoordinatorClient {
       throw Object.assign(Error('v3 关系数据不能交给旧后台写入。请停止旧后台并打开新版 EXE；请勿手动使用旧 EXE 打开此数据目录。'),{code:'RELATIONS_BACKEND_UPGRADE_REQUIRED'});
   }
   async open() {
-    if(this.socket&&!this.socket.destroyed) {this.guardRelations(this.info);return;}
     if(this.connecting) return this.connecting;
+    if(this.socket&&!this.socket.destroyed) {this.guardRelations(this.info);return;}
     this.connecting=this.ensure().finally(()=>{this.connecting=null;});return this.connecting;
   }
   reconnect() {
@@ -31,7 +52,10 @@ class CoordinatorClient {
     if(generation!==this.generation)
       throw Object.assign(new Error('桌面后台连接已关闭。'),{code:'COORDINATOR_TRANSPORT'});
   }
-  async attach(owner) {
+  shouldReplace(info) {
+    return this.options.upgradeOnStart&&olderVersion(info.version,this.options.version);
+  }
+  async attach(owner,forUpgrade=false) {
     const generation=this.generation;
     owner??=await identityAsync(this.options.directory);
     this.checkGeneration(generation);
@@ -44,7 +68,12 @@ class CoordinatorClient {
       readLines(socket,message=>{
         if(!ready) {
           if(!message.hello||message.protocol!==PROTOCOL||message.coordinatorId!==owner.coordinatorId) {socket.destroy();reject(Object.assign(new Error('中央后台身份不匹配。'),{code:'COORDINATOR_IDENTITY'}));return;}
-          try{this.checkGeneration(generation);this.guardRelations(message);}catch(error){clearTimeout(timer);socket.destroy();reject(error);return;}
+          try{
+            this.checkGeneration(generation);
+            // An authenticated older backend can receive shutdown before the
+            // relation-write capability gate permits ordinary requests.
+            if(!forUpgrade||!this.shouldReplace(message))this.guardRelations(message);
+          }catch(error){clearTimeout(timer);socket.destroy();reject(error);return;}
           ready=true;clearTimeout(timer);this.info=message;this.socket=socket;done();return;
         }
         const job=this.pending.get(message.id);if(!job) return;
@@ -60,17 +89,57 @@ class CoordinatorClient {
       });
     });
   }
+  async waitForRetiredBackend(generation) {
+    const deadline=Date.now()+20000;
+    while(Date.now()<deadline) {
+      this.checkGeneration(generation);
+      try {process.kill(this.stoppingPid,0);}
+      catch(error) {
+        if(error.code!=='ESRCH')break;
+        this.stoppingPid=null;
+        return;
+      }
+      await new Promise(resolve=>setTimeout(resolve,150));
+    }
+    throw Object.assign(new Error('升级时未能确认旧后台已退出，请重试。'),{code:'COORDINATOR_UPGRADE_STOP'});
+  }
   async ensure() {
     const generation=this.generation;
     const owner=await identityAsync(this.options.directory);
     this.checkGeneration(generation);
-    try {await this.attach(owner);return;} catch(error) {
-      if(!['ENOENT','ECONNREFUSED'].includes(error.code)) throw error;
+    if(this.stoppingPid!==null)await this.waitForRetiredBackend(generation);
+    let previous;
+    try {
+      await this.attach(owner,this.options.upgradeOnStart);
+      if(!this.shouldReplace(this.info))return;
+      previous=this.info;
+    } catch(error) {
+      if(!missingEndpoint(error))throw error;
+    }
+    let runtime;
+    try {
+      this.checkGeneration(generation);
+      runtime=await coordinatorRuntime(this.options);
+      this.checkGeneration(generation);
+      const manifest=JSON.parse(fs.readFileSync(path.join(runtime.directory,'coordinator-runtime.json'),'utf8'));
+      this.guardRelations(manifest);
+      if(previous) {
+        if(!Number.isSafeInteger(previous.pid)||previous.pid<=0||manifest.version!==this.options.version)
+          throw Object.assign(new Error('升级时无法确认旧后台进程或新版后台版本。'),{code:'COORDINATOR_UPGRADE_IDENTITY'});
+        this.stoppingPid=previous.pid;
+        try {await this.send('shutdown',undefined,5000);} catch {
+          // The reply can be lost during exit. Check the original process
+          // before deciding whether it is safe to launch a replacement.
+        }
+        await this.waitForRetiredBackend(generation);
+      }
+    } finally {
+      if(previous) {
+        this.socket?.destroy();
+        this.socket=null;
+      }
     }
     this.checkGeneration(generation);
-    const runtime=await coordinatorRuntime(this.options);
-    this.checkGeneration(generation);
-    this.guardRelations(JSON.parse(fs.readFileSync(path.join(runtime.directory,'coordinator-runtime.json'),'utf8')));
     const log=fs.openSync(path.join(this.options.directory,'coordinator.log'),'a',0o600);
     const child=spawn(runtime.executable,[runtime.entry,'--directory',this.options.directory,'--version',this.options.version],{
       detached:true,windowsHide:true,stdio:['ignore',log,log],env:{...process.env,ELECTRON_RUN_AS_NODE:'1'}});
@@ -78,7 +147,15 @@ class CoordinatorClient {
     const deadline=Date.now()+20000;
     while(Date.now()<deadline) {
       this.checkGeneration(generation);
-      try {await this.attach(owner);return;} catch(error) {if(!['ENOENT','ECONNREFUSED'].includes(error.code)) throw error;}
+      try {
+        await this.attach(owner);
+        if(previous&&this.info.version!==this.options.version) {
+          this.socket.destroy();
+          this.socket=null;
+          throw Object.assign(new Error('升级后后台版本未匹配，请重试。'),{code:'COORDINATOR_UPGRADE_IDENTITY'});
+        }
+        return;
+      } catch(error) {if(!missingEndpoint(error))throw error;}
       await new Promise(resolve=>setTimeout(resolve,100));
     }
     throw Object.assign(new Error('中央后台未能启动，请查看后台诊断日志。'),{code:'COORDINATOR_START'});
@@ -111,10 +188,15 @@ class CoordinatorClient {
       throw Object.assign(new Error('当前后台不支持按身份的多主关系，请停止旧后台并打开新版 EXE；原关系和请求保留。'),{code:'RELATIONS_BACKEND_UPGRADE_REQUIRED'});
     if(method==='call'&&['connectionPolicies','saveConnectionPolicy','decideConnection','connectionPolicyOperation'].includes(params?.method)&&!supportsAgentConnectionPolicy(this.info?.capabilities))throw Object.assign(new Error('当前后台尚不支持连接策略与人工确认，请停止旧后台并打开新版；原记录保留。'),{code:'CONNECTION_POLICY_UPGRADE_REQUIRED'});
     if(method==='call'&&['team.sendContext','team.contextTransfers','team.contextTransfer','team.ackContext'].includes(params?.method)&&!supportsTeamContextTransfer(this.info?.capabilities))throw Object.assign(new Error('当前中央后台不支持选材传递与接收收据，请停止旧后台并打开新版；原包和原操作保留。'),{code:'TEAM_CONTEXT_UPGRADE_REQUIRED'});
+    return this.send(method,params,method==='call'&&params?.method==='machine.connectSsh'?1200000:75000);
+  }
+  send(method,params,timeout) {
     const id=randomUUID(),socket=this.socket;
+    if(!socket||socket.destroyed)
+      return Promise.reject(Object.assign(new Error('后台连接已断开。'),{code:'COORDINATOR_TRANSPORT'}));
     return new Promise((resolve,reject)=>{
       if(this.pending.size>=64) return reject(Object.assign(new Error('后台正在处理较多请求，请稍后重试。'),{code:'COORDINATOR_BUSY'}));
-      const timer=setTimeout(()=>{this.pending.delete(id);reject(Object.assign(new Error('后台回应尚未确认，请查询原请求。'),{code:'COORDINATOR_TIMEOUT'}));},method==='call'&&params?.method==='machine.connectSsh'?1200000:75000);
+      const timer=setTimeout(()=>{this.pending.delete(id);reject(Object.assign(new Error('后台回应尚未确认，请查询原请求。'),{code:'COORDINATOR_TIMEOUT'}));},timeout);
       this.pending.set(id,{resolve,reject,timer});socket.write(JSON.stringify({id,method,params})+'\n');
     });
   }

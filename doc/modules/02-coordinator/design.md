@@ -1,5 +1,7 @@
 # M02 中央协调后台设计
 
+打包 Windows 桌面启动时按认证握手版本判断本机 Coordinator 是否需要升级。新版先准备及核对自带运行时，再对旧后台发一次 shutdown，确认原进程退出后启动新版，按原 profile 身份认证。[覆盖升级](../../iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)
+
 M02-F01/F04：Windows Coordinator 启动先异步验证 profile 根目录 ACL。已保护且仅当前用户拥有可继承完全控制权的目录直接通过；其余情况尝试恢复受保护 ACL 并复核。建连、原身份加载和运行版本目录准备共享进行中的初始化；同目录失败后退避 30 秒，显式重连可提前重试。[issue #33 契约与验证](../../iterations/I08/windows-coordinator-profile-startup.md)
 
 M02：维护确认先校验原 graph 意图指纹，结算后查询原收据恢复 graph；中断时仍可按原 ID 查询。[详情](../../iterations/I08/maintenance-unstarted-cleanup.md)

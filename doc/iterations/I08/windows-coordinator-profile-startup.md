@@ -38,3 +38,17 @@ issue 引用私有 CodeAgent `820ca42`、`0.6.0-alpha.74-codeagent.10`、patch r
 ## 验收边界
 
 用户真实 profile 只纳入 issue 的只读现场证据。冻结的私有 CodeAgent 源码和故障截图中的 EXE 版本均待确认。快速验证覆盖根目录安全描述符，子树既存的独立显式权限、重解析点、权限传播和其他安全软件介入仍属于 Windows 环境差异。真实原生 Agent、模型、生产 SSH 和完整平台矩阵沿用已有验收范围。
+
+## 覆盖升级
+
+2026-11-17。Windows x64 安装包在程序安装目录覆盖文件。打包 Windows 桌面启动后，以原 profile 认证握手判断是否有更低版本的本地 Coordinator。普通关窗仍保留后台，同版和已运行的更高版沿正常连接路径。仅 Windows 打包桌面启用自动切换。
+
+在绑定业务请求前准备新版完整运行资源，核对版本及当前关系数据的写入能力。对已认证的更低版本后台发送一次现有的 `shutdown`，通过握手返回的原进程号等待 Windows 确认退出，再启动新后台并核对响应版本。等待退出期间暂停业务派发。停止响应丢失时继续核对原进程是否退出；无法确认时保留现场并提示重试。启动沿原身份、待确认操作和数据目录。 [桌面启动](../../../desktop/electron/main.cjs) · [切换代码](../../../desktop/electron/coordinator-client.cjs) · [安装构建](../../../scripts/build-local-exe.ps1)
+
+Windows 源码定向回归 25/25，包括并发首轮读取、旧关系协议仅允许停止、旧进程退出后启动、同版与降级复用，以及新运行时准备失败。延迟旧进程清理的两项新回归单独重跑 2/2。保留原身份和 unknown 文件字节。 [源码测试](../../../desktop/tests/coordinator-upgrade.test.cjs)
+
+Windows 实际打包应用从 `0.6.0-alpha.76.issue33.2` 后台切换到 `0.6.0-alpha.76.issue33.3`。启动新版窗口后旧进程退出，约 40.18 秒读回新版版本、原机器及待确认请求。原身份与 pending 文件逐字节一致。首轮在受限环境中未读到新版握手，第二轮完成进程切换但未取得未预置机器记录的前端快照，保留两轮超时日志。最终隔离轮次使用预置本机及 unknown 记录。原始记录为 `packaged-upgrade.log`、`packaged-upgrade-retry.log`、`packaged-upgrade-final.log` 与 `packaged-upgrade-QFIt6J/report.json`。[包内升级测试](../../../desktop/tests/windows-coordinator-upgrade.cjs)
+
+本地 NSIS 安装包 `0.6.0-alpha.76.issue33.3` 为 141,644,483 字节，SHA-256 `1ce2d6c3f2e3a04920b13ebfef68b19ca860bd43a10355513c0ad1bcd05ee31a`。从 Setup 提取的 ASAR 与上述实测包目录字节一致，主进程及 Windows bridge、Linux 包中受改动的模块与源码一致。核验见 `setup-check.json`。实测从打包应用运行目录启动新版，Windows 安装器写入安装注册表和旧安装目录的完整过程由用户验收。
+
+文档检查本轮与公开基线仍为同一组 3071 项历史证据链接错误，新增 0 项。

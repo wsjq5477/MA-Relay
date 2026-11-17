@@ -1,5 +1,7 @@
 # M01 桌面交互测试报告
 
+2026-11-17，Windows 安装升级的首轮读取、后台切换和原待确认记录验证见[覆盖升级](../../iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)。
+
 2026-11-16，issue #33：受控主进程在私有目录等待期间响应窗口 IPC，ACL 超时后只读重连恢复原快照、偏好和 pending。旧版和修复版的生产前端、普通 Windows EXE、现场版本核对和未测项见[本次启动验收](../../iterations/I08/windows-coordinator-profile-startup.md)。
 
 2026-11-16：DSH NEXT 的本机 GUI 接入、真实 Claude 委派及面板刷新见 [DSH NEXT 交付](../../iterations/I08/alpha76-dsh-release.md)。候选与冻结发布包的证据分别记录。

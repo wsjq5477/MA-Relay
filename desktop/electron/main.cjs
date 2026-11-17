@@ -6,6 +6,7 @@ if(process.env.AGENTBRIDGE_DESKTOP_PROFILE) app.setPath('userData',resolve(proce
 let win,host;
 function connection() {
   return host || (host=new CoordinatorClient({directory:app.getPath('userData'),version:app.getVersion(),
+    upgradeOnStart:app.isPackaged&&process.platform==='win32',
     bridgeDirectory:app.isPackaged?resolve(process.resourcesPath,'bridge'):resolve(__dirname,'../..'),
     packageDirectory:app.isPackaged?resolve(process.resourcesPath,'linux-package'):resolve(__dirname,'../.linux-package')}));
 }
