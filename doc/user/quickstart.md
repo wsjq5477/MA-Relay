@@ -1,6 +1,6 @@
 # 快速开始
 
-本页按公开alpha.64说明。日常需求从原生Agent会话发起，Bridge提供配置、审计和原执行恢复。
+日常需求从原生 Agent 会话发起，Bridge 提供配置、审计和原执行恢复。
 
 ## 准备原生 Agent
 
@@ -32,4 +32,4 @@
 
 日常权限确认在原生工具处理。需要恢复已有Bridge执行时，在“执行审计”打开原任务并显式选择“处理这条原执行”，按适配能力处理原权限、输入或取消；退出恢复后回到只读。回应未知时查询原请求，不换ID或重复发送。[任务与会话](sessions.md)说明这些状态的含义。
 
-需要更换 Windows 程序时，先在“设置 → 后台运行 → 停止后台并退出”结束旧后台。远端机器后台需要在对应机器的维护入口单独更新。
+Windows 升级时运行安装向导并启动新版，桌面会自动替换同一 profile 的旧本地后台。远端机器后台在对应机器的维护入口单独更新。[Windows x64 安装包](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/AgentBridge-0.6.0-alpha.76.issue33.3-Windows-x64-Setup.exe)

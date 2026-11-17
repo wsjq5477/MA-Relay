@@ -1,6 +1,6 @@
 # 迭代资料目录
 
-- 2026-11-16：[issue #33 Windows 大型 Coordinator profile 启动](I08/windows-coordinator-profile-startup.md)。
+- 2026-11-17：[issue #33 Windows 大型 Coordinator profile 启动、覆盖升级与安装包发布](I08/windows-coordinator-profile-startup.md)。
 
 - 2026-11-16：[alpha.76 DSH NEXT 默认接入与可选连接面板](I08/alpha76-dsh-release.md)。
 

@@ -1,16 +1,16 @@
 # AgentBridge Windows
 
-当前公开alpha.69：原生入口/目录、MCP配置与列表、SSH原密文及Core事件补传维护；源码/EXE/SHA公开，匿名完整下载匹配。Windows桌面1020通过/41平台跳过/失败0；Core首轮67通过/1失败/11平台跳过，I01单独复验1通过/0失败，原失败保留。文档2243缺失、依赖1项high保留；未签名，真实profile、父模型/取消/性能与完整I06C/I07C/MCP02未准出。[发布与完整边界](../doc/iterations/I08/alpha69-release.md)。
+当前公开预发布 **0.6.0-alpha.76.issue33.3**。新版启动时自动替换同一 profile 的旧本地 Coordinator，并修复大型 profile 的 ACL 初始化超时。[发布与验证](../doc/iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
-[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.69/AgentBridge-0.6.0-alpha.69-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.69/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.69)。冻结`04ee6fe`，EXE132300169字节。
+[Windows x64 安装包](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/AgentBridge-0.6.0-alpha.76.issue33.3-Windows-x64-Setup.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.issue33.3)
 
-升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE；SSH 远端需在原机器空闲时确认升级，不自动重发原维护。
+运行安装向导并启动新版。旧便携窗口若仍开着，先关闭窗口；它留下的本地后台由新版自动切换。远端 SSH 后台在原机器的维护入口单独升级。
 
 未准出范围：完整 I06C/I07C 与正式 0.6.0 未准出；用户 profile、独立生产 SSH、真实模型、Windows 原生 OpenCode 1.x 推理均未声明验收。未发布的本地整合源码/候选不等于公开发布版本，不能把本地候选叫作已发布版本；来源、验证与未测边界见[整合交付](../doc/iterations/I07/integrated-source.md)。
 
 ## 运行与使用
 
-1. 关闭旧版窗口，双击下载的 EXE（稳定历史版产物为 `desktop/release/AgentBridge-0.5.0-Windows-x64.exe`；当前预发布见上方下载入口）。便携版也已复制到本次 Windows 产物目录。第一次打开需要解包；无需开两个终端。
+1. 从上方下载安装包，在向导中选择安装目录，安装后打开 AgentBridge。
 2. “接入配置”自动显示本机和各 WSL 环境及工具。WSL 标明物理宿主；空机器也显示。
 3. 按空格勾选发现的工具，点击“接入所选 Agent”。不要求项目、模型、供应商，不在扫描时调用模型。
 4. “协作关系”选择主 Agent 与允许连接的子 Agent，保存。

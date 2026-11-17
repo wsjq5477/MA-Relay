@@ -1,5 +1,9 @@
 # 历史发布登记：标签、EXE 与 SHA-256
 
+## 2026-11-17 0.6.0-alpha.76.issue33.3 预发布
+
+标签 `v0.6.0-alpha.76.issue33.3` 冻结 `84ed341709af5fa5cf4d6c742b56c18d1b28debe`。Windows x64 安装包 141644483 字节，SHA-256 `1ce2d6c3f2e3a04920b13ebfef68b19ca860bd43a10355513c0ad1bcd05ee31a`。安装包及校验文件匿名完整下载一致。隔离 profile 包内后台切换已通过，安装器覆盖日常目录待验收。[完整交付](I08/windows-coordinator-profile-startup.md#公开预发布)。
+
 ## 2026-11-16 alpha.76 预发布
 
 标签 `v0.6.0-alpha.76` 冻结 `f2fd338bdb1d0f2fccdf3b9bb780f0537e49e1b9`。EXE 132449534 字节，SHA-256 `f1c4eba37969da19adeb9e2d915892873a5303a5142d9803814702680db39566`。 公开 EXE、插件 ZIP 和 SHA-256 文件均匿名完整下载一致。实际 EXE 内 3522 个文件已校验。 [完整交付](I08/alpha76-dsh-release.md)。

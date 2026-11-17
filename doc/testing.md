@@ -1,6 +1,6 @@
 # 整体测试与验收报告
 
-2026-11-16，issue #33：Windows 大型 Coordinator profile 的 ACL、主进程 IPC、前端恢复与本地 portable 验证见[本次启动验收](iterations/I08/windows-coordinator-profile-startup.md)。公开发布和私有 CodeAgent 验收仍沿各自记录。
+2026-11-17，issue #33 的公开预发布 `0.6.0-alpha.76.issue33.3` 覆盖大型 profile 的 ACL、主进程 IPC、前端恢复和旧后台自动切换。隔离 profile 的打包后台升级与两个公开附件的匿名下载均已验证，实际安装目录覆盖及私有 CodeAgent 仍待验收。[交付及验证](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
 未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](iterations/I08/maintenance-controller-recovery.md)
 
@@ -10,7 +10,6 @@ issue #30 未发布源码：2026-11-07 Windows 隔离回归两组 86/86、21/21�
 
 alpha.74 候选及发布后文档检查均3065项历史证据链接错误，本轮新增记录无报错。[本次交付](iterations/I08/alpha73-release.md)
 
-当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 T-M06-CX-317 / T-M07-317 / T-M08-317：2026-11-03，本轮真实Windows主对话与WSL原生子Agent。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。主会话登录后六轮为failed/failed/succeeded/succeeded/succeeded/cancelled，另有独立上下文网络失败及修复后成功；原三Task保留，总请求/委派11/11。CLI安装首轮错误、旧模型/旧CLI拒绝及中途转发退出均保留，未重发未知请求。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 

@@ -52,3 +52,7 @@ Windows 实际打包应用从 `0.6.0-alpha.76.issue33.2` 后台切换到 `0.6.0-
 本地 NSIS 安装包 `0.6.0-alpha.76.issue33.3` 为 141,644,483 字节，SHA-256 `1ce2d6c3f2e3a04920b13ebfef68b19ca860bd43a10355513c0ad1bcd05ee31a`。从 Setup 提取的 ASAR 与上述实测包目录字节一致，主进程及 Windows bridge、Linux 包中受改动的模块与源码一致。核验见 `setup-check.json`。实测从打包应用运行目录启动新版，Windows 安装器写入安装注册表和旧安装目录的完整过程由用户验收。
 
 文档检查本轮与公开基线仍为同一组 3071 项历史证据链接错误，新增 0 项。
+
+## 公开预发布
+
+2026-11-17 09:13（UTC+8）公开 `v0.6.0-alpha.76.issue33.3`，冻结 `84ed341709af5fa5cf4d6c742b56c18d1b28debe`。构建命令为 `powershell -File scripts/build-local-exe.ps1 -Installer -Version 0.6.0-alpha.76.issue33.3`，压缩级别 `ELECTRON_BUILDER_COMPRESSION_LEVEL=7`。Windows x64 安装包 141644483 字节，SHA-256 `1ce2d6c3f2e3a04920b13ebfef68b19ca860bd43a10355513c0ad1bcd05ee31a`。09:14 从公开地址匿名完整下载安装包与 125 字节校验文件，均与本地字节匹配。原始发布与下载核验记录为 `github-release.json` 和 `github-download-verification.json`。安装器覆盖实际安装目录仍待用户验收。[GitHub 预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.issue33.3) · [Windows x64 安装包](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/AgentBridge-0.6.0-alpha.76.issue33.3-Windows-x64-Setup.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/SHA256SUMS.txt)

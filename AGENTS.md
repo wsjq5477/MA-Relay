@@ -1,6 +1,6 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.76**，源码冻结 f2fd338。支持 DSH NEXT 本地安装识别和原生 Profile 接入，独立调用方可查询原任务。连接面板作为可选 DSH 插件提供。 EXE、连接插件和 SHA-256 文件已匿名完整下载并校验。 EXE 132449534 字节，SHA-256 `f1c4eba37969da19adeb9e2d915892873a5303a5142d9803814702680db39566`。 [交付记录](doc/iterations/I08/alpha76-dsh-release.md)。
+当前公开预发布 **0.6.0-alpha.76.issue33.3**，源码冻结 `84ed341`。Windows 安装包修复大型 profile 的 ACL 启动超时，新版启动时自动替换旧本地 Coordinator。安装包及 SHA-256 文件已匿名完整下载校验。 [交付记录](doc/iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
 发布验证范围见[交付记录](doc/iterations/I08/alpha76-dsh-release.md)。
 
@@ -46,5 +46,5 @@
 
 ## 本地 EXE 与公开发布
 
-- 本地 Windows EXE 使用 `powershell -File scripts/build-local-exe.ps1`。默认只编译及打包，实际使用由用户验收。
+- 本地 Windows EXE 使用 `powershell -File scripts/build-local-exe.ps1`，安装包加 `-Installer`。默认只编译及打包，实际使用由用户验收。
 - 用户确认本地包并明确要求发布后，才执行 GitHub 发布。

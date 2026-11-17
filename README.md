@@ -1,6 +1,6 @@
 # AgentBridge
 
-当前公开预发布 **0.6.0-alpha.76**，源码冻结 f2fd338。支持 DSH NEXT 本地安装识别和原生 Profile 接入，独立调用方可查询原任务。连接面板作为可选 DSH 插件提供。 EXE、连接插件和 SHA-256 文件已匿名完整下载并校验。 [交付记录](doc/iterations/I08/alpha76-dsh-release.md)。
+当前公开预发布 **0.6.0-alpha.76.issue33.3**，源码冻结 `84ed341`。Windows 安装包修复大型 profile 的 ACL 启动超时，新版启动时自动替换旧本地 Coordinator。安装包及 SHA-256 文件已匿名完整下载校验。 [交付记录](doc/iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
 AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：从原生Agent发起协作，在客户端配置连接、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
 
@@ -9,16 +9,16 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0 |
-| 当前公开预发布 | **0.6.0-alpha.76**，冻结 f2fd338，EXE 132449534 字节。 [发布记录](doc/iterations/I08/alpha76-dsh-release.md) |
-| 本次内容与边界 | 支持 DSH NEXT 本地安装识别和原生 Profile 接入，独立调用方可查询原任务。连接面板作为可选 DSH 插件提供。 |
-| 当前发布包 | [Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/AgentBridge-0.6.0-alpha.76-Windows-x64.exe) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/SHA256SUMS.txt)。Windows EXE 未签名。 |
-| 上一公开预发布 | alpha.74，目标机器的 Hermes/Pi 自定义运行时。 [历史发布](doc/iterations/I08/alpha74-release.md) |
-| 当前公开源码范围 | 标签 v0.6.0-alpha.76（f2fd338） |
+| 当前公开预发布 | **0.6.0-alpha.76.issue33.3**，冻结 `84ed341`，安装包 141644483 字节。 [发布记录](doc/iterations/I08/windows-coordinator-profile-startup.md#公开预发布) |
+| 本次内容与边界 | Windows 大型 profile 异步校验 ACL，重连后恢复数据与版本读取。新版启动时自动替换同一 profile 的旧本地后台。 |
+| 当前发布包 | [Windows x64 安装包](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/AgentBridge-0.6.0-alpha.76.issue33.3-Windows-x64-Setup.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/SHA256SUMS.txt) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip)。安装包未签名。 |
+| 上一公开预发布 | alpha.76，DSH NEXT 接入与可选连接面板。 [历史发布](doc/iterations/I08/alpha76-dsh-release.md) |
+| 当前公开源码范围 | 标签 `v0.6.0-alpha.76.issue33.3`（`84ed341`） |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
-[Windows EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/AgentBridge-0.6.0-alpha.76-Windows-x64.exe) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76)
+[Windows x64 安装包](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/AgentBridge-0.6.0-alpha.76.issue33.3-Windows-x64-Setup.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/SHA256SUMS.txt) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.issue33.3)
 
-升级：先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新 EXE。可信兼容的SSH后台可继续使用；远端维护须空闲时由用户明确确认。原机器、节点、请求和历史保留；旧 unknown 只查原 ID，不重发。
+安装并启动新版后，桌面会自动停止同一 profile 的旧本地后台，确认退出后启动新版。原机器、节点、请求和历史沿原 profile 读取。远端 SSH 维护仍在对应机器空闲时由用户确认，原 unknown 继续按原 ID 查询。
 
 历史版本下载与标签/EXE/SHA 对照见 [GitHub Releases](https://github.com/wsjq5477/MA-Relay/releases) 和 [发布登记](doc/iterations/release-ledger.md)；逐轮交付记录见 [迭代目录](doc/iterations/README.md)。
 
