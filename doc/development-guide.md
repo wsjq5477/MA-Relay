@@ -98,7 +98,7 @@ flowchart LR
 node scripts/check-docs.mjs
 ```
 
-检查 Markdown 本地链接、必需模块设计/报告及追踪编号。它不证明代码正确或模型执行成功。
+检查 Markdown 本地链接、必需模块设计和报告、追踪编号。独立工作树与证据分开保存时，可使用 `node scripts/check-docs.mjs --evidence-root ABSOLUTE_DIR` 核对授权归档中的 `artifacts/` 和 `desktop/release/` 文件。检查仍报告全部未找到的引用。原始证据范围见[远端源码范围](repository-sync.md)。
 
 再运行与改动相应的工程检查和已约定验收。核对源码版本、候选包、实际包内文件与报告一致；有未测项就明确保留，不能因为剩余时间少而标完成。
 

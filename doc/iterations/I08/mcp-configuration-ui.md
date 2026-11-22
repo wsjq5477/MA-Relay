@@ -2,7 +2,7 @@
 
 ## 需求与范围
 
-2026-11-03，用户要求查看todo材料并实施优化。已实际读取[重构规范](../../../todo/AgentBridge_Claude_Code_接入配置弹窗_重构需求.md)、[简洁版参考](../../../todo/AgentBridge_Claude_Code_简洁版参考图.png)、[已连接参考](../../../todo/AgentBridge_Claude_Code_已连接参考图.png)与[交互原型](../../../todo/AgentBridge_Claude_Code_配置界面_参考原型.html)。MD的状态准确性/行为约束优先，PNG用于视觉结构，HTML模拟提示不作为业务实现。
+2026-11-03，用户提供四份本地参考。重构规范为 `todo/AgentBridge_Claude_Code_接入配置弹窗_重构需求.md`，两张参考图为 `todo/AgentBridge_Claude_Code_简洁版参考图.png` 和 `todo/AgentBridge_Claude_Code_已连接参考图.png`，交互原型为 `todo/AgentBridge_Claude_Code_配置界面_参考原型.html`。本轮按规范核对状态与行为，按参考图核对视觉结构。
 
 关联AB-F02/F07/F08/F11及M01-F01/F02/F04/F06/F14，M06只同步状态消费边界；不扩大互联核心、小队工作流或真实原生验收范围。当前工作树包含其他Browser/互联边界工作，本片保留这些内容，仅修改配置弹窗及其验证和说明。公开alpha.71、既有browser.3 EXE均不改变。
 

@@ -17,7 +17,7 @@
 
 当前仍有机器运行 alpha.36 后台。alpha.37 客户端若缺少对应 pin，会以 `SSH_DAEMON_UPGRADE_REQUIRED` 拒绝该后台，因此本轮新增 `desktop/compatible-daemons/0.6.0-alpha.36.json`：
 
-- **来源**：从[已公开发布的 alpha.36 EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.36-Windows-x64.exe)（130032973 字节、SHA-256 `43e09dd34e1a86998a446048dd39279a91356189d132c1eae9facebec1472798`）内提取的 `linux-package/manifest.json` **原样拷贝**，不由当前工作区推断。
+- **来源**：从[已公开发布的 alpha.36 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.36/AgentBridge-0.6.0-alpha.36-Windows-x64.exe)（130032973 字节、SHA-256 `43e09dd34e1a86998a446048dd39279a91356189d132c1eae9facebec1472798`）内提取的 `linux-package/manifest.json` **原样拷贝**，不由当前工作区推断。
 - **逐文件校验**：已对该清单内的 **1458 个文件**逐项核对 sha256，全部匹配。
 - **摘要**：pin 的 `manifestDigest` = **`4f14b5f5b1dc72ca95557ac352bfc669474e4276c98887b286cb2fa5029d8a1e`**，等于已公开 alpha.36 包报告的 `linuxManifestDigest`（见 [alpha.36 包报告](../../../artifacts/alpha36/2026-10-21/package.json)）。
 - **口径说明**：该摘要是 `sha256(JSON.stringify(manifest))`（[ssh-install.cjs](../../../desktop/electron/ssh-install.cjs) 的清单摘要算法），不是 pin 文件的字节 sha256。pin 文件本身的字节 sha256 为 `280420793c37064eb0df59aeac17387822fbbe88f9ae2a130a1e7dfcb156731b`，两者不可混用。
@@ -39,7 +39,7 @@ cd desktop && npm run build && npm run dist:win   # stage-bridge → electron-bu
 | 产物 | 字节 | SHA-256 |
 | --- | --- | --- |
 | [AgentBridge-0.6.0-alpha.37-Windows-x64.exe](../../../desktop/release/AgentBridge-0.6.0-alpha.37-Windows-x64.exe)（本轮本地候选） | **130034719** | **`76e30b1ee89f90a36c1e254d5981a0d543ab1c0ffebe622b7e1d0c11e104286c`** |
-| [AgentBridge-0.6.0-alpha.36-Windows-x64.exe](../../../desktop/release/AgentBridge-0.6.0-alpha.36-Windows-x64.exe)（已公开，未改动） | 130032973 | `43e09dd34e1a86998a446048dd39279a91356189d132c1eae9facebec1472798` |
+| [AgentBridge-0.6.0-alpha.36-Windows-x64.exe](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.36/AgentBridge-0.6.0-alpha.36-Windows-x64.exe)（已公开，未改动） | 130032973 | `43e09dd34e1a86998a446048dd39279a91356189d132c1eae9facebec1472798` |
 
 指纹取自上述包校验报告，并已用 `sha256sum` 独立复核一致。包结构：48 个后台 CJS、81 个核心文件、1459 个 Linux 资源；核心 dist、窗口 ASAR 与生产前端、Linux 后台均与源码一致（`coreBuildMatches`、`appAsarSourceMatches`、`frontendMatches`、`linuxBackendMatches` 全为 true）。该 EXE **未签名**（沿用 `signExecutable=false`）。
 

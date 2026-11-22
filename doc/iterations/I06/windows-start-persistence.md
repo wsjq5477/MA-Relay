@@ -66,7 +66,7 @@ WSL Ubuntu / Node22.23.1；Windows 10.0.22000.2538 / Node24.19.0。模型调用0
 
 ## 最终包资源核对
 
-最终alpha.27本地EXE为[Windows x64程序](../../../desktop/release/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)，129,882,252字节；SHA-256 `8c6ae677d968af53fa79ec3b55485ea354a7ae4e7a188b9edd5630a05f0f330b`，见[校验文件](../../../artifacts/windows-start-persistence/2026-10-17/SHA256SUMS.txt)。33个CJS后台模块、78个核心文件、1393个Linux条目、app.asar及前端资源与最终源码/构建相符：[包报告](../../../artifacts/windows-start-persistence/2026-10-17/package.json)、[最终构建日志](../../../artifacts/windows-start-persistence/2026-10-17/package-final.log)。原alpha.26附件与摘要没有覆盖。
+最终alpha.27本地EXE为[Windows x64程序](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.27/AgentBridge-0.6.0-alpha.27-Windows-x64.exe)，129,882,252字节；SHA-256 `8c6ae677d968af53fa79ec3b55485ea354a7ae4e7a188b9edd5630a05f0f330b`，见[校验文件](../../../artifacts/windows-start-persistence/2026-10-17/SHA256SUMS.txt)。33个CJS后台模块、78个核心文件、1393个Linux条目、app.asar及前端资源与最终源码/构建相符：[包报告](../../../artifacts/windows-start-persistence/2026-10-17/package.json)、[最终构建日志](../../../artifacts/windows-start-persistence/2026-10-17/package-final.log)。原alpha.26附件与摘要没有覆盖。
 
 ## 普通Windows EXE实际验证
 

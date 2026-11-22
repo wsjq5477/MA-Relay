@@ -54,7 +54,7 @@ sequenceDiagram
 
 源码冻结 **49bd12b7fabdeee9d30b5f1fae47efac3e686df2**，树 **eb68c7d76a27ac3d467ccdd4b519e48b167b6356**；本地构建提交afe8aab的树与GitHub冻结树逐字节相同，后续仅同步文档和验收脚本，不重打包产品。用户批准后先合并完整集成源码PR [#18](https://github.com/wsjq5477/MA-Relay/pull/18)，再将PR [#22](https://github.com/wsjq5477/MA-Relay/pull/22)调整到master并合并，合并提交9e2d283；alpha.52源码、EXE和校验文件已公开且匿名完整下载核验通过。没有移动旧标签或覆盖旧附件。
 
-EXE **130190265字节**，SHA-256 **46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d**。[本地EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.52-Windows-x64.exe)、[校验文件](../../../artifacts/native-lifecycle-scope/2026-10-23/SHA256SUMS.txt)、[冻结产品摘要](../../../artifacts/native-lifecycle-scope/2026-10-23/source-manifest.json)。包核验54后台模块、84Core文件、1702Linux资源，Windows/Linux后台、ASAR、Core、生产前端和bootstrap均与冻结源码一致；[包报告](../../../artifacts/native-lifecycle-scope/2026-10-23/package.json)。
+EXE **130190265字节**，SHA-256 **46f30764b7dc769b6af3497dd71fc32b35ecbc5f0184b4e3778641af7896f28d**。[同一 EXE 的公开附件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.52/AgentBridge-0.6.0-alpha.52-Windows-x64.exe)、[校验文件](../../../artifacts/native-lifecycle-scope/2026-10-23/SHA256SUMS.txt)、[冻结产品摘要](../../../artifacts/native-lifecycle-scope/2026-10-23/source-manifest.json)。包核验54后台模块、84Core文件、1702Linux资源，Windows/Linux后台、ASAR、Core、生产前端和bootstrap均与冻结源码一致；[包报告](../../../artifacts/native-lifecycle-scope/2026-10-23/package.json)。
 
 最终普通无调试Windows EXE **8组通过**，临时合成profile、生产Coordinator/MachineHost/CodexHost，模型0。覆盖真实日常OpenDesk进程拒写但仅操作隔离配置、原A unknown保留及B单次幂等关系、DSH既有选择、原生历史、普通重开与完整后台重启、冻结模块摘要。首次运行因对话中断未产生最终报告，原合成unknown保留且仅清理自有测试实例；不记通过。[中断记录](../../../artifacts/native-lifecycle-scope/2026-10-23/portable-interruption.json)、[最终结果](../../../artifacts/native-lifecycle-scope/2026-10-23/portable-second.json)。
 

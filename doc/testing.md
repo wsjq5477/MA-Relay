@@ -54,14 +54,14 @@ alpha.68已包含原生启动、Pi目录及Hermes分离保护；本次验证、�
 
 | 检查 | 结果 | 持久记录 |
 | --- | --- | --- |
-| 核心 `npm test` | 43 tests / 43 pass / 0 fail | [root TAP](../artifacts/docs-baseline/2026-10-12/root-tests.tap) |
-| 桌面 `npm test --prefix desktop` | 87 tests / 87 pass / 0 fail | [desktop TAP](../artifacts/docs-baseline/2026-10-12/desktop-tests.tap) |
-| 根 typecheck | 通过 | [基线摘要](../artifacts/docs-baseline/2026-10-12/summary.json) |
+| 核心 `npm test` | 43 tests / 43 pass / 0 fail | 归档 `root-tests.tap` |
+| 桌面 `npm test --prefix desktop` | 87 tests / 87 pass / 0 fail | 归档 `desktop-tests.tap` |
+| 根 typecheck | 通过 | 归档 `summary.json` |
 | 根 lint | 通过 | 同上 |
 | 桌面 TypeScript + Vite build | 通过 | 同上 |
 | 文档完整性与本地链接 | 整理完成后执行检查，以实际结果记录 | 同上 |
 
-130 是这两个受控集的总数。一个跨模块用例可在多份报告引用，不能把各模块行数或复用数量相加成更多测试。
+原记录路径为 `artifacts/docs-baseline/2026-10-12/`。130 是这两个受控集的总数，跨模块引用同一用例时仅计一次。
 
 ## 3. 各类证据分别证明什么
 
@@ -100,11 +100,11 @@ alpha.68已包含原生启动、Pi目录及Hermes分离保护；本次验证、�
 
 | 记录 | 时间/范围 | 结果与限制 |
 | --- | --- | --- |
-| [I05 验收](iterations/I05/acceptance.md)、[原始真实记录](../artifacts/I05-real.json) | 2026-10-10，Windows + 同宿主 WSL，0.5.0 | 四条 Claude↔OpenCode/WSL Codex 协作链通过；整体 raw status=partial 保留原生失败 |
-| [I05 发布包](../artifacts/I05-portable.json) | 0.5.0 普通启动与重开 | 机器、节点、历史保留，无新 Prompt；不是 I06A 新包证据 |
-| [I05 UI](../artifacts/I05-ui.json) | 6 项隔离界面检查 | 通过，子回复来自 fixture |
-| [I06A SSH UI](../artifacts/I06A-ssh-ui.json) | 5 组隔离界面检查 | 通过，没有真实 SSH/模型调用 |
-| [Linux 真实说明](../artifacts/docs-baseline/2026-10-12/i06a-remote-history.md)、[原始报告](../artifacts/docs-baseline/2026-10-12/i06a-remote-history.json) | 2026-10-10，开发机到独立 Linux，密钥认证、OpenCode 2.0.26 | 首次安装连接 77.8s，两轮 succeeded、同 Conversation；断线期间完成和中央重启回读有既有记录 |
+| [I05 验收](iterations/I05/acceptance.md)，归档 `artifacts/I05-real.json` | 2026-10-10，Windows + 同宿主 WSL，0.5.0 | 四条 Claude↔OpenCode/WSL Codex 协作链通过，整体原始状态为 partial |
+| 归档 `artifacts/I05-portable.json` | 0.5.0 普通启动与重开 | 机器、节点和历史保留，新 Prompt 数为 0 |
+| 归档 `artifacts/I05-ui.json` | 6 项隔离界面检查 | 通过，子回复来自 fixture |
+| 归档 `artifacts/I06A-ssh-ui.json` | 5 组隔离界面检查 | 通过，真实 SSH 及模型调用为 0 |
+| 归档 `artifacts/docs-baseline/2026-10-12/i06a-remote-history.{md,json}` | 2026-10-10，开发机到独立 Linux，密钥认证、OpenCode 2.0.26 | 首次安装连接 77.8s，两轮 succeeded、同 Conversation，断线期间完成和中央重启回读有既有记录 |
 
 Linux JSON 两轮终态只保存 status/summary，脚本用原 conversationId 续聊；本地台账也确认同会话与节点。不能据此独立证明两轮 native Session ID 一致，应在后续验收保留实际对比。
 

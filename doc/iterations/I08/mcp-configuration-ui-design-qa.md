@@ -4,7 +4,7 @@
 
 ## 视觉输入与尺寸
 
-源：[待验证1440×900](../../../todo/AgentBridge_Claude_Code_简洁版参考图.png)、[正常1440×900](../../../todo/AgentBridge_Claude_Code_已连接参考图.png)。已读PNG头核对两源均1440×900；参考弹窗裁剪坐标x384/y154，宽672/高592。实现使用1440×900 CSS视口、deviceScaleFactor=1，两态区域截图均672×578；落在需求550–620px范围，未缩放或拉伸。源与实现均以1:1像素放入同一1400×700对照画面；周边应用背景不作为本片还原对象。
+本地参考为 `todo/AgentBridge_Claude_Code_简洁版参考图.png` 和 `todo/AgentBridge_Claude_Code_已连接参考图.png`。两张 PNG 均为 1440×900。参考弹窗裁剪坐标 x384/y154，宽672、高592。实现使用 1440×900 CSS 视口、deviceScaleFactor=1，两态区域截图均为 672×578，高度处于 550–620px 需求范围。参考图与实现均按原像素放入 1400×700 对照画面。
 
 最终同画面对照：[待验证](../../../artifacts/mcp-config-ui/2026-11-03/browser-final/comparison-configured.png)、[正常](../../../artifacts/mcp-config-ui/2026-11-03/browser-final/comparison-ready.png)。实现的[待验证区域](../../../artifacts/mcp-config-ui/2026-11-03/browser-final/visual-configured-modal.png)、[正常区域](../../../artifacts/mcp-config-ui/2026-11-03/browser-final/visual-ready-modal.png)清晰可读，文字/图标/路径无需再放大裁剪。正常态是合成原生事实，非真实原生验收。
 

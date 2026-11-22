@@ -103,7 +103,7 @@ Windows每个驱动使用ProcessStartInfo实际等待/异步排空输出，六�
 升级/切换入口仍是先在旧版“设置 → 后台运行 → 停止后台并退出”，再打开新EXE；新候选不会替换现有日常后台，旧中央只对新四RPC定向拒绝。SSH daemon仍独立，不自动部署。完整目标及其余门禁见[全迭代台账](../I08/completion-audit.md)。
 
 
-Windows Downloads副本已完整核对相同130203473字节和SHA-256，未自动启动；[副本与进程核对](../../../artifacts/context-delivery/2026-10-25/downloads.json)当次剩余AgentBridge进程0。可运行文件为 `C:\Users\<用户>\Downloads\AgentBridge-0.6.0-alpha.63-Windows-x64.exe`；仓库原件为[本地EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.63-Windows-x64.exe)。
+Windows Downloads副本已完整核对相同130203473字节和SHA-256，未自动启动；[副本与进程核对](../../../artifacts/context-delivery/2026-10-25/downloads.json)当次剩余AgentBridge进程0。可运行文件为 `C:\Users\<用户>\Downloads\AgentBridge-0.6.0-alpha.63-Windows-x64.exe`；同一程序可从[公开附件]下载(https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.63/AgentBridge-0.6.0-alpha.63-Windows-x64.exe)。
 
 用户站首轮因“历史记录”触发既有用户正文内部用语限制而未进入测试，保留[首次失败](../../../artifacts/context-delivery/2026-10-25/docs-test.log)和[定位失败](../../../artifacts/context-delivery/2026-10-25/docs-test-wording-failure.log)。正文改为“原传递记录”后6/6通过；未放宽发布校验。该修正仅文档，无产品行为变化。
 

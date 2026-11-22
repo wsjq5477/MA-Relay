@@ -193,7 +193,7 @@ node scripts/check-docs.mjs
 
 合约通过只证明开发接口可用。发现 `--version` 通过、原生执行成功、独立 SSH 成功和 Windows EXE 通过分别报告；没有执行的项目保持未测试。
 
-源码验证记录：WSL / Node 22.23.1，注册合约 5/5、骨架检查通过，原生执行与模型调用均为 0。[合约 TAP](../artifacts/native-adapters/2026-10-18/extension-contract.tap)、[骨架输出](../artifacts/native-adapters/2026-10-18/extension-example.txt)。未由本骨架验证任何真实自研 Agent 或 Windows/SSH 生命周期。
+现行源码可运行注册合约和骨架检查。Windows 本次复验 7/7，骨架报告原生执行 0。该结果用于核对注册与宿主接口。真实自研 Agent、生产包和 SSH 生命周期须分别验收。[合约测试](../desktop/tests/agent-adapter-contract.test.cjs) · [骨架检查](../examples/custom-agent/check.cjs) · [复验记录](iterations/I08/current-scope-audit.md#文档归档核对)
 
 ## 7. 打包与升级
 

@@ -39,6 +39,12 @@ Windows 本机 DSH NEXT `2.0.23-next`，E 盘使用原生安装包，D 盘隔离
 
 以现行产品约束和公开预发布更新资料入口、整体设计、路线、接入矩阵、协议及模块设计和报告。主文档删除重复的旧发布摘要，按版本保留历史迭代和验收记录。用户文档清理早期 alpha.64/alpha.65 等限定，补齐 DSH NEXT 操作路径；用户站适配表修复与注册表不匹配的问题，生成 11 个原生入口和包含 ChatGPT Web 的 12 入口能力表。
 
+### 文档归档核对
+
+对 3071 条历史报错逐条检查。核对 GitHub 发布附件名与文档所载 SHA-256 后，将 13 条 EXE 本地链接改为对应的公开下载地址。另刷新 20 条旧引用，私有脚本、设计附件及不可得的旧报告保留归档路径，当前自定义适配器说明改指向可运行的测试和骨架。Windows Node 24.12.0 复验注册合约 7/7，骨架报告原生执行 0。
+
+独立工作树使用 `node scripts/check-docs.mjs --evidence-root ABSOLUTE_DIR` 可显式引用已有归档。默认检查仍有 3038 条缺失，使用原仓库归档根找回 819 条，剩余 2219 条均为历史原始证据或发布包引用。普通文档和源码链接错误为 0，较原清单新增错误为 0。使用隔离夹具验证了归档路径匹配、普通源码路径不会从归档取值、相对归档根拒绝。原始对照为 `docs-archive-final-summary.json`、`docs-archive-check-fixture-report.json`、`docs-public-release-assets.json` 和 `docs-adapter-contract-current.log`。[归档检查说明](../../repository-sync.md) · [GitHub 发布记录](https://github.com/wsjq5477/MA-Relay/releases)
+
 ## 可选 Markdown 结果笔记
 
 在调用方所在机器运行现行源码的 CLI，使用原独立 MCP 连接配置中 `configuration.args` 最后一个参数所指向的私有描述文件。
@@ -62,4 +68,4 @@ Windows 实测通过原独立 MCP 身份把已有 DSH NEXT 认证失败写入 D 
 | WSL Node 24.13.0 桌面后端 | 扩展回归 44/44，无跳过。认证 Coordinator 和真实 stdio 到受控宿主，模型 0 |
 | 用户站 | 6/6。实际 VitePress 构建与静态产物审计通过，18 个用户页与 404、两张表、158 个网页和搜索资源，内部页和原始证据导出均为 0 |
 
-整仓文档检查在独立工作树仍有 3071 项既有本地证据链接缺失，逐项比较无新增链接错误。原始日志保存在 D 盘 `artifacts/current-scope-20261122`，包括 `desktop-final.log`、`desktop-reply-focused.log`、`desktop-registry-baseline.log`、`core-regression.log`、`opencode-version-baseline.log`、`wsl-desktop-suite.log`、`wsl-existing-opencode-final.log`、`wsl-existing-opencode-recheck.log`、`docs-site-final.log` 和 `docs-delta.json`。Windows 开发数据和临时文件在 D 盘，Ubuntu-22.04 存储在 E 盘。公开包验收引用对应发布记录。
+原始日志保存在 D 盘 `artifacts/current-scope-20261122`，包括 `desktop-final.log`、`desktop-reply-focused.log`、`desktop-registry-baseline.log`、`core-regression.log`、`opencode-version-baseline.log`、`wsl-desktop-suite.log`、`wsl-existing-opencode-final.log`、`wsl-existing-opencode-recheck.log` 和 `docs-site-final.log`。Windows 开发数据和临时文件在 D 盘，Ubuntu-22.04 存储在 E 盘。公开包验收引用对应发布记录。

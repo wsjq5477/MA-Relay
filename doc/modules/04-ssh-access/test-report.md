@@ -160,7 +160,7 @@ npm run dev --prefix desktop -- --port 4206
 node desktop/tests/windows-i06a-ssh-ui.cjs http://127.0.0.1:4206
 ```
 
-第二条需要脚本所配置的 Windows Edge 路径和 Playwright；覆盖的是隔离界面。真实脚本 [e2e-i06a.cjs](../../../.agentbridge-dev/e2e-i06a.cjs) 与 verify 脚本会连接已有开发 SSH 配置，安装/启动 Bridge、建立原生会话并可能产生模型费用，不作为自动回归命令默认执行。
+第二条需要脚本所配置的 Windows Edge 路径和 Playwright，覆盖隔离界面。曾用于独立主机实测的开发脚本记录在私有路径 `.agentbridge-dev/e2e-i06a.cjs`，仓库未收录。其实际安装、启动与原生会话结果见 [I06A 验收](../../iterations/I06/acceptance.md)。
 
 修改 SSH/安装时同步 [设计](design.md)、本报告、原始证据和当期迭代。新增通过项必须注明使用哪个系统、认证方式、发布包以及是否实际调用模型，不能把受控加密或 mock 回答改写成真实验收。
 

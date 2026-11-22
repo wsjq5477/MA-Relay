@@ -66,7 +66,7 @@ flowchart TD
 
 [核心45/45](../../../artifacts/pending-isolation/2026-10-15/root-tests.tap)、[lint](../../../artifacts/pending-isolation/2026-10-15/lint.log)、[根类型](../../../artifacts/pending-isolation/2026-10-15/typecheck.log)、[打包日志](../../../artifacts/pending-isolation/2026-10-15/package-build.log)、[包报告](../../../artifacts/pending-isolation/2026-10-15/package.json)。
 
-EXE **129,856,325** 字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。[本地候选程序](../../../desktop/release/AgentBridge-0.6.0-alpha.20-Windows-x64.exe)、[校验文件](../../../artifacts/pending-isolation/2026-10-15/SHA256SUMS.txt)。
+EXE **129,856,325** 字节，SHA-256 `3219d8ae59aea83a2d208e4bb71eb7fdc080a2a812504aa6f506d2cce40e1e41`。[同一 EXE 的公开附件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.20/AgentBridge-0.6.0-alpha.20-Windows-x64.exe)、[校验文件](../../../artifacts/pending-isolation/2026-10-15/SHA256SUMS.txt)。
 
 Windows当前alpha.20普通无调试portable EXE / 独立profile / 合成原NOT_CONFIGURED意图：原记录自动恢复、冻结后台匹配源码、普通关闭保留后台、重开历史与请求不重放，共4组通过；[普通EXE报告](../../../artifacts/pending-isolation/2026-10-15/portable.json)、[脚本](../../../desktop/tests/windows-pending-isolation-portable.cjs)。最终alpha.20生产前端/Windows Edge受控API的4组界面用例也重跑通过，沿用[界面报告](../../../artifacts/pending-isolation/2026-10-15/ui.json)。模型Prompt=0；合成数据不冒充用户故障profile。
 

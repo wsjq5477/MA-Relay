@@ -84,6 +84,6 @@ Windows脚本：[生产前端](../../../desktop/tests/windows-opencode-probe-ui.
 
 最终Windows x64便携EXE **130190405字节**，SHA-256 **`3f82bbc3c03ce52c348315f325fe5838de73daadfc1a6658a0170d58d8d3f4a3`**。本地文件重新计算摘要/字节均一致。包核验54后台模块、84Core文件、1702Linux资源，Core/Windows与Linux后台/ASAR/前端/bootstrap均匹配源码，linuxManifestDigest为`cd70e10faaedd92364a92d4cfb9c601becb5eb7403c3a62e869a8fdcd16a7a3c`。本地构建时以131个产品/依赖清单文件的路径、字节与SHA固定本轮工作源码。[源码清单](../../../artifacts/issue21/2026-10-23/source-manifest.json)、[包核验](../../../artifacts/issue21/2026-10-23/package.json)、[构建原始输出](../../../artifacts/issue21/2026-10-23/package-build.log)。
 
-[本地EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.53-Windows-x64.exe)、[SHA256SUMS](../../../artifacts/issue21/2026-10-23/SHA256SUMS.txt)。未签名；后续已按[发布记录](alpha53-release.md)公开，未切换日常后台/部署SSH。
+[同一 EXE 的公开附件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.53/AgentBridge-0.6.0-alpha.53-Windows-x64.exe)、[SHA256SUMS](../../../artifacts/issue21/2026-10-23/SHA256SUMS.txt)。未签名；后续已按[发布记录](alpha53-release.md)公开，未切换日常后台/部署SSH。
 
 最终普通无调试Windows EXE **6组通过**：正确版本启动、包内V1跳过挂起info（约90ms）、V2健康候选挂起后成功、明确协议/认证错误且GET写入0、生产中央原unknown只读核验、普通窗口重开后原operationId/参数/时间/错误/state逐字段保持。验证实际包内Core的三个修改文件与最终dist摘要一致；HTTP是合成契约，不能当作真实OpenCode1.2.22。[最终普通EXE报告](../../../artifacts/issue21/2026-10-23/portable.json)。

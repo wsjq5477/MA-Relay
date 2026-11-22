@@ -46,7 +46,7 @@ WSL Ubuntu / Node22.23.1；Windows 契约 Node24.19.0；模型 Prompt 为 0。
 
 ## 程序与未测边界
 
-[alpha.25 Windows x64 EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)，**129,878,170 bytes**；SHA-256 `5cb6913203d1cd8b6fe1e18142cccfd344619c3261bbdb3cb013313d078e7156`，见[SHA256SUMS.txt](../../../artifacts/windows-context-recovery/2026-10-17/SHA256SUMS.txt)。以上为构建验收时的本地候选；现已按下节发布为GitHub预发布，字节和摘要保持一致。
+[alpha.25 Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.25/AgentBridge-0.6.0-alpha.25-Windows-x64.exe)，**129,878,170 bytes**；SHA-256 `5cb6913203d1cd8b6fe1e18142cccfd344619c3261bbdb3cb013313d078e7156`，见[SHA256SUMS.txt](../../../artifacts/windows-context-recovery/2026-10-17/SHA256SUMS.txt)。以上为构建验收时的本地候选；现已按下节发布为GitHub预发布，字节和摘要保持一致。
 
 包内33个后台CJS、78个核心文件、1390个Linux清单条目与当前源码/构建匹配；app.asar版本/后台模块/前端资源一致，[包报告](../../../artifacts/windows-context-recovery/2026-10-17/package.json)、[最终打包日志](../../../artifacts/windows-context-recovery/2026-10-17/package-build-retry.log)。原版alpha.24普通EXE对照3组、alpha.25候选普通EXE4组通过；实际Windows EXE内生产Coordinator/MachineHost/CodexHost读取合成原请求，未启动真实原生CLI。候选原请求确认，另一条缺收据请求仍unknown；普通窗口关闭/重开和完整后台重启不重放，冻结代码与源码一致。该结果证明隔离记录恢复链，不证明用户另一台电脑已恢复。
 

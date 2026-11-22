@@ -202,7 +202,7 @@ T-M05-100 / M05-F08：2026-10-15，旧scope与来源/原请求相关回归包含
 
 ## 3. 已有独立服务器证据
 
-来源：[2026-10-10 真实说明](../../../artifacts/docs-baseline/2026-10-12/i06a-remote-history.md)、[原始 JSON](../../../artifacts/docs-baseline/2026-10-12/i06a-remote-history.json)、[断线脚本](../../../.agentbridge-dev/verify-survival.cjs)、[中央重启脚本](../../../.agentbridge-dev/verify-reconnect.cjs)。本次只读取证据，没有再次连接或执行模型。
+原始归档为 [2026-10-10 真实说明](../../../artifacts/docs-baseline/2026-10-12/i06a-remote-history.md)及[原始 JSON](../../../artifacts/docs-baseline/2026-10-12/i06a-remote-history.json)。断线和中央重启使用当时的私有脚本 `.agentbridge-dev/verify-survival.cjs` 和 `.agentbridge-dev/verify-reconnect.cjs`。本节记录的是当期证据读取，复现需原测试环境。
 
 | 用例 ID | 功能 ID | 已有行为 | 结论 |
 | --- | --- | --- | --- |

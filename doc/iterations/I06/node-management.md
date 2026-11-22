@@ -49,7 +49,7 @@ AgentNetwork 将节点状态、必要的授权 revision 递增和原节点收据
 
 ## 包与性能
 
-最终 [包资源](../../../artifacts/node-management/2026-10-13/package.json)通过：27 个 CJS 模块、1369 个 Linux 文件，app.asar/前端/版本与源码一致；[构建](../../../artifacts/node-management/2026-10-13/package-build.log)、[解包核对](../../../artifacts/node-management/2026-10-13/unpacked.json)。程序为 [AgentBridge-0.6.0-alpha.9-Windows-x64.exe](../../../desktop/release/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)，129,583,670 字节，SHA-256 `80c8a39036ba93466de96955e707280f436b6da258d5e047c7590822e2c0d688`；Linux manifestDigest `344a725b8ce2b14a8ae583fe3ca354e16565bd85a7ceb339e465ba0d3157ecea`。可信 alpha.2–alpha.8 保留，alpha.8 先与历史交付摘要核对，不自动更新用户 daemon。
+最终 [包资源](../../../artifacts/node-management/2026-10-13/package.json)通过：27 个 CJS 模块、1369 个 Linux 文件，app.asar/前端/版本与源码一致；[构建](../../../artifacts/node-management/2026-10-13/package-build.log)、[解包核对](../../../artifacts/node-management/2026-10-13/unpacked.json)。程序为 [AgentBridge-0.6.0-alpha.9-Windows-x64.exe](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.9/AgentBridge-0.6.0-alpha.9-Windows-x64.exe)，129,583,670 字节，SHA-256 `80c8a39036ba93466de96955e707280f436b6da258d5e047c7590822e2c0d688`；Linux manifestDigest `344a725b8ce2b14a8ae583fe3ca354e16565bd85a7ceb339e465ba0d3157ecea`。可信 alpha.2–alpha.8 保留，alpha.8 先与历史交付摘要核对，不自动更新用户 daemon。
 
 [密集图性能](../../../artifacts/node-management/2026-10-13/performance.json)通过：Windows Edge 154 / i5-8600、20 机器/60 节点/59 边，实际鼠标反馈 20 样本 p95 40.8ms，观察期间 long task 为零。构建/其他窗口回归结束后单独测量；不是模型任务或网络故障性能验收。
 

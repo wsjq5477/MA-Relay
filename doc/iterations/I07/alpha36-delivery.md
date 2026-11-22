@@ -34,7 +34,7 @@
 
 ## 最终本地文件与分层验证
 
-- [alpha.36 Windows x64 EXE](../../../desktop/release/AgentBridge-0.6.0-alpha.36-Windows-x64.exe)
+- [alpha.36 Windows x64 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.36/AgentBridge-0.6.0-alpha.36-Windows-x64.exe)
 - [SHA256SUMS.txt](../../../artifacts/alpha36/2026-10-21/SHA256SUMS.txt)
 - **130032973字节**；SHA-256 **`43e09dd34e1a86998a446048dd39279a91356189d132c1eae9facebec1472798`**。
 - 从632项工作文件独立冻结构建，非单一git提交；[构建源清单](../../../artifacts/alpha36/2026-10-21/source-manifest.json)与[运行源码最终核对](../../../artifacts/alpha36/2026-10-21/source-freeze-check.json)确认123项生产源码无变化、前端资源一致。测试入口/清理及交付文档后补不冒称进入EXE运行代码。

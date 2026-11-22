@@ -1,8 +1,27 @@
-import {readFileSync, readdirSync, existsSync} from 'node:fs';
-import {resolve, dirname, relative} from 'node:path';
+import {readFileSync, readdirSync, existsSync, statSync} from 'node:fs';
+import {resolve, dirname, relative, isAbsolute, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {parseArgs} from 'node:util';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+let evidenceRoot;
+try {
+  const {values}=parseArgs({options:{'evidence-root':{type:'string'}}});
+  const input=values['evidence-root'];
+  if(input!==undefined){
+    if(!isAbsolute(input)||!statSync(input).isDirectory())throw Error();
+    evidenceRoot=resolve(input);
+  }
+} catch {
+  console.error('用法：node scripts/check-docs.mjs [--evidence-root 已有归档根绝对目录]');
+  process.exit(2);
+}
+const evidenceLinks={total:0, resolvedFromArchive:0, missing:0};
+function evidencePath(target) {
+  const relativePath=relative(root,target);
+  const [first, second]=relativePath.split(sep);
+  if (first==='artifacts'||(first==='desktop'&&second==='release')) return relativePath;
+}
 const modules = [
   '01-desktop', '02-coordinator', '03-machine-network', '04-ssh-access',
   '05-linux-daemon', '06-native-adapters', '07-task-session',
@@ -42,7 +61,15 @@ for (const file of markdown) {
     href=href.split('#')[0];if (!href) continue;
     try {href=decodeURIComponent(href);} catch {errors.push(`${relative(root,file)} 链接编码无效：${href}`);continue;}
     const target=href.startsWith('/')?href:resolve(dirname(file),href);links++;
-    if (!existsSync(target)) errors.push(`${relative(root,file)} 本地链接不存在：${href}`);
+    const archived=evidencePath(target);
+    if(archived)evidenceLinks.total++;
+    if(existsSync(target))continue;
+    if(archived&&evidenceRoot&&existsSync(resolve(evidenceRoot,archived))){
+      evidenceLinks.resolvedFromArchive++;
+      continue;
+    }
+    if(archived)evidenceLinks.missing++;
+    errors.push(`${relative(root,file)} 本地链接不存在：${href}`);
   }
 }
 
@@ -80,6 +107,6 @@ for(let i=1;i<=18;i++) {
   if(!product.includes(id)) errors.push(`整体功能目录缺少 ${id}`);
 }
 const result={ok:!errors.length,markdownFiles:markdown.length,moduleDesignReportPairs:modules.length,
-  localLinks:links,mermaidDiagrams:diagrams,moduleFeatures:features.size,testCases:cases.size,errors};
+  localLinks:links,mermaidDiagrams:diagrams,moduleFeatures:features.size,testCases:cases.size,evidenceLinks,errors};
 console.log(JSON.stringify(result,null,2));
 if(errors.length) process.exitCode=1;
