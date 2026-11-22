@@ -2,6 +2,8 @@
 
 产品范围以[产品约束](product-constraints.md)为准。当前公开预发布为 **0.6.0-alpha.76.issue33.3**，冻结源码 `84ed341`。[发布与验证](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)
 
+可选 Markdown 结果笔记在现行源码可用。调用方使用原授权导出明确终态，笔记保留原请求和有界事件。用户编辑后的笔记受到版本冲突保护，普通委派无需启用笔记功能。[用法与验收](iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
+
 AB-F14：Windows 打包桌面在新版首次启动时替换同一 profile 中已认证的旧 Coordinator，继续读取原身份、设置和待确认记录。[覆盖升级](iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)
 
 AB-F14：Windows 常驻协调后台在连接前异步验证已有 profile 的私有目录。等待、私有目录错误、版本未读和已确认空数据可区分；失败保留此前读到的历史，恢复后刷新快照与未读版本。[issue #33 实现与验收](iterations/I08/windows-coordinator-profile-startup.md)

@@ -10,8 +10,8 @@
 | 原任务、事件与未知提交恢复 | `task_result` 按原 Task/委派/独立调用方的客户端 request ID 恢复，事件使用原游标。受控回归覆盖丢回应、原执行一次、撤权与历史缺口 | 所选实机链路中的提交回应丢失、后台重开、越权及目录变化 |
 | 原生等待与答复 | OpenCode 已接权限和表单，Claude Code 已接权限。MCP 原答复没有只读恢复入口，本轮已补齐 | 实机原生等待转交和丢回应后的恢复。Claude Code 结构化表单、其他入口仅按各自能力表处理 |
 | 已启动的 OpenCode 服务 | Core Controller 可连接既有服务。本轮用 WSL OpenCode 1.2.10 重验只读连接和观察器重开，原服务保持 | 完整的 MachineHost/登记端点与已有服务链及其升级验收 |
-| 最小上下文交接、结果和材料 | 普通委派传递版本化任务正文，`task_result` 返回获准结果，CT-04/05 公共材料可选 | 由调用方明确选第二个 Agent 并核对真正读到的摘要与日志。实体文件交付、通用 Markdown 回写和写入冲突处理尚未实现 |
-| 可选扩展 | 静态 Adapter 注册、现有 TeamSpace/TeamAutomation 保留。DSH NEXT 连接面板已发布 | 通用第三方插件宿主、Markdown 工作区、Memory 和 Profiles 处于后续范围。Attach/Steer、任意已有会话导入和跨主体接管未进入首阶段 |
+| 最小上下文交接、结果和材料 | 普通委派传递版本化任务正文，`task_result` 返回获准结果。现行源码可为明确终态新建 Markdown 结果笔记，验证了来源、文件版本冲突与受控第二目标接收 | DSH 模型成功后验证真实第二个 Agent 消费必要摘要与日志。通用实体文件交付、已有笔记合并仍待设计 |
+| 可选扩展 | 静态 Adapter 注册、现有 TeamSpace/TeamAutomation 保留。DSH NEXT 连接面板已发布，可选 Markdown 结果笔记已在源码和本机文件落盘验收 | 通用第三方插件宿主、功能更完整的 Workspace、Memory 和 Profiles 处于后续范围。Attach/Steer、任意已有会话导入和跨主体接管未进入首阶段 |
 
 历史证据及各适配器限制见[真实 Codex 验收](interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)、[接入矩阵](../../agent-integration-matrix.md)和[迭代路线](../../project-plan.md)。
 
@@ -38,6 +38,18 @@ Windows 本机 DSH NEXT `2.0.23-next`，E 盘使用原生安装包，D 盘隔离
 ## 文档刷新
 
 以现行产品约束和公开预发布更新资料入口、整体设计、路线、接入矩阵、协议及模块设计和报告。主文档删除重复的旧发布摘要，按版本保留历史迭代和验收记录。用户文档清理早期 alpha.64/alpha.65 等限定，补齐 DSH NEXT 操作路径；用户站适配表修复与注册表不匹配的问题，生成 11 个原生入口和包含 ChatGPT Web 的 12 入口能力表。
+
+## 可选 Markdown 结果笔记
+
+在调用方所在机器运行现行源码的 CLI，使用原独立 MCP 连接配置中 `configuration.args` 最后一个参数所指向的私有描述文件。
+
+```text
+agentbridge result-note TASK_ID --caller-descriptor ABSOLUTE_FILE --output ABSOLUTE_NOTE.md --json
+```
+
+CLI 只读原 `task_result`，核对调用方仍有结果权限、原 Task 身份和明确终态。笔记包含成功正文（如有）、失败代码（如有）、原请求 ID、有限事件摘要和缺口/截断提示，返回文件 SHA-256。SHA-256 是笔记版本，代码仓库提交仍需由调用方从原执行记录提供。目标目录须已存在并支持硬链接。首写发布完整文件，重复写入相同字节返回 `unchanged`，现有内容不同时返回 `NOTE_REVISION_CONFLICT`。需要交接时由调用方选择获准目标和必要的笔记片段，发起明确的新委派。没有自动共享文件、合并现有笔记或新增工作区依赖。
+
+Windows 实测通过原独立 MCP 身份把已有 DSH NEXT 认证失败写入 D 盘笔记。首写 `created`，复写 `unchanged`，原失败分类及 Task 保留，文件 SHA-256 与 CLI 两次报告一致。原委派依旧 2 条，导出新增模型调用为 0。认证 broker 与受控双目标另验并发写入、用户编辑冲突、外来上下文拒绝、原事件缺口和第二目标确实接收调用方选定的正文。调用方与事件回归 30/30，含该受控验收。原始证据为 `local-dsh-result-note.json`、`result-note-focused-recheck.log` 和 `result-note-expanded.log`。
 
 ## 验收
 

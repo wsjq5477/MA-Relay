@@ -1,5 +1,7 @@
 # M09 CLI、Core controller 与本机 Hub/Edge 设计
 
+M09-F02/F06：`result-note` 可用原独立 MCP 描述文件读取已拥有的原 Task，给明确终态生成有界 Markdown 笔记。CLI 在选定目录暂存完整文件并以不替换目标的方式发布。同字节幂等，已编辑或存在其他版本时拒绝覆盖。临时文件及新笔记限于调用方显式选定的本机目录。[用法与验收](../../iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
+
 Core 的原操作 GET 对新记录按 Task 和 executionId 验证绑定并返回操作类型。已拒绝的操作在释放 pending 请求占用后仍支持原 ID 查询。旧数据沿用原查询格式。[协议](../../protocol.md) · [数据模型](../../data-model.md)
 
 M09-F03：明确停止Controller会关闭Hub/Edge及经原身份核验的自有原生句柄；managed=false外部服务保持。释放DesktopHost门面不执行该停止流程。IPC监听可先离线，进程和资源稍后退出；均不能直接结算原Task或释放unknown。[按入口的归属表](../../iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)。

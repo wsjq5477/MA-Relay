@@ -19,6 +19,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { terminalCommand, safeTerminal } from './terminal.js';
 import { runMcpCommand } from './mcp-command.js';
 import { runInterconnectCommand } from './interconnect-command.js';
+import { writeResultNote } from './result-note.js';
 
 const help = [
   'AgentBridge — CLI / Hub / Edge / OpenCode', '',
@@ -45,6 +46,7 @@ const help = [
   'agentbridge run AGENT (--stdin | --file FILE) --config FILE [--request-id ID]',
   'agentbridge tasks --config FILE [--watch] [--json]',
   'agentbridge task TASK_ID --config FILE [--watch] [--json] [--timeout-ms N] [--diagnostics]',
+  'agentbridge result-note TASK_ID --caller-descriptor ABSOLUTE_FILE --output ABSOLUTE_NOTE.md [--json]',
   'agentbridge native TASK_ID --config CLIENT [--edge-config EDGE] [--json]',
   'agentbridge native TASK_ID --config CLIENT --permission ID --decision once|reject',
   'agentbridge native TASK_ID --config CLIENT --form ID --answer-file JSON_FILE',
@@ -81,6 +83,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
         'edge-config': { type: 'string' }, permission: { type: 'string' }, decision: { type: 'string' },
         form: { type: 'string' }, 'answer-file': { type: 'string' },
         node: { type: 'string' }, 'profile-dir': { type: 'string' }, profile: { type: 'string' }, 'operation-id': { type: 'string' },
+        'caller-descriptor': { type: 'string' }, output: { type: 'string' },
       },
     });
     if (v.help || p.length === 0) { console.log(help); return 0; }
@@ -91,6 +94,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       native: ['config', 'edge-config', 'json', 'permission', 'decision', 'form', 'answer-file'],
       mcp: ['node', 'adapter', 'json', 'profile-dir', 'profile', 'operation-id'],
       interconnect: ['profile-dir', 'file', 'json'],
+      'result-note': ['caller-descriptor', 'output', 'json'],
       agents: ['config', 'json'], run: ['config', 'json', 'stdin', 'file', 'request-id', 'watch', 'timeout-ms'],
       tasks: ['config', 'json', 'watch', 'timeout-ms'], task: ['config', 'json', 'watch', 'timeout-ms', 'diagnostics'],
     };
@@ -101,6 +105,13 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     // no Hub/Edge config file, model turn, task or hosted session.
     if (command === 'mcp') return await runMcpCommand({ node: v.node, adapter: v.adapter, profileDir: v['profile-dir'], profile: v.profile, operationId:v['operation-id'], json: !!v.json }, p);
     if (command === 'interconnect') return await runInterconnectCommand({profileDir:v['profile-dir'],file:v.file,json:!!v.json},p);
+    if (command === 'result-note') {
+      if (p.length !== 2 || !p[1] || !v['caller-descriptor'] || !v.output)
+        throw new BridgeError('INVALID_ARGUMENT', '用法：agentbridge result-note TASK_ID --caller-descriptor ABSOLUTE_FILE --output ABSOLUTE_NOTE.md');
+      const note = await writeResultNote(p[1], v['caller-descriptor'], v.output);
+      print(note, (note.state === 'created' ? '结果笔记已新建。' : '结果笔记与当前版本一致。') + '\nSHA-256 ' + note.sha256);
+      return 0;
+    }
     if (command === 'init') {
       if (p.length !== 1) throw new BridgeError('INVALID_ARGUMENT', 'init accepts no positional arguments');
       if (v.adapter !== undefined && !['mock', 'opencode'].includes(v.adapter)) throw new BridgeError('INVALID_ARGUMENT', 'Adapter must be mock or opencode');

@@ -1,5 +1,7 @@
 # M08 主 Agent、子 Agent 与协作通道设计
 
+最小交接可以由原调用方通过 `result-note` 保存获准的结果正文及有界事件。是否取用笔记、选哪段和委派给哪个获准目标均由调用方决定，继续使用原 `delegate` 授权和稳定请求 ID。报告文件路径本身不表示其他 Agent 已能读取。[用法与验收](../../iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
+
 M08：当前Windows Codex主对话以代码模式消费真实MCP结果，原WSL Codex同Session正文/续聊与在途恢复已实测；未伪造父模型Task，也未验证桌面原生工具目录安装。已撤权上下文的原生完成由管理员观察，不恢复调用权；不据此扩大递归委派或业务验收。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 经典task_result支持原delegationId只读恢复，不要求当前新派发权限；从list_delegations取原ID后，仅原请求查询，不重新delegate。旧后台无task.original-request-v1时零任务查询，和事件游标能力分别核验；原Task、原scope和十工具保持。[完整契约](../../iterations/I08/interconnect-caller-contract.md)。

@@ -1,5 +1,7 @@
 # M09 CLI、controller 与 Hub/Edge 测试报告
 
+T-M09-322 / M09-F02/F06：2026-11-22，Windows Node 24.12.0。生产 CLI 用原独立 MCP 读本机 DSH 失败结果，首写、同版本重试及 SHA-256 核对通过，无新委派和模型执行。受控补验并发落盘、用户编辑冲突与外来权限拒绝。[实测记录](../../iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
+
 T-M09-318：2026-11-22，Windows Node 24.12.0。生产 Hub/Edge 连接 OpenCode V1 受控 HTTP 服务，权限和表单答复保持原请求 ID。Hub 与 Edge 重开后读取原类型、Task 和操作状态，外来 Task 与缺记录拒绝。范围和计数见[本轮验收](../../iterations/I08/current-scope-audit.md)。
 
 2026-11-03本轮仅补齐关闭入口的资源归属说明：DesktopHost门面不停止Core，明确Controller stop可停止经核验的自有句柄，IPC离线不等于资源释放完。当前定向12份源码/测试与6份编译物摘要与最近实测一致，未新增运行时行为、测试编号或模型验收。[当前源码与完整决策审计](../../iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。

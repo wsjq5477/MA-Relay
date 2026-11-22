@@ -4,6 +4,8 @@
 
 首阶段实机目标为本机 DSH NEXT 2.0.23-next。真实 stdio MCP 十工具、获准目标、原生 Session 绑定和原请求恢复已验证。两条原生请求分别记录缺少模型 API Key 的原错误及新诊断分类。Windows DSH 受控回归 5/5，成功正文和同 Session 第二轮待认证。[本机验收记录](iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
 
+本机原 DSH 失败结果已生成 Markdown 笔记，核对原 Task、原失败类型和两次写入的同一文件版本。受控双目标验收验证结果权限、冲突拒绝及显式交接正文。[实测记录](iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
+
 2026-11-17，issue #33 的公开预发布 `0.6.0-alpha.76.issue33.3` 覆盖大型 profile 的 ACL、主进程 IPC、前端恢复和旧后台自动切换。隔离 profile 的打包后台升级与两个公开附件的匿名下载均已验证，实际安装目录覆盖及私有 CodeAgent 仍待验收。[交付及验证](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
 issue #31 已合入源码：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](iterations/I08/maintenance-controller-recovery.md)

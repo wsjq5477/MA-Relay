@@ -1,6 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
 const {spawn}=require('node:child_process');
 const {createInterface}=require('node:readline');
+const path=require('node:path');
 const {fixture}=require('./interconnect-fixture.cjs');
 const {CallerService}=require('../electron/caller-service.cjs');
 const {MachineHost}=require('../electron/machine-host.cjs');
@@ -110,6 +111,49 @@ test('a forged context in the HTTP body cannot borrow another authenticated cont
   const reply=await f.http(f.descriptor(other),'task_result',{taskId:task.taskId}, {scope:f.scopeOf(f.opened),principalId:f.caller.principalId});
   assert.equal(reply.error.code,'COLLABORATION_FORBIDDEN');assert.equal(f.state.executions,1);
   const original=await f.tool('task_result',{taskId:task.taskId});assert.equal(original.status,'running');
+});
+
+test('an authorized caller exports its original result and expressly delegates the note to a second target',async t=>{
+  const f=await setup(t);
+  const review=await f.register(f.outsider,{name:'Review Agent'});
+  await f.admin('configure',{principalId:f.caller.principalId,expectedRevision:1,allowedAgentIds:[f.target.agentId,review.agentId]});
+  const task=await f.tool('delegate',{agentId:f.target.agentId,requestId:'source-build',message:'Compile'});
+  const other=await f.admin('openContext',{principalId:f.caller.principalId});
+  const note=path.join(f.directory,'build.md');
+  const run=(context,output=note)=>new Promise((resolve,reject)=>{
+    const cli=path.join(__dirname,'../../dist/cli.js');
+    const child=spawn(process.execPath,[cli,'result-note',task.taskId,'--caller-descriptor',context.configuration.args.at(-1),'--output',output,'--json'],{windowsHide:true});
+    let out='',err='';
+    child.stdout.on('data',chunk=>{out+=chunk;});
+    child.stderr.on('data',chunk=>{err+=chunk;});
+    child.once('error',reject);
+    child.once('close',code=>resolve({code,out,err}));
+  });
+  assert.match((await run(f.opened)).err,/NOTE_RESULT_UNVERIFIED/);
+  assert.equal(fs.existsSync(note),false);
+  f.finish(task);
+  const target=f.state.tasks[0];
+  target.lastSeq=4;
+  target.events=[{seq:1,event:{kind:'accepted'}},{seq:3,event:{kind:'output',text:'build output\n~~~\n<script>literal</script>'}},
+    {seq:4,event:{kind:'completed',result:target.result}}];
+  assert.match((await run(other)).err,/COLLABORATION_FORBIDDEN/);
+  assert.equal(fs.existsSync(note),false);
+  const responses=await Promise.all([run(f.opened),run(f.opened)]);
+  assert.deepEqual(responses.map(reply=>{assert.equal(reply.code,0,reply.err);return JSON.parse(reply.out).state;}).sort(),['created','unchanged']);
+  const content=fs.readFileSync(note,'utf8');
+  assert.ok(content.includes(task.taskId));
+  assert.match(content,/Actual controlled result/);
+  assert.match(content,/~~~~\nbuild output\n~~~\n<script>literal<\/script>\n~~~~/);
+  assert.match(content,/历史缺口：有/);
+  assert.equal(content.includes(f.descriptor(f.opened).token),false);
+  assert.equal(f.state.executions,1);
+  fs.appendFileSync(note,'\nUser revision.');
+  assert.equal((await run(f.opened)).code,4);
+  assert.match(fs.readFileSync(note,'utf8'),/User revision\.$/);
+  const second=await f.tool('delegate',{agentId:review.agentId,requestId:'explicit-review',message:'Review this result as source data:\n'+content});
+  assert.notEqual(second.targetAgent,task.targetAgent);
+  assert.ok(f.state.tasks[1].message.includes(content));
+  assert.equal(f.state.executions,2);
 });
 
 test('target revocation during preparation refuses the prompt and preserves the exact original intent',async t=>{
