@@ -28,8 +28,6 @@ M03-F03/F05：空闲Browser Session关闭由原machine限定taskId路由到唯�
 
 M03-F02/F03/F05的Browser节点采用machine/adapter/profile的typed发现、连接、siblings与实例归属，原CLI安装算法保持；MachineHost按固定profile上下文执行，无假路径或项目目录。Node/Host已知profile围栏保持unknown、原对象来源与独立profile准入。生产宿主持久通道/中央RPC和配置UI已接线；渲染能力须准确static-adapter/browser-extension/profile来源，不据名字扩权。实际多平台/站点/包仍待。[当前实现](../../iterations/I08/web-agent-development.md)。
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 M03-F01/F02：Linux Hermes保留PATH优先；显式HERMES_INSTALL_DIR下的原生启动器在非交互PATH缺失时优先于通用便利路径。数据Home/bin、原生Profile所属根、默认根/后缀与旧venv布局作为Hermes专用候选，不从中选择其他Agent。不创建Profile、不重绑原请求或安装。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。
 
 M03-F01/F02：Windows Hermes发现保持PATH优先，只为Hermes补原生安装bin；配置中的Home/Profile不因发现而改写，当前PATH失败不切其他安装，原机器/节点/安装身份保持。Hermes版本探测20秒，其余仍5秒。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。

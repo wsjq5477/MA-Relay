@@ -30,7 +30,7 @@ export function checkDocSite(folder = resolve(repositoryRoot, 'doc/.vitepress/di
   for (const asset of publishedAssets) if (!existsSync(resolve(folder, asset))) throw Error('缺少公开品牌资源：' + asset);
   const home = readFileSync(resolve(folder, 'index.html'), 'utf8'), dsh = readFileSync(resolve(folder, 'agents/dsh.html'), 'utf8');
   for (const heading of ['原生 CLI', '原生 API', 'MCP', 'ACP', '插件', 'SDK']) if (!home.includes(heading)) throw Error('首页缺少接入总结列：' + heading);
-  for (const entry of ['DSH CLI', 'DSH Windows Desktop', 'DSH Linux / WSL Web', '为什么采用原生 API']) if (!dsh.includes(entry)) throw Error('DSH 章节缺少入口或说明：' + entry);
+  for (const entry of ['DSH CLI', 'DSH Windows Desktop', 'DSH Linux / WSL Web', 'DSH NEXT', '为什么采用原生 API']) if (!dsh.includes(entry)) throw Error('DSH 章节缺少入口或说明：' + entry);
   return {ok: true, ...validateUserDocs(), htmlPages: pages.length, internalPagesPublished: 0, evidenceFilesExported: 0, searchAndPageAssetsChecked: files.filter(file => /\.(?:html|js|json)$/.test(file)).length};
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) console.log(JSON.stringify(checkDocSite(), null, 2));

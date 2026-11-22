@@ -13,6 +13,6 @@ function listAgentConnections(network,node,owner,snapshot){
   const delegationBlock=role!=='leader'?'not_leader':owner.status==='unknown'?'parent_unknown':owner.authority?!owner.authority.canDelegate()?'operation_revoked':null:connectionCapabilities(node).connectionCapabilities.bridgeMcp!==true?'caller_unsupported':null;
   const caller={...(owner.authority?owner.authority.view():{nodeId:node.nodeId,machineId:node.machineId,kind:identity(owner.externalConnectionId)?'external-connection':'native-parent',role}),delegationAuthorized:delegationBlock===null,delegationBlock};
   const items=role==='leader'?(snapshot?.nodes||[]).filter(n=>n.nodeId!==node.nodeId&&relation.memberIds.includes(n.nodeId)).map(({nodeId,machineId,name,adapter,status,busy,executionSupported,connectionCapabilities,capabilitySource})=>({nodeId,machineId,name,adapter,status,busy,executionSupported,connectionCapabilities,capabilitySource,machine:snapshot.machines.find(m=>m.machineId===machineId)?.name})):[];
-  return {schema:1,readOnly:true,view:'authorized-connections',supportedOperations:['delegate.continue-v1','cancel.query-v1','task.events-v1','task.original-request-v1'],relationRevision:relation.revision,caller,items};
+  return {schema:1,readOnly:true,view:'authorized-connections',supportedOperations:['delegate.continue-v1','cancel.query-v1','reply.query-v1','task.events-v1','task.original-request-v1'],relationRevision:relation.revision,caller,items};
 }
 module.exports={assertListArgs,listAgentConnections};

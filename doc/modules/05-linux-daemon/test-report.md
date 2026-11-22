@@ -42,8 +42,6 @@ alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/
 T-M05-154 / M05-F01/F02：2026-10-29，基线1b7da57后的未发布源码。Windows专项134项133通过/1平台跳过；管理台账61/61（部分共享）；WSL Ubuntu22.04 / Node22.23.1实际隔离daemon进程与替换/回归29/29，最终分离替换及进程存活保护6/6（共享用例不相加）。生产renderer合成RPC的确认/取消/原ID等待及1440/980宽度通过，非生产SSH或真实EXE。本轮模型0、真实profile写入0，未重打EXE，不刷新原完整矩阵。[命令、原失败及全部证据](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 2026-10-29验证范围更新：40项涉及Linux daemon/Unix socket/UID/原生helper的跨模块用例在Windows逐项明确跳过；可跨平台帧与SSH通道仍执行。首次WSL Node22.23.1共42项39通过/2失败/1超时取消，后续隔离首轮151项149通过/1失败/1取消；实测源码进程18.377秒就绪后仅调整测试等待预算，最终隔离151/151、跳过0，新增40个平台跳过逐项在本组通过。产品daemon默认10秒保持，不能据此准出冷启动性能。生产daemon协议/权限门禁未改、无远端部署、模型0。[全部失败及最终分层证据](../../iterations/I08/windows-regression-and-native-probes.md)。
 
 2026-10-27 / alpha.67公开：Windows受控22/22、独立Ubuntu适配109/109/Core71/71及正式Hermes0.22.5原生MCP五组通过。Windows→WSL Node24.13.0→Hermes两轮、原ID去重、通道重开/同Session续聊与配置字节保持通过；两原传输退出0。原生持久会话只读核对两用户/两助手消息、API2/工具0；临时网络通道已停止，WSL直连未修复。实际EXE七组模型0、212输入/58后台/84Core/1723Linux及载荷一致。首轮Core70/71、旧就绪失败及临时验收目录后续缺失如实保留，完整矩阵未准出。[全部分层证据与边界](../../iterations/I08/alpha67-hermes-linux-live.md)。

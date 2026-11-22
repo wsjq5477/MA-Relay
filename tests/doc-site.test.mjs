@@ -27,8 +27,11 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   assert.ok(capabilities.includes('| Hermes | ✓ | ✓ | — | ✓ | ✓ | — |'));
   assert.ok(capabilities.includes('| Pi | ✓ | ✓ | ✓ | ✓ | ✓ | — |'));
   assert.ok(methods.includes('| Pi | ✓ | — | ✓ | — | — | — |'));
-  assert.equal(methods.trim().split('\n').length, 12);
-  assert.equal(capabilities.trim().split('\n').length, 12);
+  assert.ok(methods.includes('| DSH NEXT | ✓ | — | ✓ | — | ✓ | — |'));
+  assert.ok(capabilities.includes('| DSH NEXT | ✓ | ✓ | ✓ | ✓ | ✓ | — |'));
+  assert.ok(capabilities.includes('| ChatGPT Web | ✓ | ✓ | — | ✓ | — | — |'));
+  assert.equal(methods.trim().split('\n').length, 13);
+  assert.equal(capabilities.trim().split('\n').length, 14);
 });
 test('正文拒绝内部编号、过程、仓库链接及未许可 include', () => {
   for (const text of ['# M06-F01', '# CT-06', '查看测试报告', '[材料](../iterations/README.md)', '[源码](../../desktop/electron/dsh-worker.cjs)', '<!--@include: ../modules/06-native-adapters/design.md-->']) {
@@ -45,7 +48,7 @@ test('发布审计对生成目录执行独立白名单与内容检查', async ()
   try {
     for (const file of [...publishedFiles].map(name => name.replace(/\.md$/, '.html')).concat('404.html')) {
       const target = resolve(folder, file); mkdirSync(resolve(target, '..'), {recursive: true});
-      writeFileSync(target, file === 'index.html' ? '原生 CLI 原生 API MCP ACP 插件 SDK' : file === 'agents/dsh.html' ? 'DSH CLI DSH Windows Desktop DSH Linux / WSL Web 为什么采用原生 API' : '用户说明');
+      writeFileSync(target, file === 'index.html' ? '原生 CLI 原生 API MCP ACP 插件 SDK' : file === 'agents/dsh.html' ? 'DSH CLI DSH Windows Desktop DSH Linux / WSL Web DSH NEXT 为什么采用原生 API' : '用户说明');
     }
     writeFileSync(resolve(folder, 'agentbridge.png'), 'fixture');
     assert.equal(checkDocSite(folder).htmlPages, 19);

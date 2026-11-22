@@ -42,8 +42,6 @@ Browser原核对收据kind=reconcile，在Host保存unknown后只请求扩展out
 
 M07-F06/F07：未发布Core维护修复事件ACK超时后的运输自旋。立即退役当前原socket，原事件按同taskId/executionId/seq在新运输补传，原执行与Session不重建；相同原提交仍只调用一次。运输确认不代替任务终态，权限/取消及unknown占用保持。[实现与验证](../../iterations/I08/edge-outbox-reconnect.md)。
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 
 M07-F01/F04/F06/F07：三原生CLI启动器解析同步拒绝或实际ChildProcess在spawn前报error时，以原Task failed/NATIVE_START及nativeExited=false结算。原requestId去重与历史保持，原核对/取消confirmed只说明该原控制意图已核对，任务状态仍failed；已启动失联/旧unknown不能根据现安装缺失结算。[当前规则与验证](../../iterations/I08/native-start-boundary.md)。
 
@@ -276,6 +274,8 @@ Core 当前会话轮次上限为 1001；该上限是兼容核心实现约束，�
 Core 事件按 executionId 和连续 seq 接收。重复同 seq 同内容不重复记账；同 seq 内容变化拒绝，跨执行事件拒绝。文本裁剪按 UTF-8 字节且不拆字符，并标记 truncated；超出保留量不能伪装为完整输出。
 
 ## 6. 权限、表单和取消
+
+原答复回应不确定时，经典 MCP 可用原 Task 和操作 ID 只读查询。匹配原执行的答复收据与 Task 等待/终态分别读取。旧 Core 收据缺少类型及 Task 证明时，MCP 无法确认其为答复。[协议和取证方式](../../iterations/I08/interconnect-caller-contract.md#原答复收据)
 
 | 操作 | 前置校验 | 实际语义 |
 | --- | --- | --- |

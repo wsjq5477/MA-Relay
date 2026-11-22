@@ -1,17 +1,19 @@
 # 整体测试与验收报告
 
+2026-11-22，现行源码恢复链通过定向受控验收。答复收据专项覆盖原 ID、丢回应、撤权、旧后台与 OpenCode V1 表单；用户站完成实际构建和内容审计。模型、独立 Linux SSH 和公开安装包继续按实机证据确认。[本轮测试计数及验收范围](iterations/I08/current-scope-audit.md)
+
 2026-11-17，issue #33 的公开预发布 `0.6.0-alpha.76.issue33.3` 覆盖大型 profile 的 ACL、主进程 IPC、前端恢复和旧后台自动切换。隔离 profile 的打包后台升级与两个公开附件的匿名下载均已验证，实际安装目录覆盖及私有 CodeAgent 仍待验收。[交付及验证](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
-未发布源码修复 issue #31：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](iterations/I08/maintenance-controller-recovery.md)
+issue #31 已合入源码：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](iterations/I08/maintenance-controller-recovery.md)
 
 alpha.74 发布验证单列：开发阶段自定义运行时配置/路由23/23、受控委派2/2、Pi续聊1/1、界面六组通过；冻结源、Windows/独立Linux、实际EXE及公开下载分层核验，真实模型/生产SSH/完整矩阵不因此准出。[交付记录](iterations/I08/alpha74-release.md)
 
-issue #30 未发布源码：2026-11-07 Windows 隔离回归两组 86/86、21/21，MCP 协议另测 2/2；真实 Electron 44.7.0/ICU 发布、复用及损坏副本修复三组通过。类型检查、lint、根和桌面构建通过；公开 EXE、真实模型与外部 CodeAgent 专项未测。本次仅修复共享运行时发布和清理，不扩张其他原生矩阵。[原始证据与未测项](iterations/I08/codex-runtime-publish-recovery.md)
+issue #30 历史回归：2026-11-07 Windows 隔离回归两组 86/86、21/21，MCP 协议另测 2/2；真实 Electron 44.7.0/ICU 发布、复用及损坏副本修复三组通过。类型检查、lint、根和桌面构建通过；公开 EXE、真实模型与外部 CodeAgent 专项未测。本次仅修复共享运行时发布和清理，不扩张其他原生矩阵。[原始证据与未测项](iterations/I08/codex-runtime-publish-recovery.md)
 
-alpha.74 候选及发布后文档检查均3065项历史证据链接错误，本轮新增记录无报错。[本次交付](iterations/I08/alpha73-release.md)
+alpha.74 候选及发布后文档检查均为 3065 项历史证据链接错误。[历史交付](iterations/I08/alpha74-release.md)
 
 
-T-M06-CX-317 / T-M07-317 / T-M08-317：2026-11-03，本轮真实Windows主对话与WSL原生子Agent。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。主会话登录后六轮为failed/failed/succeeded/succeeded/succeeded/cancelled，另有独立上下文网络失败及修复后成功；原三Task保留，总请求/委派11/11。CLI安装首轮错误、旧模型/旧CLI拒绝及中途转发退出均保留，未重发未知请求。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+T-M06-CX-317 / T-M07-317 / T-M08-317：2026-11-03，本轮真实Windows主对话与WSL原生子Agent。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。主会话登录后六轮为failed/failed/succeeded/succeeded/succeeded/cancelled，另有独立上下文网络失败及修复后成功；原三Task保留，总请求/委派11/11。CLI安装首轮错误、旧模型/旧CLI拒绝及中途转发退出均保留，未重发未知请求。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 2026-11-03 / T-M06-OC-316、T-M07-316、T-M09-316：未发布源码修复OpenCode检查地址及健康检查干扰原任务协议；Windows七文件25项23通过/0失败/2平台跳过。Linux同集初轮24通过/1 ACK夹具环境失败，改为启动相对当前测试的源码/编译子文件后，该项单独1/1；未冒充单次25/25。原取消与3.x清理失败已定位并通过，初轮原件保留。构建/类型/受影响lint通过，均为受控证据、模型0；上一轮真实1.2.10低层已有服务9项不重计为本轮重验。完整互联闭环、真实在途恢复、SSH、EXE及历史矩阵未准出。[当前分层记录](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 
@@ -19,13 +21,13 @@ T-M06-CX-317 / T-M07-317 / T-M08-317：2026-11-03，本轮真实Windows主对话
 
 ## 互联边界确认的证据范围
 
-2026-11-03：独立登记/固定端点/调用方/上下文/凭据、串行准入、原事件及无taskId恢复已源码实现；Windows/Linux同范围11文件各104/104，Hermes/Pi/DSH受控CLI3/3含于其中。原三failed/cancelled Task的读控18项不与本轮真实模型验证累加。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+2026-11-03：独立登记/固定端点/调用方/上下文/凭据、串行准入、原事件及无taskId恢复已源码实现；Windows/Linux同范围11文件各104/104，Hermes/Pi/DSH受控CLI3/3含于其中。原三failed/cancelled Task的读控18项不与本轮真实模型验证累加。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 当前未发布源码的界面整理单独记录于[五页与连接策略验证](iterations/I08/ui-cleanup.md)，包含生产renderer受控浏览器检查及原ID恢复；不刷新公开alpha.71、browser.3实际EXE、真实模型/SSH或完整原生矩阵结论。
 
-最新本地Windows体验包为0.6.0-alpha.71.browser.3，包含当前ChatGPT-only 19文件扩展及最新后台，源码/实际EXE载荷/ASAR核验和包内Node契约72/72通过；普通GUI、包内真实Web与原生父模型仍未准出。仅用户体验交付，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[产物、非C盘启动及完整证据](iterations/I08/web-agent-browser3-preview.md)。
+历史本地 Windows 体验包 0.6.0-alpha.71.browser.3，包含当前ChatGPT-only 19文件扩展及最新后台，源码/实际EXE载荷/ASAR核验和包内Node契约72/72通过；普通GUI、包内真实Web与原生父模型仍未准出。仅用户体验交付。[产物、非C盘启动及完整证据](iterations/I08/web-agent-browser3-preview.md)。
 
-当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
 
 
 Browser可见对话证明、未授权内容取消及原封存恢复：Windows定向153项152通过/1平台跳过、失败0；Host46/46、真实IndexedDB53/53；MV3两种取消阶段健康/关闭恢复各21组分层受控，不相加。WSL真实Linux Node133/133；此前DOM28/28和人工编辑/重生成变体保留原日期/范围，快照冷却截止失败仍留，不称全量全绿。缺请求行只由原封存恢复既有Session，不补造；已提交Stop仍不支持。真实账号/授权同意/父模型/Browser跨设备/Linux Chrome/完整矩阵及EXE未准出。[原始日志、首次失败和限制](iterations/I08/web-agent-development.md)。
@@ -35,8 +37,6 @@ alpha.71的SSH维护只读入口始终可打开查看；具体替换/升级仍�
 
 alpha.71已修复#29的维护入口闭锁：未登记后台仍不直接复用，但版本拒绝的离线机器可以打开维护，明确确认后替换为客户端自带的已校验后台。原身份、状态、收据与旧目录保留；不自动运行未校验旧版本回滚。[行为、实际验证与边界](iterations/I08/issue29-explicit-daemon-replacement.md)。
 
-
-当前公开alpha.71：SSH维护只读入口在离线、任务忙和unknown时仍可打开，明确确认后可替换未登记后台；实际写入门禁和原ID保留。源码/EXE/SHA公开，匿名完整下载匹配。Windows扩展147通过/1平台跳过、包内兼容26/26；独立Ubuntu Core79/79、适配111/111、关系/SSH98/98、替换/入口105/105。实际包内UI与普通portable启动/关窗分层验证；历史Windows全量DSH竞态1失败/41跳过、文档2243缺失和依赖high1保留，真实profile/生产SSH/完整矩阵及性能未准出。[完整交付](iterations/I08/alpha71-release.md)。
 
 构建、类型与lint通过；实际包内恢复及回环SSH/SFTP界面与普通portable生命周期分别验收。Ubuntu CI与WSL10/10分开记录，不以受控证据替代生产SSH或真实profile。原始失败与逐项要求见[本轮记录](iterations/I08/issues27-28-current-state.md)。
 

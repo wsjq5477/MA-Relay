@@ -1,5 +1,7 @@
 # M08 主从协作测试报告
 
+T-M08-318 / M08-F03/F05：2026-11-22，Windows Node 24.12.0，答复定向验收 4/4。答复回应丢失后重开调用方并读取原 ID，受控目标收到一次答复。覆盖真实 stdio 新旧后台门禁、原属主、读取期间撤权、无收据、错误类型和外来 Task。扩展回归 Windows 43 通过、1 项 Coordinator 私有目录超时，在未修改基线复现。WSL Node 24.13.0 同组 44/44。[原始结果与剩余验收](../../iterations/I08/current-scope-audit.md)
+
 T-M08-317：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 T-M08-314：2026-11-03，Windows原认证Coordinator/真实stdio MCP，读取已有三条WSL Codex真实原生Task（cancelled/failed/failed）。实际原上下文凭据轮换、旧Bearer拒绝、观察器关闭/重开、跨上下文拒读、delegate/result/目标授权撤销及恢复累计18项核对通过，原Task/原生Session与请求计数3→3保持。本轮新需求0，原操作权限和目标已恢复；18项为共用累计检查，不与各阶段或104项相加。没有成功模型正文、在途属主上下文关闭或真正丢提交回应，已有服务/SSH/EXE与原矩阵仍未准出。新增验收脚本lint通过；首次脚本把Task.error误判为查询失败，产品行为未改。[源码、原始失败与分阶段实测](../../iterations/I08/interconnect-development.md#13-基于三条真实原生task的读控恢复验收)。
@@ -37,8 +39,6 @@ T-M08-157 / M08-F01/F03/F05：2026-10-30，Windows/Node24.12.0；Browser渲染�
 T-M08-156 / M08-F03/F04/F05/F06：2026-10-30，Windows Node24.12.0；MCP续聊原主体与会话专项8项，真实stdio旧后台缺能力/当前支持/撤权预查三分支均已运行，旧后台delegate写入0。共享260项241通过/19平台跳过、失败0；真实Chromium148/实际stdio与原Broker十组中三轮同会话、unknown不得重派、原页晚到恢复通过，原生父模型与Provider为受控组件。新父Task不能认领旧子会话，历史结果读取与当前续聊资格分离。非真实父模型、跨设备/EXE准出。[完整源码、命令和原证据](../../iterations/I08/web-agent-development.md)。
 
 2026-10-29受控验证维护：图崩溃夹具在准确rename前/后记录注入点，Windows核对强制终止退出码、POSIX核对SIGKILL，原收据/修订/unknown与禁止重放断言保留；产品关系/布局实现未改。共享平台78项为38通过/40明确跳过，实际Linux结果另列，模型0。[完整日志与边界](../../iterations/I08/windows-regression-and-native-probes.md)。
-
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 
 2026-10-27 / alpha.65 / Windows Node24.12.0：共享Hermes定向31/31，扩展73项72通过/1个Pi原基线失败，不能跨模块相加。已安装Hermes0.22.5、冻结Windows后台原生MCP五组通过（模型0）；真实执行/续聊两轮通过，但首轮参数拒绝、早期心跳EPERM及验收器原生配置字节比较失败均保留。普通EXE/发布状态按[专项](../../iterations/I08/alpha65-hermes-windows.md)逐项登记，不把源码结果当作EXE/父模型准出。

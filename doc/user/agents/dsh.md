@@ -1,26 +1,27 @@
 # DSH
 
-当前alpha.64的Bridge桌面提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派。
+DeepSeek Harness（DSH）支持 DSH NEXT、CLI、Windows Desktop 和 Linux / WSL Web。Windows 上已安装 DSH NEXT 时，可直接从 Bridge 接入。使用 Desktop 或 Web 服务时，配置对应机器上已运行的服务。
 
-DeepSeek Harness（DSH）有 CLI、Windows Desktop 和 Linux / WSL Web 三个执行入口。Desktop / Web 连接已有原生服务，CLI 使用独立的 headless 程序；它们分别发现和配置。
-
-Desktop / Web 服务入口及本页Agent行配置流程已包含在公开预发布 `0.6.0-alpha.36`。切换程序前先在旧窗口“设置 → 后台运行 → 停止后台并退出”，再打开新程序并重新检测对应机器。
-
-## 三个入口的区别
+## 四个入口的区别
 
 | 入口 | Bridge 如何调用 | 配置来源 | 适用场景 |
 | --- | --- | --- | --- |
+| DSH NEXT | Windows 安装包内的 headless JSONL | DSH NEXT 当前原生 Profile | 一键接入 Windows DSH NEXT |
 | DSH CLI | headless CLI 的 JSON 输出 | headless 的原生环境与配置 | 在命令行环境运行任务 |
 | DSH Windows Desktop | 已启动桌面服务的认证 HTTP Session API | Windows Desktop 自身配置 | 连接 Windows 上已有桌面实例 |
 | DSH Linux / WSL Web | 已启动 Web 服务的认证 HTTP Session API | Linux / WSL Web 自身配置 | 连接该机器已有的 Web 实例 |
 
 CLI 不自动继承 Desktop / Web 的账号或 profile。不能把服务版已配置好模型推断为 headless CLI 也已经可用。Linux 的同名 Distributed Shell 命令不是 DeepSeek Harness。
 
+## 连接 DSH NEXT
+
+1. 安装并启动 DSH NEXT，确认所选原生 Profile 可以使用。
+2. 在 AgentBridge 的「接入配置」打开 Windows 机器，在 DSH NEXT 行点击「接入」。Bridge 使用包内入口，首次接入可为当前 Profile 准备 MCP。
+3. 如需在 DSH 左侧栏查看获准 Agent 及其状态，可下载 [AgentBridge 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip)，在 DSH NEXT 的「插件 → 添加插件」中安装 ZIP。
+
 发现安装但未配置服务时，节点显示“待配置服务连接”。在实际机器的DSH节点右侧点击“配置”，保存连接后重新扫描；真正的认证、网络或启动失败仍按错误显示。
 
 ## 保存后如何核对连接
-
-公开预发布 `alpha.51.recovery.2`修复保存后的地址选择；此修复已包含在当前公开附件中。切换候选前，通过“设置 → 后台运行 → 停止后台并退出”停止旧后台，再打开候选。
 
 保存服务地址后，“刷新连接状态”或关闭重开配置会保留刚保存的目标。提示“当前节点尚未加载”时，回到原机器重新扫描，再为该节点接入；旧地址、历史与原请求保留。Desktop 和 Web 分别选择，不互相代替。只有从未配置才显示默认3080；目标缺失、身份不匹配或损坏时按提示核对原连接，不能把空地址当作首次接入。保存不完整时先刷新核对，不自动重试；token不回填。
 
@@ -61,7 +62,7 @@ API 让 Bridge 直接操作正在运行的 Desktop / Web 会话服务，沿用�
 | 输出与结果 | 按原生轮次读取输出及状态 |
 | 取消与恢复查询 | 操作和查询原请求，结果未知时不重发 |
 | 普通被委派 | 可作为获准目标接收其他 Agent 的任务 |
-| 主动调用 Bridge MCP | 已声明具备 MCP 客户端能力；**DSH Web** 的原生 MCP 配置可由 Bridge 管理并在真实启动中被读取（`$DSH_HOME/profiles/web/cordis.patch.yml` 的一行补丁）；**DSH CLI** 也可管理，但要你指定启动时使用的 profile（`$DSH_HOME/profiles/<profile>/cordis.patch.yml`）；**DSH Desktop** 在alpha.48本地候选可管理原生当前数据目录/Profile的条目（当前公开版已包含）；选择变更后先移除原绑定，再添加当前目标。三者都使用已安装的 `@deepseek-ai/dsh-mcp-client` |
+| 主动调用 Bridge MCP | 已声明具备 MCP 客户端能力；**DSH Web** 的原生 MCP 配置可由 Bridge 管理并在真实启动中被读取（`$DSH_HOME/profiles/web/cordis.patch.yml` 的一行补丁）；**DSH CLI** 也可管理，但要你指定启动时使用的 profile（`$DSH_HOME/profiles/<profile>/cordis.patch.yml`）；**DSH Desktop** 可管理原生当前数据目录/Profile 的条目；选择变更后先移除原绑定，再添加当前目标。这三个入口都使用已安装的 `@deepseek-ai/dsh-mcp-client` |
 | 小队成员 / 托管会话注入 | 当前未接入；这不影响独立 MCP 调用 |
 | 权限与原生提问 | 在 DSH 原生界面处理，Bridge 内暂不提供回复 |
 
@@ -92,13 +93,11 @@ agentbridge mcp status  --node <DSH节点ID> --profile <同上>
 
 注意：Bridge 只能校验名称是否安全，不能确认它就是你现在启动的那个 profile。写错名称不会报错，只会写到一个不会被加载的目录。我们已经在 DSH 自带的 `acp` profile 上真实启动核对过：Bridge 写入的条目会被加载，DSH 会主动连接并列出 7 个工具；但你自己的 profile 和交互式终端使用方式没有逐个核对，添加后仍请在 DSH 界面确认。
 
-DSH Desktop 使用应用保留配置，Bridge 没有已核对的落点，只提供 `agentbridge mcp export --node 节点ID` 生成片段。
-
 CLI 与服务入口的连接方式不同，不能用 CLI 的可用性代替 Desktop / Web 的连接结果。更多比较见[接入方式与功能总览](index.md)和[六种方式比较](../integration-methods.md)。
 
 ## 原生 MCP 配置（DSH Desktop）
 
-alpha.48本地候选中，在Windows机器的DSH Desktop行点击“配置”，使用同一MCP接入区添加。Bridge读取DSH Desktop当前数据目录和Profile的原生选择记录；未切换过时使用原生默认desktop Profile。原生Profile必须已存在并包含Web功能，Bridge不会替你创建Profile或修改安装包。
+在 Windows 机器的 DSH Desktop 行点击「配置」，在 MCP 接入区添加。Bridge 读取 DSH Desktop 当前数据目录和 Profile 的原生选择记录。首次使用时采用原生默认 desktop Profile。该 Profile 须已存在并包含 Web 功能。
 
 添加后重新加载原生会话，在DSH中核对AgentBridge和7个工具。Bridge内显示已写入或需要重新加载，只说明配置状态，实际连接与工具调用仍需核验。
 

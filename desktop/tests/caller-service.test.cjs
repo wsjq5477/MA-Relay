@@ -9,8 +9,8 @@ const {createCoordinatorService}=require('../electron/coordinator-service.cjs');
 const {startCoordinator}=require('../electron/coordinator.cjs');
 const {CoordinatorClient}=require('../electron/coordinator-client.cjs');
 
-async function setup(t){
-  const f=await fixture(t),target=await f.register();
+async function setup(t,targetNode='child'){
+  const f=await fixture(t),target=await f.register(f[targetNode]);
   const identity=await f.admin('register',{kind:'mcp',externalKey:'external-super-agent',name:'Super-agent',purpose:'Explicit remote delegation'});
   let controller=new CallerService({directory:f.directory,agents:f.registry,network:f.network}),operation=0;
   f.keep({close(){controller.close();}});
@@ -166,6 +166,43 @@ test('permission removed during a task read blocks replies and suppresses stale 
   f.state.onTaskRead=()=>f.admin('closeContext',{contextId:f.opened.contextId,expectedRevision:1});
   await assert.rejects(f.tool('task_result',{taskId:task.taskId}),{code:'CALLER_REVOKED'});
   assert.equal(f.state.tasks[0].status,'running');assert.equal(f.state.executions,1);
+});
+
+test('an owned reply receipt recovers a lost response without submitting another answer',async t=>{
+  const f=await setup(t,'leader');
+  const task=await f.tool('delegate',{agentId:f.target.agentId,requestId:'original',message:'Compile'});
+  const query={taskId:task.taskId,operationId:'original-answer',queryOnly:true};
+  const other=await f.admin('openContext',{principalId:f.caller.principalId});
+  await assert.rejects(f.tool('reply_task',{...query,taskId:''}),{code:'INVALID_INPUT'});
+  await assert.rejects(f.tool('reply_task',query),{code:'NOT_FOUND'});
+  await assert.rejects(f.tool('reply_task',{...query,answer:{branch:'private'}}),{code:'INVALID_INPUT'});
+  f.state.loseNextReplyResponse=true;
+  await assert.rejects(f.tool('reply_task',{taskId:task.taskId,operationId:query.operationId,action:'permission',requestId:'pending',decision:'reject'}),{code:'DESKTOP_TRANSPORT'});
+  await f.restart();
+  const expected={taskId:task.taskId,operationId:query.operationId,kind:'reply',state:'confirmed'};
+  assert.deepEqual(await f.tool('reply_task',query),expected);
+  assert.deepEqual(await f.tool('reply_task',query),expected);
+  assert.equal((await f.tool('task_result',{taskId:task.taskId})).status,'running');
+  await assert.rejects(f.tool('reply_task',query,other),{code:'COLLABORATION_FORBIDDEN'});
+  const original=f.state.operations.get(query.operationId);
+  f.state.operations.set(query.operationId,{...original,kind:'cancel'});
+  await assert.rejects(f.tool('reply_task',query),{code:'OPERATION_CONFLICT'});
+  f.state.operations.set(query.operationId,{...original,taskId:'foreign'});
+  await assert.rejects(f.tool('reply_task',query),{code:'RECEIPT_MISMATCH'});
+  f.state.operations.set(query.operationId,{...original,state:'unknown'});
+  assert.deepEqual(await f.tool('reply_task',query),{...expected,state:'unknown'});
+  f.state.onOperationRead=()=>f.admin('configure',{principalId:f.caller.principalId,expectedRevision:1,operations:['result']});
+  await assert.rejects(f.tool('reply_task',query),{code:'CALLER_OPERATION_FORBIDDEN'});
+  assert.equal(f.state.replies,1);
+  assert.equal(f.state.executions,1);
+});
+
+test('reply receipt recovery does not query controls on a target without reply capability',async t=>{
+  const f=await setup(t);
+  const task=await f.tool('delegate',{agentId:f.target.agentId,requestId:'original',message:'Compile'});
+  f.state.operations.set('other-control',{operationId:'other-control',taskId:f.state.tasks[0].taskId,kind:'cancel',state:'unknown'});
+  f.state.onOperationRead=()=>assert.fail('Read was routed to an unsupported adapter');
+  await assert.rejects(f.tool('reply_task',{taskId:task.taskId,operationId:'other-control',queryOnly:true}),{code:'ADAPTER_UNSUPPORTED'});
 });
 
 test('different principals share a node without sharing sessions, task results or authority',async t=>{

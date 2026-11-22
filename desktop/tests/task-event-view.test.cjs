@@ -61,23 +61,29 @@ test('authorized task_result reads live events and replays a cursor without anot
   assert.equal(done.outcome.terminal,true);assert.equal(done.outcome.status,'succeeded');assert.equal(f.state.executions,1);
 });
 
-test('real stdio proves event and original-request query support before reading any task',async()=>{
+test('real stdio gates event, original-request and reply receipt queries against the live backend',async()=>{
   if(/^c:[\\/]/i.test(os.tmpdir()))throw Error('Non-C temporary directory required.');
   for(const scenario of [
     {support:[],args:{taskId:'original',afterSeq:0},code:'MCP_TASK_EVENTS_BACKEND_UPGRADE_REQUIRED'},
     {support:['task.events-v1'],args:{delegationId:'original',afterSeq:0},code:'MCP_ORIGINAL_REQUEST_BACKEND_UPGRADE_REQUIRED'},
     {support:['task.original-request-v1'],args:{delegationId:'original',afterSeq:0},code:'MCP_TASK_EVENTS_BACKEND_UPGRADE_REQUIRED'},
+    {tool:'reply_task',support:[],args:{taskId:'original',operationId:'answer',queryOnly:true},code:'MCP_REPLY_QUERY_BACKEND_UPGRADE_REQUIRED'},
+    {tool:'reply_task',support:['reply.query-v1'],args:{taskId:'original',operationId:'answer',queryOnly:'true'},code:'INVALID_INPUT'},
+    {tool:'reply_task',support:['reply.query-v1'],args:{taskId:'original',operationId:'answer',queryOnly:true,action:'permission'},code:'INVALID_INPUT'},
+    {tool:'reply_task',support:['reply.query-v1'],args:{taskId:'original',operationId:'answer',queryOnly:true}},
   ]){
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'bridge-event-gate-'));let reads=0;
-  const broker=new CollaborationBroker(directory,(_scope,name)=>{if(name==='list_agents')return {supportedOperations:scenario.support};reads++;return {};});
+  const broker=new CollaborationBroker(directory,(_scope,name,args)=>{if(name==='list_agents')return {supportedOperations:scenario.support};reads++;return {name,args};});
   let child;
   try{
     const config=await broker.configure('event-reader',{nodeId:'caller',parentRequestId:'original'});
     child=spawn(config.command,config.args,{windowsHide:true,env:{...process.env,...config.env},stdio:['pipe','pipe','pipe']});
     let output='';child.stdout.on('data',data=>{output+=data;});const ended=new Promise((resolve,reject)=>{child.once('error',reject);child.once('close',resolve);});
-    child.stdin.end(JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'task_result',arguments:scenario.args}})+'\n');
+    child.stdin.end(JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:scenario.tool||'task_result',arguments:scenario.args}})+'\n');
     assert.equal(await ended,0);
-    assert.equal(JSON.parse(JSON.parse(output.trim()).result.content[0].text).error.code,scenario.code);assert.equal(reads,0);
+    const result=JSON.parse(JSON.parse(output.trim()).result.content[0].text);
+    if(scenario.code){assert.equal(result.error.code,scenario.code);assert.equal(reads,0);}
+    else {assert.deepEqual(result,{name:scenario.tool,args:scenario.args});assert.equal(reads,1);}
   }finally{child?.kill();broker.close();fs.rmSync(directory,{recursive:true,force:true});}
   }
 });

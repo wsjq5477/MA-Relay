@@ -34,8 +34,6 @@ T-M01-205 / M01-F02/F04/F06/F07：2026-10-30，Windows Node24.12.0/Chromium148�
 T-M01-204 / M01-F02/F04：2026-10-29，基线1b7da57后的未发布源码。Windows专项134项133通过/1平台跳过；管理台账61/61（部分共享）；WSL Ubuntu22.04 / Node22.23.1实际隔离daemon进程与替换/回归29/29，最终分离替换及进程存活保护6/6（共享用例不相加）。生产renderer合成RPC的确认/取消/原ID等待及1440/980宽度通过，非生产SSH或真实EXE。本轮模型0、真实profile写入0，未重打EXE，不刷新原完整矩阵。[命令、原失败及全部证据](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 
 ## 当前源码：本机预览入口（2026-10-28）
 

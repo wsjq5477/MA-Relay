@@ -1,5 +1,7 @@
 # OpenCode 适配器设计
 
+OpenCode 原生等待继续使用原权限或提问 ID。Core 新答复收据按原 Task 和 executionId 读取，MCP 消费操作状态后可另查原任务。适配器继续使用原生会话与已协商协议。[协议](../../../protocol.md) · [本轮验收](../../../iterations/I08/current-scope-audit.md)
+
 M06-OC-F01：DesktopHost门面close不停止Core；明确Controller stop/close会停止其Hub/Edge与经核验的自有托管服务，不能同“关闭观察器”混称。managed=false外部服务不在ownedNative中；新机器节点入口仍按原流程启动托管服务，不把低层已有服务配置自动当作新登记端点。原Task按原轮证据恢复，不因服务或IPC消失结算终态。[资源归属与验证边界](../../../iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)。
 
 M06-OC-F01：健康检查成功前保留已协商协议、失败时使发现缓存失效；执行客户端独立，原任务观察、等待/权限回复与取消校验并绑定原nativeProtocol，防止健康检查把在途I/O切到另一代。原配置/账号/模型与原Task/Session不变，协议不匹配仍拒绝，unknown不重发。[具体时序与回归](../../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。

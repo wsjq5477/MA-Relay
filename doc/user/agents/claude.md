@@ -1,7 +1,5 @@
 # Claude Code
 
-当前alpha.64的Bridge桌面提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派。
-
 ## 如何连接
 
 Bridge 调用 Claude Code 原生 CLI，通过 stream-json 接收输出与执行状态；续聊继续关联原生会话。任务继承目标机器上的 Claude Code 登录与原生配置。

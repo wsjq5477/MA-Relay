@@ -26,8 +26,6 @@ Browser前端能力门禁只认可准确static-adapter/browser-extension及原pr
 
 M08-F03/F04/F05/F06：经典MCP仍10工具，delegate可选conversationId继续同一原主体拥有的子会话；须原父Task/Conversation或独立connectionId一致、目标与当前关系有效、原轮明确终态、原宿主canContinue，不接受目录变更。异步原会话查询后重新核对关系/父任务；新父执行不能认领旧会话或同名request。task_result返回conversationId及当前canContinue，查询失败不隐藏原结果。list_agents新增supportedOperations=['delegate.continue-v1']；新版stdio客户端在发送续聊前向原认证Broker作此只读能力确认，旧后台缺声明时明确拒绝，防静默退化为新会话。仍为结果轮询，无MCP token推送。[完整实现与原始证据](../../iterations/I08/web-agent-development.md)。
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 
 M08-F01/F02：Hermes仍可接收collaboration=false的普通委派，独立MCP调用不变，hostManagedTask仍false。Hermes取消能力收窄为false；原任务失联保持unknown，不换ID、节点或目录重派。新增发现与原生网关兼容不扩大其他Agent或小队能力。 [完整需求、源码和验证](../../iterations/I08/alpha65-hermes-windows.md)。
 
@@ -291,7 +289,7 @@ CT-04 实现范围：小队MCP有17项，包含新增 `team_materials({limit?,do
 | delegate | nodeId、message、requestId，可选 workspace | 返回真实子任务与 delegationId；目标必须已授权 |
 | task_result | taskId或原delegationId，可选waitMs/afterSeq/limit | 最多等待45秒；原delegationId仅查询原请求并恢复原Task关联，缺记录保留unknown；新字段须现场能力声明。事件与原结果契约见[独立调用方契约](../../iterations/I08/interconnect-caller-contract.md) |
 | task_pending | taskId | 查询本父会话委派任务的真实权限/表单 |
-| reply_task | taskId、operationId、原 requestId、action 与回答 | 只处理原 pending；权限只有 reject / once，需要用户授权 |
+| reply_task | 答复使用 taskId、operationId、原 requestId、action 与回答。恢复只使用 taskId、operationId、queryOnly=true | 权限答复为 reject 或经用户授权的 once。只读恢复要求 `reply.query-v1`、原委派归属及当前 reply 权限，只显示原答复收据状态 |
 | cancel_task | taskId、operationId | 请求取消自己的子任务；回执不等同进程已结束 |
 
 ```json

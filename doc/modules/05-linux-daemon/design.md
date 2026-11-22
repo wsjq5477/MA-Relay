@@ -32,8 +32,6 @@ alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/
 M05-F01/F02：当前可信维护控制器新增replace，旧目录仅作为需保留的来源标记，不执行其中Node或代码。目标/controller仍严格逐文件校验，原daemonId、owner/profile、锁和进程起始时间核对后按任务/收据门禁停机并切换。失败后不运行未校验源代码回滚，保持unknown；原ID恢复只在原进程死亡证明或目标已健康时完成同一配套目标。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 M05-F01/F02：WSL原启动脚本、Node选择与就绪帧不改；Windows等待读取器就绪120秒，Linux/SSH协议与daemon原输入不变。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 
 M05-F01/F02：Linux daemon/WSL/SSH宿主在自身环境发现Hermes，支持与HERMES_HOME分离的源码根及原生发布启动器；不依赖.bashrc/.profile、不继承Windows安装路径。离线包包含同一实现，升级和远端部署仍需原有操作，本轮不自动部署SSH。 [本轮实现、验证与限制](../../iterations/I08/alpha66-hermes-linux.md)。

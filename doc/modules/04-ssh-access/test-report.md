@@ -12,8 +12,6 @@ alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/
 T-M04-214 / M04-F04/F05/F06：2026-10-29，基线1b7da57后的未发布源码。Windows专项134项133通过/1平台跳过；管理台账61/61（部分共享）；WSL Ubuntu22.04 / Node22.23.1实际隔离daemon进程与替换/回归29/29，最终分离替换及进程存活保护6/6（共享用例不相加）。生产renderer合成RPC的确认/取消/原ID等待及1440/980宽度通过，非生产SSH或真实EXE。本轮模型0、真实profile写入0，未重打EXE，不刷新原完整矩阵。[命令、原失败及全部证据](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 T-M04-213 / M04-F03/F08：2026-10-29，master10fdbb3及未发布工作树，Windows系统Node24.12.0。中文profile的原密文删除回归修复前0/2、最终2/2，并在Electron组件共享7/7与WSL共享151/151中通过；准确删除、替换/取消保存、缺失引用和非文件错误与机器编辑共享验证。合成加密输出，未读取用户凭据或重测真实DPAPI；本机Electron44.7.0/Node24.21.0对照未复现rmSync问题。[原始反例、最终结果与限制](../../iterations/I08/windows-regression-and-native-probes.md)。
 
 2026-10-25：冻结alpha.62对原真实SSH只读三组通过，认证/指纹、原37清单1459项、两次非接管检查及原PID/配置保持，模型0；完整故障/版本切换与普通EXE联合流程仍未准出。产品无变更，[当前证据](../../iterations/I08/alpha62-ssh-readonly.md)。

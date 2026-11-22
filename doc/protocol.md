@@ -10,7 +10,7 @@
 
 桌面 Coordinator 管理方法 `customRuntime.create` 接收目标 machineId、profileId、adapter、name、command 和可选 description，返回不含命令的 executable 身份。adapter 当前接受 hermes/pi。相同 ID 和配置可重试，包含协议变化的配置冲突拒绝。远端 daemon 经原认证连接开放此方法，按配置变更执行维护门禁；旧后台拒绝方法时提示升级，不回退本机或自动部署。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
-当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
+`list_agents.supportedOperations` 声明 `reply.query-v1` 后，经典 MCP 支持 `reply_task({taskId, operationId, queryOnly: true})`。查询只读取原操作，返回 `{taskId, operationId, kind: "reply", state}`。缺失、类型不符、属主或原 Task 不匹配均返回错误；未能确认时保留原 ID。Core HTTP 原操作 GET 为新记录补充 `taskId` 与 `kind`，旧 Core 记录继续使用既有 GET 投影。[调用方契约](iterations/I08/interconnect-caller-contract.md)
 
 Core OpenCode控制继续使用原NativeReference.snapshot.nativeProtocol。发现缓存不是任务路由凭据：原绑定校验后，本次观察、回复或取消固定该代API，健康检查不能把在途操作改到另一代；不匹配拒绝，真实未知只查询原操作/原轮，不重发控制。外部协议与收据字段未新增，confirmed仍不代表Task已取消。[实现与回归](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 
@@ -54,7 +54,7 @@ Hermes/Pi/DSH共用worker在启动器解析同步拒绝或真实ChildProcess spa
 
 Pi续聊的`--session`仍只传唯一原文件完整路径，在参数构造前核对该文件cwd与原上下文真实目录；不符/不可用以既有CONVERSATION_CONFIG拒绝，不产生新执行意图。原生session事件的cwd使用同一真实目录校验，等价别名可用，缺失/失效以既有binding_error拒绝成功；Session ID绑定不变。Claude已选JS入口改由Node承载，原CLI参数/事件/控制协议保持。没有新增原请求查询、权限/取消或RPC。[派发前契约](iterations/I08/pi-session-workspace.md)、[未发布事件/启动修复](iterations/I08/pi-workspace-events-and-windows-validation.md)。
 
-Hermes stream-json的result只表示CLI查看器已结束。result.exit_code或实际进程退出码为3/130时保持unknown，包含原生审批/澄清等待及排队受阻；不依赖英文诊断文本，也不把该退出转换成任务失败/取消。0/1/2继续按既有原生结果/断线规则核验。无新增RPC/状态或取消能力，当前公开alpha.67未包含本源码修复。[完整契约与验证](iterations/I08/hermes-detached-input.md)。
+Hermes stream-json的result只表示CLI查看器已结束。result.exit_code或实际进程退出码为3/130时保持unknown，包含原生审批/澄清等待及排队受阻；不依赖英文诊断文本，也不把该退出转换成任务失败/取消。0/1/2继续按既有原生结果/断线规则核验。无新增RPC/状态或取消能力，alpha.68 起包含此修复。[完整契约与验证](iterations/I08/hermes-detached-input.md)。
 
 Hermes新任务沿用chat --query-file - --format stream-json和精确--resume，不再发送--no-restore-cwd；工作目录由固定原上下文/原生Session保持。原生stderr的Session/session_id只作同一Session绑定，不作成功证明；非终态退出、网关断线或截断保持unknown。活动Hermes取消以ADAPTER_UNSUPPORTED拒绝，原历史取消/查询不改。无新增RPC或模型协议。[完整记录](iterations/I08/alpha65-hermes-windows.md)。
 

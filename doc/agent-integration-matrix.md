@@ -4,21 +4,17 @@
 
 alpha.74 支持本机、WSL 与 SSH Linux 目标添加 Hermes/Pi 兼容命令，分别复用 stream-json/JSON-print。受控 CLI 已验 Pi 原会话续聊；真实用户命令、Linux/SSH 原生闭环和 EXE 待验。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
-当前公开预发布alpha.72已收录冻结fd450ce的源码实现；实际EXE/资源、分层测试及未准出范围见[本次交付](iterations/I08/alpha72-release.md)。不因打包发布关闭未完成的原生模型、完整生命周期、已有服务或跨机目标。
-
 OpenCode当前源码的Core check复用已协商的V1/V2 Agent信息，原任务执行/观察/回复/取消保留原协议，避免健康检查改写在途操作的API地址。真实WSL原1.2.10低层Controller/Client已有服务连接及观察器关闭/重开9项证据保持，模型0；当前源码受控回归不等于真实原生控制或模型重验。互联登记完整链及MachineHost已有服务仍待，与历史2.0.24模型验收分开。[当前实现、结果与原失败](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 
-alpha.72已收录的互联核心支持独立登记/上下文/凭据、原事件及原delegationId恢复，经典十工具；Windows/Linux各104/104与三适配器受控CLI3/3维持原证据范围。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。原三Task和两次旧CLI模型失败均保留；本次主会话3条成功正文，另有撤权上下文1条原生成功，累计总请求/委派11/11。关闭上下文后的委派缓存仍可能为running，须区分管理员读到的原Task终态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开基线现为alpha.72，本文原生与矩阵证据不扩张。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+alpha.72已收录的互联核心支持独立登记/上下文/凭据、原事件及原delegationId恢复，经典十工具；Windows/Linux各104/104与三适配器受控CLI3/3维持原证据范围。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。原三Task和两次旧CLI模型失败均保留；本次主会话3条成功正文，另有撤权上下文1条原生成功，累计总请求/委派11/11。关闭上下文后的委派缓存仍可能为running，须区分管理员读到的原Task终态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
-当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
 
-未发布chatgpt-web（browser-extension/DOM）支持原Registry/机器/节点及被动execution/delegation/resume；MCP调用方/托管scope/通用cancellation为false。续聊须原可见对话摘要/历史版本证明，旧无证明成功历史只读保留；未授权内容可凭原持久封存证明安全取消，缺prepare行仍仅以原封存恢复既有Session健康/关闭，已提交网页Stop仍不支持。生产通道/配对RPC、桌面/扩展配置与MCP原主体续聊已实现，MV3/stdio/用户表单均按受控HTML分层记录；实际站点权限确认/账号/父模型/跨机未验，Kimi未注册，公开alpha.71不含本增量。[当前证据与限制](iterations/I08/web-agent-development.md)。
+alpha.72 收录的 chatgpt-web（browser-extension/DOM）支持原Registry/机器/节点及被动execution/delegation/resume；MCP调用方/托管scope/通用cancellation为false。续聊须原可见对话摘要/历史版本证明，旧无证明成功历史只读保留；未授权内容可凭原持久封存证明安全取消，缺prepare行仍仅以原封存恢复既有Session健康/关闭，已提交网页Stop仍不支持。生产通道/配对RPC、桌面/扩展配置与MCP原主体续聊已实现，MV3/stdio/用户表单均按受控HTML分层记录；实际站点权限确认/账号/父模型/跨机未验，Kimi未注册。[当前证据与限制](iterations/I08/web-agent-development.md)。
 
 当前alpha.69源码：Claude/Codex/OpenCode的独立MCP原生列表与Pi/Hermes统一使用原安装启动解析器；不支持的shim或OS启动失败仅为探测错误，不推定连接成功或改变托管/执行能力。[源码、平台回归与限制](iterations/I08/windows-regression-and-native-probes.md)。
 
 alpha.69源码补齐各原生MCP配置布局在并发修改/目标切换/原子替换失败后的准确临时文件清理；原生能力、加载/连接证据、授权及托管scope不扩大。系统Node与Electron旧实现结果分别记录，不把配置受控测试当成真实原生或EXE验收。[当前行为与运行时边界](iterations/I08/mcp-config-temporary-cleanup.md)。
-
-当前公开alpha.71：SSH维护只读入口在离线、任务忙和unknown时仍可打开，明确确认后可替换未登记后台；实际写入门禁和原ID保留。源码/EXE/SHA公开，匿名完整下载匹配。Windows扩展147通过/1平台跳过、包内兼容26/26；独立Ubuntu Core79/79、适配111/111、关系/SSH98/98、替换/入口105/105。实际包内UI与普通portable启动/关窗分层验证；历史Windows全量DSH竞态1失败/41跳过、文档2243缺失和依赖high1保留，真实profile/生产SSH/完整矩阵及性能未准出。[完整交付](iterations/I08/alpha71-release.md)。
 
 Windows原生执行证据保持原日期；本轮Linux正式安装版已完成两轮实际执行、原ID去重与同Session续聊，验收采用临时网络通道，原配置保持。没有部署独立SSH；各入口实际方式与证据边界以下表为准。
 
@@ -58,18 +54,19 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 
 ## 2. 每个 Agent 已接入的方式
 
-下表按接入方式分列，只登记AgentBridge当前实际实现的路径，不推断原生Agent本身支持什么。“已接入”指源码存在，不等于真实工具/模型或发布包验收；DSH Desktop/Web仍未进入公开alpha.34。
+下表按接入方式分列，只登记AgentBridge当前实际实现的路径，不推断原生Agent本身支持什么。“已接入”指源码存在，不等于真实工具/模型或发布包验收。
 
 | Agent / 入口 | 原生 CLI | 原生 API | MCP | ACP | 插件 | 厂家 SDK |
 | --- | --- | --- | --- | --- | --- | --- |
 | Claude Code | 已接入：stream-json | 未接入 | 已接入 | 未接入 | 未接入 | 未接入 |
 | OpenCode | 已接入：启动serve | 已接入：HTTP执行/控制 | 已接入 | 未接入 | 未接入 | 未接入 |
 | Codex | 已接入：exec/resume JSON | 未接入 | 已接入 | 未接入 | 未接入 | 未接入 |
-| Hermes Agent | 已接入：stream-json | 未接入 | 已接入：原生Profile YAML（当前公开alpha.67） | 未接入 | 未接入 | 未接入 |
-| Pi | 已接入：JSON/print | 未接入 | 已接入：用户mcp.json（当前公开alpha.67） | 未接入 | 未接入 | 未接入 |
+| Hermes Agent | 已接入：stream-json | 未接入 | 已接入：原生 Profile YAML | 未接入 | 未接入 | 未接入 |
+| Pi | 已接入：JSON/print | 未接入 | 已接入：用户 mcp.json | 未接入 | 未接入 | 未接入 |
 | DSH CLI | 已接入：headless JSON | 未接入 | 已接入：原生显式profile补丁 | 未接入 | 未接入 | 未接入 |
-| DSH Windows Desktop | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生Profile补丁（alpha.48候选） | 未接入 | 未接入 | 未接入 |
+| DSH Windows Desktop | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生 Profile 补丁 | 未接入 | 未接入 | 未接入 |
 | DSH Linux / WSL Web | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生web Profile补丁 | 未接入 | 未接入 | 未接入 |
+| DSH NEXT | 已接入：Windows 包内 headless JSONL | 未接入 | 已接入：当前原生 Profile 管理 | 未接入 | 已接入：可选连接面板 | 未接入 |
 | OpenDesk CLI | 已接入：启动serve | 已接入（源码）：已有HTTP会话接口 | 已接入：仅片段导出，无原生配置管理/托管scope | 未接入 | 未接入 | 未接入 |
 | OpenDesk Windows Desktop | 未接入该入口的CLI | 已接入（源码）：已有WebSocket设备网关 | 已接入：独立原生配置，未注入托管scope | 未接入 | 未接入 | 未接入 |
 
@@ -77,7 +74,7 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 
 - **原生CLI / 原生API / ACP / 厂家SDK**：Bridge调用Agent的具体路径。OpenCode两列同时已接入，因为CLI负责启动，HTTP API负责执行与控制。
 - **MCP**：Agent作为MCP客户端调用Bridge的通路，包含托管任务scope注入和已适配的原生配置管理；不是Bridge通过MCP控制该Agent。其他Agent仍可通过Bridge的MCP委派DSH，末段由DSH的CLI或HTTP驱动执行。本表的MCP列表示“Bridge已实现该方向的适配”，不等于该入口的原生客户端已实际读取配置：OpenDesk Desktop已有原生读取、授权只读查询和组件委派证据，但自主父模型委派仍未验，以能力表行为准（见[本轮§12](iterations/I08/mcp-open-integration.md#12-真实原生探测补充2026-10-22-晚)）。
-- **插件**：在原生Agent内部安装Bridge专用插件作为连接实现。当前没有这种接入；Bridge内部静态adapter注册、DSH原生已安装的业务插件、MCP配置条目均不计作此列的插件。
+- **插件**：DSH NEXT 的可选连接面板读取当前 Profile 获准目标及其状态。任务执行走包内 CLI，主动调用走原生 MCP。ChatGPT Web 使用浏览器扩展配对，属于此表之外的网页执行入口。
 - **未接入**：当前Bridge没有实现这条路径，不代表厂商不支持、也不代表该Agent整体不可用。各入口的真实覆盖与限制另见下表。
 
 ### 能力、证据与后续目标
@@ -91,7 +88,7 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | Pi | 直接执行与普通被委派：源码已实现；独立MCP/用户配置及续聊前目录核对：公开alpha.68已包含；托管scope：未适配；alpha.69源码统一原生事件与派发的真实目录规则 | 官方Pi1.4.0原包Linux/Windows在公开60冻结后台上各7组通过，实际消费10工具和连接/确认/撤权，模型0；[MCP原生组件](iterations/I08/native-policy-components.md)。本轮Windows共享60/60、原包SessionManager四组及三条受控普通委派通过，模型0；[当前证据](iterations/I08/pi-workspace-events-and-windows-validation.md) | 原Session文件与目录必须共同保持，等价目录别名不解除unknown；真实父模型/生命周期/SSH待验 |
 | DeepSeek Harness（DSH） | 直接执行：源码已实现；MCP调用方：已声明有MCP客户端（可独立配置）；原生MCP配置：**有，但需显式指定启动 profile**（`$DSH_HOME/profiles/<profile>/cordis.patch.yml` 单行`insert:`）；托管scope注入：未适配；被委派：同 Hermes | 使用 headless 自身原生配置，不搬运 web profile 凭据；profile 名称由用户提供并按单段目录校验（`MCP_DSH_PROFILE_REQUIRED` 拒绝非法/缺失值），未指定时只可导出；受控测试覆盖写入仅目标profile、status回显、remove只清理该profile；**真实 `dsh --profile acp` 启动观测到原生加载+`initialize`握手+`tools/list`（7工具，模型0，受控scratch profile）**；TUI/用户自建profile与真实用户profile未观测 | 在真实 `dsh` CLI 启动中核对指定 profile 是否加载该条目并列出工具；先验原生 headless 协议与真实模型 |
 | DSH Windows Desktop（dsh-desktop） | 直接执行：已随公开alpha.46实现；MCP调用方：已声明有MCP客户端；原生MCP配置：alpha.48候选按Desktop原生数据目录/Profile选择记录管理，保存原目标绑定，切换后先移除再添加（当前公开版已包含）；托管scope注入：未适配；被委派：可接收普通委派；方向能力为受控证据 | Windows社区Desktop2.0.18历史真实认证/Session接口及同Session两轮去重已观察，模型RATE_LIMIT；本轮已安装未修改Desktop原生配置组合器与MCP客户端5组/生产前端4组通过（模型0），[完整证据](iterations/I08/dsh-desktop-mcp.md) | 待原生限流解除后补成功回答/真实取消；[DSH原生证据](iterations/I07/dsh-exe-delivery.md) |
-| DSH Linux / WSL Web（dsh-web） | 直接执行：源码已实现，未进入公开发布包；MCP调用方：已声明（可独立配置）；原生MCP配置：**Bridge可管理且原生会加载**（`$DSH_HOME/profiles/web/cordis.patch.yml` 单行`insert:`，插件`@deepseek-ai/dsh-mcp-client`）；托管scope注入：未适配；被委派：同Desktop入口 | WSL真实Web认证/Session列表通过；生命周期/恢复为受控服务，模型0，独立SSH未验；2026-10-22受控profile下真实DSH `--profile web --dump-config` 组合出Bridge写入行，且真实启动后原生客户端完成 `initialize`/`tools/list` 握手、Bridge返回7个工具（模型0）；原生UI人工可见/删除与真实用户profile未验 | 保存对应机器连接后补模型/续聊/取消验证；[DSH原生证据与边界](iterations/I07/dsh-exe-delivery.md) |
+| DSH Linux / WSL Web（dsh-web） | 直接执行：已随公开预发布交付；MCP调用方：已声明（可独立配置）；原生MCP配置：**Bridge可管理且原生会加载**（`$DSH_HOME/profiles/web/cordis.patch.yml` 单行`insert:`，插件`@deepseek-ai/dsh-mcp-client`）；托管scope注入：未适配；被委派：同Desktop入口 | WSL真实Web认证/Session列表通过；生命周期/恢复为受控服务，模型0，独立SSH未验；2026-10-22受控profile下真实DSH `--profile web --dump-config` 组合出Bridge写入行，且真实启动后原生客户端完成 `initialize`/`tools/list` 握手、Bridge返回7个工具（模型0）；原生UI人工可见/删除与真实用户profile未验 | 保存对应机器连接后补模型/续聊/取消验证；[DSH原生证据与边界](iterations/I07/dsh-exe-delivery.md) |
 | OpenDesk CLI（opendesk） | 直接执行、普通被委派、原连接可用时续聊、发送取消请求已实现；MCP调用方：**未确认**（无原生读取/MCP客户端真实证据），暂不按主 Agent 的 MCP 调用能力交付；托管scope注入：未适配并单独拒绝；**原生MCP配置：无可用入口**——0.3.8 的 `opendesk plugins list` 11 个 builtin 插件无 MCP 管理插件、`opendesk plugins tools` 无插件工具、`opendesk tools list` 无MCP分区，且启动会重写 `setting.json` 丢弃未识别 `applications` 段，因此 Bridge 只能导出片段；小队、Bridge权限/表单未开放 |
 | OpenDesk Windows Desktop（opendesk-desktop） | 同上执行/委派/续聊/取消；托管scope注入：未适配并单独拒绝；**原生MCP配置：可用，但需要 Node 启动器，写入前须从托盘完全退出 OpenDesk、写入后再打开**——写 `%APPDATA%\opendesk\setting.json` 的 `applications.mcpmgr.servers`，条目优先用 PATH 中真实 Node（`launcher:'node'`），Electron 回退时 OpenDesk 无法启动（`launcher:'electron'` 并在界面提示先装 Node）；MCP调用方：**原生已加载+已连接+7工具可见**（用户真实 Desktop 0.3.9，模型0，日志 `discovered 7 tools`），同日已安装原生组件正式授权调用及独立主角色→真实Claude子任务已验（各自生产身份/原结果，受控父进程），日常原生父模型实际 `list_agents` 1 次成功、返回7个获准节点，[现场恢复与发现](iterations/I08/opendesk-mcp-diagnostic-repair.md)；**原生父模型自主委派与日常原生页面未验**；小队、Bridge权限/表单未开放 | 使用未修改的原HTTP/桌面网关；去重和原回应由Bridge保存，断线/取消无证明时unknown；Desktop 0.3.9原实例真实回复/续聊及普通EXE窗口重开通过，[现场证据](iterations/I08/opendesk-desktop-live.md)；真实取消/MCP、CLI模型与SSH未验；包边界见[专项](iterations/I08/opendesk-existing-interfaces.md) | 桌面原连接断开后不可续聊，任务沿用原生目录；独立MCP与托管scope分开 |
 | 自研原生 Agent | 直接执行：需开发适配器；MCP调用方：需另外实现并验收 MCP 注入；被委派：完成执行适配后才可验证 | 已有注册契约、指南和零执行示例；OpenDesk专用实现及边界见上一行；其他产品尚无实测，不支持填任意命令/地址即接入 | 形成一个实际可运行的参考适配器；若目标支持 ACP，优先复用拟议通用 Client |

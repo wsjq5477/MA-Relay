@@ -24,9 +24,9 @@ AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex�
 
 ## Windows 桌面
 
-桌面程序按“机器 → Agent 节点”显示实际安装的工具（Windows 与 WSL 分开，SSH 接入 Linux）；接入节点不绑定项目，也不选择模型或供应商。会话中发送需求、看进度与结果；在协作关系中选择主 Agent 与获准子 Agent 后，主 Agent 通过 MCP 发现、委派并读取真实子结果。
+桌面按机器显示 Windows、WSL 和 SSH Linux 上的原生 Agent。使用桌面配置连接与授权、查看进度及结果，再从原生 Agent 发起需求。获准调用方通过 MCP 发现、委派并读取子任务结果。
 
-使用与构建见 [桌面说明](desktop/README.md)，完整功能边界见 [整体功能设计](doc/product-design.md)。真实协作证据（Claude↔OpenCode/Codex 双向委派等）按迭代记录；当前Windows主对话与WSL Codex的原Session正文/续聊及在途恢复已有源码实测；新EXE真实模型与完整矩阵仍单列验收，Bridge不自动替换模型。
+使用与构建见[桌面说明](desktop/README.md)，产品范围见[产品约束](doc/product-constraints.md)与[整体功能设计](doc/product-design.md)。源码和实机证据见[当前范围核对](doc/iterations/I08/current-scope-audit.md)。
 
 以下 CLI 文档是兼容保留的 OpenCode 项目执行入口。
 

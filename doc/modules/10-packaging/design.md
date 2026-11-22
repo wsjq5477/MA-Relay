@@ -6,7 +6,7 @@ M10-F01/F03/F05：Windows portable 的窗口 ASAR 和冻结的 Coordinator 运�
 
 M10-F01/F02/F03：alpha.74在独立 E 盘发布树冻结 Hermes/Pi 自定义配置、目标 daemon 和图标向导，实际 EXE 必须核对 Core、后台、ASAR、前端与 Linux 离线资源，解包摘要和公开下载分别验证。[本轮发布记录](../../iterations/I08/alpha74-release.md)
 
-M10-F01/F03/F05：当前公开 alpha.74。冻结源码、实际 Windows 便携 EXE、SHA-256 和匿名下载结果绑定。便携包 GUI 与真实用户命令单独验收。[当前交付](../../iterations/I08/alpha74-release.md)
+M10-F01/F03/F05：alpha.74 便携包历史验收。冻结源码、实际 Windows 便携 EXE、SHA-256 和匿名下载结果绑定。便携包 GUI 与真实用户命令单独验收。[历史交付](../../iterations/I08/alpha74-release.md)
 
 M10-F01/F03/F05：本地browser.3快照交付当前源码及19文件ChatGPT扩展，独立启动脚本沿既有profile环境变量把体验数据与TEMP放在同目录非C盘；直接双击portable EXE不保证非C盘临时目录。当前包与实际解包载荷、ASAR/ws、包内Node契约已核验，普通GUI及真实模型另验；没有公开发布或修改运行协议。[完整交付](../../iterations/I08/web-agent-browser3-preview.md)。
 
@@ -25,8 +25,6 @@ alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/
 
 M10-F01/F02/F03：后续包须同时包含新中央/SSH预览、维护控制器、能力与renderer；不要求为每个现场定制版本新增pin，也不按版本前缀/同协议自动连接。原兼容清单不变；本轮只完成源码构建与受控验证，公开alpha.70和其EXE/摘要不变。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
 
-
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 
 ## 当前源码的离线字体资源

@@ -44,8 +44,6 @@ browser.pair支持queryOnly:true，仅按原operationId/extensionId读取收据�
 M02-F03/F05：中央允许明确replace维护在机器版本拒绝离线时进入，继续核对来源机器、原图台账和任务/Agent阻塞；其他离线写入仍拒绝。新增中央能力ssh-daemon-replacement-v1，旧中央在新预览或replace派发前给出定向升级错误。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 
 M02-F01/F03：WSL就绪预算120秒，握手后业务计时65秒；旧通道/代次不得写入新通道。原中央、任务和管理收据不因启动延迟改变。 [本轮设计与证据](../../iterations/I08/alpha67-hermes-linux-live.md)。
 

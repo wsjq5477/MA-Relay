@@ -1,22 +1,22 @@
 # 原生 Agent 适配
 
-AgentBridge 支持七种产品，OpenDesk分为CLI和Windows桌面两个入口，DSH 分为 CLI、Windows Desktop 和 Linux / WSL Web 三个入口。各入口沿用原生配置；下面分别列出连接方式与可用功能。
+OpenDesk 提供 CLI 和 Windows 桌面入口。DSH 提供 DSH NEXT、CLI、Windows Desktop 和 Linux / WSL Web 入口。各入口沿用各自的原生配置。
 
 ## 接入方式总览
 
-✓ 表示 Bridge 已适配该方式，— 表示尚未适配。MCP 列代表 Agent 主动调用 Bridge，其余执行方式列代表 Bridge 调用 Agent。两种方向要分别判断。当前公开alpha.65已包含Pi/Hermes原生MCP管理；alpha.65的Windows Hermes安装发现和网关兼容范围见Hermes页面。
+✓ 表示 Bridge 已适配该方式，— 表示尚未适配。MCP 列表示 Agent 主动调用 Bridge。DSH NEXT 的插件显示已获准的连接与状态，任务使用原生 CLI 执行。
 
 <!--@include: ../_generated/connection-table.md-->
 
 OpenCode 的 CLI 用于启动服务，HTTP API 用于执行任务。DSH Desktop / Web 直接连接已运行的原生服务，不经 headless CLI。
 
-Desktop / Web 服务入口需要包含该功能的 AgentBridge 版本，公开 alpha.34 尚不包含；其原实例连接与任务可用性需按目标环境确认。表中不是对任意版本和机器的可用保证。
+ChatGPT Web 使用浏览器扩展。将[扩展附件](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.72)解压到固定目录，在 Chrome 或 Edge 的扩展管理页启用开发者模式并加载。打开 AgentBridge 的「设置 → 浏览器接入」为该扩展生成配对包，再到扩展设置页连接并授予 ChatGPT 网页访问权限。已绑定会话可续聊，网页提交后的停止在网页处理。
 
 ## 功能对照
 
 <!--@include: ../_generated/capability-table.md-->
 
-“被委派”指接收普通子任务；“调用 Bridge MCP”指主动发现目标、委派和查询。Hermes、Pi 和 DSH 都支持前者；其中DSH、当前Pi与Hermes已有原生MCP客户端。DSH Web 与 DSH CLI（需指定启动 profile）可管理原生配置，DSH Desktop需要包含该适配的本地候选；Pi用户级配置与Hermes原生Home/Profile管理已包含当前公开版本。权限回复仅覆盖已适配的原生交互类型，Claude Code 的结构化提问尚不支持 Bridge 内表单回复。
+“被委派”指接收普通子任务；“调用 Bridge MCP”指主动发现目标、委派和查询。权限回复按原生入口支持的交互类型处理。Claude Code 的结构化提问尚不支持 Bridge 内表单回复。
 
 ## 按 Agent 阅读
 
@@ -27,7 +27,7 @@ Desktop / Web 服务入口需要包含该功能的 AgentBridge 版本，公开 a
 | [OpenCode](opencode.md) | CLI 启动原生服务，HTTP 执行与交互 |
 | [Hermes](hermes.md) | CLI 直接会话与普通被委派 |
 | [Pi](pi.md) | CLI 会话文件、续聊与普通被委派 |
-| [DSH](dsh.md) | CLI、Windows Desktop、Linux / WSL Web |
+| [DSH](dsh.md) | DSH NEXT、CLI、Windows Desktop、Linux / WSL Web |
 | [OpenDesk](opendesk.md) | CLI原生HTTP、Windows桌面WebSocket与独立MCP |
 
 比较[六种接入方式](../integration-methods.md)，或按[快速开始](../quickstart.md)配置现有入口。

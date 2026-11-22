@@ -1,5 +1,7 @@
 # 对象、身份与持久数据
 
+Core `interactions.data` 对新操作保存可选 `binding={taskId,executionId,kind}`，结算时保留该绑定。`kind` 为 `reply` 或 `cancel`。拒绝记录释放 pending 请求占用后仍可按原 Task 查询。旧收据保留原字段和既有读取行为。MCP 答复查询只投影 Task、操作 ID、类型和状态。[调用方契约](iterations/I08/interconnect-caller-contract.md)
+
 `dsh-next` 节点以原安装位置绑定。私有会话和作业保存原生数据目录 `dshHome`，续聊核对原绑定，不把字段投影到公开会话。独立调用方按自己的上下文和客户端请求 ID 匹配原委派。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
 
 维护未执行确认复用原 lifecycle operation 的 rejected 状态与 error 字段，错误码 DAEMON_NOT_RUN_CONFIRMED 记录远端原记录缺失和用户明确确认；不新增远端终态或迁移数据，graph 按同一原收据结算。[详情](iterations/I08/maintenance-unstarted-cleanup.md)
@@ -7,8 +9,6 @@
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)
 
 自定义运行时以 UUID 在目标机器保存私有配置。目录与执行上下文沿用安装身份字段，值为 `custom-runtime:<UUID>`，实际程序、固定参数与描述留在目标机器配置；Windows 不替远端解析路径或保存配置。私有配置持久化 adapter（hermes/pi）；旧配置缺字段时仍按 Hermes 读取，同一 UUID 不允许换协议。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
-
-当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 OpenCode原任务协议仍取既有NativeReference.snapshot.nativeProtocol，不从临时健康发现缓存重写。按原绑定创建的客户端仅为本次执行/观察/控制的内存资源，不新增持久身份、字段、Task或Session；发现失败及IPC离线不能推定原任务终态。[当前行为与验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 

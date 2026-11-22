@@ -152,8 +152,9 @@ export async function startHub(config: HubConfig, log: (message: string) => void
         if (!task || task.owner !== user.id) throw new BridgeError('NOT_FOUND', 'Task not found', 404);
         if (!user.allowedAgents.includes(task.targetAgent)) throw new BridgeError('FORBIDDEN', 'Agent interaction is not allowed', 403);
         if (req.method === 'GET' && interactionMatch[3]) {
-          if (!store.operations.belongs(interactionMatch[3], task.executionId)) throw new BridgeError('NOT_FOUND', 'Operation not found', 404);
-          return json(res, 200, store.operations.get(interactionMatch[3]));
+          const operation = store.operations.forTask(interactionMatch[3], task);
+          if (!operation) throw new BridgeError('NOT_FOUND', 'Operation not found', 404);
+          return json(res, 200, operation);
         }
         let replyInput: Interaction | undefined;
         if (req.method === 'POST' && interactionMatch[2] === 'reply') {

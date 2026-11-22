@@ -7,7 +7,7 @@ const {MachineRouter,qualified,folderPath,workspaceKey}=require('./machine-route
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');
 const {rejectionProof,marker:daemonRejectionMarker}=require('./daemon-rejection.cjs');
 const {openCodeCompatibility,openCodeVersionError}=require('./tool-discovery.cjs');
-const {supportsTeamCollaboration,connectionCapabilities,collaborationCapabilityError}=require('./builtin-adapters.cjs');
+const {adapters,supportsTeamCollaboration,connectionCapabilities,collaborationCapabilityError}=require('./builtin-adapters.cjs');
 const {loadRelationState,syncSelectedRelation,runtimeRelations,relationForCaller,putRelation,revokeNodes,projection,humanRelation}=require('./relation-state.cjs');
 const {relationAdmissionTargets}=require('./relation-admission.cjs');
 const fail=(code,message)=>Object.assign(new Error(message),{code});
@@ -407,6 +407,7 @@ class AgentNetwork extends MachineRouter {
       catch(e){const refusal=this.reconcileDelegation(delegation);if(!refusal){delegation.state=['AGENT_BUSY','PROJECT_BUSY','AGENT_UNHEALTHY','AGENT_UNAVAILABLE','NODE_DISCONNECTED','ADAPTER_UNSUPPORTED','INVALID_INPUT','WORKSPACE_UNAVAILABLE'].includes(e.code)?'rejected':'unknown';delegation.error={code:e.code,message:e.message};}this.saveNetwork();throw e;}
     }
     const clientRequestQuery=name==='task_result'&&args?.clientRequestId!==undefined;
+    if(name==='reply_task'&&(typeof args?.taskId!=='string'||!args.taskId.trim()||args.taskId.length>4096))throw fail('INVALID_INPUT','答复需要原 Task ID。');
     if(name==='task_result'){
       if(!args||typeof args!=='object'||Array.isArray(args)||Object.keys(args).some(key=>!['taskId','delegationId','clientRequestId','waitMs','afterSeq','limit'].includes(key))
         ||!clientRequestQuery&&args.taskId===undefined&&args.delegationId===undefined
@@ -456,7 +457,20 @@ class AgentNetwork extends MachineRouter {
     }
     if(name==='task_pending')return super.call('ipc',{op:'pending',machineId:member.machineId,taskId:args.taskId});
     if(name==='reply_task'){
-      if(!['permission','form'].includes(args.action)||!args.requestId||!args.operationId)throw fail('INVALID_INPUT','回复需要原交互请求 ID 与操作 ID。');
+      if(typeof args.operationId!=='string'||!args.operationId.trim()||args.operationId.length>128)throw fail('INVALID_INPUT','回复需要原操作 ID。');
+      if(args.queryOnly!==undefined&&typeof args.queryOnly!=='boolean')throw fail('INVALID_INPUT','queryOnly 必须是布尔值。');
+      if(args.queryOnly===true){
+        if(Object.keys(args).some(key=>!['taskId','operationId','queryOnly'].includes(key)))throw fail('INVALID_INPUT','只读答复查询只接受原 taskId 和 operationId。');
+        // Some backends reconcile other control types when reading their receipts.
+        const capabilities=adapters.get(member.adapter)?.capabilities;
+        if(!capabilities?.permissions&&!capabilities?.forms)throw fail('ADAPTER_UNSUPPORTED','原目标不支持权限或表单答复。');
+        const receipt=await super.call('ipc',{op:'operation',machineId:member.machineId,taskId:args.taskId,operationId:args.operationId});
+        owner.authority?.assert();
+        if(receipt?.operationId!==args.operationId||receipt.taskId!==args.taskId||!['attempted','unknown','confirmed','rejected'].includes(receipt.state))throw fail('RECEIPT_MISMATCH','原答复收据的操作、任务身份或状态不匹配。');
+        if((receipt.kind||receipt.op)!=='reply')throw fail('OPERATION_CONFLICT','原操作未证明属于该任务的答复。');
+        return {operationId:receipt.operationId,taskId:receipt.taskId,kind:'reply',state:receipt.state};
+      }
+      if(!['permission','form'].includes(args.action)||!args.requestId)throw fail('INVALID_INPUT','回复需要原交互请求 ID 与动作。');
       const original=await super.call('ipc',{op:'task',machineId:member.machineId,taskId:args.taskId});
       owner.authority?.assert();
       if(args.action==='permission'&&!['reject','once'].includes(args.decision))throw fail('INVALID_INPUT','请选择拒绝或仅允许本次。');

@@ -1,10 +1,10 @@
 # AgentBridge 项目资料
 
+当前产品定位、范围和约束见[产品约束](product-constraints.md)。按源码、受控测试和真实原生环境逐项核对的缺口见[当前范围核对](iterations/I08/current-scope-audit.md)。
+
 当前公开预发布 **0.6.0-alpha.76.issue33.3**，源码冻结 `84ed341`。Windows 安装包修复大型 profile 的 ACL 启动超时，新版启动时自动替换旧本地 Coordinator。安装包及 SHA-256 文件已匿名完整下载校验。 [交付记录](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
 OpenCode已修复V1检查地址及健康检查干扰原协议；受控回归和原失败分平台保留，低层已有服务9项不等于登记链准出。Codex主从正文/续聊/在途观察器恢复本轮已有实证。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
-
-未发布源码修复 [issue #30：Windows Codex 运行时发布恢复](iterations/I08/codex-runtime-publish-recovery.md)。共享目录发布统一重试且保留首次错误；Windows 受控与真实 Electron/ICU 验证分层记录，公开 alpha.73 EXE 保持不变。
 
 当前定位为Agent互联层：管理身份、获准发现、明确目标调用、状态/结果、交互控制和恢复；TeamSpace/TeamAutomation保留兼容、暂停扩张。独立登记/固定端点/调用方/上下文/凭据及原事件查询已源码实现。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；其中原生与矩阵证据见当轮记录。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
@@ -35,7 +35,7 @@ AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和�
 
 | 你要做的事 | 阅读顺序 |
 | --- | --- |
-| 理解产品、确认功能边界 | [整体功能设计](product-design.md) → [模块目录](module-plan.md) |
+| 理解产品、确认功能边界 | [产品约束](product-constraints.md) → [整体功能设计](product-design.md) → [模块目录](module-plan.md) |
 | 理解系统如何运行、如何通信 | [整体架构](architecture.md) → [对象与数据](data-model.md) → [接口与协议](protocol.md) |
 | 开发或修改某个功能 | 对应模块的 `design.md` 和 `test-report.md` → [开发与文档维护](development-guide.md) |
 | 判断哪些功能可验收 | [整体验证报告](testing.md) → 对应模块测试报告 → 报告引用的原始证据 |
@@ -96,5 +96,3 @@ flowchart TD
 在仓库根执行 `npm run docs:dev` 打开 `http://localhost:4188`；构建静态站点用 `npm run docs:build`。网页只发布 `doc/user/` 的当前用户说明；内部设计/报告/问题/迭代不进入导航、搜索、路由或下载。使用方法见 [网页说明](web-reading.md)。
 
 远端源码、私有运行状态及本地验收材料的范围见 [远端源码范围](repository-sync.md)；逐版本的标签、EXE 与 SHA-256 对照见 [历史发布登记](iterations/release-ledger.md)。
-
-当前未发布alpha.70候选修正关系观察/原收据恢复和SSH当前探测状态；公开alpha.69不据此刷新。见[修复与分层验证](iterations/I08/issues27-28-current-state.md)及[候选交付](iterations/I08/alpha70-release.md)。

@@ -1,7 +1,5 @@
 # Codex
 
-当前alpha.64的Bridge桌面提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派。
-
 ## 如何连接
 
 Bridge 使用 Codex 原生 CLI 的 exec / resume 与 JSON 输出，创建任务并在同一原生会话续聊。执行沿用该机器上的 Codex 登录和原生配置。

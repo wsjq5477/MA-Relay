@@ -1,5 +1,9 @@
 # I08：独立调用方、上下文、凭据与事件契约
 
+## 原答复收据
+
+调用方在原权限或表单答复回应不确定时，使用 `reply_task({taskId, operationId, queryOnly: true})`，仅传原 Task 和操作 ID。查询使用现有 `reply` 权限，核对原委派归属，读取期间撤权即时拒绝。stdio 在发送该查询之前通过实时 `list_agents` 核对 `reply.query-v1`。后台只查询支持权限或表单的原目标，返回原操作 ID、Task ID、类型和状态。缺少收据或证据不足时保留原 ID，任务是否仍在等待或已结束单独查询 `task_result`。[实现与验证](current-scope-audit.md)
+
 状态：未发布源码已实现并有受控证据，公开alpha.71保持。依据[互联边界](interconnect-boundary.md)，当前开发与分层验收见[实施台账](interconnect-development.md)。不要求上层产品修改Router或Worker，不添加模型API层。
 
 ## 1. 归属模型

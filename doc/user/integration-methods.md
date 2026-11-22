@@ -6,7 +6,7 @@
 
 <!--@include: ./_generated/connection-table.md-->
 
-✓ 表示已适配，— 表示未适配。OpenCode 的 CLI 负责启动服务；DSH Desktop / Web 需要包含该服务接入功能的版本，公开 alpha.46 已包含服务接入；DSH Desktop 原生 MCP 配置管理还需要包含该适配的本地候选版本。历史 alpha.34 尚不包含。MCP 列只表示 Agent 到 Bridge 的调用方向。
+✓ 表示已适配，— 表示未适配。OpenCode 的 CLI 负责启动服务。MCP 列表示 Agent 到 Bridge 的调用方向。DSH NEXT 的可选连接面板显示获准目标及状态。ChatGPT Web 通过浏览器扩展接入，见[适配总览](agents/index.md)。
 
 ## 六种方式的优点、代价与功能
 

@@ -1,18 +1,16 @@
 # AgentBridge 使用文档
 
-本页按公开alpha.64说明。日常需求从原生Agent会话发起，Bridge提供配置、审计和原执行恢复。
-
 AgentBridge 连接你已有的原生 Agent，在桌面配置机器、授权与查看执行历史，让获准的 Agent 从自己的原生会话调用其他 Agent。账号、模型、Skill 和业务执行仍由各个原生 Agent 管理。
 
 从[快速开始](quickstart.md)完成第一条连接；在[产品功能](product.md)和[系统设计](architecture.md)了解整体工作方式。
 
 ## Agent 接入总览
 
-七种产品按十个执行入口展示。**✓ 表示当前适配方式，— 表示尚未接入该方式**，不是厂商产品的全部能力。Desktop/Web 服务入口需要包含该功能的 AgentBridge 版本，当前公开 0.6.0-alpha.64 已包含这两个入口。
+**✓ 表示 Bridge 已适配该方式，— 表示尚未接入。** DSH NEXT 的插件是可选连接面板。ChatGPT Web 通过浏览器扩展接入。
 
 <!--@include: ./_generated/connection-table.md-->
 
-原生 CLI / API 是 **Bridge 调用 Agent** 的方式；MCP 是 **Agent 调用 Bridge** 的方式。OpenCode 的 CLI 用于启动服务，实际任务通过 HTTP 执行。ACP、插件和 SDK 当前均没有内置驱动。
+原生 CLI / API 是 **Bridge 调用 Agent** 的方式，MCP 是 **Agent 调用 Bridge** 的方式。OpenCode 的 CLI 启动服务，实际任务通过 HTTP 执行。
 
 查看[全部 Agent 的功能对照](agents/index.md)、[六种接入方式的优缺点与选择建议](integration-methods.md)。
 
@@ -20,7 +18,7 @@ AgentBridge 连接你已有的原生 Agent，在桌面配置机器、授权与�
 
 - [Claude Code](agents/claude.md)、[Codex](agents/codex.md)、[OpenCode](agents/opencode.md)：直接任务、被委派，以及通过 MCP 主动协作。
 - [Hermes](agents/hermes.md)、[Pi](agents/pi.md)：原生 CLI 任务与普通被委派。
-- [DSH](agents/dsh.md)：分别说明 CLI、Windows Desktop 和 Linux / WSL Web 的接入与能力。
+- [DSH](agents/dsh.md)说明 DSH NEXT、CLI、Windows Desktop 和 Linux / WSL Web 的接入方式。
 
 ## 按工作场景阅读
 

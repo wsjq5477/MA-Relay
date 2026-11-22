@@ -26,7 +26,7 @@ async function harness(){
   const edgeFile=resolve(dir,'edge-a.json'),raw=JSON.parse(readFileSync(edgeFile,'utf8'));
   Object.assign(raw.agents[0],{serverUrl:native.url,managed:false,pollMs:50,inheritNativeCli:true});
   writeFileSync(edgeFile,JSON.stringify(raw));writeFileSync(resolve(dir,'native.password'),native.password);
-  const hc=loadConfig(resolve(dir,'hub.json'),'hub');hc.port=0;const hub=await startHub(hc,()=>{});
+  const hc=loadConfig(resolve(dir,'hub.json'),'hub');hc.port=0;let hub=await startHub(hc,()=>{});
   const client=loadConfig(resolve(dir,'client.json'),'client');client.hubUrl='http://127.0.0.1:'+hub.port;
   const ec=loadConfig(edgeFile,'edge');ec.hubUrl=client.hubUrl;ec.heartbeatMs=100;
   let edge=await startEdge(ec,()=>{});
@@ -36,6 +36,13 @@ async function harness(){
     finish:(task:Task)=>until(async()=>{const t=await read(task.taskId);return terminal(t.status)?t:false;}),
     active:(task:Task)=>until(async()=>{const t=await read(task.taskId);return t.native&&t.status==='running'?t:false;}),
     async restart(){await edge.close();edge=await startEdge(ec,()=>{});},
+    async restartHub(){
+      await edge.close();
+      await hub.close();
+      hub=await startHub(hc,()=>{});
+      client.hubUrl=ec.hubUrl='http://127.0.0.1:'+hub.port;
+      edge=await startEdge(ec,()=>{});
+    },
     async close(){await edge.close();await hub.close();await native.close();rmSync(root,{recursive:true,force:true});}};
 }
 
@@ -69,6 +76,7 @@ test('v1 cancel receipt is separate from original-turn abort evidence, dedupes a
 
 test('v1 permission and question replies use native request IDs and retain single-operation receipts',async t=>{
   const h=await harness();try{
+    let earlierTaskId:string|undefined;
     for(const mode of ['permission','question']){
       const task=await h.submit(mode),active=await until(async()=>{const t=await h.read(task.taskId);return t.waiting?t:false;}).catch(async error=>{
         const state=await h.read(task.taskId);
@@ -78,13 +86,24 @@ test('v1 permission and question replies use native request IDs and retain singl
       });
       const form=mode==='question';
       const input={taskId:task.taskId,executionId:task.executionId,action:form?'form':'permission',operationId:randomUUID(),requestId:active.waiting!.requestIds[0],...(form?{answer:{'0':'A'}}:{decision:'once'})};
+      const receipt=(operationId:string,taskId=task.taskId)=>request<Operation>(h.client,'/v1/tasks/'+taskId+'/operations/'+operationId);
+      await assert.rejects(receipt(input.operationId),{code:'NOT_FOUND'});
       if(form){
-        const rejected=await request<Operation>(h.client,'/v1/tasks/'+task.taskId+'/reply',{...input,operationId:randomUUID(),answer:{'0':'foreign'}});
+        const operationId=randomUUID();
+        const rejected=await request<Operation>(h.client,'/v1/tasks/'+task.taskId+'/reply',{...input,operationId,answer:{'0':'foreign'}});
         assert.equal(rejected.state,'rejected');assert.equal(h.native.counts.replies,1);
+        assert.deepEqual(await receipt(operationId),{...rejected,taskId:task.taskId,kind:'reply'});
       }
       const reply=()=>request<Operation>(h.client,'/v1/tasks/'+task.taskId+'/reply',input);
-      assert.equal((await reply()).state,'confirmed');assert.equal((await reply()).state,'confirmed');
+      assert.equal((await reply()).state,'confirmed');
       assert.equal((await h.finish(task)).status,'succeeded');
+      await h.restartHub();
+      const expected={operationId:input.operationId,taskId:task.taskId,kind:'reply',state:'confirmed'};
+      assert.deepEqual(await receipt(input.operationId),expected);
+      assert.deepEqual(await receipt(input.operationId),expected);
+      assert.equal((await reply()).state,'confirmed');
+      if(earlierTaskId)await assert.rejects(receipt(input.operationId,earlierTaskId),{code:'NOT_FOUND'});
+      earlierTaskId=task.taskId;
     }
     assert.equal(h.native.counts.replies,2);assert.equal(h.native.counts.prompts,2);
   }finally{await h.close();}

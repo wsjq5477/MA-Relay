@@ -1,5 +1,7 @@
 # M07 任务、会话与恢复测试报告
 
+T-M07-318 / M07-F06/F07：2026-11-22。原答复收据 confirmed 时受控 Task 仍为 running。OpenCode V1 受控权限、表单答复和原 Task 完成分别核对，Hub 重开后读原收据，出站答复次数保持。与 M08、M09 共用结果。[本轮证据与限制](../../iterations/I08/current-scope-audit.md)
+
 T-M07-317：2026-11-03，Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。这是同一组真实验收、不能按模块重复累加；本轮主会话成功正文3、撤权上下文原生成功1。原三Task、旧CLI模型拒绝和网络失败保留，管理员观察与已撤权调用方读权分开；委派缓存running不能代表原Task仍运行。下文旧轮次保留当时状态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；公开alpha.71保持。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 2026-11-03本轮静态核对上下文撤权、门面关闭和明确停止后台的不同边界；原三条真实failed/cancelled Task的verify阶段实际再次读取，累计18项及原归属/权限保持，业务请求0，不能记为额外18项或在途关闭通过。没有新增模型测试，原Task/unknown语义不变。[完整审计](../../iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。
@@ -61,8 +63,6 @@ T-M07-214 / M07-F06/F07：2026-10-29，未发布Core源码，Windows独立子进
 2026-10-29验证器维护：Claude/Codex受控CLI采用可跨平台入口，取消前观察原生绑定并有界等待退出；保留原request/Session/权限/unknown与重开断言，未修改产品任务/恢复协议。首次共享22/23及最终完整结果分别保留；Linux专属测试跳过不计通过，模型0。[本轮证据与限制](../../iterations/I08/windows-regression-and-native-probes.md)。
 
 T-M07-211 / M07-F01/F02/F06/F07：2026-10-29，master10fdbb3及未发布工作树、Windows Node24.12.0。共享60/60覆盖Pi等价目录别名重启续聊、原Session/文件字节、原请求去重与unknown保护；启动边界8项通过，Claude入口/三条受控委派5/5覆盖原任务/收据重开及实际退出后确认。Pi未修改原包组件四组单列，不跨模块相加，模型0；未验证用户profile、新EXE、真实生命周期或独立SSH。[原失败、分层证据与复现](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
-
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
 
 
 2026-10-28 / c40f45e派生未发布源码 / Windows Node24.12.0：最新共享启动/宿主/原核对/分离集64/64，含原44混合集、Pi目录与Hermes分离。启动专项8项证明明确未启动结算failed、原取消/核对收据confirmed而非取消成功、nativeExited=false及原ID重开不重派；已启动或历史unknown保持，模型0。[完整证据与原失败](../../iterations/I08/native-start-boundary.md)。Pi/Hermes原生组件和独立60项回归保持[Pi](../../iterations/I08/pi-session-workspace.md)、[Hermes](../../iterations/I08/hermes-detached-input.md)原范围，不相加或作为真实网关/模型恢复。

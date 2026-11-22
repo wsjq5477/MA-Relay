@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+原生等待的只读恢复沿 MCP → Coordinator → 原机器路由 → 原任务后台查询同一操作。Coordinator 核对原属主、Task、操作类型与状态后返回收据摘要。Core Hub 用原执行绑定核对持久记录。任务终态继续通过原 Task 读取。[调用方契约](iterations/I08/interconnect-caller-contract.md)
+
 Windows 打包桌面只有在新运行时已准备且通过准入后才请求同一 profile 的旧后台正常退出；客户端确认原进程退出后切换到新版。其他 IPC 客户端沿用普通连接入口。[覆盖升级](iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)
 
 Windows Coordinator 的连接与运行资源准备等待异步 ACL 校验。根目录已受保护且 ACL 匹配当前用户时仅执行只读检查；需要修复时复核写入结果后才读原身份或发布冻结运行资源。窗口控制 IPC 与这段等待相互独立。[issue #33 启动与恢复](iterations/I08/windows-coordinator-profile-startup.md)
@@ -11,8 +13,6 @@ Windows MachineHost 自动发现 DSH NEXT 安装，任务开始时由 NativeCliH
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)
 
 Hermes/Pi 自定义运行时在 alpha.74 中复用各自静态协议 Backend、原生会话绑定及 Task 收据。Coordinator 按目标 machineId 路由至本机、WSL 或已认证 SSH Linux 的 MachineHost，由目标机器探测并持有配置；MachineHost 用独立安装标识发现并绑定该配置。远端创建纳入 daemon 配置写入维护门禁。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
-
-当前公开预发布 **0.6.0-alpha.74**，源码冻结 07f46dd。支持目标机器创建 Hermes/Pi 自定义运行时及图标选择，包含 Windows worker 发布修复。EXE 与 SHA-256 已公开并完成匿名完整下载校验。[交付记录](iterations/I08/alpha74-release.md)
 
 观察入口释放与明确停止执行后台分开：MachineHost/原生宿主门面close不自动取消Task，Core Controller的显式stop可停止经原身份核验的自有托管服务；managed=false外部服务不在其所有权中。IPC/PID消失都不是原Task终态或释放unknown的证据。各模式的状态来源、恢复与当前实证见[资源归属表](iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)，不由mode字段扩大进程管理权限。
 
@@ -28,7 +28,7 @@ TeamSpace 的业务任务/公共空间和 TeamAutomation 的事件激活/自动�
 
 AgentDirectory复用原team-space.sqlite的agents[]和收据，提供不依赖team/run/自动激活器的用户管理。既有登记身份与nodeId区分，端点固定原节点/机器/服务摘要，AgentNetwork按当前授权附登记信息并将明确agentId调用解析到原nodeRequest；没有新执行网络。中央新增agent-directory-v1定向能力，原daemon/线协议与scope保持。CallerService复用原登记主体和SQLite收据，新增版本1的主体/上下文/凭据控制表，使用原broker实现提供非执行型MCP入口；不创建工具节点。原事件分页沿原Task查询，MachineHost并发恢复与broker关闭有就绪围栏。Windows主对话代码模式与WSL原生正文/续聊/在途观察器恢复已有实证，完整已有服务/升级及生命周期矩阵仍待；ownership/admission不是原生成功或沙箱证明。[当前完整契约](iterations/I08/interconnect-caller-contract.md)。[职责决议](iterations/I08/interconnect-boundary.md)、[当前开发与验收](iterations/I08/interconnect-development.md)。
 
-当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收，公开基线现为alpha.72，本文原生与矩阵证据不扩张。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
+当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
 
 Electron主进程间接加载Browser通道所需ws由桌面精确生产依赖提供，并核验ASAR；Bridge/Node资源内另有现有ws，不能代替主进程模块解析。仍是一条现有Registry/路由链，没有新增Broker/Provider API层。[实际启动缺陷及修复边界](iterations/I08/web-agent-packaging.md)。
 
@@ -90,7 +90,7 @@ OpenDesk 原生配置管理在来源 MachineHost 通过独立生命周期检查�
 
 DSH 弹窗携带原 machineId/nodeId，中央校验节点归属后向原 MachineHost 保存连接；脱敏回应给出明确 connectionId，中央原子保存节点选择。扫描前表单保留新连接并提示尚未加载，扫描后按同一选择匹配；不改绑旧 Session。GraphOperationJournal 注入中央可信资源冲突判断，与执行保护共用 managementBlocks；可确认独立的 node/node 与 relation/node 写入按资源放行，恢复也只查询冲突行。前端概览、关系图、run 和按钮理由使用同一 blockedNodeIds 投影，旧后台要求 scoped-node-management-v1 后再开放管理。[完整流程](iterations/I08/connection-identity-node-scope.md)。
 
-当前公开alpha.68冻结38cd637；关系恢复在中央业务网络构造前处理，原生适配、任务会话和MCP仍沿原机器/身份边界工作，不添加模型API。[当前交付与包验证](iterations/I08/alpha68-release.md)。
+alpha.68 的冻结提交为 38cd637；关系恢复在中央业务网络构造前处理，原生适配、任务会话和MCP仍沿原机器/身份边界工作，不添加模型API。[当前交付与包验证](iterations/I08/alpha68-release.md)。
 
 非GUI首次接入复用Coordinator的manageNode/nodeOperation，显式操作ID持久化；nodes只读发现，attach确认后才能配置MCP。CLI和窗口共用同一profile。Linux本机MCP主机启动时先恢复私有端点，保持原生文件不变。 [本轮实现与验证](iterations/I08/mcp-open-recovery.md)。
 

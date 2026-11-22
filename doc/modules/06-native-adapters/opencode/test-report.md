@@ -1,5 +1,7 @@
 # OpenCode 适配器测试报告
 
+T-M06-OC-318：2026-11-22，Windows Node 24.12.0。现行 OpenCode V1 套件 5/5。包含受控 HTTP 权限和表单、确认与拒绝收据、Hub/Edge 重开和只读原操作。共用样本不重复累计。[分层结果](../../../iterations/I08/current-scope-audit.md)
+
 2026-11-03本轮仅核对门面close、明确Controller stop与managed=false外部服务的实际资源边界；原定向运行时源码/编译摘要保持一致，未重跑模型或把低层已有服务9项写成新登记链验收。原平台、在途及升级缺证保留，不新增测试编号。[资源归属与审计](../../../iterations/I08/interconnect-development.md#16-当前源码与完整决策的完成审计)。
 
 当前T-M06-OC-316的Linux七文件初轮24通过/1 ACK夹具环境失败；修正相对源码/编译子入口后，Windows/Linux该项补验各1/1，未声称单次Linux全绿。原取消/回复/恢复和3.x清理均已通过；完整原件及范围以[本轮记录](../../../iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)为准，后续T-M06-OC-315保留上一轮原失败。

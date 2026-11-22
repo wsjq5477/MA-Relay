@@ -6,7 +6,7 @@
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 
-当前产品边界以[互联核心决议](doc/iterations/I08/interconnect-boundary.md)为准，实现与未完成项见[互联开发台账](doc/iterations/I08/interconnect-development.md)。互联核心保留身份/获准发现/授权/明确目标调用/状态结果/交互控制及原ID恢复；小队业务工作流和自动协调为可选上层、暂停扩张。不得把登记或受控测试当作真实原生闭环，不自动迁移旧任务/授权，不添加智能选目标或新模型层。
+当前产品定位与范围以[产品约束](doc/product-constraints.md)为准。首阶段覆盖获准的新建会话、原绑定续聊、交互和原请求恢复；[当前范围核对](doc/iterations/I08/current-scope-audit.md)记录源码、受控和真实证据。决策依据见[互联核心决议](doc/iterations/I08/interconnect-boundary.md)，既有实测见[互联开发台账](doc/iterations/I08/interconnect-development.md)。小队、业务工作流、Workspace 和 Memory 为可选。保留原任务和授权。
 
 ## 开发前
 

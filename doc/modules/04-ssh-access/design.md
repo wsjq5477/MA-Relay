@@ -12,8 +12,6 @@ alpha.71已公开，承接明确确认替换，维护入口可在离线/unknown/
 M04-F04/F05/F06：正常连接仍按精确清单复用。维护只读预览可读取未登记来源的版本、current/release与原owner/profile/UID/目录标记，不执行旧代码；摘要绑定源标记和已校验目标。只有replace+confirmReplacement:true才能暂存配套包并发出原维护意图，不依赖旧构建manifest；不可同时越过未确认收据。[完整状态机与范围](../../iterations/I08/issue29-explicit-daemon-replacement.md)。
 
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 本地候选alpha.56的完整维护控制面输入采用有界64MiB字节流读取，保留全部版本描述和原fingerprint；Daemon RPC帧仍1MiB。原ID查询在线端副本省去不消费的releases，持久remoteInput及身份/操作ID不改，维护命令仍发送完整目录。新控制器由原已核验包暂存，旧控制器可继续接收小查询；不部署或改写既有运行实例。[实际缺陷、完整CLI与恢复验证](../../iterations/I08/maintenance-input-capacity.md)。
 
 本地候选alpha.56的可信旧daemon索引按原冻结EXE补齐46、51.recovery.2、52、53与本地54/55，原32份保持，现38项；解析/打包统一上限128，超过上限拒绝，逐文件SHA、原owner/profile/路径及未知版本拒绝规则保持。文件核验失败只发固定CHECKSUM诊断，沿原错误码返回，不回显大清单、不结算原unknown。协议2与持久格式不变；未部署远端。[实现与实际分层证据](../../iterations/I08/daemon-compatibility-refresh.md)。

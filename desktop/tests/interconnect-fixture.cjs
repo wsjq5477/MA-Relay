@@ -7,7 +7,7 @@ async function fixture(t) {
   if (/^c:[\\/]/i.test(os.tmpdir())) throw Error('Tests require a non-C temporary directory.');
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'bridge-agent-directory-'));
   const resources = [];
-  const state = {agents: [], tasks: [], conversations: [], executions: 0};
+  const state = {agents: [], tasks: [], conversations: [], executions: 0, replies: 0, operations: new Map()};
   const host = {close() {}, setCollaboration() {}, async call(method, p = {}) {
     if (method === 'discover') return {items: ['claude', 'codex', 'hermes'].map(adapter => ({adapter, name: adapter, executable: '/controlled/' + adapter, version: '2.0.0', healthy: true, executionSupported: true}))};
     if (method === 'context') {
@@ -28,6 +28,19 @@ async function fixture(t) {
     if (p.op === 'conversation') {
       const c = state.conversations.find(c => c.conversationId === p.conversationId); if (!c) throw fail('NOT_FOUND');
       return {...structuredClone(c), canContinue: terminal.has(state.tasks.find(task => task.taskId === c.lastTaskId)?.status)};
+    }
+    if (p.op === 'reply') {
+      state.replies++;
+      const receipt = {operationId:p.reply.operationId,taskId:p.taskId,op:'reply',state:'confirmed',data:{message:'Private reply detail'}};
+      state.operations.set(receipt.operationId,receipt);
+      if (state.loseNextReplyResponse) { state.loseNextReplyResponse=false; throw fail('DESKTOP_TRANSPORT'); }
+      return structuredClone(receipt);
+    }
+    if (p.op === 'operation') {
+      const receipt = state.operations.get(p.operationId);
+      if (!receipt) throw fail('NOT_FOUND');
+      await state.onOperationRead?.();
+      return structuredClone(receipt);
     }
     if (p.op === 'submit' || p.op === 'continue') {
       const previous = state.tasks.find(task => task.requestId === p.requestId); if (previous) return structuredClone(previous);

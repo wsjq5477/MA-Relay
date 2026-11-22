@@ -46,8 +46,6 @@ T-M03-202 / M03-F02/F03/F05：2026-10-30，Windows Node24.12.0；共享260项241
 
 T-M03-201 / M03-F02/F03/F05：2026-10-30，6e7ec6f工作树/Windows Node24.12.0；Browser核心新增8项及原节点/路由/注册/能力等共享187/187，失败/跳过0。真实Chromium148的受控HTML完整链九组经实际Registry/MachineHost/Router/AgentNetwork，pageErrors0；非真实Provider、父模型、独立SSH/EXE。[场景与全部原证据](../../iterations/I08/web-agent-development.md)。
 
-当前公开alpha.71，冻结1b2e371。226产品输入与实际EXE3406资源匹配；SSH只读维护入口、原ID查询和明确确认替换分层验收，源码/EXE/SHA公开且匿名完整下载一致。[当前发布与边界](../../iterations/I08/alpha71-release.md)。
-
 2026-10-29测试维护：Windows发现夹具采用宿主PATH分隔符，原选中安装权威断言保留；图崩溃夹具核对准确注入点与Windows真实退出码，生产网络/发现/身份/unknown未改。平台共享78项为38通过/40个Linux专属明确跳过，不跨模块相加。[完整源码基线与最终证据](../../iterations/I08/windows-regression-and-native-probes.md)。
 
 2026-10-27 / alpha.66公开：Windows Node24.12.0受控定向39/39；独立Ubuntu Node24.12.0适配100/100、Core71/71；本机Ubuntu22.04/WSL使用包内Node22.23.1及冻结后台，对正式Hermes0.22.5完成发现和原生MCP五组/十工具，独立Ubuntu原生组件亦通过。普通EXE七组通过，均模型0。WSL直连TLS仍有问题，临时安装通道已停止；普通doctor90秒未完成，pm doctor退出0且所有已安装运行组件通过。真实Linux模型、SSH、冷启动与完整矩阵未准出。[本轮环境、原始失败与证据](../../iterations/I08/alpha66-hermes-linux.md)。
