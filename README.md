@@ -4,6 +4,8 @@
 
 AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：从原生Agent发起协作，在客户端配置连接、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
 
+当前支持 8 种产品、12 个接入入口。CLI、原生 API、MCP、ACP、插件和 SDK 的支持情况见[Agent 接入矩阵](doc/agent-integration-matrix.md#2-每个-agent-已接入的方式)。
+
 ## 当前状态与下载
 
 | 项目 | 状态 |

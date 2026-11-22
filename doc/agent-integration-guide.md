@@ -1,10 +1,10 @@
 # Agent 接入方式、选型与快速接入
 
-安装 DSH NEXT 后，在 Bridge 的「接入配置」中直接点「接入」。DSH NEXT 沿用原生登录和数据目录。可选的「AgentBridge 连接」插件从 DSH 左侧栏显示已获准目标及状态。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
+安装 DSH NEXT 后，在 Bridge 的「接入配置」中直接点「接入」。DSH NEXT 沿用原生数据目录，headless 模型认证取决于原生 Profile。可选的「AgentBridge 连接」插件从 DSH 左侧栏显示已获准目标及状态。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)
 
 仅作上层调用方、无需Bridge驱动其Runtime时，可登记 kind=mcp 主体，由用户明确目标/操作授权并发放CallerContext配置。该mode=caller入口不要求安装工具节点；同一明确上下文可跨回合与凭据轮换访问原任务，不自动迁移旧native-parent/connectionId。使用方法及边界见[调用方契约](iterations/I08/interconnect-caller-contract.md)。
 
-当前源码已增加不要求小队的智能体登记、固定端点及按登记ID委派；这复用已有登记和原生适配，不增加第七种执行协议。接入、授权、登记、模型可用与真实调用仍分别核对；旧登记不自动获得可执行端点，外部MCP成员不因此成为可执行服务。公开基线现为alpha.72，本文原生与矩阵证据不扩张，[源码入口与验收](iterations/I08/interconnect-development.md)。
+当前源码已增加不要求小队的智能体登记、固定端点及按登记ID委派；这复用已有登记和原生适配，不增加第七种执行协议。接入、授权、登记、模型可用与真实调用仍分别核对；旧登记不自动获得可执行端点，外部MCP成员不因此成为可执行服务。当前可用入口见[接入矩阵](agent-integration-matrix.md)，[源码入口与验收](iterations/I08/interconnect-development.md)。
 
 当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
 
@@ -43,7 +43,7 @@ flowchart LR
 | **原生API** | 直接操作已有服务中的Session、任务和状态；适合Desktop/Web/daemon；可沿用该服务的运行配置 | 需服务可达、认证有效；处理启动/就绪、版本、超时和连接变化；GUI内部API未必有稳定兼容承诺；HTTP成功不等于任务完成 | 由API实际提供的create/prompt/query/cancel等实现控制；可靠恢复需有原请求/轮次/持久事件可核对 | OpenCode托管serve，或DSH Desktop/Web的已运行服务；继承目标服务而非另建模型层 |
 | **MCP** | 工具schema与调用方式标准化；Agent原生支持MCP时，开放Bridge发现/委派/材料工具的成本低；可复用现有broker与授权 | 主要描述工具交互，不自动成为Agent完整生命周期协议；客户端可用工具、输入能力和认证方式仍有差别；新增工具不等于具备执行权限 | 当前实现是Agent调用Bridge工具。某Agent若另暴露执行MCP工具，Bridge作为客户端的控制适配需单独开发；会话/取消/任务恢复不能凭“MCP”三字推定 | 希望Agent能主动使用Bridge时优先；当前Claude/Codex/OpenCode/DSH Web/DSH CLI（需profile）与OpenDesk Desktop可声明调用并有Bridge可管理的原生配置（OpenDesk 需 Node 启动器且要重开）；DSH Desktop在alpha.48候选可管理当前原生Profile；OpenDesk CLI只到片段导出；Pi用户目录/Hermes原生Profile管理已在alpha.50本地候选交付；托管scope注入仍只有原三种工具 |
 | **ACP** | 面向客户端与Agent的会话交互，标准化初始化、Prompt、会话更新、工具进度、权限询问和取消，可降低多Agent专用解析重复 | 需要通用Client、能力协商及Bridge状态映射；厂商或生态包装器可能改变配置/Session/权限行为；会话恢复为可选能力；协议标准不等于跨进程持久幂等 | 合适实现可新建会话、收增量输出、应答权限、请求取消；load/resume须协商并验证。Bridge的原请求台账、授权和unknown保护仍要保留 | 后续以支持原生ACP的目标做可选试点；当前尚未实现通用ACP驱动，不批量替换已可用CLI/API |
-| **原生插件** | 若宿主提供所需扩展API，可贴近原生日志、工具、生命周期或界面；能补外部CLI/API无法观察或操作的能力 | 每个宿主单独维护安装/更新/卸载、权限和兼容；插件往往与Agent同进程，出错可能影响原生运行；有插件机制不代表能控制Session | 可以在宿主允许范围内提供hook、注册工具、暴露受限控制接口或安装MCP连接；具体能力取决于宿主扩展点，并非天然拥有所有内部控制。若以插件承载调用方接入，只作为薄传输层复用同一协作服务端点、身份与工具契约，不另行实现协作逻辑 | 外部接口存在明确缺口、且官方扩展点能解决时再增加；当前未安装Bridge专用原生插件。Bridge静态adapter不计作原生插件 |
+| **原生插件** | 若宿主提供所需扩展API，可贴近原生日志、工具、生命周期或界面；能补外部CLI/API无法观察或操作的能力 | 每个宿主单独维护安装/更新/卸载、权限和兼容；插件往往与Agent同进程，出错可能影响原生运行；有插件机制不代表能控制Session | 可以在宿主允许范围内提供hook、注册工具、暴露受限控制接口或安装MCP连接；具体能力取决于宿主扩展点，并非天然拥有所有内部控制。若以插件承载调用方接入，只作为薄传输层复用同一协作服务端点、身份与工具契约，不另行实现协作逻辑 | 外部接口存在明确缺口、且官方扩展点能解决时再增加；DSH NEXT 提供可选连接面板；网页执行使用 ChatGPT Web 浏览器扩展 |
 | **Agent SDK** | 类型、事件、错误和资源生命周期封装可能减少胶水代码；官方维护的适配层可降低底层协议解析负担 | 增加语言/运行时/依赖与打包成本；SDK可能新建自己的Agent或要求独立模型凭据，未必能复用用户已有登录、GUI配置和Session；SDK更新也需验收 | 取决于SDK暴露的完整Agent能力；可能覆盖会话、工具、权限、取消、恢复。库的名字或类型声明不能证明能控制用户原进程 | SDK确实调用完整原生Agent且保留原配置语义时可评估；只有模型API封装的SDK不满足本项目接入目标 |
 
 ## 3. 功能并非由协议名称自动决定

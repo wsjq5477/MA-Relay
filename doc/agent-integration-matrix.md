@@ -1,40 +1,14 @@
 # Agent 接入现状与后续目标
 
-Windows `dsh-next` 原生执行入口使用安装包内的 headless JSONL。首次接入可为当前 DSH NEXT Profile 安装 MCP，已授权 DSH 可通过原生 MCP 查询和调用 Bridge。作为被委派目标时，headless 模型路由需独立核对认证。本机 DSH NEXT 2.0.24-next 使用现有 DeepSeek 账号，实机两轮成功、沿原 Session 续聊，并按原任务与事件游标恢复。独立的本机 DSH Web 接收方也已消费授权交接的结果与事件摘要。[DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md) · [本机验收](iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
-
-alpha.74 支持本机、WSL 与 SSH Linux 目标添加 Hermes/Pi 兼容命令，分别复用 stream-json/JSON-print。受控 CLI 已验 Pi 原会话续聊；真实用户命令、Linux/SSH 原生闭环和 EXE 待验。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
-
-OpenCode当前源码的Core check复用已协商的V1/V2 Agent信息，原任务执行/观察/回复/取消保留原协议，避免健康检查改写在途操作的API地址。真实WSL原1.2.10低层Controller/Client已有服务连接及观察器关闭/重开9项证据保持，模型0；当前源码受控回归不等于真实原生控制或模型重验。互联登记完整链及MachineHost已有服务仍待，与历史2.0.24模型验收分开。[当前实现、结果与原失败](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
-
-alpha.72已收录的互联核心支持独立登记/上下文/凭据、原事件及原delegationId恢复，经典十工具；Windows/Linux各104/104与三适配器受控CLI3/3维持原证据范围。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。原三Task和两次旧CLI模型失败均保留；本次主会话3条成功正文，另有撤权上下文1条原生成功，累计总请求/委派11/11。关闭上下文后的委派缓存仍可能为running，须区分管理员读到的原Task终态。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
-
-当前Web范围仅ChatGPT：真实匿名ChatGPT经原MCP/Registry/Router/认证MV3同会话四轮通过，第四轮8次输出/2295字符；父模型是受控夹具。新版DOM及只读原结束失败结算已实现，原第二轮失败与恢复边界保留；DOM39/39、IndexedDB69/69、Host/打包63/63，网络回归44通过/1平台跳过。原生父模型、账号/权限同意、跨设备及当前包内Web链路仍待，Kimi不开发不验收。[当前实现、产物与原始证据](iterations/I08/web-agent-live-chatgpt.md)。
-
-alpha.72 收录的 chatgpt-web（browser-extension/DOM）支持原Registry/机器/节点及被动execution/delegation/resume；MCP调用方/托管scope/通用cancellation为false。续聊须原可见对话摘要/历史版本证明，旧无证明成功历史只读保留；未授权内容可凭原持久封存证明安全取消，缺prepare行仍仅以原封存恢复既有Session健康/关闭，已提交网页Stop仍不支持。生产通道/配对RPC、桌面/扩展配置与MCP原主体续聊已实现，MV3/stdio/用户表单均按受控HTML分层记录；实际站点权限确认/账号/父模型/跨机未验，Kimi未注册。[当前证据与限制](iterations/I08/web-agent-development.md)。
-
-当前alpha.69源码：Claude/Codex/OpenCode的独立MCP原生列表与Pi/Hermes统一使用原安装启动解析器；不支持的shim或OS启动失败仅为探测错误，不推定连接成功或改变托管/执行能力。[源码、平台回归与限制](iterations/I08/windows-regression-and-native-probes.md)。
-
-alpha.69源码补齐各原生MCP配置布局在并发修改/目标切换/原子替换失败后的准确临时文件清理；原生能力、加载/连接证据、授权及托管scope不扩大。系统Node与Electron旧实现结果分别记录，不把配置受控测试当成真实原生或EXE验收。[当前行为与运行时边界](iterations/I08/mcp-config-temporary-cleanup.md)。
-
-Windows原生执行证据保持原日期；本轮Linux正式安装版已完成两轮实际执行、原ID去重与同Session续聊，验收采用临时网络通道，原配置保持。没有部署独立SSH；各入口实际方式与证据边界以下表为准。
-
 ## 当前源码接入总览
 
-Core兼容入口的check/高级向导版本检查在alpha.69源码中复用选中安装的共享启动器，JS经Node、无shell或跨安装回退；不改变各运输环境的执行/托管能力，也不把版本输出当作模型可用。[分平台受控验证](iterations/I08/core-windows-installation-checks.md)。
+AgentBridge 当前适配 **8 种产品、12 个入口**，包含 11 个原生入口和 ChatGPT Web。查看[逐入口接入表](#2-每个-agent-已接入的方式)可比较 CLI、API、MCP、ACP、插件和 SDK。用户站的接入表从本页生成，并与源码注册表核对。
 
-Hermes/Pi/DSH CLIalpha.69源码补齐[启动前失败边界](iterations/I08/native-start-boundary.md)：实际启动器解析拒绝或spawn前error才可结算failed/NATIVE_START，原控制收据nativeExited=false；已启动失联和历史unknown不因当前安装缺失释放。此判断不扩大原生取消、MCP或托管scope能力。
+执行路径使用原生 CLI、HTTP、WebSocket 或浏览器扩展。支持主动协作的 Agent 通过 stdio MCP 向 Bridge 查询、委派和读取获准结果。当前没有内置 ACP 或厂家 SDK 执行驱动。
 
-Hermesalpha.69源码补齐[等待输入的分离保护](iterations/I08/hermes-detached-input.md)：有限查看器退出3/130保持原unknown，Windows受控和未修改0.22.5查看器/输出组件已验；真实审批等待/网关恢复与取消仍未适配/未准出，alpha.68起已包含此修复。
+本机 DSH NEXT 2.0.24-next 已完成真实两轮、原会话续聊、在途恢复及取消，独立 DSH Web 已验证显式结果交接。ChatGPT Web 通过 Chrome 或 Edge 扩展接入，支持在获准的原可见会话中执行与续聊；网页提交后的停止需在网页处理。[DSH 本机验收](iterations/I08/current-scope-audit.md#本机-dsh-next-实测) · [ChatGPT Web 证据与限制](iterations/I08/web-agent-development.md)
 
-阅读顺序：本页登记“每个Agent已接了哪些方式”；[接入方式、选型与快速接入](agent-integration-guide.md)说明六种方式的优缺点、功能条件和逐Agent后续推荐；[开发指南](custom-agent-development.md)提供当前可执行的适配步骤与验证命令。
-
-以下原生基线为七种产品、十个执行入口；未发布源码另有上方单列的chatgpt-web浏览器入口。Claude/Codex/Hermes/Pi与DSH CLI使用各自原生CLI；OpenCode由CLI启动服务后走HTTP；DSH Desktop/Web连接用户已运行且认证的HTTP服务。OpenDesk CLI由原生serve提供HTTP控制，Windows Desktop沿用当前实例WebSocket网关；独立MCP配置与托管scope分开。当前没有内置ACP驱动，也没有用厂家SDK驱动这些入口。Agent调用Bridge则走另一方向的stdio MCP；不能把两种方向统称为“MCP接入”。
-
-DSH新增的Desktop/Web已随alpha.46公开，Desktop原生MCP配置适配属于alpha.48候选，支持直接执行和普通被委派，MCP调用能力与原生配置、托管scope分开判定；不声明已完成真实主调用或小队成员验收。当前在原Agent行的配置弹窗提供独立的服务连接卡，MCP管理与其他Agent共用同一配置入口。模型、供应商、原生权限不由此配置卡管理。[完整协议、当前设置流程与证据](iterations/I07/dsh-desktop-web.md)。
-
-发现时排除Linux同名Distributed Shell，原`/usr/bin/dsh`错误不代表DSH Web连接失败。当前源码可按已安装Desktop或Linux Web profile显示未配置服务提示；须在对应机器配置根地址/token后验证连接，旧alpha.34 EXE没有Desktop/Web入口。[现场核对与修复](iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)。
-
-后续规划见[Agent侧自主操作与通用调用方规划](iterations/I07/agent-centric-operations.md)：CT-06逐工具核对Hermes/Pi/DSH（含DSH服务入口）原生MCP客户端与插件扩展点后接入通用调用方、CT-07补Agent侧连接操作面、CT-08将单主关系泛化为按身份多关系并加受确认流保护的连接管理；均登记在本页§4后续目标，CT-07已补只读委派列表和[当前调用方连接视图](iterations/I07/agent-connections.md)及[子任务最小上下文](iterations/I07/delegation-context.md)（本地源码10工具、受控验证），CT-06首片已落地（能力三维拆分、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI`agentbridge mcp`），逐入口真实原生验收仍未完成；CT-08已补[A3连接策略](iterations/I07/connection-policy.md)，含Agent连接工具、预授权/用户确认与各主策略/审计界面，旧图仍selected；真实原生多主未验。插件仅作无MCP客户端时的薄传输缺口填补。
+接入步骤见[接入指南](agent-integration-guide.md)，新增原生入口见[开发指南](custom-agent-development.md)。
 
 ## 1. 目标与统计口径
 
@@ -46,7 +20,7 @@ DSH新增的Desktop/Web已随alpha.46公开，Desktop原生MCP配置适配属于
 
 | 方向 | 含义 | 当前实现 |
 | --- | --- | --- |
-| Bridge → Agent | 驱动原生程序执行需求、读取结果、控制原任务 | 原生 CLI 或 HTTP 适配器；七种产品共十个入口，目前没有内置 ACP 或厂家 SDK 驱动 |
+| Bridge → Agent | 驱动原生程序执行需求、读取结果、控制原任务 | 原生 CLI、HTTP、WebSocket、浏览器扩展，共 12 个入口 |
 | Agent → Bridge | Agent 调用发现、委派、结果和协作操作 | Bridge 提供 stdio MCP 服务，注入受限会话或由外部 Agent 自行配置 |
 | Bridge → 目标机器 | 把执行与协作消息送到相应机器后台 | 本机 IPC、WSL JSONL、SSH relay/daemon；不要求 Agent 直接互开网络端口 |
 
@@ -67,14 +41,15 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | DSH Windows Desktop | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生 Profile 补丁 | 未接入 | 未接入 | 未接入 |
 | DSH Linux / WSL Web | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生web Profile补丁 | 未接入 | 未接入 | 未接入 |
 | DSH NEXT | 已接入：Windows 包内 headless JSONL | 未接入 | 已接入：当前原生 Profile 管理 | 未接入 | 已接入：可选连接面板 | 未接入 |
-| OpenDesk CLI | 已接入：启动serve | 已接入（源码）：已有HTTP会话接口 | 已接入：仅片段导出，无原生配置管理/托管scope | 未接入 | 未接入 | 未接入 |
-| OpenDesk Windows Desktop | 未接入该入口的CLI | 已接入（源码）：已有WebSocket设备网关 | 已接入：独立原生配置，未注入托管scope | 未接入 | 未接入 | 未接入 |
+| OpenDesk CLI | 已接入：启动serve | 已接入：已有 HTTP 会话接口 | 已接入：仅片段导出，无原生配置管理/托管scope | 未接入 | 未接入 | 未接入 |
+| OpenDesk Windows Desktop | 未接入该入口的CLI | 已接入：已有 WebSocket 设备网关 | 已接入：独立原生配置，未注入托管 scope | 未接入 | 未接入 | 未接入 |
+| ChatGPT Web | 未接入 | 未接入 | 未接入 | 未接入 | 已接入：Chrome / Edge 浏览器扩展 | 未接入 |
 
 各列含义：
 
 - **原生CLI / 原生API / ACP / 厂家SDK**：Bridge调用Agent的具体路径。OpenCode两列同时已接入，因为CLI负责启动，HTTP API负责执行与控制。
 - **MCP**：Agent作为MCP客户端调用Bridge的通路，包含托管任务scope注入和已适配的原生配置管理；不是Bridge通过MCP控制该Agent。其他Agent仍可通过Bridge的MCP委派DSH，末段由DSH的CLI或HTTP驱动执行。本表的MCP列表示“Bridge已实现该方向的适配”，不等于该入口的原生客户端已实际读取配置：OpenDesk Desktop已有原生读取、授权只读查询和组件委派证据，但自主父模型委派仍未验，以能力表行为准（见[本轮§12](iterations/I08/mcp-open-integration.md#12-真实原生探测补充2026-10-22-晚)）。
-- **插件**：DSH NEXT 的可选连接面板读取当前 Profile 获准目标及其状态。任务执行走包内 CLI，主动调用走原生 MCP。ChatGPT Web 使用浏览器扩展配对，属于此表之外的网页执行入口。
+- **插件**：DSH NEXT 的可选连接面板读取当前 Profile 获准目标及其状态。任务执行走包内 CLI，主动调用走原生 MCP。ChatGPT Web 由浏览器扩展执行网页操作。
 - **未接入**：当前Bridge没有实现这条路径，不代表厂商不支持、也不代表该Agent整体不可用。各入口的真实覆盖与限制另见下表。
 
 ### 能力、证据与后续目标
@@ -100,10 +75,10 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 
 ## 3. 控制与上下文能力
 
-| 能力 | Claude | OpenCode | Codex | Hermes / Pi / DSH（CLI及Desktop/Web） |
+| 能力 | Claude | OpenCode | Codex | Hermes / Pi / DSH（含 NEXT 与服务入口） |
 | --- | --- | --- | --- | --- |
-| 新建真实原生任务 | 已实现，有真实证据 | 已实现，有真实证据 | 已实现，有真实/失败环境记录 | 已实现，仅受控证据 |
-| 原生同会话续聊 | 已实现，当前WSL真实通过 | 已实现，当前WSL真实通过 | 当前WSL0.163.0-alpha.10.2真实通过；旧版本失败保留 | 已实现，仅受控证据 |
+| 新建真实原生任务 | 已实现，有真实证据 | 已实现，有真实证据 | 已实现，有真实/失败环境记录 | 已实现；Hermes Linux、DSH NEXT 与 DSH Web 有真实执行证据，Pi 按受控证据登记 |
+| 原生同会话续聊 | 已实现，当前WSL真实通过 | 已实现，当前WSL真实通过 | 已有 WSL 实机证据 | Hermes Linux 与 DSH NEXT 已实测，Pi 与 DSH 其他入口按各自验证范围 |
 | 读取实际任务结果/错误 | 已实现 | 已实现 | 已实现 | 已实现 |
 | Bridge 权限回复 | 已实现，具体控制类型见报告 | 已实现，受原生版本契约限制 | 未适配 | 未适配 |
 | Bridge 结构化输入表单 | AskUserQuestion 当前拒绝 | 已实现受支持类型 | 未适配 | 未适配 |
@@ -111,7 +86,7 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | 原请求持久查询与 unknown 保护 | 已实现 | 已实现 | 已实现 | 已实现 |
 | 当前内置 ACP 驱动 | 无 | 无 | 无 | 无 |
 
-当前未发布源码的经典 MCP 保持十工具：`delegate` 默认新建子会话，可传原 `conversationId` 继续同一调用身份拥有的原会话；须目标当前授权、上一轮明确终态及原宿主可续聊，不接受目录变更。新托管父执行不能接管旧父委派；独立接入仍按原 connectionId 归属。已有续聊不等于运行中任意消息注入或任务订阅，也没有父完整历史复制。[当前实现与证据边界](iterations/I08/web-agent-development.md)。TeamSpace 的公共材料与原生 Agent 私有对话仍分开；本段不刷新公开 alpha.71 或真实父模型验收状态。
+当前经典 MCP 提供十个工具：`delegate` 默认新建子会话，可传原 `conversationId` 继续同一调用身份拥有的原会话；须目标当前授权、上一轮明确终态及原宿主可续聊，不接受目录变更。新托管父执行不能接管旧父委派；独立接入仍按原 connectionId 归属。已有续聊不等于运行中任意消息注入或任务订阅，也没有父完整历史复制。[当前实现与证据边界](iterations/I08/web-agent-development.md)。TeamSpace 的公共材料与原生 Agent 私有对话仍分开；既有原生父模型证据见相应入口的验收记录。
 
 ## 4. 后续目标与完成条件
 

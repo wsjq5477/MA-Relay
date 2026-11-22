@@ -1,10 +1,10 @@
 # 原生 Agent 适配
 
-OpenDesk 提供 CLI 和 Windows 桌面入口。DSH 提供 DSH NEXT、CLI、Windows Desktop 和 Linux / WSL Web 入口。各入口沿用各自的原生配置。
+Bridge 当前适配 8 种产品的 12 个入口。OpenDesk 提供 CLI 和 Windows 桌面入口。DSH 提供 DSH NEXT、CLI、Windows Desktop 和 Linux / WSL Web 入口。各入口沿用各自的原生配置。
 
 ## 接入方式总览
 
-✓ 表示 Bridge 已适配该方式，— 表示尚未适配。MCP 列表示 Agent 主动调用 Bridge。DSH NEXT 的插件显示已获准的连接与状态，任务使用原生 CLI 执行。
+✓ 表示 Bridge 已适配该方式，— 表示尚未适配。OpenDesk CLI 的 MCP 可导出配置片段。MCP 列表示 Agent 主动调用 Bridge。DSH NEXT 的插件显示已获准的连接与状态，任务使用原生 CLI 执行。
 
 <!--@include: ../_generated/connection-table.md-->
 

@@ -7,7 +7,7 @@ import {resolve} from 'node:path';
 import {publishedFiles, repositoryRoot, validatePublicPage, validateUserDocs, connectionTable, capabilityTable} from '../scripts/doc-site-content.mjs';
 import {checkDocSite} from '../scripts/check-doc-site.mjs';
 
-test('公开页面只包含用户文档，七种产品均有独立章节', () => {
+test('公开页面只包含用户文档，七种原生产品均有独立章节', () => {
   assert.equal(validateUserDocs().pages, 18);
   for (const name of ['claude', 'codex', 'opencode', 'hermes', 'pi', 'dsh', 'opendesk']) assert.ok(publishedFiles.has(`agents/${name}.md`));
   for (const file of publishedFiles) assert.doesNotMatch(file, /test-report|iterations|archive|modules/);
@@ -30,7 +30,9 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   assert.ok(methods.includes('| DSH NEXT | ✓ | — | ✓ | — | ✓ | — |'));
   assert.ok(capabilities.includes('| DSH NEXT | ✓ | ✓ | ✓ | ✓ | ✓ | — |'));
   assert.ok(capabilities.includes('| ChatGPT Web | ✓ | ✓ | — | ✓ | — | — |'));
-  assert.equal(methods.trim().split('\n').length, 13);
+  assert.ok(methods.includes('| ChatGPT Web | — | — | — | — | 浏览器扩展 | — |'));
+  assert.ok(methods.includes('| OpenDesk CLI | 启动服务 | HTTP | 仅导出 | — | — | — |'));
+  assert.equal(methods.trim().split('\n').length, 14);
   assert.equal(capabilities.trim().split('\n').length, 14);
 });
 test('正文拒绝内部编号、过程、仓库链接及未许可 include', () => {

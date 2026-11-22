@@ -22,31 +22,41 @@ const require = createRequire(import.meta.url);
 const descriptors = () => require('../desktop/electron/builtin-adapters.cjs').adapters.list();
 const identities = [
   ['claude', 'Claude Code'], ['opencode', 'OpenCode'], ['codex', 'Codex'],
-  ['hermes', 'Hermes'], ['pi', 'Pi'], ['dsh', 'DSH CLI'],
-  ['dsh-desktop', 'DSH Desktop'], ['dsh-web', 'DSH Web'], ['dsh-next', 'DSH NEXT'],
-  ['opendesk', 'OpenDesk CLI'], ['opendesk-desktop', 'OpenDesk Desktop'],
+  ['hermes', 'Hermes', 'Hermes Agent'], ['pi', 'Pi'], ['dsh', 'DSH CLI'],
+  ['dsh-desktop', 'DSH Desktop', 'DSH Windows Desktop'], ['dsh-web', 'DSH Web', 'DSH Linux / WSL Web'],
+  ['dsh-next', 'DSH NEXT'], ['opendesk', 'OpenDesk CLI'],
+  ['opendesk-desktop', 'OpenDesk Desktop', 'OpenDesk Windows Desktop'], ['chatgpt-web', 'ChatGPT Web'],
 ];
-const browserEntries = [['chatgpt-web', 'ChatGPT Web']];
 
-// Use the current repository matrix as the single inventory of integration
-// methods; do not publish its implementation notes, evidence or planning rows.
+function methodLabel(cell, column) {
+  if (cell.startsWith('未接入')) return '—';
+  if (!cell.startsWith('已接入')) throw Error('未知接入状态：' + cell);
+  if (column === 0 && cell.includes('启动')) return '启动服务';
+  if (column === 1) return cell.includes('WebSocket') ? 'WebSocket' : 'HTTP';
+  if (column === 2 && cell.includes('仅片段导出')) return '仅导出';
+  if (column === 4 && cell.includes('浏览器扩展')) return '浏览器扩展';
+  return '✓';
+}
+
+// The repository matrix supplies method details. The registry verifies that
+// public documentation covers every execution entry.
 export function connectionTable() {
   const text = readFileSync(resolve(repositoryRoot, 'doc/agent-integration-matrix.md'), 'utf8');
   const lines = text.split('\n'), start = lines.findIndex(line => /^\| Agent \/ 入口 \| 原生 CLI \|/.test(line));
   if (start < 0) throw Error('Agent接入矩阵缺少方式总结表');
   const rows = [];
-  for (const line of lines.slice(start + 2)) {if (!line.startsWith('|')) break; rows.push(line.split('|').slice(1, -1).map(cell => cell.trim()));}
-  const actual = descriptors();
-  const nativeIds = actual.filter(row => row.driver !== 'browser-extension').map(row => row.id);
-  const browserIds = actual.filter(row => row.driver === 'browser-extension').map(row => row.id);
-  if (rows.length !== identities.length || nativeIds.length !== identities.length || identities.some(([id]) => !nativeIds.includes(id))
-    || browserIds.length !== browserEntries.length || browserEntries.some(([id]) => !browserIds.includes(id))) throw Error('用户接入总结必须同步全部已注册入口');
-  const matrixNames = ['Claude Code', 'OpenCode', 'Codex', 'Hermes Agent', 'Pi', 'DSH CLI', 'DSH Windows Desktop', 'DSH Linux / WSL Web', 'DSH NEXT', 'OpenDesk CLI', 'OpenDesk Windows Desktop'];
-  if (rows.some((row, index) => row[0] !== matrixNames[index])) throw Error('接入矩阵入口与用户汇总不一致');
+  for (const line of lines.slice(start + 2)) {
+    if (!line.startsWith('|')) break;
+    rows.push(line.split('|').slice(1, -1).map(cell => cell.trim()));
+  }
+  const actualIds = new Set(descriptors().map(row => row.id));
+  if (rows.length !== identities.length || actualIds.size !== identities.length || identities.some(([id]) => !actualIds.has(id)))
+    throw Error('用户接入总结必须同步全部已注册入口');
   return '| Agent / 入口 | 原生 CLI | 原生 API | MCP | ACP | 插件 | SDK |\n| --- | --- | --- | --- | --- | --- | --- |\n'
-    + rows.map((row, i) => {
-      if (row.length !== 7 || !/已接入|未接入/.test(row[1])) throw Error('接入矩阵表格格式不符');
-      return '| ' + [identities[i][1], ...row.slice(1).map((cell, column) => cell.includes('未接入') ? '—' : cell.includes('已接入') ? column === 0 && cell.includes('启动') ? '启动服务' : column === 1 ? cell.includes('WebSocket') ? 'WebSocket' : 'HTTP' : '✓' : (() => {throw Error('未知接入状态：' + cell);})())].join(' | ') + ' |';
+    + rows.map((row, index) => {
+      const [, label, matrixName = label] = identities[index];
+      if (row.length !== 7 || row[0] !== matrixName) throw Error('接入矩阵入口与用户汇总不一致：' + matrixName);
+      return '| ' + [label, ...row.slice(1).map(methodLabel)].join(' | ') + ' |';
     }).join('\n') + '\n';
 }
 export function capabilityTable() {
@@ -56,7 +66,7 @@ export function capabilityTable() {
   const all = descriptors(), keys = ['execution', 'resume', 'cancellation', 'delegation', 'mcpClient', 'permissions'];
   const capability = (row, key) => row.capabilities[key] === true || (key === 'mcpClient' && row.capabilities.bridgeMcp === true);
   return '| Agent / 入口 | 直接会话 | 续聊 | 取消 | 被委派 | 调用 Bridge MCP | 权限回复 |\n| --- | --- | --- | --- | --- | --- | --- |\n'
-    + [...identities, ...browserEntries].map(([id, name]) => '| ' + [name, ...keys.map(key => capability(all.find(row => row.id === id), key) ? '✓' : '—')].join(' | ') + ' |').join('\n') + '\n';
+    + identities.map(([id, name]) => '| ' + [name, ...keys.map(key => capability(all.find(row => row.id === id), key) ? '✓' : '—')].join(' | ') + ' |').join('\n') + '\n';
 }
 export const internalText = /\b(?:AB-F\d+|M\d{2}(?:-(?:OC|CC|CX))?-F\d+|T-M\d{2}(?:-[A-Z]+)?-\d+|CT-\d+|I\d{2}[A-Z]?)\b|测试报告|验收记录|交付记录|迭代记录|开发过程|历史记录|冻结源码|受控测试|缺陷复盘/;
 function markdownFiles(folder) {
