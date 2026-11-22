@@ -2,6 +2,8 @@
 
 2026-11-22，现行源码恢复链通过定向受控验收。答复收据专项覆盖原 ID、丢回应、撤权、旧后台与 OpenCode V1 表单；用户站完成实际构建和内容审计。模型、独立 Linux SSH 和公开安装包继续按实机证据确认。[本轮测试计数及验收范围](iterations/I08/current-scope-audit.md)
 
+首阶段实机目标改为本机 Claude Code 2.1.325。D 盘隔离安装发现、真实 stdio MCP 的 10 个工具及目标授权、固定提交的 Node 冒烟检查通过。模型运行待确认本机现有代理的存储范围。[本机验收记录](iterations/I08/current-scope-audit.md#本机-claude-code-前置验收)
+
 2026-11-17，issue #33 的公开预发布 `0.6.0-alpha.76.issue33.3` 覆盖大型 profile 的 ACL、主进程 IPC、前端恢复和旧后台自动切换。隔离 profile 的打包后台升级与两个公开附件的匿名下载均已验证，实际安装目录覆盖及私有 CodeAgent 仍待验收。[交付及验证](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
 issue #31 已合入源码：维护控制器按原可信目标清单暂存完整运行资源，逐文件验证后限制模块解析在暂存树内并检查加载。启动非零退出的安全错误保留在原 unknown 操作；原 ID 查询仅在依赖缺失时按原版本/摘要修复控制器后查询，不重发维护、不更换 ID。not_found 不足以证明终态，继续保留 unknown。[本次实现、实测与限制](iterations/I08/maintenance-controller-recovery.md)

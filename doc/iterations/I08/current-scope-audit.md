@@ -1,12 +1,12 @@
 # 当前功能范围、实现缺口与验收
 
-2026-11-22。源码从 GitHub `master` 的 `16a197c` 建立独立工作树。当前公开预发布为 `0.6.0-alpha.76.issue33.3`，冻结 `84ed341`。原本地工作区有未提交改动，作为产品约束和路线的输入，本轮在独立分支交付。[公开预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.issue33.3) · [现行产品约束](../../product-constraints.md)
+2026-11-22。源码从 GitHub `master` 的 `16a197c` 建立独立工作树。当前公开预发布为 `0.6.0-alpha.76.issue33.3`，冻结 `84ed341`。原本地工作区有未提交改动，作为产品约束和路线的输入，本轮在独立分支交付。用户指定使用同机 Claude Code 作为首阶段实机验收目标。[公开预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.issue33.3) · [现行产品约束](../../product-constraints.md)
 
 ## 功能核对
 
 | 功能 | 源码及证据 | 仍需完成 |
 | --- | --- | --- |
-| 获准发现、固定端点、新建与原 Session 续聊 | 登记、独立调用方、原绑定续聊和串行准入均有实现。历史 Windows Codex → WSL Codex 有正文、续聊、在途重开及取消证据 | Windows Codex → 独立 Linux OpenCode 的工具实际可见、固定提交和目标目录、首次成功耗时及两轮结果消费 |
+| 获准发现、固定端点、新建与原 Session 续聊 | 登记、独立调用方、原绑定续聊和串行准入均有实现。历史 Windows Codex → WSL Codex 有正文、续聊、在途重开及取消证据 | Windows Codex → 同机 Claude Code 的工具实际可见、固定提交和目标目录、首次成功耗时及两轮结果消费 |
 | 原任务、事件与未知提交恢复 | `task_result` 按原 Task/委派/独立调用方的客户端 request ID 恢复，事件使用原游标。受控回归覆盖丢回应、原执行一次、撤权与历史缺口 | 所选实机链路中的提交回应丢失、后台重开、越权及目录变化 |
 | 原生等待与答复 | OpenCode 已接权限和表单，Claude Code 已接权限。MCP 原答复没有只读恢复入口，本轮已补齐 | 实机原生等待转交和丢回应后的恢复。Claude Code 结构化表单、其他入口仅按各自能力表处理 |
 | 已启动的 OpenCode 服务 | Core Controller 可连接既有服务。本轮用 WSL OpenCode 1.2.10 重验只读连接和观察器重开，原服务保持 | 完整的 MachineHost/登记端点与已有服务链及其升级验收 |
@@ -15,7 +15,11 @@
 
 历史证据及各适配器限制见[真实 Codex 验收](interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)、[接入矩阵](../../agent-integration-matrix.md)和[迭代路线](../../project-plan.md)。
 
-独立 Linux 实机验收使用已有授权的 SSH 目标及该用户的 OpenCode 配置，固定目标目录和仓库提交。记录从原生 Codex 执行发现工具到首条结果可读的耗时。核对两轮请求使用同一原生 Session，实际等待经原任务答复，并在一次丢回应或断线时用原 ID 与游标找回结果。之后再验证第二个 Agent 实际读到的日志和摘要，以及可选 Markdown 回写的版本冲突。
+本机验收沿用 Claude Code 原生认证、模型及权限，固定目标目录和测试仓库提交。记录从 Codex 执行发现工具到首条结果可读的耗时，核对两轮请求使用同一原生 Session。Claude 的权限等待沿原任务答复，丢回应或断线后沿原 ID 和游标读回。该入口的表单能力见[Claude Code 设计](../../modules/06-native-adapters/claude/design.md)。
+
+### 本机 Claude Code 前置验收
+
+本机 Claude Code 2.1.325 的原生程序在 D 盘隔离配置中启动并返回实际版本。Codex 对话通过真实 stdio MCP 列出 10 个工具，获准列表中只有本机 Claude Code，且后台声明 `reply.query-v1`。目标工作目录使用固定提交 `18198d97d09048df170ba7eb2129edc8eb999f50`，本地 Node 冒烟检查 1/1。Claude Code 的现有认证路由走 CC Switch，代理数据库位于 C 盘。待确认可用的非 C 盘认证路由或对现有代理的例外授权后执行首轮模型任务；当前提交数为 0。原始证据为 `local-claude-ready.json`、`local-claude-discovery.json` 和 `local-claude-fixture-test.log`。
 
 ## 原答复收据恢复
 
@@ -40,4 +44,4 @@
 | WSL Node 24.13.0 桌面后端 | 扩展回归 44/44，无跳过。认证 Coordinator 和真实 stdio 到受控宿主，模型 0 |
 | 用户站 | 6/6。实际 VitePress 构建与静态产物审计通过，18 个用户页与 404、两张表、158 个网页和搜索资源，内部页和原始证据导出均为 0 |
 
-整仓文档检查在独立工作树仍有 3071 项既有本地证据链接缺失，逐项比较无新增链接错误。原始日志保存在 D 盘 `artifacts/current-scope-20261122`，包括 `desktop-final.log`、`desktop-reply-focused.log`、`desktop-registry-baseline.log`、`core-regression.log`、`opencode-version-baseline.log`、`wsl-desktop-suite.log`、`wsl-existing-opencode-final.log`、`wsl-existing-opencode-recheck.log`、`docs-site-final.log` 和 `docs-delta.json`。Windows 开发数据和临时文件在 D 盘，Ubuntu-22.04 存储在 E 盘。实机尚缺独立 Linux SSH OpenCode 目标和该拓扑的真实原生模型证据。公开包验收引用对应发布记录。
+整仓文档检查在独立工作树仍有 3071 项既有本地证据链接缺失，逐项比较无新增链接错误。原始日志保存在 D 盘 `artifacts/current-scope-20261122`，包括 `desktop-final.log`、`desktop-reply-focused.log`、`desktop-registry-baseline.log`、`core-regression.log`、`opencode-version-baseline.log`、`wsl-desktop-suite.log`、`wsl-existing-opencode-final.log`、`wsl-existing-opencode-recheck.log`、`docs-site-final.log` 和 `docs-delta.json`。Windows 开发数据和临时文件在 D 盘，Ubuntu-22.04 存储在 E 盘。公开包验收引用对应发布记录。

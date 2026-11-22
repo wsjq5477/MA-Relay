@@ -1,5 +1,7 @@
 # Claude Code 适配器测试报告
 
+2026-11-22，本机 Windows Claude Code 2.1.325 在 D 盘隔离路径完成实际启动、发现及工具目录核查。真实 stdio MCP 只发现获准的原生目标，固定测试仓库冒烟 1/1。模型轮次与原生权限等待仍待可用的验收认证配置。[本机验收记录](../../../iterations/I08/current-scope-audit.md#本机-claude-code-前置验收)
+
 当前公开alpha.69已收录当前维护源码，冻结04ee6fe。包内源码/前端/Linux资源与实际EXE载荷匹配；普通EXE合成profile恢复和完整重启通过，真实原生与用户profile仍按各自证据边界。[本轮发布与分层验收](../../../iterations/I08/alpha69-release.md)。
 
 T-M06-CC-214 / M06-CC-F01：2026-10-29，未发布源码；中文profile的添加/移除在并发修改及替换失败后原配置保持、准确临时文件消失。四项计入共享专项44/44与相关Windows117通过/1平台跳过，Electron44/44；不是本机真实Claude、模型或普通EXE验收。[原始失败、分平台证据及限制](../../../iterations/I08/mcp-config-temporary-cleanup.md)。
