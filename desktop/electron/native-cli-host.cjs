@@ -285,9 +285,15 @@ async function runWorker(directory) {
   // wins a cancel/exit race; otherwise require this worker's successful kill
   // plus the native process's termination exit/signal.
   const cancelled = !succeeded && cancelRequested && terminationSent && (process.platform === 'win32' ? code !== 0 : signal === 'SIGTERM' || signal === 'SIGKILL' || code === 143 || code === 137);
+  const dshModelKeyMissing = !cancelled && !failure && ['dsh', 'dsh-next'].includes(job.adapter)
+    && /^llm-deepseek: no API key for provider route\b/.test(result.error);
   const hint = job.adapter === 'dsh' ? '（headless 使用原生环境/.env 配置；GUI 保存的登录默认不用于该 profile。）' : '';
   const errorMessage = failure || result.error || diagnostics || names[job.adapter] + ' 退出但缺少可确认的本轮结果。';
-  emit({ kind: 'terminal', status: cancelled ? 'cancelled' : succeeded ? 'succeeded' : 'failed', text: safe(cancelled ? '已确认原生执行进程结束' : succeeded ? result.answer : errorMessage + hint) });
+  emit({ kind: 'terminal', status: cancelled ? 'cancelled' : succeeded ? 'succeeded' : 'failed',
+    ...(dshModelKeyMissing ? {code:'DSH_MODEL_AUTH_REQUIRED'} : {}),
+    text: safe(cancelled ? '已确认原生执行进程结束' : succeeded ? result.answer : dshModelKeyMissing
+      ? 'DSH headless 的原生模型路由缺少 API Key。请在 DSH 的模型设置中配置对应路由后发起新请求。'
+      : errorMessage + hint) });
 }
 module.exports = { NativeCliHost, capabilities };
 if (require.main === module && process.argv[2] === '--native-cli-worker') runWorker(process.argv[3]).catch(error => { process.stderr.write(safe(error.stack)); process.exitCode = 1; });

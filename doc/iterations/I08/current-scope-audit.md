@@ -1,12 +1,12 @@
 # 当前功能范围、实现缺口与验收
 
-2026-11-22。源码从 GitHub `master` 的 `16a197c` 建立独立工作树。当前公开预发布为 `0.6.0-alpha.76.issue33.3`，冻结 `84ed341`。原本地工作区有未提交改动，作为产品约束和路线的输入，本轮在独立分支交付。用户指定使用同机 Claude Code 作为首阶段实机验收目标。[公开预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.issue33.3) · [现行产品约束](../../product-constraints.md)
+2026-11-22。源码从 GitHub `master` 的 `16a197c` 建立独立工作树。当前公开预发布为 `0.6.0-alpha.76.issue33.3`，冻结 `84ed341`。原本地工作区有未提交改动，作为产品约束和路线的输入，本轮在独立分支交付。用户最终指定本机 DSH NEXT 作为首阶段实机验收目标。[公开预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.issue33.3) · [现行产品约束](../../product-constraints.md)
 
 ## 功能核对
 
 | 功能 | 源码及证据 | 仍需完成 |
 | --- | --- | --- |
-| 获准发现、固定端点、新建与原 Session 续聊 | 登记、独立调用方、原绑定续聊和串行准入均有实现。历史 Windows Codex → WSL Codex 有正文、续聊、在途重开及取消证据 | Windows Codex → 同机 Claude Code 的工具实际可见、固定提交和目标目录、首次成功耗时及两轮结果消费 |
+| 获准发现、固定端点、新建与原 Session 续聊 | 登记、独立调用方、原绑定续聊和串行准入均有实现。历史 Windows Codex → WSL Codex 有正文、续聊、在途重开及取消证据 | Windows Codex → 本机 DSH NEXT 的工具实际可见、固定提交和目标目录、首次成功耗时及两轮结果消费 |
 | 原任务、事件与未知提交恢复 | `task_result` 按原 Task/委派/独立调用方的客户端 request ID 恢复，事件使用原游标。受控回归覆盖丢回应、原执行一次、撤权与历史缺口 | 所选实机链路中的提交回应丢失、后台重开、越权及目录变化 |
 | 原生等待与答复 | OpenCode 已接权限和表单，Claude Code 已接权限。MCP 原答复没有只读恢复入口，本轮已补齐 | 实机原生等待转交和丢回应后的恢复。Claude Code 结构化表单、其他入口仅按各自能力表处理 |
 | 已启动的 OpenCode 服务 | Core Controller 可连接既有服务。本轮用 WSL OpenCode 1.2.10 重验只读连接和观察器重开，原服务保持 | 完整的 MachineHost/登记端点与已有服务链及其升级验收 |
@@ -15,11 +15,17 @@
 
 历史证据及各适配器限制见[真实 Codex 验收](interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)、[接入矩阵](../../agent-integration-matrix.md)和[迭代路线](../../project-plan.md)。
 
-本机验收沿用 Claude Code 原生认证、模型及权限，固定目标目录和测试仓库提交。记录从 Codex 执行发现工具到首条结果可读的耗时，核对两轮请求使用同一原生 Session。Claude 的权限等待沿原任务答复，丢回应或断线后沿原 ID 和游标读回。该入口的表单能力见[Claude Code 设计](../../modules/06-native-adapters/claude/design.md)。
+本机验收使用 DSH NEXT 安装包里的 headless CLI，沿用原生 Profile 和认证。固定目标目录及测试仓库提交，核对两轮请求的原生 Session、原 Task 和事件游标。DSH NEXT 的能力声明当前未开放 Bridge 权限或表单答复，答复收据功能继续按受控用例及支持交互的适配器验收。
 
-### 本机 Claude Code 前置验收
+### 本机 DSH NEXT 实测
 
-本机 Claude Code 2.1.325 的原生程序在 D 盘隔离配置中启动并返回实际版本。Codex 对话通过真实 stdio MCP 列出 10 个工具，获准列表中只有本机 Claude Code，且后台声明 `reply.query-v1`。目标工作目录使用固定提交 `18198d97d09048df170ba7eb2129edc8eb999f50`，本地 Node 冒烟检查 1/1。Claude Code 的现有认证路由走 CC Switch，代理数据库位于 C 盘。待确认可用的非 C 盘认证路由或对现有代理的例外授权后执行首轮模型任务；当前提交数为 0。原始证据为 `local-claude-ready.json`、`local-claude-discovery.json` 和 `local-claude-fixture-test.log`。
+Windows 本机 DSH NEXT `2.0.23-next`，E 盘使用原生安装包，D 盘隔离工作目录固定在提交 `e39dd3af7846f77b422d507b98eb9ab73e4322fe`。MCP 实际列出 10 个工具，获准列表只显示 DSH NEXT。首条请求建立了原生 Session，调用方仅用原客户端 requestId 找回原 Task，约 17.9 秒得知失败。原生 headless 明确报告当前 DeepSeek 路由缺少 API Key。
+
+现行源码将这个明确的原生错误归类为 `DSH_MODEL_AUTH_REQUIRED`，提示从 DSH 模型设置补齐 headless 路由认证。重开同一观察环境后，以一条单独的诊断请求复验。约 14.6 秒读回同类明确失败，原 Session 绑定与原请求可查询。两条失败任务均保留，成功模型正文和原会话续聊仍待用户完成原生认证。Windows DSH 受控回归 5/5，共用 NativeCliHost 和 Hermes 分离套件 35/35，覆盖同 Session、原请求去重、取消和非完整终态。更新后的用户站 6/6，18 个许可用户页及 404 通过产物审计。原始证据为 `local-dsh-discovery.json`、`local-dsh-first-result.json`、`local-dsh-diagnostic-result.json`、`local-dsh-summary.json`、`dsh-auth-regression.log` 和 `dsh-expanded-regression.log`。
+
+### 已结束的本机 Claude Code 前置验收
+
+本机 Claude Code 2.1.325 在 D 盘隔离环境完成启动、MCP 十工具和目标授权检查、固定提交的 Node 冒烟检查 1/1。用户切换目标时，Claude 验收观察器已关闭，临时认证副本已清理，模型请求数为 0。原始证据为 `local-claude-ready.json`、`local-claude-discovery.json` 和 `local-claude-fixture-test.log`。
 
 ## 原答复收据恢复
 

@@ -1,5 +1,7 @@
 # M07 任务、会话、交互控制与恢复设计
 
+DSH headless 明确报告模型路由缺少 API Key 时，以原 Task failed 和 `DSH_MODEL_AUTH_REQUIRED` 结算。保留原请求、会话绑定及事件，原请求可读。用户补齐凭据后可发起新请求。[本机验证](../../iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
+
 M07-F06/F07：真实原Task已覆盖运行中门面关闭/重开及原seq补读；取消unknown收据沿原operation查询到confirmed，并独立读到Task cancelled。关闭原属主上下文即时拒读且原生任务继续成功，由管理员独立观察；已关闭调用方的委派投影可能保持旧running缓存，不能作为原生存活或释放占位证据。持久格式与unknown处理不改。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
 M07-F06/F07：上下文撤销、观察门面close、明确停止自有后台属于不同动作；前两者不自动取消原Task，后者可能影响原执行，也只能按原Task/原轮证据确定终态。进程/IPC消失或服务重开不授权新请求、迁移会话或清除unknown。[资源归属与现有验证](../../iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)。

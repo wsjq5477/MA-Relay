@@ -54,6 +54,11 @@ process.stdin.on('end', async () => {
   }
   if(adapter === 'dsh') {
     emit({type:'text',text:answer});
+    if(prompt === 'missing-model-key') {
+      emit({type:'status',phase:'turn_end',reason:{kind:'error',error:{message:'llm-deepseek: no API key for provider route "private-route"; store DEEPSEEK_API_KEY via the credentials service'}}});
+      emit({type:'final',text:answer});
+      return;
+    }
     emit({type:'status',phase:'turn_end',reason:prompt==='fail'?{kind:'error',error:{message:'native failure'}}:{kind:'completed'}});
     emit({type:'final',text:answer});
   }
@@ -133,6 +138,20 @@ for (const adapter of ['hermes','pi','dsh']) {
     assert.equal(callLog(f).length,2);
   });
 }
+test('DSH model authentication failure keeps the original Task and labels the missing credential', async t => {
+  const f = fixture(t, 'dsh');
+  const {agentId} = await connected(f);
+  const requestId = 'original-missing-key';
+  const task = await f.host.call('ipc', {op:'submit', agentId, requestId, message:'missing-model-key'});
+  const result = await done(f.host, task.taskId);
+  assert.equal(result.status, 'failed');
+  assert.equal(result.error.code, 'DSH_MODEL_AUTH_REQUIRED');
+  assert.doesNotMatch(result.error.message, /private-route/);
+  assert.equal(result.result, undefined);
+  assert.equal(result.native.sessionId, 'dsh-session');
+  assert.deepEqual(await f.host.call('ipc', {op:'request', requestId}), result);
+  assert.equal(callLog(f).length, 1);
+});
 test('Pi refuses a missing persisted native file before dispatch rather than creating an empty session', async t => {
   const f=fixture(t,'pi'),agent=await connected(f),first=await f.host.call('ipc',{op:'submit',agentId:agent.agentId,requestId:'one',message:'hello'}); await done(f.host,first.taskId);
   const sessionDirectory=path.join(f.directory,'native-sessions'), original=path.join(sessionDirectory,'session.jsonl'), duplicate=path.join(sessionDirectory,'duplicate.jsonl');

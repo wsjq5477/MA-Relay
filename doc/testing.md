@@ -2,7 +2,7 @@
 
 2026-11-22，现行源码恢复链通过定向受控验收。答复收据专项覆盖原 ID、丢回应、撤权、旧后台与 OpenCode V1 表单；用户站完成实际构建和内容审计。模型、独立 Linux SSH 和公开安装包继续按实机证据确认。[本轮测试计数及验收范围](iterations/I08/current-scope-audit.md)
 
-首阶段实机目标改为本机 Claude Code 2.1.325。D 盘隔离安装发现、真实 stdio MCP 的 10 个工具及目标授权、固定提交的 Node 冒烟检查通过。模型运行待确认本机现有代理的存储范围。[本机验收记录](iterations/I08/current-scope-audit.md#本机-claude-code-前置验收)
+首阶段实机目标为本机 DSH NEXT 2.0.23-next。真实 stdio MCP 十工具、获准目标、原生 Session 绑定和原请求恢复已验证。两条原生请求分别记录缺少模型 API Key 的原错误及新诊断分类。Windows DSH 受控回归 5/5，成功正文和同 Session 第二轮待认证。[本机验收记录](iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
 
 2026-11-17，issue #33 的公开预发布 `0.6.0-alpha.76.issue33.3` 覆盖大型 profile 的 ACL、主进程 IPC、前端恢复和旧后台自动切换。隔离 profile 的打包后台升级与两个公开附件的匿名下载均已验证，实际安装目录覆盖及私有 CodeAgent 仍待验收。[交付及验证](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 

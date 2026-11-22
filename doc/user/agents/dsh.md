@@ -6,7 +6,7 @@ DeepSeek Harness（DSH）支持 DSH NEXT、CLI、Windows Desktop 和 Linux / WSL
 
 | 入口 | Bridge 如何调用 | 配置来源 | 适用场景 |
 | --- | --- | --- | --- |
-| DSH NEXT | Windows 安装包内的 headless JSONL | DSH NEXT 当前原生 Profile | 一键接入 Windows DSH NEXT |
+| DSH NEXT | Windows 安装包内的 headless JSONL | DSH NEXT 原生数据目录与 headless 模型路由 | 一键接入 Windows DSH NEXT |
 | DSH CLI | headless CLI 的 JSON 输出 | headless 的原生环境与配置 | 在命令行环境运行任务 |
 | DSH Windows Desktop | 已启动桌面服务的认证 HTTP Session API | Windows Desktop 自身配置 | 连接 Windows 上已有桌面实例 |
 | DSH Linux / WSL Web | 已启动 Web 服务的认证 HTTP Session API | Linux / WSL Web 自身配置 | 连接该机器已有的 Web 实例 |
@@ -18,6 +18,8 @@ CLI 不自动继承 Desktop / Web 的账号或 profile。不能把服务版已�
 1. 安装并启动 DSH NEXT，确认所选原生 Profile 可以使用。
 2. 在 AgentBridge 的「接入配置」打开 Windows 机器，在 DSH NEXT 行点击「接入」。Bridge 使用包内入口，首次接入可为当前 Profile 准备 MCP。
 3. 如需在 DSH 左侧栏查看获准 Agent 及其状态，可下载 [AgentBridge 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip)，在 DSH NEXT 的「插件 → 添加插件」中安装 ZIP。
+
+接入后，发起任务仍需 headless 的模型路由有可用认证。如果任务报告缺少 API Key，请在 DSH 的「模型」页为该路由配置，再发起新请求。原任务的失败和会话记录可以继续查看。
 
 发现安装但未配置服务时，节点显示“待配置服务连接”。在实际机器的DSH节点右侧点击“配置”，保存连接后重新扫描；真正的认证、网络或启动失败仍按错误显示。
 
