@@ -12,7 +12,7 @@ AgentBridge 连接你已有的原生 Agent，在桌面配置机器、授权与�
 
 原生 CLI / API 是 **Bridge 调用 Agent** 的方式，MCP 是 **Agent 调用 Bridge** 的方式。OpenCode 的 CLI 启动服务，实际任务通过 HTTP 执行。
 
-查看[全部 Agent 的功能对照](agents/index.md)、[六种接入方式的优缺点与选择建议](integration-methods.md)。
+查看[启动命令与会话控制表](agents/index.md#启动与会话控制)、[全部 Agent 的功能对照](agents/index.md#功能对照)和[接入方式比较](integration-methods.md)。
 
 ## 按工具阅读
 

@@ -35,6 +35,21 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   assert.equal(methods.trim().split('\n').length, 14);
   assert.equal(capabilities.trim().split('\n').length, 14);
 });
+test('分组的启动命令与会话控制表覆盖全部已注册入口', () => {
+  const page = readFileSync(resolve(repositoryRoot, 'doc/user/agents/index.md'), 'utf8');
+  const [, section] = page.split('## 启动与会话控制');
+  const rows = section.split('## 功能对照')[0].split('\n')
+    .filter(line => /^\| [^|]+ \|/.test(line) && !line.startsWith('| ---') && !line.startsWith('| Agent |'))
+    .map(line => line.split('|').slice(1, -1).map(cell => cell.trim()));
+  const resumable = capabilityTable().trim().split('\n').slice(2)
+    .map(line => line.split('|').slice(1, -1).map(cell => cell.trim()));
+  assert.deepEqual(rows.map(([name]) => name).sort(), resumable.map(([name]) => name).sort());
+  for (const [name, launch, resume, steer, checkpoint, compaction] of rows) {
+    assert.ok(launch.length > 0);
+    assert.equal(resume.startsWith('✓'), resumable.find(([agent]) => agent === name)[2] === '✓');
+    assert.deepEqual([steer, checkpoint, compaction], ['—', '—', '—']);
+  }
+});
 test('正文拒绝内部编号、过程、仓库链接及未许可 include', () => {
   for (const text of ['# M06-F01', '# CT-06', '查看测试报告', '[材料](../iterations/README.md)', '[源码](../../desktop/electron/dsh-worker.cjs)', '<!--@include: ../modules/06-native-adapters/design.md-->']) {
     assert.throws(() => validatePublicPage('index.md', text));

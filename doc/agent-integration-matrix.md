@@ -2,7 +2,7 @@
 
 ## 当前源码接入总览
 
-AgentBridge 当前适配 **8 种产品、12 个入口**，包含 11 个原生入口和 ChatGPT Web。查看[逐入口接入表](#2-每个-agent-已接入的方式)可比较 CLI、API、MCP、ACP、插件和 SDK。用户站的接入表从本页生成，并与源码注册表核对。
+AgentBridge 当前适配 **8 种产品、12 个入口**，包含 11 个原生入口和 ChatGPT Web。查看[逐入口接入表](#2-每个-agent-已接入的方式)可比较 CLI、API、MCP、ACP、插件和 SDK。用户站的接入表从本页生成，并与源码注册表核对。实际启动命令、续聊、回合中插话、检查点回退和上下文压缩见[启动与会话控制](user/agents/index.md#启动与会话控制)。
 
 执行路径使用原生 CLI、HTTP、WebSocket 或浏览器扩展。支持主动协作的 Agent 通过 stdio MCP 向 Bridge 查询、委派和读取获准结果。当前没有内置 ACP 或厂家 SDK 执行驱动。
 

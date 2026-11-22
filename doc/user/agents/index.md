@@ -12,6 +12,43 @@ OpenCode 的 CLI 用于启动服务，HTTP API 用于执行任务。DSH Desktop 
 
 ChatGPT Web 使用浏览器扩展。将[扩展附件](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.72)解压到固定目录，在 Chrome 或 Edge 的扩展管理页启用开发者模式并加载。打开 AgentBridge 的「设置 → 浏览器接入」为该扩展生成配对包，再到扩展设置页连接并授予 ChatGPT 网页访问权限。已绑定会话可续聊，网页提交后的停止在网页处理。
 
+## 启动与会话控制
+
+下表列出 Bridge 实际调用的关键参数或服务入口。Bridge 会按原生入口补充工作目录、认证、会话和权限参数。✓ 表示 Bridge 支持，— 表示 Bridge 暂无此操作入口。
+
+### 原生 CLI（6）
+
+| Agent | Bridge 使用的命令或入口 | 同会话续聊 | 回合中插话 | 回退检查点 | Bridge 主动压缩 |
+| --- | --- | --- | --- | --- | --- |
+| Claude Code | `claude --print --input-format stream-json --output-format stream-json` | ✓ `--resume` | — | — | — |
+| Codex | `codex exec --json` | ✓ `codex exec resume` | — | — | — |
+| Hermes | `hermes chat --query-file - --format stream-json` | ✓ `--resume` | — | — | — |
+| Pi | `pi --mode json --print --session-dir <目录>` | ✓ `--session` | — | — | — |
+| DSH CLI | `dsh --profile headless --json -` | ✓ `--session-id` | — | — | — |
+| DSH NEXT | Windows 安装包内 CLI，带 `--profile headless --json -` | ✓ `--session-id` | — | — | — |
+
+### 原生 HTTP / WebSocket（5）
+
+| Agent | Bridge 使用的命令或入口 | 同会话续聊 | 回合中插话 | 回退检查点 | Bridge 主动压缩 |
+| --- | --- | --- | --- | --- | --- |
+| OpenCode | `opencode serve` 启动服务，HTTP 执行任务 | ✓ 原 Session | — | — | — |
+| OpenDesk CLI | `opendesk serve --mode opencode` 启动服务，HTTP 执行任务 | ✓ 原 Session | — | — | — |
+| DSH Desktop | 连接已启动的 Windows 桌面服务，使用认证 HTTP Session API | ✓ 原 Session | — | — | — |
+| DSH Web | 连接已启动的 `dsh --profile web` 服务，使用认证 HTTP Session API | ✓ 原 Session | — | — | — |
+| OpenDesk Desktop | 连接已启动桌面实例的 WebSocket 设备网关 | ✓ 原网关连接与会话 | — | — | — |
+
+### 浏览器扩展（1）
+
+| Agent | Bridge 使用的命令或入口 | 同会话续聊 | 回合中插话 | 回退检查点 | Bridge 主动压缩 |
+| --- | --- | --- | --- | --- | --- |
+| ChatGPT Web | Chrome / Edge 扩展与 Bridge 配对，操作获准的网页会话 | ✓ 原可验证可见对话 | — | — | — |
+
+**同会话续聊**在上一轮结束后沿用原会话与目标。**回合中插话**指任务仍运行时发送一条新需求。等待权限或表单时的原生答复见下方功能对照。
+
+**回退检查点**指由 Bridge 将会话或工作区恢复到指定检查点。**Bridge 主动压缩**指由 Bridge 触发上下文压缩。原生工具自己的历史与上下文管理仍由该工具负责。
+
+Claude Code 和 Codex 使用原生 CLI。ACP 与厂家 SDK 驱动暂未接入，MCP 用于 Agent 主动调用 Bridge。
+
 ## 功能对照
 
 <!--@include: ../_generated/capability-table.md-->
