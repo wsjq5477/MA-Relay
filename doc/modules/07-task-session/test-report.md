@@ -1,6 +1,6 @@
 # M07 任务、会话与恢复测试报告
 
-T-M07-321 / M07-F06/F07：2026-11-22，实机 DSH NEXT 的认证失败及新版诊断均沿各自原请求查询。受控 DSH 模型 Key 缺失用例确认只执行一次并保留原 Session，未产生成功结果。与 M06 共用证据。[验收记录](../../iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
+T-M07-321 / M07-F06/F07：2026-11-22，实机 DSH NEXT 的认证失败及新版诊断均沿各自原请求查询。受控 DSH 模型 Key 缺失用例确认只执行一次并保留原 Session。实机另用现有 DeepSeek 账号完成两轮成功委派，续聊沿用原 Session。后台重开后按原 ID 恢复四条原 Task，分批读取全部原事件且无缺口，没有新增执行。另一个真实 Task 在观察器关闭/重开前后都为 running，提交一次原取消后出现 cancelled 终态事件。同一操作收据从 unknown 只读查到 confirmed。与 M06 共用证据。[验收记录](../../iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
 
 T-M07-318 / M07-F06/F07：2026-11-22。原答复收据 confirmed 时受控 Task 仍为 running。OpenCode V1 受控权限、表单答复和原 Task 完成分别核对，Hub 重开后读原收据，出站答复次数保持。与 M08、M09 共用结果。[本轮证据与限制](../../iterations/I08/current-scope-audit.md)
 

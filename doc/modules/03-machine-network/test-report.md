@@ -1,5 +1,7 @@
 # M03 机器与 Agent 网络测试报告
 
+T-M03-324 / M03-F02/F05：2026-11-22，Windows。本机 DSH Web 实测首次保存遇 ACL 超时，异步检查修复后完成服务认证和委派。受控复现同机存在另一健康 DSH 服务且原配置停用，扫描保留原节点和连接，明确配置新地址后仍需接入。Windows 定向 13/13。与 M06 共用验收。[过程与证据](../../iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
+
 2026-11-16：DSH NEXT 的本机 GUI 接入、真实 Claude 委派及面板刷新见 [DSH NEXT 交付](../../iterations/I08/alpha76-dsh-release.md)。候选与冻结发布包的证据分别记录。
 
 2026-11-07，alpha.74已公开。冻结源、独立Ubuntu CI、实际EXE载荷/包内7项、普通portable及匿名下载分层结果见[本次交付](../../iterations/I08/alpha74-release.md)；Windows首轮45通过/1失败/19跳过，定向复验不改写原失败，真实模型/生产SSH/完整矩阵仍待。

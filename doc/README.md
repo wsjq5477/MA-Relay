@@ -4,17 +4,9 @@
 
 当前公开预发布 **0.6.0-alpha.76.issue33.3**，源码冻结 `84ed341`。Windows 安装包修复大型 profile 的 ACL 启动超时，新版启动时自动替换旧本地 Coordinator。安装包及 SHA-256 文件已匿名完整下载校验。 [交付记录](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
-OpenCode已修复V1检查地址及健康检查干扰原协议；受控回归和原失败分平台保留，低层已有服务9项不等于登记链准出。Codex主从正文/续聊/在途观察器恢复本轮已有实证。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
+AgentBridge 管理原生 Agent 的发现、授权、明确目标调用、状态、结果、交互与恢复。现行源码已验证本机 DSH NEXT 的两轮同会话调用和原事件恢复，并支持查询原交互答复收据与导出 Markdown 结果。[实测与未完成范围](iterations/I08/current-scope-audit.md)
 
-当前定位为Agent互联层：管理身份、获准发现、明确目标调用、状态/结果、交互控制和恢复；TeamSpace/TeamAutomation保留兼容、暂停扩张。独立登记/固定端点/调用方/上下文/凭据及原事件查询已源码实现。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出；其中原生与矩阵证据见当轮记录。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
-
-alpha.71的SSH维护只读入口始终可打开查看；具体替换/升级仍核对原操作与远端门禁。[入口与实际EXE验证](iterations/I08/issue29-maintenance-entry.md)。
-
-
-alpha.71提供不受支持后台的明确确认替换及可进入的只读维护窗口。[当前行为与验证](iterations/I08/alpha71-release.md)。
-
-
-AgentBridge呈现用户已安装的原生Agent及其连接、协作、执行和结果，模型、账号与配置由原工具管理。用户入口是[使用文档](user/index.md)；本页及内部设计/原始证据不进入用户网站。逐轮历史统一在[迭代目录](iterations/README.md)。
+用户从[使用文档](user/index.md)开始。内部设计与测试报告通过本页导航查阅，逐轮发布与历史证据统一在[迭代目录](iterations/README.md)。
 
 ## 当前状态
 

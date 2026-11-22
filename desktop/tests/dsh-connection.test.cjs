@@ -38,7 +38,7 @@ async function fixture(t, adapter = 'dsh-web', authStatus = 303) {
   });
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const url = 'http://127.0.0.1:' + server.address().port + '/';
-  const item = configure({home:directory}, {adapter, url, token:'synthetic-token'}).items[0];
+  const item = (await configure({home:directory}, {adapter, url, token:'synthetic-token'})).items[0];
   const host = new NativeCliHost({directory:path.join(directory,'context'), adapter, executable:item.executable});
   const agent = await host.call('connect', {workspace:directory});
   t.after(async () => {
@@ -96,11 +96,33 @@ test('DSH dropped prompt response remains occupied and recovers by reading origi
 test('DSH connection identity and secret handling reject unsafe URLs and never redirect credentials', async t => {
   const f=await fixture(t);
   for(const url of ['file:///tmp/a','http://example.com/','http://user:secret@localhost/','http://localhost/api','http://localhost/?wrong=x']) assert.throws(()=>address(url),{code:'INVALID_INPUT'});
-  configure({home:f.directory},{adapter:'dsh-web',url:f.url,token:'invalid'});
+  await configure({home:f.directory},{adapter:'dsh-web',url:f.url,token:'invalid'});
   await assert.rejects(client(f.item.executable),{code:'DSH_AUTH'});
   assert(!JSON.stringify(status({home:f.directory})).includes('invalid'));
-  configure({home:f.directory},{adapter:'dsh-web',url:f.url,enabled:false});
+  await configure({home:f.directory},{adapter:'dsh-web',url:f.url,enabled:false});
   assert.equal(status({home:f.directory}).items[0].enabled,false);
+});
+
+test('DSH credential saves await private-directory verification and leave no connection on timeout', async t => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-dsh-acl-'));
+  t.after(() => fs.rmdirSync(home));
+
+  let rejectVerification;
+  const verification = new Promise((_, reject) => { rejectVerification = reject; });
+  const privateDirectory = require('../electron/private-directory.cjs');
+  const initialize = t.mock.method(privateDirectory, 'ensurePrivateDirectoryAsync', () => verification);
+  const save = configure({home}, {adapter:'dsh-web', url:'http://127.0.0.1:3080/', token:'synthetic-token'});
+  const denied = assert.rejects(save, {code:'PRIVATE_DIRECTORY_TIMEOUT'});
+
+  assert.equal(initialize.mock.callCount(), 1);
+  assert.deepEqual(initialize.mock.calls[0].arguments, [
+    path.join(home, '.agentbridge', 'dsh-connections'),
+    {timeoutMs:30000},
+  ]);
+  assert.deepEqual(status({home}).items, []);
+  rejectVerification(Object.assign(new Error('controlled ACL timeout'), {code:'PRIVATE_DIRECTORY_TIMEOUT'}));
+  await denied;
+  assert.deepEqual(fs.readdirSync(home), []);
 });
 
 test('DSH native authentication accepts cookie-bearing 302 and 303 only, without following redirects', async t => {
@@ -139,7 +161,7 @@ test('installed Windows Desktop is discoverable without CLI or token, with confi
   const options={home,platform:'win32',environment:{Path:'',LOCALAPPDATA:local},candidates:{claude:[],codex:[],opencode:[],hermes:[],pi:[],dsh:[]}};
   const items=await scanTools(options);assert.equal(items.length,1);assert.equal(items[0].adapter,'dsh-desktop');
   assert.equal(items[0].executable,executable);assert.equal(items[0].version,'2.0.18');assert.equal(items[0].healthy,false);assert.equal(items[0].errorCode,'DSH_CONNECTION_REQUIRED');assert.match(items[0].error,/连接 token/);
-  configure({home},{adapter:'dsh-desktop',url:'http://127.0.0.1:12345/',token:'synthetic-token',enabled:false});
+  await configure({home},{adapter:'dsh-desktop',url:'http://127.0.0.1:12345/',token:'synthetic-token',enabled:false});
   assert.deepEqual(await scanTools(options),[],'disabled service must not reappear as an unconfigured installation');
 });
 
@@ -155,7 +177,7 @@ test('an initialized DSH NEXT profile is discoverable outside regular app instal
   assert.equal(item.adapter,'dsh-desktop');assert.equal(item.name,'DSH NEXT');
   assert.equal(item.errorCode,'DSH_NEXT_INSTALLATION');assert.equal(item.healthy,false);
   assert.equal(item.executable,path.join(profile,'cordis.patch.yml'));
-  configure({home},{adapter:'dsh-desktop',url:'http://127.0.0.1:12345/',token:'synthetic-token',enabled:false});
+  await configure({home},{adapter:'dsh-desktop',url:'http://127.0.0.1:12345/',token:'synthetic-token',enabled:false});
   assert.deepEqual(await scanTools(options),[]);
 });
 
@@ -194,7 +216,7 @@ test('Linux Web profile is a configuration hint without reading native credentia
     assert.deepEqual(await scanTools(options),[]);
   }
   fs.writeFileSync(path.join(home,'.dsh/profiles/web/package.json'),JSON.stringify({name:'dsh-profile-web'}));
-  configure({home},{adapter:'dsh-web',url:'http://127.0.0.1:12345/',token:'synthetic-token',enabled:false});
+  await configure({home},{adapter:'dsh-web',url:'http://127.0.0.1:12345/',token:'synthetic-token',enabled:false});
   const items=await scanTools({home,platform:'linux',environment:{PATH:''},candidates:{claude:[],codex:[],opencode:[],hermes:[],pi:[],dsh:[]}});
   assert.deepEqual(items,[],'disabled service must not reappear as a profile hint');
 });

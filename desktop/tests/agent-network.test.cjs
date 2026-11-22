@@ -700,6 +700,33 @@ test('DSH save binds original installation to exact new connection across reads,
  const observer=new AgentNetwork(f.options);t.after(()=>observer.close());const otherHost=observer.host(observer.machine(f.machine.machineId));dshDataHost(otherHost,f.home);const reopened=await observer.call('dsh.status',request);assert.equal(reopened.selectedConnectionId,b.connectionId);assert.equal(reopened.items.length,2);
  await observer.call('discover',{machineId:f.machine.machineId});const current=(await observer.snapshot()).nodes.find(n=>n.nodeId===f.node.nodeId);assert.equal(current.executable,b.executable);assert.equal(current.connected,false,'new origin requires explicit attach');assert.deepEqual(fs.readFileSync(a.executable),oldBytes);assert.equal(f.host.executions,0);assert.equal(otherHost.executions,0);
 });
+test('DSH machine-level connections never replace an attached original during discovery', async t => {
+ const f=await dshTargetFixture(t);
+ const saved={machineId:f.machine.machineId,adapter:f.node.adapter,token:'synthetic-token'};
+ const originA='http://127.0.0.1:3080/',originB='http://127.0.0.1:43120/';
+ const first=await f.router.call('dsh.configure',{...saved,url:originA});
+ const original=first.items.find(item=>item.connectionId===first.selectedConnectionId);
+ await f.router.call('discover',{machineId:f.machine.machineId});
+ await f.router.call('manageNode',{nodeId:f.node.nodeId,action:'attach',operationId:'attach-original-dsh-service'});
+ assert.equal(f.router.node(f.node.nodeId).executable,original.executable);
+
+ const second=await f.router.call('dsh.configure',{...saved,url:originB});
+ const alternate=second.items.find(item=>item.connectionId===second.selectedConnectionId);
+ await f.router.call('dsh.configure',{...saved,url:originA,enabled:false});
+ await f.router.call('discover',{machineId:f.machine.machineId});
+ const retained=(await f.router.snapshot()).nodes.find(node=>node.nodeId===f.node.nodeId);
+ assert.equal(retained.executable,original.executable);
+ assert.equal(retained.available,false);
+ assert.equal(retained.healthy,false);
+ assert.equal(f.host.executions,0);
+
+ await f.router.call('dsh.configure',{...saved,url:originB,nodeId:f.node.nodeId});
+ await f.router.call('discover',{machineId:f.machine.machineId});
+ const selected=(await f.router.snapshot()).nodes.find(node=>node.nodeId===f.node.nodeId);
+ assert.equal(selected.executable,alternate.executable);
+ assert.equal(selected.connected,false);
+ assert.equal(f.host.executions,0);
+});
 test('DSH target binding cannot select another machine, adapter, deleted file or a foreign save response',async t=>{
  const f=await dshTargetFixture(t),p={machineId:f.machine.machineId,nodeId:f.node.nodeId,adapter:f.node.adapter,url:'http://127.0.0.1:43120/',token:'synthetic-token'};
  await assert.rejects(f.router.call('dsh.configure',{...p,adapter:'dsh-web'}),{code:'WRONG_MACHINE'});const remote=f.router.catalog.machines.find(m=>m.machineId!==f.machine.machineId);await assert.rejects(f.router.call('dsh.configure',{...p,machineId:remote.machineId}),{code:'WRONG_MACHINE'});

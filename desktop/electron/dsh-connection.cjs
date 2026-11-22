@@ -29,15 +29,17 @@ function status(options = {}) {
     catch { return {adapter: n.startsWith('dsh-desktop-') ? 'dsh-desktop' : 'dsh-web', origin: '', enabled: true, executable: file, connectionId: n.slice(0,-5), error: 'DSH 连接配置损坏，请保留原文件并核对。'}; }
   })};
 }
-function configure(options, params) {
+async function configure(options, params) {
   if (!surfaces.has(params.adapter)) throw fail('INVALID_INPUT', '请选择 DSH Desktop 或 DSH Web。');
   const {origin, token: fromUrl} = address(params.url), token = params.token || fromUrl;
   const directory = root(options), key = createHash('sha256').update(params.adapter + ':' + origin).digest('hex').slice(0, 32), file = path.join(directory, params.adapter + '-' + key + '.json');
+  if (params.enabled !== undefined && typeof params.enabled !== 'boolean') throw fail('INVALID_INPUT', '连接状态无效。');
+  if (!token && !fs.existsSync(file))
+    throw fail('INVALID_INPUT', '请填写 DSH 启动地址中的连接 token。');
+  await require('./private-directory.cjs').ensurePrivateDirectoryAsync(directory, {timeoutMs: 30000});
   const previous = fs.existsSync(file) ? read(file) : null;
   const secret = token || previous?.token;
   if (typeof secret !== 'string' || !secret || secret.length > 8192 || /[\r\n]/.test(secret)) throw fail('INVALID_INPUT', '请填写 DSH 启动地址中的连接 token。');
-  if (params.enabled !== undefined && typeof params.enabled !== 'boolean') throw fail('INVALID_INPUT', '连接状态无效。');
-  require('./private-directory.cjs').ensurePrivateDirectory(directory);
   require('./graph-layout.cjs').atomicWrite(file, {adapter: params.adapter, origin, token: secret, enabled: params.enabled !== false});
   return {...status(options), selectedConnectionId: params.adapter + '-' + key};
 }

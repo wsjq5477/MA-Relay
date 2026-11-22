@@ -146,6 +146,7 @@ test('DSH model authentication failure keeps the original Task and labels the mi
   const result = await done(f.host, task.taskId);
   assert.equal(result.status, 'failed');
   assert.equal(result.error.code, 'DSH_MODEL_AUTH_REQUIRED');
+  assert.match(result.error.message, /启动环境.*\.env/);
   assert.doesNotMatch(result.error.message, /private-route/);
   assert.equal(result.result, undefined);
   assert.equal(result.native.sessionId, 'dsh-session');

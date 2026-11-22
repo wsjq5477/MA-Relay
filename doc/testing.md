@@ -2,9 +2,9 @@
 
 2026-11-22，现行源码恢复链通过定向受控验收。答复收据专项覆盖原 ID、丢回应、撤权、旧后台与 OpenCode V1 表单；用户站完成实际构建和内容审计。模型、独立 Linux SSH 和公开安装包继续按实机证据确认。[本轮测试计数及验收范围](iterations/I08/current-scope-audit.md)
 
-首阶段实机目标为本机 DSH NEXT 2.0.23-next。真实 stdio MCP 十工具、获准目标、原生 Session 绑定和原请求恢复已验证。两条原生请求分别记录缺少模型 API Key 的原错误及新诊断分类。Windows DSH 受控回归 5/5，成功正文和同 Session 第二轮待认证。[本机验收记录](iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
+本机 DSH NEXT 2.0.24-next 使用现有 DeepSeek 账号，两轮真实 stdio MCP 委派均返回预期正文，续聊沿用原 Session。关闭重开后台后，按四条原 ID 读回两条成功和两条早期认证失败，原事件分页无缺口，新增执行数为 0。另用一条实机请求验证在途重开及取消。原取消收据从 unknown 查到 confirmed，原 Task 独立通过事件确认 cancelled。Windows DSH、服务连接和 ACL 定向回归 13/13。[本机验收记录](iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
 
-本机原 DSH 失败结果已生成 Markdown 笔记，核对原 Task、原失败类型和两次写入的同一文件版本。受控双目标验收验证结果权限、冲突拒绝及显式交接正文。[实测记录](iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
+本机原 DSH 失败和成功结果均已生成 Markdown 笔记，核对原 Task、失败类型或正文和两次写入的同一文件版本。受控双目标验收验证结果权限及冲突拒绝。本机独立 DSH Web 接收方实测消费显式交接的正文和事件摘要，同时拒绝直接读取源 Task。[实测记录](iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
 
 2026-11-17，issue #33 的公开预发布 `0.6.0-alpha.76.issue33.3` 覆盖大型 profile 的 ACL、主进程 IPC、前端恢复和旧后台自动切换。隔离 profile 的打包后台升级与两个公开附件的匿名下载均已验证，实际安装目录覆盖及私有 CodeAgent 仍待验收。[交付及验证](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
 
@@ -120,7 +120,7 @@ Linux JSON 两轮终态只保存 status/summary，脚本用原 conversationId �
 | 20 样本状态延迟 p95 / 全退避时序 | 未完成本次测量 | 按 I06 定义保存样本、链路条件与计算 |
 | 忙时升级与失败回滚 | 源码及真实 daemon/process 受控验证通过 | 独立服务器与原生验收见 I06C 收尾 |
 | Hermes/Pi/DSH 真实工具执行 | 源码已实现；Hermes Windows/Linux正式安装版执行与续聊已有真实证据，Pi/DSH入口按接入矩阵分别记录 | 真实被委派/自主父模型与Pi/DSH未覆盖入口验收（I07C 收尾） |
-| DSH Desktop/Web 原实例 | 受控服务验证 | 连接用户原服务后的真实推理/续聊/取消验证 |
+| DSH Desktop/Web 原实例 | 受控服务验证。本机 DSH Web 2.0.24-next 已验证连接、授权和接收另一 Agent 的结果 | 其他 DSH 原服务、生产环境及原服务续聊与取消 |
 
 ## 7. 可复现检查
 

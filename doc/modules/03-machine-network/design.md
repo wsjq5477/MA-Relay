@@ -1,5 +1,7 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+M03-F05：本机保存 DSH Desktop 或 Web 服务连接时，后台异步核验 Windows 私有目录，等待上限为 30 秒。目录检查失败时不写入连接。读取前一次记录、保留现有 token 和原子保存连续完成，后台可在权限检查期间响应其他操作。同一机器已管理或已接入的 DSH 节点保留原配置，即使没有单独保存节点绑定或原服务离线。在原节点明确选择新地址后，仍需重新接入才能使用新连接。原 Task 继续按原绑定查询。[本机验收](../../iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
+
 M03-F02：发现安装包及 Windows 开始菜单快捷方式，以准确安装路径绑定 `dsh-next`。首次接入仅在现有 MCP 条目缺失时准备原生配置。 [DSH NEXT 交付](../../iterations/I08/alpha76-dsh-release.md)
 
 M03-F01/F02：自定义运行时创建按目标 machineId 发送至本机、WSL 或 SSH Linux，先核对机器准入，成功后仅刷新目标发现；路径解析、探测和保存由目标 MachineHost 完成。旧 daemon 提示维护升级，不回退本机。[范围与证据](../../iterations/I08/custom-runtime-remote-ui.md)
@@ -96,7 +98,7 @@ M03-F02：MachineHost 的 OpenCode 上下文工厂同步返回完整的 call/clo
 
 ## DSH Desktop / Web 当前行为
 
-M03-F02/F05：两个DSH服务adapter各有独立节点、配置文件连接身份和目录上下文；节点配置按所属机器转发dsh.status/configure并执行维护准入。不同origin形成新身份，原上下文/executable/Session保留；损坏单连接不阻断其他工具发现。 [完整契约与证据](../../iterations/I07/dsh-desktop-web.md)。公开alpha.34不包含该能力；本地.dsh.3候选已构建并验证真实连接，Desktop模型两轮均RATE_LIMIT，独立SSH未验，见[本地交付](../../iterations/I07/dsh-exe-delivery.md)。
+M03-F02/F05：两个DSH服务adapter各有独立节点、配置文件连接身份和目录上下文；节点配置按所属机器转发dsh.status/configure并执行维护准入。不同origin形成新身份，原上下文/executable/Session保留；损坏单连接不阻断其他工具发现。 [完整契约与证据](../../iterations/I07/dsh-desktop-web.md)。本机接入与模型验证的当前证据见[本机验收](../../iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)。
 
 M03-F02：CLI版本探测识别到Distributed Shell/Dancer's shell时忽略该无关同名程序（含退出1、stderr输出），继续寻找真实DSH；真正工具失败仍保留PATH选择。Linux发现`~/.dsh/profiles/web/package.json`（或`DSH_HOME`下同路径）且包名为`dsh-profile-web`时，仅显示未配置Web服务提示；Windows Desktop安装提示继续按实际EXE与包名核对。已有服务配置（包括停用）不再补安装提示，不启动服务、不读取原生凭据。安装提示不能执行，配置服务后按原adapter+origin建立连接身份；历史和unknown保持。[本轮复现与验证](../../iterations/I07/dsh-desktop-web.md#同名程序与服务发现修复)。
 
@@ -150,7 +152,7 @@ I07A/B的登记、成员/文档权限、公共消息、版本任务和授权交�
 
 ## 1. 用户得到什么
 
-用户先看到机器，再看到机器上安装的 Claude Code、OpenCode、Codex、Hermes、Pi、DSH 等 Agent 节点。后三种是 alpha.28 后未发布源码扩展，详情见[原生扩展专项](../../iterations/I07/native-agent-expansion.md)。接入节点不要求项目目录、模型或供应商。发送任务时才选择执行目录；不处理现有项目时可留空，由后台创建默认目录。
+用户先看到机器，再看到机器上安装的 Claude Code、OpenCode、Codex、Hermes、Pi、DSH 等 Agent 节点。各入口的当前支持与交付版本见[接入矩阵](../../agent-integration-matrix.md)。接入节点不要求项目目录、模型或供应商。发送任务时才选择执行目录；不处理现有项目时可留空，由后台创建默认目录。
 
 一台 Windows 电脑和它的 WSL 是两个执行环境，但 WSL 标明所属 Windows 宿主。通过 SSH 接入的 Linux 是独立机器，文件路径、任务和故障归属于它自己。
 

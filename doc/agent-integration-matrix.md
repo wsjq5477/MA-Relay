@@ -1,6 +1,6 @@
 # Agent 接入现状与后续目标
 
-Windows `dsh-next` 原生执行入口使用安装包内的 headless JSONL。首次接入可为当前 DSH NEXT Profile 安装 MCP，已授权 DSH 可通过原生 MCP 查询和调用 Bridge。作为被委派目标时，headless 模型路由需独立核对认证。当前本机已验证原任务及会话绑定，成功模型正文待 Key 配置。[DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md) · [本机验收](iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
+Windows `dsh-next` 原生执行入口使用安装包内的 headless JSONL。首次接入可为当前 DSH NEXT Profile 安装 MCP，已授权 DSH 可通过原生 MCP 查询和调用 Bridge。作为被委派目标时，headless 模型路由需独立核对认证。本机 DSH NEXT 2.0.24-next 使用现有 DeepSeek 账号，实机两轮成功、沿原 Session 续聊，并按原任务与事件游标恢复。独立的本机 DSH Web 接收方也已消费授权交接的结果与事件摘要。[DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md) · [本机验收](iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
 
 alpha.74 支持本机、WSL 与 SSH Linux 目标添加 Hermes/Pi 兼容命令，分别复用 stream-json/JSON-print。受控 CLI 已验 Pi 原会话续聊；真实用户命令、Linux/SSH 原生闭环和 EXE 待验。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 

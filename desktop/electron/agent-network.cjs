@@ -94,12 +94,16 @@ class AgentNetwork extends MachineRouter {
           ||{...connection,current:false,connectionId:node.connectionId,executable:node.executable,version:node.version,healthy:false,error:'原 OpenCode 安装未发现，请核对原安装后重新扫描；不会切换到其他安装。',errorCode:'DISCOVERY_CHANGED',executionSupported:false};
       }
       const dshBinding=(this.network.dshBindings||[]).find(b=>b.nodeId===node.nodeId&&b.machineId===node.machineId&&b.adapter===node.adapter);
-      if(dshBinding){
-        const selected=snapshot.connections.find(c=>c.current&&c.machineId===node.machineId&&c.adapter===node.adapter&&c.executable===dshBinding.executable);
+      // Machine-level saves may predate an explicit node binding. A managed
+      // service still owns the exact connection it attached to.
+      const ownsDshService=(node.managed||node.connected)&&['dsh-desktop','dsh-web'].includes(node.adapter)
+        && /^dsh-(desktop|web)-[a-f0-9]{32}\.json$/.test(path.win32.basename(node.executable));
+      const dshExecutable=dshBinding?.executable||(ownsDshService?node.executable:null);
+      if(dshExecutable){
+        const selected=snapshot.connections.find(c=>c.current&&c.machineId===node.machineId&&c.adapter===node.adapter&&c.executable===dshExecutable);
         if(selected){if(node.executable!==selected.executable)node.connected=false;connection=selected;}
-        else connection=snapshot.connections.find(c=>!c.current&&c.machineId===node.machineId&&c.adapter===node.adapter&&c.executable===dshBinding.executable)||{...connection,current:false,connectionId:node.connectionId,executable:node.executable,healthy:false,error:'已保存的 DSH 目标连接未发现，请保留原连接并重新扫描核对。',errorCode:'DSH_CONNECTION_REQUIRED',executionSupported:false};
-      }
-      if(!connection.current&&!dshBinding)connection=snapshot.connections.find(c=>c.connectionId===node.connectionId)||connection;
+        else connection=snapshot.connections.find(c=>!c.current&&c.machineId===node.machineId&&c.adapter===node.adapter&&c.executable===dshExecutable)||{...connection,current:false,connectionId:node.connectionId,executable:node.executable,healthy:false,error:'已保存的 DSH 目标连接未发现，请保留原连接并重新扫描核对。',errorCode:'DSH_CONNECTION_REQUIRED',executionSupported:false};
+      }else if(!connection.current)connection=snapshot.connections.find(c=>c.connectionId===node.connectionId)||connection;
       delete node.supersededBy;
       for(const sibling of siblings)if(sibling!==node)sibling.supersededBy=node.nodeId;
       Object.assign(node,{executable:connection.current?connection.executable:node.executable,connectionId:connection.connectionId,version:connection.current?connection.version:node.version,connected:node.managed?!!node.connected:node.connected||connection.connected,installed:!connection.error||connection.healthy,error:connection.error,errorCode:connection.errorCode,executionSupported:connection.executionSupported??connection.adapter!=='codex'});

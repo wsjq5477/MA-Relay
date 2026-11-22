@@ -65,12 +65,12 @@ function assertOwner(stat) {
     throw Object.assign(new Error('后台目录不属于当前用户。'), { code: 'PRIVATE_DIRECTORY' });
 }
 
-function windowsCommand(directory) {
+function windowsCommand(directory, timeout = windowsTimeoutMs) {
   return [
     path.win32.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'),
     aclArgs,
     {
-      encoding: 'utf8', windowsHide: true, timeout: windowsTimeoutMs, maxBuffer: 16384,
+      encoding: 'utf8', windowsHide: true, timeout, maxBuffer: 16384,
       env: { ...process.env, AGENTBRIDGE_PRIVATE_DIRECTORY: directory }
     }
   ];
@@ -136,7 +136,7 @@ async function ensurePrivateDirectoryAsync(directory, options = {}) {
         assertDirectory(await fs.promises.lstat(target));
         const run = options.execFile || execFile;
         const output = await new Promise((resolve, reject) => {
-          run(...windowsCommand(target), (error, stdout) => error ? reject(error) : resolve(stdout));
+          run(...windowsCommand(target, options.timeoutMs), (error, stdout) => error ? reject(error) : resolve(stdout));
         });
         confirmWindowsProtection(output);
       } catch (error) {

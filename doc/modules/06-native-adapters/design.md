@@ -1,6 +1,8 @@
 # M06 原生 Agent 适配器设计
 
-M06-F01：Windows DSH NEXT 包内原生 CLI 使用 headless JSONL，沿用原生数据目录，模型认证由 headless 路由配置决定。原生明确报告 DeepSeek API Key 缺失时，原 Task 记录 `DSH_MODEL_AUTH_REQUIRED`，由用户在原生模型设置中补齐。Desktop Profile 的 MCP 配置继续按 NEXT 启动时限处理。[本机验收](../../iterations/I08/current-scope-audit.md#本机-dsh-next-实测) · [DSH NEXT 交付](../../iterations/I08/alpha76-dsh-release.md)
+M06-F01：DSH Desktop 与 Web 连接先异步验证私有目录，再保存原 adapter、origin 与连接 token。Windows 检查上限为 30 秒。目录验证失败会保留原配置，可刷新状态核对后重试。扫描保留已接入节点的原服务连接，原连接缺失时不采用同机其他健康地址。[本机验收](../../iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
+
+M06-F01：Windows DSH NEXT 包内原生 CLI 使用 headless JSONL，沿用原生数据目录，模型认证由 headless 路由配置决定。原生明确报告 DeepSeek API Key 缺失时，原 Task 记录 `DSH_MODEL_AUTH_REQUIRED`，提示检查 DSH 启动环境或原生数据目录的 `.env`。原生 headless 默认跳过凭据存储，只有原生 Profile 显式启用时才可使用已保存的认证。Desktop Profile 的 MCP 配置继续按 NEXT 启动时限处理。[本机验收](../../iterations/I08/current-scope-audit.md#本机-dsh-next-实测) · [DSH NEXT 交付](../../iterations/I08/alpha76-dsh-release.md)
 
 Hermes/Pi 自定义运行时分别复用原 stream-json / JSON-print 宿主和原生 Session。宿主加载目标机器配置，复核 adapter 与原上下文一致，按独立安装标识路由，固定 argv 置于协议参数之前；Pi 续聊沿用原 session 文件及工作目录校验。Bridge 管理 MCP 在自定义配置中关闭。[自定义运行时记录](../../iterations/I08/custom-runtime-pi.md)
 

@@ -19,7 +19,7 @@ CLI 不自动继承 Desktop / Web 的账号或 profile。不能把服务版已�
 2. 在 AgentBridge 的「接入配置」打开 Windows 机器，在 DSH NEXT 行点击「接入」。Bridge 使用包内入口，首次接入可为当前 Profile 准备 MCP。
 3. 如需在 DSH 左侧栏查看获准 Agent 及其状态，可下载 [AgentBridge 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip)，在 DSH NEXT 的「插件 → 添加插件」中安装 ZIP。
 
-接入后，发起任务仍需 headless 的模型路由有可用认证。如果任务报告缺少 API Key，请在 DSH 的「模型」页为该路由配置，再发起新请求。原任务的失败和会话记录可以继续查看。
+接入后，发起任务仍需 headless 的模型路由有可用认证。默认的 DeepSeek API Key 路由读取 DSH 启动环境中的 `DEEPSEEK_API_KEY`，未设置时依次读取任务工作目录和原生数据目录（`DSH_HOME`）中的 `.env`。建议把 Key 放在原生数据目录，避免随项目提交。桌面保存的账号和 Key 默认不会被 headless 读取。如需沿用已保存的认证，可在 headless Profile 中显式启用。修正认证后发起新请求即可，原任务的失败和会话记录仍可查询。[原生 headless 认证说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/headless/README.md#credentials)
 
 发现安装但未配置服务时，节点显示“待配置服务连接”。在实际机器的DSH节点右侧点击“配置”，保存连接后重新扫描；真正的认证、网络或启动失败仍按错误显示。
 

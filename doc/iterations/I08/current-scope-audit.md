@@ -6,11 +6,11 @@
 
 | 功能 | 源码及证据 | 仍需完成 |
 | --- | --- | --- |
-| 获准发现、固定端点、新建与原 Session 续聊 | 登记、独立调用方、原绑定续聊和串行准入均有实现。历史 Windows Codex → WSL Codex 有正文、续聊、在途重开及取消证据 | Windows Codex → 本机 DSH NEXT 的工具实际可见、固定提交和目标目录、首次成功耗时及两轮结果消费 |
-| 原任务、事件与未知提交恢复 | `task_result` 按原 Task/委派/独立调用方的客户端 request ID 恢复，事件使用原游标。受控回归覆盖丢回应、原执行一次、撤权与历史缺口 | 所选实机链路中的提交回应丢失、后台重开、越权及目录变化 |
+| 获准发现、固定端点、新建与原 Session 续聊 | Windows 本机 DSH NEXT 实际发现、单目标授权、固定提交与目录、两轮相同原生 Session 均通过。首次 22.3 秒。另验在途重开、原任务取消及取消收据恢复 | 权限和表单按支持入口验收 |
+| 原任务、事件与未知提交恢复 | 本机 DSH 完成后重开后台，沿原 request ID 找回四条原 Task 并分页读完原游标。实机独立接收方无法跨授权读取源任务。受控回归覆盖丢回应、原执行一次、撤权与历史缺口 | 提交回应实际丢失及原目录变化仍待实机覆盖 |
 | 原生等待与答复 | OpenCode 已接权限和表单，Claude Code 已接权限。MCP 原答复没有只读恢复入口，本轮已补齐 | 实机原生等待转交和丢回应后的恢复。Claude Code 结构化表单、其他入口仅按各自能力表处理 |
 | 已启动的 OpenCode 服务 | Core Controller 可连接既有服务。本轮用 WSL OpenCode 1.2.10 重验只读连接和观察器重开，原服务保持 | 完整的 MachineHost/登记端点与已有服务链及其升级验收 |
-| 最小上下文交接、结果和材料 | 普通委派传递版本化任务正文，`task_result` 返回获准结果。现行源码可为明确终态新建 Markdown 结果笔记，验证了来源、文件版本冲突与受控第二目标接收 | DSH 模型成功后验证真实第二个 Agent 消费必要摘要与日志。通用实体文件交付、已有笔记合并仍待设计 |
+| 最小上下文交接、结果和材料 | 普通委派传递版本化任务正文，`task_result` 返回获准结果。现行源码可为明确终态新建 Markdown 结果笔记，验证了来源、文件版本冲突与受控第二目标接收 | 本机独立 DSH Web Agent 已消费结构化正文及原事件摘要。通用实体文件交付、已有笔记合并仍待设计 |
 | 可选扩展 | 静态 Adapter 注册、现有 TeamSpace/TeamAutomation 保留。DSH NEXT 连接面板已发布，可选 Markdown 结果笔记已在源码和本机文件落盘验收 | 通用第三方插件宿主、功能更完整的 Workspace、Memory 和 Profiles 处于后续范围。Attach/Steer、任意已有会话导入和跨主体接管未进入首阶段 |
 
 历史证据及各适配器限制见[真实 Codex 验收](interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)、[接入矩阵](../../agent-integration-matrix.md)和[迭代路线](../../project-plan.md)。
@@ -21,7 +21,21 @@
 
 Windows 本机 DSH NEXT `2.0.23-next`，E 盘使用原生安装包，D 盘隔离工作目录固定在提交 `e39dd3af7846f77b422d507b98eb9ab73e4322fe`。MCP 实际列出 10 个工具，获准列表只显示 DSH NEXT。首条请求建立了原生 Session，调用方仅用原客户端 requestId 找回原 Task，约 17.9 秒得知失败。原生 headless 明确报告当前 DeepSeek 路由缺少 API Key。
 
-现行源码将这个明确的原生错误归类为 `DSH_MODEL_AUTH_REQUIRED`，提示从 DSH 模型设置补齐 headless 路由认证。重开同一观察环境后，以一条单独的诊断请求复验。约 14.6 秒读回同类明确失败，原 Session 绑定与原请求可查询。两条失败任务均保留，成功模型正文和原会话续聊仍待用户完成原生认证。Windows DSH 受控回归 5/5，共用 NativeCliHost 和 Hermes 分离套件 35/35，覆盖同 Session、原请求去重、取消和非完整终态。更新后的用户站 6/6，18 个许可用户页及 404 通过产物审计。原始证据为 `local-dsh-discovery.json`、`local-dsh-first-result.json`、`local-dsh-diagnostic-result.json`、`local-dsh-summary.json`、`dsh-auth-regression.log` 和 `dsh-expanded-regression.log`。
+现行源码将这个明确的原生错误归类为 `DSH_MODEL_AUTH_REQUIRED`。最初的实测版本提示使用 DSH 模型页，安装包复核后已改为指向启动环境或原生数据目录的 `.env`。重开同一观察环境后，以一条单独的诊断请求复验。约 14.6 秒读回同类明确失败，原 Session 绑定与原请求可查询。两条失败任务均保留。Windows DSH 受控回归 5/5，共用 NativeCliHost 和 Hermes 分离套件 35/35，覆盖同 Session、原请求去重、取消和非完整终态。更新后的用户站 6/6，18 个许可用户页及 404 通过产物审计。原始证据为 `local-dsh-discovery.json`、`local-dsh-first-result.json`、`local-dsh-diagnostic-result.json`、`local-dsh-summary.json`、`dsh-auth-regression.log` 和 `dsh-expanded-regression.log`。
+
+原接入操作收据保留 `2.0.23-next`。复核时安装已是 `2.0.24-next`，其 headless 说明和配置均确认默认 Profile 禁用凭据存储和桌面账号服务。API Key 路由依次读取启动环境、工作目录 `.env`、`DSH_HOME/.env`。安装包支持使用原生 headless Profile 显式恢复已保存的认证，账号模型仍需选择对应的原生路由。新指引受控回归 5/5，用户站 6/6，实际静态产物包含 18 个用户页和 404。复核未发起模型请求。证据为 `dsh-native-auth-profile-facts.json`、`dsh-auth-guidance-regression.log` 和 `dsh-auth-guidance-site.log`。[原生 headless 认证说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/headless/README.md#credentials)
+
+用户授权使用现有 DeepSeek 账号后，在 D 盘隔离的原生 headless Profile 显式启用保存的认证，并选择 `deepseek-account/deepseek-flash`。DSH NEXT `2.0.24-next` 通过生产 stdio MCP 接收两条新请求。第一轮在固定提交目录调用一次读取工具、返回正确的文件内容，用时 22.3 秒。第二轮不调用工具，从同一原生 Session 历史取回上一轮内容并返回约定值，用时 17.6 秒。两轮都由调用方沿原 request ID 读取结果。后台关闭重开后，从原 ID 找回两条成功及两条历史失败，分页分别读完 8、6、5、5 个事件，无游标缺口或截断，新增执行数为 0。原始证据为 `local-dsh-account-first-result.json`、`local-dsh-account-second-result.json` 和 `local-dsh-account-recovery.json`。
+
+另用一条新请求验证在途恢复和取消。原 Task 在关闭观察器前为 `running`，重开后按原 request ID 找回，仍为 `running`。一次取消请求初始收据为 `unknown`，原 Task 随后出现 `cancelled` 终态事件，按原 operation ID 只读查询收据为 `confirmed`。观察和控制期间没有重派。证据为 `local-dsh-account-control.json`。
+
+### 显式交接到独立 DSH Web 会话
+
+同一 DSH NEXT 安装包使用原生 Web Profile 启动同机回环服务。前两次实机尝试均在连接保存阶段遇到 `PRIVATE_DIRECTORY_TIMEOUT`，模型请求为 0。源码改为异步核验 Windows 私有目录，DSH 保存操作的 ACL 等待上限为 30 秒。修复后的服务连接保存和原生 Session API 认证通过。使用独立登记的接收方和新请求，首次交接中的原状态及事件序号匹配，返回的正文却误用了事件的 `completed`。原 Task 成功和业务校验失败分别保留。证据为 `local-dsh-account-handoff-preflight-timeout.json`、`local-dsh-account-handoff-second-preflight-timeout.json` 和 `local-dsh-account-handoff-first-verifier.json`。
+
+第二次交接从源调用方恢复的 Task 读取正文和事件，仅发送原状态、标注的正文和原事件序号及类型。本机 DSH Web 接收方使用独立登记、调用方授权和原生 Session。接收方作用域直接读取源 Task 被拒绝。只读恢复和导出未触发委派，调用方明确选择的接收方收到一条独立的新委派，约 5.0 秒准确返回原状态、完整正文及最后事件序号。证据为 `local-dsh-account-handoff-structured.json`。
+
+复验准备还发现，旧节点经过机器级保存后未记录显式选中项，扫描可能改用同机另一份 DSH 服务配置。现行源码把已管理或已接入的 DSH 节点保留在原配置文件，即使它已经从扫描结果消失。节点上明确保存新的服务地址后，才可按独立的接入步骤开始使用。本机 DSH 配置、固定连接、原生协议、原认证失败和 ACL 定向回归 13/13。模型验收结束后关闭测试服务，并恢复 D 盘隔离 Profile 的原配置。证据为 `dsh-connection-and-native-final.log`。
 
 ### 已结束的本机 Claude Code 前置验收
 
@@ -57,10 +71,13 @@ CLI 只读原 `task_result`，核对调用方仍有结果权限、原 Task 身�
 
 Windows 实测通过原独立 MCP 身份把已有 DSH NEXT 认证失败写入 D 盘笔记。首写 `created`，复写 `unchanged`，原失败分类及 Task 保留，文件 SHA-256 与 CLI 两次报告一致。原委派依旧 2 条，导出新增模型调用为 0。认证 broker 与受控双目标另验并发写入、用户编辑冲突、外来上下文拒绝、原事件缺口和第二目标确实接收调用方选定的正文。调用方与事件回归 30/30，含该受控验收。原始证据为 `local-dsh-result-note.json`、`result-note-focused-recheck.log` 和 `result-note-expanded.log`。
 
+同一独立 MCP 身份也从重开后的后台导出成功的 DSH NEXT 第二轮。两次写入分别为 `created`、`unchanged`，验证原 Task、准确正文和文件 SHA-256 一致，新增模型执行为 0。证据为 `local-dsh-account-recovery.json`。
+
 ## 验收
 
 | 证据 | 结果 |
 | --- | --- |
+| 本机 DSH 与连接回归 | DSH NEXT 2.0.24-next 同 Session 两轮、在途重开、原取消及收据恢复通过。DSH Web 真实独立接收方完成显式交接。Windows 连接、原生执行和 ACL 13/13，Core 与桌面类型检查均通过 |
 | Windows Node 24.12.0 桌面定向回归 | 扩展回归 43 通过、1 失败。认证 Coordinator 启动报 `PRIVATE_DIRECTORY_TIMEOUT`，在同环境的未修改基线也复现。原答复专项 4/4，覆盖丢回应、读取期间撤权及新旧后台门禁，目标为受控宿主 |
 | Windows OpenCode V1 | 5/5。生产 Hub/Edge 连受控 HTTP 服务，覆盖权限、表单、拒绝与确认收据、Hub/Edge 重开、只读复查与原权限/表单各派发一次 |
 | Windows Core 扩展回归 | 首轮 20 通过、2 失败、2 平台跳过。两项 OpenCode 启动耗时断言在未修改的 `16a197c` 和本轮源码上均复现 |
@@ -68,4 +85,4 @@ Windows 实测通过原独立 MCP 身份把已有 DSH NEXT 认证失败写入 D 
 | WSL Node 24.13.0 桌面后端 | 扩展回归 44/44，无跳过。认证 Coordinator 和真实 stdio 到受控宿主，模型 0 |
 | 用户站 | 6/6。实际 VitePress 构建与静态产物审计通过，18 个用户页与 404、两张表、158 个网页和搜索资源，内部页和原始证据导出均为 0 |
 
-原始日志保存在 D 盘 `artifacts/current-scope-20261122`，包括 `desktop-final.log`、`desktop-reply-focused.log`、`desktop-registry-baseline.log`、`core-regression.log`、`opencode-version-baseline.log`、`wsl-desktop-suite.log`、`wsl-existing-opencode-final.log`、`wsl-existing-opencode-recheck.log` 和 `docs-site-final.log`。Windows 开发数据和临时文件在 D 盘，Ubuntu-22.04 存储在 E 盘。公开包验收引用对应发布记录。
+原始日志保存在 D 盘 `artifacts/current-scope-20261122`，包括 `desktop-final.log`、`desktop-reply-focused.log`、`desktop-registry-baseline.log`、`core-regression.log`、`opencode-version-baseline.log`、`wsl-desktop-suite.log`、`wsl-existing-opencode-final.log`、`wsl-existing-opencode-recheck.log` 和 `docs-site-final.log`。最终检查见 `dsh-account-final-site.log`、`dsh-account-final-docs.json` 与 `dsh-account-final-types.log`。Windows 开发数据和临时文件在 D 盘，Ubuntu-22.04 存储在 E 盘。公开包验收引用对应发布记录。

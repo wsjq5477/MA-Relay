@@ -1,6 +1,6 @@
 # M08 主从协作测试报告
 
-T-M08-322 / M08-F03/F05：2026-11-22，Windows。原调用方通过认证 broker 导出受控结果后，明确把笔记正文交给另一个获准 Agent。验证实际输入包含该正文，导出期间派发次数不变。真实第二 Agent 的模型消费待验。[实测记录](../../iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
+T-M08-322 / M08-F03/F05：2026-11-22，Windows。原调用方通过认证 broker 导出受控结果后，明确把笔记正文交给另一个获准 Agent。验证实际输入包含该正文，导出期间派发次数不变。本机实机 DSH NEXT → 独立 DSH Web 已验证授权内的显式交接。独立接收方正确消费结构化正文及事件序号，直接读取源 Task 被拒绝。首个未标清正文的材料造成模型取错字段，原结果保留。[实测记录](../../iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
 
 T-M08-318 / M08-F03/F05：2026-11-22，Windows Node 24.12.0，答复定向验收 4/4。答复回应丢失后重开调用方并读取原 ID，受控目标收到一次答复。覆盖真实 stdio 新旧后台门禁、原属主、读取期间撤权、无收据、错误类型和外来 Task。扩展回归 Windows 43 通过、1 项 Coordinator 私有目录超时，在未修改基线复现。WSL Node 24.13.0 同组 44/44。[原始结果与剩余验收](../../iterations/I08/current-scope-audit.md)
 

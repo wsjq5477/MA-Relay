@@ -292,7 +292,7 @@ async function runWorker(directory) {
   emit({ kind: 'terminal', status: cancelled ? 'cancelled' : succeeded ? 'succeeded' : 'failed',
     ...(dshModelKeyMissing ? {code:'DSH_MODEL_AUTH_REQUIRED'} : {}),
     text: safe(cancelled ? '已确认原生执行进程结束' : succeeded ? result.answer : dshModelKeyMissing
-      ? 'DSH headless 的原生模型路由缺少 API Key。请在 DSH 的模型设置中配置对应路由后发起新请求。'
+      ? 'DSH headless 的原生模型路由缺少 API Key。请在 DSH 的启动环境或原生数据目录的 .env 中配置该路由引用的 Key，确认后发起新请求。'
       : errorMessage + hint) });
 }
 module.exports = { NativeCliHost, capabilities };
