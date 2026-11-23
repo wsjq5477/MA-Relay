@@ -18,7 +18,7 @@ AgentBridge 连接你已有的原生 Agent，在桌面配置机器、授权与�
 
 - [Claude Code](agents/claude.md)、[Codex](agents/codex.md)、[OpenCode](agents/opencode.md)：直接任务、被委派，以及通过 MCP 主动协作。
 - [Hermes](agents/hermes.md)、[Pi](agents/pi.md)：原生 CLI 任务与普通被委派。
-- [DSH](agents/dsh.md)说明 DSH NEXT、CLI、Windows Desktop 和 Linux / WSL Web 的接入方式。
+- [DSH](agents/dsh.md)说明 DSH NEXT、ACP、CLI、Windows Desktop 和 Linux / WSL Web 的接入方式。
 
 ## 按工作场景阅读
 

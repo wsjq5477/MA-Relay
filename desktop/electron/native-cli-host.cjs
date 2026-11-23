@@ -105,7 +105,7 @@ class NativeCliHost {
       try { piSessionFile(path.join(this.directory, 'native-sessions'), conversation.sessionId, this.state.agents.find(agent => agent.agentId === conversation.targetAgent)?.workspace); }
       catch (error) { if (error.code !== 'CONVERSATION_CONFIG') throw error; bound = false; }
     }
-    if (bound && this.adapter === 'dsh-next') {
+    if (bound && ['dsh-next', 'dsh-acp'].includes(this.adapter)) {
       try { bound = conversation.dshHome === this.dshNextHome(); } catch { bound = false; }
     }
     return { ...result, kind: 'task', canContinue: !!bound && !!last && terminal.has(last.status) && !this.state.tasks.some(item => !terminal.has(item.status)) };
@@ -173,7 +173,7 @@ class NativeCliHost {
     if (old) { if (old.fingerprint !== fingerprint) throw fail('REQUEST_CONFLICT', '请求内容冲突。'); return this.publicTask(this.state.tasks.find(item => item.taskId === old.taskId)); }
     if (params.op === 'continue' && (!validIdentity(conversation?.sessionId) || conversation.profile !== profiles[this.adapter] || conversation.bindingError)) throw fail('CONVERSATION_CONFIG', '原生会话或执行协议尚未绑定，未重新提交。');
     if (params.op === 'continue' && this.adapter.startsWith('opendesk') && !this.conversationView(conversation).canContinue) throw fail('CONVERSATION_CONFIG', '原 OpenDesk 连接或会话不可用，请保留原历史；未重新提交。');
-    const dshHome = this.adapter === 'dsh-next' ? this.dshNextHome() : undefined;
+    const dshHome = ['dsh-next', 'dsh-acp'].includes(this.adapter) ? this.dshNextHome() : undefined;
     if (dshHome && conversation && conversation.dshHome !== dshHome) throw fail('CONVERSATION_CONFIG', 'DSH NEXT 的原生数据目录已变更，原会话保留，需求未发送。');
     if (this.state.tasks.some(item => !terminal.has(item.status))) throw fail('AGENT_BUSY', '此上下文仍有未结束任务。');
     const fresh = { taskId: this.adapter + '-task-' + randomUUID(), executionId: randomUUID(), conversationId: conversation?.conversationId || this.adapter + '-conversation-' + randomUUID(), targetAgent: agent.agentId, requestId: params.requestId, message: safe(params.message), status: 'accepted', createdAt: now(), updatedAt: now(), turn: (conversation?.turns || 0) + 1, lastSeq: 0, lastSummary: '已接收，正在启动 ' + this.name, events: [], offset: 0 };
@@ -202,7 +202,7 @@ class NativeCliHost {
     try {
       const runtime = require('./worker-runtime.cjs').workerRuntime(this.directory), workerDirectory = path.join(this.directory, 'runtime', 'native-' + randomUUID());
       fs.mkdirSync(workerDirectory, { recursive: true, mode: 0o700 });
-      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs', 'dsh-connection.cjs', 'dsh-next-runtime.cjs', 'dsh-worker.cjs', 'opendesk-connection.cjs', 'opendesk-worker.cjs', 'graph-layout.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
+      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs', 'dsh-connection.cjs', 'dsh-next-runtime.cjs', 'dsh-acp-worker.cjs', 'dsh-worker.cjs', 'opendesk-connection.cjs', 'opendesk-worker.cjs', 'graph-layout.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
       fd = fs.openSync(path.join(directory, 'worker.log'), 'a', 0o600);
       child = spawn(runtime, [path.join(workerDirectory, 'native-cli-host.cjs'), '--native-cli-worker', directory, ...(observe ? ['--observe'] : [])], { cwd: workspace, env: { ...(this.environment || process.env), ELECTRON_RUN_AS_NODE: '1' }, detached: true, windowsHide: true, stdio: ['ignore', fd, fd] });
       child.once('error', error => { this.chain = this.chain.then(() => launchFailure(error)).catch(() => {}); }); child.unref();
@@ -215,6 +215,7 @@ class NativeCliHost {
 async function runWorker(directory) {
   const original = read(path.join(directory, 'job.json'), null);
   if (['opendesk', 'opendesk-desktop'].includes(original?.adapter)) return require('./opendesk-worker.cjs').run(directory, {observe: process.argv.includes('--observe')});
+  if (original?.adapter === 'dsh-acp') return require('./dsh-acp-worker.cjs').run(original, directory, { write, safe });
   if (['dsh-desktop', 'dsh-web'].includes(original?.adapter)) return require('./dsh-worker.cjs').run(directory, {observe: process.argv.includes('--observe')});
   const job = read(path.join(directory, 'job.json'), null), emit = data => fs.appendFileSync(path.join(directory, 'events.jsonl'), JSON.stringify(data) + '\n', { mode: 0o600 });
   const beat = () => write(path.join(directory, 'heartbeat.json'), { time: now(), pid: process.pid }); beat();

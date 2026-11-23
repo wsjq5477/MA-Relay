@@ -1,5 +1,7 @@
 # AgentBridge 整体架构
 
+MachineHost 将独立的 DSH ACP 节点交给 NativeCliHost。私有执行进程用 ACP v1 stdio 驱动同一安装包内的 `acp` Profile，任务与原生 Session 仍经原 MachineHost、Coordinator 和 MCP 授权链路读取。[DSH ACP](iterations/I08/dsh-acp.md)
+
 原生等待的只读恢复沿 MCP → Coordinator → 原机器路由 → 原任务后台查询同一操作。Coordinator 核对原属主、Task、操作类型与状态后返回收据摘要。Core Hub 用原执行绑定核对持久记录。任务终态继续通过原 Task 读取。[调用方契约](iterations/I08/interconnect-caller-contract.md)
 
 Windows 打包桌面只有在新运行时已准备且通过准入后才请求同一 profile 的旧后台正常退出；客户端确认原进程退出后切换到新版。其他 IPC 客户端沿用普通连接入口。[覆盖升级](iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)

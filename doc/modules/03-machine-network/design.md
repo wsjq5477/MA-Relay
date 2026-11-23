@@ -1,5 +1,7 @@
 # M03 机器、Agent 节点与执行上下文设计
 
+M03-F02：Windows 扫描确认 DSH NEXT 包内含 ACP 应用与协议包后，显示独立 `dsh-acp` 节点。节点绑定准确安装路径并走原执行权限与工作目录准入。[DSH ACP](../../iterations/I08/dsh-acp.md)
+
 M03-F05：本机保存 DSH Desktop 或 Web 服务连接时，后台异步核验 Windows 私有目录，等待上限为 30 秒。目录检查失败时不写入连接。读取前一次记录、保留现有 token 和原子保存连续完成，后台可在权限检查期间响应其他操作。同一机器已管理或已接入的 DSH 节点保留原配置，即使没有单独保存节点绑定或原服务离线。在原节点明确选择新地址后，仍需重新接入才能使用新连接。原 Task 继续按原绑定查询。[本机验收](../../iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
 
 M03-F02：发现安装包及 Windows 开始菜单快捷方式，以准确安装路径绑定 `dsh-next`。首次接入仅在现有 MCP 条目缺失时准备原生配置。 [DSH NEXT 交付](../../iterations/I08/alpha76-dsh-release.md)

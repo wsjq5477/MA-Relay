@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {isBrowser,installation,sameInstallation,executionResource}=require('./adapter-identity.cjs');
 const {isCustomRuntime}=require('./custom-runtime.cjs');
-const usesExactInstallation = node => isBrowser(node) || node.adapter === 'dsh-next' || isCustomRuntime(node.executable);
+const usesExactInstallation = node => isBrowser(node) || ['dsh-next', 'dsh-acp'].includes(node.adapter) || isCustomRuntime(node.executable);
 const {randomUUID,createHash}=require('node:crypto');
 const {MachineRouter,qualified,folderPath,workspaceKey}=require('./machine-router.cjs');
 const {GraphLayoutStore,atomicWrite,digest,operationId}=require('./graph-layout.cjs');

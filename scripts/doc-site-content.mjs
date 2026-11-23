@@ -24,7 +24,7 @@ const identities = [
   ['claude', 'Claude Code'], ['opencode', 'OpenCode'], ['codex', 'Codex'],
   ['hermes', 'Hermes', 'Hermes Agent'], ['pi', 'Pi'], ['dsh', 'DSH CLI'],
   ['dsh-desktop', 'DSH Desktop', 'DSH Windows Desktop'], ['dsh-web', 'DSH Web', 'DSH Linux / WSL Web'],
-  ['dsh-next', 'DSH NEXT'], ['opendesk', 'OpenDesk CLI'],
+  ['dsh-next', 'DSH NEXT'], ['dsh-acp', 'DSH ACP'], ['opendesk', 'OpenDesk CLI'],
   ['opendesk-desktop', 'OpenDesk Desktop', 'OpenDesk Windows Desktop'], ['chatgpt-web', 'ChatGPT Web'],
 ];
 

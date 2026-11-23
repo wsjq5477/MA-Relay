@@ -32,8 +32,10 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   assert.ok(capabilities.includes('| ChatGPT Web | ✓ | ✓ | — | ✓ | — | — |'));
   assert.ok(methods.includes('| ChatGPT Web | — | — | — | — | 浏览器扩展 | — |'));
   assert.ok(methods.includes('| OpenDesk CLI | 启动服务 | HTTP | 仅导出 | — | — | — |'));
-  assert.equal(methods.trim().split('\n').length, 14);
-  assert.equal(capabilities.trim().split('\n').length, 14);
+  assert.ok(methods.includes('| DSH ACP | — | — | — | ✓ | — | — |'));
+  assert.ok(capabilities.includes('| DSH ACP | ✓ | ✓ | ✓ | ✓ | — | — |'));
+  assert.equal(methods.trim().split('\n').length, 15);
+  assert.equal(capabilities.trim().split('\n').length, 15);
 });
 test('分组的启动命令与会话控制表覆盖全部已注册入口', () => {
   const page = readFileSync(resolve(repositoryRoot, 'doc/user/agents/index.md'), 'utf8');

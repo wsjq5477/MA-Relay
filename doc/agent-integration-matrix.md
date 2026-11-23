@@ -2,9 +2,9 @@
 
 ## 当前源码接入总览
 
-AgentBridge 当前适配 **8 种产品、12 个入口**，包含 11 个原生入口和 ChatGPT Web。查看[逐入口接入表](#2-每个-agent-已接入的方式)可比较 CLI、API、MCP、ACP、插件和 SDK。用户站的接入表从本页生成，并与源码注册表核对。实际启动命令、续聊、回合中插话、检查点回退和上下文压缩见[启动与会话控制](user/agents/index.md#启动与会话控制)。
+AgentBridge 当前适配 **8 种产品、13 个入口**，包含 12 个原生入口和 ChatGPT Web。查看[逐入口接入表](#2-每个-agent-已接入的方式)可比较 CLI、API、MCP、ACP、插件和 SDK。用户站的接入表从本页生成，并与源码注册表核对。实际启动命令、续聊、回合中插话、检查点回退和上下文压缩见[启动与会话控制](user/agents/index.md#启动与会话控制)。
 
-执行路径使用原生 CLI、HTTP、WebSocket 或浏览器扩展。支持主动协作的 Agent 通过 stdio MCP 向 Bridge 查询、委派和读取获准结果。当前没有内置 ACP 或厂家 SDK 执行驱动。
+执行路径使用原生 CLI、HTTP、WebSocket、DSH ACP 或浏览器扩展。支持主动协作的 Agent 通过 stdio MCP 向 Bridge 查询、委派和读取获准结果。厂家 SDK 暂无执行驱动。
 
 本机 DSH NEXT 2.0.24-next 已完成真实两轮、原会话续聊、在途恢复及取消，独立 DSH Web 已验证显式结果交接。ChatGPT Web 通过 Chrome 或 Edge 扩展接入，支持在获准的原可见会话中执行与续聊；网页提交后的停止需在网页处理。[DSH 本机验收](iterations/I08/current-scope-audit.md#本机-dsh-next-实测) · [ChatGPT Web 证据与限制](iterations/I08/web-agent-development.md)
 
@@ -20,7 +20,7 @@ AgentBridge 当前适配 **8 种产品、12 个入口**，包含 11 个原生入
 
 | 方向 | 含义 | 当前实现 |
 | --- | --- | --- |
-| Bridge → Agent | 驱动原生程序执行需求、读取结果、控制原任务 | 原生 CLI、HTTP、WebSocket、浏览器扩展，共 12 个入口 |
+| Bridge → Agent | 驱动原生程序执行需求、读取结果、控制原任务 | 原生 CLI、HTTP、WebSocket、ACP、浏览器扩展，共 13 个入口 |
 | Agent → Bridge | Agent 调用发现、委派、结果和协作操作 | Bridge 提供 stdio MCP 服务，注入受限会话或由外部 Agent 自行配置 |
 | Bridge → 目标机器 | 把执行与协作消息送到相应机器后台 | 本机 IPC、WSL JSONL、SSH relay/daemon；不要求 Agent 直接互开网络端口 |
 
@@ -41,6 +41,7 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | DSH Windows Desktop | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生 Profile 补丁 | 未接入 | 未接入 | 未接入 |
 | DSH Linux / WSL Web | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生web Profile补丁 | 未接入 | 未接入 | 未接入 |
 | DSH NEXT | 已接入：Windows 包内 headless JSONL | 未接入 | 已接入：当前原生 Profile 管理 | 未接入 | 已接入：可选连接面板 | 未接入 |
+| DSH ACP | 未接入独立 CLI 执行 | 未接入 | 未接入 | 已接入：DSH NEXT 包内 ACP v1 stdio | 未接入 | 未接入 |
 | OpenDesk CLI | 已接入：启动serve | 已接入：已有 HTTP 会话接口 | 已接入：仅片段导出，无原生配置管理/托管scope | 未接入 | 未接入 | 未接入 |
 | OpenDesk Windows Desktop | 未接入该入口的CLI | 已接入：已有 WebSocket 设备网关 | 已接入：独立原生配置，未注入托管 scope | 未接入 | 未接入 | 未接入 |
 | ChatGPT Web | 未接入 | 未接入 | 未接入 | 未接入 | 已接入：Chrome / Edge 浏览器扩展 | 未接入 |
@@ -84,7 +85,7 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | Bridge 结构化输入表单 | AskUserQuestion 当前拒绝 | 已实现受支持类型 | 未适配 | 未适配 |
 | 取消与终态核对 | 已实现，有限定真实证据 | 已实现，有限定真实证据 | 进程树/进程组控制已实现，覆盖见报告 | Hermes网关取消未适配，false；Pi/DSH原实现与证据保留 |
 | 原请求持久查询与 unknown 保护 | 已实现 | 已实现 | 已实现 | 已实现 |
-| 当前内置 ACP 驱动 | 无 | 无 | 无 | 无 |
+| 当前内置 ACP 驱动 | 无 | 无 | 无 | DSH ACP，Windows DSH NEXT 包内 Profile |
 
 当前经典 MCP 提供十个工具：`delegate` 默认新建子会话，可传原 `conversationId` 继续同一调用身份拥有的原会话；须目标当前授权、上一轮明确终态及原宿主可续聊，不接受目录变更。新托管父执行不能接管旧父委派；独立接入仍按原 connectionId 归属。已有续聊不等于运行中任意消息注入或任务订阅，也没有父完整历史复制。[当前实现与证据边界](iterations/I08/web-agent-development.md)。TeamSpace 的公共材料与原生 Agent 私有对话仍分开；既有原生父模型证据见相应入口的验收记录。
 
@@ -98,7 +99,7 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | --- | --- | --- | --- |
 | CT-01 能力口径一致 | AB-F02/07/10/13；M01/M02/M03/M06/M07/M08 | 源码已实现八项三态能力、静态来源与方向门禁，原关系拒绝可恢复 | 源码/受控验收通过：桌面503/503、核心45/45、Windows5组；真实新工具/新EXE/独立SSH未验，[完整证据](iterations/I07/connection-capabilities.md) |
 | CT-02 六种原生连接实测 | AB-F07/10/11/13；M06/M07/M08 | 三工具当前WSL[直接生命周期](iterations/I07/connection-native.md)及全部六个[真实普通委派方向](iterations/I07/connection-delegation.md)通过 | 部分完成；新三工具真实环境、新EXE及独立SSH未验；不以旧包或历史权限覆盖当前所有场景 |
-| CT-03 可选 ACP 试点 | AB-F07/10/11；M06/M07/M10 | OpenCode 的可选 ACP Client，保留现有驱动 | 同需求下执行/输出/权限/取消/重连不回归；原请求不重发；至少另一种 ACP 实现验证适配层复用后再扩大 |
+| CT-03 可选 ACP 试点 | AB-F07/10/11；M06/M07/M10 | DSH ACP 已提供可选独立入口，Windows DSH NEXT 包内 Profile | 核对原会话、取消和原请求不重放。其他 ACP Agent 按真实入口兼容性另行验收 |
 | CT-04 公共工作材料与 MD 视图 | AB-F20/21；M01/M02/M06/M07/M08 | 源码已实现只读索引/Markdown与准确修订，桌面阅读/复制/当前页索引或单份MD下载已补；CT-05只读选材包已补，完整产物/交接视图与同步待开发 | 桌面入口541/541及Windows八组通过、模型0；较早真实Claude一个Task保留原证据。MD是视图，授权、任务/收据和可达性分别核对；[完整证据](iterations/I07/public-materials.md) |
 | CT-05 显式共享上下文 | AB-F08/11/20/21；M01/M02/M06/M07/M08 | 公开alpha.63实现同工作原包持久传递、目标接入收据和桌面只读审计；原选材/预览/本机副本保留 | 当前源码944/944，冻结63原生Pi→固定源码Hermes组件7组已通过，模型0；接入收据不代表模型理解、业务验收或文件可达，Windows包内14项/新审计页面5组/普通EXE6组通过，完整CT-05继续核对。[当前传递与证据](iterations/I07/context-delivery.md) |
 | CT-06 通用MCP调用方 | AB-F02/07/08/11/12/13；M01/M02/M03/M06/M07/M08 | 按[I08-MCP02开发记录](iterations/I08/mcp-open-integration.md)推进同一MCP的Bridge/原生双向管理、原生列表可见和实际调用；优先OpenDesk/DSH，覆盖当前十入口；配置、独立调用与托管任务能力拆分 | **源码第一片已完成**（能力三维、六项状态事实、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI CLI、Linux本机路由）；逐入口真实原生增删/列表/工具/主调用归属仍待执行，外部删除不补回与撤权已受控验证。不因实现或静态声明当通过，不强制等待完整I07C；旧[规划](iterations/I07/agent-centric-operations.md)保留历史 |
@@ -124,4 +125,4 @@ Grok Build官方公开headless和`grok agent stdio`的ACP入口，可作为CT-03
 
 ## 7. 方式选择与快速接入
 
-原生CLI、原生API、MCP、ACP、插件、SDK的优点/代价、可实现功能与前提统一维护在[接入选型指南](agent-integration-guide.md#2-六种方式的优缺点与适用场景)，不将后续推荐混进本页已接入状态。指南结合本表说明[逐Agent建议](agent-integration-guide.md#4-结合当前矩阵的后续推荐)及[已有入口与新Agent的快速路径](agent-integration-guide.md#5-如何快速接入)。当前没有通用ACP、原生Bridge插件或SDK驱动；新增这些能力后应按真实代码和验收逐行更新本表。
+原生CLI、原生API、MCP、ACP、插件、SDK的优点/代价、可实现功能与前提统一维护在[接入选型指南](agent-integration-guide.md#2-六种方式的优缺点与适用场景)，不将后续推荐混进本页已接入状态。指南结合本表说明[逐Agent建议](agent-integration-guide.md#4-结合当前矩阵的后续推荐)及[已有入口与新Agent的快速路径](agent-integration-guide.md#5-如何快速接入)。DSH ACP 是面向已适配 DSH 的入口。新增其他 ACP Agent、原生插件或 SDK 驱动后，按实际代码和验收逐行更新本表。

@@ -1,5 +1,7 @@
 # 整体测试与验收报告
 
+Windows 本机 DSH NEXT 2.0.24-next 已实测独立 DSH ACP 任务执行、原 Session 续聊、流式正文与取消。Bridge 重开后原请求仍可查询。ACP 断线与权限请求另有受控回归。[DSH ACP 验收](iterations/I08/dsh-acp.md)
+
 2026-11-22，现行源码恢复链通过定向受控验收。答复收据专项覆盖原 ID、丢回应、撤权、旧后台与 OpenCode V1 表单；用户站完成实际构建和内容审计。模型、独立 Linux SSH 和公开安装包继续按实机证据确认。[本轮测试计数及验收范围](iterations/I08/current-scope-audit.md)
 
 本机 DSH NEXT 2.0.24-next 使用现有 DeepSeek 账号，两轮真实 stdio MCP 委派均返回预期正文，续聊沿用原 Session。关闭重开后台后，按四条原 ID 读回两条成功和两条早期认证失败，原事件分页无缺口，新增执行数为 0。另用一条实机请求验证在途重开及取消。原取消收据从 unknown 查到 confirmed，原 Task 独立通过事件确认 cancelled。Windows DSH、服务连接和 ACL 定向回归 13/13。[本机验收记录](iterations/I08/current-scope-audit.md#本机-dsh-next-实测)

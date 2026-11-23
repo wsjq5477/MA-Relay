@@ -34,7 +34,9 @@ function installation(executable) {
     if (fs.readSync(fd, bytes, 0, bytes.length, start) !== bytes.length) return null;
     const {name: packageName, version} = JSON.parse(bytes);
     if (packageName !== 'dsh-desktop-next' || typeof version !== 'string' || !/^\d+\.\d+\.\d+-next(?:[.-][\w.-]+)?$/.test(version)) return null;
-    return {adapter:'dsh-next', name, version, executable:resolved, entry:path.join(archive, 'lib', cli), healthy:true};
+    const packages = files.node_modules?.files?.['@deepseek-ai']?.files;
+    const acp = ['dsh-acp', 'dsh-acp-app'].every(pkg => offset(packages?.[pkg]?.files?.['package.json']) !== null);
+    return {adapter:'dsh-next', name, version, executable:resolved, entry:path.join(archive, 'lib', cli), healthy:true, acp};
   } catch { return null; }
   finally { if (fd !== undefined) fs.closeSync(fd); }
 }
@@ -66,12 +68,13 @@ async function discover(options = {}) {
   const candidates = options.candidates?.['dsh-next'] ?? directories.map(directory => path.join(directory, name, filename));
   const detected = candidates.map(installation).filter(Boolean);
   if (!detected.length && !options.candidates?.['dsh-next']) detected.push(...(await shortcutTargets(env)).map(installation).filter(Boolean));
-  return [...new Map(detected.map(({entry, ...row}) => [row.executable.toLowerCase(), row])).values()];
+  return [...new Map(detected.map(row => [row.executable.toLowerCase(), row])).values()]
+    .flatMap(({entry, acp, ...row}) => acp ? [row, {...row, adapter:'dsh-acp', name:'DSH ACP'}] : [row]);
 }
 
 function launch(executable, args, home, env = process.env) {
   const target = installation(executable);
-  if (!target || !path.isAbsolute(home || '')) throw Object.assign(new Error('DSH NEXT 的原生安装或数据目录不可用，请重新扫描。'), {code:'TOOL_LAUNCHER'});
+  if (!target || (args[0] === '--profile' && args[1] === 'acp' && !target.acp) || !path.isAbsolute(home || '')) throw Object.assign(new Error('DSH NEXT 的原生安装或数据目录不可用，请重新扫描。'), {code:'TOOL_LAUNCHER'});
   return {executable:target.executable, args:[target.entry, ...args], env:{...env, ELECTRON_RUN_AS_NODE:'1', DSH_HOME:home}};
 }
 

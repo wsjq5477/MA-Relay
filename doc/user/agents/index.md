@@ -1,6 +1,6 @@
 # 原生 Agent 适配
 
-Bridge 当前适配 8 种产品的 12 个入口。OpenDesk 提供 CLI 和 Windows 桌面入口。DSH 提供 DSH NEXT、CLI、Windows Desktop 和 Linux / WSL Web 入口。各入口沿用各自的原生配置。
+Bridge 当前适配 8 种产品的 13 个入口。OpenDesk 提供 CLI 和 Windows 桌面入口。DSH 提供 DSH NEXT、ACP、CLI、Windows Desktop 和 Linux / WSL Web 入口。各入口沿用各自的原生配置。
 
 ## 接入方式总览
 
@@ -37,6 +37,12 @@ ChatGPT Web 使用浏览器扩展。将[扩展附件](https://github.com/wsjq547
 | DSH Web | 连接已启动的 `dsh --profile web` 服务，使用认证 HTTP Session API | ✓ 原 Session | — | — | — |
 | OpenDesk Desktop | 连接已启动桌面实例的 WebSocket 设备网关 | ✓ 原网关连接与会话 | — | — | — |
 
+### ACP（1）
+
+| Agent | Bridge 使用的命令或入口 | 同会话续聊 | 回合中插话 | 回退检查点 | Bridge 主动压缩 |
+| --- | --- | --- | --- | --- | --- |
+| DSH ACP | Windows DSH NEXT 包内 CLI，带 `--profile acp` | ✓ 同一原生 Session | — | — | — |
+
 ### 浏览器扩展（1）
 
 | Agent | Bridge 使用的命令或入口 | 同会话续聊 | 回合中插话 | 回退检查点 | Bridge 主动压缩 |
@@ -47,7 +53,7 @@ ChatGPT Web 使用浏览器扩展。将[扩展附件](https://github.com/wsjq547
 
 **回退检查点**指由 Bridge 将会话或工作区恢复到指定检查点。**Bridge 主动压缩**指由 Bridge 触发上下文压缩。原生工具自己的历史与上下文管理仍由该工具负责。
 
-Claude Code 和 Codex 使用原生 CLI。ACP 与厂家 SDK 驱动暂未接入，MCP 用于 Agent 主动调用 Bridge。
+Claude Code 和 Codex 使用原生 CLI。当前 ACP 入口为 DSH ACP。厂家 SDK 驱动暂未接入。MCP 用于 Agent 主动调用 Bridge。
 
 ## 功能对照
 
@@ -64,7 +70,7 @@ Claude Code 和 Codex 使用原生 CLI。ACP 与厂家 SDK 驱动暂未接入，
 | [OpenCode](opencode.md) | CLI 启动原生服务，HTTP 执行与交互 |
 | [Hermes](hermes.md) | CLI 直接会话与普通被委派 |
 | [Pi](pi.md) | CLI 会话文件、续聊与普通被委派 |
-| [DSH](dsh.md) | DSH NEXT、CLI、Windows Desktop、Linux / WSL Web |
+| [DSH](dsh.md) | DSH NEXT、ACP、CLI、Windows Desktop、Linux / WSL Web |
 | [OpenDesk](opendesk.md) | CLI原生HTTP、Windows桌面WebSocket与独立MCP |
 
 比较[六种接入方式](../integration-methods.md)，或按[快速开始](../quickstart.md)配置现有入口。

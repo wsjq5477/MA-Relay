@@ -1,4 +1,4 @@
-export type ToolKind = "opendesk" | "opendesk-desktop" | "claude" | "opencode" | "codex" | "hermes" | "pi" | "dsh" | "dsh-next" | "dsh-desktop" | "dsh-web" | "chatgpt-web";
+export type ToolKind = "opendesk" | "opendesk-desktop" | "claude" | "opencode" | "codex" | "hermes" | "pi" | "dsh" | "dsh-next" | "dsh-acp" | "dsh-desktop" | "dsh-web" | "chatgpt-web";
 export type Status =
   | "queued"
   | "accepted"

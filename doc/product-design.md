@@ -2,6 +2,8 @@
 
 产品范围以[产品约束](product-constraints.md)为准。当前公开预发布为 **0.6.0-alpha.76.issue33.3**，冻结源码 `84ed341`。[发布与验证](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)
 
+Windows DSH NEXT 新增独立的 DSH ACP 入口，使用包内原生 ACP v1 stdio。支持直接会话、普通被委派、流式正文、原会话续聊及取消；恢复绑定沿用原工作目录和原生账号配置。[DSH ACP 实现与验收](iterations/I08/dsh-acp.md)
+
 Windows 上保存 DSH Desktop 或 Web 服务连接时会异步核验私有目录，再保存连接。后台在等待期间可响应其他请求。[本机实测](iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
 
 可选 Markdown 结果笔记在现行源码可用。调用方使用原授权导出明确终态，笔记保留原请求和有界事件。用户编辑后的笔记受到版本冲突保护，普通委派无需启用笔记功能。[用法与验收](iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)

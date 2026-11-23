@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-11-23：[Windows DSH ACP 接入及实机验收](I08/dsh-acp.md)。
+
 - 2026-11-22：[当前范围核对、原答复收据恢复及用户站刷新](I08/current-scope-audit.md)。
 
 - 2026-11-17：[issue #33 Windows 大型 Coordinator profile 启动、覆盖升级与安装包发布](I08/windows-coordinator-profile-startup.md)。
