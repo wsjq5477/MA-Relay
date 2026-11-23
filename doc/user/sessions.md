@@ -25,9 +25,9 @@
 
 日常交互请在原生Agent处理。需要处理已有Bridge执行时，打开“执行审计”的原任务，显式选择“处理这条原执行”；原来源与能力允许时才可回复等待或取消。选择“返回只读审计”或切换原任务后，控件重新只读。进入恢复不会新建或重放执行。
 
-Claude Code 与 OpenCode 支持部分原生权限回复；OpenCode 还支持已适配的结构化输入类型。其他入口当前不提供 Bridge 权限回复，须按原生工具要求处理。
+Claude Code、OpenCode 专用 HTTP 入口、DSH ACP 和自定义 ACP 支持原生工具权限回复。进入原任务的处理状态后可拒绝或仅允许本次。ACP 的单次授权按钮按原生选项开放。OpenCode 专用入口还支持已适配的结构化输入类型。
 
-Claude Code 的结构化提问尚不能在 Bridge 表单内回复。DSH 服务中的权限或提问需要在 DSH 原生界面完成。详见[各 Agent 功能对照](agents/index.md#功能对照)。
+Claude Code 的结构化提问尚不能在 Bridge 表单内回复。DSH Desktop 或 Web 服务中的权限和提问由 DSH 原生界面处理。详见[各 Agent 功能对照](agents/index.md#功能对照)。
 
 ## 取消与连接中断
 

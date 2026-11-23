@@ -1,8 +1,8 @@
 # M06 原生 Agent 适配器设计
 
-M06-F01：DSH ACP 与 headless 各有独立协议和节点。ACP worker 启动包内 `--profile acp`，声明基本客户端能力并按握手协商原 Session 恢复。模型与凭据由原生 Profile 读取。Bridge 权限弹窗答复和 MCP 注入暂未开放。[DSH ACP](../../iterations/I08/dsh-acp.md)
+M06-F01：DSH ACP 与 headless 各有独立协议和节点。ACP worker 启动包内 `--profile acp`，声明基本客户端能力并按握手协商原 Session 恢复。模型与凭据由原生 Profile 读取。Bridge 已有原任务工具权限回复，MCP 注入暂未开放。[DSH ACP](../../iterations/I08/dsh-acp.md)
 
-自定义 ACP 与 DSH ACP 共用 v1 stdio Worker。自定义运行时由用户提供固定命令，只运行已注册的可执行程序，连接时声明基本客户端能力。`session/resume` 和 `session/load` 按握手协商，`session/prompt` 仅接收同一会话的文字更新。原生授权和模型保留在 Agent，Bridge ACP 权限询问返回取消。[通用 ACP](../../iterations/I08/acp-stdio-runtimes.md)
+自定义 ACP 与 DSH ACP 共用 v1 stdio Worker。自定义运行时由用户提供固定命令，只运行已注册的可执行程序，连接时声明基本客户端能力。`session/resume` 和 `session/load` 按握手协商，`session/prompt` 仅接收同一会话的文字更新。模型配置保留在 Agent。共享 worker 读取原生权限询问，匹配原 prompt 和同一 Session。明确的单次选择在原 JSON-RPC 请求上提交一次，任务终态读取原 prompt。[ACP 工具权限](../../iterations/I08/acp-permission-reply.md)。[通用 ACP](../../iterations/I08/acp-stdio-runtimes.md)
 
 M06-F01：DSH Desktop 与 Web 连接先异步验证私有目录，再保存原 adapter、origin 与连接 token。Windows 检查上限为 30 秒。目录验证失败会保留原配置，可刷新状态核对后重试。扫描保留已接入节点的原服务连接，原连接缺失时不采用同机其他健康地址。[本机验收](../../iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
 
@@ -222,7 +222,7 @@ OpenDesk **CLI** 在 0.3.8 上**没有 MCP 管理面**：`opendesk plugins list`
 
 [Projects/Dots/Grok Bot研究](../../iterations/I07/projects-dots-bots-research.md)核对产品入口与公开驱动区别：Grok Build的headless/ACP列为CT-03候选，尚未注册；Claude Projects协调器、Dots和Grok Bot也没有因已有CLI适配而成为可直接操控入口。未增加原生协议或产品代码。
 
-当前适配方式和后续目标统一见[接入矩阵](../../agent-integration-matrix.md)：六种内置实际为原CLI或自写HTTP客户端，没有采用厂家SDK或ACP；MCP是Agent调用Bridge的方向。可选ACP试点、公共材料与上下文建议见[研究](../../iterations/I07/connectivity-research.md)，未增加驱动。
+当前适配方式和后续目标见[接入矩阵](../../agent-integration-matrix.md)。当前包含 DSH ACP 和自定义 ACP，厂家 SDK 执行路径仍未接入；MCP是Agent调用Bridge的方向。可选ACP试点、公共材料与上下文建议见[研究](../../iterations/I07/connectivity-research.md)，未增加驱动。
 
 Windows官方Codex npm启动器直接解析原包内原生EXE，隐藏参数不再丢失于JS二次spawn；节点仍记录原JS身份，缺原二进制拒绝，未改账号/模型。Claude空闲snapshot不定期重跑版本/auth，显式检查与提交前检查保留。[复现与验收](../../iterations/I07/desktop-polling.md)。
 

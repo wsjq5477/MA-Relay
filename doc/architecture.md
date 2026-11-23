@@ -4,6 +4,8 @@ MachineHost 将独立的 DSH ACP 节点交给 NativeCliHost。私有执行进程
 
 通用 ACP 从现有自定义运行时入口创建，由目标 MachineHost 校验本地可执行文件和固定参数，经 `initialize` 检查 ACP v1 stdio。执行沿用共享 ACP worker、目标机配置、原授权路由与任务台账。[通用 ACP](iterations/I08/acp-stdio-runtimes.md)
 
+独立 ACP worker 持有原生权限询问。NativeCliHost 经原任务路由登记权限决定，worker 仅写入原 JSON-RPC 请求的答复。权限选项与工具原生绑定留在 worker，展示详情按原任务授权读取。[ACP 工具权限](iterations/I08/acp-permission-reply.md)
+
 原生等待的只读恢复沿 MCP → Coordinator → 原机器路由 → 原任务后台查询同一操作。Coordinator 核对原属主、Task、操作类型与状态后返回收据摘要。Core Hub 用原执行绑定核对持久记录。任务终态继续通过原 Task 读取。[调用方契约](iterations/I08/interconnect-caller-contract.md)
 
 Windows 打包桌面只有在新运行时已准备且通过准入后才请求同一 profile 的旧后台正常退出；客户端确认原进程退出后切换到新版。其他 IPC 客户端沿用普通连接入口。[覆盖升级](iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)

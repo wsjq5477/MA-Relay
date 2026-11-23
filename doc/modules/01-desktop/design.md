@@ -1,5 +1,7 @@
 # M01 桌面界面与交互设计
 
+ACP 待处理工具权限复用原任务详情。按原生选项和展示信息决定是否可点击「仅允许本次」，拒绝及原操作查询沿用现有入口。[ACP 工具权限](../../iterations/I08/acp-permission-reply.md)
+
 Windows 安装包启动时，新版桌面自动切换同一 profile 的旧 Coordinator；首次读取等待后台切换，随后展示新版本及原数据。旧后台退出无法确认时显示可重试的升级错误。[覆盖升级](../../iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)
 
 M01-F01/F14：正在连接、后台失败和快照已读分别呈现。快照未读时使用待加载状态，连接中断时保留上次成功读取的数据；恢复后重读快照、pending 和首次未取到的版本。私有目录初始化错误有独立状态，显式重连经当前窗口校验后恢复建连。[issue #33 行为与验证](../../iterations/I08/windows-coordinator-profile-startup.md)

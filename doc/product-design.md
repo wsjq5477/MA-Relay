@@ -6,6 +6,8 @@ Windows DSH NEXT 新增独立的 DSH ACP 入口，使用包内原生 ACP v1 stdi
 
 「添加 Agent → 自定义运行时」支持注册目标机上的 ACP v1 stdio Agent。注册只握手，执行由原生 Agent 和原生账号负责。文字流和普通委派沿用原任务，取消以原请求终态为准，续聊按原生握手能力开放。[接入方式](user/agents/index.md#连接其他-acp-agent)
 
+DSH ACP 与自定义 ACP 支持在原任务审批工具权限，使用原操作 ID 查询回复。单次授权映射原生 `allow_once`，工具许可与任务终态分别记录。[ACP 工具权限](iterations/I08/acp-permission-reply.md)
+
 Windows 上保存 DSH Desktop 或 Web 服务连接时会异步核验私有目录，再保存连接。后台在等待期间可响应其他请求。[本机实测](iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
 
 可选 Markdown 结果笔记在现行源码可用。调用方使用原授权导出明确终态，笔记保留原请求和有界事件。用户编辑后的笔记受到版本冲突保护，普通委派无需启用笔记功能。[用法与验收](iterations/I08/current-scope-audit.md#可选-markdown-结果笔记)
@@ -192,7 +194,7 @@ flowchart TD
 
 AgentBridge 不重写 Agent，不负责模型供应商配置，不调度编译机或实验室设备，不提供任意远程 shell，不创建通用工作流引擎。SSH 只用于 Bridge 部署、身份验证与受控消息传输。
 
-自研 Agent 可按 I07A/B 的本机 MCP 成员契约接入公共空间和任务板；当前另有[原生适配开发接口与指南](custom-agent-development.md)，开发者实现宿主、测试后静态注册并随包部署。它不是任意命令或 MCP 地址的自动执行器。Hermes/Pi/DSH 直接会话实现见[扩展专项](iterations/I07/native-agent-expansion.md)，新增三种不声明 Bridge 权限表单或小队成员 MCP 注入；各入口实际能力与真实未测边界见[接入矩阵](agent-integration-matrix.md)。通用执行接入方式由 CT-03 ACP 试点评估；调用方通用化与 Agent 侧连接操作按 [CT-06/07/08 规划](iterations/I07/agent-centric-operations.md) 推进。企业IM/Webhook、中央云端部署、多用户、文件同步与多层协作图保留历史候选记录，未纳入本轮后续目标。
+自研 Agent 可按 I07A/B 的本机 MCP 成员契约接入公共空间和任务板；当前另有[原生适配开发接口与指南](custom-agent-development.md)，开发者实现宿主、测试后静态注册并随包部署。它不是任意命令或 MCP 地址的自动执行器。Hermes/Pi/DSH 直接会话实现见[扩展专项](iterations/I07/native-agent-expansion.md)，新增三种不声明 Bridge 权限表单或小队成员 MCP 注入；各入口实际能力与真实未测边界见[接入矩阵](agent-integration-matrix.md)。通用执行接入已有 CT-03 ACP v1 stdio 和原工具权限回复；调用方通用化与 Agent 侧连接操作按 [CT-06/07/08 规划](iterations/I07/agent-centric-operations.md) 推进。企业IM/Webhook、中央云端部署、多用户、文件同步与多层协作图保留历史候选记录，未纳入本轮后续目标。
 
 当前验收结论见 [整体验证报告](testing.md)；具体版本和进度见 [迭代路线](project-plan.md)。后续修改本功能目录时，按 [同步维护规则](development-guide.md) 同时更新模块与迭代材料。
 

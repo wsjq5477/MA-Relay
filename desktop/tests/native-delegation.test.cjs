@@ -33,6 +33,7 @@ if(args.includes('--version')){console.log(adapter+' 1.0.0');process.exit(0);}
 if(args[0]==='auth'){emit({loggedIn:true});process.exit(0);}
 if(adapter==='acp'){
  const sessionId='acp-controlled-session';
+ let permissionPrompt;
  readline.createInterface({input:process.stdin}).on('line',line=>{
   const {method,id,params}=JSON.parse(line);
   const reply=result=>emit({jsonrpc:'2.0',id,result});
@@ -42,7 +43,19 @@ if(adapter==='acp'){
   if(method==='session/prompt'){
    fs.appendFileSync(log,JSON.stringify({adapter,args,prompt:params.prompt[0].text,sessionId:params.sessionId,cwd:process.cwd()})+'\\n');
    emit({jsonrpc:'2.0',method:'session/update',params:{sessionId,update:{sessionUpdate:'agent_message_chunk',content:{type:'text',text:'acp result'}}}});
-   reply({stopReason:'end_turn'});
+   if(params.prompt[0].text==='first'){
+    permissionPrompt=id;
+    emit({jsonrpc:'2.0',method:'session/update',params:{sessionId,update:{sessionUpdate:'tool_call',toolCallId:'read-1',kind:'read',title:'Read the fixture',locations:[{path:'fixture.txt'}]}}});
+    const toolCall={toolCallId:'read-1'};
+    const options=[{kind:'allow_always',optionId:'persistent'},{kind:'allow_once',optionId:'provider-once'}, {kind:'reject_once',optionId:'provider-reject'}];
+    emit({jsonrpc:'2.0',id:'foreign-permission',method:'session/request_permission',params:{sessionId:'foreign',toolCall,options}});
+    emit({jsonrpc:'2.0',id:'owned-permission',method:'session/request_permission',params:{sessionId,toolCall,options}});
+   }else reply({stopReason:'end_turn'});
+  }
+  if(id==='owned-permission'||id==='foreign-permission'){
+   const {result}=JSON.parse(line);
+   fs.appendFileSync(log,JSON.stringify({permission:id,outcome:result.outcome})+'\\n');
+   if(id==='owned-permission')emit({jsonrpc:'2.0',id:permissionPrompt,result:{stopReason:'end_turn'}});
   }
  });
 }else if(adapter==='claude'){
@@ -218,7 +231,7 @@ for (const adapter of ['hermes', 'pi']) test('custom ' + adapter + ' keeps an in
   }
 });
 
-test('custom ACP projects negotiated resume and restores the original session through the production hosts', { timeout: 90000 }, async t => {
+test('custom ACP approves the original tool request after restart and restores the original session', { timeout: 90000 }, async t => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-acp-routing-'));
   const home = path.join(directory, 'home'), workspace = path.join(directory, 'workspace');
   const program = path.join(directory, 'agent.cjs'), log = path.join(directory, 'calls.jsonl');
@@ -255,24 +268,53 @@ test('custom ACP projects negotiated resume and restores the original session th
   assert.equal(node.name,'Fixture ACP');
   assert.equal(node.connectionCapabilities.resume,true);
   assert.equal(node.connectionCapabilities.delegation,true);
+  assert.equal(node.connectionCapabilities.permissions,true);
   assert.equal(node.connectionCapabilities.nativeMcpConfig,false);
   await call('attachNode',{nodeId:node.nodeId});
 
   const first = await call('nodeRequest',{op:'submit',nodeId:node.nodeId,requestId:'acp-first',message:'first',workspace});
-  const task = await until(()=>call('ipc',{op:'task',machineId,taskId:first.taskId}),item=>terminal(item.status));
-  assert.equal(task.status,'succeeded',task.error?.message);
-  assert.equal(task.result.message,'acp result');
+  const taskRef = {machineId,taskId:first.taskId};
+  const pending = await until(()=>call('ipc',{op:'pending',...taskRef}),value=>value.permissions.length===1);
+  const [permission] = pending.permissions;
+  assert.deepEqual(permission,{id:permission.id,action:'读取',resources:['Read the fixture','fixture.txt'],canAllowOnce:true});
 
   service.close();
   network.close();
   open();
+  assert.deepEqual(await call('ipc',{op:'pending',...taskRef}),pending);
+  const before = await call('ipc',{op:'task',...taskRef});
+  assert.equal(before.status,'running');
+  assert.deepEqual(before.waiting.requestIds,[permission.id]);
+  assert.equal(before.permissions,undefined);
+  const operationId = randomUUID();
+  const reply = {operationId,taskId:first.taskId,executionId:first.executionId,action:'permission',requestId:permission.id,decision:'once'};
+  const mismatched = await service.call({method:'ipc',params:{op:'reply',...taskRef,reply:{...reply,executionId:'foreign'}}});
+  assert.equal(mismatched.error.code,'INVALID_INPUT');
+  const receipt = await call('ipc',{op:'reply',...taskRef,reply});
+  assert.equal(receipt.state,'confirmed');
+  assert.equal(receipt.kind,'reply');
+  assert.deepEqual(await call('ipc',{op:'reply',...taskRef,reply}),receipt);
+  assert.deepEqual(await call('ipc',{op:'operation',...taskRef,operationId}),receipt);
+  const conflict = await service.call({method:'ipc',params:{op:'reply',...taskRef,reply:{...reply,decision:'reject'}}});
+  assert.equal(conflict.error.code,'REQUEST_CONFLICT');
+
+  const task = await until(()=>call('ipc',{op:'task',...taskRef}),item=>terminal(item.status));
+  assert.equal(task.status,'succeeded',task.error?.message);
+  assert.equal(task.result.message,'acp result');
+  assert.deepEqual(await call('ipc',{op:'pending',...taskRef}),{permissions:[],forms:[],machineId});
+  assert.equal(JSON.stringify(task.events).includes('Read the fixture'),false);
   const next = await call('nodeRequest',{op:'continue',nodeId:node.nodeId,requestId:'acp-next',
     conversationId:task.conversationId,message:'second'});
   const result = await until(()=>call('ipc',{op:'task',machineId,taskId:next.taskId}),item=>terminal(item.status));
   assert.equal(result.status,'succeeded',result.error?.message);
   assert.equal(result.conversationId,task.conversationId);
-  const calls = invocations(log);
+  const rows = invocations(log);
+  const calls = rows.filter(row=>row.prompt);
   assert.deepEqual(calls.map(row=>row.prompt),['first','second']);
+  assert.deepEqual(rows.filter(row=>row.permission),[
+    {permission:'foreign-permission',outcome:{outcome:'cancelled'}},
+    {permission:'owned-permission',outcome:{outcome:'selected',optionId:'provider-once'}},
+  ]);
   for (const row of calls) {
     assert.deepEqual(row.args,['wrapper','fixed argument']);
     assert.equal(row.cwd,workspace);

@@ -33,9 +33,9 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   assert.ok(methods.includes('| ChatGPT Web | — | — | — | — | 浏览器扩展 | — |'));
   assert.ok(methods.includes('| OpenDesk CLI | 启动服务 | HTTP | 仅导出 | — | — | — |'));
   assert.ok(methods.includes('| DSH ACP | — | — | — | ✓ | — | — |'));
-  assert.ok(capabilities.includes('| DSH ACP | ✓ | ✓ | ✓ | ✓ | — | — |'));
+  assert.ok(capabilities.includes('| DSH ACP | ✓ | ✓ | ✓ | ✓ | — | ✓ |'));
   assert.ok(methods.includes('| 自定义 ACP | — | — | — | ✓ | — | — |'));
-  assert.ok(capabilities.includes('| 自定义 ACP | ✓ | 视握手 | ✓ | ✓ | — | — |'));
+  assert.ok(capabilities.includes('| 自定义 ACP | ✓ | 视握手 | ✓ | ✓ | — | ✓ |'));
   assert.equal(methods.trim().split('\n').length, 16);
   assert.equal(capabilities.trim().split('\n').length, 16);
 });

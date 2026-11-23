@@ -1,5 +1,7 @@
 # M07 任务、会话、交互控制与恢复设计
 
+ACP 工具权限用现有 `waiting` 与回复收据。原任务终态和断连清除可操作等待。Task 结束不会把未知的回复收据改为已确认，原回复只按 operationId 查询。任务详情保留可公开的原生异常类别或观察超时原因。[ACP 工具权限](../../iterations/I08/acp-permission-reply.md)
+
 DSH ACP 派发前持久化原请求与原生 Session，续聊核对原安装、工作目录和 DSH 数据目录。断连与未知终态继续占用原执行，按原 ID 查询。取消收据与原 prompt 的取消终态分别核对。[DSH ACP](../../iterations/I08/dsh-acp.md)
 
 自定义 ACP 会话绑定原自定义运行时 UUID、规范化工作目录和原生 Session ID。续聊须由目标声明恢复能力并接受原 Session；`session/load` 可用空响应确认原绑定。[通用 ACP](../../iterations/I08/acp-stdio-runtimes.md)

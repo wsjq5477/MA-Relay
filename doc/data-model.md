@@ -2,6 +2,8 @@
 
 `dsh-acp` 与 `dsh-next` 是独立节点。ACP 会话沿用原任务、原工作目录、`dshHome` 和原生 Session ID，私有 profile 为 `desktop-acp-stdio-v1`。派发前保存原 request ID 与 Session ID，查询通过既有台账。
 
+ACP 活跃权限在原任务的 `waiting.requestIds` 使用 Bridge 生成的交互 ID。展示详情暂存于原执行的私有目录，任务事件只记等待标记。回复收据按原 Task、executionId、交互 ID 和决定固定指纹，原生 RPC ID 与选项 ID 保留在原 worker 内。[ACP 工具权限](iterations/I08/acp-permission-reply.md)
+
 Core `interactions.data` 对新操作保存可选 `binding={taskId,executionId,kind}`，结算时保留该绑定。`kind` 为 `reply` 或 `cancel`。拒绝记录释放 pending 请求占用后仍可按原 Task 查询。旧收据保留原字段和既有读取行为。MCP 答复查询只投影 Task、操作 ID、类型和状态。[调用方契约](iterations/I08/interconnect-caller-contract.md)
 
 `dsh-next` 节点以原安装位置绑定。私有会话和作业保存原生数据目录 `dshHome`，续聊核对原绑定，不把字段投影到公开会话。独立调用方按自己的上下文和客户端请求 ID 匹配原委派。 [DSH NEXT 交付](iterations/I08/alpha76-dsh-release.md)

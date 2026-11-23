@@ -42,12 +42,12 @@ const adapters = createAdapterRegistry([
   },
   {
     id:'dsh-acp', name:'DSH ACP', commands:['dsh-acp'], npmEntrypoints:[], driver:'native-cli',
-    capabilities:{execution:true, delegation:true, resume:true, cancellation:true, mcpClient:false, nativeMcpConfig:false, hostManagedTask:false, permissions:false, forms:false, verification:false},
+    capabilities:{execution:true, delegation:true, resume:true, cancellation:true, mcpClient:false, nativeMcpConfig:false, hostManagedTask:false, permissions:true, forms:false, verification:false},
     createHost:options=>new (require('./native-cli-host.cjs').NativeCliHost)({...options, adapter:'dsh-acp'}),
   },
   {
     id:'acp', name:'ACP', commands:['acp'], npmEntrypoints:[], driver:'native-cli',
-    capabilities:{execution:true, delegation:true, resume:true, cancellation:true, mcpClient:false, nativeMcpConfig:false, hostManagedTask:false, permissions:false, forms:false, verification:false},
+    capabilities:{execution:true, delegation:true, resume:true, cancellation:true, mcpClient:false, nativeMcpConfig:false, hostManagedTask:false, permissions:true, forms:false, verification:false},
     createHost:options=>new (require('./native-cli-host.cjs').NativeCliHost)({...options, adapter:'acp'}),
   },
   {

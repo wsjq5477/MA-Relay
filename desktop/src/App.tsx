@@ -2753,6 +2753,7 @@ export function TaskDetail({
                   <code key={r}>{r}</code>
                 ))}
               </div>
+              {p.canAllowOnce === false && <p>原生 Agent 未提供可确认的单次授权选择。</p>}
               <div className="permission-actions">
                 <button
                   className="btn small"
@@ -2765,7 +2766,7 @@ export function TaskDetail({
                 </button>
                 <button
                   className="btn primary small"
-                  disabled={!canControl || busy || receipt?.state === "unknown"}
+                  disabled={!canControl || busy || receipt?.state === "unknown" || p.canAllowOnce === false}
                   onClick={() =>
                     void reply("permission", p.id, { decision: "once" })
                   }

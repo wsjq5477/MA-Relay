@@ -7,7 +7,7 @@ DeepSeek Harness（DSH）支持 DSH NEXT、ACP、CLI、Windows Desktop 和 Linux
 | 入口 | Bridge 如何调用 | 配置来源 | 适用场景 |
 | --- | --- | --- | --- |
 | DSH NEXT | Windows 安装包内的 headless JSONL | DSH NEXT 原生数据目录与 headless 模型路由 | 一键接入 Windows DSH NEXT |
-| DSH ACP | 包内 `--profile acp`，使用 ACP v1 stdio | DSH NEXT 原生数据目录与 ACP 模型路由 | 通过 ACP 新建、续聊和取消 |
+| DSH ACP | 包内 `--profile acp`，使用 ACP v1 stdio | DSH NEXT 原生数据目录与 ACP 模型路由 | 通过 ACP 新建、续聊、取消与回复工具权限 |
 | DSH CLI | headless CLI 的 JSON 输出 | headless 的原生环境与配置 | 在命令行环境运行任务 |
 | DSH Windows Desktop | 已启动桌面服务的认证 HTTP Session API | Windows Desktop 自身配置 | 连接 Windows 上已有桌面实例 |
 | DSH Linux / WSL Web | 已启动 Web 服务的认证 HTTP Session API | Linux / WSL Web 自身配置 | 连接该机器已有的 Web 实例 |
@@ -20,7 +20,7 @@ CLI 不自动继承 Desktop / Web 的账号或 profile。不能把服务版已�
 2. 在「接入配置」选择独立的「DSH ACP」节点并点击接入。模型与认证沿用 DSH 的 `acp` Profile。模型认证可在原生 Profile 中核对。
 3. 选择工作目录发送第一条任务。Bridge 支持流式正文、原会话续聊和原任务取消。
 
-Bridge 按原 DSH 数据目录、工作目录和原 Session 恢复 ACP 会话。任务失去明确终态时保留原请求以便核对。这个入口的 AgentBridge MCP 注入、权限弹窗答复、回合中插话、回退检查点和主动压缩暂未开放。原生 ACP 用法见 [DSH Profile 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/acp-app/README.md)。
+Bridge 按原 DSH 数据目录、工作目录和原 Session 恢复 ACP 会话。任务失去明确终态时保留原请求以便核对。DSH ACP 的工具权限可以在 Bridge 原任务详情拒绝或仅允许本次。AgentBridge MCP 注入、回合中插话、回退检查点和主动压缩暂未开放。原生 ACP 用法见 [DSH Profile 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/acp-app/README.md)。
 
 默认 ACP Profile 使用其自身配置的模型路由。如果已经在 DSH 原生端登录 DeepSeek 账号，可以在 DSH 数据目录的 `profiles/acp/cordis.patch.yml` 中合并下方原生配置。示例模型可按账号支持情况调整。
 

@@ -8,7 +8,7 @@
 | --- | --- |
 | 产品定位 | 互联核心与可选扩展分层；首阶段新建/原绑定恢复会话，[产品约束](product-constraints.md) |
 | 源码基础 | Agent 登记/固定端点、调用方/上下文/凭据、原事件和原请求恢复已有实现；[开发台账](iterations/I08/interconnect-development.md) |
-| 原生证据 | Windows→WSL Codex 正文、续聊和恢复见历史证据。当前验收使用 Windows Codex 和同机 DSH NEXT，[当前范围核对](iterations/I08/current-scope-audit.md) |
+| 原生证据 | Windows→WSL Codex 正文、续聊和恢复见历史证据。当前首阶段以 Windows 本机 DSH NEXT 为实机验收入口，[当前范围核对](iterations/I08/current-scope-audit.md) |
 | 发布与本地候选 | 版本/标签/EXE/SHA/下载和本地候选分别见[发布登记](iterations/release-ledger.md)、[迭代记录](iterations/README.md)。当前公开预发布为 0.6.0-alpha.76.local.20261123.acp，冻结源码 8b69f71 |
 | 历史范围 | I06C 完整故障/平台矩阵与原 I07C 未准出项保留；可选小队的完整度不作为核心调用的前置条件 |
 
@@ -31,14 +31,14 @@
 
 | 顺序 | 目标与范围 | 完成条件 |
 | --- | --- | --- |
-| P0 | 复用现有核心，完善原生入口的新建、同会话续聊、交互与恢复。实机采用 Windows Codex → 同机 DSH NEXT | 生产 MCP 工具、固定提交和目录、两轮同 Session、原 ID 和游标、在途重开及原任务取消已实机通过。账号与授权隔离按本机/受控证据记录，权限等待按适配能力另验 |
+| P0 | 复用现有核心，完善原生入口的新建、同会话续聊、交互与恢复。实机采用 Windows 本机 DSH NEXT | 生产 MCP 工具、固定提交和目录、两轮同 Session、原 ID 和游标、在途重开及原任务取消已实机通过。账号与授权隔离按本机/受控证据记录，权限等待按适配能力另验 |
 | P1 | 最小上下文交接与可选 Markdown 集成 | 结果笔记首次写入、冲突保护及明示第二目标交接已有源码和受控验收。原 DSH 失败和成功结果均已实机落盘。本机独立 DSH Web 已消费显式交接的正文及原事件摘要。[用法与验收](iterations/I08/current-scope-audit.md#可选-markdown-结果笔记) |
 | P2 | 稳定最小扩展契约，评估 Memory、Profiles 和不同协作模式 | 原生适配与另一类扩展验证接口；权限、事件、生命周期和故障隔离可核对；具体后端/格式另行确定，不先做插件市场 |
 | 按需 | 更多协议、活动 Session 接管、进一步跨平台覆盖 | 由具体使用需求与原生能力验证决定；不阻塞 P0，不声称全部原生会话等价 |
 
 P0 是当前交付重点。原生配置、账号和模型由本机 DSH NEXT 管理，验收沿原会话和请求记录进行。[当前范围核对](iterations/I08/current-scope-audit.md)
 
-CT-01/02 的能力与原生可靠性、CT-06/07/08 的调用方/连接操作继续服务 P0；已有源码无需重建，也无需等待全部工具或小队矩阵完成才验证一个真实调用方。CT-04/05 公共材料保留为可选能力，CT-03 已实现 Windows DSH NEXT 的 DSH ACP 和自定义 ACP v1 stdio，具体 Agent 的实机范围见[本轮记录](iterations/I08/acp-stdio-runtimes.md)。现有 TeamSpace/TeamAutomation、Browser、维护修复与历史失败/跳过保留原状态；不将这些未完成项改记通过。
+CT-01/02 的能力与原生可靠性、CT-06/07/08 的调用方/连接操作继续服务 P0；已有源码无需重建，也无需等待全部工具或小队矩阵完成才验证一个真实调用方。CT-04/05 公共材料保留为可选能力，CT-03 已实现 Windows DSH NEXT 的 DSH ACP 和自定义 ACP v1 stdio，并在当前源码接入原任务的工具权限回复。具体 Agent 的实机范围见[接入记录](iterations/I08/acp-stdio-runtimes.md)，权限和继续核对项见[ACP 工具权限](iterations/I08/acp-permission-reply.md)。现有 TeamSpace/TeamAutomation、Browser、维护修复与历史失败/跳过保留原状态；不将这些未完成项改记通过。
 
 ## 4. 阅读与变更入口
 

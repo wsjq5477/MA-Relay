@@ -96,7 +96,7 @@ Claude Code 和 Codex 的专用入口使用原生 CLI，也可另装 ACP 适配�
 | Codex | `codex-acp` | [Codex ACP 适配器](https://github.com/agentclientprotocol/codex-acp) · 另装适配器 | 待实机验证 |
 | Pi | `pi-acp` | [ACP Registry](https://agentclientprotocol.com/get-started/registry) · 另装适配器 | 待实机验证 |
 
-[ACP Registry](https://agentclientprotocol.com/get-started/registry) 中的其他 Agent 也可使用这条接入路径，前提是相应发行版能以 ACP v1 stdio 运行。上表汇总上游入口，具体版本能否续聊以 Bridge 握手为准。支持文字流、普通委派和取消。Agent 声明 `session/resume` 或 `session/load` 时可续聊原 Session。需要在 ACP 客户端弹窗授权、代管文件或终端的任务依赖相应的客户端能力，Bridge 当前会拒绝原生权限询问。
+[ACP Registry](https://agentclientprotocol.com/get-started/registry) 中的其他 Agent 也可使用这条接入路径，前提是相应发行版能以 ACP v1 stdio 运行。上表汇总上游入口，具体版本能否续聊以 Bridge 握手为准。支持文字流、普通委派和取消。Agent 声明 `session/resume` 或 `session/load` 时可续聊原 Session。原生工具权限在原任务详情处理，可选择「拒绝」或明确的「仅允许本次」。依赖 ACP 客户端代理文件或终端的功能尚未适配。
 
 ## 按 Agent 阅读
 

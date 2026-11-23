@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-11-23：[ACP 工具权限审批、原操作恢复与当前缺口](I08/acp-permission-reply.md)。
+
 - 2026-11-23：[自定义 ACP v1 stdio 与 Agent 接入表](I08/acp-stdio-runtimes.md)。
 
 - 2026-11-23：[Windows DSH ACP 接入及实机验收](I08/dsh-acp.md)。

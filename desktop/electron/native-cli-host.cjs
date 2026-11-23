@@ -5,6 +5,7 @@ const { createHash, randomUUID } = require('node:crypto');
 const { profiles, names, validIdentity, argumentsFor, createParser, piSessionFile } = require('./native-cli-protocols.cjs');
 const terminal = new Set(['succeeded', 'failed', 'cancelled']);
 const now = () => new Date().toISOString();
+const acpAdapter = adapter => adapter === 'acp' || adapter === 'dsh-acp';
 const clone = value => JSON.parse(JSON.stringify(value));
 const fail = (code, message) => Object.assign(new Error(message), { code });
 // Older state only stored cancellation receipts, without a kind field.
@@ -37,7 +38,7 @@ class NativeCliHost {
   }
   save() { write(this.file, this.state); }
   event(task, kind, data = {}) { task.updatedAt = now(); task.events.push({ seq: ++task.lastSeq, timestamp: task.updatedAt, event: { kind, ...data } }); }
-  publicTask(task) { const result = clone(task); delete result.offset; return result; }
+  publicTask(task) { const result = clone(task); delete result.offset; delete result.permissions; return result; }
   existingOperation(task, operationId, kind) {
     if (!validIdentity(operationId)) throw fail('INVALID_INPUT', '控制操作需要有效操作 ID。');
     const old = this.state.operations.find(item => item.operationId === operationId);
@@ -46,7 +47,7 @@ class NativeCliHost {
   }
   confirmOperations(task, nativeExited) {
     const reason = nativeExited ? '已读取原生执行终态，未重新提交。' : '已确认原请求未派发，原任务已结束。';
-    for (const operation of this.state.operations.filter(item => item.taskId === task.taskId && item.state === 'unknown')) {
+    for (const operation of this.state.operations.filter(item => item.taskId === task.taskId && item.state === 'unknown' && operationKind(item) !== 'reply')) {
       operation.state = 'confirmed';
       operation.data = { ...operation.data, status: task.status,
         ...(operationKind(operation) === 'reconcile' ? { message: reason } : { nativeExited }) };
@@ -55,6 +56,7 @@ class NativeCliHost {
   }
   finish(task, status, text, code, nativeExited = true) {
     task.status = status; task.lastSummary = text; task.finishedAt = now();
+    delete task.permissions; delete task.waiting; delete task.uncertaintyReason;
     if (status === 'succeeded') task.result = { message: text };
     if (status === 'failed') task.error = { code: code || 'NATIVE_FAILED', message: text };
     this.event(task, status === 'succeeded' ? 'completed' : status, { text, ...(task.error ? { error: task.error } : {}) });
@@ -80,15 +82,78 @@ class NativeCliHost {
         if (event.kind === 'binding_error') { const conversation = this.state.conversations.find(item => item.conversationId === task.conversationId); conversation.bindingError = event.text; this.event(task, 'progress', { text: event.text }); }
         if (event.kind === 'output') { task.lastSummary = event.text; this.event(task, 'output', { text: event.text, ...(event.delta ? { delta: true } : {}) }); }
         if (event.kind === 'progress') this.event(task, 'progress', { text: event.text });
-        if (event.kind === 'unknown') { task.status = 'unknown'; task.lastSummary = event.text; this.event(task, 'progress', {text: event.text}); }
+        if (acpAdapter(this.adapter)) this.permissionEvent(task, event);
+        if (event.kind === 'unknown') {
+          task.status = 'unknown'; task.lastSummary = event.text; task.uncertaintyReason = event.text;
+          delete task.permissions; delete task.waiting;
+          this.event(task, 'progress', {text: event.text});
+        }
         if (event.kind === 'terminal') this.finish(task, event.status, event.text, event.code, event.nativeExited !== false);
       }
       const heartbeat = read(path.join(directory, 'heartbeat.json'), null);
       if (!terminal.has(task.status) && task.status !== 'unknown' && Date.now() - Date.parse(heartbeat?.time || task.createdAt) > 15000) {
         task.status = 'unknown'; task.lastSummary = '原执行状态待核对，不会自动重新提交。'; changed = true;
+        task.uncertaintyReason = task.lastSummary;
+        delete task.permissions; delete task.waiting;
       }
     }
     if (changed) this.save();
+  }
+  permissionEvent(task, event) {
+    if (event.kind === 'permission' && task.status === 'running') {
+      (task.permissions ||= []).push(event.id);
+      task.waiting = {kind:'permission', summary:'ACP Agent 需要批准工具操作', requestIds:[...task.permissions]};
+      task.lastSummary = task.waiting.summary;
+      this.event(task, 'waiting', {text: task.waiting.summary});
+    }
+    if (event.kind === 'permission_closed' && task.permissions) {
+      task.permissions = task.permissions.filter(id => id !== event.id);
+      if (task.permissions.length) task.waiting.requestIds = [...task.permissions];
+      else { delete task.permissions; delete task.waiting; }
+    }
+    if (event.kind === 'permission_receipt') {
+      const operation = this.state.operations.find(item => item.taskId === task.taskId &&
+        item.operationId === event.operationId && operationKind(item) === 'reply' && item.requestId === event.id);
+      if (operation?.state === 'unknown') {
+        operation.state = event.state;
+        operation.data = {nativeInputWritten:event.state === 'confirmed'};
+      }
+    }
+  }
+  pendingPermission(task, id) {
+    const directory = path.join(this.directory, 'runs', task.taskId);
+    return read(require('./acp-worker.cjs').pendingPermissionFile(directory, id), null);
+  }
+  async replyPermission(task, input) {
+    if (!task) throw fail('TASK_NOT_FOUND', '任务不存在。');
+    if (input?.taskId !== task.taskId || input.executionId !== task.executionId ||
+        input.action !== 'permission' || !validIdentity(input.requestId) || !['once','reject'].includes(input.decision)) {
+      throw fail('INVALID_INPUT', '请核对原任务和权限请求，选择仅本次允许或拒绝。');
+    }
+    const {operationId, requestId, decision} = input;
+    const fingerprint = createHash('sha256').update(JSON.stringify([task.executionId, requestId, decision])).digest('hex');
+    const old = this.existingOperation(task, operationId, 'reply');
+    if (old) {
+      if (old.fingerprint !== fingerprint) throw fail('REQUEST_CONFLICT', '该操作 ID 已用于另一条原权限答复。');
+      return clone(old);
+    }
+    const pending = task.permissions?.includes(requestId) ? this.pendingPermission(task, requestId) : null;
+    if (task.status !== 'running' || !pending || (decision === 'once' && !pending.canAllowOnce)) {
+      throw fail('INVALID_ANSWER', '原权限请求已结束，或不支持此选择。');
+    }
+    if (this.state.operations.some(item => item.taskId === task.taskId && item.requestId === requestId && operationKind(item) === 'reply')) {
+      throw fail('REQUEST_CLAIMED', '此请求已有答复，请按原 operationId 核对。');
+    }
+    const receipt = {operationId, taskId:task.taskId, kind:'reply', requestId, fingerprint, state:'unknown'};
+    this.state.operations.push(receipt);
+    this.save();
+    write(path.join(this.directory, 'runs', task.taskId, 'permission-' + requestId + '.json'), {operationId, decision});
+    const deadline = Date.now() + 2000;
+    while (receipt.state === 'unknown' && task.status === 'running' && Date.now() < deadline) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      this.sync();
+    }
+    return clone(receipt);
   }
   call(method, params = {}) { const result = this.chain.then(() => this.handle(method, params)); this.chain = result.catch(() => {}); return result; }
   failLaunch(task, error) { if (!terminal.has(task.status)) { this.finish(task, 'failed', safe(this.name + ' 原生任务未启动：' + error.message), error.code || 'NATIVE_START', false); this.save(); } return this.publicTask(task); }
@@ -125,7 +190,7 @@ class NativeCliHost {
       return { agentId: agent.agentId };
     }
     if (method === 'snapshot') return {
-      agents: { items: this.state.agents.map(agent => { const active = this.state.tasks.find(task => task.targetAgent === agent.agentId && !terminal.has(task.status)); return { ...agent, online: true, healthy: true, busy: !!active, available: !active, default: false, nativeAgent: this.adapter, capabilities: {...capabilities, ...(this.adapter === 'hermes' ? {cancellation: false} : {}), ...(this.adapter === 'acp' ? {resume: this.customRuntime?.acpResume === true} : {})}, ...(active ? { currentTask: { taskId: active.taskId, status: active.status, summary: active.lastSummary } } : {}) }; }), revision: this.state.revision, connected: true },
+      agents: { items: this.state.agents.map(agent => { const active = this.state.tasks.find(task => task.targetAgent === agent.agentId && !terminal.has(task.status)); return { ...agent, online: true, healthy: true, busy: !!active, available: !active, default: false, nativeAgent: this.adapter, capabilities: {...capabilities, ...(this.adapter === 'hermes' ? {cancellation: false} : {}), ...(acpAdapter(this.adapter) ? {permissions: true} : {}), ...(this.adapter === 'acp' ? {resume: this.customRuntime?.acpResume === true} : {})}, ...(active ? { currentTask: { taskId: active.taskId, status: active.status, summary: active.lastSummary } } : {}) }; }), revision: this.state.revision, connected: true },
       tasks: this.state.tasks.map(task => this.publicTask(task)), conversations: this.state.conversations.map(item => this.conversationView(item)),
     };
     if (method !== 'ipc') throw fail('DESKTOP_METHOD', '不支持这个原生 Agent 操作。');
@@ -133,7 +198,8 @@ class NativeCliHost {
     if (params.op === 'request') { const receipt = this.state.requests.find(item => item.requestId === params.requestId); if (!receipt) throw fail('NOT_FOUND', '原请求不存在。'); return this.publicTask(this.state.tasks.find(item => item.taskId === receipt.taskId)); }
     if (params.op === 'task') { if (!task) throw fail('TASK_NOT_FOUND', '任务不存在。'); return this.publicTask(task); }
     if (params.op === 'conversation') { const conversation = this.state.conversations.find(item => item.conversationId === params.conversationId); if (!conversation) throw fail('NOT_FOUND', '会话不存在。'); return { ...this.conversationView(conversation), items: this.state.tasks.filter(item => item.conversationId === conversation.conversationId).map(item => this.publicTask(item)) }; }
-    if (params.op === 'pending') return { permissions: [], forms: [] };
+    if (params.op === 'pending') return { permissions: (task?.permissions || []).map(id => this.pendingPermission(task, id)).filter(Boolean), forms: [] };
+    if (params.op === 'reply' && acpAdapter(this.adapter)) return this.replyPermission(task, params.reply);
     if (params.op === 'operation') { const operation = this.state.operations.find(item => item.operationId === params.operationId); if (!operation || (params.taskId && operation.taskId !== params.taskId)) throw fail('NOT_FOUND', '操作不存在。'); return clone(operation); }
     if (params.op === 'cancel') {
       if (!task) throw fail('TASK_NOT_FOUND', '任务不存在。'); if (!validIdentity(params.operationId)) throw fail('INVALID_INPUT', '取消需要操作 ID。');

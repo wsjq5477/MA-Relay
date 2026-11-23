@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { run } = require('../electron/acp-worker.cjs');
+const { run, pendingPermissionFile } = require('../electron/acp-worker.cjs');
 
 function fixture(t, mode, sessionId) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-dsh-acp-'));
@@ -34,7 +34,12 @@ readline.createInterface({input:process.stdin}).on('line',line=>{
     update('foreign','foreign content');
     update('owned-acp','first ');
     update('owned-acp','second');
-    if(mode==='cancel') {
+    if(mode==='permission-cancel'||mode==='only-persistent'){
+      prompt=m.id;
+      const options=[{kind:'allow_always',optionId:'persistent'},{kind:'reject_always',optionId:'persistent-reject'}];
+      if(mode==='permission-cancel')options.unshift({kind:'allow_once',optionId:'one'});
+      send({method:'session/request_permission',id:998,params:{sessionId:'owned-acp',toolCall:{toolCallId:'read-one',kind:'read',title:'Read test fixture'},options}});
+    } else if(mode==='cancel') {
       prompt=m.id;
       send({method:'session/request_permission',id:999,params:{sessionId:'owned-acp',options:[{optionId:'allow'}]}});
       fs.writeFileSync('cancel.json','{}');
@@ -42,6 +47,7 @@ readline.createInterface({input:process.stdin}).on('line',line=>{
       send({id:m.id,result:{stopReason:'end_turn'}});
     }
   }
+  if(m.id===998&&mode==='only-persistent')send({id:prompt,result:{stopReason:'end_turn'}});
   if(m.method==='session/cancel') send({id:prompt,result:{stopReason:'cancelled'}});
   if(m.method==='session/close') send({id:m.id,result:{}});
 });
@@ -50,7 +56,8 @@ readline.createInterface({input:process.stdin}).on('line',line=>{
   const generic=['load','no-resume','auth'].includes(mode);
   const job = { adapter:generic?'acp':'dsh-acp', profile:generic?'acp-stdio-v1':'desktop-acp-stdio-v1',requestId:'original-request', workspace, dshHome:workspace, executable:'native-dsh', message:'original prompt', sessionId };
   const wire = () => fs.readFileSync(capture,'utf8').trim().split('\n').map(JSON.parse);
-  const events = () => fs.readFileSync(path.join(dir,'events.jsonl'),'utf8').trim().split('\n').map(JSON.parse);
+  const eventFile = path.join(dir,'events.jsonl');
+  const events = () => fs.existsSync(eventFile) ? fs.readFileSync(eventFile,'utf8').trim().split('\n').map(JSON.parse) : [];
   const execute = () => run(job, dir, {
     write(file, value) { fs.writeFileSync(file, JSON.stringify(value)); },
     safe(value) { return value; },
@@ -60,7 +67,11 @@ readline.createInterface({input:process.stdin}).on('line',line=>{
       return { executable:process.execPath, args:[worker,capture,mode], env:{...process.env,ELECTRON_RUN_AS_NODE:'1'} };
     },
   });
-  return { execute, wire, events, workspace };
+  return { execute, wire, events, workspace,
+    pending(id) { return JSON.parse(fs.readFileSync(pendingPermissionFile(dir,id),'utf8')); },
+    reply(id, decision) { fs.writeFileSync(path.join(dir,'permission-'+id+'.json'),JSON.stringify({operationId:'permission-decision',decision})); },
+    cancel() { fs.writeFileSync(path.join(dir,'cancel.json'),'{}'); },
+  };
 }
 
 test('DSH ACP starts and resumes the original session with only its streamed text', async t => {
@@ -88,6 +99,7 @@ test('DSH ACP holds a disconnected prompt as unknown with one original send', as
   await f.execute();
   assert.equal(f.wire().filter(row => row.method === 'session/prompt').length, 1);
   assert.equal(f.events().at(-1).kind, 'unknown');
+  assert.match(f.events().at(-1).text,/原生 ACP 通道已断开/);
   assert.equal(f.events().some(row => row.kind === 'terminal'), false);
 });
 
@@ -119,4 +131,63 @@ test('ACP reports native login requirements before sending a prompt', async t =>
   assert.deepEqual(f.wire().map(row => row.method), ['initialize', 'session/new']);
   assert.equal(f.events().at(-1).status, 'failed');
   assert.equal(f.events().at(-1).code, 'ACP_AUTH_REQUIRED');
+});
+
+async function waitingPermission(f) {
+  const deadline = Date.now() + 6000;
+  do {
+    const match = f.events().find(event => event.kind === 'permission');
+    if (match) return f.pending(match.id);
+    await new Promise(resolve => setTimeout(resolve, 20));
+  } while (Date.now() < deadline);
+  throw Error('Expected native permission request');
+}
+
+test('DSH ACP never selects permanent options for a one-time decision', {timeout:15000}, async t => {
+  const f = fixture(t, 'only-persistent');
+  const running = f.execute();
+  const permission = await waitingPermission(f);
+  assert.equal(permission.canAllowOnce,false);
+  f.reply(permission.id,'reject');
+  await running;
+  assert.deepEqual(f.wire().find(row=>row.id===998).result,{outcome:{outcome:'cancelled'}});
+  const receipt = f.events().find(row=>row.kind==='permission_receipt');
+  assert.equal(receipt.state,'confirmed');
+  assert.equal(receipt.operationId,'permission-decision');
+});
+
+test('DSH ACP cancels the waiting permission before cancelling the original prompt', {timeout:15000}, async t => {
+  const f = fixture(t, 'permission-cancel');
+  const running = f.execute();
+  const permission = await waitingPermission(f);
+  assert.equal(permission.canAllowOnce,true);
+  f.cancel();
+  f.reply(permission.id,'once');
+  await running;
+  const frames = f.wire();
+  const permissionReply = frames.findIndex(row=>row.id===998);
+  const cancel = frames.findIndex(row=>row.method==='session/cancel');
+  assert.ok(permissionReply >= 0 && cancel > permissionReply);
+  assert.deepEqual(frames[permissionReply].result,{outcome:{outcome:'cancelled'}});
+  assert.equal(f.events().at(-1).status,'cancelled');
+});
+
+test('the terminal task does not confirm a reply without an ACP write receipt', async t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(),'ab-acp-reply-receipt-'));
+  const {NativeCliHost} = require('../electron/native-cli-host.cjs');
+  const host = new NativeCliHost({directory,adapter:'acp'});
+  t.after(() => {
+    host.close();
+    fs.rmSync(directory,{recursive:true,force:true});
+  });
+  const taskId = 'original-acp-task';
+  const run = path.join(directory,'runs',taskId);
+  fs.mkdirSync(run,{recursive:true});
+  host.state.tasks.push({taskId,status:'running',lastSeq:0,events:[],permissions:['pending-id']});
+  host.state.operations.push({taskId,kind:'reply',operationId:'uncertain-reply',requestId:'pending-id',state:'unknown'});
+  fs.writeFileSync(path.join(run,'events.jsonl'),JSON.stringify({kind:'terminal',status:'succeeded',text:'response'})+'\n');
+  const operation = await host.call('ipc',{op:'operation',taskId,operationId:'uncertain-reply'});
+  assert.equal(operation.state,'unknown');
+  assert.equal((await host.call('ipc',{op:'task',taskId})).status,'succeeded');
+  assert.deepEqual(await host.call('ipc',{op:'pending',taskId}),{permissions:[],forms:[]});
 });

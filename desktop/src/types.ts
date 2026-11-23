@@ -322,7 +322,7 @@ export interface Field {
   maxLength?: number;
 }
 export interface Pending {
-  permissions: { id: string; action: string; resources: string[] }[];
+  permissions: { id: string; action: string; resources: string[]; canAllowOnce?: boolean }[];
   forms: { id: string; title: string; fields: Field[] }[];
 }
 export interface Receipt {

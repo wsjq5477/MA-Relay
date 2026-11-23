@@ -1,5 +1,7 @@
 # M07 任务、会话与恢复测试报告
 
+2026-11-23，受控回归覆盖回复跨重开、原操作查回、原绑定拒绝和任务终态观察。原 Task 与回复收据分别核对。 [ACP 原操作与验收](../../iterations/I08/acp-permission-reply.md)
+
 2026-11-23 通用 ACP。受控下游覆盖同一原生 Session 加载、异会话更新隔离、取消终态和断线后禁止重放。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)
 
 2026-11-23，DSH ACP 实机通过原请求查询、Bridge 重开、原 Session 续聊、原 Task 取消及原取消收据读取。受控断连保留 unknown，原 prompt 仅发送一次。[ACP 验收](../../iterations/I08/dsh-acp.md)

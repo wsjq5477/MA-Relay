@@ -1,5 +1,7 @@
 # M03 机器与 Agent 网络测试报告
 
+2026-11-23，受控 Coordinator 和 MachineHost 沿原 Task 路由 pending、reply 和 operation。后台重开后同一等待 ID 保留。 [ACP 原操作与验收](../../iterations/I08/acp-permission-reply.md)
+
 2026-11-23 通用 ACP。受控 Windows 路由覆盖目标机注册、独立节点、协商后的续聊能力及固定参数。其他机器的既有路由使用受控回归验证。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)
 
 2026-11-23，Windows DSH NEXT 2.0.24-next 的生产 MachineHost 同时发现 headless 与 ACP，ACP 独立节点进入原上下文与任务路由。[实机验收](../../iterations/I08/dsh-acp.md)
