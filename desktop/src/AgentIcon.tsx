@@ -13,7 +13,7 @@ export default function AgentIcon({
 }) {
   const tool = agentTool(adapter);
   const [failedSource, setFailedSource] = useState<string>();
-  const showImage = tool && failedSource !== tool.icon;
+  const showImage = tool && !!tool.icon && failedSource !== tool.icon;
   return (
     <span
       className="agent-brand-icon"

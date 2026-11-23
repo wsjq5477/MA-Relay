@@ -49,7 +49,7 @@ export default function CustomRuntimeDialog({ machine, onClose, onCreated }: {
         {step === 1 ? <>
           <h3>选择基础协议类型</h3>
           <div className="runtime-type-grid" aria-label="基础协议类型">
-            {["hermes", "pi"].map((kind, index) => <button key={kind} type="button" className="runtime-type-option" autoFocus={index === 0} onClick={() => { setAdapter(kind); setStep(2); setError(""); }}>
+            {["hermes", "pi", "acp"].map((kind, index) => <button key={kind} type="button" className="runtime-type-option" autoFocus={index === 0} onClick={() => { setAdapter(kind); setStep(2); setError(""); }}>
               <AgentIcon adapter={kind} size={24} /><span>{toolLabel(kind)}</span>
             </button>)}
           </div>
@@ -57,8 +57,8 @@ export default function CustomRuntimeDialog({ machine, onClose, onCreated }: {
         </> : <>
           <div className="runtime-selected"><AgentIcon adapter={adapter} size={24} /><span>{toolLabel(adapter)}</span></div>
           <label>显示名称<input value={name} onChange={event => setName(event.target.value)} required maxLength={80} autoFocus /></label>
-          <label>命令<input value={command} onChange={event => setCommand(event.target.value)} required maxLength={4096} placeholder={adapter === "pi" ? "pi-wrapper" : "hermes-wrapper start"} aria-describedby="custom-runtime-command-help" /></label>
-          <p id="custom-runtime-command-help">输入程序名或绝对路径和固定参数。带空格的路径请加引号。凭据请留在原生配置中。</p>
+          <label>命令<input value={command} onChange={event => setCommand(event.target.value)} required maxLength={4096} placeholder={adapter === "acp" ? "opencode acp" : adapter === "pi" ? "pi-wrapper" : "hermes-wrapper start"} aria-describedby="custom-runtime-command-help" /></label>
+          <p id="custom-runtime-command-help">输入程序名或绝对路径和固定参数。带空格的路径请加引号。凭据请留在原生配置中。{adapter === "acp" && " 例如 hermes acp、opencode acp 或 gemini --acp。保存时只检查 ACP 握手。"}</p>
           <label>描述（可选）<textarea value={description} onChange={event => setDescription(event.target.value)} maxLength={500} /></label>
           {error && <p role="alert">{error}</p>}
         </>}

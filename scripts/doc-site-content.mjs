@@ -24,7 +24,7 @@ const identities = [
   ['claude', 'Claude Code'], ['opencode', 'OpenCode'], ['codex', 'Codex'],
   ['hermes', 'Hermes', 'Hermes Agent'], ['pi', 'Pi'], ['dsh', 'DSH CLI'],
   ['dsh-desktop', 'DSH Desktop', 'DSH Windows Desktop'], ['dsh-web', 'DSH Web', 'DSH Linux / WSL Web'],
-  ['dsh-next', 'DSH NEXT'], ['dsh-acp', 'DSH ACP'], ['opendesk', 'OpenDesk CLI'],
+  ['dsh-next', 'DSH NEXT'], ['dsh-acp', 'DSH ACP'], ['acp', '自定义 ACP'], ['opendesk', 'OpenDesk CLI'],
   ['opendesk-desktop', 'OpenDesk Desktop', 'OpenDesk Windows Desktop'], ['chatgpt-web', 'ChatGPT Web'],
 ];
 
@@ -66,7 +66,7 @@ export function capabilityTable() {
   const all = descriptors(), keys = ['execution', 'resume', 'cancellation', 'delegation', 'mcpClient', 'permissions'];
   const capability = (row, key) => row.capabilities[key] === true || (key === 'mcpClient' && row.capabilities.bridgeMcp === true);
   return '| Agent / 入口 | 直接会话 | 续聊 | 取消 | 被委派 | 调用 Bridge MCP | 权限回复 |\n| --- | --- | --- | --- | --- | --- | --- |\n'
-    + identities.map(([id, name]) => '| ' + [name, ...keys.map(key => capability(all.find(row => row.id === id), key) ? '✓' : '—')].join(' | ') + ' |').join('\n') + '\n';
+    + identities.map(([id, name]) => '| ' + [name, ...keys.map(key => id === 'acp' && key === 'resume' ? '视握手' : capability(all.find(row => row.id === id), key) ? '✓' : '—')].join(' | ') + ' |').join('\n') + '\n';
 }
 export const internalText = /\b(?:AB-F\d+|M\d{2}(?:-(?:OC|CC|CX))?-F\d+|T-M\d{2}(?:-[A-Z]+)?-\d+|CT-\d+|I\d{2}[A-Z]?)\b|测试报告|验收记录|交付记录|迭代记录|开发过程|历史记录|冻结源码|受控测试|缺陷复盘/;
 function markdownFiles(folder) {

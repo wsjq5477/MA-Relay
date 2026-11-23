@@ -1,5 +1,7 @@
 # M03 机器与 Agent 网络测试报告
 
+2026-11-23 通用 ACP。受控 Windows 路由覆盖目标机注册、独立节点、协商后的续聊能力及固定参数。其他机器的既有路由使用受控回归验证。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)
+
 2026-11-23，Windows DSH NEXT 2.0.24-next 的生产 MachineHost 同时发现 headless 与 ACP，ACP 独立节点进入原上下文与任务路由。[实机验收](../../iterations/I08/dsh-acp.md)
 
 T-M03-324 / M03-F02/F05：2026-11-22，Windows。本机 DSH Web 实测首次保存遇 ACL 超时，异步检查修复后完成服务认证和委派。受控复现同机存在另一健康 DSH 服务且原配置停用，扫描保留原节点和连接，明确配置新地址后仍需接入。Windows 定向 13/13。与 M06 共用验收。[过程与证据](../../iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)

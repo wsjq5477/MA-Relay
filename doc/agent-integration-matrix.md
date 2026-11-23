@@ -2,9 +2,9 @@
 
 ## 当前源码接入总览
 
-AgentBridge 当前适配 **8 种产品、13 个入口**，包含 12 个原生入口和 ChatGPT Web。查看[逐入口接入表](#2-每个-agent-已接入的方式)可比较 CLI、API、MCP、ACP、插件和 SDK。用户站的接入表从本页生成，并与源码注册表核对。实际启动命令、续聊、回合中插话、检查点回退和上下文压缩见[启动与会话控制](user/agents/index.md#启动与会话控制)。
+AgentBridge 当前适配 **8 种产品、13 个专用入口**，包含 12 个原生入口和 ChatGPT Web。其他 ACP Agent 可[按命令注册](user/agents/index.md#连接其他-acp-agent)。查看[逐入口接入表](#2-每个-agent-已接入的方式)可比较 CLI、API、MCP、ACP、插件和 SDK。用户站的接入表从本页生成，并与源码注册表核对。实际启动命令、续聊、回合中插话、检查点回退和上下文压缩见[启动与会话控制](user/agents/index.md#启动与会话控制)。
 
-执行路径使用原生 CLI、HTTP、WebSocket、DSH ACP 或浏览器扩展。支持主动协作的 Agent 通过 stdio MCP 向 Bridge 查询、委派和读取获准结果。厂家 SDK 暂无执行驱动。
+执行路径使用原生 CLI、HTTP、WebSocket、ACP v1 stdio 或浏览器扩展。支持主动协作的 Agent 通过 stdio MCP 向 Bridge 查询、委派和读取获准结果。厂家 SDK 暂无执行驱动。
 
 本机 DSH NEXT 2.0.24-next 已完成真实两轮、原会话续聊、在途恢复及取消，独立 DSH Web 已验证显式结果交接。ChatGPT Web 通过 Chrome 或 Edge 扩展接入，支持在获准的原可见会话中执行与续聊；网页提交后的停止需在网页处理。[DSH 本机验收](iterations/I08/current-scope-audit.md#本机-dsh-next-实测) · [ChatGPT Web 证据与限制](iterations/I08/web-agent-development.md)
 
@@ -20,7 +20,7 @@ AgentBridge 当前适配 **8 种产品、13 个入口**，包含 12 个原生入
 
 | 方向 | 含义 | 当前实现 |
 | --- | --- | --- |
-| Bridge → Agent | 驱动原生程序执行需求、读取结果、控制原任务 | 原生 CLI、HTTP、WebSocket、ACP、浏览器扩展，共 13 个入口 |
+| Bridge → Agent | 驱动原生程序执行需求、读取结果、控制原任务 | 原生 CLI、HTTP、WebSocket、ACP、浏览器扩展，13 个专用入口及自定义 ACP |
 | Agent → Bridge | Agent 调用发现、委派、结果和协作操作 | Bridge 提供 stdio MCP 服务，注入受限会话或由外部 Agent 自行配置 |
 | Bridge → 目标机器 | 把执行与协作消息送到相应机器后台 | 本机 IPC、WSL JSONL、SSH relay/daemon；不要求 Agent 直接互开网络端口 |
 
@@ -42,6 +42,7 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | DSH Linux / WSL Web | 未接入该入口的CLI | 已接入：认证HTTP Session API | 已接入：原生web Profile补丁 | 未接入 | 未接入 | 未接入 |
 | DSH NEXT | 已接入：Windows 包内 headless JSONL | 未接入 | 已接入：当前原生 Profile 管理 | 未接入 | 已接入：可选连接面板 | 未接入 |
 | DSH ACP | 未接入独立 CLI 执行 | 未接入 | 未接入 | 已接入：DSH NEXT 包内 ACP v1 stdio | 未接入 | 未接入 |
+| 自定义 ACP | 未接入独立 CLI 执行 | 未接入 | 未接入 | 已接入：为目标机器注册 ACP v1 stdio 可执行命令 | 未接入 | 未接入 |
 | OpenDesk CLI | 已接入：启动serve | 已接入：已有 HTTP 会话接口 | 已接入：仅片段导出，无原生配置管理/托管scope | 未接入 | 未接入 | 未接入 |
 | OpenDesk Windows Desktop | 未接入该入口的CLI | 已接入：已有 WebSocket 设备网关 | 已接入：独立原生配置，未注入托管 scope | 未接入 | 未接入 | 未接入 |
 | ChatGPT Web | 未接入 | 未接入 | 未接入 | 未接入 | 已接入：Chrome / Edge 浏览器扩展 | 未接入 |
@@ -58,7 +59,7 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | Agent / 入口 | 当前执行与协作能力 | 实际证据与版本边界 | 后续连接目标 |
 | --- | --- | --- | --- |
 | Claude Code | 直接执行：已实现；MCP调用方：已实现，可作为主节点及小队成员；原生MCP配置：Bridge可管理（写`mcpServers.agentbridge`）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派均通过；三真实角色公共文档链及历史权限证据保留；结构化AskUserQuestion当前拒绝；2026-10-22受控profile下真实`claude`：Bridge写入后`claude mcp list`报Connected、工具目录7项（零模型，非用户profile） | 保持原通路，核验当前版本、跨机的发现/执行/等待/取消/恢复；按实际需求补输入类型 |
-| OpenCode | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（v1/v2两代布局）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派通过；permission/form及独立Linux与Windows Claude双向协作保留历史证据；原生版本契约有约束 | 作为Bridge通用ACP Client的首个目标Agent，比较现有HTTP路径的事件、权限与恢复效果 |
+| OpenCode | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（v1/v2两代布局）；托管scope注入：已实现；被委派：已实现并有真实证据 | 真实直接生命周期与当前WSL双向普通委派通过；permission/form及独立Linux与Windows Claude双向协作保留历史证据；原生版本契约有约束 | 自定义 ACP 可另行注册。Windows 已验证 ACP 握手、新建和跨进程恢复 |
 | Codex | 直接执行：已实现；MCP调用方：已实现，可作为主节点及手动小队成员；原生MCP配置：Bridge可管理（`mcp_servers.agentbridge`标记块）；托管scope注入：已实现；被委派：已实现并有真实证据，具体环境见报告 | 当前WSL0.163.0-alpha.10.2直接生命周期及双向普通委派通过；旧版本续聊、Windows原账号失败保留；Bridge权限/表单未适配 | 验证当前原生版本的执行/结果/取消/恢复；有实际控制缺口时比较原生交互接口和 ACP 生态包装器 |
 | Hermes Agent | 直接执行、原Session续聊与普通被委派已实现；Windows/Linux原安装发现及独立MCP/Profile YAML已包含；托管scope/小队与网关取消未适配 | Linux正式0.22.5本轮两轮实际成功、原ID去重及通道重开/同Session续聊，原配置字节保持；独立Ubuntu原生MCP五组/十工具通过，组件模型0；普通EXE七组模型0 | 自主父模型/跨Agent委派、原生网关取消、完整生命周期与SSH未准出；[本轮证据](iterations/I08/alpha67-hermes-linux-live.md) |
 | Pi | 直接执行与普通被委派：源码已实现；独立MCP/用户配置及续聊前目录核对：公开alpha.68已包含；托管scope：未适配；alpha.69源码统一原生事件与派发的真实目录规则 | 官方Pi1.4.0原包Linux/Windows在公开60冻结后台上各7组通过，实际消费10工具和连接/确认/撤权，模型0；[MCP原生组件](iterations/I08/native-policy-components.md)。本轮Windows共享60/60、原包SessionManager四组及三条受控普通委派通过，模型0；[当前证据](iterations/I08/pi-workspace-events-and-windows-validation.md) | 原Session文件与目录必须共同保持，等价目录别名不解除unknown；真实父模型/生命周期/SSH待验 |
@@ -67,7 +68,7 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 | DSH Linux / WSL Web（dsh-web） | 直接执行：已随公开预发布交付；MCP调用方：已声明（可独立配置）；原生MCP配置：**Bridge可管理且原生会加载**（`$DSH_HOME/profiles/web/cordis.patch.yml` 单行`insert:`，插件`@deepseek-ai/dsh-mcp-client`）；托管scope注入：未适配；被委派：同Desktop入口 | WSL真实Web认证/Session列表通过；生命周期/恢复为受控服务，模型0，独立SSH未验；2026-10-22受控profile下真实DSH `--profile web --dump-config` 组合出Bridge写入行，且真实启动后原生客户端完成 `initialize`/`tools/list` 握手、Bridge返回7个工具（模型0）；原生UI人工可见/删除与真实用户profile未验 | 保存对应机器连接后补模型/续聊/取消验证；[DSH原生证据与边界](iterations/I07/dsh-exe-delivery.md) |
 | OpenDesk CLI（opendesk） | 直接执行、普通被委派、原连接可用时续聊、发送取消请求已实现；MCP调用方：**未确认**（无原生读取/MCP客户端真实证据），暂不按主 Agent 的 MCP 调用能力交付；托管scope注入：未适配并单独拒绝；**原生MCP配置：无可用入口**——0.3.8 的 `opendesk plugins list` 11 个 builtin 插件无 MCP 管理插件、`opendesk plugins tools` 无插件工具、`opendesk tools list` 无MCP分区，且启动会重写 `setting.json` 丢弃未识别 `applications` 段，因此 Bridge 只能导出片段；小队、Bridge权限/表单未开放 |
 | OpenDesk Windows Desktop（opendesk-desktop） | 同上执行/委派/续聊/取消；托管scope注入：未适配并单独拒绝；**原生MCP配置：可用，但需要 Node 启动器，写入前须从托盘完全退出 OpenDesk、写入后再打开**——写 `%APPDATA%\opendesk\setting.json` 的 `applications.mcpmgr.servers`，条目优先用 PATH 中真实 Node（`launcher:'node'`），Electron 回退时 OpenDesk 无法启动（`launcher:'electron'` 并在界面提示先装 Node）；MCP调用方：**原生已加载+已连接+7工具可见**（用户真实 Desktop 0.3.9，模型0，日志 `discovered 7 tools`），同日已安装原生组件正式授权调用及独立主角色→真实Claude子任务已验（各自生产身份/原结果，受控父进程），日常原生父模型实际 `list_agents` 1 次成功、返回7个获准节点，[现场恢复与发现](iterations/I08/opendesk-mcp-diagnostic-repair.md)；**原生父模型自主委派与日常原生页面未验**；小队、Bridge权限/表单未开放 | 使用未修改的原HTTP/桌面网关；去重和原回应由Bridge保存，断线/取消无证明时unknown；Desktop 0.3.9原实例真实回复/续聊及普通EXE窗口重开通过，[现场证据](iterations/I08/opendesk-desktop-live.md)；真实取消/MCP、CLI模型与SSH未验；包边界见[专项](iterations/I08/opendesk-existing-interfaces.md) | 桌面原连接断开后不可续聊，任务沿用原生目录；独立MCP与托管scope分开 |
-| 自研原生 Agent | 直接执行：需开发适配器；MCP调用方：需另外实现并验收 MCP 注入；被委派：完成执行适配后才可验证 | 已有注册契约、指南和零执行示例；OpenDesk专用实现及边界见上一行；其他产品尚无实测，不支持填任意命令/地址即接入 | 形成一个实际可运行的参考适配器；若目标支持 ACP，优先复用拟议通用 Client |
+| 自研原生 Agent | ACP v1 stdio 可注册为自定义 ACP，支持直接会话和普通被委派。其他协议需开发适配器 | 注册时验证 ACP 握手；主动调用 Bridge MCP 另行适配 | 按运行时验证会话、续聊及原请求恢复 |
 | 外部 Agent 自行连接 Bridge MCP | 直接执行：不等于直接执行接入；MCP调用方：已有本机 TeamSpace 接入，读写文档/消息/任务；被委派：不能据 MCP 接入推定 Bridge 可启动/取消外部执行 | 外部入口有受控stdio连接器/生产broker证据；真实Claude小队证据来自原生注入路径，不能替代外部自研产品验收 | 明确展示“可协作读写”和“可执行控制”两种能力，验证真实外部产品入口 |
 
 自研Agent需要另行实现并验收适配器；外部Agent已可自行配置Bridge MCP，但不能据此推定它具有本表其他执行路径。[DSH API选型原因与功能边界](iterations/I07/dsh-desktop-web.md#为什么选择原生-api)。
@@ -85,7 +86,7 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | Bridge 结构化输入表单 | AskUserQuestion 当前拒绝 | 已实现受支持类型 | 未适配 | 未适配 |
 | 取消与终态核对 | 已实现，有限定真实证据 | 已实现，有限定真实证据 | 进程树/进程组控制已实现，覆盖见报告 | Hermes网关取消未适配，false；Pi/DSH原实现与证据保留 |
 | 原请求持久查询与 unknown 保护 | 已实现 | 已实现 | 已实现 | 已实现 |
-| 当前内置 ACP 驱动 | 无 | 无 | 无 | DSH ACP，Windows DSH NEXT 包内 Profile |
+| 当前 ACP 驱动 | 无 | 无 | 无 | DSH ACP 包内 Profile，其他程序可注册自定义 ACP |
 
 当前经典 MCP 提供十个工具：`delegate` 默认新建子会话，可传原 `conversationId` 继续同一调用身份拥有的原会话；须目标当前授权、上一轮明确终态及原宿主可续聊，不接受目录变更。新托管父执行不能接管旧父委派；独立接入仍按原 connectionId 归属。已有续聊不等于运行中任意消息注入或任务订阅，也没有父完整历史复制。[当前实现与证据边界](iterations/I08/web-agent-development.md)。TeamSpace 的公共材料与原生 Agent 私有对话仍分开；既有原生父模型证据见相应入口的验收记录。
 
@@ -99,7 +100,7 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | --- | --- | --- | --- |
 | CT-01 能力口径一致 | AB-F02/07/10/13；M01/M02/M03/M06/M07/M08 | 源码已实现八项三态能力、静态来源与方向门禁，原关系拒绝可恢复 | 源码/受控验收通过：桌面503/503、核心45/45、Windows5组；真实新工具/新EXE/独立SSH未验，[完整证据](iterations/I07/connection-capabilities.md) |
 | CT-02 六种原生连接实测 | AB-F07/10/11/13；M06/M07/M08 | 三工具当前WSL[直接生命周期](iterations/I07/connection-native.md)及全部六个[真实普通委派方向](iterations/I07/connection-delegation.md)通过 | 部分完成；新三工具真实环境、新EXE及独立SSH未验；不以旧包或历史权限覆盖当前所有场景 |
-| CT-03 可选 ACP 试点 | AB-F07/10/11；M06/M07/M10 | DSH ACP 已提供可选独立入口，Windows DSH NEXT 包内 Profile | 核对原会话、取消和原请求不重放。其他 ACP Agent 按真实入口兼容性另行验收 |
+| CT-03 ACP 接入 | AB-F07/10/11；M06/M07/M10 | DSH ACP 独立入口及自定义 ACP v1 stdio 已实现 | 各发布方命令及实例见用户接入表，真实模型和打包按版本记录 |
 | CT-04 公共工作材料与 MD 视图 | AB-F20/21；M01/M02/M06/M07/M08 | 源码已实现只读索引/Markdown与准确修订，桌面阅读/复制/当前页索引或单份MD下载已补；CT-05只读选材包已补，完整产物/交接视图与同步待开发 | 桌面入口541/541及Windows八组通过、模型0；较早真实Claude一个Task保留原证据。MD是视图，授权、任务/收据和可达性分别核对；[完整证据](iterations/I07/public-materials.md) |
 | CT-05 显式共享上下文 | AB-F08/11/20/21；M01/M02/M06/M07/M08 | 公开alpha.63实现同工作原包持久传递、目标接入收据和桌面只读审计；原选材/预览/本机副本保留 | 当前源码944/944，冻结63原生Pi→固定源码Hermes组件7组已通过，模型0；接入收据不代表模型理解、业务验收或文件可达，Windows包内14项/新审计页面5组/普通EXE6组通过，完整CT-05继续核对。[当前传递与证据](iterations/I07/context-delivery.md) |
 | CT-06 通用MCP调用方 | AB-F02/07/08/11/12/13；M01/M02/M03/M06/M07/M08 | 按[I08-MCP02开发记录](iterations/I08/mcp-open-integration.md)推进同一MCP的Bridge/原生双向管理、原生列表可见和实际调用；优先OpenDesk/DSH，覆盖当前十入口；配置、独立调用与托管任务能力拆分 | **源码第一片已完成**（能力三维、六项状态事实、`mcp.revoke`/`mcp.probe`、DSH Web原生适配、非GUI CLI、Linux本机路由）；逐入口真实原生增删/列表/工具/主调用归属仍待执行，外部删除不补回与撤权已受控验证。不因实现或静态声明当通过，不强制等待完整I07C；旧[规划](iterations/I07/agent-centric-operations.md)保留历史 |
@@ -121,8 +122,8 @@ CT-01已完成所列源码/受控范围；CT-02旧三工具WSL直接生命周期
 
 [Claude Projects、Dots与Grok Bot研究](iterations/I07/projects-dots-bots-research.md)建议在CT-04/05中细化公共材料短索引、产物目录、可见交接、相关版本按需读取；Agent名片和结果入口优先复用已有登记/能力/任务记录。它们是方案建议，不更改本表实际能力或验收状态。
 
-Grok Build官方公开headless和`grok agent stdio`的ACP入口，可作为CT-03后续目标候选；当前未安装、未注册、未执行，不计入六种内置适配器。Claude Projects协调器、Dots与Grok Bot的产品间通信也不能据文档推定为Bridge已支持的开放控制接口。自动续接、多用户、云端规划仍不作为后续目标。
+Grok Build 的 `grok agent stdio` 已列入自定义 ACP 命令表，当前未做本机运行验证。Claude Projects协调器、Dots与Grok Bot的产品间通信也不能据文档推定为Bridge已支持的开放控制接口。自动续接、多用户、云端规划仍不作为后续目标。
 
 ## 7. 方式选择与快速接入
 
-原生CLI、原生API、MCP、ACP、插件、SDK的优点/代价、可实现功能与前提统一维护在[接入选型指南](agent-integration-guide.md#2-六种方式的优缺点与适用场景)，不将后续推荐混进本页已接入状态。指南结合本表说明[逐Agent建议](agent-integration-guide.md#4-结合当前矩阵的后续推荐)及[已有入口与新Agent的快速路径](agent-integration-guide.md#5-如何快速接入)。DSH ACP 是面向已适配 DSH 的入口。新增其他 ACP Agent、原生插件或 SDK 驱动后，按实际代码和验收逐行更新本表。
+原生CLI、原生API、MCP、ACP、插件、SDK的优点/代价、可实现功能与前提统一维护在[接入选型指南](agent-integration-guide.md#2-六种方式的优缺点与适用场景)，不将后续推荐混进本页已接入状态。指南结合本表说明[逐Agent建议](agent-integration-guide.md#4-结合当前矩阵的后续推荐)及[已有入口与新Agent的快速路径](agent-integration-guide.md#5-如何快速接入)。其他 ACP Agent 的发布方命令与注册步骤见[用户接入表](user/agents/index.md#连接其他-acp-agent)。

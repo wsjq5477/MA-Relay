@@ -43,6 +43,10 @@ export const agentTools: Record<
     name: "DSH NEXT", fullName: "DeepSeek Harness NEXT",
     icon: new URL("../assets/agents/dsh.svg", import.meta.url).href, background: "#ffffff",
   },
+  acp: {
+    name: "ACP", fullName: "Agent Client Protocol",
+    icon: "", background: "#ffffff",
+  },
   "dsh-acp": {
     name: "DSH ACP", fullName: "DeepSeek Harness ACP",
     icon: new URL("../assets/agents/dsh.svg", import.meta.url).href, background: "#ffffff",

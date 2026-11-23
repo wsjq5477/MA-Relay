@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器测试报告
 
+2026-11-23 通用 ACP。Windows ACP worker、注册、Windows npm 启动和 DSH 受控用例按本轮证据记录。OpenCode 2.3.0 原生握手、新建与原 ID 恢复通过。Hermes 0.22.5 完成 ACP v1 握手，隔离原生 Gateway 配置完成后新建会话及跨进程恢复通过。模型 0。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)
+
 2026-11-23，Windows DSH NEXT 2.0.24-next，ACP v1 真实两轮流式结果、跨进程原 Session 续聊与取消确认通过。额外的受控 ACP 回归 4/4。[原始证据](../../iterations/I08/dsh-acp.md)
 
 T-M06-321 / M06-F01：2026-11-22，Windows 本机 DSH NEXT 2.0.23-next 实际建立原生 Session，沿原 MCP 请求找回缺少模型 Key 的失败。新版诊断单列为 `DSH_MODEL_AUTH_REQUIRED`。共用 NativeCliHost 与 Hermes 分离套件 35/35。安装版更新到 `2.0.24-next` 后，复核包内 headless 认证配置并修正诊断指引，DSH 受控复验 5/5，含环境指引和原失败保留。使用获准原生账号实机发出两条新请求，首次读取固定目录文件后成功，第二次沿原 Session 成功续聊。实机在途关闭/重开观察器后仍能按原 ID 读取，并由原 Task 事件确认取消。独立本机 DSH Web 完成原生 Session API 认证及获准交接，Windows 定向回归 13/13，包含 ACL 写入门禁和固定服务连接。[本机验收](../../iterations/I08/current-scope-audit.md#本机-dsh-next-实测)

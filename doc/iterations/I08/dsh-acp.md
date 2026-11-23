@@ -9,7 +9,7 @@
 - 仅发送一次原 `session/prompt`。可显示同一 Session 的文字增量。取消通知只发送一次，Task 依据原 prompt 的明确终态结算。失去终态时保留原请求和占用，按既有接口查询。
 - 模型与认证由原生 ACP Profile 管理。当前开放直接会话及普通被委派。Bridge 侧权限弹窗答复、托管 MCP 注入、回合中插话、回退与压缩尚未开放。未收到用户批准的原生权限询问返回取消。
 
-[下游 Worker](../../../desktop/electron/dsh-acp-worker.cjs) · [Windows 安装发现](../../../desktop/electron/dsh-next-runtime.cjs) · [DSH 官方 ACP Profile](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/acp-app/README.md) · [ACP v1 Prompt](https://agentclientprotocol.com/protocol/v1/prompt-turn)
+[下游 Worker](../../../desktop/electron/acp-worker.cjs) · [Windows 安装发现](../../../desktop/electron/dsh-next-runtime.cjs) · [DSH 官方 ACP Profile](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/acp-app/README.md) · [ACP v1 Prompt](https://agentclientprotocol.com/protocol/v1/prompt-turn)
 
 ## 验收
 

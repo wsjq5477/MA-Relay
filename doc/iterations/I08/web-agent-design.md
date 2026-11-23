@@ -38,7 +38,7 @@ BrowserChannel 只接收已授权 Host 的浏览器操作，不认识 leader/mem
 
 ### 2.1 明确选择：MVP 不使用 ACP 作为浏览器线协议
 
-ACP 的 `session/new`、`session/prompt`、`session/update` 和可选恢复能表达对话，技术上可以由 BrowserAdapter 提供 ACP facade；仓库当前没有通用 ACP Client，直接采用会新增通用 Client、ACP server 包装及浏览器协议映射，不能减少本轮改动。协议也不会自动提供网页提交幂等、浏览器认证、标签租约、DOM 版本、事件落盘回放。
+ACP 的 `session/new`、`session/prompt`、`session/update` 和可选恢复能表达对话，技术上可以由 BrowserAdapter 提供 ACP facade；在该轮设计时仓库还没有通用 ACP Client，采用 ACP 会增加客户端、ACP server 包装及浏览器协议映射。协议也不会自动提供网页提交幂等、浏览器认证、标签租约、DOM 版本、事件落盘回放。
 
 因此 MVP 定义**适配器内部** `agentbridge-browser-v1`，外部仍为原 MCP / Node IPC / SSH 帧。ACP 不参与跨机路由或替代请求账本。后续 CT-03 若交付通用 ACP Client，可在 Host 内映射，保留同一个 BrowserChannel、原对象和持久围栏；不另建进程级 Broker。
 

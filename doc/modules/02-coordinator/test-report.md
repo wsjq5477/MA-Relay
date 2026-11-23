@@ -1,5 +1,7 @@
 # M02 中央协调后台测试报告
 
+2026-11-23 通用 ACP。受控 Windows 用例经 Coordinator 注册、附加到目标机器、执行两轮并在后台重开后恢复原会话。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)
+
 2026-11-17，Windows 后台覆盖升级回归覆盖原身份、待确认记录、退出等待、同版及降级路径、新运行时出错等情况。[覆盖升级](../../iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)
 
 2026-11-16，issue #33：Windows NTFS 回归验证旧版保护目录只读通过、新目录和含额外显式权限的目录安全修复。并发、超时脱敏、退避、手动重连、退出期间建连防护及原身份/原 pending 保留均有定向覆盖。[本次启动验收](../../iterations/I08/windows-coordinator-profile-startup.md)

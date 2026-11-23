@@ -21,4 +21,4 @@ Mock 是受控工程夹具：它可验证本地事件与去重规则，不能用
 
 修改适配器后，同步完整模块设计、该工具的测试报告以及对应迭代文档。当前节点流程不新增 Bridge 模型/供应商选择；已有原生 CLI 管理模型、登录与账号。
 
-Bridge驱动Agent的CLI/HTTP接口，与Agent调用Bridge的MCP接口是两个方向；当前没有内置ACP或厂家SDK驱动。DSH专属设置卡是当前UI布局，不能据此把它理解为另一套模型、Agent能力或协作系统。
+Bridge驱动Agent的CLI/HTTP接口，与Agent调用Bridge的MCP接口是两个方向；DSH ACP 和自定义 ACP 都由 Bridge 的 ACP v1 stdio 客户端执行，厂家 SDK 执行驱动尚未提供。DSH专属设置卡是当前UI布局，不能据此把它理解为另一套模型、Agent能力或协作系统。

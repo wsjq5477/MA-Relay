@@ -2,6 +2,8 @@
 
 MachineHost 将独立的 DSH ACP 节点交给 NativeCliHost。私有执行进程用 ACP v1 stdio 驱动同一安装包内的 `acp` Profile，任务与原生 Session 仍经原 MachineHost、Coordinator 和 MCP 授权链路读取。[DSH ACP](iterations/I08/dsh-acp.md)
 
+通用 ACP 从现有自定义运行时入口创建，由目标 MachineHost 校验本地可执行文件和固定参数，经 `initialize` 检查 ACP v1 stdio。执行沿用共享 ACP worker、目标机配置、原授权路由与任务台账。[通用 ACP](iterations/I08/acp-stdio-runtimes.md)
+
 原生等待的只读恢复沿 MCP → Coordinator → 原机器路由 → 原任务后台查询同一操作。Coordinator 核对原属主、Task、操作类型与状态后返回收据摘要。Core Hub 用原执行绑定核对持久记录。任务终态继续通过原 Task 读取。[调用方契约](iterations/I08/interconnect-caller-contract.md)
 
 Windows 打包桌面只有在新运行时已准备且通过准入后才请求同一 profile 的旧后台正常退出；客户端确认原进程退出后切换到新版。其他 IPC 客户端沿用普通连接入口。[覆盖升级](iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)
@@ -14,7 +16,7 @@ Windows MachineHost 自动发现 DSH NEXT 安装，任务开始时由 NativeCliH
 
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)
 
-Hermes/Pi 自定义运行时在 alpha.74 中复用各自静态协议 Backend、原生会话绑定及 Task 收据。Coordinator 按目标 machineId 路由至本机、WSL 或已认证 SSH Linux 的 MachineHost，由目标机器探测并持有配置；MachineHost 用独立安装标识发现并绑定该配置。远端创建纳入 daemon 配置写入维护门禁。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
+Hermes、Pi 和 ACP 自定义运行时复用各自下游协议、原生会话绑定及 Task 收据。Coordinator 按目标 machineId 路由至本机、WSL 或已认证 SSH Linux 的 MachineHost，由目标机器探测并持有配置；MachineHost 用独立安装标识发现并绑定该配置。远端创建纳入 daemon 配置写入维护门禁。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
 观察入口释放与明确停止执行后台分开：MachineHost/原生宿主门面close不自动取消Task，Core Controller的显式stop可停止经原身份核验的自有托管服务；managed=false外部服务不在其所有权中。IPC/PID消失都不是原Task终态或释放unknown的证据。各模式的状态来源、恢复与当前实证见[资源归属表](iterations/I08/interconnect-caller-contract.md#资源归属与停止范围)，不由mode字段扩大进程管理权限。
 
@@ -184,7 +186,7 @@ CT-04桌面路径：M01按需调用既有team.materials/team.document.revision�
 
 投影不访问文件/网络，不验证产物可达性，不输出接入密钥/原请求/原生Session。存储继续TeamSpace SQLite格式3；Classic主从MCP工具和daemon协议2保持。桌面阅读/导出和通用选定上下文包仍待开发。[当前接口、限额及验证](iterations/I07/public-materials.md)。
 
-连接研究：当前仍为Agent→Bridge的MCP入口、Coordinator路由和目标机器原生CLI/HTTP驱动，没有采用ACP。拟议可选ACP Client位于目标MachineHost，公共材料/MD视图和可移植上下文不改变当前进程/权限边界。[当前矩阵](agent-integration-matrix.md)、[研究与后续目标](iterations/I07/connectivity-research.md)。该研究不改变当前产品或部署。
+连接架构使用 Agent → Bridge 的 MCP 入口、Coordinator 路由以及目标机器的原生 CLI、HTTP 和 ACP 驱动。ACP Client 由目标 MachineHost 启动，公共材料、Markdown 视图和可移植上下文沿用现有进程与权限边界。[当前矩阵](agent-integration-matrix.md)、[研究与后续目标](iterations/I07/connectivity-research.md)。该研究不改变当前产品或部署。
 
 接入边界补齐：静态适配能力由 Coordinator/TeamSpace 在创建小队新执行意图前核对，界面仅呈现可用节点；旧原操作继续从原幂等分支读取。Codex/NativeCliHost 在原私有上下文持久核对收据，中央不代造终态。没有新增层、模型接口或远程执行面。[设计与验证](iterations/I07/native-integration-guards.md)。
 

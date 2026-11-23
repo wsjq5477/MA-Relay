@@ -2,6 +2,8 @@
 
 M06-F01：DSH ACP 与 headless 各有独立协议和节点。ACP worker 启动包内 `--profile acp`，声明基本客户端能力并按握手协商原 Session 恢复。模型与凭据由原生 Profile 读取。Bridge 权限弹窗答复和 MCP 注入暂未开放。[DSH ACP](../../iterations/I08/dsh-acp.md)
 
+自定义 ACP 与 DSH ACP 共用 v1 stdio Worker。自定义运行时由用户提供固定命令，只运行已注册的可执行程序，连接时声明基本客户端能力。`session/resume` 和 `session/load` 按握手协商，`session/prompt` 仅接收同一会话的文字更新。原生授权和模型保留在 Agent，Bridge ACP 权限询问返回取消。[通用 ACP](../../iterations/I08/acp-stdio-runtimes.md)
+
 M06-F01：DSH Desktop 与 Web 连接先异步验证私有目录，再保存原 adapter、origin 与连接 token。Windows 检查上限为 30 秒。目录验证失败会保留原配置，可刷新状态核对后重试。扫描保留已接入节点的原服务连接，原连接缺失时不采用同机其他健康地址。[本机验收](../../iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
 
 M06-F01：Windows DSH NEXT 包内原生 CLI 使用 headless JSONL，沿用原生数据目录，模型认证由 headless 路由配置决定。原生明确报告 DeepSeek API Key 缺失时，原 Task 记录 `DSH_MODEL_AUTH_REQUIRED`，提示检查 DSH 启动环境或原生数据目录的 `.env`。原生 headless 默认跳过凭据存储，只有原生 Profile 显式启用时才可使用已保存的认证。Desktop Profile 的 MCP 配置继续按 NEXT 启动时限处理。[本机验收](../../iterations/I08/current-scope-audit.md#本机-dsh-next-实测) · [DSH NEXT 交付](../../iterations/I08/alpha76-dsh-release.md)

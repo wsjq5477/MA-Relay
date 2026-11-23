@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
-const { launch } = require('./dsh-next-runtime.cjs');
+const { launch: launchDsh } = require('./dsh-next-runtime.cjs');
 const { argumentsFor, validIdentity } = require('./native-cli-protocols.cjs');
 
 const frameLimit = 4 * 1024 * 1024;
@@ -25,11 +25,11 @@ function acpConnection(child, onUpdate) {
     pending.clear();
   }
   const closed = new Promise(resolve => child.once('close', () => {
-    disconnect(protocolError('DSH_ACP_DISCONNECTED', 'DSH ACP 通道已关闭。'));
+    disconnect(protocolError('ACP_DISCONNECTED', 'ACP 通道已关闭。'));
     resolve();
   }));
-  child.once('error', () => disconnect(protocolError('NATIVE_START', 'DSH ACP 进程未能启动。')));
-  child.stdin.on('error', () => disconnect(protocolError('DSH_ACP_DISCONNECTED', 'DSH ACP 输入通道已关闭。')));
+  child.once('error', () => disconnect(protocolError('NATIVE_START', 'ACP 进程未能启动。')));
+  child.stdin.on('error', () => disconnect(protocolError('ACP_DISCONNECTED', 'ACP 输入通道已关闭。')));
   child.stderr.resume();
   function send(value) {
     if (failure) throw failure;
@@ -58,7 +58,8 @@ function acpConnection(child, onUpdate) {
     pending.delete(message.id);
     clearTimeout(entry.timer);
     if (message.error) {
-      const error = protocolError('DSH_ACP_REJECTED', 'DSH 原生 ACP 拒绝了 ' + entry.method + '。');
+      const code = message.error.code === -32000 ? 'ACP_AUTH_REQUIRED' : 'ACP_REJECTED';
+      const error = protocolError(code, '原生 ACP 拒绝了 ' + entry.method + '。');
       error.nativeMessage = typeof message.error.message === 'string' ? message.error.message : '';
       entry.reject(error);
     } else {
@@ -79,7 +80,7 @@ function acpConnection(child, onUpdate) {
       }
       if (Buffer.byteLength(buffer) > frameLimit) throw Error('Oversized ACP frame');
     } catch {
-      disconnect(protocolError('DSH_ACP_PROTOCOL', 'DSH ACP 返回了无效或超限的消息。'));
+      disconnect(protocolError('ACP_PROTOCOL', 'ACP 返回了无效或超限的消息。'));
     }
   });
   return {
@@ -89,7 +90,7 @@ function acpConnection(child, onUpdate) {
         const id = ++nextId;
         const timer = timeout ? setTimeout(() => {
           pending.delete(id);
-          reject(protocolError('DSH_ACP_TIMEOUT', 'DSH ACP 未在时限内回复 ' + method + '。'));
+          reject(protocolError('ACP_TIMEOUT', 'ACP 未在时限内回复 ' + method + '。'));
         }, timeout) : undefined;
         pending.set(id, { method, resolve, reject, timer });
         try { send({ id, method, params }); } catch (error) {
@@ -105,13 +106,52 @@ function acpConnection(child, onUpdate) {
     disconnect,
     async close() {
       child.stdin.end();
-      const force = setTimeout(() => child.kill(), 5000);
+      const force = setTimeout(() => {
+        child.kill();
+        child.stdout.destroy();
+        child.stderr.destroy();
+      }, 5000);
       try { await closed; } finally { clearTimeout(force); }
     },
   };
 }
 
-async function run(job, directory, { write, safe, launchNative = launch }) {
+function launchAcp(executable, args, home, adapter) {
+  if (adapter === 'dsh-acp') return launchDsh(executable, args, home);
+  return require('./tool-discovery.cjs').command(executable, args);
+}
+
+function startConnection(launch, cwd, onUpdate) {
+  const child = spawn(launch.executable, launch.args, { cwd, env: launch.env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+  return acpConnection(child, onUpdate);
+}
+
+function resumeMethod(info) {
+  const resume = info.agentCapabilities?.sessionCapabilities?.resume;
+  if (resume && typeof resume === 'object' && !Array.isArray(resume)) return 'session/resume';
+  return info.agentCapabilities?.loadSession === true ? 'session/load' : null;
+}
+
+async function initialize(connection) {
+  const info = await connection.call('initialize', {
+    protocolVersion: 1, clientCapabilities: {}, clientInfo: { name: 'agentbridge', version: '0.1.0' },
+  });
+  if (info?.protocolVersion !== 1) throw protocolError('ACP_PROTOCOL', '需要原生 ACP v1 stdio。');
+  return info;
+}
+
+async function probe(launch, cwd) {
+  const connection = startConnection(launch, cwd, () => {});
+  try {
+    const info = await initialize(connection);
+    const version = info.agentInfo?.version;
+    return { resume: !!resumeMethod(info), version: typeof version === 'string' && /^[\w.+-]{1,80}$/.test(version) ? version : 'ACP v1' };
+  } finally {
+    await connection.close();
+  }
+}
+
+async function run(job, directory, { write, safe, launchNative = launchAcp }) {
   const emit = event => fs.appendFileSync(path.join(directory, 'events.jsonl'), JSON.stringify(event) + '\n', { mode: 0o600 });
   const beat = () => write(path.join(directory, 'heartbeat.json'), { time: new Date().toISOString(), pid: process.pid });
   let sessionId, connection, dispatched = false, answer = '', answerBytes = 0, oversized = false;
@@ -121,11 +161,10 @@ async function run(job, directory, { write, safe, launchNative = launch }) {
   const heartbeat = setInterval(() => { try { beat(); } catch { /* The observer owns uncertainty. */ } }, 1000);
   try {
     if (fs.realpathSync(job.workspace) !== job.workspace || !fs.statSync(job.workspace).isDirectory()) {
-      throw protocolError('WORKSPACE_UNAVAILABLE', '原 DSH ACP 工作目录已变更。');
+      throw protocolError('WORKSPACE_UNAVAILABLE', '原 ACP 工作目录已变更。');
     }
-    const args = launchNative(job.executable, argumentsFor(job), job.dshHome);
-    const child = spawn(args.executable, args.args, { cwd: job.workspace, env: args.env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
-    connection = acpConnection(child, params => {
+    const args = launchNative(job.executable, [...(job.launchPrefix || []), ...argumentsFor(job)], job.dshHome, job.adapter);
+    connection = startConnection(args, job.workspace, params => {
       const update = params?.update;
       if (!dispatched || promptSettled || params?.sessionId !== sessionId || update?.sessionUpdate !== 'agent_message_chunk'
         || update.content?.type !== 'text' || typeof update.content.text !== 'string' || oversized) return;
@@ -138,21 +177,19 @@ async function run(job, directory, { write, safe, launchNative = launch }) {
       answer += text;
       emit({ kind: 'output', text, delta: true });
     });
-    const info = await connection.call('initialize', {
-      protocolVersion: 1, clientCapabilities: {}, clientInfo: { name: 'agentbridge', version: '0.1.0' },
-    });
-    if (info?.protocolVersion !== 1) throw protocolError('DSH_ACP_PROTOCOL', '原生 ACP 协议版本不受支持。');
+    const info = await initialize(connection);
     const request = { cwd: job.workspace, mcpServers: [] };
     if (job.sessionId) {
-      if (!info.agentCapabilities?.sessionCapabilities?.resume) throw protocolError('CONVERSATION_CONFIG', '原生 ACP 未声明恢复能力。');
-      const resumed = await connection.call('session/resume', { ...request, sessionId: job.sessionId });
-      if (!resumed || typeof resumed !== 'object' || (Object.hasOwn(resumed, 'sessionId') && resumed.sessionId !== job.sessionId))
+      const method = resumeMethod(info);
+      if (!method) throw protocolError('CONVERSATION_CONFIG', '原生 ACP 未声明恢复能力。');
+      const resumed = await connection.call(method, { ...request, sessionId: job.sessionId });
+      if (resumed !== null && (typeof resumed !== 'object' || Array.isArray(resumed) || (Object.hasOwn(resumed, 'sessionId') && resumed.sessionId !== job.sessionId)))
         throw protocolError('CONVERSATION_CONFIG', '原生 ACP 回复的会话绑定有变化。');
       sessionId = job.sessionId;
     } else {
       const session = await connection.call('session/new', request);
       if (!validIdentity(session?.sessionId))
-        throw protocolError('DSH_ACP_PROTOCOL', '原生 ACP 未返回有效会话 ID。');
+        throw protocolError('ACP_PROTOCOL', '原生 ACP 未返回有效会话 ID。');
       sessionId = session.sessionId;
     }
     emit({ kind: 'native', sessionId });
@@ -167,7 +204,7 @@ async function run(job, directory, { write, safe, launchNative = launch }) {
         if (!cancellationRequested()) return;
         clearInterval(cancelPoll);
         try { connection.cancel(sessionId); } catch (error) { connection.disconnect(error); return; }
-        cancelDeadline = setTimeout(() => connection.disconnect(protocolError('DSH_ACP_TIMEOUT', '取消后未收到原 ACP 终态。')), 30000);
+        cancelDeadline = setTimeout(() => connection.disconnect(protocolError('ACP_TIMEOUT', '取消后未收到原 ACP 终态。')), 30000);
       }, 100);
       const result = await prompt;
       promptSettled = true;
@@ -175,13 +212,13 @@ async function run(job, directory, { write, safe, launchNative = launch }) {
       clearTimeout(cancelDeadline);
       const reason = result?.stopReason;
       if (reason === 'cancelled') {
-        outcome = { kind: 'terminal', status: 'cancelled', text: '已收到 DSH ACP 原请求的取消终态。' };
+        outcome = { kind: 'terminal', status: 'cancelled', text: '已收到 ACP 原请求的取消终态。' };
       } else if (reason === 'end_turn' && !oversized && answer.trim()) {
         outcome = { kind: 'terminal', status: 'succeeded', text: safe(answer) };
       } else if (['end_turn', 'max_tokens', 'max_turn_requests', 'refusal'].includes(reason)) {
-        outcome = { kind: 'terminal', status: 'failed', code: 'DSH_ACP_RESULT', text: 'DSH ACP 已结束，但未返回可确认的完整正文。' };
+        outcome = { kind: 'terminal', status: 'failed', code: 'ACP_RESULT', text: 'ACP 已结束，但未返回可确认的完整正文。' };
       } else {
-        outcome = { kind: 'unknown', text: 'DSH ACP 未返回可识别的本轮终态；保留原请求，不重新派发。' };
+        outcome = { kind: 'unknown', text: 'ACP 未返回可识别的本轮终态；保留原请求，不重新派发。' };
       }
     }
     if (info.agentCapabilities?.sessionCapabilities?.close) {
@@ -190,12 +227,14 @@ async function run(job, directory, { write, safe, launchNative = launch }) {
       try { await connection.call('session/close', { sessionId }, 5000); } catch { /* EOF closes the owned connection. */ }
     }
   } catch (error) {
-    const missingKey = /^llm-deepseek: no API key for provider route\b/.test(error.nativeMessage || '');
+    const missingKey = job.adapter === 'dsh-acp' && /^llm-deepseek: no API key for provider route\b/.test(error.nativeMessage || '');
     if (dispatched && !missingKey) {
-      outcome = { kind: 'unknown', text: 'DSH ACP 原请求尚无可确认的终态；保留原请求，不重新派发。' };
+      outcome = { kind: 'unknown', text: 'ACP 原请求尚无可确认的终态；保留原请求，不重新派发。' };
     } else {
       outcome = { kind: 'terminal', status: 'failed', code: missingKey ? 'DSH_MODEL_AUTH_REQUIRED' : error.code || 'NATIVE_START',
-        text: missingKey ? '请在 DSH 的 ACP Profile 中配置原生模型认证。' : 'DSH ACP 未能准备执行，请核对原生入口和 Profile。',
+        text: missingKey ? '请在 DSH 的 ACP Profile 中配置原生模型认证。'
+          : error.code === 'ACP_AUTH_REQUIRED' ? '请先在原生 Agent 中完成登录和模型配置。'
+            : 'ACP 未能准备执行，请核对原生入口和 Profile。',
         nativeExited: dispatched };
     }
   } finally {
@@ -206,4 +245,4 @@ async function run(job, directory, { write, safe, launchNative = launch }) {
   emit(outcome);
 }
 
-module.exports = { run };
+module.exports = { run, probe };

@@ -4,8 +4,8 @@ const path = require('node:path');
 // These are three different upstream protocols. Never infer one tool's flags
 // or terminal vocabulary from another tool's --version result. Pinned source
 // refs and inspected contract URLs: artifacts/native-agent-expansion/2026-10-18/upstream-contracts.json.
-const profiles = Object.freeze({ opendesk: 'opendesk-http-v2', 'opendesk-desktop': 'opendesk-gateway-v2', hermes: 'chat-stream-json-v1', pi: 'json-print-v1', dsh: 'headless-json-v1', 'dsh-next': 'desktop-headless-json-v1', 'dsh-acp': 'desktop-acp-stdio-v1', 'dsh-desktop': 'web-api-v1', 'dsh-web': 'web-api-v1' });
-const names = Object.freeze({ opendesk: 'OpenDesk', 'opendesk-desktop': 'OpenDesk Desktop', hermes: 'Hermes Agent', pi: 'Pi', dsh: 'DeepSeek Harness', 'dsh-next': 'DSH NEXT', 'dsh-acp': 'DSH ACP', 'dsh-desktop': 'DSH Desktop', 'dsh-web': 'DSH Web' });
+const profiles = Object.freeze({ acp: 'acp-stdio-v1', opendesk: 'opendesk-http-v2', 'opendesk-desktop': 'opendesk-gateway-v2', hermes: 'chat-stream-json-v1', pi: 'json-print-v1', dsh: 'headless-json-v1', 'dsh-next': 'desktop-headless-json-v1', 'dsh-acp': 'desktop-acp-stdio-v1', 'dsh-desktop': 'web-api-v1', 'dsh-web': 'web-api-v1' });
+const names = Object.freeze({ acp: 'ACP', opendesk: 'OpenDesk', 'opendesk-desktop': 'OpenDesk Desktop', hermes: 'Hermes Agent', pi: 'Pi', dsh: 'DeepSeek Harness', 'dsh-next': 'DSH NEXT', 'dsh-acp': 'DSH ACP', 'dsh-desktop': 'DSH Desktop', 'dsh-web': 'DSH Web' });
 const dshHeadless = adapter => adapter === 'dsh' || adapter === 'dsh-next';
 const fail = (code, message) => Object.assign(new Error(message), { code });
 const validIdentity = value => typeof value === 'string' && value.trim().length > 0 && value.length <= 4096;
@@ -57,6 +57,7 @@ function argumentsFor(job) {
   // --no-restore-cwd flag is rejected by installed Hermes 0.22.5; both native
   // implementations accept the common stream-json and exact-resume contract.
   if (job.adapter === 'hermes') return ['chat', '--query-file', '-', '--format', 'stream-json', ...(job.sessionId ? ['--resume', job.sessionId] : [])];
+  if (job.adapter === 'acp') return [];
   if (job.adapter === 'dsh-acp') return ['--profile', 'acp'];
   if (dshHeadless(job.adapter)) return ['--profile', 'headless', '--json', ...(job.sessionId ? ['--session-id', job.sessionId] : []), '-'];
   return ['--mode', 'json', '--print', '--session-dir', job.sessionDirectory, ...(job.sessionId ? ['--session', piSessionFile(job.sessionDirectory, job.sessionId, job.workspace)] : [])];

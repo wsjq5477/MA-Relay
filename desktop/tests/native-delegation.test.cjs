@@ -31,7 +31,21 @@ const contextPrefix=${JSON.stringify(renderDelegation({contextVersion:1,message:
 const emit=value=>process.stdout.write(JSON.stringify(value)+'\\n');
 if(args.includes('--version')){console.log(adapter+' 1.0.0');process.exit(0);}
 if(args[0]==='auth'){emit({loggedIn:true});process.exit(0);}
-if(adapter==='claude'){
+if(adapter==='acp'){
+ const sessionId='acp-controlled-session';
+ readline.createInterface({input:process.stdin}).on('line',line=>{
+  const {method,id,params}=JSON.parse(line);
+  const reply=result=>emit({jsonrpc:'2.0',id,result});
+  if(method==='initialize')reply({protocolVersion:1,agentCapabilities:{loadSession:true}});
+  if(method==='session/new')reply({sessionId});
+  if(method==='session/load'&&params.sessionId===sessionId)reply(null);
+  if(method==='session/prompt'){
+   fs.appendFileSync(log,JSON.stringify({adapter,args,prompt:params.prompt[0].text,sessionId:params.sessionId,cwd:process.cwd()})+'\\n');
+   emit({jsonrpc:'2.0',method:'session/update',params:{sessionId,update:{sessionUpdate:'agent_message_chunk',content:{type:'text',text:'acp result'}}}});
+   reply({stopReason:'end_turn'});
+  }
+ });
+}else if(adapter==='claude'){
  const lines=readline.createInterface({input:process.stdin});
  lines.on('line',line=>{const input=JSON.parse(line);
   if(input.type==='control_request'&&input.request.subtype==='initialize')emit({type:'control_response',response:{subtype:'success',request_id:input.request_id,response:{}}});
@@ -201,6 +215,68 @@ for (const adapter of ['hermes', 'pi']) test('custom ' + adapter + ' keeps an in
     assert.equal(invocations(f.calls).filter(row => row.adapter === adapter).length, 2);
     assert.equal(fs.readFileSync(path.join(f.workspace, 'native-settings.json'), 'utf8'), f.config);
     assert.equal(result.conversationId, task.conversationId);
+  }
+});
+
+test('custom ACP projects negotiated resume and restores the original session through the production hosts', { timeout: 90000 }, async t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ab-acp-routing-'));
+  const home = path.join(directory, 'home'), workspace = path.join(directory, 'workspace');
+  const program = path.join(directory, 'agent.cjs'), log = path.join(directory, 'calls.jsonl');
+  const candidates = Object.fromEntries(['claude', 'opencode', 'codex', 'hermes', 'pi', 'dsh', 'dsh-next', 'dsh-acp', 'opendesk'].map(id => [id, []]));
+  fs.mkdirSync(home);
+  fs.mkdirSync(workspace);
+  writeCli(program, 'acp', log);
+
+  let network, service;
+  function open() {
+    network = new AgentNetwork({directory, platform:process.platform, distributions:async()=>[], createHost:()=>new MachineHost({
+      directory:path.join(directory,'machine'), home, candidates,
+      legacy:{call:async()=>({agents:{items:[]},tasks:[],conversations:[]})},
+    })});
+    service = createCoordinatorService({directory,network});
+  }
+  async function call(method, params = {}) {
+    const result = await service.call({method,params});
+    assert.equal(result.ok, true, result.error?.message);
+    return result.result;
+  }
+  open();
+  t.after(async () => {
+    service.close();
+    network.close();
+    await fs.promises.rm(directory, {recursive:true,force:true,maxRetries:8,retryDelay:100});
+  });
+  const {machines} = await call('snapshot');
+  const machineId = machines[0].machineId;
+  const created = await call('customRuntime.create', {machineId,adapter:'acp',name:'Fixture ACP',
+    command:`"${program}" wrapper "fixed argument"`,profileId:randomUUID()});
+  const snapshot = await call('snapshot');
+  const node = snapshot.nodes.find(row=>row.executable===created.executable);
+  assert.equal(node.name,'Fixture ACP');
+  assert.equal(node.connectionCapabilities.resume,true);
+  assert.equal(node.connectionCapabilities.delegation,true);
+  assert.equal(node.connectionCapabilities.nativeMcpConfig,false);
+  await call('attachNode',{nodeId:node.nodeId});
+
+  const first = await call('nodeRequest',{op:'submit',nodeId:node.nodeId,requestId:'acp-first',message:'first',workspace});
+  const task = await until(()=>call('ipc',{op:'task',machineId,taskId:first.taskId}),item=>terminal(item.status));
+  assert.equal(task.status,'succeeded',task.error?.message);
+  assert.equal(task.result.message,'acp result');
+
+  service.close();
+  network.close();
+  open();
+  const next = await call('nodeRequest',{op:'continue',nodeId:node.nodeId,requestId:'acp-next',
+    conversationId:task.conversationId,message:'second'});
+  const result = await until(()=>call('ipc',{op:'task',machineId,taskId:next.taskId}),item=>terminal(item.status));
+  assert.equal(result.status,'succeeded',result.error?.message);
+  assert.equal(result.conversationId,task.conversationId);
+  const calls = invocations(log);
+  assert.deepEqual(calls.map(row=>row.prompt),['first','second']);
+  for (const row of calls) {
+    assert.deepEqual(row.args,['wrapper','fixed argument']);
+    assert.equal(row.cwd,workspace);
+    assert.equal(row.sessionId,'acp-controlled-session');
   }
 });
 

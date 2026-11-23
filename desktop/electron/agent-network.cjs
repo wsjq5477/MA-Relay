@@ -106,7 +106,7 @@ class AgentNetwork extends MachineRouter {
       }else if(!connection.current)connection=snapshot.connections.find(c=>c.connectionId===node.connectionId)||connection;
       delete node.supersededBy;
       for(const sibling of siblings)if(sibling!==node)sibling.supersededBy=node.nodeId;
-      Object.assign(node,{executable:connection.current?connection.executable:node.executable,connectionId:connection.connectionId,version:connection.current?connection.version:node.version,connected:node.managed?!!node.connected:node.connected||connection.connected,installed:!connection.error||connection.healthy,error:connection.error,errorCode:connection.errorCode,executionSupported:connection.executionSupported??connection.adapter!=='codex'});
+      Object.assign(node,{executable:connection.current?connection.executable:node.executable,connectionId:connection.connectionId,version:connection.current?connection.version:node.version,connected:node.managed?!!node.connected:node.connected||connection.connected,installed:!connection.error||connection.healthy,...(node.adapter==='acp'?{acpResume:connection.acpResume===true}:{}),error:connection.error,errorCode:connection.errorCode,executionSupported:connection.executionSupported??connection.adapter!=='codex'});
       for(const instance of snapshot.instances.filter(i=>i.machineId===node.machineId&&i.adapter===node.adapter&&
         (!(usesExactInstallation(i)||usesExactInstallation(node))||sameInstallation(i,node)))){const saved=this.catalog.instances.find(i=>i.instanceId===instance.instanceId);if(saved&&!saved.nodeId)saved.nodeId=node.nodeId;}
     }

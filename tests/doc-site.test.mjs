@@ -34,8 +34,10 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   assert.ok(methods.includes('| OpenDesk CLI | 启动服务 | HTTP | 仅导出 | — | — | — |'));
   assert.ok(methods.includes('| DSH ACP | — | — | — | ✓ | — | — |'));
   assert.ok(capabilities.includes('| DSH ACP | ✓ | ✓ | ✓ | ✓ | — | — |'));
-  assert.equal(methods.trim().split('\n').length, 15);
-  assert.equal(capabilities.trim().split('\n').length, 15);
+  assert.ok(methods.includes('| 自定义 ACP | — | — | — | ✓ | — | — |'));
+  assert.ok(capabilities.includes('| 自定义 ACP | ✓ | 视握手 | ✓ | ✓ | — | — |'));
+  assert.equal(methods.trim().split('\n').length, 16);
+  assert.equal(capabilities.trim().split('\n').length, 16);
 });
 test('分组的启动命令与会话控制表覆盖全部已注册入口', () => {
   const page = readFileSync(resolve(repositoryRoot, 'doc/user/agents/index.md'), 'utf8');
@@ -48,7 +50,8 @@ test('分组的启动命令与会话控制表覆盖全部已注册入口', () =>
   assert.deepEqual(rows.map(([name]) => name).sort(), resumable.map(([name]) => name).sort());
   for (const [name, launch, resume, steer, checkpoint, compaction] of rows) {
     assert.ok(launch.length > 0);
-    assert.equal(resume.startsWith('✓'), resumable.find(([agent]) => agent === name)[2] === '✓');
+    const expectedResume = resumable.find(([agent]) => agent === name)[2];
+    assert.equal(resume.startsWith('✓') ? '✓' : resume, expectedResume);
     assert.deepEqual([steer, checkpoint, compaction], ['—', '—', '—']);
   }
 });

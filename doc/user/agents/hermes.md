@@ -1,5 +1,7 @@
 # Hermes
 
+支持 ACP 的版本也可在[自定义 ACP](index.md#连接其他-acp-agent)填写 `hermes acp`。Hermes 新版 ACP 会话由原生 Gateway 持有，请先在 Hermes 配置默认模型并确认 Gateway 已就绪。以下内容介绍专用 CLI 入口。
+
 Bridge桌面提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派。
 
 ## 如何连接

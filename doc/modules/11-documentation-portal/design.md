@@ -2,7 +2,7 @@
 
 整仓文档检查支持显式设置已有归档根。只对 `artifacts/` 和 `desktop/release/` 解析备用位置，当前工作树优先。用户页面发布检查继续针对实际产物，归档位置不参与网页生成。[归档检查](../../repository-sync.md)
 
-接入方式表和能力表共用 13 个已注册入口，包括 12 个原生入口与 ChatGPT Web。接入表将浏览器扩展和仅可导出的 MCP 片段单独标注。用户 Agent 页按 CLI、原生服务、ACP 与浏览器扩展列出启动命令和会话控制，覆盖同一批入口。DSH NEXT 的可选连接面板与原生执行、MCP 调用分别展示。站点仍使用 18 页用户文档白名单。[本轮同步](../../iterations/I08/current-scope-audit.md)
+接入方式表和能力表覆盖 13 个专用入口和自定义 ACP。自定义 ACP 的续聊列显示「视握手」，用户站另外维护上游 ACP 启动命令和配置步骤。接入表将浏览器扩展和仅可导出的 MCP 片段单独标注。用户 Agent 页按 CLI、原生服务、ACP 与浏览器扩展列出启动命令和会话控制，覆盖同一批入口。DSH NEXT 的可选连接面板与原生执行、MCP 调用分别展示。站点仍使用 18 页用户文档白名单。[本轮同步](../../iterations/I08/current-scope-audit.md)
 
 M11-F05/F06：Windows发布审计夹具以unlinkSync移除单文件、异步rm清理临时目录，逐项确认反例撤除后恢复19页通过；公开检查器、18页白名单、内部材料拒绝规则保持。Pi用户说明区分alpha.68目录前置检查与未发布事件一致性修复。[源码与证据](../../iterations/I08/pi-workspace-events-and-windows-validation.md)。
 

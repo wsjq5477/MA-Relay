@@ -2,7 +2,7 @@ import type { AgentNode, ConnectionCapabilities } from './types';
 
 export const dshServicePendingLabel = 'Bridge 调用 DSH 未启用';
 
-const nativeAdapters = new Set(['claude', 'opencode', 'codex', 'hermes', 'pi', 'dsh', 'dsh-next', 'dsh-acp', 'dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop']);
+const nativeAdapters = new Set(['acp', 'claude', 'opencode', 'codex', 'hermes', 'pi', 'dsh', 'dsh-next', 'dsh-acp', 'dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop']);
 // Product names, icons, online/available flags and arbitrary claims never
 // establish an adapter. Keep the reviewed registry boundary for unknown ones.
 const executionGatedKeys: (keyof ConnectionCapabilities)[] = ['execution', 'delegation', 'bridgeMcp', 'mcpClient', 'nativeMcpConfig', 'hostManagedTask'];

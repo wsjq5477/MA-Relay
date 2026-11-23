@@ -1,6 +1,6 @@
 # 通信协议与接口
 
-DSH ACP 的原生下游使用 ACP v1 JSON-RPC stdio。顺序为 `initialize`、`session/new` 或能力协商后的 `session/resume`、`session/prompt`。只转发同一 Session 的文字增量。取消发送一次 `session/cancel`，Task 以原 prompt 的 `stopReason` 结算。断连且缺终态保留 unknown。对外沿用原节点、Task 和 MCP 接口。[DSH ACP](iterations/I08/dsh-acp.md)
+DSH ACP 和自定义 ACP 的原生下游使用 ACP v1 JSON-RPC stdio。顺序为 `initialize`、`session/new` 或按能力协商的 `session/resume` / `session/load`、`session/prompt`。只转发同一 Session 的文字增量。取消发送一次 `session/cancel`，Task 以原 prompt 的 `stopReason` 结算。断连且缺终态保留 unknown。对外沿用原节点、Task 和 MCP 接口。[DSH ACP](iterations/I08/dsh-acp.md)
 
 桌面本地 `bridge:reconnect` 仅接收当前主窗口请求，解除本会话中 profile 与运行版本目录的 ACL 退避后复用 Coordinator 建连。`bridge:call` 暴露 `PRIVATE_DIRECTORY_TIMEOUT` / `PRIVATE_DIRECTORY` 分类。认证端点、IPC v2 帧及持久身份格式沿用原合约。[issue #33 本地启动契约](iterations/I08/windows-coordinator-profile-startup.md)
 
@@ -12,7 +12,7 @@ DSH headless 的明确模型 Key 缺失通过原 Task 的 `error.code=DSH_MODEL_
 
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)
 
-桌面 Coordinator 管理方法 `customRuntime.create` 接收目标 machineId、profileId、adapter、name、command 和可选 description，返回不含命令的 executable 身份。adapter 当前接受 hermes/pi。相同 ID 和配置可重试，包含协议变化的配置冲突拒绝。远端 daemon 经原认证连接开放此方法，按配置变更执行维护门禁；旧后台拒绝方法时提示升级，不回退本机或自动部署。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
+桌面 Coordinator 管理方法 `customRuntime.create` 接收目标 machineId、profileId、adapter、name、command 和可选 description，返回不含命令的 executable 身份。adapter 接受 `hermes`、`pi`、`acp`。ACP 注册以固定 argv 启动子进程，仅发送 `initialize`，解析可选版本信息及是否声明原会话恢复能力。相同 ID 和配置可重试，包含协议变化的配置冲突拒绝。远端 daemon 经原认证连接开放此方法，按配置变更执行维护门禁；旧后台拒绝方法时提示升级，不回退本机或自动部署。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
 `list_agents.supportedOperations` 声明 `reply.query-v1` 后，经典 MCP 支持 `reply_task({taskId, operationId, queryOnly: true})`。查询只读取原操作，返回 `{taskId, operationId, kind: "reply", state}`。缺失、类型不符、属主或原 Task 不匹配均返回错误；未能确认时保留原 ID。Core HTTP 原操作 GET 为新记录补充 `taskId` 与 `kind`，旧 Core 记录继续使用既有 GET 投影。[调用方契约](iterations/I08/interconnect-caller-contract.md)
 

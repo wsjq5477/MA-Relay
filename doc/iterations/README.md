@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-11-23：[自定义 ACP v1 stdio 与 Agent 接入表](I08/acp-stdio-runtimes.md)。
+
 - 2026-11-23：[Windows DSH ACP 接入及实机验收](I08/dsh-acp.md)。
 
 - 2026-11-22：[当前范围核对、原答复收据恢复及用户站刷新](I08/current-scope-audit.md)。

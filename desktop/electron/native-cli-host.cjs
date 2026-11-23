@@ -101,6 +101,7 @@ class NativeCliHost {
       const owner = require('./opendesk-connection.cjs').controller(path.join(this.directory, 'opendesk-existing-v2'));
       bound = owner?.instanceId === conversation.instanceId && owner?.connected === true && owner?.executable === this.executable;
     }
+    if (bound && this.adapter === 'acp') bound = this.customRuntime?.acpResume === true;
     if (bound && this.adapter === 'pi') {
       try { piSessionFile(path.join(this.directory, 'native-sessions'), conversation.sessionId, this.state.agents.find(agent => agent.agentId === conversation.targetAgent)?.workspace); }
       catch (error) { if (error.code !== 'CONVERSATION_CONFIG') throw error; bound = false; }
@@ -124,7 +125,7 @@ class NativeCliHost {
       return { agentId: agent.agentId };
     }
     if (method === 'snapshot') return {
-      agents: { items: this.state.agents.map(agent => { const active = this.state.tasks.find(task => task.targetAgent === agent.agentId && !terminal.has(task.status)); return { ...agent, online: true, healthy: true, busy: !!active, available: !active, default: false, nativeAgent: this.adapter, capabilities: {...capabilities, ...(this.adapter === 'hermes' ? {cancellation: false} : {})}, ...(active ? { currentTask: { taskId: active.taskId, status: active.status, summary: active.lastSummary } } : {}) }; }), revision: this.state.revision, connected: true },
+      agents: { items: this.state.agents.map(agent => { const active = this.state.tasks.find(task => task.targetAgent === agent.agentId && !terminal.has(task.status)); return { ...agent, online: true, healthy: true, busy: !!active, available: !active, default: false, nativeAgent: this.adapter, capabilities: {...capabilities, ...(this.adapter === 'hermes' ? {cancellation: false} : {}), ...(this.adapter === 'acp' ? {resume: this.customRuntime?.acpResume === true} : {})}, ...(active ? { currentTask: { taskId: active.taskId, status: active.status, summary: active.lastSummary } } : {}) }; }), revision: this.state.revision, connected: true },
       tasks: this.state.tasks.map(task => this.publicTask(task)), conversations: this.state.conversations.map(item => this.conversationView(item)),
     };
     if (method !== 'ipc') throw fail('DESKTOP_METHOD', '不支持这个原生 Agent 操作。');
@@ -172,6 +173,7 @@ class NativeCliHost {
     const old = this.state.requests.find(item => item.requestId === params.requestId);
     if (old) { if (old.fingerprint !== fingerprint) throw fail('REQUEST_CONFLICT', '请求内容冲突。'); return this.publicTask(this.state.tasks.find(item => item.taskId === old.taskId)); }
     if (params.op === 'continue' && (!validIdentity(conversation?.sessionId) || conversation.profile !== profiles[this.adapter] || conversation.bindingError)) throw fail('CONVERSATION_CONFIG', '原生会话或执行协议尚未绑定，未重新提交。');
+    if (params.op === 'continue' && this.adapter === 'acp' && this.customRuntime?.acpResume !== true) throw fail('CONVERSATION_CONFIG', '原 ACP 入口没有恢复能力。');
     if (params.op === 'continue' && this.adapter.startsWith('opendesk') && !this.conversationView(conversation).canContinue) throw fail('CONVERSATION_CONFIG', '原 OpenDesk 连接或会话不可用，请保留原历史；未重新提交。');
     const dshHome = ['dsh-next', 'dsh-acp'].includes(this.adapter) ? this.dshNextHome() : undefined;
     if (dshHome && conversation && conversation.dshHome !== dshHome) throw fail('CONVERSATION_CONFIG', 'DSH NEXT 的原生数据目录已变更，原会话保留，需求未发送。');
@@ -202,7 +204,7 @@ class NativeCliHost {
     try {
       const runtime = require('./worker-runtime.cjs').workerRuntime(this.directory), workerDirectory = path.join(this.directory, 'runtime', 'native-' + randomUUID());
       fs.mkdirSync(workerDirectory, { recursive: true, mode: 0o700 });
-      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs', 'dsh-connection.cjs', 'dsh-next-runtime.cjs', 'dsh-acp-worker.cjs', 'dsh-worker.cjs', 'opendesk-connection.cjs', 'opendesk-worker.cjs', 'graph-layout.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
+      for (const name of ['native-cli-host.cjs', 'native-cli-protocols.cjs', 'tool-discovery.cjs', 'builtin-adapters.cjs', 'agent-adapter-contract.cjs', 'dsh-connection.cjs', 'dsh-next-runtime.cjs', 'acp-worker.cjs', 'dsh-worker.cjs', 'opendesk-connection.cjs', 'opendesk-worker.cjs', 'graph-layout.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(workerDirectory, name));
       fd = fs.openSync(path.join(directory, 'worker.log'), 'a', 0o600);
       child = spawn(runtime, [path.join(workerDirectory, 'native-cli-host.cjs'), '--native-cli-worker', directory, ...(observe ? ['--observe'] : [])], { cwd: workspace, env: { ...(this.environment || process.env), ELECTRON_RUN_AS_NODE: '1' }, detached: true, windowsHide: true, stdio: ['ignore', fd, fd] });
       child.once('error', error => { this.chain = this.chain.then(() => launchFailure(error)).catch(() => {}); }); child.unref();
@@ -215,7 +217,7 @@ class NativeCliHost {
 async function runWorker(directory) {
   const original = read(path.join(directory, 'job.json'), null);
   if (['opendesk', 'opendesk-desktop'].includes(original?.adapter)) return require('./opendesk-worker.cjs').run(directory, {observe: process.argv.includes('--observe')});
-  if (original?.adapter === 'dsh-acp') return require('./dsh-acp-worker.cjs').run(original, directory, { write, safe });
+  if (['dsh-acp', 'acp'].includes(original?.adapter)) return require('./acp-worker.cjs').run(original, directory, { write, safe });
   if (['dsh-desktop', 'dsh-web'].includes(original?.adapter)) return require('./dsh-worker.cjs').run(directory, {observe: process.argv.includes('--observe')});
   const job = read(path.join(directory, 'job.json'), null), emit = data => fs.appendFileSync(path.join(directory, 'events.jsonl'), JSON.stringify(data) + '\n', { mode: 0o600 });
   const beat = () => write(path.join(directory, 'heartbeat.json'), { time: now(), pid: process.pid }); beat();

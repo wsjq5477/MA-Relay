@@ -1,5 +1,7 @@
 # M07 任务、会话与恢复测试报告
 
+2026-11-23 通用 ACP。受控下游覆盖同一原生 Session 加载、异会话更新隔离、取消终态和断线后禁止重放。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)
+
 2026-11-23，DSH ACP 实机通过原请求查询、Bridge 重开、原 Session 续聊、原 Task 取消及原取消收据读取。受控断连保留 unknown，原 prompt 仅发送一次。[ACP 验收](../../iterations/I08/dsh-acp.md)
 
 T-M07-321 / M07-F06/F07：2026-11-22，实机 DSH NEXT 的认证失败及新版诊断均沿各自原请求查询。受控 DSH 模型 Key 缺失用例确认只执行一次并保留原 Session。实机另用现有 DeepSeek 账号完成两轮成功委派，续聊沿用原 Session。后台重开后按原 ID 恢复四条原 Task，分批读取全部原事件且无缺口，没有新增执行。另一个真实 Task 在观察器关闭/重开前后都为 running，提交一次原取消后出现 cancelled 终态事件。同一操作收据从 unknown 只读查到 confirmed。与 M06 共用证据。[验收记录](../../iterations/I08/current-scope-audit.md#本机-dsh-next-实测)

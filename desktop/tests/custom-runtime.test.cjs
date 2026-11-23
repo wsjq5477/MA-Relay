@@ -50,3 +50,66 @@ test('a saved runtime cannot be executed through a different protocol context', 
   assert.throws(() => MachineHost.prototype.backend.call(host, { contextId: 'original', adapter: 'hermes', executable: 'custom-runtime:original' }), { code: 'CONVERSATION_CONFIG' });
   assert.equal(host.contexts.size, 0);
 });
+
+test('ACP registration verifies v1 on stdio, keeps its fixed argv, and stores negotiated resume', async t => {
+  const f = fixture(t);
+  const source = path.join(f.directory, 'acp.cjs');
+  const wire = path.join(f.directory, 'wire.json');
+  fs.writeFileSync(source, `
+const fs = require('node:fs');
+const readline = require('node:readline');
+readline.createInterface({input:process.stdin}).on('line', line => {
+  const frame = JSON.parse(line);
+  fs.appendFileSync(process.argv[2], frame.method+'\\n');
+  if (frame.method === 'initialize') process.stdout.write(JSON.stringify({
+    jsonrpc:'2.0', id:frame.id, result:{protocolVersion:1,agentInfo:{version:'1.2.3'},
+      agentCapabilities:{loadSession:process.argv[3]==='load'}}
+  })+'\\n');
+});
+`);
+  for (const mode of ['load', 'none']) {
+    const input = {...f.input, adapter:'acp', profileId:randomUUID(), command:`"${process.execPath}" "${source}" "${wire}" ${mode}`};
+    const result = await f.store.create(input);
+    const reopened = new CustomRuntimeStore(f.directory);
+    const found = reopened.list().find(row => row.executable === result.executable);
+    assert.equal(found.acpResume, mode === 'load');
+    assert.equal(found.version, '1.2.3');
+    assert.deepEqual(reopened.read(result.executable).args, [source, wire, mode]);
+    assert.deepEqual(await reopened.create(input), result);
+  }
+  assert.deepEqual(fs.readFileSync(wire, 'utf8').trim().split('\n'), ['initialize','initialize']);
+  await assert.rejects(f.store.create({...f.input,adapter:'acp'}), {code:'CUSTOM_RUNTIME_INVALID'});
+  assert.equal(f.store.list().length, 2);
+});
+
+test('ACP resolves a Windows npm bin without executing its batch launcher', { skip: process.platform !== 'win32' }, async t => {
+  const f = fixture(t);
+  const packageRoot = path.join(f.directory, 'node_modules', '@fixture', 'agent');
+  fs.mkdirSync(packageRoot, { recursive: true });
+  const program = path.join(packageRoot, 'agent.cjs');
+  fs.writeFileSync(path.join(packageRoot, 'package.json'), JSON.stringify({name:'@fixture/agent',bin:{'fixture-acp':'agent.cjs'}}));
+  fs.writeFileSync(program, `
+require('node:readline').createInterface({input:process.stdin}).on('line', line => {
+  const frame=JSON.parse(line);
+  if(process.argv[2]==='--acp' && frame.method==='initialize')
+    process.stdout.write(JSON.stringify({jsonrpc:'2.0',id:frame.id,result:{protocolVersion:1}})+'\\n');
+});
+`);
+  const shim = path.join(f.directory, 'fixture-acp.cmd');
+  const npmLauncher = [
+    '@ECHO off',
+    'EXIT /B 9',
+    ' SET "_prog=node"',
+    'endLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & set PATHEXT=%PATHEXT:;.JS;=;% & "%_prog%" "%dp0%\\node_modules\\@fixture\\agent\\agent.cjs" %*',
+  ].join('\r\n')+'\r\n';
+  fs.writeFileSync(shim, npmLauncher);
+  const store = new CustomRuntimeStore(f.directory, { ...process.env, PATH: f.directory });
+  const input = {...f.input, adapter:'acp', command:'fixture-acp --acp'};
+  const result = await store.create(input);
+  assert.equal(store.read(result.executable).program, fs.realpathSync(program));
+  assert.deepEqual(store.read(result.executable).args, ['--acp']);
+
+  fs.writeFileSync(shim, npmLauncher.replace('agent.cjs', 'undeclared.cjs'));
+  fs.copyFileSync(program, path.join(packageRoot, 'undeclared.cjs'));
+  await assert.rejects(store.create({...input, profileId:randomUUID()}), {code:'CUSTOM_RUNTIME_INVALID'});
+});

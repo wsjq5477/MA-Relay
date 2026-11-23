@@ -20,7 +20,7 @@ const noop = () => {};
 const kinds = ["claude", "codex", "opencode", "hermes", "pi", "dsh"];
 
 test("six official agent icons retain their exact source bytes and bundled provenance", () => {
-  assert.deepEqual(Object.keys(agentTools).filter(k => !['chatgpt-web', 'dsh-next', 'dsh-acp', 'dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop'].includes(k)), kinds);
+  assert.deepEqual(Object.keys(agentTools).filter(k => !['acp', 'chatgpt-web', 'dsh-next', 'dsh-acp', 'dsh-desktop', 'dsh-web', 'opendesk', 'opendesk-desktop'].includes(k)), kinds);
   assert.equal(agentTools['dsh-next'].icon, agentTools.dsh.icon);
   assert.equal(agentTools['dsh-desktop'].icon, agentTools.dsh.icon);
   assert.equal(agentTools['dsh-web'].icon, agentTools.dsh.icon);

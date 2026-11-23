@@ -10,7 +10,7 @@ Core `interactions.data` 对新操作保存可选 `binding={taskId,executionId,k
 
 维护控制器使用原可信摘要对应的完整隔离运行资源；加载失败诊断保存于原维护行的既有 error/details，不改变协议版本或状态枚举。query 可修复同一原摘要的控制器，但只查询原操作；not_found 保留 unknown，不重发升级。[实现与验证](iterations/I08/maintenance-controller-recovery.md)
 
-自定义运行时以 UUID 在目标机器保存私有配置。目录与执行上下文沿用安装身份字段，值为 `custom-runtime:<UUID>`，实际程序、固定参数与描述留在目标机器配置；Windows 不替远端解析路径或保存配置。私有配置持久化 adapter（hermes/pi）；旧配置缺字段时仍按 Hermes 读取，同一 UUID 不允许换协议。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
+自定义运行时以 UUID 在目标机器保存私有配置。目录与执行上下文沿用安装身份字段，值为 `custom-runtime:<UUID>`，实际程序、固定参数与描述留在目标机器配置；Windows 不替远端解析路径或保存配置。私有配置持久化 adapter（hermes、pi、acp）。ACP 握手可确认的续聊能力以布尔值 `acpResume` 记录，并随节点发现公开。实际会话仍绑定 `custom-runtime:<UUID>`、原工作目录和原生 Session ID；旧配置缺字段时仍按 Hermes 读取，同一 UUID 不允许换协议。[自定义运行时记录](iterations/I08/custom-runtime-pi.md)
 
 OpenCode原任务协议仍取既有NativeReference.snapshot.nativeProtocol，不从临时健康发现缓存重写。按原绑定创建的客户端仅为本次执行/观察/控制的内存资源，不新增持久身份、字段、Task或Session；发现失败及IPC离线不能推定原任务终态。[当前行为与验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 

@@ -2,6 +2,8 @@
 
 DSH ACP 派发前持久化原请求与原生 Session，续聊核对原安装、工作目录和 DSH 数据目录。断连与未知终态继续占用原执行，按原 ID 查询。取消收据与原 prompt 的取消终态分别核对。[DSH ACP](../../iterations/I08/dsh-acp.md)
 
+自定义 ACP 会话绑定原自定义运行时 UUID、规范化工作目录和原生 Session ID。续聊须由目标声明恢复能力并接受原 Session；`session/load` 可用空响应确认原绑定。[通用 ACP](../../iterations/I08/acp-stdio-runtimes.md)
+
 DSH headless 明确报告模型路由缺少 API Key 时，以原 Task failed 和 `DSH_MODEL_AUTH_REQUIRED` 结算。保留原请求、会话绑定及事件，原请求可读。用户补齐凭据后可发起新请求。[本机验证](../../iterations/I08/current-scope-audit.md#本机-dsh-next-实测)
 
 M07-F06/F07：真实原Task已覆盖运行中门面关闭/重开及原seq补读；取消unknown收据沿原operation查询到confirmed，并独立读到Task cancelled。关闭原属主上下文即时拒读且原生任务继续成功，由管理员独立观察；已关闭调用方的委派投影可能保持旧running缓存，不能作为原生存活或释放占位证据。持久格式与unknown处理不改。[本轮真实证据与限制](../../iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
