@@ -1,6 +1,6 @@
 # M01 桌面界面与交互设计
 
-ACP 待处理工具权限复用原任务详情。按原生选项和展示信息决定是否可点击「仅允许本次」，拒绝及原操作查询沿用现有入口。[ACP 工具权限](../../iterations/I08/acp-permission-reply.md)
+ACP 待处理工具权限复用原任务详情。执行类请求显示完整命令才开放「仅允许本次」。DSH ACP 的 PowerShell 和 Bash 也适用。拒绝及原操作查询沿用现有入口。[ACP 工具权限](../../iterations/I08/acp-permission-reply.md)
 
 Windows 安装包启动时，新版桌面自动切换同一 profile 的旧 Coordinator；首次读取等待后台切换，随后展示新版本及原数据。旧后台退出无法确认时显示可重试的升级错误。[覆盖升级](../../iterations/I08/windows-coordinator-profile-startup.md#覆盖升级)
 

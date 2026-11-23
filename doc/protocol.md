@@ -2,7 +2,7 @@
 
 DSH ACP 和自定义 ACP 的原生下游使用 ACP v1 JSON-RPC stdio。顺序为 `initialize`、`session/new` 或按能力协商的 `session/resume` / `session/load`、`session/prompt`。只转发同一 Session 的文字增量。取消发送一次 `session/cancel`，Task 以原 prompt 的 `stopReason` 结算。断连且缺终态保留 unknown。对外沿用原节点、Task 和 MCP 接口。[DSH ACP](iterations/I08/dsh-acp.md)
 
-ACP `session/request_permission` 经既有 `pending`、`reply` 和 `operation` 桌面接口接收与查询，拥有原委派读控权的调用方沿用 MCP 接口。一次允许只选择可核对的 `allow_once`，拒绝优先选择 `reject_once`。缺少一次拒绝选项时送 `cancelled`。写入确认仅表示向原 ACP stdio 写入答复。取消当前 prompt 时先取消所有尚未回复的权限请求。[ACP 工具权限](iterations/I08/acp-permission-reply.md)
+ACP `session/request_permission` 经既有 `pending`、`reply` 和 `operation` 桌面接口接收与查询，拥有原委派读控权的调用方沿用 MCP 接口。一次允许只选择可核对的 `allow_once`。执行类请求必须完整展示命令，包括 DSH ACP 以 `kind: other` 上报的 PowerShell 和 Bash。拒绝优先选择 `reject_once`。缺少一次拒绝选项时送 `cancelled`。写入确认仅表示向原 ACP stdio 写入答复。取消当前 prompt 时先取消所有尚未回复的权限请求。[ACP 工具权限](iterations/I08/acp-permission-reply.md)
 
 桌面本地 `bridge:reconnect` 仅接收当前主窗口请求，解除本会话中 profile 与运行版本目录的 ACL 退避后复用 Coordinator 建连。`bridge:call` 暴露 `PRIVATE_DIRECTORY_TIMEOUT` / `PRIVATE_DIRECTORY` 分类。认证端点、IPC v2 帧及持久身份格式沿用原合约。[issue #33 本地启动契约](iterations/I08/windows-coordinator-profile-startup.md)
 

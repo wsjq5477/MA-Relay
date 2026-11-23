@@ -2,7 +2,7 @@
 
 M06-F01：DSH ACP 与 headless 各有独立协议和节点。ACP worker 启动包内 `--profile acp`，声明基本客户端能力并按握手协商原 Session 恢复。模型与凭据由原生 Profile 读取。Bridge 已有原任务工具权限回复，MCP 注入暂未开放。[DSH ACP](../../iterations/I08/dsh-acp.md)
 
-自定义 ACP 与 DSH ACP 共用 v1 stdio Worker。自定义运行时由用户提供固定命令，只运行已注册的可执行程序，连接时声明基本客户端能力。`session/resume` 和 `session/load` 按握手协商，`session/prompt` 仅接收同一会话的文字更新。模型配置保留在 Agent。共享 worker 读取原生权限询问，匹配原 prompt 和同一 Session。明确的单次选择在原 JSON-RPC 请求上提交一次，任务终态读取原 prompt。[ACP 工具权限](../../iterations/I08/acp-permission-reply.md)。[通用 ACP](../../iterations/I08/acp-stdio-runtimes.md)
+自定义 ACP 与 DSH ACP 共用 v1 stdio Worker。自定义运行时由用户提供固定命令，只运行已注册的可执行程序，连接时声明基本客户端能力。`session/resume` 和 `session/load` 按握手协商，`session/prompt` 仅接收同一会话的文字更新。模型配置保留在 Agent。共享 worker 读取原生权限询问，匹配原 prompt 和同一 Session。明确的单次选择在原 JSON-RPC 请求上提交一次，任务终态读取原 prompt。DSH 把 PowerShell 和 Bash 报为通用工具类型，worker 仍按执行命令处理。完整命令来自原工具更新。缺少或无法完整展示命令时只可拒绝。[ACP 工具权限](../../iterations/I08/acp-permission-reply.md)。[通用 ACP](../../iterations/I08/acp-stdio-runtimes.md)
 
 M06-F01：DSH Desktop 与 Web 连接先异步验证私有目录，再保存原 adapter、origin 与连接 token。Windows 检查上限为 30 秒。目录验证失败会保留原配置，可刷新状态核对后重试。扫描保留已接入节点的原服务连接，原连接缺失时不采用同机其他健康地址。[本机验收](../../iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
 

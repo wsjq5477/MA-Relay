@@ -163,7 +163,7 @@ const cancelledPermission = { outcome: 'cancelled' };
 
 const pendingPermissionFile = (directory, id) => path.join(directory, 'pending-permission-' + id + '.json');
 
-function permissionRequests(directory, {emit, safe, write}) {
+function permissionRequests(directory, {emit, safe, write, adapter}) {
   const waiting = new Map(), pendingRpcIds = new Set(), tools = new Map();
   let requestCount = 0;
   const hiddenChars = /[\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/g;
@@ -174,7 +174,10 @@ function permissionRequests(directory, {emit, safe, write}) {
     if (update.title != null) view.title = text(update.title);
     if (update.kind != null) view.kind = permissionActions.has(update.kind) ? update.kind : 'other';
     if (update.rawInput != null) {
-      const value = update.rawInput?.command ?? update.rawInput?.cmd ?? update.rawInput;
+      const input = update.rawInput;
+      view.hasCommandField = typeof input === 'object' &&
+        (Object.hasOwn(input, 'command') || Object.hasOwn(input, 'cmd'));
+      const value = input?.command ?? input?.cmd ?? input;
       const command = text(value);
       view.command = command === value ? command : '';
     }
@@ -227,18 +230,22 @@ function permissionRequests(directory, {emit, safe, write}) {
         return;
       }
       const tool = {...tools.get(toolId), ...details(params.toolCall)};
-      const command = tool.kind === 'execute' ? tool.command : '';
+      // DSH ACP reports native PowerShell and Bash as generic tool calls.
+      const isDshShell = adapter === 'dsh-acp' && ['pwsh', 'bash'].includes(tool.title);
+      const executes = tool.kind === 'execute' ||
+        ((!tool.kind || tool.kind === 'other') && (tool.hasCommandField || isDshShell));
+      const command = executes ? tool.command : '';
       const option = kind => {
         const matches = options.filter(candidate => candidate.kind === kind);
         return matches.length === 1 ? matches[0].optionId : null;
       };
-      const canDescribe = tool.title && !tool.truncatedLocations && (tool.kind !== 'execute' || command);
+      const canDescribe = tool.title && !tool.truncatedLocations && (!executes || command);
       const allow = canDescribe ? option('allow_once') : null;
       const id = randomUUID();
       waiting.set(id, {rpcId, respond, allow, reject:option('reject_once')});
       pendingRpcIds.add(rpcId);
       const resources = [...new Set([tool.title, command, ...(tool.locations || [])].filter(Boolean))];
-      const action = permissionActions.get(tool.kind) || 'ACP 工具操作';
+      const action = permissionActions.get(executes ? 'execute' : tool.kind) || 'ACP 工具操作';
       write(pendingPermissionFile(directory, id), {id, action, resources, canAllowOnce:!!allow});
       emit({kind:'permission', id});
     },
@@ -263,7 +270,7 @@ async function run(job, directory, { write, safe, launchNative = launchAcp }) {
   const beat = () => write(path.join(directory, 'heartbeat.json'), { time: new Date().toISOString(), pid: process.pid });
   let sessionId, connection, dispatched = false, answer = '', answerBytes = 0, oversized = false;
   let controlPoll, cancelDeadline, outcome, promptSettled = false;
-  const permissions = permissionRequests(directory, {emit, safe, write});
+  const permissions = permissionRequests(directory, {emit, safe, write, adapter:job.adapter});
   const cancellationRequested = () => fs.existsSync(path.join(directory, 'cancel.json'));
   beat();
   const heartbeat = setInterval(() => { try { beat(); } catch { /* The observer owns uncertainty. */ } }, 1000);

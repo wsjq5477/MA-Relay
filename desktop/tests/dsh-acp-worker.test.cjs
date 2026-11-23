@@ -39,6 +39,14 @@ readline.createInterface({input:process.stdin}).on('line',line=>{
       const options=[{kind:'allow_always',optionId:'persistent'},{kind:'reject_always',optionId:'persistent-reject'}];
       if(mode==='permission-cancel')options.unshift({kind:'allow_once',optionId:'one'});
       send({method:'session/request_permission',id:998,params:{sessionId:'owned-acp',toolCall:{toolCallId:'read-one',kind:'read',title:'Read test fixture'},options}});
+    } else if(mode==='dsh-shell-permission'||mode==='dsh-shell-incomplete') {
+      prompt=m.id;
+      const toolCallId='shell-one';
+      const toolCall={toolCallId,kind:'other',title:'pwsh'};
+      if(mode==='dsh-shell-permission')toolCall.rawInput={command:'echo AB_PERMISSION_TEST'};
+      send({method:'session/update',params:{sessionId:'owned-acp',update:{sessionUpdate:'tool_call',...toolCall}}});
+      const options=[{kind:'allow_once',optionId:'one'},{kind:'reject_once',optionId:'no'}];
+      send({method:'session/request_permission',id:997,params:{sessionId:'owned-acp',toolCall:{toolCallId},options}});
     } else if(mode==='cancel') {
       prompt=m.id;
       send({method:'session/request_permission',id:999,params:{sessionId:'owned-acp',options:[{optionId:'allow'}]}});
@@ -47,7 +55,7 @@ readline.createInterface({input:process.stdin}).on('line',line=>{
       send({id:m.id,result:{stopReason:'end_turn'}});
     }
   }
-  if(m.id===998&&mode==='only-persistent')send({id:prompt,result:{stopReason:'end_turn'}});
+  if(m.id===997||m.id===998&&mode==='only-persistent')send({id:prompt,result:{stopReason:'end_turn'}});
   if(m.method==='session/cancel') send({id:prompt,result:{stopReason:'cancelled'}});
   if(m.method==='session/close') send({id:m.id,result:{}});
 });
@@ -154,6 +162,28 @@ test('DSH ACP never selects permanent options for a one-time decision', {timeout
   const receipt = f.events().find(row=>row.kind==='permission_receipt');
   assert.equal(receipt.state,'confirmed');
   assert.equal(receipt.operationId,'permission-decision');
+});
+
+test('DSH ACP displays the full command for a generic native PowerShell request', {timeout:15000}, async t => {
+  const f = fixture(t, 'dsh-shell-permission');
+  const running = f.execute();
+  const permission = await waitingPermission(f);
+  assert.deepEqual(permission.resources,['pwsh','echo AB_PERMISSION_TEST']);
+  assert.equal(permission.canAllowOnce,true);
+  f.reply(permission.id,'once');
+  await running;
+  assert.deepEqual(f.wire().find(row=>row.id===997).result,{outcome:{outcome:'selected',optionId:'one'}});
+});
+
+test('DSH ACP blocks approval when a native PowerShell request omits its command', {timeout:15000}, async t => {
+  const f = fixture(t, 'dsh-shell-incomplete');
+  const running = f.execute();
+  const permission = await waitingPermission(f);
+  assert.deepEqual(permission.resources,['pwsh']);
+  assert.equal(permission.canAllowOnce,false);
+  f.reply(permission.id,'reject');
+  await running;
+  assert.deepEqual(f.wire().find(row=>row.id===997).result,{outcome:{outcome:'selected',optionId:'no'}});
 });
 
 test('DSH ACP cancels the waiting permission before cancelling the original prompt', {timeout:15000}, async t => {
