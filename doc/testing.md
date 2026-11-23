@@ -1,5 +1,7 @@
 # 整体测试与验收报告
 
+2026-11-23，ACP Windows x64 便携预发布已公开。GitHub 记录的附件大小和 SHA-256 与本地匹配，公开下载链接经匿名字节请求确认，校验文件匿名完整下载一致。Windows 日常配置的 EXE 启动仍待验收。[发布与验证](iterations/I08/acp-stdio-runtimes.md#公开预发布)。
+
 Windows 本机 DSH NEXT 2.0.24-next 已实测独立 DSH ACP 任务执行、原 Session 续聊、流式正文与取消。Bridge 重开后原请求仍可查询。ACP 断线与权限请求另有受控回归。[DSH ACP 验收](iterations/I08/dsh-acp.md)
 
 通用 ACP 的注册、任务流和原会话恢复另有受控回归及 Windows 原生验证。[通用 ACP 验收](iterations/I08/acp-stdio-runtimes.md)

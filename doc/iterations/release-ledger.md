@@ -1,5 +1,9 @@
 # 历史发布登记：标签、EXE 与 SHA-256
 
+## 2026-11-23 0.6.0-alpha.76.local.20261123.acp 预发布
+
+标签 v0.6.0-alpha.76.local.20261123.acp 冻结 8b69f71b3da11d91cbd52780e5b2c1e1c3e62be1。Windows x64 便携 EXE 588261346 字节，SHA-256 30991bbe06e576d0e958a493bad18fff3c45926ac78b2a2e5a8f3da32c2318ec。公开 ZIP/安装包继续见历史记录。本轮 EXE 经 GitHub 完整附件摘要与匿名字节请求核对，校验文件匿名完整下载一致。[完整交付](I08/acp-stdio-runtimes.md#公开预发布)。
+
 ## 2026-11-17 0.6.0-alpha.76.issue33.3 预发布
 
 标签 `v0.6.0-alpha.76.issue33.3` 冻结 `84ed341709af5fa5cf4d6c742b56c18d1b28debe`。Windows x64 安装包 141644483 字节，SHA-256 `1ce2d6c3f2e3a04920b13ebfef68b19ca860bd43a10355513c0ad1bcd05ee31a`。安装包及校验文件匿名完整下载一致。隔离 profile 包内后台切换已通过，安装器覆盖日常目录待验收。[完整交付](I08/windows-coordinator-profile-startup.md#公开预发布)。

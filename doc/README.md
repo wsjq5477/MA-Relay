@@ -2,7 +2,7 @@
 
 当前产品定位、范围和约束见[产品约束](product-constraints.md)。按源码、受控测试和真实原生环境逐项核对的缺口见[当前范围核对](iterations/I08/current-scope-audit.md)。
 
-当前公开预发布 **0.6.0-alpha.76.issue33.3**，源码冻结 `84ed341`。Windows 安装包修复大型 profile 的 ACL 启动超时，新版启动时自动替换旧本地 Coordinator。安装包及 SHA-256 文件已匿名完整下载校验。 [交付记录](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
+当前公开预发布 **0.6.0-alpha.76.local.20261123.acp**，冻结源码为 8b69f71。此版本提供 DSH ACP 与通用 ACP v1 stdio 接入。[交付记录](iterations/I08/acp-stdio-runtimes.md#公开预发布)。
 
 AgentBridge 管理原生 Agent 的发现、授权、明确目标调用、状态、结果、交互与恢复。现行源码已验证本机 DSH NEXT 的两轮同会话调用和原事件恢复，并支持查询原交互答复收据与导出 Markdown 结果。[实测与未完成范围](iterations/I08/current-scope-audit.md)
 
@@ -15,10 +15,10 @@ AgentBridge 管理原生 Agent 的发现、授权、明确目标调用、状态�
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0（I05：机器节点与主从协作） |
-| 当前公开预发布 | **0.6.0-alpha.76.issue33.3**，冻结 `84ed341`，安装包 141644483 字节。 [发布记录](iterations/I08/windows-coordinator-profile-startup.md#公开预发布) |
-| 当前发布包 | [Windows x64 安装包](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/AgentBridge-0.6.0-alpha.76.issue33.3-Windows-x64-Setup.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/SHA256SUMS.txt) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip)。安装包未签名。 |
-| 当前公开源码范围 | 标签 `v0.6.0-alpha.76.issue33.3`（`84ed341`） |
-| 本次内容与边界 | Windows 大型 profile 异步校验 ACL，重连后恢复数据与版本读取。新版启动时自动替换同一 profile 的旧本地后台。 |
+| 当前公开预发布 | **0.6.0-alpha.76.local.20261123.acp**，冻结 8b69f71，EXE 588261346 字节。[发布记录](iterations/I08/acp-stdio-runtimes.md#公开预发布) |
+| 当前发布包 | [Windows x64 便携 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/AgentBridge-0.6.0-alpha.76.local.20261123.acp-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/SHA256SUMS.txt) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip) |
+| 当前公开源码范围 | 标签 v0.6.0-alpha.76.local.20261123.acp（8b69f71） |
+| 本次内容与边界 | 通用 ACP 支持文字流、取消与普通委派，续聊按握手开放。Windows 原生 DSH、OpenCode 与 Hermes 的实测范围见发布记录。 |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
 逐轮历史与发布记录统一在 [迭代目录](iterations/README.md)，主文档只维护当前状态。

@@ -1,8 +1,6 @@
 # AgentBridge 开发与文档协作
 
-当前公开预发布 **0.6.0-alpha.76.issue33.3**，源码冻结 `84ed341`。Windows 安装包修复大型 profile 的 ACL 启动超时，新版启动时自动替换旧本地 Coordinator。安装包及 SHA-256 文件已匿名完整下载校验。 [交付记录](doc/iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
-
-发布验证范围见[交付记录](doc/iterations/I08/alpha76-dsh-release.md)。
+当前公开预发布 **0.6.0-alpha.76.local.20261123.acp**，冻结源码为 8b69f71。此版本提供 DSH ACP 与通用 ACP v1 stdio 接入。[交付记录](doc/iterations/I08/acp-stdio-runtimes.md#公开预发布)。
 
 项目的完整资料入口是 [doc/README.md](doc/README.md)，同步规则见 [doc/development-guide.md](doc/development-guide.md)。人类和 Agent 按同一套规则开发。
 

@@ -1,6 +1,6 @@
 # 通用 ACP v1 stdio Agent 接入
 
-2026-11-23，Windows 本机开发。需求来自用户给出的 ACP Agent 清单，覆盖 DSH 之外已提供兼容 stdio 入口的 Agent。当前以源码状态记录。
+2026-11-23，Windows 本机开发。需求来自用户给出的 ACP Agent 清单，覆盖 DSH 之外已提供兼容 stdio 入口的 Agent。本页记录源码实现、实机验证与公开预发布。
 
 ## 实现
 
@@ -24,3 +24,11 @@
 类型检查和用户站测试通过，18 个用户页生成 19 个 HTML 页。整仓文档检查仍报告与改动前相同的 2,219 个旧归档链接缺失，其他文档错误为 0。
 
 原始记录位于本机项目 `artifacts/current-scope-20261122/`。
+
+## 公开预发布
+
+2026-11-23 15:08（UTC+8）发布 v0.6.0-alpha.76.local.20261123.acp，标签固定在 8b69f71b3da11d91cbd52780e5b2c1e1c3e62be1。Windows x64 便携 EXE 为 588261346 字节，SHA-256 为 30991bbe06e576d0e958a493bad18fff3c45926ac78b2a2e5a8f3da32c2318ec。
+
+GitHub 公布的两个附件大小和 SHA-256 与上传前一致。便携 EXE 匿名请求返回 HTTP 206，校验文件匿名完整下载并与本地一致。EXE 为本轮的便携构建，日常配置下的实际启动仍待验收。证据见本机项目 artifacts/current-scope-20261122/acp-publication/ 下的 github-release.json 与 github-download.json。
+
+[Windows x64 便携 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/AgentBridge-0.6.0-alpha.76.local.20261123.acp-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/SHA256SUMS.txt) · [GitHub 预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.local.20261123.acp)

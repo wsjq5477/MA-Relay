@@ -9,7 +9,7 @@
 | 产品定位 | 互联核心与可选扩展分层；首阶段新建/原绑定恢复会话，[产品约束](product-constraints.md) |
 | 源码基础 | Agent 登记/固定端点、调用方/上下文/凭据、原事件和原请求恢复已有实现；[开发台账](iterations/I08/interconnect-development.md) |
 | 原生证据 | Windows→WSL Codex 正文、续聊和恢复见历史证据。当前验收使用 Windows Codex 和同机 DSH NEXT，[当前范围核对](iterations/I08/current-scope-audit.md) |
-| 发布与本地候选 | 版本/标签/EXE/SHA/下载和本地候选分别见[发布登记](iterations/release-ledger.md)、[迭代记录](iterations/README.md)。当前公开预发布为 0.6.0-alpha.76.issue33.3，冻结源码 84ed341 |
+| 发布与本地候选 | 版本/标签/EXE/SHA/下载和本地候选分别见[发布登记](iterations/release-ledger.md)、[迭代记录](iterations/README.md)。当前公开预发布为 0.6.0-alpha.76.local.20261123.acp，冻结源码 8b69f71 |
 | 历史范围 | I06C 完整故障/平台矩阵与原 I07C 未准出项保留；可选小队的完整度不作为核心调用的前置条件 |
 
 ## 2. 迭代和长期模块的关系

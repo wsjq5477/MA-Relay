@@ -1,6 +1,6 @@
 # AgentBridge 整体功能设计
 
-产品范围以[产品约束](product-constraints.md)为准。当前公开预发布为 **0.6.0-alpha.76.issue33.3**，冻结源码 `84ed341`。[发布与验证](iterations/I08/windows-coordinator-profile-startup.md#公开预发布)
+产品范围以[产品约束](product-constraints.md)为准。当前公开预发布为 **0.6.0-alpha.76.local.20261123.acp**，冻结源码 8b69f71。[发布与验证](iterations/I08/acp-stdio-runtimes.md#公开预发布)
 
 Windows DSH NEXT 新增独立的 DSH ACP 入口，使用包内原生 ACP v1 stdio。支持直接会话、普通被委派、流式正文、原会话续聊及取消；恢复绑定沿用原工作目录和原生账号配置。[DSH ACP 实现与验收](iterations/I08/dsh-acp.md)
 

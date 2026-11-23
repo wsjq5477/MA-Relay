@@ -1,26 +1,26 @@
 # AgentBridge
 
-当前公开预发布 **0.6.0-alpha.76.issue33.3**，源码冻结 `84ed341`。Windows 安装包修复大型 profile 的 ACL 启动超时，新版启动时自动替换旧本地 Coordinator。安装包及 SHA-256 文件已匿名完整下载校验。 [交付记录](doc/iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
+当前公开预发布 **0.6.0-alpha.76.local.20261123.acp**，冻结源码为 8b69f71。此版本提供 DSH ACP 与通用 ACP v1 stdio 接入。[交付记录](doc/iterations/I08/acp-stdio-runtimes.md#公开预发布)。
 
 AgentBridge 把用户已安装的 Agent 工具（Claude Code、OpenCode、Codex、Hermes、Pi、DSH、OpenDesk 等）呈现为可观察的节点：从原生Agent发起协作，在客户端配置连接、看进度、读结果，并让主 Agent 通过受限接口发现和委派获准的其他 Agent。模型、账号与原生配置由各工具自己管理，Bridge 不添加模型 API 层。
 
-当前支持 8 种产品、13 个接入入口。CLI、原生 API、MCP、ACP、插件和 SDK 的支持情况见[Agent 接入矩阵](doc/agent-integration-matrix.md#2-每个-agent-已接入的方式)。实际命令与控制能力见[启动与会话控制](doc/user/agents/index.md#启动与会话控制)。
+当前提供 8 种产品的 13 个专用入口，并可注册兼容 ACP v1 stdio 的 Agent。CLI、原生 API、MCP、ACP、插件和 SDK 的支持情况见[Agent 接入矩阵](doc/agent-integration-matrix.md#2-每个-agent-已接入的方式)。实际命令与控制能力见[启动与会话控制](doc/user/agents/index.md#启动与会话控制)。
 
 ## 当前状态与下载
 
 | 项目 | 状态 |
 | --- | --- |
 | 稳定历史版本 | 0.5.0 |
-| 当前公开预发布 | **0.6.0-alpha.76.issue33.3**，冻结 `84ed341`，安装包 141644483 字节。 [发布记录](doc/iterations/I08/windows-coordinator-profile-startup.md#公开预发布) |
-| 本次内容与边界 | Windows 大型 profile 异步校验 ACL，重连后恢复数据与版本读取。新版启动时自动替换同一 profile 的旧本地后台。 |
-| 当前发布包 | [Windows x64 安装包](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/AgentBridge-0.6.0-alpha.76.issue33.3-Windows-x64-Setup.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/SHA256SUMS.txt) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip)。安装包未签名。 |
-| 上一公开预发布 | alpha.76，DSH NEXT 接入与可选连接面板。 [历史发布](doc/iterations/I08/alpha76-dsh-release.md) |
-| 当前公开源码范围 | 标签 `v0.6.0-alpha.76.issue33.3`（`84ed341`） |
+| 当前公开预发布 | **0.6.0-alpha.76.local.20261123.acp**，冻结 8b69f71，EXE 588261346 字节。[发布记录](doc/iterations/I08/acp-stdio-runtimes.md#公开预发布) |
+| 本次内容与边界 | 通用 ACP 支持文字流、取消与普通委派，续聊按握手开放。Windows 原生 DSH、OpenCode 与 Hermes 的实测范围见发布记录。 |
+| 当前发布包 | [Windows x64 便携 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/AgentBridge-0.6.0-alpha.76.local.20261123.acp-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/SHA256SUMS.txt) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip) |
+| 上一公开预发布 | issue #33 的 Windows 安装包，覆盖后台升级与大型 profile 启动。[历史发布](doc/iterations/I08/windows-coordinator-profile-startup.md#公开预发布) |
+| 当前公开源码范围 | 标签 v0.6.0-alpha.76.local.20261123.acp（8b69f71） |
 | 未准出 | 完整I06C/I07C/MCP02；Hermes网关取消/父模型自主MCP及完整生命周期、Pi/DSH未完成入口、真实多主、图100ms、冷启动/WSL与独立SSH |
 
-[Windows x64 安装包](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/AgentBridge-0.6.0-alpha.76.issue33.3-Windows-x64-Setup.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/SHA256SUMS.txt) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.issue33.3)
+[Windows x64 便携 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/AgentBridge-0.6.0-alpha.76.local.20261123.acp-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/SHA256SUMS.txt) · [DSH 连接插件](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76/DSH-AgentBridge-Connections-1.0.0.zip) · [GitHub 预发布](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.local.20261123.acp)
 
-安装并启动新版后，桌面会自动停止同一 profile 的旧本地后台，确认退出后启动新版。原机器、节点、请求和历史沿原 profile 读取。远端 SSH 维护仍在对应机器空闲时由用户确认，原 unknown 继续按原 ID 查询。
+启动新版后，桌面会自动停止同一 profile 的旧本地后台，确认退出后启动新版。原机器、节点、请求和历史沿原 profile 读取。远端 SSH 维护仍在对应机器空闲时由用户确认，原 unknown 继续按原 ID 查询。
 
 历史版本下载与标签/EXE/SHA 对照见 [GitHub Releases](https://github.com/wsjq5477/MA-Relay/releases) 和 [发布登记](doc/iterations/release-ledger.md)；逐轮交付记录见 [迭代目录](doc/iterations/README.md)。
 
