@@ -6,7 +6,7 @@
 
 <!--@include: ./_generated/connection-table.md-->
 
-✓ 表示已适配，— 表示未适配。OpenCode 的 CLI 负责启动服务。MCP 列表示 Agent 到 Bridge 的调用方向。DSH NEXT 的可选连接面板显示获准目标及状态。OpenDesk CLI 的 MCP 可导出配置片段。ChatGPT Web 通过浏览器扩展接入。
+✓ 表示已适配，— 表示未适配。OpenCode 的 CLI 负责启动服务。MCP 列表示 Agent 到 Bridge 的调用方向。DSH NEXT 的可选连接面板显示获准目标及状态。OpenDesk CLI 只能导出 MCP 配置片段，原生主动调用尚未确认。ChatGPT Web 通过浏览器扩展接入。
 
 ## 六种方式的优点、代价与功能
 
@@ -17,7 +17,7 @@
 | 原生 CLI | 可复用已安装程序与原生登录；环境准备直接；支持远端机器执行 | 需要处理进程生命周期、版本、输出格式与会话标识；纯文本输出难以可靠控制交互 | 接口支持时可发起任务、流式输出、续聊、取消；权限与提问需另有结构化通道 |
 | 原生 API | 会话、轮次、事件和控制通常结构化；可连接已运行的 Desktop / Web 实例 | 需要服务启动、认证与网络可达；各产品 API 不统一，版本适配成本较高 | 创建会话、发送需求、读状态和结果、取消；权限与恢复取决于原生 API |
 | MCP | 统一工具调用形态；原生 Agent 可发现获准工具；便于按连接身份限制范围 | Agent 须有 MCP 客户端；工具是否被实际调用由 Agent 决定；普通 MCP 连接不提供完整宿主控制 | 在 Bridge 当前提供的工具范围内发现 Agent、委派、查询/等待、取消及读取获准公共材料 |
-| ACP | 标准化客户端与 Agent 的会话和交互消息，可减少重复适配 | 需要兼容的服务端和客户端；实现差异、扩展与恢复语义仍需核对；Bridge 提供独立的 DSH ACP 和通用 ACP v1 stdio 入口 | Bridge 可新建会话、接收文字流、回复工具权限和发起取消。续聊按目标宣告的恢复能力开放 |
+| ACP | 标准化客户端与 Agent 的会话和交互消息，可减少重复适配 | 需要兼容的服务端和客户端；实现差异、扩展与恢复语义仍需核对；Bridge 提供独立的 DSH ACP 和通用 ACP v1 stdio 入口 | 公开便携版支持新建会话、接收文字流和取消，续聊取决于原生恢复能力。工具权限回复仅在开发版提供 |
 | 插件 | 在 Agent 内复用原生生命周期和事件，补足外部接口缺口 | 强依赖插件宿主与版本；需要安装维护和权限审查；DSH NEXT 提供可选连接面板，ChatGPT Web 使用浏览器扩展 | 通过宿主暴露的能力桥接工具、事件或连接；不能超出宿主接口，宜保持薄连接 |
 | SDK | 提供类型、封装与事件工具，减少手写协议细节 | 绑定语言和依赖版本；SDK 可能是另一种执行环境，未必继承桌面登录或会话；Bridge 当前没有厂家 SDK 驱动 | SDK 覆盖范围内的会话、流式输出、控制；会话兼容、授权与恢复仍需分别确认 |
 
@@ -31,7 +31,7 @@
 | 已安装的 OpenCode | 使用现有 CLI 启动 + HTTP 执行，协作使用 MCP | 保留已支持的原生交互，不必为连接改换工具 |
 | 已安装的 Hermes / Pi / DSH CLI | 先使用现有 CLI 直接执行或普通被委派 | DSH 已声明有 MCP 客户端，CLI 需你指定启动时使用的 profile 才能写入（不指定只导出片段）；Hermes/Pi可直接管理原生MCP配置 |
 | 已运行的 DSH Desktop / Web | 使用对应服务入口的认证 API | 复用正在运行的实例，避免误用 headless 配置 |
-| OpenDesk CLI / Windows Desktop | CLI使用原生HTTP，桌面连接原实例WebSocket；独立会话按需配置MCP | 两个环境保持原生身份与配置，托管scope和小队未开放 |
+| OpenDesk CLI / Windows Desktop | CLI 通过 HTTP 执行，MCP 仅导出片段。Windows Desktop 使用 WebSocket，可配置独立 MCP | 两个环境保持原生身份与配置，托管scope和小队未开放 |
 | 自研 Agent 已有 MCP 客户端，只需调用 Bridge 工具 | 配置获准的 Bridge MCP 连接 | 快速获得协作通路，但不自动获得被 Bridge 启动的能力 |
 | 新增可被 Bridge 驱动的 Agent | 优先选择产品已有的稳定结构化 CLI 或 API | 需要新增并验证执行适配，不能填写任意命令或 URL 即自动支持 |
 | 新 Agent 提供 ACP，或已有成熟 SDK / 插件扩展点 | 比较现有原生路径，再按接口能力适配 | ACP Agent 可通过[自定义 ACP](agents/index.md#连接其他-acp-agent)接入。SDK 和插件需分别适配 |
@@ -42,6 +42,6 @@
 
 **使用现有工具**：安装并配置原生 Agent → 在对应机器检测 → 选节点与会话目录 → 发起第一条任务 → 核对续聊与取消。DSH 服务版按[DSH 设置步骤](agents/dsh.md)填写根地址和凭据。
 
-**让 Agent 主动调用 Bridge**：使用已适配的 Claude Code / Codex / OpenCode / OpenDesk / DSH Web，在[MCP 管理](connections.md)里建立连接与授权；DSH Desktop 可直接管理当前原生Profile；Hermes / Pi 可用 `agentbridge mcp export` 取得片段后按原生文档添加，DSH CLI 则用 `agentbridge mcp install --node … --profile <启动 profile>` 直接写入。只建立 MCP 连接不会自动注册新的可执行节点。
+**让 Agent 主动调用 Bridge**：使用已适配的 Claude Code / Codex / OpenCode / OpenDesk Windows Desktop / DSH Web，在[MCP 管理](connections.md)里建立连接与授权；DSH Desktop 可直接管理当前原生Profile；Hermes / Pi 可用 `agentbridge mcp export` 取得片段后按原生文档添加，DSH CLI 则用 `agentbridge mcp install --node … --profile <启动 profile>` 直接写入。只建立 MCP 连接不会自动注册新的可执行节点。
 
 **接入新产品**：现有安装检测与设置不能替代执行适配。需确定原生入口及会话/取消/查询语义，增加静态适配并核对能力，再提供用户入口和说明；不能把找到图标或读取版本当作完整接入。

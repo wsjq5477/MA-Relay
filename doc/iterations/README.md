@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-11-23：[产品设计与可用性评审](I08/product-readiness-review.md)，含功能对照、首用文档校正与同版验收条件。
+
 - 2026-11-23：[ACP 工具权限审批、原操作恢复与当前缺口](I08/acp-permission-reply.md)。
 
 - 2026-11-23：[自定义 ACP v1 stdio 与 Agent 接入表](I08/acp-stdio-runtimes.md)。

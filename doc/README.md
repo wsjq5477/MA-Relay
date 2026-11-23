@@ -1,5 +1,7 @@
 # AgentBridge 项目资料
 
+[产品设计与可用性评审](iterations/I08/product-readiness-review.md)按用户任务核对已实现功能、公开包边界、实际使用证据与下一次准出条件。
+
 当前产品定位、范围和约束见[产品约束](product-constraints.md)。按源码、受控测试和真实原生环境逐项核对的缺口见[当前范围核对](iterations/I08/current-scope-audit.md)。
 
 当前公开预发布 **0.6.0-alpha.76.local.20261123.acp**，冻结源码为 8b69f71。此版本提供 DSH ACP 与通用 ACP v1 stdio 接入。[交付记录](iterations/I08/acp-stdio-runtimes.md#公开预发布)。

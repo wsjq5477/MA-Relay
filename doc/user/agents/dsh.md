@@ -7,7 +7,7 @@ DeepSeek Harness（DSH）支持 DSH NEXT、ACP、CLI、Windows Desktop 和 Linux
 | 入口 | Bridge 如何调用 | 配置来源 | 适用场景 |
 | --- | --- | --- | --- |
 | DSH NEXT | Windows 安装包内的 headless JSONL | DSH NEXT 原生数据目录与 headless 模型路由 | 一键接入 Windows DSH NEXT |
-| DSH ACP | 包内 `--profile acp`，使用 ACP v1 stdio | DSH NEXT 原生数据目录与 ACP 模型路由 | 通过 ACP 新建、续聊、取消与回复工具权限 |
+| DSH ACP | 包内 `--profile acp`，使用 ACP v1 stdio | DSH NEXT 原生数据目录与 ACP 模型路由 | 通过 ACP 新建、续聊和取消 |
 | DSH CLI | headless CLI 的 JSON 输出 | headless 的原生环境与配置 | 在命令行环境运行任务 |
 | DSH Windows Desktop | 已启动桌面服务的认证 HTTP Session API | Windows Desktop 自身配置 | 连接 Windows 上已有桌面实例 |
 | DSH Linux / WSL Web | 已启动 Web 服务的认证 HTTP Session API | Linux / WSL Web 自身配置 | 连接该机器已有的 Web 实例 |
@@ -18,9 +18,9 @@ CLI 不自动继承 Desktop / Web 的账号或 profile。不能把服务版已�
 
 1. 安装包含 ACP Profile 的 Windows DSH NEXT，在 Bridge 里重新扫描本机。
 2. 在「接入配置」选择独立的「DSH ACP」节点并点击接入。模型与认证沿用 DSH 的 `acp` Profile。模型认证可在原生 Profile 中核对。
-3. 选择工作目录发送第一条任务。Bridge 支持流式正文、原会话续聊和原任务取消。
+3. 为主 Agent 授权后，在它自己的原生会话中指定 DSH ACP 和目标工作目录，委派第一条任务。Bridge 支持流式正文、原会话续聊和原任务取消。
 
-Bridge 按原 DSH 数据目录、工作目录和原 Session 恢复 ACP 会话。任务失去明确终态时保留原请求以便核对。DSH ACP 的工具权限可以在 Bridge 原任务详情拒绝或仅允许本次。AgentBridge MCP 注入、回合中插话、回退检查点和主动压缩暂未开放。原生 ACP 用法见 [DSH Profile 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/acp-app/README.md)。
+Bridge 按原 DSH 数据目录、工作目录和原 Session 恢复 ACP 会话。任务失去明确终态时保留原请求以便核对。公开便携版收到 ACP 工具权限询问时会取消该询问。开发中的源码可在原任务详情拒绝或仅允许本次，DSH 实机审批尚待确认。AgentBridge MCP 注入、回合中插话、回退检查点和主动压缩暂未开放。原生 ACP 用法见 [DSH Profile 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/acp-app/README.md)。
 
 默认 ACP Profile 使用其自身配置的模型路由。如果已经在 DSH 原生端登录 DeepSeek 账号，可以在 DSH 数据目录的 `profiles/acp/cordis.patch.yml` 中合并下方原生配置。示例模型可按账号支持情况调整。
 
@@ -50,7 +50,7 @@ Bridge 按原 DSH 数据目录、工作目录和原 Session 恢复 ACP 会话。
 1. 启动已安装的 DSH Desktop，确认原生界面能正常使用。
 2. 在“接入配置”的 Windows 机器中找到 DSH Desktop，点击右侧“配置”。
 3. 弹窗已固定该机器和 Desktop 入口，填写原生服务的**根地址**及连接 token 并保存。已有地址会自动显示，token 不回填。
-4. 回到对应机器重新检测，选择 DSH Desktop 节点，再选择工作目录发起任务。
+4. 回到对应机器重新检测并接入 DSH Desktop。保存调用关系后，在主 Agent 的原生会话中指定该目标及其工作目录。
 
 连接 token 用于认证 DSH 服务，不是模型 API Key。应只填在连接设置中，不放进需求或公共材料。
 
@@ -61,7 +61,7 @@ Bridge 按原 DSH 数据目录、工作目录和原 Session 恢复 ACP 会话。
 1. 在目标 Linux 或 WSL 环境启动 DSH Web，确认服务与原生配置可用。
 2. 在“接入配置”的该 Linux / WSL 机器中找到 DSH Web，点击右侧“配置”；弹窗固定该机器和 Web 入口。
 3. 填写服务根地址与连接 token，保存、验证，再重新检测该机器。
-4. 选择 DSH Web 节点发起会话。
+4. 接入 DSH Web 并授权调用方，再从调用方的原生会话向该节点委派任务。
 
 localhost 指执行连接的目标机器。WSL 中运行的 Web 应配置到对应 WSL 机器；Windows Desktop 则配置到 Windows 机器。HTTP 只允许回环地址，其他地址使用 HTTPS；当前不支持反向代理子路径。
 
@@ -84,7 +84,7 @@ API 让 Bridge 直接操作正在运行的 Desktop / Web 会话服务，沿用�
 | 普通被委派 | 可作为获准目标接收其他 Agent 的任务 |
 | 主动调用 Bridge MCP | 已声明具备 MCP 客户端能力；**DSH Web** 的原生 MCP 配置可由 Bridge 管理并在真实启动中被读取（`$DSH_HOME/profiles/web/cordis.patch.yml` 的一行补丁）；**DSH CLI** 也可管理，但要你指定启动时使用的 profile（`$DSH_HOME/profiles/<profile>/cordis.patch.yml`）；**DSH Desktop** 可管理原生当前数据目录/Profile 的条目；选择变更后先移除原绑定，再添加当前目标。这三个入口都使用已安装的 `@deepseek-ai/dsh-mcp-client` |
 | 小队成员 / 托管会话注入 | 当前未接入；这不影响独立 MCP 调用 |
-| 权限与原生提问 | 在 DSH 原生界面处理，Bridge 内暂不提供回复 |
+| 权限与原生提问 | Desktop / Web 在原生界面处理。DSH ACP 的版本差异见[连接 DSH ACP](#连接-dsh-acp) |
 
 ## 原生 MCP 配置（DSH Web）
 

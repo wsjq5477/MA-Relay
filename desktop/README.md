@@ -1,16 +1,16 @@
 # AgentBridge Windows
 
-当前公开预发布 **0.6.0-alpha.76.issue33.3**。新版启动时自动替换同一 profile 的旧本地 Coordinator，并修复大型 profile 的 ACL 初始化超时。[发布与验证](../doc/iterations/I08/windows-coordinator-profile-startup.md#公开预发布)。
+当前公开预发布 **0.6.0-alpha.76.local.20261123.acp**，提供 DSH ACP 和自定义 ACP v1 stdio 入口。此便携包已核对 GitHub 附件大小和摘要，日常配置下的窗口启动仍待确认。[发布与验证](../doc/iterations/I08/acp-stdio-runtimes.md#公开预发布)
 
-[Windows x64 安装包](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/AgentBridge-0.6.0-alpha.76.issue33.3-Windows-x64-Setup.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.issue33.3/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.issue33.3)
+[Windows x64 便携 EXE](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/AgentBridge-0.6.0-alpha.76.local.20261123.acp-Windows-x64.exe) · [SHA-256](https://github.com/wsjq5477/MA-Relay/releases/download/v0.6.0-alpha.76.local.20261123.acp/SHA256SUMS.txt) · [发布页](https://github.com/wsjq5477/MA-Relay/releases/tag/v0.6.0-alpha.76.local.20261123.acp)
 
-运行安装向导并启动新版。旧便携窗口若仍开着，先关闭窗口；它留下的本地后台由新版自动切换。远端 SSH 后台在原机器的维护入口单独升级。
+如有旧版窗口，请先关闭，再运行便携 EXE。远端 SSH 后台在对应机器的维护入口单独升级。
 
 未准出范围：完整 I06C/I07C 与正式 0.6.0 未准出；用户 profile、独立生产 SSH、真实模型、Windows 原生 OpenCode 1.x 推理均未声明验收。未发布的本地整合源码/候选不等于公开发布版本，不能把本地候选叫作已发布版本；来源、验证与未测边界见[整合交付](../doc/iterations/I07/integrated-source.md)。
 
 ## 运行与使用
 
-1. 从上方下载安装包，在向导中选择安装目录，安装后打开 AgentBridge。
+1. 将上方 Windows x64 便携 EXE 保存到固定目录，双击打开 AgentBridge。
 2. “接入配置”自动显示本机和各 WSL 环境及工具。WSL 标明物理宿主；空机器也显示。
 3. 按空格勾选发现的工具，点击“接入所选 Agent”。不要求项目、模型、供应商，不在扫描时调用模型。
 4. “协作关系”选择主 Agent 与允许连接的子 Agent，保存。

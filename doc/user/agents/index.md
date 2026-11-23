@@ -4,7 +4,7 @@ Bridge 当前适配 8 种产品的 13 个专用入口，也可以[连接其他 A
 
 ## 接入方式总览
 
-✓ 表示 Bridge 已适配该方式，— 表示尚未适配。OpenDesk CLI 的 MCP 可导出配置片段。MCP 列表示 Agent 主动调用 Bridge。DSH NEXT 的插件显示已获准的连接与状态，任务使用原生 CLI 执行。
+✓ 表示 Bridge 已适配该方式，— 表示尚未适配。OpenDesk CLI 只能导出 MCP 配置片段，主动调用能力尚未确认。MCP 列表示 Agent 主动调用 Bridge。DSH NEXT 的插件显示已获准的连接与状态，任务使用原生 CLI 执行。
 
 <!--@include: ../_generated/connection-table.md-->
 
@@ -60,13 +60,13 @@ Claude Code 和 Codex 的专用入口使用原生 CLI，也可另装 ACP 适配�
 
 <!--@include: ../_generated/capability-table.md-->
 
-“被委派”指接收普通子任务；“调用 Bridge MCP”指主动发现目标、委派和查询。权限回复按原生入口支持的交互类型处理。Claude Code 的结构化提问尚不支持 Bridge 内表单回复。
+“被委派”指接收普通子任务。“调用 Bridge MCP”指主动发现目标、委派和查询。表中“仅开发版”表示功能已进入源码。当前公开便携版 `0.6.0-alpha.76.local.20261123.acp` 收到 ACP 工具权限询问时会取消该询问。Claude Code 的结构化提问尚不支持 Bridge 内表单回复。
 
 ## 连接其他 ACP Agent
 
 1. 在目标机器安装 Agent 或其 ACP 适配器，按原生工具的说明完成登录与模型配置。WSL 和 SSH 目标需要运行含自定义 ACP 的新版 Bridge 后台。
 2. 在 Bridge 打开「接入配置 → 添加 Agent → 自定义运行时」，选择 **ACP**，填写显示名称和下表中的命令。Windows 支持标准 npm 启动器声明的可执行文件或 JS 入口。其他包装脚本可换成原生可执行文件，或用 `node "D:/路径/入口.js" 参数`。
-3. 创建运行时时 Bridge 会探测 ACP v1 stdio 握手。探测通过后，在同一机器的候选列表添加该 Agent，再创建会话。
+3. 创建运行时时 Bridge 会探测 ACP v1 stdio 握手。探测通过后，在同一机器的候选列表添加并接入该 Agent，为主 Agent 授权。回到主 Agent 的原生会话，指定由这个目标处理任务。[首条委派示例](../quickstart.md#发出第一条只读任务)
 
 | Agent | ACP 启动命令 | 发布方说明 | Bridge 验证 |
 | --- | --- | --- | --- |
@@ -96,7 +96,7 @@ Claude Code 和 Codex 的专用入口使用原生 CLI，也可另装 ACP 适配�
 | Codex | `codex-acp` | [Codex ACP 适配器](https://github.com/agentclientprotocol/codex-acp) · 另装适配器 | 待实机验证 |
 | Pi | `pi-acp` | [ACP Registry](https://agentclientprotocol.com/get-started/registry) · 另装适配器 | 待实机验证 |
 
-[ACP Registry](https://agentclientprotocol.com/get-started/registry) 中的其他 Agent 也可使用这条接入路径，前提是相应发行版能以 ACP v1 stdio 运行。上表汇总上游入口，具体版本能否续聊以 Bridge 握手为准。支持文字流、普通委派和取消。Agent 声明 `session/resume` 或 `session/load` 时可续聊原 Session。原生工具权限在原任务详情处理，可选择「拒绝」或明确的「仅允许本次」。依赖 ACP 客户端代理文件或终端的功能尚未适配。
+[ACP Registry](https://agentclientprotocol.com/get-started/registry) 中的其他 Agent 也可使用这条接入路径，前提是相应发行版能以 ACP v1 stdio 运行。上表汇总上游入口，具体版本能否续聊以 Bridge 握手为准。支持文字流、普通委派和取消。Agent 声明 `session/resume` 或 `session/load` 时可续聊原 Session。公开 ACP 便携版收到工具权限请求时会取消该询问。开发版可在原任务详情选择「拒绝」，原生选项允许时也可选择「仅允许本次」。依赖 ACP 客户端代理文件或终端的功能尚未适配。
 
 ## 按 Agent 阅读
 

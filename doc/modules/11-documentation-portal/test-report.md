@@ -1,5 +1,7 @@
 # M11 文档网页测试报告
 
+2026-11-23，Windows。用户站测试 8/8，新增快速开始、桌面说明与当前发布 EXE 下载地址一致性的检查，能力表覆盖 ACP 的发行边界及 OpenDesk CLI 的配置导出限制。构建产出 19 个 HTML 页面，158 个页面和搜索资源通过检查。旧版浏览器脚本未重跑。[产品可用性评审](../../iterations/I08/product-readiness-review.md)
+
 2026-11-23，公开站能力表由实际注册表投影 ACP 工具权限列，用户页写明单次授权、拒绝与原任务处理步骤。用户站测试和实际构建通过。 [ACP 原操作与验收](../../iterations/I08/acp-permission-reply.md)
 
 2026-11-23 通用 ACP。站点测试覆盖自定义 ACP 的方式、协商续聊列和发布白名单。公开文档增加按 Agent 的启动命令和注册步骤。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)

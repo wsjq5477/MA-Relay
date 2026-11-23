@@ -6,7 +6,7 @@ Windows DSH NEXT 新增独立的 DSH ACP 入口，使用包内原生 ACP v1 stdi
 
 「添加 Agent → 自定义运行时」支持注册目标机上的 ACP v1 stdio Agent。注册只握手，执行由原生 Agent 和原生账号负责。文字流和普通委派沿用原任务，取消以原请求终态为准，续聊按原生握手能力开放。[接入方式](user/agents/index.md#连接其他-acp-agent)
 
-DSH ACP 与自定义 ACP 支持在原任务审批工具权限，使用原操作 ID 查询回复。单次授权映射原生 `allow_once`，工具许可与任务终态分别记录。[ACP 工具权限](iterations/I08/acp-permission-reply.md)
+公开预发布 `8b69f71` 收到 ACP 工具权限询问时返回取消。本地 `master` 的 `ac393cf` 增加原任务上的拒绝与单次允许，可按原操作 ID 查询答复。受控链路已通过，Windows DSH 实机尚未出现可验证的权限询问与任务终态。[ACP 工具权限](iterations/I08/acp-permission-reply.md)
 
 Windows 上保存 DSH Desktop 或 Web 服务连接时会异步核验私有目录，再保存连接。后台在等待期间可响应其他请求。[本机实测](iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
 
@@ -30,7 +30,7 @@ AB-F07 / M06-CX-F01：alpha.74 已修复 Windows worker 运行时目录发布。
 
 M06-OC-F01 / M09-F01：OpenCode连接check复用同次协议握手的Agent信息；执行使用独立客户端，原任务观察及回复/取消按原nativeProtocol绑定客户端，健康检查不能改写其API选择。失败发现使缓存失效，协议不匹配仍拒绝；控制收据与任务终态保持分层。managed=false已有服务仍归外部操作者，低层原Controller/Client有真实1.2.10只读连接和关闭/重开证据；互联登记完整链仍待。[当前开发与验证](iterations/I08/interconnect-development.md#15-原任务协议与健康检查并发停止后的资源释放)。
 
-未发布源码补齐无taskId恢复：list_delegations取得原delegationId后，task_result仅查询原机器/原请求并关联原Task；不经新委派或上下文准备，目标新派发授权撤销后原属主仍按当前result权限查询。缺记录保留unknown，确定准备拒绝是调用拒绝而非Task终态。经典仍十工具，旧后台须task.original-request-v1能力；[完整契约](iterations/I08/interconnect-caller-contract.md)。
+调用方缺少 `taskId` 时，可由 `list_delegations` 找到原委派，再用 `task_result` 沿原机器和原请求核对。查询使用当前结果读取权限。缺少原记录时保留 `unknown`。旧后台需要支持 `task.original-request-v1`。[调用方契约](iterations/I08/interconnect-caller-contract.md)
 
 ## 产品职责与当前后续范围
 
@@ -40,7 +40,7 @@ AB-F19 的身份/职责登记继续保留；其小队/工作容器及 AB-F20/21/
 
 独立登记第一片已源码实现：复用原Agent登记/SQLite收据及固定端点，不要求小队；经典仍十工具，停用不释放unknown、不重绑原任务。调用方/上下文/凭据、原事件与原delegationId恢复已有源码与受控证据。Windows Codex主对话经真实stdio MCP调用WSL Codex0.166.0，继承用户明确选择的原生默认gpt-6.1-sol；原主CallerContext/Conversation/Native Session保持。真实正文、无工具回忆续聊及执行中观察器关闭/重开后的原结果均通过，另验原取消unknown→原操作confirmed→Task实际cancelled。独立上下文执行中撤销后读权立即拒绝，管理员观察原生任务仍成功完成。本轮仅调整经用户授权的本机原生模型及CLI安装、扩展真实验收夹具，不增加Bridge模型API或修改持久协议。完整已有服务登记/升级链、真实丢提交回应、原生权限/问题转交、产物实体交付、完整适配器/跨机/性能、生产SSH与EXE仍未准出。[本轮真实证据与限制](iterations/I08/interconnect-development.md#17-原生登录恢复后的真实调用与模型退役门禁)。
 
-当前未发布源码的桌面界面删减五页、侧栏及配置弹窗中的重复说明；连接策略使用独立弹窗、统一分组标题，历史授权按需展开。原生Agent配置采用摘要、四项状态、路径、折叠高级设置与固定底栏，六操作按状态分配；服务端工具目录不作为原生接入成功证据。小队工作表单按前置条件显示，后续工作流暂停扩张。关联AB-F01/09/12/16、M01-F02/F04/F06/F14，原授权与恢复契约保持。[整体界面整理](iterations/I08/ui-cleanup.md)、[原生配置弹窗与验收](iterations/I08/mcp-configuration-ui.md)。
+桌面在接入配置中管理连接策略和原生 MCP 配置，可查看授权、重新读取原配置和核对接入状态。小队工作表单按前置条件显示。[整体界面整理](iterations/I08/ui-cleanup.md) · [原生配置弹窗](iterations/I08/mcp-configuration-ui.md)
 
 历史本地 Windows 体验包 0.6.0-alpha.71.browser.3，包含当前ChatGPT-only 19文件扩展及最新后台，源码/实际EXE载荷/ASAR核验和包内Node契约72/72通过；普通GUI、包内真实Web与原生父模型仍未准出。仅用户体验交付。[产物、非C盘启动及完整证据](iterations/I08/web-agent-browser3-preview.md)。
 
@@ -63,9 +63,9 @@ alpha.71已修复#29的维护入口闭锁：未登记后台仍不直接复用，
 
 ## 1. 产品解决什么问题
 
-用户已经在不同机器上安装并配置了自己的 Agent。当前源码的原生/桌面/服务接入有七种产品、十个执行入口；另有开发验收中的ChatGPT Web被动入口，尚不计入已准出支持。原有入口为：Claude Code、OpenCode、Codex、Hermes、Pi、DSH CLI（原生 CLI），以及DSH Windows Desktop与Linux/WSL Web、OpenDesk CLI HTTP与Windows Desktop设备网关。Hermes/Pi/DSH 为源码已实现，真实工具执行验收以[接入矩阵](agent-integration-matrix.md)为准。AgentBridge 把这些工具呈现为可观察的 Agent 节点，用户从原生Agent提出需求，在Bridge配置接入与授权、看进度和读取结果；权限与协作能力按工具分别声明。
+用户在原生 Agent 中明确指定目标和任务，在 Bridge 配置谁能调用谁、查看运行进度并读取原结果。现有 8 种产品、13 个专用入口，包含 12 个原生入口和 ChatGPT Web 浏览器扩展。兼容 ACP v1 stdio 的程序还可另行注册。各入口的启动方式、能力与实机证据见[接入矩阵](agent-integration-matrix.md)。
 
-中央后台管理连接与消息，不作为主 Agent 推理。当前主角色按原生 MCP 调用能力及既有身份/关系准入，由用户指定；只能通过受限协作接口发现、委派和查询获准目标，不以固定产品名单代替能力判断。各入口实际证据见接入矩阵；通用外部调用方身份契约仍待实现。
+中央后台负责授权、路由和记录。日常调用由具备 MCP 能力且获准的原生 Agent 发起。只充当调用方的外部程序也可登记独立主体，通过获准的上下文调用和查询原任务。[独立调用方契约](iterations/I08/interconnect-caller-contract.md)
 
 用户不用在 AgentBridge 重新配置模型、供应商或模型 API Key。账号、模型、工具权限与原生运行环境由各 Agent 自己管理。
 
@@ -99,7 +99,7 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | 功能 | 用户得到什么 | 当前状态 | 模块与验收 |
 | --- | --- | --- | --- |
 | AB-F01 机器概览 | 首先看到机器，再看到机器上的工具；没有项目也能查看 | 本机 Windows/WSL 已发布；SSH 编辑/断开/移除/恢复专项通过，历史和身份保留；维护被拒的离线机器直接显示远端原因与重连入口 | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
-| AB-F02 自动发现工具 | 扫描受支持安装位置，显示名称、版本、健康与安装位置 | 当前源码注册七种产品十个入口；排除同名 Distributed Shell，DSH Desktop 安装与 Linux Web profile 未配置时显示服务连接提示；扫描不调用模型，SSH 须更新实际远端 daemon；每个入口分别声明“可执行/可被委派/可调用MCP/可管理原生MCP配置/可注入托管scope”，不再用单一`teamCollaboration`代替 | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
+| AB-F02 自动发现工具 | 扫描目标机器上受支持的安装或运行服务，显示版本与接入状态 | 12 个专用原生入口按各自的平台与探测条件发现，DSH NEXT 的 headless 与 ACP 分列。ChatGPT Web 通过扩展配对，自定义 ACP 使用已登记命令。扫描不调用模型，各入口能力见[接入矩阵](agent-integration-matrix.md) | [M03](modules/03-machine-network/design.md) / [报告](modules/03-machine-network/test-report.md) |
 | AB-F03 接入节点 | 图节点动作接入；不要求项目、模型和供应商 | 0.5.0 多选已发布；支持按机器添加、断开、移除及原身份恢复 | [M01](modules/01-desktop/design.md) / [报告](modules/01-desktop/test-report.md) |
 | AB-F04 SSH 添加 Linux | 输入地址、端口、用户名和已有 SSH 登录方式 | 源码已实现；Windows 密码与真实 Linux 接入通过；其他认证专项范围见 M04 报告 | [M04](modules/04-ssh-access/design.md) / [报告](modules/04-ssh-access/test-report.md) |
 | AB-F05 主机信任与凭据 | 首次确认指纹；默认不保存秘密；可选 Windows 系统加密保存 | 源码与受控测试存在；Windows 密码/DPAPI 及加密私钥/隔离 agent 有实际证据；系统服务兼容专项保留 | [M04](modules/04-ssh-access/design.md) / [报告](modules/04-ssh-access/test-report.md) |
@@ -114,7 +114,7 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 | AB-F14 常驻中央后台 | 关闭窗口继续协调，重开复用历史与连接 | I06A 源码已实现；候选 Windows 关闭/停止/重开已验收 | [M02](modules/02-coordinator/design.md) / [报告](modules/02-coordinator/test-report.md) |
 | AB-F15 CLI 兼容入口 | 单终端自动发现、提交、续聊、查看和控制 OpenCode | 已实现；不等同于桌面节点网络的全部入口 | [M09](modules/09-cli-hub-edge/design.md) / [报告](modules/09-cli-hub-edge/test-report.md) |
 | AB-F16 节点图 | 机器分组、拖动节点、拖拽端点授权连线 | 支持旧后台下本机拖动、整组背景拖动及主居左；撤权按关系自身门禁、新授权按目标准入，布局接口独立；主角色/方向/避让保留；机器维护并入图页 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md) |
-| AB-F17 发布与安装维护 | 源码、离线包、Windows EXE 一致，版本可验证 | 0.5.0 历史稳定；可信升级/回滚/停止/卸载源码与受控验证通过；维护收据新增 stopped/phase，停机未确认恢复保持 unknown 由原 ID 恢复；alpha.46已公开，包含越过未确认收据契约与两个只读门禁 RPC（历史指纹见[交付记录](iterations/I08/alpha38-delivery.md)，当前分发见[发布记录](iterations/I08/alpha46-release.md)）；正式 0.6.0 准出见当前报告 | [M10](modules/10-packaging/design.md) / [报告](modules/10-packaging/test-report.md) |
+| AB-F17 发布与安装维护 | 取得具体版本的 Windows EXE，核对来源与校验值；按原安装身份维护后台 | 当前 ACP 预发布提供 Windows x64 便携 EXE 和 SHA-256，分发已核对，日常配置启动与首次使用待验。早期安装器和各版本维护证据分列于[发布登记](iterations/release-ledger.md) | [M10](modules/10-packaging/design.md) / [报告](modules/10-packaging/test-report.md) |
 | AB-F18 网页资料入口 | 用户功能、使用步骤、接入方式和能力对照 | 原生接入表含 DSH NEXT，能力表同时显示 ChatGPT Web；站点只发布许可的用户文档 | [M11 设计](modules/11-documentation-portal/design.md) / [报告](modules/11-documentation-portal/test-report.md) |
 | AB-F19 智能体登记与小队 | 登记外部已有功能的智能体、说明职责/边界，组成小队和独立工作 | 已发布；职责登记保留，小队/工作容器定位为可选上层、暂停扩张；不实现Skill/模型/目录或业务能力，独立登记/固定端点及独立调用方/上下文/凭据源码已实现，真实原生与完整生命周期仍待验 | [M03](modules/03-machine-network/design.md)、[M08](modules/08-collaboration/design.md) |
 | AB-F20 小队公共空间 | 共享约定/文档/群消息、成员通知、按权限写入与手动原生执行 | 可选上层，保留兼容、暂停扩张。CT-04 索引/旧修订/桌面MD和CT-05 选材/导出保留；原包持久传递、目标接入确认和桌面只读审计已随公开alpha.63交付；Pi/Hermes跨客户端组件已验；真实父模型消费及实体同步未准出，完整 I07C 未准出 | [M01](modules/01-desktop/design.md)、[M08](modules/08-collaboration/design.md)、[CT-04](iterations/I07/public-materials.md)、[CT-05](iterations/I07/context-packet.md)、[桌面选材](iterations/I07/context-packet-ui.md)、[原包传递](iterations/I07/context-delivery.md) |
@@ -125,7 +125,7 @@ WSL 是单独的执行环境，但属于同一台物理 Windows 宿主。SSH 机
 
 ### 4.1 本机与 WSL
 
-打开程序 → 识别机器和工具 → 点击节点接入 → 开始会话 → 输入需求与可选目录 → 查看回答与过程。需要协作时先保存主从关系，再从主节点创建允许协作的会话。
+在「接入配置」选择 Windows 本机或 WSL，扫描并接入目标 Agent。为调用方保存到目标的关系，按原生工具要求加载 Bridge MCP。回到调用方的原生会话，指定目标、任务和目标机器上的工作目录。调用方读取原任务结果，桌面的「执行审计」和「会话审计」可查看同一执行。[快速开始](user/quickstart.md)
 
 安装探测通过只说明工具能被找到、调用与检查；“模型真实回复验证”是另一项执行。账号拒绝或默认模型不可用应在原工具中修复，不自动替换供应商。
 
@@ -144,7 +144,8 @@ flowchart TD
   Install -->|否| Connect[连接兼容后台]
   Preview --> Connect
   Connect --> Nodes[机器上线，发现该用户的工具]
-  Nodes --> Task[接入节点并发送真实需求]
+  Nodes --> Grant[接入目标并授权调用方]
+  Grant --> Task[在调用方原生会话指定目标与服务器目录]
 ```
 
 首次主机指纹和安装决定有实际意义。除这些步骤及已有 SSH 认证外，不要求用户再复制设备 Token 或配置中央公网地址。主机密钥改变必须停止连接，不能提供忽略身份检查的捷径。
@@ -153,15 +154,15 @@ flowchart TD
 
 ### 4.3 新会话与续聊
 
-每次发送生成稳定的 `requestId`。新会话创建或选择属于目标节点的上下文，提交后返回 Task 与 Conversation。后续追问携带原 `conversationId`，保持原节点、上下文目录与原生 Session；已保存的配置按各适配器核验，原生全局配置仍由工具管理。当前没有对三种工具统一拍摄全局配置指纹。
+同一调用意图保留原 `requestId`。首次委派在目标创建会话，原请求关联 Task、Conversation 和原生 Session。上一轮达到已知终态且目标支持续聊时，调用方在原生会话发起下一轮，携带原 `conversationId`。Bridge 核对当前授权、调用归属、原节点与目录。
 
-界面在上一轮结束且后端 `canContinue` 为真时允许发送。该字段不保证每个原生版本都能成功续接：当前 Codex 有 thread 绑定时仍可能显示输入，原生 resume 失败后在本轮显示错误，尚未把该限制完整转为禁用入口。连接验证记录有专用标识，不用它继续实际需求。
+运行中或结果待核对时，调用方按原 ID 查询状态和事件。需要处理原生等待时，用户可在「执行审计」打开原任务，选择「处理这条原执行」。可用的权限、表单与取消操作由原生入口和所用版本决定。[任务与会话](user/sessions.md)
 
 ### 4.4 协作
 
-用户指定主节点和子节点 → 保存关系 → 发送允许协作的主任务 → 主 Agent 通过 MCP 查询允许的子节点 → 委派子任务 → 读取真实子结果 → 在主会话总结。
+用户保存从调用方到目标的授权后，在调用方自己的原生会话提出任务。主 Agent 通过 MCP 发现获准目标、向指定目标委派、读取原结果，再在原会话汇总。普通委派无需建立小队。
 
-“允许协作”不保证模型一定委派；验收必须有真实协作工具调用、子任务和父结果，不能把主 Agent 自己回答或人工复制结果算作协作。
+验收一次真实协作时，应能查到主 Agent 的工具调用、目标执行和返回主会话的子结果。仅保存关系可验证授权配置。
 
 节点图编辑同一套权限。拖动位置只是布局变更；端点连线先成为草稿，只有后台稳定收据确认后生效。轮询不吞草稿，冲突显式处理，回应未知只查询原 ID；换主不转交旧父的子任务。
 
@@ -194,7 +195,7 @@ flowchart TD
 
 AgentBridge 不重写 Agent，不负责模型供应商配置，不调度编译机或实验室设备，不提供任意远程 shell，不创建通用工作流引擎。SSH 只用于 Bridge 部署、身份验证与受控消息传输。
 
-自研 Agent 可按 I07A/B 的本机 MCP 成员契约接入公共空间和任务板；当前另有[原生适配开发接口与指南](custom-agent-development.md)，开发者实现宿主、测试后静态注册并随包部署。它不是任意命令或 MCP 地址的自动执行器。Hermes/Pi/DSH 直接会话实现见[扩展专项](iterations/I07/native-agent-expansion.md)，新增三种不声明 Bridge 权限表单或小队成员 MCP 注入；各入口实际能力与真实未测边界见[接入矩阵](agent-integration-matrix.md)。通用执行接入已有 CT-03 ACP v1 stdio 和原工具权限回复；调用方通用化与 Agent 侧连接操作按 [CT-06/07/08 规划](iterations/I07/agent-centric-operations.md) 推进。企业IM/Webhook、中央云端部署、多用户、文件同步与多层协作图保留历史候选记录，未纳入本轮后续目标。
+自研 Agent 可通过获准的 MCP 身份调用 Bridge。要作为执行目标，兼容 ACP v1 stdio 的程序可注册为自定义 ACP，其他执行协议可按[原生适配开发指南](custom-agent-development.md)实现。Hermes、Pi、DSH 的专用 CLI、DSH ACP 及其他运行时各有自己的交互和 MCP 能力。[接入矩阵](agent-integration-matrix.md) · [连接操作规划](iterations/I07/agent-centric-operations.md)
 
 当前验收结论见 [整体验证报告](testing.md)；具体版本和进度见 [迭代路线](project-plan.md)。后续修改本功能目录时，按 [同步维护规则](development-guide.md) 同时更新模块与迭代材料。
 

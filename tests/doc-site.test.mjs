@@ -12,6 +12,16 @@ test('公开页面只包含用户文档，七种原生产品均有独立章节',
   for (const name of ['claude', 'codex', 'opencode', 'hermes', 'pi', 'dsh', 'opendesk']) assert.ok(publishedFiles.has(`agents/${name}.md`));
   for (const file of publishedFiles) assert.doesNotMatch(file, /test-report|iterations|archive|modules/);
 });
+test('快速开始和桌面说明的首个 EXE 与仓库当前发布包一致', () => {
+  const read = file => readFileSync(resolve(repositoryRoot, file), 'utf8');
+  const releaseRow = read('README.md').split('\n').find(line => line.startsWith('| 当前发布包 |'));
+  const exeLink = /\]\((https:\/\/github\.com\/[^)\s]+\/releases\/download\/[^)\s]+\.exe)\)/i;
+  const currentExe = releaseRow?.match(exeLink)?.[1];
+  assert.ok(currentExe, '仓库首页必须列出当前 EXE 下载链接');
+  for (const file of ['doc/user/quickstart.md', 'desktop/README.md']) {
+    assert.equal(read(file).match(exeLink)?.[1], currentExe, file);
+  }
+});
 test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   const methods = connectionTable(), capabilities = capabilityTable();
   assert.match(methods, /\| Claude Code \| ✓ \| — \| ✓ \|/);
@@ -32,10 +42,12 @@ test('接入方式和能力表分别保持方向及 DSH 服务边界', () => {
   assert.ok(capabilities.includes('| ChatGPT Web | ✓ | ✓ | — | ✓ | — | — |'));
   assert.ok(methods.includes('| ChatGPT Web | — | — | — | — | 浏览器扩展 | — |'));
   assert.ok(methods.includes('| OpenDesk CLI | 启动服务 | HTTP | 仅导出 | — | — | — |'));
+  assert.ok(capabilities.includes('| OpenDesk CLI | ✓ | ✓ | ✓ | ✓ | 仅导出，调用未确认 | — |'));
+  assert.ok(capabilities.includes('| OpenDesk Desktop | ✓ | ✓ | ✓ | ✓ | ✓ | — |'));
   assert.ok(methods.includes('| DSH ACP | — | — | — | ✓ | — | — |'));
-  assert.ok(capabilities.includes('| DSH ACP | ✓ | ✓ | ✓ | ✓ | — | ✓ |'));
+  assert.ok(capabilities.includes('| DSH ACP | ✓ | ✓ | ✓ | ✓ | — | 仅开发版 |'));
   assert.ok(methods.includes('| 自定义 ACP | — | — | — | ✓ | — | — |'));
-  assert.ok(capabilities.includes('| 自定义 ACP | ✓ | 视握手 | ✓ | ✓ | — | ✓ |'));
+  assert.ok(capabilities.includes('| 自定义 ACP | ✓ | 视握手 | ✓ | ✓ | — | 仅开发版 |'));
   assert.equal(methods.trim().split('\n').length, 16);
   assert.equal(capabilities.trim().split('\n').length, 16);
 });

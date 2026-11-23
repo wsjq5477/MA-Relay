@@ -16,14 +16,15 @@ Bridge调用原生Agent与Agent调用Bridge是两个方向；模型、供应商�
 
 ## 1. 先明确连接方向
 
-AgentBridge要解决两件事：一是让外部Agent调用Bridge，发现获准的其他Agent、委派并读取结果；二是由目标机器后台实际驱动那个Agent。前者当前使用MCP，后者当前使用原生CLI或原生API。一次委派可能同时经过两种方式。
+调用方从原生会话通过 MCP 发现获准目标、委派并读取结果。目标机器上的 Bridge 后台再按该入口使用原生 CLI、HTTP、WebSocket、ACP v1 stdio 或浏览器扩展执行任务。
 
 ```mermaid
 flowchart LR
   A[调用方 Agent] -->|MCP工具调用| B[Bridge授权与任务路由]
   B --> M[目标机器后台]
-  M -->|当前 CLI 或原生API| T[被委派 Agent]
-  M -.->|ACP v1 或其他原生执行路径| T
+  M -->|原生 CLI、HTTP、WebSocket 或 ACP| T[被委派 Agent]
+  M -->|已配对浏览器扩展| W[ChatGPT Web]
+  W --> M
   T -->|原任务结果和终态| M
   M --> B
   B --> A
@@ -41,7 +42,7 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | **原生CLI** | 通常可直接使用用户已有程序和原生配置；无须常驻网络端口；结构化事件成熟时，首个适配改动较小 | 各工具参数/事件不同；进程树、stdin/stdout、Windows启动器和非交互PATH需处理；仅有交互TUI或纯文本输出时难以可靠映射控制 | 有相应原生命令/事件时可提交需求、读输出、续用Session、取消、处理权限；持久恢复还需保存派发边界和原生身份 | 已有可用CLI协议的Claude/Codex/Hermes/Pi/DSH CLI；复用宿主和发现框架，分别实现协议 |
 | **原生API** | 直接操作已有服务中的Session、任务和状态；适合Desktop/Web/daemon；可沿用该服务的运行配置 | 需服务可达、认证有效；处理启动/就绪、版本、超时和连接变化；GUI内部API未必有稳定兼容承诺；HTTP成功不等于任务完成 | 由API实际提供的create/prompt/query/cancel等实现控制；可靠恢复需有原请求/轮次/持久事件可核对 | OpenCode托管serve，或DSH Desktop/Web的已运行服务；继承目标服务而非另建模型层 |
-| **MCP** | 工具schema与调用方式标准化；Agent原生支持MCP时，开放Bridge发现/委派/材料工具的成本低；可复用现有broker与授权 | 主要描述工具交互，不自动成为Agent完整生命周期协议；客户端可用工具、输入能力和认证方式仍有差别；新增工具不等于具备执行权限 | 当前实现是Agent调用Bridge工具。某Agent若另暴露执行MCP工具，Bridge作为客户端的控制适配需单独开发；会话/取消/任务恢复不能凭“MCP”三字推定 | 希望Agent能主动使用Bridge时优先；当前Claude/Codex/OpenCode/DSH Web/DSH CLI（需profile）与OpenDesk Desktop可声明调用并有Bridge可管理的原生配置（OpenDesk 需 Node 启动器且要重开）；DSH Desktop在alpha.48候选可管理当前原生Profile；OpenDesk CLI只到片段导出；Pi用户目录/Hermes原生Profile管理已在alpha.50本地候选交付；托管scope注入仍只有原三种工具 |
+| **MCP** | 原生 Agent 可复用 Bridge 的发现、委派和结果工具 | 客户端加载配置、工具可见、调用授权和可执行目标分别核对 | 调用方按已有身份和操作范围委派、查询或控制原任务 | 桌面按具体入口管理或导出配置。OpenDesk CLI 仅可导出，OpenDesk Desktop 需要 Node 启动器并重开；Hermes 和 Pi 支持原生配置管理。托管会话的 MCP 注入另按入口声明 |
 | **ACP** | 面向客户端与Agent的会话交互，标准化初始化、Prompt、会话更新、工具进度、权限询问和取消，可降低多Agent专用解析重复 | 需要通用Client、能力协商及Bridge状态映射；厂商或生态包装器可能改变配置/Session/权限行为；会话恢复为可选能力；协议标准不等于跨进程持久幂等 | 合适实现可新建会话、收增量输出、应答权限、请求取消；load/resume须协商并验证。Bridge的原请求台账、授权和unknown保护仍要保留 | Windows DSH NEXT 提供 DSH ACP。其他兼容 Agent 可注册自定义 ACP v1 stdio。续聊由握手决定 |
 | **原生插件** | 若宿主提供所需扩展API，可贴近原生日志、工具、生命周期或界面；能补外部CLI/API无法观察或操作的能力 | 每个宿主单独维护安装/更新/卸载、权限和兼容；插件往往与Agent同进程，出错可能影响原生运行；有插件机制不代表能控制Session | 可以在宿主允许范围内提供hook、注册工具、暴露受限控制接口或安装MCP连接；具体能力取决于宿主扩展点，并非天然拥有所有内部控制。若以插件承载调用方接入，只作为薄传输层复用同一协作服务端点、身份与工具契约，不另行实现协作逻辑 | 外部接口存在明确缺口、且官方扩展点能解决时再增加；DSH NEXT 提供可选连接面板；网页执行使用 ChatGPT Web 浏览器扩展 |
 | **Agent SDK** | 类型、事件、错误和资源生命周期封装可能减少胶水代码；官方维护的适配层可降低底层协议解析负担 | 增加语言/运行时/依赖与打包成本；SDK可能新建自己的Agent或要求独立模型凭据，未必能复用用户已有登录、GUI配置和Session；SDK更新也需验收 | 取决于SDK暴露的完整Agent能力；可能覆盖会话、工具、权限、取消、恢复。库的名字或类型声明不能证明能控制用户原进程 | SDK确实调用完整原生Agent且保留原配置语义时可评估；只有模型API封装的SDK不满足本项目接入目标 |
@@ -50,10 +51,10 @@ flowchart LR
 
 | 所需功能 | CLI | 原生API | MCP | ACP | 插件 | SDK |
 | --- | --- | --- | --- | --- | --- | --- |
-| 提交需求、读取回答 | 需非交互调用及可解析输出 | 需执行/查询接口 | 当前是调用Bridge工具；控制目标Agent需另有执行工具及客户端适配 | 协议有会话与Prompt交互；Bridge Client待开发 | 需宿主执行/输出扩展点 | 需完整Agent执行接口 |
+| 提交需求、读取回答 | 需非交互调用及可解析输出 | 需执行/查询接口 | 调用 Bridge 的委派与结果工具 | DSH ACP 与自定义 ACP 已接会话、Prompt 和输出 | 需宿主执行/输出扩展点 | 需完整 Agent 执行接口 |
 | 同一原生Session续聊 | 需明确resume参数和原绑定 | 需原Session寻址/提交 | 工具schema若未定义Session则无从推定 | 同一活会话可再Prompt；重连load/resume另行协商 | 需宿主允许访问/续用原Session | 需明确原Session生命周期 |
 | 输出与工具进度 | JSONL等结构化事件；纯文本只能有限观察 | 事件流或轮询，粒度由API决定 | 工具结果/进度不等于完整Agent事件 | session/update等会话更新 | 需相应hook；不可根据“有插件”假定 | 需可订阅的运行事件 |
-| 原生权限/问题回复 | 需双向控制协议及等待ID | 需列出等待与回应接口 | MCP工具批准不等于目标Agent原生权限批准 | 有权限询问；任意原生表单不一定有标准映射 | 需宿主允许受控回应 | 需SDK暴露所需等待类型 |
+| 原生权限/问题回复 | 需双向控制协议及等待 ID | 需列出等待与回应接口 | 由 Bridge 定向回复原任务支持的等待类型 | 公开 ACP 包取消权限询问，本地 `ac393cf` 可拒绝或单次允许，结构化表单未接入 | 需宿主允许受控回应 | 需 SDK 暴露所需等待类型 |
 | 取消及确认结果 | 需控制原进程/任务并观察终态 | 需原任务控制及终态查询 | 取消MCP请求不自动证明被委派Agent停止 | 有取消通知，仍须观察原Prompt结果 | 需受控中止入口和实际结果 | 需中止与状态观察接口 |
 | 重启/断线恢复与去重 | 由原生持久记录和Bridge台账共同完成 | 需持久查询证据，不能仅依赖在线状态 | 工具任务或取消机制不自动等于Bridge持久业务去重 | load/resume为可选；JSON-RPC id不等于业务去重键 | 仍需持久存储/身份及重连设计 | 仍需核对恢复语义，不能靠自动重试重放输入 |
 | 授权发现其他Agent并委派 | Bridge当前通过MCP开放；CLI本身不建立授权关系 | API本身不建立Bridge授权关系 | 当前已提供此方向的获准工具 | 可在会话配置中传递MCP连接，但需真实可用与撤权验证 | 可承载MCP/受限工具，仍受Bridge授权 | 可挂载MCP/工具时需保留相同授权规则 |
@@ -69,16 +70,16 @@ flowchart LR
 | Claude Code | 保留CLI执行＋MCP调用方 | 按当前原生版本验证需要的权限/输入类型、取消与恢复；有确切缺口再比较原生控制接口或SDK | 为了列数齐全改成SDK/插件；把生态ACP包装器算成当前官方原生接入 |
 | Codex | 保留exec/resume JSON＋MCP调用方 | 先验当前原生Session/取消/原请求恢复；若需要更强交互，比较原生交互API和ACP生态包装器的实际行为 | 用模型SDK重建用户Agent；用新Thread替代失败的原Session续聊 |
 | OpenCode | 保留CLI启动serve＋原生HTTP＋MCP | 需要 ACP 时另建自定义运行时 `opencode acp`，握手后确认可用能力 | 在不同接口之间替换原 Session |
-| Hermes | 保留已有结构化CLI；正式Windows/Linux执行与续聊已验，继续补真实被委派 | 保留独立MCP，继续补自主父模型与完整恢复；托管scope仍未适配，需要多工具复用时再评估ACP | 图标/版本通过就开放未经实现的MCP、小队或权限能力 |
+| Hermes | 保留结构化 CLI，亦可通过 `hermes acp` 注册自定义 ACP | Windows ACP 已验注册、新建与原 Session 恢复，模型调用 0。专用 CLI 与原生 MCP 的证据分别核对 | 把握手成功计为模型成功，或用关闭 CLI 代替取消网关任务 |
 | Pi | 保留JSON/print及原Session文件绑定 | 先补真实生命周期；需要双向交互时比较目标版本的原生RPC，按缺口决定是否开发 | 仅增加标志就假定RPC/ACP可用；原文件缺失时新建空Session冒充续聊 |
-| DSH CLI | 继续用于需要headless执行的场景 | 核对该profile自己的登录/配置、真实会话和取消；单独适配后才开放MCP调用方 | 把CLI已接入等同GUI/Web已接入，或复制GUI凭据来掩盖profile差异 |
+| DSH CLI 与 DSH NEXT | 选择 headless CLI 或 Windows DSH ACP，使用对应原生 Profile 的模型配置 | 独立 MCP 按调用方 Profile 配置。Windows ACP 的真实两轮与取消已有记录，工具权限另按所用 Bridge 版本核对 | 将某个 Profile 的账号、会话或授权直接套用到另一个 Profile |
 | DSH Desktop / Web | 保留原生认证API，与CLI分别归属 | 先连接当前用户原服务，补真实模型/原Session/取消/原请求恢复；需要MCP时另验原生支持与配置入口 | 为了统一界面切换成headless；将服务连接token当成模型密钥；把原生业务插件算作Bridge插件 |
 | OpenDesk CLI / Windows Desktop | CLI用原生HTTP，Desktop用原实例WebSocket；独立原生MCP配置 | Bridge保存去重与派发围栏；CLI原会话、Desktop原连接分别绑定，缺少终态证据保留unknown；不改原生程序，托管scope/小队不开放 | 注册成OpenCode、抓取TUI文本、用WSL服务冒充Windows桌面实例 |
 | 新增第三方Agent | 按下节决策，复用现有宿主/协议中适配的部分 | 优先一个可运行的最小执行链；满足证据后再增加调用方/高级能力 | 同时开发六种方式，或填任意命令/URL就按任意Agent协议执行 |
 
 ### 新Agent如何选第一条路径
 
-1. **只需要它调用Bridge**：目标原生支持MCP时，先走MCP。复用现有Bridge工具和授权；没有执行宿主就不能把它列为可由Bridge启动/取消的目标。当前Bridge能直接管理原生MCP条目的是Claude/Codex/OpenCode/DSH Web/DSH CLI（DSH CLI 需用 `--profile` 或弹窗指定启动 profile）；OpenDesk CLI 无可用管理面只能导出片段，OpenDesk Desktop 的原生条目已可用（需 Node 启动器并重开 OpenDesk）；DSH Desktop在alpha.48候选可按原生选择记录管理并绑定当前数据目录/Profile（当前公开版已包含），切换后先清理原绑定再添加；Hermes/Pi在alpha.50本地候选可管理原生配置；公开alpha.46仍需导出片段，需要用户按各自原生文档添加，Bridge只读识别、不按名称猜测归属。也可以用 `agentbridge mcp export --node NODE_ID` 在不开窗口的情况下取得片段与身份引用。
+1. **只需从原生会话调用 Bridge**。在「接入配置」为获准调用方配置原生 MCP。可管理原生配置的入口、需重开原生程序的条件及只能导出片段的入口见[接入矩阵](agent-integration-matrix.md#2-每个-agent-已接入的方式)。也可用 `agentbridge mcp export --node NODE_ID` 取得配置片段，再按该原生客户端要求载入。
 2. **需要由Bridge驱动它**：先确认有没有已注册的同产品适配，能复用则不再建另一套身份。新目标符合 ACP v1 stdio 时，可按[启动命令表](user/agents/index.md#连接其他-acp-agent)创建自定义运行时。
 3. **目标主要是已运行的Desktop/Web/daemon**：有可用、受认证、可核对原执行的原生API时优先该API；接入已运行服务与Bridge托管启动服务分别设计。
 4. **目标主要是CLI且有结构化协议**：通常先做CLI适配。只有TUI或纯文本时，先寻找原生非交互API/ACP；不要用屏幕文字推断可靠的Session/权限/终态。
@@ -92,10 +93,10 @@ flowchart LR
 
 | 目标 | 当前可走的操作 | 需核对的条件 |
 | --- | --- | --- |
-| Bridge执行已支持的原生CLI | 在目标机器安装/登录原工具，机器页重新扫描并接入，再新建会话 | 扫描只证明原安装可启动；账号和模型回复仍需实际任务；目录在会话阶段指定 |
+| 用已支持的原生 CLI 执行任务 | 在目标机器安装并登录原工具，在「接入配置」扫描接入并授权调用方，再从调用方的原生会话指定该目标 | 首条真实回复可核对账号与模型是否可用；访问已有项目时指定目标机器上的目录 |
 | Bridge 连接 DSH Desktop/Web | 在目标机器的 DSH 行打开配置，保存服务根地址及连接 token 后重扫 | 服务先运行，认证有效，HTTP 地址按目标机器解释。[用户步骤](user/agents/dsh.md) |
 | Bridge 接入 DSH NEXT | 在 Windows 机器的 DSH NEXT 行点击「接入」 | 安装受支持的原生版本。可选连接面板在 DSH NEXT 内安装。[用户步骤](user/agents/dsh.md#连接-dsh-next) |
-| 外部Agent在日常会话调用Bridge | 已适配的三工具使用设置页MCP管理；其他原生MCP客户端按[独立MCP契约](iterations/I07/mcp-installation.md)核对客户端格式与获准工具范围 | 不能拿当前三格式配置直接宣称适配所有Agent；长期普通委派与外部TeamSpace配置的工具集合/身份分开 |
+| 外部 Agent 在日常会话调用 Bridge | 接入并授权调用方，按其原生客户端支持的方法写入或导出 Bridge MCP 配置，重载后核对获准工具 | MCP 配置、原生加载、工具可见及实际委派应分别核对。[独立 MCP 契约](iterations/I07/mcp-installation.md) |
 | Agent调用另一个已接入Agent | 执行目标已接入后，保存相应关系授权，由具备MCP调用方能力的原生Agent发起委派 | 关系授权本身不启动工作；目标无需因此成为MCP调用方，源Agent仍必须能调用Bridge |
 
 原生支持 ACP v1 stdio 的 Agent 可在「自定义运行时 → ACP」填写已安装的启动命令。没有 ACP 或现成协议入口时，插件、SDK 和专用协议仍需源码级适配。
@@ -108,7 +109,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | 识别与只读验证 | 固定真实CLI/API/协议版本；核对安装/连接、原生默认配置、认证和Session归属；建立独立稳定adapter ID | 只展示真实安装/服务与健康状态；尚未实现执行则execution不能为true | 不调用模型的发现/身份/认证检查；未知版本、错误命令、损坏配置明确失败 |
 | 最小执行成员 | 用现有Host契约实现submit、原请求读、task/conversation、实际终态；仅在有原Session与控制证据时实现continue/cancel/reconcile | 完成执行与方向门禁验收后可直接会话和普通被委派；缺少高级能力明确false/unknown | 真实首轮回答；同ID重复不新增原生提交；丢回应/重开不重放；至少对续聊/取消能力实际验证或明确禁用 |
-| MCP调用方与完整交付 | 增加原生MCP配置/会话scope、授权与撤权；补权限/表单等需要的能力；冻结包并核对部署 | 只有执行、Bridge MCP与scope均满足当前门禁时才开放主Agent/对应小队入口 | 原生实际调用获准工具、拒绝越权/撤权、按原父归属读取子结果；Windows/WSL/SSH/包分别验收 |
+| MCP 调用方与完整交付 | 核对原生 MCP 配置、授权与撤权；托管会话的 scope 注入另行适配 | 独立 MCP 调用方可在授权范围内发起委派，托管任务与小队另按入口能力开放 | 原生实际调用获准工具、拒绝越权与撤权后的读控、按原属主读取结果；Windows、WSL、SSH 与发布包分别验收 |
 
 不要复制某适配器后只改名字就宣布可用。可复用的是发现/任务归一化/台账/worker框架；原生协议、凭据边界、取消和持久Session证据必须重新核对。现成骨架只验证注册与明确拒绝，执行次数为0。
 
@@ -122,7 +123,7 @@ flowchart LR
 
 ## 6. 后续实施顺序与验收
 
-建议先补已有六工具的真实覆盖和DSH两个服务入口的原实例验证；再按明确缺口增加MCP调用方或双向交互；CT-03 通过通用 ACP 复用现有客户端，新增版本按实际握手和会话能力记录。SDK或插件应解决已定位的能力/兼容问题，不单独作为接入数量指标。调用方通用化、Agent侧连接操作面与多主关系连接管理统一按[Agent侧自主操作规划](iterations/I07/agent-centric-operations.md)的CT-06/CT-07/CT-08推进；CT-07已补[只读委派列表](iterations/I07/delegation-list.md)、[当前调用方连接视图](iterations/I07/agent-connections.md)与[子会话最小上下文](iterations/I07/delegation-context.md)，CT-06新调用方的前置仍是六工具真实覆盖与DSH原实例验证。
+首阶段实机验收目标为 Windows 本机 DSH NEXT。继续核对实际权限交互、原请求恢复以及发布包中的首次使用。新增 ACP 命令按具体版本登记握手、会话和模型证据，其他平台的结果分别记录。[当前路线](project-plan.md) · [接入与恢复证据](iterations/I08/current-scope-audit.md)
 
 | 后续工作 | 做完后如何更新矩阵 | 验收要点 |
 | --- | --- | --- |
@@ -131,7 +132,7 @@ flowchart LR
 | ACP 接入 | 专用入口列出实际驱动，自定义启动命令表注明发布方要求 | 初始化与能力协商、Prompt 和会话更新、取消、可选恢复，以及原请求不重发 |
 | 原生插件或SDK | 只更新确实使用该实现的目标行；若同时包裹CLI/API，对应列仍可同时存在 | 固定宿主/库版本，证明沿用原生配置和Session，覆盖安装/卸载、依赖、失败与包边界 |
 
-本文仅补比较、推荐和操作文档；运行功能、已有能力门禁、数据模型/协议和公开alpha.34范围均未变化。文档检查不证明未来协议路径、真实模型或新包验收通过。
+公开版本及可下载文件见[发布登记](iterations/release-ledger.md)，各 Agent 的源码支持、真实执行和运行限制见[接入矩阵](agent-integration-matrix.md)。
 
 ## 7. 核对来源
 
