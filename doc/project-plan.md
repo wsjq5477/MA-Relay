@@ -29,7 +29,7 @@
 
 ## 3. 后续目标与顺序
 
-当前先交付一份能在 Windows 本机 DSH 完成首次委派的候选 EXE。执行顺序、每项验收条件和后续功能优先级见[下一版工作计划](iterations/I08/windows-dsh-next-steps.md)。
+Windows 本机 DSH 候选推进首次委派、同会话续聊、重开恢复及命令审批。当前候选证据见[开发与验收](iterations/I08/windows-dsh-first-use-acceptance.md)，执行顺序与后续功能见[工作计划](iterations/I08/windows-dsh-next-steps.md)。
 
 | 顺序 | 目标与范围 | 完成条件 |
 | --- | --- | --- |

@@ -6,7 +6,7 @@ Windows DSH NEXT 新增独立的 DSH ACP 入口，使用包内原生 ACP v1 stdi
 
 「添加 Agent → 自定义运行时」支持注册目标机上的 ACP v1 stdio Agent。注册只握手，执行由原生 Agent 和原生账号负责。文字流和普通委派沿用原任务，取消以原请求终态为准，续聊按原生握手能力开放。[接入方式](user/agents/index.md#连接其他-acp-agent)
 
-公开预发布 `8b69f71` 收到 ACP 工具权限询问时返回取消。本地 `master` 的 `ac393cf` 增加原任务上的拒绝与单次允许，可按原操作 ID 查询答复。本机 DSH NEXT 已从原生会话触发 DSH ACP 工具审批。原生 PowerShell 和 Bash 即使报告通用工具类型，命令完整显示时才开放单次允许。[ACP 工具权限](iterations/I08/acp-permission-reply.md)
+公开预发布 `8b69f71` 收到 ACP 工具权限询问时返回取消。本地 `master` 的 `ac393cf` 增加原任务上的拒绝与单次允许，可按原操作 ID 查询答复。本机 DSH NEXT 已从原生会话触发 DSH ACP 工具审批。原生 PowerShell 和 Bash 即使报告通用工具类型，命令完整显示时才开放单次允许。[Windows 候选包验收](iterations/I08/windows-dsh-first-use-acceptance.md)
 
 Windows 上保存 DSH Desktop 或 Web 服务连接时会异步核验私有目录，再保存连接。后台在等待期间可响应其他请求。[本机实测](iterations/I08/current-scope-audit.md#显式交接到独立-dsh-web-会话)
 

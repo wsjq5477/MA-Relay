@@ -1,5 +1,7 @@
 # M01 桌面交互测试报告
 
+Windows DSH 原生权限中的命令展示和原任务恢复见[本轮候选包验收](../../iterations/I08/windows-dsh-first-use-acceptance.md)。
+
 2026-11-23，任务审批复用原详情入口，单次允许按原生选项显示为可用。桌面 TypeScript 检查通过，真实窗口操作未测。 [ACP 原操作与验收](../../iterations/I08/acp-permission-reply.md)
 
 2026-11-23 通用 ACP。ACP 加入既有自定义运行时表单，Windows 类型检查通过。实际桌面填写及用户账号留待使用验收。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)

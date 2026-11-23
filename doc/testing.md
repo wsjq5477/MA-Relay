@@ -1,6 +1,8 @@
 # 整体测试与验收报告
 
-当前源码的 ACP 工具权限已经过受控 worker 与 Coordinator 重开回归。Windows 本机 DSH NEXT 实际会话只确认原请求派发意图与 Session，原任务状态为 unknown。 [验收和继续核对项](iterations/I08/acp-permission-reply.md)。
+Windows 本机使用真实 DSH NEXT 原生会话调用 DSH ACP，候选便携包的首次委派、原会话和审批证据见[本轮开发与验收](iterations/I08/windows-dsh-first-use-acceptance.md)。
+
+前一轮源码的 ACP 工具权限经过受控 worker 与 Coordinator 重开回归。该轮 DSH 实机原权限任务在 Bridge 保持 unknown，本轮按原会话日志查得原生认证错误。 [验收和继续核对项](iterations/I08/acp-permission-reply.md)。
 
 2026-11-23，ACP Windows x64 便携预发布已公开。GitHub 记录的附件大小和 SHA-256 与本地匹配，公开下载链接经匿名字节请求确认，校验文件匿名完整下载一致。Windows 日常配置的 EXE 启动仍待验收。[发布与验证](iterations/I08/acp-stdio-runtimes.md#公开预发布)。
 

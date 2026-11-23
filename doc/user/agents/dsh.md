@@ -20,7 +20,7 @@ CLI 不自动继承 Desktop / Web 的账号或 profile。不能把服务版已�
 2. 在「接入配置」选择独立的「DSH ACP」节点并点击接入。模型与认证沿用 DSH 的 `acp` Profile。模型认证可在原生 Profile 中核对。
 3. 为主 Agent 授权后，在它自己的原生会话中指定 DSH ACP 和目标工作目录，委派第一条任务。Bridge 支持流式正文、原会话续聊和原任务取消。
 
-Bridge 按原 DSH 数据目录、工作目录和原 Session 恢复 ACP 会话。任务失去明确终态时保留原请求以便核对。公开便携版收到 ACP 工具权限询问时会取消该询问。开发中的源码可在原任务详情拒绝或仅允许本次，DSH 实机审批尚待确认。AgentBridge MCP 注入、回合中插话、回退检查点和主动压缩暂未开放。原生 ACP 用法见 [DSH Profile 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/acp-app/README.md)。
+Bridge 按原 DSH 数据目录、工作目录和原 Session 恢复 ACP 会话。任务失去明确终态时保留原请求以便核对。公开便携版收到 ACP 工具权限询问时会取消该询问。开发版可在原任务详情拒绝或仅允许本次。执行命令需要完整展示才能单次允许。AgentBridge MCP 注入、回合中插话、回退检查点和主动压缩暂未开放。原生 ACP 用法见 [DSH Profile 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/acp-app/README.md)。
 
 默认 ACP Profile 使用其自身配置的模型路由。如果已经在 DSH 原生端登录 DeepSeek 账号，可以在 DSH 数据目录的 `profiles/acp/cordis.patch.yml` 中合并下方原生配置。示例模型可按账号支持情况调整。
 

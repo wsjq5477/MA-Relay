@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器测试报告
 
+Windows DSH NEXT 2.0.24-next 原生模型通过 ACP 产生真实 PowerShell 权限询问。针对原工具上报的通用类型，worker 定向测试 11/11，覆盖完整命令和缺命令时只能拒绝。[本轮开发与验收](../../iterations/I08/windows-dsh-first-use-acceptance.md)
+
 2026-11-23，受控 ACP 选项、异会话、取消和断线用例通过。Windows DSH NEXT 2.0.24-next 已派发的实际请求保持 unknown，尚未观测真实权限弹窗。 [ACP 原操作与验收](../../iterations/I08/acp-permission-reply.md)
 
 2026-11-23 通用 ACP。Windows ACP worker、注册、Windows npm 启动和 DSH 受控用例按本轮证据记录。OpenCode 2.3.0 原生握手、新建与原 ID 恢复通过。Hermes 0.22.5 完成 ACP v1 握手，隔离原生 Gateway 配置完成后新建会话及跨进程恢复通过。模型 0。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)

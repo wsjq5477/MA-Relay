@@ -1,6 +1,6 @@
 # 下一版工作计划：让 Windows 用户用 DSH 完成第一次真实委派
 
-2026-11-23 · 状态：待执行。产品实现基线为 `ac393cf`，首用说明见 `8e34c2f`。公开 ACP 便携版 `8b69f71` 已支持会话和取消，工具权限回复从 `ac393cf` 起才有源码实现。上轮已完成产品评审和文档纠错。[产品评审](product-readiness-review.md) · [审批现状](acp-permission-reply.md)
+2026-11-23 · 执行结果见[开发与验收](windows-dsh-first-use-acceptance.md)。产品实现基线为 `ac393cf`，首用说明见 `8e34c2f`。公开 ACP 便携版 `8b69f71` 已支持会话和取消，工具权限回复从 `ac393cf` 起才有源码实现。上轮已完成产品评审和文档纠错。[产品评审](product-readiness-review.md) · [审批现状](acp-permission-reply.md)
 
 **本轮交付目标**是给已经在用 DSH 的 Windows 用户一份可试用的便携 EXE 和一页与该版本一致的快速开始。用户只看这页，就能从原生会话找到获准目标、委派一个只读任务、核对答案，并在关闭窗口后找回同一任务。
 
