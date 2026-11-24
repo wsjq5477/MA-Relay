@@ -8,6 +8,8 @@ import {
   Search,
   List,
   Network,
+  Activity,
+  Bot,
 } from "lucide-react";
 import { bridge, call, invoke, labels } from "./api";
 import { TaskDetail } from "./App";
@@ -532,6 +534,30 @@ export default function NetworkApp() {
     (t) =>
       !t.verification && ["queued", "accepted", "running"].includes(t.status),
   ).length;
+  const machineMetrics = page === "machines" ? [
+    {
+      label: "机器总数",
+      icon: Monitor,
+      count: machineFilter === "all" ? machines.length : machines.filter(m => m.machineId === machineFilter).length,
+    },
+    {
+      label: "可用 Agent",
+      icon: Bot,
+      count: scopedNodes.filter(n => n.available && !blocked(n.machineId, n.nodeId)).length,
+    },
+    {
+      label: "进行中任务",
+      icon: Activity,
+      count: visibleTasks.filter(t => ["queued", "accepted", "running"].includes(t.status)).length,
+    },
+    {
+      label: "全局已保存授权",
+      icon: ShieldCheck,
+      count: data.relations
+        ? data.relations.filter(row => row.enabled).reduce((sum, row) => sum + row.memberIds.length, 0)
+        : relationship.memberIds.length,
+    },
+  ] : [];
   function machineAction(
     m: Machine,
     action:
@@ -682,51 +708,16 @@ export default function NetworkApp() {
               </button>
             </div>
           </div>
-          <div className="overview-summary" aria-label="当前机器范围概况">
-            <div>
-              <div className="summary-copy">
-                <strong>
-                  {
-                    snapshotReady ? machines.filter(
-                      (m) =>
-                        machineFilter === "all" ||
-                        m.machineId === machineFilter,
-                    ).length : "—"
-                  }
-                </strong>
-                <span>机器总数</span>
+          <div className="overview-summary" aria-label="接入概况">
+            {machineMetrics.map(({ label, icon: Icon, count }) => (
+              <div key={label}>
+                <Icon size={18} aria-hidden="true" />
+                <div className="summary-copy">
+                  <span>{label}</span>
+                  <strong>{snapshotReady ? count : "—"}</strong>
+                </div>
               </div>
-            </div>
-            <div>
-              <div className="summary-copy">
-                <strong>
-                  {
-                    snapshotReady ? scopedNodes.filter(
-                      (n) => n.available && !blocked(n.machineId, n.nodeId),
-                    ).length : "—"
-                  }
-                </strong>
-                <span>可用 Agent</span>
-              </div>
-            </div>
-            <div>
-              <div className="summary-copy">
-                <strong>
-                  {
-                    snapshotReady ? visibleTasks.filter((t) =>
-                      ["queued", "accepted", "running"].includes(t.status),
-                    ).length : "—"
-                  }
-                </strong>
-                <span>进行中任务</span>
-              </div>
-            </div>
-            <div>
-              <div className="summary-copy">
-                <strong>{snapshotReady ? (data.relations?data.relations.filter(row=>row.enabled).reduce((sum,row)=>sum+row.memberIds.length,0):relationship.memberIds.length) : "—"}</strong>
-                <span>已保存授权</span>
-              </div>
-            </div>
+            ))}
           </div>
           {snapshotReady && <div className="machine-filterbar">
             {filters}

@@ -1,5 +1,7 @@
 # 迭代资料目录
 
+- 2026-11-24：[接入配置与执行审计更新](I08/desktop-workbench-20261124.md)，含同尺寸截图和交互验收。
+
 - 2026-11-23：[Windows 本机 DSH 首次委派开发与验收](I08/windows-dsh-first-use-acceptance.md) · [候选包使用说明](I08/windows-dsh-first-use-guide.md)。
 
 - 2026-11-23：[下一版工作计划：Windows 本机 DSH 首次委派与验收](I08/windows-dsh-next-steps.md)。

@@ -6,6 +6,7 @@ import {managementLabel, type ManagementRecord} from './operation-recovery';
 import {
   ArrowUpRight,
   CheckCheck,
+  ChevronRight,
   Circle,
   Clock3,
   Folder,
@@ -171,14 +172,105 @@ export interface TasksPageProps extends SourceProps {
   auditOnly?: boolean;
 }
 
-export function TasksPage({
+const auditFilters = [
+  { id: "all", label: "全部" },
+  { id: "attention", label: "待处理" },
+  { id: "active", label: "进行中" },
+  { id: "finished", label: "已完成" },
+  { id: "stopped", label: "失败或取消" },
+] as const;
+
+function auditGroup(task: Task): typeof auditFilters[number]["id"] {
+  if (task.status === "unknown" || (task.waiting && !isTerminal(task))) return "attention";
+  if (task.status === "succeeded") return "finished";
+  if (isTerminal(task)) return "stopped";
+  return "active";
+}
+
+function ExecutionAudit({ tasks, scope, machineName, nodeFor, onOpen }: TasksPageProps) {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<typeof auditFilters[number]["id"]>("all");
+  const query = search.trim().toLocaleLowerCase();
+  const records = tasks.map(task => {
+    const node = nodeFor(task);
+    return { task, node, machine: machineName(task.machineId), group: auditGroup(task) };
+  });
+  const matching = records.filter(({ task, node, machine }) =>
+    !query || [task.message, task.taskId, task.requestId, task.executionId, task.conversationId, node?.name || "历史 Agent", machine]
+      .some(value => value?.toLocaleLowerCase().includes(query)),
+  );
+  const visible = matching.filter(row => filter === "all" || row.group === filter)
+    .sort((a, b) => (Date.parse(b.task.updatedAt) || 0) - (Date.parse(a.task.updatedAt) || 0));
+
+  return (
+    <section className="workspace-page execution-audit">
+      <div className="page-heading workspace-page-heading audit-heading">
+        <h1>执行审计</h1>
+        <SearchField value={search} onChange={setSearch} label="搜索任务" placeholder="按需求、Agent、机器或原请求 ID 查找" />
+      </div>
+      {scope != null && <div className="workspace-scope">{scope}</div>}
+      <div className="audit-filters" role="group" aria-label="按任务状态筛选">
+        {auditFilters.map(({ id, label }) => (
+          <button type="button" key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>
+            {label}<span>{id === "all" ? matching.length : matching.filter(row => row.group === id).length}</span>
+          </button>
+        ))}
+      </div>
+      {visible.length ? (
+        <div className="audit-records">
+          <div className="audit-record-head" aria-hidden="true">
+            <span>任务与最新结果</span><span>执行目标</span><span>状态</span><span>最近更新</span>
+          </div>
+          <ul aria-label="原任务列表">
+            {visible.map(({ task, node, machine }) => {
+              const summary = task.error?.message || task.result?.message || task.waiting?.summary || task.lastSummary;
+              return (
+                <li key={(task.machineId || "") + ":" + task.taskId}>
+                  <button className="workspace-task audit-record" onClick={() => onOpen(task)}>
+                    <span className="audit-record-body">
+                      <strong>{task.message}</strong>
+                      {summary && <span className="audit-record-summary">{summary}</span>}
+                      {task.historical && <small className="audit-history"><History size={12} aria-hidden="true" />历史快照</small>}
+                    </span>
+                    <span className="audit-record-target">
+                      <AgentIcon adapter={node?.adapter} size={20} />
+                      <span><strong>{node?.name || "历史 Agent"}</strong><small>{machine}</small></span>
+                    </span>
+                    <span className="audit-record-state">
+                      <TaskStatus task={task} />
+                      {task.waiting && !isTerminal(task) && <small>等待你处理</small>}
+                    </span>
+                    <time dateTime={task.updatedAt}>{time(task.updatedAt)}</time>
+                    <ChevronRight className="audit-record-open" size={16} aria-hidden="true" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : tasks.length ? (
+        <div className="audit-empty">
+          <EmptyState icon={Search} title="没有匹配的任务" compact />
+          <button className="text-btn" onClick={() => { setSearch(""); setFilter("all"); }}>清除搜索和状态筛选</button>
+        </div>
+      ) : (
+        <EmptyState icon={Inbox} title="当前机器范围内还没有任务">原生 Agent 经已授权 MCP 发起的执行会显示在这里。</EmptyState>
+      )}
+    </section>
+  );
+}
+
+export function TasksPage(props: TasksPageProps) {
+  return props.auditOnly ? <ExecutionAudit {...props} /> : <TaskBoard {...props} />;
+}
+
+function TaskBoard({
   tasks,
   scope,
   machineName,
   nodeFor,
   onOpen,
   onNew,
-  auditOnly = false,
 }: TasksPageProps) {
   const [search, setSearch] = useState("");
   const query = search.trim().toLocaleLowerCase();
@@ -197,9 +289,9 @@ export function TasksPage({
     <section className="workspace-page workspace-tasks">
       <div className="page-heading workspace-page-heading">
         <div>
-          <h1>{auditOnly?"执行审计":"任务看板"}</h1>
+          <h1>任务看板</h1>
         </div>
-        {!auditOnly&&onNew&&<button className="btn primary" onClick={onNew}>
+        {onNew&&<button className="btn primary" onClick={onNew}>
           <Plus size={16} aria-hidden="true" />
           新建任务
         </button>}
@@ -229,7 +321,7 @@ export function TasksPage({
       )}
       {tasks.length === 0 ? (
         <EmptyState icon={LayoutGrid} title="还没有任务">
-          {auditOnly?"原生 Agent 经已授权 MCP 发起的执行会显示在这里。":"新建任务，选择已接入的 Agent，开始第一项工作。"}
+          新建任务，选择已接入的 Agent，开始第一项工作。
         </EmptyState>
       ) : (
         <div className="workspace-board network-board">

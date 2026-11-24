@@ -2,6 +2,8 @@
 
 产品范围以[产品约束](product-constraints.md)为准。当前公开预发布为 **0.6.0-alpha.76.local.20261123.acp**，冻结源码 8b69f71。[发布与验证](iterations/I08/acp-stdio-runtimes.md#公开预发布)
 
+桌面接入配置使用高对比度导航与分组概况。宽窗口中，机器管理操作与所属 Agent 并列。执行审计按最近更新时间展示原任务，支持机器、状态及原请求 ID 检索。原详情显示请求 ID，并保留显式恢复入口。[界面与验收](iterations/I08/desktop-workbench-20261124.md)
+
 Windows DSH NEXT 新增独立的 DSH ACP 入口，使用包内原生 ACP v1 stdio。支持直接会话、普通被委派、流式正文、原会话续聊及取消；恢复绑定沿用原工作目录和原生账号配置。[DSH ACP 实现与验收](iterations/I08/dsh-acp.md)
 
 「添加 Agent → 自定义运行时」支持注册目标机上的 ACP v1 stdio Agent。注册只握手，执行由原生 Agent 和原生账号负责。文字流和普通委派沿用原任务，取消以原请求终态为准，续聊按原生握手能力开放。[接入方式](user/agents/index.md#连接其他-acp-agent)

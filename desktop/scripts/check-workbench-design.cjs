@@ -194,10 +194,33 @@ async function checkContrast(theme) {
   await expect(page.locator(".workspace-task")).toHaveCount(4);
   await capture("03-audit-light");
   if (!captureOnly) {
-    await page.locator('.workspace-task').first().click();
-    await expect(page.getByRole('dialog', {name: '任务详情', exact: true})).toBeVisible();
-    await capture('22-task-audit-detail');
-    await page.getByRole('button', {name: '关闭任务详情', exact: true}).click();
+    const rows = page.getByRole("list", { name: "原任务列表" }).getByRole("button");
+    const states = page.getByRole("group", { name: "按任务状态筛选" });
+    await states.getByRole("button", { name: /待处理/ }).click();
+    await expect(rows).toHaveCount(1);
+    await expect(rows).toContainText("结果待核对");
+    await states.getByRole("button", { name: /全部/ }).click();
+    const search = page.getByRole("searchbox", { name: "搜索任务" });
+    await search.fill("missing-receipt-id");
+    await expect(page.getByRole("heading", { name: "没有匹配的任务" })).toBeVisible();
+    await page.getByRole("button", { name: "清除搜索和状态筛选" }).click();
+    await expect(rows).toHaveCount(4);
+    await search.fill("PREVIEW-REQUEST-1");
+    await expect(rows).toHaveCount(1);
+    await rows.click();
+    const original = page.getByRole("dialog", { name: "任务详情" });
+    await expect(original.locator(".task-audit-origin dd")).toHaveText("preview-request-1");
+    await expect(original.getByRole("button", { name: "处理这条原执行" })).toBeVisible();
+    await original.getByRole("button", { name: "处理这条原执行" }).click();
+    await expect(original.getByRole("button", { name: "返回只读审计" })).toBeVisible();
+    await original.getByRole("button", { name: "返回只读审计" }).click();
+    await capture("22-task-audit-detail");
+    await original.getByRole("button", { name: "关闭任务详情" }).click();
+    await search.fill("preview-task-2");
+    await expect(rows).toHaveCount(1);
+    await expect(rows).toContainText("已完成");
+    await search.fill("");
+    report.checks.push("Audit state filters, empty results, original request and task ID lookup, and read-only recovery");
   }
   await navigate("会话审计");
   await page

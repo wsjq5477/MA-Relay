@@ -1,5 +1,7 @@
 # AgentBridge 项目资料
 
+2026-11-24 的开发版更新了桌面接入配置与执行审计。接入页按机器分组管理 Agent，执行审计可按状态或原请求 ID 找回记录。[截图与验收](iterations/I08/desktop-workbench-20261124.md)
+
 [产品设计与可用性评审](iterations/I08/product-readiness-review.md)按用户任务核对已实现功能、公开包边界、实际使用证据与下一次准出条件。
 
 当前产品定位、范围和约束见[产品约束](product-constraints.md)。按源码、受控测试和真实原生环境逐项核对的缺口见[当前范围核对](iterations/I08/current-scope-audit.md)。

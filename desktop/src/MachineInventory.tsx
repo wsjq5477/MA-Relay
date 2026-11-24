@@ -351,172 +351,174 @@ export default function MachineInventory(props: Props) {
                 </details>
               </div>
             </header>
-            {machine.installProgress && (
-              <p className="ui-status" data-tone="info" role="status">
-                {transferPhaseNames[machine.installProgress.phase] || "正在上传"}{" "}
-                {sshTransferSize(machine.installProgress.completedBytes)} /{" "}
-                {sshTransferSize(machine.installProgress.totalBytes)}
-              </p>
-            )}
-            {machine.progressWarning && <p className="inventory-machine-error" role="status">{machine.progressWarning.message}</p>}
-            {machine.error && (
-              <p className="inventory-machine-error" role="status">
-                {machine.error}
-              </p>
-            )}
-            {!machine.online && machine.daemonMaintenance?.state === "rejected" && (
-              <p className="inventory-machine-error" role="status">
-                {machine.daemonMaintenance.error?.message ||
-                  "后台维护未执行；原版本与历史保留。"}
-                可重新连接核对远端后台版本。
-              </p>
-            )}
-            <div className="inventory-nodes">
-              {visible.map((node) => {
-                const role =
-                  node.nodeId === props.relation.leaderId
-                    ? "主 Agent"
-                    : props.relation.memberIds.includes(node.nodeId)
-                      ? "子 Agent"
-                      : "";
-                const state = nodeState(node);
-                const resourceBlocked = props.blocked(
-                  node.machineId,
-                  node.nodeId,
-                );
-                const nodeManagementReason=props.managementReason?.(machine.machineId,node.nodeId)??metadataReason;
-                const nodeManagementLocked = props.busy||props.executionLocked||!!nodeManagementReason||!props.managementSupported||!machine.online||!node.online||node.busy||resourceBlocked;
-                const canStart =
-                  !props.busy &&
-                  !props.executionLocked &&
-                  machine.online &&
-                  node.online &&
-                  node.connected &&
-                  canExecuteNode(node) &&
-                  node.healthy &&
-                  node.available &&
-                  !node.busy &&
-                  !node.waiting &&
-                  !node.unconfirmed &&
-                  !node.uncertain &&
-                  !resourceBlocked;
+            <div className="inventory-machine-body">
+              {machine.installProgress && (
+                <p className="ui-status" data-tone="info" role="status">
+                  {transferPhaseNames[machine.installProgress.phase] || "正在上传"}{" "}
+                  {sshTransferSize(machine.installProgress.completedBytes)} /{" "}
+                  {sshTransferSize(machine.installProgress.totalBytes)}
+                </p>
+              )}
+              {machine.progressWarning && <p className="inventory-machine-error" role="status">{machine.progressWarning.message}</p>}
+              {machine.error && (
+                <p className="inventory-machine-error" role="status">
+                  {machine.error}
+                </p>
+              )}
+              {!machine.online && machine.daemonMaintenance?.state === "rejected" && (
+                <p className="inventory-machine-error" role="status">
+                  {machine.daemonMaintenance.error?.message ||
+                    "后台维护未执行；原版本与历史保留。"}
+                  可重新连接核对远端后台版本。
+                </p>
+              )}
+              <div className="inventory-nodes">
+                {visible.map((node) => {
+                  const role =
+                    node.nodeId === props.relation.leaderId
+                      ? "主 Agent"
+                      : props.relation.memberIds.includes(node.nodeId)
+                        ? "子 Agent"
+                        : "";
+                  const state = nodeState(node);
+                  const resourceBlocked = props.blocked(
+                    node.machineId,
+                    node.nodeId,
+                  );
+                  const nodeManagementReason=props.managementReason?.(machine.machineId,node.nodeId)??metadataReason;
+                  const nodeManagementLocked = props.busy||props.executionLocked||!!nodeManagementReason||!props.managementSupported||!machine.online||!node.online||node.busy||resourceBlocked;
+                  const canStart =
+                    !props.busy &&
+                    !props.executionLocked &&
+                    machine.online &&
+                    node.online &&
+                    node.connected &&
+                    canExecuteNode(node) &&
+                    node.healthy &&
+                    node.available &&
+                    !node.busy &&
+                    !node.waiting &&
+                    !node.unconfirmed &&
+                    !node.uncertain &&
+                    !resourceBlocked;
 
-                return (
-                  <article
-                    className="inventory-node"
-                    key={node.nodeId}
-                    aria-label={`${node.name} · ${role || "Agent"} · ${props.configurationOnly&&state.label==='可开始会话'?'可用于协作':state.label}`}
-                  >
-                    <div
-                      className="inventory-node-icon"
-                      data-adapter={node.adapter}
+                  return (
+                    <article
+                      className="inventory-node"
+                      key={node.nodeId}
+                      aria-label={`${node.name} · ${role || "Agent"} · ${props.configurationOnly&&state.label==='可开始会话'?'可用于协作':state.label}`}
                     >
-                      <AgentIcon adapter={node.adapter} size={28} />
-                    </div>
-                    <div className="inventory-node-body">
-                      <div className="inventory-node-name">
-                        <h3>{node.name}</h3>
-                        {role && (
-                          <span className="inventory-role">
-                            {role === "主 Agent" ? (
-                              <Crown size={12} />
-                            ) : (
-                              <GitBranch size={12} />
-                            )}
-                            {role}
-                          </span>
+                      <div
+                        className="inventory-node-icon"
+                        data-adapter={node.adapter}
+                      >
+                        <AgentIcon adapter={node.adapter} size={28} />
+                      </div>
+                      <div className="inventory-node-body">
+                        <div className="inventory-node-name">
+                          <h3>{node.name}</h3>
+                          {role && (
+                            <span className="inventory-role">
+                              {role === "主 Agent" ? (
+                                <Crown size={12} />
+                              ) : (
+                                <GitBranch size={12} />
+                              )}
+                              {role}
+                            </span>
+                          )}
+                        </div>
+                        <div className="inventory-node-meta">
+                          {toolLabel(node.adapter)!==node.name&&<span>{toolLabel(node.adapter)}</span>}
+                          <span>{node.version || "版本未知"}</span>
+                          <span>{node.status === "version_incompatible" ? "版本不兼容" : node.status === "needs_check" ? "待检查原生 API" : node.connected ? "已接入" : "未接入"}</span>
+                        </div>
+                        <small>{connectionCapabilitySummary(node)}</small>
+                        <details className="inventory-node-details">
+                          <summary>安装位置</summary>
+                          <code>{node.executable || "未提供安装位置"}</code>
+                        </details>
+                        {(node.error || !sshNodeState(node) && node.lastError) && (
+                          <p className="inventory-node-error" role="status">
+                            {node.error || node.lastError?.message}
+                          </p>
                         )}
                       </div>
-                      <div className="inventory-node-meta">
-                        {toolLabel(node.adapter)!==node.name&&<span>{toolLabel(node.adapter)}</span>}
-                        <span>{node.version || "版本未知"}</span>
-                        <span>{node.status === "version_incompatible" ? "版本不兼容" : node.status === "needs_check" ? "待检查原生 API" : node.connected ? "已接入" : "未接入"}</span>
+                      <div className="inventory-node-status">
+                        <span className="ui-status" data-tone={state.tone}>
+                          {props.configurationOnly&&state.label==='可开始会话'?'可用于协作':state.label}
+                        </span>
+                        {resourceBlocked && <button className="text-btn" title={props.executionReason?.(node.machineId,node.nodeId) || metadataReason || '查看原操作与查询结果'} onClick={()=>machine.daemonMaintenance?.state==='unknown'?props.machineAction(machine,'daemon'):props.openSettings?.()}>原操作待核对 · 查看</button>}
                       </div>
-                      <small>{connectionCapabilitySummary(node)}</small>
-                      <details className="inventory-node-details">
-                        <summary>安装位置</summary>
-                        <code>{node.executable || "未提供安装位置"}</code>
-                      </details>
-                      {(node.error || !sshNodeState(node) && node.lastError) && (
-                        <p className="inventory-node-error" role="status">
-                          {node.error || node.lastError?.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="inventory-node-status">
-                      <span className="ui-status" data-tone={state.tone}>
-                        {props.configurationOnly&&state.label==='可开始会话'?'可用于协作':state.label}
-                      </span>
-                      {resourceBlocked && <button className="text-btn" title={props.executionReason?.(node.machineId,node.nodeId) || metadataReason || '查看原操作与查询结果'} onClick={()=>machine.daemonMaintenance?.state==='unknown'?props.machineAction(machine,'daemon'):props.openSettings?.()}>原操作待核对 · 查看</button>}
-                    </div>
-                    <div className="inventory-node-actions">
-                      {(node.connected && node.status !== "needs_check") ? (
-                        !props.configurationOnly && <button
-                          className="btn small inventory-start"
-                          title={props.executionReason?.(node.machineId,node.nodeId)}
-                          disabled={!canStart}
-                          onClick={() => props.start?.(node)}
-                        >
-                          开始会话
-                          <ArrowUpRight size={14} />
-                        </button>
-                      ) : (
-                        <button
-                          className="btn small"
-                          title={nodeManagementReason||(!node.healthy?'原生工具尚未就绪，请查看节点配置。':'')}
-                          disabled={
-                            nodeManagementLocked ||
-                            !node.healthy ||
-                            (!canExecuteNode(node) && node.status !== "needs_check")
-                          }
-                          onClick={() => props.attach(node.nodeId)}
-                        >
-                          <Plug size={14} />
-                          接入
-                        </button>
-                      )}
-                      <button className="btn small inventory-configure" aria-label={`配置 ${machine.name} / ${node.name}`} title="配置此 Agent" disabled={!props.configure} onClick={()=>props.configure?.(node)}><Pencil size={14}/>配置</button>
-                      <details className="inventory-menu">
-                        <summary
-                          aria-label={`${machine.name} / ${node.name} 的更多操作`}
-                        >
-                          <MoreHorizontal size={18} />
-                        </summary>
-                        <div className="inventory-menu-content">
-                          {node.connected && (
-                            <button
-                              title={nodeManagementReason} disabled={nodeManagementLocked}
-                              onClick={() =>
-                                props.nodeAction(node, "disconnect")
-                              }
-                            >
-                              断开 Agent
-                            </button>
-                          )}
-                          <button
-                            className="inventory-danger"
-                            title={nodeManagementReason} disabled={nodeManagementLocked}
-                            onClick={() => props.nodeAction(node, "remove")}
+                      <div className="inventory-node-actions">
+                        {(node.connected && node.status !== "needs_check") ? (
+                          !props.configurationOnly && <button
+                            className="btn small inventory-start"
+                            title={props.executionReason?.(node.machineId,node.nodeId)}
+                            disabled={!canStart}
+                            onClick={() => props.start?.(node)}
                           >
-                            移除 Agent
+                            开始会话
+                            <ArrowUpRight size={14} />
                           </button>
-                        </div>
-                      </details>
-                    </div>
-                  </article>
-                );
-              })}
-              {!owned.length && (
-                <div className="ui-empty inventory-empty inventory-empty-machine">
-                  <Bot size={24} />
-                  <h3>这台机器还没有 Agent</h3>
-                  <p>
-                    {machine.online
-                      ? "扫描已安装的原生工具，接入后配置 MCP，并从原生 Agent 会话发起工作。"
-                      : "连接这台机器后，扫描已安装的原生工具。"}
-                  </p>
-                </div>
-              )}
+                        ) : (
+                          <button
+                            className="btn small"
+                            title={nodeManagementReason||(!node.healthy?'原生工具尚未就绪，请查看节点配置。':'')}
+                            disabled={
+                              nodeManagementLocked ||
+                              !node.healthy ||
+                              (!canExecuteNode(node) && node.status !== "needs_check")
+                            }
+                            onClick={() => props.attach(node.nodeId)}
+                          >
+                            <Plug size={14} />
+                            接入
+                          </button>
+                        )}
+                        <button className="btn small inventory-configure" aria-label={`配置 ${machine.name} / ${node.name}`} title="配置此 Agent" disabled={!props.configure} onClick={()=>props.configure?.(node)}><Pencil size={14}/>配置</button>
+                        <details className="inventory-menu">
+                          <summary
+                            aria-label={`${machine.name} / ${node.name} 的更多操作`}
+                          >
+                            <MoreHorizontal size={18} />
+                          </summary>
+                          <div className="inventory-menu-content">
+                            {node.connected && (
+                              <button
+                                title={nodeManagementReason} disabled={nodeManagementLocked}
+                                onClick={() =>
+                                  props.nodeAction(node, "disconnect")
+                                }
+                              >
+                                断开 Agent
+                              </button>
+                            )}
+                            <button
+                              className="inventory-danger"
+                              title={nodeManagementReason} disabled={nodeManagementLocked}
+                              onClick={() => props.nodeAction(node, "remove")}
+                            >
+                              移除 Agent
+                            </button>
+                          </div>
+                        </details>
+                      </div>
+                    </article>
+                  );
+                })}
+                {!owned.length && (
+                  <div className="ui-empty inventory-empty inventory-empty-machine">
+                    <Bot size={24} />
+                    <h3>这台机器还没有 Agent</h3>
+                    <p>
+                      {machine.online
+                        ? "扫描已安装的原生工具，接入后配置 MCP，并从原生 Agent 会话发起工作。"
+                        : "连接这台机器后，扫描已安装的原生工具。"}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </section>
         );

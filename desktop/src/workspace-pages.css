@@ -162,6 +162,124 @@
 .workbench .workspace-page .ui-empty-compact h3 {
   font-size: 13px;
 }
+.workbench .execution-audit { container: execution-audit / inline-size; }
+.workbench .execution-audit .audit-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+.workbench .audit-heading .workspace-search { width: min(345px, 100%); }
+.workbench .audit-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 12px 0 20px;
+}
+.workbench .audit-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 4px 3px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.workbench .audit-filters button[aria-pressed="true"] { color: var(--text); border-bottom-color: var(--text); }
+.workbench .audit-filters button:hover { color: var(--text); }
+.workbench .audit-filters button span { font-variant-numeric: tabular-nums; color: var(--secondary); }
+.workbench .audit-records {
+  --audit-columns: minmax(0, 1fr) minmax(105px, .38fr) 106px 108px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+}
+.workbench .audit-record-head, .workbench .workspace-task.audit-record {
+  display: grid;
+  grid-template-columns: var(--audit-columns);
+  align-items: center;
+  column-gap: 18px;
+  padding: 0 18px;
+}
+.workbench .audit-record-head {
+  min-height: 36px;
+  border-radius: 9px 9px 0 0;
+  background: var(--subtle);
+  color: var(--secondary);
+  font-size: 12px;
+}
+.workbench .audit-records ul { list-style: none; margin: 0; padding: 0; }
+.workbench .audit-records li { border-top: 1px solid var(--border); margin: 0; padding: 0; }
+.workbench .workspace-task.audit-record {
+  min-height: 74px;
+  padding-block: 12px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.workbench .audit-records li:last-child .audit-record { border-radius: 0 0 9px 9px; }
+.workbench .workspace-task.audit-record:hover, .workbench .workspace-task.audit-record:focus-visible { background: var(--subtle); }
+.workbench .audit-record:focus-visible { outline-offset: -2px; }
+.workbench .audit-record-body, .workbench .audit-record-target > span { display: grid; gap: 4px; min-width: 0; }
+.workbench .audit-record-body strong, .workbench .audit-record-summary, .workbench .audit-record-target strong, .workbench .audit-record-target small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.workbench .audit-record-body strong { font-size: 14px; font-weight: 600; }
+.workbench .audit-record-summary, .workbench .audit-record-target small, .workbench .audit-record time, .workbench .audit-history {
+  color: var(--secondary);
+  font-size: 12px;
+}
+.workbench .audit-record-target, .workbench .audit-history { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.workbench .audit-record-target > :first-child { flex: none; }
+.workbench .audit-record-target strong { font-size: 13px; font-weight: 500; }
+.workbench .audit-record-state { display: grid; justify-items: start; gap: 4px; }
+.workbench .audit-record-state small { color: var(--warning); font-size: 12px; }
+.workbench .audit-record time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.workbench .audit-record-open { color: var(--secondary); }
+.workbench .audit-empty { padding: 24px; text-align: center; border-block: 1px solid var(--border); }
+.workbench .audit-empty .ui-empty-compact { min-height: 100px; padding: 8px; }
+
+@container execution-audit (max-width: 760px) {
+  .workbench .audit-records { --audit-columns: minmax(0, 1fr) minmax(94px, .4fr) 92px 84px 14px; }
+  .workbench .audit-record-head, .workbench .workspace-task.audit-record { column-gap: 10px; padding-inline: 12px; }
+}
+@container execution-audit (max-width: 570px) {
+  .workbench .audit-heading .workspace-search { width: 100%; }
+  .workbench .audit-filters { gap: 2px 9px; margin-bottom: 12px; }
+  .workbench .audit-record-head { display: none; }
+  .workbench .audit-records li:first-child { border-top: 0; }
+  .workbench .workspace-task.audit-record {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "body state" "target time";
+    gap: 10px;
+    align-items: start;
+  }
+  .workbench .audit-record-body { grid-area: body; }
+  .workbench .audit-record-body strong { white-space: normal; overflow-wrap: anywhere; }
+  .workbench .audit-record-state { grid-area: state; justify-items: end; }
+  .workbench .audit-record-target { grid-area: target; }
+  .workbench .audit-record-target > span { display: flex; align-items: baseline; gap: 5px; }
+  .workbench .audit-record time { grid-area: time; align-self: center; text-align: right; }
+  .workbench .audit-record-open { display: none; }
+}
+
+.workbench .task-audit-origin { margin-bottom: 16px; padding: 12px 14px; background: var(--subtle); border-radius: 8px; }
+.workbench .task-audit-origin .task-audit-mode { margin: 0; padding: 0; border: 0; color: var(--text); }
+.workbench .task-audit-origin dl { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: 6px 0 0; font-size: 12px; }
+.workbench .task-audit-origin dt, .workbench .task-audit-origin p { color: var(--secondary); }
+.workbench .task-audit-origin dd { margin: 0; font-family: "IBM Plex Mono", ui-monospace, monospace; overflow-wrap: anywhere; user-select: all; }
+.workbench .task-audit-origin p { margin: 6px 0 0; font-size: 12px; }
+
 .workbench .workspace-page .ui-empty-compact .ui-empty-icon {
   width: 39px;
   height: 39px;

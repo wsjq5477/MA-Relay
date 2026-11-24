@@ -29,6 +29,8 @@
 
 ## 3. 后续目标与顺序
 
+桌面开发版已更新接入配置和执行审计，可按机器、状态和原请求 ID 找回原任务。[截图与交互验收](iterations/I08/desktop-workbench-20261124.md)
+
 Windows 本机 DSH 候选推进首次委派、同会话续聊、重开恢复及命令审批。当前候选证据见[开发与验收](iterations/I08/windows-dsh-first-use-acceptance.md)，执行顺序与后续功能见[工作计划](iterations/I08/windows-dsh-next-steps.md)。
 
 | 顺序 | 目标与范围 | 完成条件 |

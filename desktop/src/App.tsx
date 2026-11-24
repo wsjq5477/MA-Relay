@@ -2735,7 +2735,18 @@ export function TaskDetail({
               </div>
             </div>
           )}
-          {auditOnly&&<div className="task-audit-mode" role="status"><div><strong>{recovering?"原执行恢复":"只读执行审计"}</strong>{recovering&&<p>仅处理当前任务，不会重发。</p>}</div><button className="text-btn" onClick={()=>{setRecovering(!recovering);setCancelConfirm(false);}}>{recovering?"返回只读审计":"处理这条原执行"}</button></div>}
+          {auditOnly && (
+            <section className="task-audit-origin" aria-label="原执行">
+              <div className="task-audit-mode">
+                <strong role="status">{recovering ? "原执行恢复" : "只读执行审计"}</strong>
+                <button className="text-btn" onClick={() => { setRecovering(!recovering); setCancelConfirm(false); }}>
+                  {recovering ? "返回只读审计" : "处理这条原执行"}
+                </button>
+              </div>
+              <dl><dt>原请求 ID</dt><dd>{task.requestId}</dd></dl>
+              {recovering && <p>仅处理当前任务，不会重发。</p>}
+            </section>
+          )}
           {pendingError && (
             <p className="inline-error">暂时无法读取等待项：{pendingError}</p>
           )}

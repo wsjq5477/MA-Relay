@@ -668,6 +668,24 @@ test("task board preserves waiting and unknown execution without presenting rece
   assert.doesNotMatch(waitingCard.text + unknownCard.text, /已完成|已取消/);
 });
 
+test("execution audit sorts original tasks and distinguishes waiting, unknown, and completed records", () => {
+  const newest = task({taskId: "new-task", message: "新等待任务", status: "running", updatedAt: "2026-11-23T12:00:00Z",
+    waiting: {kind: "permission", summary: "需要确认原工具", requestIds: ["permission-original"]}});
+  const older = task({taskId: "old-task", message: "旧完成任务", status: "succeeded", updatedAt: "2026-11-22T12:00:00Z",
+    result: {message: "已收到原结果"}});
+  const unknown = task({taskId: "unknown-task", message: "中间待核对任务", updatedAt: "2026-11-23T10:00:00Z", status: "unknown", historical: true});
+  const html = render(TasksPage, {
+    auditOnly: true, tasks: [older, newest, unknown], machineName: () => "Windows", nodeFor: () => node(), onOpen: noop, onNew: noop,
+  });
+  const rows = buttons(html).filter(row => row.attributes.includes("audit-record"));
+  assert.equal(rows.length, 3);
+  assert.match(rows[0].text, /新等待任务.*需要确认原工具.*进行中.*等待你处理/);
+  assert.match(rows[1].text, /中间待核对任务.*历史快照.*结果待核对/);
+  assert.match(rows[2].text, /旧完成任务.*已收到原结果.*已完成/);
+  assert.match(plainText(html), /全部3待处理2进行中0已完成1失败或取消0/);
+  assert.doesNotMatch(html, /新建任务|workspace-board/);
+});
+
 test("settings matches original recovery identity across machines and retains its reason and code", () => {
   const html = render(
     SettingsPage,

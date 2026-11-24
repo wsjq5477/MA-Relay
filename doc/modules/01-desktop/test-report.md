@@ -1,5 +1,7 @@
 # M01 桌面交互测试报告
 
+2026-11-24，Windows 本机生产前端、隔离 Coordinator、合成原任务。组件回归 76/76，桌面 TypeScript 检查通过。Chromium 156.0.8078.4 实际按待处理筛选、清空无匹配搜索、大写原请求 ID 与原任务 ID 定位，打开原详情并往返只读/恢复模式。整套工作台 9 组通过，22 张截图覆盖明暗主题和两种窗口尺寸，无页面错误、外部请求或横向溢出，模型调用 0。记录为 `artifacts/current-scope-20261122/visual-20261124/workbench-full/report.json` 和同目录截图；组件日志为 `visual-20261124/audit-ssr.log`。该检查使用编译后的 renderer，公开 EXE 的证据另计。
+
 Windows DSH 原生权限中的命令展示和原任务恢复见[本轮候选包验收](../../iterations/I08/windows-dsh-first-use-acceptance.md)。
 
 2026-11-23，任务审批复用原详情入口，单次允许按原生选项显示为可用。桌面 TypeScript 检查通过，真实窗口操作未测。 [ACP 原操作与验收](../../iterations/I08/acp-permission-reply.md)

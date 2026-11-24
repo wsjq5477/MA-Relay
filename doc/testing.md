@@ -1,5 +1,7 @@
 # 整体测试与验收报告
 
+2026-11-24，桌面接入与执行审计通过生产前端浏览器检查。使用隔离 Coordinator 和合成任务验证搜索、筛选、打开原详情和进入恢复。验收记录附 1440×960 前后截图及深色、紧凑窗口检查。[图文验收](iterations/I08/desktop-workbench-20261124.md)
+
 Windows 本机使用真实 DSH NEXT 原生会话调用 DSH ACP，候选便携包的首次委派、原会话和审批证据见[本轮开发与验收](iterations/I08/windows-dsh-first-use-acceptance.md)。
 
 前一轮源码的 ACP 工具权限经过受控 worker 与 Coordinator 重开回归。该轮 DSH 实机原权限任务在 Bridge 保持 unknown，本轮按原会话日志查得原生认证错误。 [验收和继续核对项](iterations/I08/acp-permission-reply.md)。
