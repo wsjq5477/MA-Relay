@@ -68,6 +68,9 @@ function acpConnection(child, onUpdate, onPermission = (_params, _id, respond) =
       const code = message.error.code === -32000 ? 'ACP_AUTH_REQUIRED' : 'ACP_REJECTED';
       const error = protocolError(code, '原生 ACP 拒绝了 ' + entry.method + '。');
       error.nativeMessage = typeof message.error.message === 'string' ? message.error.message : '';
+      // Hermes Gateway declares this fixed marker only for a committed failed turn.
+      error.hermesTurnFailed = entry.method === 'session/prompt' && message.error.code === -32603
+        && message.error.data?.details === 'admitted_turn_failed';
       entry.reject(error);
     } else {
       entry.resolve(message.result);
@@ -268,7 +271,7 @@ const permissionActions = new Map([
 async function run(job, directory, { write, safe, launchNative = launchAcp }) {
   const emit = event => fs.appendFileSync(path.join(directory, 'events.jsonl'), JSON.stringify(event) + '\n', { mode: 0o600 });
   const beat = () => write(path.join(directory, 'heartbeat.json'), { time: new Date().toISOString(), pid: process.pid });
-  let sessionId, connection, dispatched = false, answer = '', answerBytes = 0, oversized = false;
+  let sessionId, connection, agentName, dispatched = false, answer = '', answerBytes = 0, oversized = false;
   let controlPoll, cancelDeadline, outcome, promptSettled = false;
   const permissions = permissionRequests(directory, {emit, safe, write, adapter:job.adapter});
   const cancellationRequested = () => fs.existsSync(path.join(directory, 'cancel.json'));
@@ -296,6 +299,7 @@ async function run(job, directory, { write, safe, launchNative = launchAcp }) {
     }, (params, id, respond) => permissions.request(params, id, respond,
       dispatched && !promptSettled && params?.sessionId === sessionId && !cancellationRequested()));
     const info = await initialize(connection);
+    agentName = info.agentInfo?.name;
     const request = { cwd: job.workspace, mcpServers: [] };
     if (job.sessionId) {
       const method = resumeMethod(info);
@@ -350,7 +354,10 @@ async function run(job, directory, { write, safe, launchNative = launchAcp }) {
     }
   } catch (error) {
     const missingKey = job.adapter === 'dsh-acp' && /^llm-deepseek: no API key for provider route\b/.test(error.nativeMessage || '');
-    if (dispatched && !missingKey) {
+    if (dispatched && job.adapter === 'acp' && agentName === 'hermes-agent' && error.hermesTurnFailed === true) {
+      outcome = { kind: 'terminal', status: 'failed', code: 'HERMES_ACP_TURN_FAILED',
+        text: 'Hermes 已确认原任务失败。请在原生 Hermes 中核对模型连接与运行日志。' };
+    } else if (dispatched && !missingKey) {
       const reason = originalPromptLoss.get(error.code) || '原生 ACP 原执行无法继续观察';
       outcome = {kind:'unknown', text:reason + '，尚无可确认的终态；保留原请求，不重新派发。'};
     } else {

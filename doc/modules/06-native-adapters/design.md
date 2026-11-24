@@ -1,5 +1,7 @@
 # M06 原生 Agent 适配器设计
 
+通用 ACP 仅在 Hermes 握手及原 prompt 明确给出已确认失败标记时报告 `HERMES_ACP_TURN_FAILED`。原生诊断细节留在 Hermes 日志，桌面返回模型与原生日志排查提示。[Windows 验收](../../iterations/I08/windows-second-acp-acceptance.md)
+
 M06-F01：DSH ACP 与 headless 各有独立协议和节点。ACP worker 启动包内 `--profile acp`，声明基本客户端能力并按握手协商原 Session 恢复。模型与凭据由原生 Profile 读取。Bridge 已有原任务工具权限回复，MCP 注入暂未开放。[DSH ACP](../../iterations/I08/dsh-acp.md)
 
 自定义 ACP 与 DSH ACP 共用 v1 stdio Worker。自定义运行时由用户提供固定命令，只运行已注册的可执行程序，连接时声明基本客户端能力。`session/resume` 和 `session/load` 按握手协商，`session/prompt` 仅接收同一会话的文字更新。模型配置保留在 Agent。共享 worker 读取原生权限询问，匹配原 prompt 和同一 Session。明确的单次选择在原 JSON-RPC 请求上提交一次，任务终态读取原 prompt。DSH 把 PowerShell 和 Bash 报为通用工具类型，worker 仍按执行命令处理。完整命令来自原工具更新。缺少或无法完整展示命令时只可拒绝。[ACP 工具权限](../../iterations/I08/acp-permission-reply.md)。[通用 ACP](../../iterations/I08/acp-stdio-runtimes.md)

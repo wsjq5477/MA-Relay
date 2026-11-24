@@ -70,7 +70,7 @@ flowchart LR
 | Claude Code | 保留CLI执行＋MCP调用方 | 按当前原生版本验证需要的权限/输入类型、取消与恢复；有确切缺口再比较原生控制接口或SDK | 为了列数齐全改成SDK/插件；把生态ACP包装器算成当前官方原生接入 |
 | Codex | 保留exec/resume JSON＋MCP调用方 | 先验当前原生Session/取消/原请求恢复；若需要更强交互，比较原生交互API和ACP生态包装器的实际行为 | 用模型SDK重建用户Agent；用新Thread替代失败的原Session续聊 |
 | OpenCode | 保留CLI启动serve＋原生HTTP＋MCP | 需要 ACP 时另建自定义运行时 `opencode acp`，握手后确认可用能力 | 在不同接口之间替换原 Session |
-| Hermes | 保留结构化 CLI，亦可通过 `hermes acp` 注册自定义 ACP | Windows ACP 已验注册、新建与原 Session 恢复，模型调用 0。专用 CLI 与原生 MCP 的证据分别核对 | 把握手成功计为模型成功，或用关闭 CLI 代替取消网关任务 |
+| Hermes | 保留结构化 CLI，亦可通过 `hermes acp` 注册自定义 ACP | Windows Hermes ACP 0.22.5 已验真实任务、原 Session 续聊、重开查询和取消。[实测](iterations/I08/windows-second-acp-acceptance.md) | 把握手成功计为模型成功，或用关闭 CLI 代替取消网关任务 |
 | Pi | 保留JSON/print及原Session文件绑定 | 先补真实生命周期；需要双向交互时比较目标版本的原生RPC，按缺口决定是否开发 | 仅增加标志就假定RPC/ACP可用；原文件缺失时新建空Session冒充续聊 |
 | DSH CLI 与 DSH NEXT | 选择 headless CLI 或 Windows DSH ACP，使用对应原生 Profile 的模型配置 | 独立 MCP 按调用方 Profile 配置。Windows ACP 的真实两轮与取消已有记录，工具权限另按所用 Bridge 版本核对 | 将某个 Profile 的账号、会话或授权直接套用到另一个 Profile |
 | DSH Desktop / Web | 保留原生认证API，与CLI分别归属 | 先连接当前用户原服务，补真实模型/原Session/取消/原请求恢复；需要MCP时另验原生支持与配置入口 | 为了统一界面切换成headless；将服务连接token当成模型密钥；把原生业务插件算作Bridge插件 |

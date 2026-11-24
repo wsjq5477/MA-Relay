@@ -1,5 +1,7 @@
 # M07 任务、会话、交互控制与恢复设计
 
+Hermes ACP 原轮收到已确认失败时，记录在原 Task 及原事件上。未收到明确终态的旧记录继续用原请求 ID 核对。查看结果、取消收据和恢复绑定沿用原任务协议。[Windows Hermes ACP 验收](../../iterations/I08/windows-second-acp-acceptance.md)
+
 ACP 工具权限用现有 `waiting` 与回复收据。原任务终态和断连清除可操作等待。Task 结束不会把未知的回复收据改为已确认，原回复只按 operationId 查询。任务详情保留可公开的原生异常类别或观察超时原因。[ACP 工具权限](../../iterations/I08/acp-permission-reply.md)
 
 DSH ACP 派发前持久化原请求与原生 Session，续聊核对原安装、工作目录和 DSH 数据目录。断连与未知终态继续占用原执行，按原 ID 查询。取消收据与原 prompt 的取消终态分别核对。[DSH ACP](../../iterations/I08/dsh-acp.md)

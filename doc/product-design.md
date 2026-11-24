@@ -6,6 +6,8 @@
 
 Windows DSH NEXT 新增独立的 DSH ACP 入口，使用包内原生 ACP v1 stdio。支持直接会话、普通被委派、流式正文、原会话续聊及取消；恢复绑定沿用原工作目录和原生账号配置。[DSH ACP 实现与验收](iterations/I08/dsh-acp.md)
 
+自定义 ACP 可显示 Hermes Gateway 已确认的原任务失败。原生端缺少确认时仍可按原请求核对。[Windows Hermes ACP 验收](iterations/I08/windows-second-acp-acceptance.md)
+
 「添加 Agent → 自定义运行时」支持注册目标机上的 ACP v1 stdio Agent。注册只握手，执行由原生 Agent 和原生账号负责。文字流和普通委派沿用原任务，取消以原请求终态为准，续聊按原生握手能力开放。[接入方式](user/agents/index.md#连接其他-acp-agent)
 
 公开预发布 `8b69f71` 收到 ACP 工具权限询问时返回取消。本地 `master` 的 `ac393cf` 增加原任务上的拒绝与单次允许，可按原操作 ID 查询答复。本机 DSH NEXT 已从原生会话触发 DSH ACP 工具审批。原生 PowerShell 和 Bash 即使报告通用工具类型，命令完整显示时才开放单次允许。[Windows 候选包验收](iterations/I08/windows-dsh-first-use-acceptance.md)

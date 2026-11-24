@@ -19,7 +19,7 @@ let prompt;
 readline.createInterface({input:process.stdin}).on('line',line=>{
   const m=JSON.parse(line);
   fs.appendFileSync(capture,line+'\\n');
-  if(m.method==='initialize') send({id:m.id,result:{protocolVersion:1,agentCapabilities:mode==='load'?{loadSession:true}:mode==='no-resume'?{}:{sessionCapabilities:{resume:{},close:{}}}}});
+  if(m.method==='initialize') send({id:m.id,result:{protocolVersion:1,agentInfo:{name:mode.startsWith('hermes-')?'hermes-agent':'fixture-agent'},agentCapabilities:mode==='load'?{loadSession:true}:mode==='no-resume'?{}:{sessionCapabilities:{resume:{},close:{}}}}});
   if(m.method==='session/load') send({id:m.id,result:null});
   if(m.method==='session/new') {
     if(mode==='auth')send({id:m.id,error:{code:-32000,message:'Authentication required'}});
@@ -28,6 +28,10 @@ readline.createInterface({input:process.stdin}).on('line',line=>{
   if(m.method==='session/resume') send({id:m.id,result:mode==='wrong-session'?{sessionId:'foreign'}:{}});
   if(m.method==='session/prompt'){
     if(mode==='lost') process.exit(0);
+    if(mode==='hermes-failed'||mode==='other-agent-error'||mode==='hermes-ambiguous') {
+      send({id:m.id,error:{code:-32603,message:'Internal error',data:{details:mode==='hermes-ambiguous'?'unknown_admission':'admitted_turn_failed'}}});
+      return;
+    }
     function update(sessionId,text) {
       send({method:'session/update',params:{sessionId,update:{sessionUpdate:'agent_message_chunk',content:{type:'text',text}}}});
     }
@@ -61,7 +65,7 @@ readline.createInterface({input:process.stdin}).on('line',line=>{
 });
 `);
   const workspace = fs.realpathSync(dir);
-  const generic=['load','no-resume','auth'].includes(mode);
+  const generic=['load','no-resume','auth','other-agent-error'].includes(mode)||mode.startsWith('hermes-');
   const job = { adapter:generic?'acp':'dsh-acp', profile:generic?'acp-stdio-v1':'desktop-acp-stdio-v1',requestId:'original-request', workspace, dshHome:workspace, executable:'native-dsh', message:'original prompt', sessionId };
   const wire = () => fs.readFileSync(capture,'utf8').trim().split('\n').map(JSON.parse);
   const eventFile = path.join(dir,'events.jsonl');
@@ -109,6 +113,22 @@ test('DSH ACP holds a disconnected prompt as unknown with one original send', as
   assert.equal(f.events().at(-1).kind, 'unknown');
   assert.match(f.events().at(-1).text,/原生 ACP 通道已断开/);
   assert.equal(f.events().some(row => row.kind === 'terminal'), false);
+});
+
+test('only an explicit Hermes ACP failed turn settles as failed', async t => {
+  for (const mode of ['hermes-failed', 'hermes-ambiguous', 'other-agent-error']) {
+    const f = fixture(t, mode);
+    await f.execute();
+    assert.equal(f.wire().filter(row => row.method === 'session/prompt').length, 1);
+    const outcome = f.events().at(-1);
+    if (mode === 'hermes-failed') {
+      assert.equal(outcome.kind, 'terminal');
+      assert.equal(outcome.status, 'failed');
+      assert.equal(outcome.code, 'HERMES_ACP_TURN_FAILED');
+    } else {
+      assert.equal(outcome.kind, 'unknown');
+    }
+  }
 });
 
 test('DSH ACP declines unsolicited permission and waits for the original cancel terminal', async t => {

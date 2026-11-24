@@ -30,6 +30,6 @@
 
 | 优先顺序 | 工作 | 完成标志 |
 | --- | --- | --- |
-| 接着做 | **扩展有证据的 ACP 支持。** Windows OpenCode 和 Hermes 已验证握手、新建和原 Session 恢复。按实际使用需求先选一个，补真实任务、续聊和可用的控制操作。 | 在支持表写明目标版本、完成的操作和限制；其余启动命令继续保留各自的验证状态。[ACP 清单](../../user/agents/index.md#连接其他-acp-agent) |
+| 已验收 | **扩展有证据的 ACP 支持。** 选用 Windows Hermes 0.22.5，已核对真实任务、原 Session 续聊、原请求恢复与取消。 | 已更新支持表。OpenCode ACP 仍记录在原注册、新建与原会话恢复的范围。[Windows Hermes 验收](windows-second-acp-acceptance.md) · [ACP 清单](../../user/agents/index.md#连接其他-acp-agent) |
 | 跨机承诺前 | **验证 WSL 和一台真实 SSH 目标。** 覆盖目标目录、断线后查询原任务、撤权后可见范围。对需要复用已运行 OpenCode 服务的用户，另核对登记端点、服务归属及升级后的原绑定。 | 每种环境各有一份真实任务记录，能定位究竟在哪台机器执行、断线后如何取回原结果。[项目路线](../../project-plan.md) |
 | 有任务需要时 | **补 ACP 结构化表单、文件或终端能力。** 先用一个确实受阻的 Agent 明确它需要哪种交互，再实现该项并做原生验收。 | 至少一条此前受阻的用户任务走通。Attach、Steer、Memory、Profiles 与插件宿主继续按需求另立项。[产品约束](../../product-constraints.md) |

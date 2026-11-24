@@ -1,5 +1,7 @@
 # M07 任务、会话与恢复测试报告
 
+2026-11-24，实机 Hermes ACP 调用方按原客户端请求 ID 查回原结果；重开后续聊使用原 Session，取消收据与原任务终态各自核对。原生明确失败也可通过原任务查回。含糊响应保持待核对的行为通过受控回归。[实机验收](../../iterations/I08/windows-second-acp-acceptance.md)
+
 2026-11-23，受控回归覆盖回复跨重开、原操作查回、原绑定拒绝和任务终态观察。原 Task 与回复收据分别核对。 [ACP 原操作与验收](../../iterations/I08/acp-permission-reply.md)
 
 2026-11-23 通用 ACP。受控下游覆盖同一原生 Session 加载、异会话更新隔离、取消终态和断线后禁止重放。 [本轮记录](../../iterations/I08/acp-stdio-runtimes.md)

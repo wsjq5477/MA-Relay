@@ -72,7 +72,7 @@ Claude Code 和 Codex 的专用入口使用原生 CLI，也可另装 ACP 适配�
 | --- | --- | --- | --- |
 | DSH / DeepSeek Harness | `dsh --profile acp` | [DSH ACP](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/bundle/acp-app/README.md) · Windows DSH NEXT 也有独立入口 | Windows 新建、续聊和真实任务 |
 | OpenCode | `opencode acp` | [OpenCode ACP](https://opencode.ai/docs/cli/acp/) | Windows 注册、新建、续聊 |
-| Hermes Agent | `hermes acp`，或发行版提供的 `hermes-acp` | [Hermes ACP](https://hermes-agent.nousresearch.com/docs/user-guide/features/acp) · 新版本会话由原生 Gateway 持有，运行前需配置默认模型 | Windows 注册、新建、续聊 |
+| Hermes Agent | `hermes acp`，或发行版提供的 `hermes-acp` | [Hermes ACP](https://hermes-agent.nousresearch.com/docs/user-guide/features/acp) · 新版本会话由原生 Gateway 持有，运行前需配置默认模型 | Windows 0.22.5 实测任务、同 Session 续聊、原请求查询、取消 |
 | Grok Build | `grok agent stdio` | [xAI Agent Mode](https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-pager/docs/user-guide/15-agent-mode.md) | 待实机验证 |
 | Qwen Code | `qwen --acp` | [Qwen Code](https://github.com/QwenLM/qwen-code) | 待实机验证 |
 | Devin | `devin acp` | [ACP Registry](https://agentclientprotocol.com/get-started/registry) | 待实机验证 |

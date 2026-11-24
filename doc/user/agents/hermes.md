@@ -1,6 +1,10 @@
 # Hermes
 
-支持 ACP 的版本也可在[自定义 ACP](index.md#连接其他-acp-agent)填写 `hermes acp`。Hermes 新版 ACP 会话由原生 Gateway 持有，请先在 Hermes 配置默认模型并确认 Gateway 已就绪。以下内容介绍专用 CLI 入口。
+支持 ACP 的版本也可在[自定义 ACP](index.md#连接其他-acp-agent)填写 `hermes acp`。Hermes 新版 ACP 会话由原生 Gateway 持有。请先在 Hermes 配置默认模型并确认 Gateway 已就绪。使用本机 Ollama 时需要核对实际服务的上下文窗口，Hermes 要求至少 64K。[Hermes 本地模型配置](https://hermes-agent.nousresearch.com/docs/guides/local-ollama-setup)
+
+Windows Hermes ACP 0.22.5 支持接收委派、按同一原生 Session 续聊及取消。恢复时沿用原请求 ID。使用 ACP 取消时，以原任务最终状态为准。
+
+以下内容介绍专用 CLI 入口。
 
 Bridge桌面提供配置、审计和原执行恢复；本页列出的执行/续聊等是后台适配能力。日常需求从原生Agent会话提出，或由获准主Agent委派。
 
@@ -22,7 +26,7 @@ Windows会在PATH之外检查`%LOCALAPPDATA%/hermes/bin/hermes.exe`及`HERMES_HO
 
 安装和版本发现不等于原生账号、模型及具体环境已经可用。首次连接先确认实际任务与续聊行为，再用于跨机器工作。配置仍在 Hermes 侧维护。
 
-Hermes提示等待审批或补充输入、查看器已分离时，请回到同一个Hermes原生会话处理；退出查看器不代表后台任务结束。保留Bridge原请求并查询原状态，不换ID重发。当前源码已补齐这类退出的待核对保护，公开alpha.67尚未包含该修复。
+Hermes提示等待审批或补充输入、查看器已分离时，请回到同一个Hermes原生会话处理；退出查看器不代表后台任务结束。保留Bridge原请求并查询原状态，不换ID重发。专用 CLI 遇到这类退出时会保留原任务，供后续核对。
 
 当前源码另可在所选启动进程明确未启动时显示启动失败；先修复原安装，再另行发起需求，查询旧请求仍返回原失败，不自动重试。已经启动但结果不明的任务继续保留待核对。此修复尚未包含在公开alpha.67中。
 

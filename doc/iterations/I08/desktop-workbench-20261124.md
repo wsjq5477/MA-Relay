@@ -24,3 +24,7 @@
 - 生产前端通过 9 组浏览器检查并输出 22 张图，覆盖明暗主题、1440×960、980×660、各主要页面和关系图。未观察到页面异常、外部请求或横向溢出。可读性抽样均达到 4.5:1。
 - 按「待处理」找到结果待核对记录，通过大写原请求 ID 和原任务 ID 分别定位记录。进入原执行恢复后返回只读状态。机器搜索、清空回焦、配置弹窗、侧栏折叠记忆均有浏览器断言。审计夹具模型调用数为 0。
 - 桌面组件回归 76/76，TypeScript 检查通过。原始浏览器报告为本机 `artifacts/current-scope-20261122/visual-20261124/workbench-full/report.json`。[浏览器检查脚本](../../../desktop/scripts/check-workbench-design.cjs) · [M01 测试记录](../../modules/01-desktop/test-report.md)
+
+## Windows 本地便携包
+
+本地包为 `0.6.0-alpha.76.local.20261124.workbench`，588,303,904 字节，SHA-256 为 `899221509996110b5174a1948a990b73257db095b1aea26d80030f6baa0f2719`。校对 ASAR 内 9 个前端资源，及桌面包和后台副本两个 ACP worker 均与本轮构建输入一致。便携版完成解包并打开新版窗口。隔离 Profile 首次启动出现 `PRIVATE_DIRECTORY_TIMEOUT`。手动重连后读到新版版本号、本机和 WSL 的 Agent 列表，状态恢复为「自动同步」。实窗证据在本机 `visual-20261124/shots/portable-connected.png`。上文对照图使用生产前端和隔离 Coordinator。

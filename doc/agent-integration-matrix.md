@@ -28,7 +28,7 @@ MCP 接入不自动赋予 Bridge 启动或取消该外部 Agent 的能力；被 
 
 ## 2. 每个 Agent 已接入的方式
 
-每行描述该入口本身使用的协议。OpenCode 和 Hermes 的专用入口分别使用 HTTP 和 CLI，在 Windows 上也已通过「自定义 ACP」注册、新建及恢复原 Session。其他产品的 ACP 启动命令和实测情况见[逐产品 ACP 表](user/agents/index.md#连接其他-acp-agent)。
+每行描述一个已登记的运行时入口。OpenCode 和 Hermes 的专用入口分别使用 HTTP 和 CLI。两者也可使用「自定义 ACP」。Windows Hermes 0.22.5 已验证真实任务、原 Session 续聊、原请求恢复与取消。OpenCode ACP 实测覆盖注册、新建和原会话恢复。[Hermes ACP 验收](iterations/I08/windows-second-acp-acceptance.md) · [逐产品 ACP 表](user/agents/index.md#连接其他-acp-agent)
 
 | Agent / 入口 | 原生 CLI | 原生 API | MCP | ACP | 插件 | 厂家 SDK |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -88,7 +88,7 @@ Hermes/Pi/DSH 的重要区别：`hostManagedTask=false` 阻止的是作用域/MC
 | Bridge 结构化输入表单 | AskUserQuestion 当前拒绝 | 已实现受支持类型 | 未适配 | 未适配 |
 | 取消与终态核对 | 已实现，有限定真实证据 | 已实现，有限定真实证据 | 进程树/进程组控制已实现，覆盖见报告 | Hermes网关取消未适配，false；Pi/DSH原实现与证据保留 |
 | 原请求持久查询与 unknown 保护 | 已实现 | 已实现 | 已实现 | 已实现 |
-| ACP 接入路径 | 自定义 ACP，需另装适配器，待实机验证 | 自定义 `opencode acp`，Windows 已验原会话新建与恢复 | 自定义 ACP，需另装适配器，待实机验证 | DSH ACP 有专用入口；Hermes 自定义 ACP 已在 Windows 验证新建与恢复；Pi 自定义 ACP 需另装适配器，待实机验证 |
+| ACP 接入路径 | 自定义 ACP，需另装适配器，待实机验证 | 自定义 `opencode acp`，Windows 已验原会话新建与恢复 | 自定义 ACP，需另装适配器，待实机验证 | DSH ACP 有专用入口；Hermes 自定义 ACP 0.22.5 已在 Windows 验证真实任务、原 Session 续聊、取消和原请求读取；Pi 自定义 ACP 需另装适配器，待实机验证 |
 
 当前经典 MCP 提供十个工具：`delegate` 默认新建子会话，可传原 `conversationId` 继续同一调用身份拥有的原会话；须目标当前授权、上一轮明确终态及原宿主可续聊，不接受目录变更。新托管父执行不能接管旧父委派；独立接入仍按原 connectionId 归属。已有续聊不等于运行中任意消息注入或任务订阅，也没有父完整历史复制。[当前实现与证据边界](iterations/I08/web-agent-development.md)。TeamSpace 的公共材料与原生 Agent 私有对话仍分开；既有原生父模型证据见相应入口的验收记录。
 
